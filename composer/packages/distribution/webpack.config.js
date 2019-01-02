@@ -1,13 +1,5 @@
 const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-
-const ExtractDefaultThemeCSS = new ExtractTextPlugin({
-    filename: (getPath) => {
-        return getPath('themes/ballerina-default.css').replace('themes/js', 'css');
-    },
-    allChunks: true
-});
 
 module.exports = {
     entry: {
@@ -21,10 +13,6 @@ module.exports = {
         libraryTarget: 'umd'
     },
     resolve: {
-        alias: {
-            '../../theme.config$': path.join(
-                __dirname, 'node_modules/@ballerina/theme/src/themes/default/theme.config')
-        },
         extensions: ['.tsx', '.ts', '.js', '.json']
     },
     module: {
@@ -33,38 +21,23 @@ module.exports = {
                 use: ['style-loader', 'css-loader']
             },
             {
-                use: ExtractDefaultThemeCSS.extract({
-                    use: [
-                        {
-                            loader: 'css-loader', options: {
-                            sourceMap: true
-                            }
-                        },
-                        {
-                            loader: 'less-loader', options: {
-                            sourceMap: true
-                            }
-                        }
-                    ]
-                }),
-                test: /(themes).default.*\.less$/,
-            },
-            {
                 exclude: /(themes).*\.less/,
                 test: /\.less$/,
                 use: [
-                        'style-loader', 
-                        {
-                            loader: 'css-loader', options: {
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
                             sourceMap: true
-                            }
-                        },
-                        {
-                            loader: 'less-loader', options: {
-                            sourceMap: true
-                            }
                         }
-                    ]
+                    },
+                    {
+                        loader: 'less-loader',
+                        options: {
+                            sourceMap: true
+                        }
+                    }
+                ]
             },
             {
                 test: /\.(png|jpg|svg|cur|gif|eot|svg|ttf|woff|woff2)$/,
@@ -82,9 +55,6 @@ module.exports = {
             }
         ]
     },
-    plugins: [
-        ExtractDefaultThemeCSS
-    ],
     watchOptions: {
         ignored: /(node_modules|build)/
     },

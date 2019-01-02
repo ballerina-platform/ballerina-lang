@@ -10,14 +10,15 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "build": "",
-    "test": "",
-    "test-coverage": "",
-    "watch": ""
+    "test": "echo \"Error: no test specified\"",
+    "test-coverage": "echo \"Error: no test specified\"",
+    "build": "node scripts/build-theme.js",
+    "watch": "echo \"Error: no watch specified\""
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
     "watch": "^1.0.2"
   },
   "dependencies": {
