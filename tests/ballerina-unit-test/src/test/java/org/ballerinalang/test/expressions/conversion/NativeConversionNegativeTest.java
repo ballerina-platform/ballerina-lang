@@ -128,8 +128,8 @@ public class NativeConversionNegativeTest {
 
     @Test
     public void testTypeCheckingRecordToMapConversion() {
-        BAssertUtil.validateError(negativeCompileResult, 6, "incompatible types: 'Person2' cannot be converted to "
-                + "'map<int>'", 66, 12);
+        BAssertUtil.validateError(negativeCompileResult, 5, "incompatible types: 'Person2' cannot be converted to "
+                + "'map<int>'", 92, 12);
     }
 
     @Test
