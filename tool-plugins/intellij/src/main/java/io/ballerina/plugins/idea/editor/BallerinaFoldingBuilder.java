@@ -28,7 +28,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 
+import io.ballerina.plugins.idea.psi.BallerinaCallableUnitBody;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
@@ -54,6 +56,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         buildImportFoldingRegion(descriptors, root);
         buildObjectFoldingRegions(descriptors,root);
         buildRecordFoldingRegions(descriptors,root);
+        buildFunctionFoldRegions(descriptors,root);
     }
 
     private void buildImportFoldingRegion(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
@@ -86,7 +89,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 continue;
             }
             // Add folding descriptor.
-            addFoldingDescriptor(descriptors, objectDefinition, objectBody);
+            addFoldingDescriptor(descriptors, objectDefinition, objectBody, true);
         }
     }
 
@@ -101,21 +104,45 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 continue;
             }
             // Add folding descriptor.
-            addFoldingDescriptor(descriptors, recordDefinition, recordBody);
+            addFoldingDescriptor(descriptors, recordDefinition, recordBody, true);
+        }
+    }
+
+    private void buildFunctionFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        // Get all function nodes.
+        Collection<BallerinaFunctionDefinition> functionNodes = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaFunctionDefinition.class);
+        for (BallerinaFunctionDefinition functionNode : functionNodes) {
+            // Get the function body. This is used to calculate the start offset.
+            BallerinaCallableUnitBody callableUnitBodyNode = PsiTreeUtil.getChildOfType(functionNode,
+                    BallerinaCallableUnitBody.class);
+            if (callableUnitBodyNode == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, functionNode, callableUnitBodyNode, false);
         }
     }
 
     private void addFoldingDescriptor(@NotNull List<FoldingDescriptor> descriptors, PsiElement node,
-            PsiElement bodyNode) {
-        // Sometimes the body node might start with a comment node.
-        PsiElement prevSibling = bodyNode.getPrevSibling();
-        while (prevSibling != null && (prevSibling instanceof PsiComment
-                || prevSibling instanceof PsiWhiteSpace)) {
-            prevSibling = prevSibling.getPrevSibling();
+            PsiElement bodyNode, boolean includePrevious) {
+
+        PsiElement startNode;
+
+        if (includePrevious) {
+            PsiElement prevSibling = bodyNode.getPrevSibling();
+            // Sometimes the body node might start with a comment node.
+            while (prevSibling != null && (prevSibling instanceof PsiComment || prevSibling instanceof PsiWhiteSpace)) {
+                prevSibling = prevSibling.getPrevSibling();
+            }
+            startNode = prevSibling;
+        } else {
+            startNode = bodyNode;
         }
-        if (prevSibling != null) {
+
+        if (startNode != null) {
             // Calculate the start and end offsets.
-            int startOffset = prevSibling.getTextRange().getStartOffset();
+            int startOffset = startNode.getTextRange().getStartOffset();
             int endOffset = node.getTextRange().getEndOffset();
             // Add the new folding descriptor.
             descriptors.add(new NamedFoldingDescriptor(node, startOffset, endOffset, null, "{...}"));
