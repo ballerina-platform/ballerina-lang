@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.streaming;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -37,18 +38,19 @@ public class BallerinaStreamsV2FilterTest {
 
     private CompileResult result;
     private CompileResult resultWithAlias;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-filter-test.bal");
         resultWithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-filter-test.bal");
+        resultNegative =
+                BCompileUtil.compile("test-src/streaming/negative/streamingv2-filter-negative-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
@@ -65,7 +67,6 @@ public class BallerinaStreamsV2FilterTest {
     @Test(description = "Test filter streaming query")
     public void testFilterQueryWithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
@@ -77,5 +78,12 @@ public class BallerinaStreamsV2FilterTest {
         Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 45);
         Assert.assertEquals(employee1.get("name").stringValue(), "Shareek");
         Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 50);
+    }
+
+    @Test(description = "Test streaming query when undefined stream is present with alias")
+    public void testUndefinedStreamVariableNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        BAssertUtil.validateError(resultNegative, 0,
+                "undefined symbol 'inStream'", 35, 14);
     }
 }

@@ -11,10 +11,9 @@ type RequestCount record {
 };
 
 stream<ClientRequest> requestStream = new;
+stream<RequestCount> requestCountStream = new;
 
 function initRealtimeRequestCounter() returns () {
-
-    stream<RequestCount> requestCountStream = new;
 
     // Whenever the `requestCountStream` stream receives an event from the streaming rules defined in the `forever` block,
     // the `printRequestCount` function is invoked.
@@ -26,8 +25,8 @@ function initRealtimeRequestCounter() returns () {
     // The processing happens asynchronously each time the `requestStream` receives an event.
     forever {
         from requestStream window timeBatch(10000)
-        select host, count(host) as count
-            group by host
+        select requestStream.host, count() as count
+            group by requestStream.host
             having count > 6
         => (RequestCount[] counts) {
         // `counts` is the output of the streaming rules and is published to the `requestCountStream`.

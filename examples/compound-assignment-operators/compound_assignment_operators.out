@@ -1,0 +1,14 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
+$ ballerina run compound_assignment_operators.bal
+initial value: 1
+add: 8
+subtract: 6
+divide: 2
+multiply: 4
+and: 4
+or: 7
+xor: 2
+left shift: 4
+right shift: 2
+logical shift: 1

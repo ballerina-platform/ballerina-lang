@@ -38,13 +38,12 @@ public class PatternTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/pattern-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/pattern-streaming-test.bal", true);
     }
 
     @Test(description = "Test pattern streaming query with followed by pattern")
     public void testPatternQuery1() {
         BValue[] tempDifferences = BRunUtil.invoke(result, "runPatternQuery1");
-
         Assert.assertNotNull(tempDifferences);
         Assert.assertEquals(tempDifferences.length, 1);
         BMap<String, BValue> tempDifference = (BMap<String, BValue>) tempDifferences[0];
@@ -54,7 +53,6 @@ public class PatternTest {
     @Test(description = "Test pattern streaming query with 'Or'")
     public void testPatternQuery2() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery2");
-
         Assert.assertNotNull(roomActions);
 
         BMap<String, BValue> tempDifference = (BMap<String, BValue>) roomActions[0];
@@ -64,7 +62,6 @@ public class PatternTest {
     @Test(enabled = false, description = "Test pattern streaming query with 'And'")
     public void testPatternQuery3() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery3");
-
         Assert.assertNotNull(roomActions);
 
         BMap<String, BValue> tempDifference = (BMap<String, BValue>) roomActions[0];
@@ -74,7 +71,6 @@ public class PatternTest {
     @Test(enabled = false, description = "Test pattern streaming query with 'Not' and 'And'")
     public void testPatternQuery4() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery4");
-
         Assert.assertNotNull(roomActions);
 
         BMap<String, BValue> tempDifference = (BMap<String, BValue>) roomActions[0];
@@ -84,7 +80,6 @@ public class PatternTest {
     @Test(description = "Test pattern streaming query with 'Not' and 'For'")
     public void testPatternQuery5() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery5");
-
         Assert.assertNotNull(roomActions);
 
         BMap<String, BValue> tempDifference = (BMap<String, BValue>) roomActions[0];
@@ -94,7 +89,6 @@ public class PatternTest {
     @Test(description = "Test pattern streaming query with within clause")
     public void testPatternQuery6() {
         BValue[] tempDifferences = BRunUtil.invoke(result, "runPatternQuery6");
-
         Assert.assertNotNull(tempDifferences);
         Assert.assertEquals(0, tempDifferences.length);
     }

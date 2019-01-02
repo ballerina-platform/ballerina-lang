@@ -15,9 +15,8 @@ function startService() {
 function testFunc() returns error? {
     // Invoking the main function
     http:Client httpEndpoint = new("http://localhost:9090", config = {
-        followRedirects: { enabled: true, maxCount: 5 }
+            followRedirects: { enabled: true, maxCount: 5 }
     });
-
     // Check whether the server is started
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 

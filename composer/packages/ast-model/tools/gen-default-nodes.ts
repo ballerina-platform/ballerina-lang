@@ -34,12 +34,14 @@ function genDefaultNodes() {
         const defaultForeachPath = path.join(DEFAULT_NODES_PATH, "foreach.json");
         const defaultEndpointPath = path.join(DEFAULT_NODES_PATH, "endpoint.json");
         const defaultWorkerPath = path.join(DEFAULT_NODES_PATH, "worker.json");
+        const implicitReturnPath = path.join(DEFAULT_NODES_PATH, "implicitReturn.json");
 
         let ifAST = {};
         let whileAST = {};
         let foreachAST = {};
         let endpointAST = {};
         let workerAST = {};
+        let returnAST = {};
         const fBody = (ast.topLevelNodes[6] as BallerinaFunction).body;
         if (fBody) {
             ifAST = fBody.statements[0];
@@ -47,6 +49,7 @@ function genDefaultNodes() {
             foreachAST = fBody.statements[3];
             endpointAST = fBody.statements[4];
             workerAST = fBody.statements[5];
+            returnAST = fBody.statements[6];
         }
 
         fs.writeFileSync(defaultIfPath, JSON.stringify(ifAST, null, 2) + "\n");
@@ -54,6 +57,7 @@ function genDefaultNodes() {
         fs.writeFileSync(defaultForeachPath, JSON.stringify(foreachAST, null, 2) + "\n");
         fs.writeFileSync(defaultEndpointPath, JSON.stringify(endpointAST, null, 2) + "\n");
         fs.writeFileSync(defaultWorkerPath, JSON.stringify(workerAST, null, 2) + "\n");
+        fs.writeFileSync(implicitReturnPath, JSON.stringify(returnAST, null, 2) + "\n");
 
         shutdown();
     });
