@@ -113,9 +113,9 @@ public class LauncherUtils {
                     experimentalFlag);
         } else if (Files.isDirectory(sourceRootPath)) {
             if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                throw createLauncherException("did you mean to run the module ? If so, either run from the project " +
-                                              "folder or use --sourceroot to specify the project path and run the " +
-                                              "module");
+                throw createLauncherException("you are trying to run a module that is not inside " +
+                        "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                        "project and then run the module.");
             }
             if (Files.exists(fullPath)) {
                 if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
