@@ -834,6 +834,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         // The value of the dimensions field should always be >= 1
         // If sizes is null array is unsealed
         resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
+        if (resultType == symTable.noType) {
+            return;
+        }
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
                     .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
