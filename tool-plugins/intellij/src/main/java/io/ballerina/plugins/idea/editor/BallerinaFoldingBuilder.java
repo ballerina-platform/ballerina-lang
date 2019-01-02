@@ -27,8 +27,9 @@ import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
-
+import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitBody;
+import io.ballerina.plugins.idea.psi.BallerinaDocumentationString;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
@@ -36,6 +37,7 @@ import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaRecordFieldDefinitionList;
+import io.ballerina.plugins.idea.psi.BallerinaRecordLiteral;
 import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaServiceBody;
 import io.ballerina.plugins.idea.psi.BallerinaServiceConstructorExpression;
@@ -57,10 +59,12 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             return;
         }
         buildImportFoldingRegion(descriptors, root);
-        buildObjectFoldingRegions(descriptors,root);
-        buildRecordFoldingRegions(descriptors,root);
-        buildFunctionFoldRegions(descriptors,root);
-        buildServiceFoldRegions(descriptors,root);
+        buildObjectFoldingRegions(descriptors, root);
+        buildRecordFoldingRegions(descriptors, root);
+        buildFunctionFoldRegions(descriptors, root);
+        buildServiceFoldRegions(descriptors, root);
+        buildDocumentationFoldingRegions(descriptors, root);
+        buildAnnotationFoldingRegions(descriptors, root);
     }
 
     private void buildImportFoldingRegion(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
@@ -158,11 +162,41 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         }
     }
 
+    private void buildDocumentationFoldingRegions(@NotNull List<FoldingDescriptor> descriptors,
+            @NotNull PsiElement root) {
+        // Get all documentation nodes.
+        Collection<BallerinaDocumentationString> docStrings = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaDocumentationString.class);
+        for (BallerinaDocumentationString docString : docStrings) {
+            if (docString != null) {
+                // Calculate the start and end offsets.
+                int startOffset = docString.getTextRange().getStartOffset();
+                int endOffset = docString.getTextRange().getEndOffset();
+                // Add the new folding descriptor.
+                descriptors.add(new NamedFoldingDescriptor(docString, startOffset, endOffset, null, "# ..."));
+            }
+        }
+    }
+
+    private void buildAnnotationFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        Collection<BallerinaAnnotationAttachment> annotations = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaAnnotationAttachment.class);
+        for (BallerinaAnnotationAttachment annotation : annotations) {
+            // Get the annotation body. This is used to calculate the start offset.
+            BallerinaRecordLiteral annotationBody = PsiTreeUtil.getChildOfType(annotation,
+                    BallerinaRecordLiteral.class);
+            if (annotationBody == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, annotation, annotationBody, false);
+        }
+    }
+
     private void addFoldingDescriptor(@NotNull List<FoldingDescriptor> descriptors, PsiElement node,
             PsiElement bodyNode, boolean includePrevious) {
 
-        PsiElement startNode;
-
+        PsiElement startNode = bodyNode;
         if (includePrevious) {
             PsiElement prevSibling = bodyNode.getPrevSibling();
             // Sometimes the body node might start with a comment node.
@@ -170,8 +204,6 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 prevSibling = prevSibling.getPrevSibling();
             }
             startNode = prevSibling;
-        } else {
-            startNode = bodyNode;
         }
 
         if (startNode != null) {
