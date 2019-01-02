@@ -67,7 +67,6 @@ service HTTPStreamingService on new http:Listener(9090) {
             }
             close(payload);
             close(destinationChannel);
-
             res.setPayload("File Received!");
         } else {
             setError(res, payload);
