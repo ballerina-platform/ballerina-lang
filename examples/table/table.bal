@@ -78,7 +78,7 @@ public function main() {
     //This selects a subset of columns from the `table`.
     table<EmployeeSalary> salaryTable = tb.select(getEmployeeSalary);
 
-    //This fetches the `table` row count using the `coun`t operation.
+    //This fetches the `table` row count using the `count` operation.
     int count = salaryTable.count();
     io:println("Selected row count: " + count);
     io:println(salaryTable);
