@@ -213,7 +213,7 @@ function testMappingDatesToNillableTimeType() returns (int, int, int,
 
     time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
 
-    time:Timezone zoneValue = { zoneId: "UTC" };
+    time:TimeZone zoneValue = { zoneId: "UTC" };
     time:Time timeStruct = { time: 51323000, zone: zoneValue };
 
     time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
