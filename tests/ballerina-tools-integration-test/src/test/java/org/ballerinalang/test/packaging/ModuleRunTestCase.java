@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.packaging;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -83,6 +84,30 @@ public class ModuleRunTestCase extends BaseTest {
         balClient.runMain("run", new String[]{"otherpkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);
+    }
+
+    /**
+     * Test running a module that is not inside a project.
+     *
+     * @throws BallerinaTestException When an error occurs executing the command.
+     * @throws IOException            When an error occurs when creating directories.
+     */
+    @Test(description = "Test running a module with text files")
+    public void testRunModuleWithoutProject() throws BallerinaTestException, IOException {
+        Path projectPath = tempProjectDirectory.resolve("moduleWithoutProject");
+        Files.createDirectories(projectPath);
+        String[] options = {"\n", "\n", "\n", "m\n", "foo\n", "f\n"};
+        balClient.runMain("init", new String[]{"-i"}, envVariables, options, new LogLeecher[0], projectPath.toString());
+
+        // Remove the .ballerina folder
+        FileUtils.deleteDirectory(projectPath.resolve(".ballerina").toFile());
+
+        String msg = "error: you are trying to run a module that is not inside a project. Run `ballerina init` " +
+                "from " + projectPath.toString() + " to initialize it as a project and then run the module.";
+        LogLeecher leecher = new LogLeecher(msg, LeecherType.ERROR);
+        balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{leecher},
+                projectPath.toString());
+        leecher.waitForText(3000);
     }
 
     /**
