@@ -401,9 +401,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void checkErrors(BLangTypeDefinition unresolvedType, BLangType currentTypeNode, List<String> visitedNodes,
                              List<LocationData> encounteredUnknownTypes) {
         String unresolvedTypeNodeName = unresolvedType.name.value;
-        //// Type node can be either user defined type or union type. Finite types will not be added to the
-        //// unresolved list because they can be resolved.
 
+        // Check errors in the type definition.
         if (currentTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
             checkErrors(unresolvedType, ((BLangArrayType) currentTypeNode).elemtype, visitedNodes,
                     encounteredUnknownTypes);
@@ -418,17 +417,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                     // Recursively check all members.
                     checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
                 } else if (memberTypeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
-                    // This situation cannot occur since we know all the types of a finite type.
+                    // Do nothing.
                 } else if (memberTypeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
                     // Recursively check all members.
                     checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
                 } else if (memberTypeNode.getKind() == NodeKind.BUILT_IN_REF_TYPE) {
-                    // Todo
+                    // Todo - Remove?
                 } else if (memberTypeNode.getKind() == NodeKind.CONSTRAINED_TYPE) {
                     checkErrors(unresolvedType, ((BLangConstrainedType) memberTypeNode).constraint, visitedNodes,
                             encounteredUnknownTypes);
                 } else if (memberTypeNode.getKind() == NodeKind.FUNCTION_TYPE) {
-                    // Todo
+                    // Do nothing.
                 } else if (memberTypeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
                     String memberTypeNodeName = ((BLangUserDefinedType) memberTypeNode).typeName.value;
                     // Skip all types defined as anonymous types.
@@ -448,15 +447,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                         checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
                     }
                 } else if (memberTypeNode.getKind() == NodeKind.ENDPOINT_TYPE) {
-                    // Todo
+                    // Todo - Remove?
                 } else if (memberTypeNode.getKind() == NodeKind.VALUE_TYPE) {
-                    // Todo
+                    // Do nothing.
                 } else if (memberTypeNode.getKind() == NodeKind.RECORD_TYPE) {
-                    // Todo
+                    // Do nothing.
                 } else if (memberTypeNode.getKind() == NodeKind.OBJECT_TYPE) {
-                    // Todo
+                    // Do nothing.
                 } else if (memberTypeNode.getKind() == NodeKind.ERROR_TYPE) {
-                    // Todo
+                    // Do nothing.
                 } else {
                     throw new RuntimeException("Unhandled type kind: " + currentTypeNode.getKind());
                 }
@@ -469,14 +468,18 @@ public class SymbolEnter extends BLangNodeVisitor {
                 checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
             }
         } else if (currentTypeNode.getKind() == NodeKind.BUILT_IN_REF_TYPE) {
-            // Todo
+            // Todo - Remove?
         } else if (currentTypeNode.getKind() == NodeKind.CONSTRAINED_TYPE) {
             checkErrors(unresolvedType, ((BLangConstrainedType) currentTypeNode).constraint, visitedNodes,
                     encounteredUnknownTypes);
         } else if (currentTypeNode.getKind() == NodeKind.FUNCTION_TYPE) {
-            // Todo
+            // Do nothing.
         } else if (currentTypeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
             String currentTypeNodeName = ((BLangUserDefinedType) currentTypeNode).typeName.value;
+            // Skip all types defined as anonymous types.
+            if (currentTypeNodeName.startsWith("$")) {
+                return;
+            }
             if (unresolvedTypeNodeName.equals(currentTypeNodeName)) {
                 // Cyclic dependency detected. We need to add the `unresolvedTypeNodeName` or the
                 // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
@@ -509,10 +512,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (typeDefinitions.isEmpty()) {
                     // If a type is declared, it should either get defined successfully or added to the unresolved
                     // types list. If a type is not in either one of them, that means it is an undefined type.
-
                     LocationData locationData = new LocationData(currentTypeNodeName, currentTypeNode.pos.sLine,
                             currentTypeNode.pos.sCol);
-
                     if (!encounteredUnknownTypes.contains(locationData)) {
                         dlog.error(currentTypeNode.pos, DiagnosticCode.UNKNOWN_TYPE, currentTypeNodeName);
                         encounteredUnknownTypes.add(locationData);
@@ -530,15 +531,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         } else if (currentTypeNode.getKind() == NodeKind.ENDPOINT_TYPE) {
-            // Todo
+            // Todo - Remove?
         } else if (currentTypeNode.getKind() == NodeKind.VALUE_TYPE) {
-            // Todo
+            // Do nothing.
         } else if (currentTypeNode.getKind() == NodeKind.RECORD_TYPE) {
-            // Todo
+            // Do nothing.
         } else if (currentTypeNode.getKind() == NodeKind.OBJECT_TYPE) {
-            // Do nothing
+            // Do nothing.
         } else if (currentTypeNode.getKind() == NodeKind.ERROR_TYPE) {
-            // Do nothing
+            // Do nothing.
         } else {
             throw new RuntimeException("Unhandled type kind: " + currentTypeNode.getKind());
         }
