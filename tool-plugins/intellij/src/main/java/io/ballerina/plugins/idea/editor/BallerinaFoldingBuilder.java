@@ -37,6 +37,9 @@ import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaRecordFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
+import io.ballerina.plugins.idea.psi.BallerinaServiceBody;
+import io.ballerina.plugins.idea.psi.BallerinaServiceConstructorExpression;
+import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -57,6 +60,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         buildObjectFoldingRegions(descriptors,root);
         buildRecordFoldingRegions(descriptors,root);
         buildFunctionFoldRegions(descriptors,root);
+        buildServiceFoldRegions(descriptors,root);
     }
 
     private void buildImportFoldingRegion(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
@@ -121,6 +125,36 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             }
             // Add folding descriptor.
             addFoldingDescriptor(descriptors, functionNode, callableUnitBodyNode, false);
+        }
+    }
+
+    private void buildServiceFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        // Get all service nodes.
+        Collection<BallerinaServiceDefinition> serviceNodes = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaServiceDefinition.class);
+        for (BallerinaServiceDefinition serviceNode : serviceNodes) {
+            // Get the service body. This is used to calculate the start offset.
+            BallerinaServiceBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode,
+                    BallerinaServiceBody.class);
+            if (serviceBody == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, serviceNode, serviceBody, false);
+        }
+
+        // Get all service variable nodes.
+        Collection<BallerinaServiceConstructorExpression> serviceVariableNodes = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaServiceConstructorExpression.class);
+        for (BallerinaServiceConstructorExpression serviceNode : serviceVariableNodes) {
+            // Get the service body. This is used to calculate the start offset.
+            BallerinaServiceBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode,
+                    BallerinaServiceBody.class);
+            if (serviceBody == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, serviceNode, serviceBody, false);
         }
     }
 
