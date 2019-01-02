@@ -9,7 +9,7 @@ public type Person record {
     !...
 };
 
-//Serialize `record` into binary.
+// Serialize `record` into binary.
 function serialize(Person p, io:WritableByteChannel byteChannel) {
     io:WritableDataChannel dc = new io:WritableDataChannel(byteChannel);
     var length = p.name.toByteArray("UTF-8").length();
