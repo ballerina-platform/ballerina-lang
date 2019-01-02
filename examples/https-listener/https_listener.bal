@@ -26,9 +26,9 @@ service helloWorld on helloWorldEP {
     }
 
     resource function sayHello(http:Caller caller, http:Request req) {
-
         // Send the response back to the caller.
         var result = caller->respond("Hello World!");
+
         if (result is error) {
             log:printError("Error in responding ", err = result);
         }

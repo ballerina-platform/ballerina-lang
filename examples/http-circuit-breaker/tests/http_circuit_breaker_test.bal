@@ -22,7 +22,7 @@ function testFunc() {
     // Send a GET request to the specified endpoint
     var response1 = httpEndpoint->get("/cb");
     if (response1 is http:Response) {
-        var result = textResponse.getTextPayload();
+        var result = response1.getTextPayload();
         if (result is string) {
             test:assertEquals(result, responseString);
         } else {
@@ -35,7 +35,7 @@ function testFunc() {
     // Send a GET request to the specified endpoint.
     var response2 = httpEndpoint->get("/cb");
     if (response2 is http:Response) {
-        var result = textResponse.getTextPayload();
+        var result = response2.getTextPayload();
         if (result is string) {
             test:assertEquals(result, responseString);
         } else {
@@ -48,7 +48,7 @@ function testFunc() {
     // Send a GET request to the specified endpoint.
     var response3 = httpEndpoint->get("/cb");
     if (response3 is http:Response) {
-        var result = textResponse.getTextPayload();
+        var result = response3.getTextPayload();
         if (result is string) {
             test:assertEquals(result, "Internal error occurred while processing the request.");
         } else {
@@ -61,7 +61,7 @@ function testFunc() {
     // Send a GET request to the specified endpoint.
     var response4 = httpEndpoint->get("/cb");
     if (response4 is http:Response) {
-        var result = textResponse.getTextPayload();
+        var result = response4.getTextPayload();
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
@@ -69,7 +69,7 @@ function testFunc() {
     // Send a GET request to the specified endpoint.
     var response5 = httpEndpoint->get("/cb");
     if (response5 is http:Response) {
-        var result = textResponse.getTextPayload();
+        var result = response5.getTextPayload();
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
@@ -79,7 +79,7 @@ function testFunc() {
     // Send a GET request to the specified endpoint.
     var response6 = httpEndpoint->get("/cb");
     if (response6 is http:Response) {
-        var result = textResponse.getTextPayload();
+        var result = response6.getTextPayload();
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }

@@ -337,7 +337,9 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWindow windowClause) {
-        //do nothing
+        for (BLangExpression expr : ((BLangInvocation) windowClause.getFunctionInvocation()).argExprs) {
+            expr.accept(this);
+        }
     }
 
     @Override
@@ -623,6 +625,11 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
             for (SelectExpressionNode expressionNode : selectExpressions) {
                 String variableName = resolveSelectFieldName(expressionNode);
+
+                if (variableName == null) {
+                    continue;
+                }
+
                 BType variableType = resolveSelectFieldType(expressionNode);
                 selectClauseAttributeMap.put(variableName, variableType);
             }
@@ -660,10 +667,12 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         if (expressionNode.getIdentifier() != null) {
             return expressionNode.getIdentifier();
         } else {
-            if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
-                return ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
+            BLangExpression expr = (BLangExpression) expressionNode.getExpression();
+            if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                return ((BLangFieldBasedAccess) expr).field.value;
             } else {
-                return ((BLangSimpleVarRef) (expressionNode).getExpression()).variableName.value;
+                dlog.error(expr.pos, DiagnosticCode.SELECT_EXPR_ALIAS_NOT_FOUND);
+                return null;
             }
         }
     }

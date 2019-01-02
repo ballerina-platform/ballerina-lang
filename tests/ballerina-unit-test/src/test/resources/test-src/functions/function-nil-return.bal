@@ -92,3 +92,161 @@ function nilReturnFunc() returns () {
     io:println("explicit nil returns here");
     return;
 }
+
+function testMissingReturnInIfElse() returns int? {
+    int x = 100;
+
+    if (x > 200) {
+        return 1;
+    }
+}
+
+function testMissingReturnInNestedIfElse() returns string? {
+    int x = 100;
+    string foo = "Foo";
+
+    if (x > 200) {
+        return "asdf";
+    } else {
+        if (foo.length() < 5) {
+            x = 5;
+        } else {
+            return foo;
+        }
+    }
+}
+
+function testReturningInMatch() returns string? {
+    int x = 10;
+
+    match x {
+        2|4|6|8 => return "even";
+        1|3|5|7|9 => return "odd";
+    }
+}
+
+function testReturnsDuringValidCheck() returns error? {
+    int x = check int.convert("15");
+}
+
+function testValidCheckWithExplicitReturn() returns error? {
+    int x = check int.convert("15");
+    return;
+}
+
+function testNilableInt() returns int? {
+}
+
+function testNilableFloat() returns float? {
+}
+
+function testNilableDecimal() returns decimal? {
+}
+
+function testNilableString() returns string? {
+}
+
+function testNilableBoolean() returns boolean? {
+}
+
+function testNilableByte() returns byte? {
+}
+
+function testNilableJSON() returns json? {
+}
+
+function testNilableJSON2() returns json {
+}
+
+function testNilableXML() returns xml? {
+}
+
+function testNilableMap() returns map<any>? {
+}
+
+
+// Arrays
+
+function testNilableIntArray() returns int[]? {
+}
+
+function testNilableFloatArray() returns float[]? {
+}
+
+function testNilableDecimalArray() returns decimal[]? {
+}
+
+function testNilableStringArray() returns string[]? {
+}
+
+function testNilableBooleanArray() returns boolean[]? {
+}
+
+function testNilableByteArray() returns byte[]? {
+}
+
+function testNilableJSONArray() returns json[]? {
+}
+
+function testNilableXMLArray() returns xml[]? {
+}
+
+
+// Complex types
+
+type OpenPerson record {
+    string name;
+    int age;
+};
+
+function testNilableOpenRecord() returns OpenPerson? {
+}
+
+function testNilableOpenRecordArray() returns OpenPerson[]? {
+}
+
+type ClosedPerson record {
+    string name;
+    int age;
+    !...
+};
+
+function testNilableClosedRecord() returns ClosedPerson? {
+}
+
+function testNilableClosedRecordArray() returns ClosedPerson[]? {
+}
+
+type PersonObj object {
+    string name = "John Doe";
+};
+
+function testNilableObject() returns PersonObj? {
+}
+
+function testNilableObjectArray() returns PersonObj[]? {
+}
+
+function testNilableUnion() returns int|string|OpenPerson|() {
+}
+
+function testNilableUnionArray() returns (int|string|OpenPerson)[]? {
+}
+
+function testNilableTuple() returns (int, string, OpenPerson)? {
+}
+
+function testNilableTupleArray() returns (int, string, OpenPerson)[]? {
+}
+
+function testNilableTypedesc() returns typedesc? {
+}
+
+function testNilableTypedescArray() returns typedesc[]? {
+}
+
+function testNilableStream() returns stream<ClosedPerson>? {
+}
+
+function testNilableStreamArray() returns stream<ClosedPerson>[]? {
+}

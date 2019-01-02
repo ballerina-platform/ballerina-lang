@@ -375,41 +375,66 @@ public class TypeChecker extends BLangNodeVisitor {
             checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);
             actualType = arrayType;
 
-        } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
-            List<BType> resTypes = checkExprs(arrayLiteral.exprs, this.env, symTable.noType);
-            Set<BType> arrayLitExprTypeSet = new LinkedHashSet<>(resTypes);
-            BType[] uniqueExprTypes = arrayLitExprTypeSet.toArray(new BType[0]);
-            if (uniqueExprTypes.length == 0) {
-                actualType = symTable.anyType;
-            } else if (uniqueExprTypes.length == 1) {
-                actualType = resTypes.get(0);
-            } else {
-                BType superType = uniqueExprTypes[0];
-                for (int i = 1; i < uniqueExprTypes.length; i++) {
-                    if (types.isAssignable(superType, uniqueExprTypes[i])) {
-                        superType = uniqueExprTypes[i];
-                    } else if (!types.isAssignable(uniqueExprTypes[i], superType)) {
-                        superType = symTable.anyType;
-                        break;
-                    }
-                }
-                actualType = superType;
-            }
-            actualType = new BArrayType(actualType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
+        } else if (expTypeTag == TypeTags.UNION) {
+            Set<BType> expTypes = ((BUnionType) expType).memberTypes;
+            List<BArrayType> matchedTypeList = expTypes.stream()
+                    .filter(type -> type.tag == TypeTags.ARRAY)
+                    .map(BArrayType.class::cast)
+                    .collect(Collectors.toList());
 
-            List<BType> arrayCompatibleType = getArrayCompatibleTypes(expType, actualType);
-            if (arrayCompatibleType.isEmpty()) {
+            if (matchedTypeList.isEmpty()) {
                 dlog.error(arrayLiteral.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
-            } else if (arrayCompatibleType.size() > 1) {
-                dlog.error(arrayLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
-            } else if (arrayCompatibleType.get(0).tag == TypeTags.ANY) {
-                dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
-            } else if (arrayCompatibleType.get(0).tag == TypeTags.ARRAY) {
-                checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) arrayCompatibleType.get(0)).eType);
+            } else if (matchedTypeList.size() == 1) {
+                // If only one type in the union is an array, use that as the expected type
+                actualType = matchedTypeList.get(0);
+                checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) actualType).eType);
+            } else {
+                // If more than one array type, visit the literal to get its type and use that type to filter the
+                // compatible array types in the union
+                actualType = checkArrayLiteralExpr(arrayLiteral);
             }
+        } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
+            actualType = checkArrayLiteralExpr(arrayLiteral);
         }
 
         resultType = types.checkType(arrayLiteral, actualType, expType);
+    }
+
+    private BType checkArrayLiteralExpr(BLangArrayLiteral arrayLiteral) {
+        List<BType> resTypes = checkExprs(arrayLiteral.exprs, this.env, symTable.noType);
+        Set<BType> arrayLitExprTypeSet = new LinkedHashSet<>(resTypes);
+        BType[] uniqueExprTypes = arrayLitExprTypeSet.toArray(new BType[0]);
+        BType arrayLiteralType;
+        if (uniqueExprTypes.length == 0) {
+            arrayLiteralType = symTable.anyType;
+        } else if (uniqueExprTypes.length == 1) {
+            arrayLiteralType = resTypes.get(0);
+        } else {
+            BType superType = uniqueExprTypes[0];
+            for (int i = 1; i < uniqueExprTypes.length; i++) {
+                if (types.isAssignable(superType, uniqueExprTypes[i])) {
+                    superType = uniqueExprTypes[i];
+                } else if (!types.isAssignable(uniqueExprTypes[i], superType)) {
+                    superType = symTable.anyType;
+                    break;
+                }
+            }
+            arrayLiteralType = superType;
+        }
+        BType actualType = new BArrayType(arrayLiteralType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
+
+        List<BType> arrayCompatibleType = getArrayCompatibleTypes(expType, actualType);
+
+        if (arrayCompatibleType.isEmpty()) {
+            dlog.error(arrayLiteral.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
+        } else if (arrayCompatibleType.size() > 1) {
+            dlog.error(arrayLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+        } else if (arrayCompatibleType.get(0).tag == TypeTags.ANY) {
+            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+        } else if (arrayCompatibleType.get(0).tag == TypeTags.ARRAY) {
+            checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) arrayCompatibleType.get(0)).eType);
+        }
+        return actualType;
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
