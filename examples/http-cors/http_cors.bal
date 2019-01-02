@@ -35,7 +35,7 @@ service crossOriginService on new http:Listener(9092) {
         }
     }
 
-    // Since there are no resource-level CORS headers defined here, the global
+    //Since there are no resource-level CORS headers defined here, the global
     //service-level CORS headers are applied to this resource.
     @http:ResourceConfig {
         methods: ["POST"],

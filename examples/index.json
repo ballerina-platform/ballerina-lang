@@ -602,12 +602,12 @@
                 "url": "http-trace-logs"
             },
             {
-                "name": "Basic HTTPS Listener Client",
-                "url": "basic-https-listener-client"
-            },
-            {
                 "name": "HTTPS Listener",
                 "url": "https-listener"
+            },
+            {
+                "name": "Basic HTTPS Listener Client",
+                "url": "basic-https-listener-client"
             },
             {
                 "name": "Mutual SSL",

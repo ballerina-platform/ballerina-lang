@@ -1,64 +1,35 @@
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
 
 // Create a new client with the backend url.
 http:Client clientEndpoint = new("https://postman-echo.com");
 
 public function main() {
-
-    http:Request req = new;
+    log:printInfo("GET request:");
     // Send a `GET` request to the specified endpoint.
     var response = clientEndpoint->get("/get?test=123");
+    // Handle the response.
+    handleResponse(response);
 
-    if (response is http:Response) {
-        io:println("GET request:");
-        // Retrieve the json payload from the response.
-        var msg = response.getJsonPayload();
-        if (msg is json) {
-            // Print the received json response.
-            io:println(msg);
-        } else {
-            log:printError("Invalid payload received", err = msg);
-        }
-    } else {
-        log:printError("Error when calling the backend", err = response);
-    }
-
-    // Set a string payload to the message to be sent to the endpoint.
+    log:printInfo("POST request:");
+    // Set a `string` payload to the message to be sent to the endpoint.
+    http:Request req = new;
     req.setPayload("POST: Hello World");
-
     // Send a `POST` request to the specified endpoint.
     response = clientEndpoint->post("/post", req);
-    if (response is http:Response) {
-        io:println("\nPOST request:");
-        // Retrieve the json payload from the response.
-        var msg = response.getJsonPayload();
-        if (msg is json) {
-            // Print the received json response.
-            io:println(msg);
-        } else {
-            log:printError("Invalid payload received", err = msg);
-        }
-    } else {
-        log:printError("Error when calling the backend", err = response);
-    }
+    // Handle the response.
+    handleResponse(response);
 
+    log:printInfo("DELETE request:");
+    // Set a `string` payload to the message to be sent to the endpoint.
     req.setPayload("DELETE: Hello World");
     // Send a `DELETE` request to the specified endpoint.
     response = clientEndpoint->delete("/delete", req);
-    if (response is http:Response) {
-        io:println("\nDELETE request:");
-        var msg = response.getJsonPayload();
-        if (msg is json) {
-            io:println(msg);
-        } else {
-            log:printError("Invalid payload received", err = msg);
-        }
-    } else {
-        log:printError("Error when calling the backend", err = response);
-    }
+    // Handle the response.
+    handleResponse(response);
 
+    log:printInfo("Use custom HTTP verbs:");
+    // Set a `string` payload to the message to be sent to the endpoint.
     req.setPayload("CUSTOM: Hello World");
     // Use the `execute()` remote function for custom HTTP verbs.
     response = clientEndpoint->execute("COPY", "/get", req);
@@ -76,6 +47,21 @@ public function main() {
         int statusCode = response.statusCode;
         log:printInfo("Status code: " + statusCode);
 
+    } else {
+        log:printError("Error when calling the backend", err = response);
+    }
+}
+
+//Function to hanlde response received from HTTP remote functions.
+function handleResponse(http:Response|error response) {
+    if (response is http:Response) {
+        var msg = response.getJsonPayload();
+        if (msg is json) {
+            // Print the received `json` response.
+            log:printInfo(msg.toString());
+        } else {
+            log:printError("Invalid payload received", err = msg);
+        }
     } else {
         log:printError("Error when calling the backend", err = response);
     }

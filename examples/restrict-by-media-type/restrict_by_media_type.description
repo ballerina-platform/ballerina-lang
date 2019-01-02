@@ -1,1 +1,1 @@
-// This sample demonstrates the behaviour of the `Consumes` and `Produces` annotation attributes of the `resourceConfig` in Ballerina.
+// This sample demonstrates the behaviour of the `consumes` and `produces` annotation attributes of the `ResourceConfig` in Ballerina.
