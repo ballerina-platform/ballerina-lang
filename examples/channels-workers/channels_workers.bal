@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines a channel that accepts `xml` messages.
+// Defines a `channel` that accepts `xml` messages.
 channel<xml> xmlChn = new;
 
 public function main(string... args) {
