@@ -102,13 +102,13 @@ public function benchmarkToTimezoneFunction() {
     time:Timezone zoneValue = { zoneId: "America/Panama" };
     time:Time time = new(1456876583555, zoneValue);
     string timeStrBefore = time.toString();
-    time = time.toTimezone("Asia/Colombo");
+    time = time.toTimeZone("Asia/Colombo");
     string timeStrAfter = time.toString();
 }
 
 public function benchmarkToTimezoneFunctionWithDateTime() {
     time:Time time = time:parse("2016-03-01T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    time = time.toTimezone("Asia/Colombo");
+    time = time.toTimeZone("Asia/Colombo");
     string timeString = time.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 

@@ -126,7 +126,7 @@ function testToTimezone() returns (string, string) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
     string timeStrBefore = time:toString(time);
-    time = time:toTimezone(time, "Asia/Colombo");
+    time = time:toTimeZone(time, "Asia/Colombo");
     string timeStrAfter = time:toString(time);
     return (timeStrBefore, timeStrAfter);
 }
@@ -134,13 +134,13 @@ function testToTimezone() returns (string, string) {
 function testToTimezoneWithInvalidZone() returns (string) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
-    time = time:toTimezone(time, "test");
+    time = time:toTimeZone(time, "test");
     return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 
 function testToTimezoneWithDateTime() returns (string) {
     time:Time time = time:parse("2016-03-01T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    time = time:toTimezone(time, "Asia/Colombo");
+    time = time:toTimeZone(time, "Asia/Colombo");
     return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 

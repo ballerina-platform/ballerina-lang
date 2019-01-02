@@ -68,6 +68,6 @@ public function main() {
     time:Time t2 = time:createTime(2017, 3, 28, 23, 42, 45, 554,
                                     "America/Panama");
     io:println("Before converting the time zone: " + t2.toString());
-    time:Time t3 = t2.toTimezone("Asia/Colombo");
+    time:Time t3 = t2.toTimeZone("Asia/Colombo");
     io:println("After converting the time zone:" + t3.toString());
 }

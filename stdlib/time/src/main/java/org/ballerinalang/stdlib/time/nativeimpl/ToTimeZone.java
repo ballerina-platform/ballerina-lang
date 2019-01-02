@@ -32,14 +32,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "toTimezone",
+        functionName = "toTimeZone",
         args = {@Argument(name = "zoneId", type = TypeKind.STRING),
                 @Argument(name = "time", type = TypeKind.RECORD)},
         returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time",
                                   structPackage = "ballerina/time")},
         isPublic = true
 )
-public class ToTimezone extends AbstractTimeFunction {
+public class ToTimeZone extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {

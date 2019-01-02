@@ -17,23 +17,23 @@ public const TIME_FORMAT_RFC_1123 = "RFC_1123";
 
 public type TimeFormat "RFC_1123";
 
-# Ballerina Timezone represents the timezone information associated with a particular time.
+# Ballerina TimeZone represents the time-zone information associated with a particular time.
 #
 # + zoneId - Zone short ID or offset string
 # + zoneOffset - The offset in seconds
-public type Timezone record {
+public type TimeZone record {
     string zoneId;
     int zoneOffset = 0;
     !...;
 };
 
-# Ballerina Time represents a particular time with its associated timezone.
+# Ballerina Time represents a particular time with its associated time-zone.
 #
 # + time - Time value as milliseconds since epoch
 # + zone - The time zone of the time
 public type Time record {
     int time;
-    Timezone zone;
+    TimeZone zone;
     !...
 };
 # Returns ISO 8601 string representation of the given time.
@@ -140,14 +140,14 @@ public extern function addDuration(Time time, int years, int months, int days, i
 public extern function subtractDuration(Time time, int years, int months, int days, int hours, int minutes, int seconds,
                                         int milliSeconds) returns Time;
 
-# Change the timezone of the given time.
+# Change the time-zone of the given time.
 #
-# + time - The Time record of which the timezone to be changed
-# + zoneId - The new timezone id
+# + time - The Time record of which the time-zone to be changed
+# + zoneId - The new time-zone id
 # + return - Time object containing time and zone information after the conversion
-public extern function toTimezone(Time time, string zoneId) returns Time;
+public extern function toTimeZone(Time time, string zoneId) returns Time;
 
-# Returns the current time value with the system default timezone.
+# Returns the current time value with the system default time-zone.
 #
 # + return - Time object containing the time and zone information
 public extern function currentTime() returns Time;
@@ -157,7 +157,7 @@ public extern function currentTime() returns Time;
 # + return - Int value of the current system time in nano seconds
 public extern function nanoTime() returns int;
 
-# Returns the Time object correspoding to the given time components and timezone.
+# Returns the Time object correspoding to the given time components and time-zone.
 #
 # + year - The year representation
 # + month - The month-of-year to represent, from 1 (January) to 12 (December)
@@ -166,7 +166,7 @@ public extern function nanoTime() returns int;
 # + minute - The minute-of-hour to represent, from 0 to 59
 # + second - The second-of-minute to represent, from 0 to 59
 # + milliSecond - The milli-of-second to represent, from 0 to 999
-# + zoneId - The zone id of the required timezone.If empty the system local timezone will be used
+# + zoneId - The zone id of the required time-zone.If empty the system local time-zone will be used
 # + return - Time object containing time and zone information
 public extern function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
                                   string zoneId) returns Time;
