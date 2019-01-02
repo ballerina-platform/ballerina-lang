@@ -30,7 +30,11 @@ import com.intellij.psi.util.PsiTreeUtil;
 
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
+import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
+import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
+import io.ballerina.plugins.idea.psi.BallerinaRecordFieldDefinitionList;
+import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -44,10 +48,12 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
     @Override
     protected void buildLanguageFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root,
             @NotNull Document document, boolean quick) {
-        if (root instanceof BallerinaFile) {
+        if (!(root instanceof BallerinaFile)) {
             return;
         }
         buildImportFoldingRegion(descriptors, root);
+        buildObjectFoldingRegions(descriptors,root);
+        buildRecordFoldingRegions(descriptors,root);
     }
 
     private void buildImportFoldingRegion(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
@@ -68,6 +74,54 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             descriptors.add(new NamedFoldingDescriptor(firstImport, startOffset, endOffset, null, "..."));
         }
     }
+
+    private void buildObjectFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        Collection<BallerinaObjectTypeName> objectDefinitions = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaObjectTypeName.class);
+        for (BallerinaObjectTypeName objectDefinition : objectDefinitions) {
+            // Get the object body. This is used to calculate the start offset.
+            BallerinaObjectBody objectBody = PsiTreeUtil.getChildOfType(objectDefinition, BallerinaObjectBody
+                    .class);
+            if (objectBody == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, objectDefinition, objectBody);
+        }
+    }
+
+    private void buildRecordFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        Collection<BallerinaRecordTypeName> recordDefinitions = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaRecordTypeName.class);
+        for (BallerinaRecordTypeName recordDefinition : recordDefinitions) {
+            // Get the record body. This is used to calculate the start offset.
+            BallerinaRecordFieldDefinitionList recordBody = PsiTreeUtil.getChildOfType(recordDefinition,
+                    BallerinaRecordFieldDefinitionList.class);
+            if (recordBody == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, recordDefinition, recordBody);
+        }
+    }
+
+    private void addFoldingDescriptor(@NotNull List<FoldingDescriptor> descriptors, PsiElement node,
+            PsiElement bodyNode) {
+        // Sometimes the body node might start with a comment node.
+        PsiElement prevSibling = bodyNode.getPrevSibling();
+        while (prevSibling != null && (prevSibling instanceof PsiComment
+                || prevSibling instanceof PsiWhiteSpace)) {
+            prevSibling = prevSibling.getPrevSibling();
+        }
+        if (prevSibling != null) {
+            // Calculate the start and end offsets.
+            int startOffset = prevSibling.getTextRange().getStartOffset();
+            int endOffset = node.getTextRange().getEndOffset();
+            // Add the new folding descriptor.
+            descriptors.add(new NamedFoldingDescriptor(node, startOffset, endOffset, null, "{...}"));
+        }
+    }
+
 
     @Override
     protected String getLanguagePlaceholderText(@NotNull ASTNode node, @NotNull TextRange range) {
