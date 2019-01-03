@@ -1,4 +1,4 @@
-# To invoke the `bindJson` resource, use the following client.
+# To invoke the `bindJson` resource, use the following HTTP request.
 $ curl -v http://localhost:9090/hello/bindJson -d '{ "Details": { "ID": "77999", "Name": "XYZ"} , "Location": { "No": "01", "City": "Colombo"}}' -H "Content-Type:application/json"
 # Server response:
 {"ID":"77999","Name":"XYZ"}
