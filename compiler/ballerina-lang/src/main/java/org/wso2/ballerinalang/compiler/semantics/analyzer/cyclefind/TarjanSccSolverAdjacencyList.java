@@ -34,7 +34,7 @@ import java.util.TreeMap;
  */
 public class TarjanSccSolverAdjacencyList {
 
-    private int n;
+    private int nodeCount;
     private List<List<Integer>> adjacencyList;
     private boolean solved;
     private int sccCount;
@@ -51,7 +51,7 @@ public class TarjanSccSolverAdjacencyList {
         if (adjacencyList == null) {
             throw new IllegalArgumentException("Graph cannot be null.");
         }
-        n = adjacencyList.size();
+        nodeCount = adjacencyList.size();
         this.adjacencyList = adjacencyList;
         dependencyOrder = new ArrayList<>();
     }
@@ -72,13 +72,13 @@ public class TarjanSccSolverAdjacencyList {
             return;
         }
 
-        ids = new int[n];
-        lowLinks = new int[n];
-        onStack = new boolean[n];
+        ids = new int[nodeCount];
+        lowLinks = new int[nodeCount];
+        onStack = new boolean[nodeCount];
         stack = new ArrayDeque<>();
         Arrays.fill(ids, UNVISITED);
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < nodeCount; i++) {
             if (ids[i] == UNVISITED) {
                 dfs(i);
             }
@@ -118,13 +118,13 @@ public class TarjanSccSolverAdjacencyList {
     }
 
     /**
-     * Initialized adjacency list for graph with n nodes.
-     * @param n number of nodes
+     * Initialized adjacency list for graph with numberOfNodes nodes.
+     * @param numberOfNodes number of nodes
      * @return initialized list to fill with edges
      */
-    public static TarjanSccSolverAdjacencyList createGraph(int n) {
-        List<List<Integer>> graph = new ArrayList<>(n);
-        for (int i = 0; i < n; i++) {
+    public static TarjanSccSolverAdjacencyList createGraph(int numberOfNodes) {
+        List<List<Integer>> graph = new ArrayList<>(numberOfNodes);
+        for (int i = 0; i < numberOfNodes; i++) {
             graph.add(new ArrayList<>());
         }
         return new TarjanSccSolverAdjacencyList(graph);
@@ -134,11 +134,9 @@ public class TarjanSccSolverAdjacencyList {
      * Adds a directed edge from node 'from' to node 'to'.
      * @param from edge starting from node
      * @param to to node
-     * @return graph with added edge
      */
-    public TarjanSccSolverAdjacencyList addEdge(int from, int to) {
+    public void addEdge(int from, int to) {
         this.adjacencyList.get(from).add(to);
-        return this;
     }
 
     /**
@@ -150,7 +148,7 @@ public class TarjanSccSolverAdjacencyList {
         solve();
 
         Map<Integer, List<Integer>> multimap = new TreeMap<>();
-        for (int i = 0; i < this.n; i++) {
+        for (int i = 0; i < this.nodeCount; i++) {
             if (!multimap.containsKey(lowLinks[i])) {
                 multimap.put(lowLinks[i], new ArrayList<>());
             }

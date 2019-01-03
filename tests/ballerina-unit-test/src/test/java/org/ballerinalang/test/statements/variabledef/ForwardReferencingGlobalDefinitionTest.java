@@ -19,7 +19,10 @@ package org.ballerinalang.test.statements.variabledef;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,12 +41,14 @@ import java.util.Map;
 public class ForwardReferencingGlobalDefinitionTest {
     private CompileResult resultNegative;
     private CompileResult resultNegativeCycleFound;
+    private CompileResult resultReOrdered;
 
     @BeforeClass
     public void setup() {
         resultNegative = BCompileUtil.
                 compile("test-src/statements/variabledef/forward-reference-in-global-vardef-negative.bal");
         resultNegativeCycleFound = BCompileUtil.compile(this, "test-src/statements/variabledef", "globalcycle");
+        resultReOrdered = BCompileUtil.compile(this, "test-src/statements/variabledef", "multiFileReference");
     }
 
     @Test(description = "Test compiler rejecting forward referenced global variables")
@@ -64,6 +69,16 @@ public class ForwardReferencingGlobalDefinitionTest {
         BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference 'dep1'", 38, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 2, "illegal cyclic reference 'person'", 3, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 3, "illegal cyclic reference 'dep2'", 10, 1);
+    }
+
+    @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")
+    public void globalDefinitionsReOrdering() {
+        Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
+        Assert.assertEquals(diagnostics.length, 0);
+
+        BValue[] employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
+        String employeeName = ((BMap) employee[0]).get("name").stringValue();
+        Assert.assertEquals(employeeName, "Sumedha");
     }
 
     @Test(description = "Test algorithms on graph with cycles")
