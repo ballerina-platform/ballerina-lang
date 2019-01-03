@@ -1692,9 +1692,9 @@ public class Desugar extends BLangNodeVisitor {
         // Create a variable definition to store the value of the match expression
         String matchExprVarName = GEN_VAR_PREFIX.value;
         BLangSimpleVariable matchExprVar = ASTBuilderUtil.createVariable(matchStmt.expr.pos,
-                matchExprVarName, symTable.errorType, matchStmt.expr, new BVarSymbol(0,
+                matchExprVarName, matchStmt.expr.type, matchStmt.expr, new BVarSymbol(0,
                         names.fromString(matchExprVarName),
-                        this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner));
+                        this.env.scope.owner.pkgID, matchStmt.expr.type, this.env.scope.owner));
 
         // Now create a variable definition node
         BLangSimpleVariableDef matchExprVarDef = ASTBuilderUtil.createVariableDef(matchBlockStmt.pos, matchExprVar);

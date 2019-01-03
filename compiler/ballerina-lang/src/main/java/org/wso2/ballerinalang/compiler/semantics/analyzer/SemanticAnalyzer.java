@@ -1248,6 +1248,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (rhsType.tag != TypeTags.RECORD) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, "record type", rhsType);
+            return;
+        }
+
         BRecordType rhsRecordType = (BRecordType) rhsType;
 
         if (lhsVarRef.isClosed) {
@@ -1324,30 +1329,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         for (int i = 0; i < varRef.expressions.size(); i++) {
             BLangExpression varRefExpr = varRef.expressions.get(i);
-            switch (varRefExpr.getKind()) {
-                case RECORD_VARIABLE_REF:
-                    BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRefExpr;
-                    checkRecordVarRefEquivalency(pos, recordVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
-                    continue;
-                case TUPLE_VARIABLE_REF:
-                    BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRefExpr;
-                    checkTupleVarRefEquivalency(pos, tupleVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
-                    continue;
-                case ERROR_VARIABLE_REF:
-                    BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRefExpr;
-                    checkErrorVarRefEquivalency(pos, errorVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
-                    continue;
-                case SIMPLE_VARIABLE_REF:
+            if (NodeKind.RECORD_VARIABLE_REF == varRefExpr.getKind()) {
+                BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRefExpr;
+                checkRecordVarRefEquivalency(pos, recordVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
+            } else if (NodeKind.TUPLE_VARIABLE_REF == varRefExpr.getKind()) {
+                BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRefExpr;
+                checkTupleVarRefEquivalency(pos, tupleVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
+            } else if (NodeKind.ERROR_VARIABLE_REF == varRefExpr.getKind()) {
+                BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRefExpr;
+                checkErrorVarRefEquivalency(pos, errorVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
+            } else {
+                if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
                     Name varName = names.fromIdNode(simpleVarRef.variableName);
                     if (varName == Names.IGNORE) {
                         continue;
                     }
-
-                    if (!types.isAssignable(((BTupleType) rhsType).tupleTypes.get(i), varRefExpr.type)) {
-                        dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.type, rhsType);
-                        break;
-                    }
+                }
+                if (!types.isAssignable(((BTupleType) rhsType).tupleTypes.get(i), varRefExpr.type)) {
+                    dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.type, rhsType);
+                    break;
+                }
             }
         }
     }

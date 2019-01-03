@@ -103,7 +103,8 @@ public class MatchStructuredErrorPatternsTest {
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "string");
-        Assert.assertEquals(results.getString(++i), msg + "an error {ballerina}KeyNotFound {\"message\":\"cannot find key 'invalid'\"}");
+        Assert.assertEquals(results.getString(++i), msg +
+                "an error {ballerina}KeyNotFound {\"message\":\"cannot find key 'invalid'\"}");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")
