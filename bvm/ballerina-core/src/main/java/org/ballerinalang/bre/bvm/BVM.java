@@ -187,6 +187,7 @@ public class BVM {
         while (sf.ip >= 0) {
             if (strand.aborted) {
                 strand.currentFrame.ip = -1;
+                BVMScheduler.strandCountDown();
                 return;
             }
             if (debugEnabled && debug(strand)) {
@@ -480,14 +481,14 @@ public class BVM {
                     break;
                 case InstructionCodes.FLUSH:
                     Instruction.InstructionFlush flushIns = (Instruction.InstructionFlush) instruction;
-                    if (WaitCallbackHandler.handleFlush(strand, flushIns.retReg, flushIns.channels) == null) {
+                    if (!WaitCallbackHandler.handleFlush(strand, flushIns.retReg, flushIns.channels)) {
                         return;
                     }
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
                     Instruction.InstructionWRKSyncSend syncSendIns = (Instruction.InstructionWRKSyncSend) instruction;
                     if (!handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type, syncSendIns.reg,
-                            syncSendIns.retReg)) {
+                            syncSendIns.retReg, syncSendIns.isSameStrand)) {
                         return;
                     }
                     //worker data channel will resume this upon data retrieval or error
@@ -755,13 +756,24 @@ public class BVM {
                         } else {
                             strand.respCallback.setRefReturn(sf.refRegs[j]);
                         }
+                        if (checkIsType(sf.refRegs[j], BTypes.typeError)) {
+                            sf.errorRetReg = j;
+                        }
                         break;
                     case InstructionCodes.RET:
                         if (strand.fp > 0) {
                             // Stop the observation context before popping the stack frame
                             ObserveUtils.stopCallableObservation(strand);
+                            if (sf.errorRetReg > -1) {
+                                //notifying waiting workers
+                                sf.handleChannelError(sf.refRegs[sf.errorRetReg], strand.peekFrame(1).wdChannels);
+                            }
                             strand.popFrame();
                             break;
+                        }
+                        if (sf.errorRetReg > -1) {
+                            //notifying waiting workers
+                            sf.handleChannelError(sf.refRegs[sf.errorRetReg], strand.respCallback.parentChannels);
                         }
                         sf.ip = -1;
                         strand.respCallback.signal();
@@ -818,10 +830,10 @@ public class BVM {
     }
 
     private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
-                                                int reg, int retReg) {
+                                                int reg, int retReg, boolean isSameStrand) {
         BRefType val = extractValue(strand.currentFrame, type, reg);
-        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), false);
-        return dataChannel.putData(val, strand, retReg);
+        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), isSameStrand);
+        return dataChannel.syncSendData(val, strand, retReg);
     }
 
     private static void createClone(Strand ctx, int[] operands, StackFrame sf) {
@@ -848,11 +860,22 @@ public class BVM {
                                        int[] argRegs, int retReg, int flags) {
         //TODO refactor when worker info is removed from compiler
         StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
-                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags);
+                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags,
+                callableUnitInfo.workerSendInChannels);
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
         if (!FunctionFlags.isAsync(df.invocationFlags)) {
-            strand.pushFrame(df);
+            try {
+                strand.pushFrame(df);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // Need to decrement the frame pointer count. Otherwise ArrayIndexOutOfBoundsException will
+                // be thrown from the popFrame() as well.
+                strand.fp--;
+                strand.setError(BLangVMErrors.createError(strand, BallerinaErrorReasons.STACK_OVERFLOW_ERROR,
+                        "stack overflow"));
+                handleError(strand);
+                return strand;
+            }
             // Start observation after pushing the stack frame
             ObserveUtils.startCallableObservation(strand, df.invocationFlags);
             if (callableUnitInfo.isNative()) {
@@ -862,9 +885,8 @@ public class BVM {
         }
 
         SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
-                strand.respCallback.getWorkerDataChannels());
+                strand.currentFrame.wdChannels, callableUnitInfo.workerSendInChannels);
 
-        strandCallback.sendIns = callableUnitInfo.workerSendInChannels;
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strandCallback);
         calleeStrand.pushFrame(df);
@@ -900,10 +922,18 @@ public class BVM {
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
+                    if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
+                        strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(),
+                                strand.peekFrame(1).wdChannels);
+                    }
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, retReg, ctx.getReturnValue(), retType);
                     return strand;
+                }
+                if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
+                    strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(),
+                            strand.respCallback.parentChannels);
                 }
                 strand.respCallback.signal();
                 return null;
@@ -920,7 +950,13 @@ public class BVM {
         }
         // Stop the observation context before popping the stack frame
         ObserveUtils.stopCallableObservation(strand);
-        strand.popFrame();
+        if (strand.fp > 0) {
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.peekFrame(1).wdChannels);
+            strand.popFrame();
+        } else {
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.respCallback.parentChannels);
+            strand.popFrame();
+        }
         handleError(strand);
         return strand;
     }
@@ -1082,164 +1118,42 @@ public class BVM {
             sf.refRegs[j] = null;
             return;
         }
+        int targetTag = typeRefCPEntry.getType().getTag();
         try {
-            switch (typeRefCPEntry.getType().getTag()) {
-                case TypeTags.INT_TAG:
-                    convertToInt(strand, sf, j, typeRefCPEntry, bRefTypeValue);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    convertToFloat(strand, sf, j, typeRefCPEntry, bRefTypeValue);
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    convertToDecimal(strand, sf, j, typeRefCPEntry, bRefTypeValue);
-                    break;
-                case TypeTags.STRING_TAG:
-                    sf.refRegs[j] = new BString(bRefTypeValue.toString());
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    convertToBoolean(strand, sf, j, typeRefCPEntry, bRefTypeValue);
-                    break;
-                case TypeTags.BYTE_TAG:
-                    convertToByte(strand, sf, j, typeRefCPEntry, bRefTypeValue);
-                    break;
-                default:
-                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+            if (BTypes.isValueType(bRefTypeValue.getType())) {
+                convertValueTypes(strand, sf, j, typeRefCPEntry, bRefTypeValue, targetTag);
+                return;
             }
-        } catch (Exception e) {
+            if (targetTag == TypeTags.STRING_TAG) {
+                sf.refRegs[j] = new BString(bRefTypeValue.toString());
+                return;
+            }
+            handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+        } catch (RuntimeException e) {
             handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
         }
     }
 
-    private static void convertToInt(Strand strand, StackFrame sf, int resultRegIndex, TypeRefCPEntry typeRefCPEntry,
-                                     BRefType bRefTypeValue) {
-        switch (bRefTypeValue.getType().getTag()) {
+    private static void convertValueTypes(Strand strand, StackFrame sf, int resultRegIndex,
+                                          TypeRefCPEntry typeRefCPEntry, BRefType bRefTypeValue, int targetTag) {
+        switch (targetTag) {
             case TypeTags.INT_TAG:
-                sf.refRegs[resultRegIndex] = new BInteger(((BInteger) bRefTypeValue).intValue());
+                sf.refRegs[resultRegIndex] = new BInteger(((BValueType) bRefTypeValue).intValue());
                 break;
             case TypeTags.FLOAT_TAG:
-                sf.refRegs[resultRegIndex] = new BInteger(((BFloat) bRefTypeValue).intValue());
-                break;
-            case TypeTags.STRING_TAG:
-                sf.refRegs[resultRegIndex] = new BInteger(((BString) bRefTypeValue).intValue());
+                sf.refRegs[resultRegIndex] = new BFloat(((BValueType) bRefTypeValue).floatValue());
                 break;
             case TypeTags.DECIMAL_TAG:
-                sf.refRegs[resultRegIndex] = new BInteger(((BDecimal) bRefTypeValue).intValue());
-                break;
-            case TypeTags.BYTE_TAG:
-                sf.refRegs[resultRegIndex] = new BInteger(((BByte) bRefTypeValue).intValue());
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sf.refRegs[resultRegIndex] = new BInteger(((BBoolean) bRefTypeValue).intValue());
-                break;
-            default:
-                handleTypeConversionError(strand, sf, resultRegIndex, bRefTypeValue.getType(),
-                                          typeRefCPEntry.getType());
-        }
-    }
-
-    private static void convertToFloat(Strand strand, StackFrame sf, int resultRegIndex, TypeRefCPEntry typeRefCPEntry,
-                                       BRefType bRefTypeValue) {
-        switch (bRefTypeValue.getType().getTag()) {
-            case TypeTags.INT_TAG:
-                sf.refRegs[resultRegIndex] = new BFloat(((BInteger) bRefTypeValue).floatValue());
-                break;
-            case TypeTags.FLOAT_TAG:
-                sf.refRegs[resultRegIndex] = new BFloat(((BFloat) bRefTypeValue).floatValue());
+                sf.refRegs[resultRegIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
                 break;
             case TypeTags.STRING_TAG:
-                sf.refRegs[resultRegIndex] = new BFloat(((BString) bRefTypeValue).floatValue());
-                break;
-            case TypeTags.DECIMAL_TAG:
-                sf.refRegs[resultRegIndex] = new BFloat(((BDecimal) bRefTypeValue).floatValue());
-                break;
-            case TypeTags.BYTE_TAG:
-                sf.refRegs[resultRegIndex] = new BFloat(((BByte) bRefTypeValue).floatValue());
+                sf.refRegs[resultRegIndex] = new BString(bRefTypeValue.toString());
                 break;
             case TypeTags.BOOLEAN_TAG:
-                sf.refRegs[resultRegIndex] = new BFloat(((BBoolean) bRefTypeValue).floatValue());
-                break;
-            default:
-                handleTypeConversionError(strand, sf, resultRegIndex, bRefTypeValue.getType(),
-                                          typeRefCPEntry.getType());
-        }
-    }
-
-    private static void convertToDecimal(Strand strand, StackFrame sf, int resultRegIndex,
-                                         TypeRefCPEntry typeRefCPEntry,
-                                         BRefType bRefTypeValue) {
-        switch (bRefTypeValue.getType().getTag()) {
-            case TypeTags.INT_TAG:
-                sf.refRegs[resultRegIndex] = new BDecimal(((BInteger) bRefTypeValue).decimalValue());
-                break;
-            case TypeTags.FLOAT_TAG:
-                sf.refRegs[resultRegIndex] = new BDecimal(((BFloat) bRefTypeValue).decimalValue());
-                break;
-            case TypeTags.STRING_TAG:
-                sf.refRegs[resultRegIndex] = new BDecimal(((BString) bRefTypeValue).decimalValue());
-                break;
-            case TypeTags.DECIMAL_TAG:
-                sf.refRegs[resultRegIndex] = new BDecimal(((BDecimal) bRefTypeValue).decimalValue());
+                sf.refRegs[resultRegIndex] = new BBoolean(((BValueType) bRefTypeValue).booleanValue());
                 break;
             case TypeTags.BYTE_TAG:
-                sf.refRegs[resultRegIndex] = new BDecimal(((BByte) bRefTypeValue).decimalValue());
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sf.refRegs[resultRegIndex] = new BDecimal(((BBoolean) bRefTypeValue).decimalValue());
-                break;
-            default:
-                handleTypeConversionError(strand, sf, resultRegIndex, bRefTypeValue.getType(),
-                                          typeRefCPEntry.getType());
-        }
-    }
-
-    private static void convertToBoolean(Strand strand, StackFrame sf, int resultRegIndex,
-                                         TypeRefCPEntry typeRefCPEntry,
-                                         BRefType bRefTypeValue) {
-        switch (bRefTypeValue.getType().getTag()) {
-            case TypeTags.INT_TAG:
-                sf.refRegs[resultRegIndex] = new BBoolean(((BInteger) bRefTypeValue).booleanValue());
-                break;
-            case TypeTags.FLOAT_TAG:
-                sf.refRegs[resultRegIndex] = new BBoolean(((BFloat) bRefTypeValue).booleanValue());
-                break;
-            case TypeTags.STRING_TAG:
-                sf.refRegs[resultRegIndex] = new BBoolean(((BString) bRefTypeValue).booleanValue());
-                break;
-            case TypeTags.DECIMAL_TAG:
-                sf.refRegs[resultRegIndex] = new BBoolean(((BDecimal) bRefTypeValue).booleanValue());
-                break;
-            case TypeTags.BYTE_TAG:
-                sf.refRegs[resultRegIndex] = new BBoolean(((BByte) bRefTypeValue).booleanValue());
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sf.refRegs[resultRegIndex] = new BBoolean(((BBoolean) bRefTypeValue).booleanValue());
-                break;
-            default:
-                handleTypeConversionError(strand, sf, resultRegIndex, bRefTypeValue.getType(),
-                                          typeRefCPEntry.getType());
-        }
-    }
-
-    private static void convertToByte(Strand strand, StackFrame sf, int resultRegIndex, TypeRefCPEntry typeRefCPEntry,
-                                      BRefType bRefTypeValue) {
-        switch (bRefTypeValue.getType().getTag()) {
-            case TypeTags.INT_TAG:
-                sf.refRegs[resultRegIndex] = new BByte(((BInteger) bRefTypeValue).byteValue());
-                break;
-            case TypeTags.FLOAT_TAG:
-                sf.refRegs[resultRegIndex] = new BByte(((BFloat) bRefTypeValue).byteValue());
-                break;
-            case TypeTags.STRING_TAG:
-                sf.refRegs[resultRegIndex] = new BByte(((BString) bRefTypeValue).byteValue());
-                break;
-            case TypeTags.DECIMAL_TAG:
-                sf.refRegs[resultRegIndex] = new BByte(((BDecimal) bRefTypeValue).byteValue());
-                break;
-            case TypeTags.BYTE_TAG:
-                sf.refRegs[resultRegIndex] = new BByte(((BByte) bRefTypeValue).byteValue());
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sf.refRegs[resultRegIndex] = new BByte(((BBoolean) bRefTypeValue).byteValue());
+                sf.refRegs[resultRegIndex] = new BByte(((BValueType) bRefTypeValue).byteValue());
                 break;
             default:
                 handleTypeConversionError(strand, sf, resultRegIndex, bRefTypeValue.getType(),
@@ -3612,14 +3526,17 @@ public class BVM {
         BRefType val = extractValue(ctx.currentFrame, type, reg);
         WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName(),
                 channelInSameStrand);
-        dataChannel.putData(val);
+        dataChannel.sendData(val);
     }
 
     private static WorkerDataChannel getWorkerChannel(Strand ctx, String name, boolean channelInSameStrand) {
         if (channelInSameStrand) {
-            return ctx.respCallback.getWorkerDataChannels().getWorkerDataChannel(name);
+            return ctx.currentFrame.wdChannels.getWorkerDataChannel(name);
         }
-        return ctx.respCallback.getParentWorkerDataChannels().getWorkerDataChannel(name);
+        if (ctx.fp > 0) {
+            return ctx.peekFrame(1).wdChannels.getWorkerDataChannel(name);
+        }
+        return ctx.respCallback.parentChannels.getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
@@ -3648,15 +3565,8 @@ public class BVM {
 
     private static boolean handleWorkerReceive(Strand ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg, boolean channelInSameStrand) {
-        WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
-                ctx, workerDataChannelInfo.getChannelName(), channelInSameStrand).tryTakeData(ctx);
-        if (passedInValue != null) {
-            StackFrame currentFrame = ctx.currentFrame;
-            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
-            return true;
-        } else {
-            return false;
-        }
+        return getWorkerChannel(ctx, workerDataChannelInfo.getChannelName(),
+                channelInSameStrand).tryTakeData(ctx, type, reg);
     }
 
     public static void copyArgValueForWorkerReceive(StackFrame currentSF, int regIndex, BType paramType,
@@ -4534,10 +4444,12 @@ public class BVM {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             StackFrame popedFrame = strand.popFrame();
+            popedFrame.handleChannelPanic(strand.getError(), strand.currentFrame.wdChannels);
             signalTransactionError(strand, popedFrame.trxParticipant);
             handleError(strand);
         } else {
             strand.respCallback.setError(strand.getError());
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.respCallback.parentChannels);
             signalTransactionError(strand, StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT);
             //Below is to return current thread from VM
             sf.ip = -1;

@@ -148,7 +148,7 @@ public class ModuleBuildTestCase extends BaseTest {
      */
     @Test(description = "Test building empty module")
     public void testBuildWithEmptyPkg() throws BallerinaTestException, IOException {
-        Path projectPath = tempProjectDirectory.resolve("thirdTestProject");
+        Path projectPath = tempProjectDirectory.resolve("eighthTestProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
 
         // Create empty directory
@@ -312,6 +312,22 @@ public class ModuleBuildTestCase extends BaseTest {
         LogLeecher secLeecher = new LogLeecher(buildMsg);
         balClient.runMain("test", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{secLeecher},
                           projectPath.toString());
+    }
+
+    @Test(description = "Test building a module which is not inside a project")
+    public void testBuildingModuleWithoutProject() throws BallerinaTestException, IOException {
+        Path projectPath = tempProjectDirectory.resolve("moduleWithoutProject");
+        initProject(projectPath, SINGLE_PKG_PROJECT_OPTS);
+
+        // Remove the .ballerina folder
+        FileUtils.deleteDirectory(projectPath.resolve(".ballerina").toFile());
+
+        String msg = "error: you are trying to build a module that is not inside a project. Run `ballerina init` " +
+                "from " + projectPath.toString() + " to initialize it as a project and then build the module.";
+        LogLeecher leecher = new LogLeecher(msg, LeecherType.ERROR);
+        balClient.runMain("build", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{leecher},
+                projectPath.toString());
+        leecher.waitForText(3000);
     }
 
     /**

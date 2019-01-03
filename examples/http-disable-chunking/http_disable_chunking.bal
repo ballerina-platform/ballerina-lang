@@ -25,7 +25,7 @@ service chunkingSample on new http:Listener(9092) {
             if (result is error) {
                log:printError("Error sending response", err = result);
             }
-        } else if (clientResponse is error) {
+        } else {
             http:Response errorResponse = new;
             json errMsg = { "error": "error occurred while invoking the service" };
             errorResponse.setPayload(errMsg);

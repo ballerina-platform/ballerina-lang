@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -55,8 +54,13 @@ public class LSAnnotationCache {
 
     private static HashMap<PackageID, List<BAnnotationSymbol>> serviceAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> resourceAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> remoteAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> functionAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> objectAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> clientEndpointAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> typeAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> listenerAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> channelAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
     private static List<PackageID> processedPackages = new ArrayList<>();
     
@@ -166,11 +170,26 @@ public class LSAnnotationCache {
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.RESOURCE)) {
                     addAttachment(annotationSymbol, resourceAnnotations, bPackageSymbol.pkgID);
                 }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.REMOTE)) {
+                    addAttachment(annotationSymbol, remoteAnnotations, bPackageSymbol.pkgID);
+                }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FUNCTION)) {
                     addAttachment(annotationSymbol, functionAnnotations, bPackageSymbol.pkgID);
                 }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.OBJECT)) {
+                    addAttachment(annotationSymbol, objectAnnotations, bPackageSymbol.pkgID);
+                }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CLIENT)) {
                     addAttachment(annotationSymbol, clientEndpointAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.TYPE)) {
+                    addAttachment(annotationSymbol, typeAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.LISTENER)) {
+                    addAttachment(annotationSymbol, listenerAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CHANNEL)) {
+                    addAttachment(annotationSymbol, channelAnnotations, bPackageSymbol.pkgID);
                 }
             }
         });
@@ -179,18 +198,15 @@ public class LSAnnotationCache {
     }
     
     private static List<Scope.ScopeEntry> extractAnnotationDefinitions(Map<Name, Scope.ScopeEntry> scopeEntries) {
-        return scopeEntries.entrySet().stream().map(entry -> {
-            if (entry.getValue().symbol.kind == SymbolKind.ANNOTATION) {
-                return entry.getValue();
-            }
-            return null;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        return scopeEntries.entrySet().stream()
+                .filter(entry -> entry.getValue().symbol.kind == SymbolKind.ANNOTATION)
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
     }
-    
+
     private boolean isPackageProcessed(PackageID packageID) {
-        return processedPackages.stream()
-                .map(PackageID::toString)
-                .collect(Collectors.toList())
-                .contains(packageID.toString());
+        return processedPackages
+                .stream()
+                .noneMatch(processedPkgId -> processedPkgId.toString().equals(packageID.toString()));
     }
 }

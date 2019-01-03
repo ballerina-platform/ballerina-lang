@@ -1,37 +1,57 @@
+/**
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+ 
 @type    : "view";
 @element : "documentation";
+
+@import (multiple) '../definitions.config';
 
 .documentation(@color) {
     background: ~"@{@{color}-documentation-background-color}";
     color: ~"@{@{color}-documentation-base-text-color}";
 
     .documentation-container {
-        padding: 15px 30px;
+        padding: 25px 30px;
 
         .documentation-block {
-            margin-bottom: 35px;
+            margin-bottom: 45px;
 
             .title {
                 font-size: @documentation-title-font-size;
                 margin-bottom: 5px;
         
                 .icon {
-                    margin-right: 5px;
+                    margin-right: 3px;
                 }
         
                 .object-type,
-                .service-type {
-                    font-size: 17px;
+                .service-type,
+                .value-type {
+                    font-size: 15px;
                     font-style: italic;
-                    margin-left: 10px;
+                    margin-left: 5px;
                 }
             }
             .description {
                 font-size: 15px;
             }
             .return-details {
-                margin: 20px 0;
-        
                 strong {
                     font-weight: 600;
                 }
@@ -56,6 +76,18 @@
                 display: none !important;
             }
         }
+
+        .__added {
+            animation: added_animate 3s;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes added_animate {
+            from {
+                background-color: rgb(225, 225, 50);
+            }
+            to {}
+        }
     }
 
     @media only screen and (max-width: 767px) {
@@ -79,3 +111,5 @@
 body.documentation {
     .documentation("light");
 }
+
+.loadUIOverrides();

@@ -11,7 +11,8 @@ http:ClientEndpointConfig weatherEPConfig = {
 }
 
 service headerBasedRouting on new http:Listener(9090) {
-    //`http:resourceConfig{}` annotation with GET method declares the HTTP method.
+    // `http:resourceConfig{}` annotation with 'GET' method declares the
+    // HTTP method.
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/route"
@@ -21,9 +22,9 @@ service headerBasedRouting on new http:Listener(9090) {
         http:Client weatherEP = new("http://samples.openweathermap.org",
                                     config = weatherEPConfig);
         http:Client locationEP = new("http://www.mocky.io");
-        //Create new outbound request to handle client call.
+        // Create a new outbound request to handle client call.
         http:Request newRequest = new;
-        // Checks whether 'x-type' header exists in the request.
+        // Check whether 'x-type' header exists in the request.
         if (!req.hasHeader("x-type")) {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
@@ -37,17 +38,19 @@ service headerBasedRouting on new http:Listener(9090) {
             }
             return;
         }
-        //`getHeader()` returns header value of a specified header name.
+        //`getHeader()` returns header value of the specified header name.
         string nameString = req.getHeader("x-type");
 
         http:Response|error response;
         if (nameString == "location") {
-            //`post()` represent the POST remote function of HTTP connector. Route payload to relevant service.
+            //`post()` remote function represents the 'POST' operation
+            // of the HTTP client.
+            // Route payload to the relevant service.
             response = locationEP->post("/v2/5adddd66300000bd2a4b2912",
                                         newRequest);
 
         } else {
-            //`get()` remote function can be used to make http GET call.
+            //`get()` remote function can be used to make an http GET call.
             response =
                 weatherEP->get("/data/2.5/weather?lat=35&lon=139&appid=b1b1",
                                 message = newRequest);
@@ -55,7 +58,8 @@ service headerBasedRouting on new http:Listener(9090) {
         }
 
         if (response is http:Response) {
-            // `respond()` sends back the inbound clientResponse to the caller if no any error is found.
+            // `respond()` sends back the inbound clientResponse to the caller
+            // if no error occurs.
 
             var result = caller->respond(response);
 
@@ -63,7 +67,7 @@ service headerBasedRouting on new http:Listener(9090) {
                 log:printError("Error sending response", err = result);
             }
 
-        } else if (response is error) {
+        } else {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
             errorResponse.setPayload(<string> response.detail().message);

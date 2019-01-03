@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// `Person` type is defined.
+// A record representing a `Person`.
 public type Person record {
     string name;
     int age;
@@ -9,7 +9,7 @@ public type Person record {
     Address address;
 };
 
-// `Address` type is defined.
+// A record representing an `Address`.
 public type Address record {
     string country;
     string state;
@@ -17,9 +17,8 @@ public type Address record {
     string street;
 };
 
-// The returned `tuple` is later used by Ballerina tests.
-public function main() returns (Person, Person, string)? {
-    // Specify values for the `Address` record.
+public function main() {
+    // Define an `Address` record.
     Address address = {
         country : "USA",
         state: "NC",
@@ -27,7 +26,7 @@ public function main() returns (Person, Person, string)? {
         street: "Daniels St"
     };
 
-    // Specify values for the `Person` record.
+    // Define a `Person` record.
     Person person = {
         name: "Alex",
         age: 24,
@@ -36,34 +35,31 @@ public function main() returns (Person, Person, string)? {
         address: address
     };
 
-    // Assign the `person` value to `anyValue`. So the type of the value has to be determined in runtime.
+    // Assign the `person` value to an `any` typed variable called `anyValue`.
+    // The type of the value held by `anyValue` is determined at runtime.
     any anyValue = person;
 
-    // Invoke the clone builtin method. The return type is either `Person` or `error`. Note that the `error` is returned
-    // if the value being cloned is not of `anydata` type. If the type of the value being cloned can be determined in
-    // compile time, return value is exactly of the type of the value being cloned.
-    // e.g. Person result = person.clone();
-    // In above example, 'person' is cloned instead of 'anyValue'. In compile time itself, we know the return type
-    // should be 'Person'
+    // Invoke the `.clone()` built-in method. The return type is either `Person` or `error`. Note that `error` could be 
+    // returned if the variable on which `.clone()` is called is not of type `anydata`.
+    // If the type of the value that is cloned can be determined at compile time and is `anydata`, the type of the
+    // return value is exactly the type of the value being cloned.
+    // e.g. `Person result = person.clone();`
+    // If `person` is cloned instead of `anyValue`, at compile time the compiler will determine that the return type is
+    // `Person`.
     var result = anyValue.clone();
 
-    // Type of any variable is only determined in runtime. Therefore we have to check if the returned type is `Person`
-    // or an `error`. If we cloned the `person` value, we do not need to check the type of the return value.
+    // The type of the value held by an `any` typed variable is only determined at runtime.
+    // Therefore, the type of the returned value on a clone attempt could be `error`, in case a non-`anydata` value is
+    // found.
+    // Check if the `.clone()` attempt is successful, and returns a `Person` value.
     if (result is Person) {
         io:println("Source value: ", person);
         io:println("Cloned value: ", result);
-        string refCheck = "";
-        // Check if the reference of both values is not the same.
-        if (result !== person) {
-            refCheck = "Source and Clone are at two different memory locations";
-            io:println(refCheck);
-        }
-        return (person, result, refCheck);
-
-     // If the result is an error, the error is printed out and () is returned.
+        // Check reference inequality for the original value and the cloned value.
+        io:println("Source and Clone are at two different memory locations: ", result !== person);
+    // If the result is an error, print out the detailed error message.
     } else if (result is error) {
-        io:println("Cannot clone: ", result.reason());
+        io:println("Cannot clone: ", result.detail().message);
         return ();
     }
-    return ();
 }

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.grpc.proto;
 
-import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -55,6 +54,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -83,7 +83,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesT
 @SupportedResourceParamTypes(
         expectedListenerType = @SupportedResourceParamTypes.Type(packageName = PROTOCOL_PACKAGE_GRPC, name = LISTENER),
         paramTypes = {@SupportedResourceParamTypes.Type(packageName = PROTOCOL_PACKAGE_GRPC, name = CALLER)})
-public class ServiceProtoBuilder extends AbstractCompilerPlugin {
+public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
 
     private DiagnosticLog dlog;
     private static final PrintStream error = System.err;
@@ -94,6 +94,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void setCompilerContext(CompilerContext context) {
+        super.setCompilerContext(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
@@ -108,7 +109,18 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     public void process(ServiceNode service, List<AnnotationAttachmentNode> annotations) {
         try {
             final BLangService serviceNode = (BLangService) service;
-            if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
+            // Validate service resource return type. expected error|()
+            List<BLangFunction> resources = serviceNode.getResources();
+            boolean validReturnType = true;
+            for (BLangFunction resourceNode : resources) {
+                if (!isResourceReturnsErrorOrNil(resourceNode)) {
+                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.pos,
+                            "Invalid return type: expected error?");
+                    validReturnType = false;
+                }
+            };
+
+            if (validReturnType && ServiceDefinitionValidator.validate(serviceNode, dlog)) {
                 Optional<BLangConstant> rootDescriptor = ((ArrayList) ((BLangPackage) serviceNode.parent)
                         .constants).stream().filter(var -> ROOT_DESCRIPTOR.equals(((BLangConstant) var).getName()
                         .getValue())).findFirst();

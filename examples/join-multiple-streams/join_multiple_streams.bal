@@ -20,7 +20,6 @@ stream<ProductMaterial> productionInputStream = new;
 stream<MaterialUsage> materialUsageStream = new;
 
 function initRealtimeProductionAlert() returns () {
-
     // Whenever the `materialUsageStream` stream receives an event from the streaming rules defined in the `forever`
     // block, the `printMaterialUsageAlert` function is invoked.
     materialUsageStream.subscribe(printMaterialUsageAlert);
@@ -51,7 +50,6 @@ function initRealtimeProductionAlert() returns () {
 }
 
 function printMaterialUsageAlert(MaterialUsage materialUsage) {
-
     float materialUsageDifference = (materialUsage.totalRawMaterial -
             materialUsage.totalConsumption) * 100.0 /
                 (materialUsage.totalRawMaterial);
@@ -86,7 +84,7 @@ service productMaterialService on productMaterialListener {
             res.setJsonPayload({"message": "Raw material request"
                                         + " successfully received"});
             _ = caller->respond(res);
-        } else if (jsonMsg is error) {
+        } else {
             http:Response res = new;
             res.statusCode = 500;
             res.setPayload(untaint jsonMsg.reason());
@@ -110,7 +108,7 @@ service productMaterialService on productMaterialListener {
                                     "request successfully received"});
             _ = caller->respond(res);
 
-        } else if (jsonMsg is error) {
+        } else {
             http:Response res = new;
             res.statusCode = 500;
             res.setPayload(untaint jsonMsg.reason());

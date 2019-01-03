@@ -327,7 +327,7 @@ public class IOTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*unknown format conversion 'z'.*")
+            expectedExceptionsMessageRegExp = ".*unknown format conversion 'z'.*")
     public void testSprintfInvalidFormatSpecifier() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("cow"));
@@ -336,7 +336,7 @@ public class IOTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*illegal format conversion 'x != string'.*")
+            expectedExceptionsMessageRegExp = ".*illegal format conversion 'x != string'.*")
     public void testSprintfIllegalFormatConversion() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("cow"));
@@ -350,6 +350,18 @@ public class IOTest {
                 new BString("cow"), new BString("moon"), new BInteger(2)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintfMix", args);
         Assert.assertEquals(returns[0].stringValue(), "the cow jumped over the moon, 2 times");
+    }
+
+    @Test
+    public void testSprintfForNilInputString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintfNilString");
+        Assert.assertTrue(returns[0].stringValue().isEmpty());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*illegal format conversion 'f != \\(\\)'.*")
+    public void testSprintfForNilInputFloat() {
+        BRunUtil.invoke(compileResult, "testSprintfNilFloat");
     }
 
 //    @Test(expectedExceptions = BallerinaException.class)

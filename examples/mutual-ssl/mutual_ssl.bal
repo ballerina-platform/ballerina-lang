@@ -4,6 +4,7 @@ import ballerina/log;
 // Create a new service endpoint to accept new connections
 //that are secured via mutual SSL.
 http:ServiceEndpointConfiguration helloWorldEPConfig = {
+
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -13,23 +14,29 @@ http:ServiceEndpointConfiguration helloWorldEPConfig = {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
+         // Configure the preferred SSL protocol and the versions to enable.
         protocol: {
             name: "TLS",
             versions: ["TLSv1.2", "TLSv1.1"]
         },
+
+         // Configure the preferred ciphers.
         ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
-        // Enable mutual SSL.
+
+         // Enable mutual SSL.
         sslVerifyClient: "require"
+
     }
 };
 
+// Create a listener endpoint.
 listener http:Listener helloWorldEP = new(9095, config = helloWorldEPConfig);
 
 @http:ServiceConfig {
     basePath: "/hello"
 }
 
-// Bind the service to the endpoint that you declared above.
+// Bind the service to the listener endpoint that you declared earlier.
 service helloWorld on helloWorldEP {
     @http:ResourceConfig {
         methods: ["GET"],
@@ -37,11 +44,8 @@ service helloWorld on helloWorldEP {
     }
 
     resource function sayHello(http:Caller caller, http:Request req) {
-        http:Response res = new;
-        // Set the response payload.
-        res.setPayload("Successful");
-        // Send response to client.
-        var result = caller->respond(res);
+        // Send response to the caller.
+        var result = caller->respond("Successful");
 
         if (result is error) {
             log:printError("Error in responding", err = result);
@@ -49,10 +53,9 @@ service helloWorld on helloWorldEP {
     }
 }
 
-// Create a new client endpoint to connect to the service endpoint you created
-//above via mutual SSL. The Ballerina client can be used to connect to the
-//created HTTPS listener. Provide the `keyStoreFile`, `keyStorePassword`,
-//`trustStoreFile` and `trustStorePassword` in the client.
+// Create a new client configuration to be passed to the client endpoint.
+// Configure the `keyStoreFile`, `keyStorePassword`, `trustStoreFile`, and
+ // `trustStorePassword` to enable mutual SSL.
 http:ClientEndpointConfig clientEPConfig = {
     secureSocket: {
         keyStore: {
@@ -69,19 +72,33 @@ http:ClientEndpointConfig clientEPConfig = {
         ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
     }
 };
+
 public function main() {
+    // Create an HTTP client to interact with the created listener endpoint.
     http:Client clientEP = new("https://localhost:9095",
                                 config = clientEPConfig);
-    // Create a request.
+
+    // Send a GET request to the listener.
     var resp = clientEP->get("/hello");
+
     if (resp is http:Response) {
+        // If the request is successful, retrieve the text payload from the
+        // response.
         var payload = resp.getTextPayload();
+
         if (payload is string) {
+            // Log the retrieved text paylod.
             log:printInfo(payload);
-        } else if (payload is error) {
-            log:printError(<string> payload.detail().message);
+
+        } else {
+            // If an error occurs while retrieving the text payload, log
+            // the error.
+            log:printError(<string>payload.detail().message);
+
         }
-    } else if (resp is error) {
-        log:printError(<string> resp.detail().message);
+    } else {
+        // If an error occurs when getting the response, log the error.
+        log:printError(<string>resp.detail().message);
+
     }
 }

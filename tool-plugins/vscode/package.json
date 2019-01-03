@@ -184,7 +184,11 @@
             },
             {
                 "command": "ballerina.showDocs",
-                "title": "Open Doc Preview",
+                "title": "Show Documentation Preview",
+                "icon": {
+                    "dark": "./resources/images/icons/documentation-inverse.svg",
+                    "light": "./resources/images/icons/documentation.svg"
+                },
                 "category": "Ballerina"
             },
             {
@@ -205,12 +209,12 @@
             "editor/title": [
                 {
                     "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showAPIEditor",
+                    "command": "ballerina.showDiagram",
                     "group": "navigation"
                 },
                 {
                     "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showDiagram",
+                    "command": "ballerina.showDocs",
                     "group": "navigation"
                 }
             ],
@@ -218,6 +222,11 @@
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showDiagram",
+                    "group": "navigation"
+                },
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showDocs",
                     "group": "navigation"
                 },
                 {
@@ -243,6 +252,7 @@
         "cross-env": "^5.2.0",
         "glob": "^7.1.3",
         "lodash": "^4.17.11",
+        "mousetrap": "^1.6.2",
         "ms-wmic": "^1.0.4",
         "openport": "0.0.4",
         "ps-node": "^0.1.6",

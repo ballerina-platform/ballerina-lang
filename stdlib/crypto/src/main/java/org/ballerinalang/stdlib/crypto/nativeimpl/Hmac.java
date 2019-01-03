@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -59,7 +58,7 @@ public class Hmac extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String baseString = StringEscapeUtils.escapeJava(context.getStringArgument(0));
+        String baseString = context.getStringArgument(0);
         String keyString = context.getStringArgument(1);
         BString algorithm = context.getNullableRefArgument(0) != null ?
                 (BString) context.getNullableRefArgument(0) : new BString("");

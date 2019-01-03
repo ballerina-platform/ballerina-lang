@@ -1,5 +1,26 @@
+/**
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+ 
 @type    : "view";
 @element : "diagram";
+
+@import (multiple) '../definitions.config';
 
 .diagram(@color) {
     background: ~"@{@{color}-diagram-background-color}";
@@ -31,7 +52,7 @@
                 fill: ~"@{@{color}-diagram-panel-header-background-color}";
 
                 .panel-icon {
-                    font-family: @diagram-icon-font;
+                    font-family: @iconFont;
                 }
                 text {
                     fill: ~"@{@{color}-diagram-panel-header-text-color}";
@@ -40,6 +61,24 @@
             }
             
             .panel {
+                .match{
+                    line{
+                        stroke: ~"@{@{color}-diagram-panel-header-text-color}";
+                        stroke-width: 1px;
+                    }
+                    text {
+                        fill: ~"@{@{color}-diagram-panel-header-text-color}";
+                    }
+                    polygon{
+                        stroke: ~"@{@{color}-diagram-panel-header-text-color}";
+                        stroke-width: 1px;
+                    }
+                }
+                .frame-border {
+                    fill: none;
+                    stroke-width: 1px;
+                    stroke: ~"@{@{color}-diagram-panel-header-text-color}";
+                }
                 .statement {
                     pointer-events: all;
                 }
@@ -52,7 +91,7 @@
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
 
                     .panel-icon {
-                        font-family: @diagram-icon-font;
+                        font-family: @iconFont;
                     }
                     text {
                         fill: ~"@{@{color}-diagram-panel-header-text-color}";
@@ -123,6 +162,9 @@
                         }
                     }
                     .condition {
+                        .condition-case {
+                            font-style: italic;
+                        }
                         .condition-case-background {
                             fill: ~"@{@{color}-diagram-condition-case-background-color}";
                         }
@@ -141,7 +183,7 @@
                         stroke-width: @diagram-condition-line-stroke-width;
                     }
                     .condition-block {
-                        .arrow-head {
+                        .condition-arrow-head {
                             fill: ~"@{@{color}-diagram-condition-line-worker-arrow-head-color}";
                         }
                     }
@@ -179,6 +221,7 @@
                         fill: ~"@{@{color}-diagram-menu-item-background-color}";
 
                         text {
+                            cursor: pointer;
                             fill: ~"@{@{color}-diagram-menu-item-text-color}";
                         }
                         &:hover {
@@ -220,3 +263,5 @@
 body.diagram {
     .diagram("light");
 }
+
+.loadUIOverrides();

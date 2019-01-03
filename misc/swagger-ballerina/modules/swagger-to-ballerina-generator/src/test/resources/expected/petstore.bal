@@ -49,7 +49,7 @@ service SwaggerPetstore on ep0, ep1 {
         methods:["GET"],
         path:"/pets"
     }
-    resource function listPets (http:Caller outboundEp, http:Request _listPetsReq) {
+    resource function listPets (http:Caller outboundEp, http:Request _listPetsReq) returns error? {
         http:Response _listPetsRes = listPets(_listPetsReq);
         _ = outboundEp->respond(_listPetsRes);
     }
@@ -62,7 +62,7 @@ service SwaggerPetstore on ep0, ep1 {
         methods:["POST"],
         path:"/pets"
     }
-    resource function resource1 (http:Caller outboundEp, http:Request _resource1Req) {
+    resource function resource1 (http:Caller outboundEp, http:Request _resource1Req) returns error? {
         http:Response _resource1Res = resource1(_resource1Req);
         _ = outboundEp->respond(_resource1Res);
     }
@@ -85,7 +85,7 @@ service SwaggerPetstore on ep0, ep1 {
         methods:["GET"],
         path:"/pets/{petId}"
     }
-    resource function showPetById (http:Caller outboundEp, http:Request _showPetByIdReq, string petId) {
+    resource function showPetById (http:Caller outboundEp, http:Request _showPetByIdReq, string petId) returns error? {
         http:Response _showPetByIdRes = showPetById(_showPetByIdReq, petId);
         _ = outboundEp->respond(_showPetByIdRes);
     }

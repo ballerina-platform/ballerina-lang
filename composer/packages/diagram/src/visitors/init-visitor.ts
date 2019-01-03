@@ -1,11 +1,12 @@
 import {
     Assignment, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Function, Return, VariableDef, VisibleEndpoint, Visitor
+    ExpressionStatement, Function, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
 } from "@ballerina/ast-model";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
 import { BlockViewState } from "../view-model/block";
 import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
+import { WorkerSendViewState } from "../view-model/worker-send";
 
 function initStatement(node: ASTNode) {
     if (!node.viewState) {
@@ -80,5 +81,9 @@ export const visitor: Visitor = {
         if (!node.viewState) {
             node.viewState = new ReturnViewState();
         }
+    },
+
+    beginVisitWorkerSend(node: WorkerSend) {
+        node.viewState = new WorkerSendViewState();
     }
 };

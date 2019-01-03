@@ -69,6 +69,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private String pkgVersion;
     private boolean isInErrorState = false;
     private boolean enableExperimentalFeatures;
+    private boolean isSiddhiRuntimeEnabled;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
@@ -76,6 +77,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.enableExperimentalFeatures = Boolean.parseBoolean(
                 CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
+        this.isSiddhiRuntimeEnabled = Boolean.parseBoolean(
+                CompilerOptions.getInstance(context).get(CompilerOptionName.SIDDHI_RUNTIME_ENABLED));
     }
 
     @Override
@@ -929,6 +932,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 || (ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)
                 || (ctx.parent instanceof BallerinaParser.MatchPatternClauseContext))) {
             this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        } else if (ctx.Identifier() != null) {
+            this.pkgBuilder.addBindingPatternNameWhitespace(getWS(ctx));
         }
     }
 
@@ -1655,6 +1660,28 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createSimpleVariableReference(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitStringFunctionInvocationReference(BallerinaParser.StringFunctionInvocationReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        TerminalNode node = ctx.QuotedStringLiteral();
+        DiagnosticPos pos = getCurrentPos(ctx);
+        Set<Whitespace> ws = getWS(ctx);
+
+        String actualText = node.getText();
+        actualText = actualText.substring(1, actualText.length() - 1);
+        actualText = StringEscapeUtils.unescapeJava(actualText);
+
+        this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, actualText, node.getText());
+
+        boolean argsAvailable = ctx.invocation().invocationArgList() != null;
+        String invocation = ctx.invocation().anyIdentifierName().getText();
+        boolean safeNavigate = ctx.invocation().NOT() != null;
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
     }
 
     @Override
@@ -3081,7 +3108,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startForeverNode(getCurrentPos(ctx));
+        this.pkgBuilder.startForeverNode(getCurrentPos(ctx), isSiddhiRuntimeEnabled);
     }
 
     @Override

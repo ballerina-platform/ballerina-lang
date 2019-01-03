@@ -1,7 +1,7 @@
 {
   "ws": [
     {
-      "ws": "\n\n",
+      "ws": "\n",
       "i": 7,
       "text": "function",
       "static": true
@@ -39,22 +39,22 @@
   ],
   "position": {
     "startColumn": 1,
-    "startLine": 3,
+    "startLine": 2,
     "endColumn": 2,
-    "endLine": 5
+    "endLine": 4
   },
-  "id": "418f6342-d6a7-485e-9fe7-0eeabbb63bb3",
+  "id": "3cf98bb5-6482-4583-a923-c1da14627d9b",
   "VisibleEndpoints": [],
   "workers": [],
   "returnTypeAnnotationAttachments": [],
   "name": {
     "position": {
       "startColumn": 10,
-      "startLine": 3,
+      "startLine": 2,
       "endColumn": 14,
-      "endLine": 3
+      "endLine": 2
     },
-    "id": "4b15936a-58bd-4531-82d1-f6963cc8d13c",
+    "id": "796b8dc5-21ac-4620-95bf-67982f55725c",
     "literal": false,
     "value": "name",
     "kind": "Identifier",
@@ -64,11 +64,11 @@
   "returnTypeNode": {
     "position": {
       "startColumn": 10,
-      "startLine": 3,
+      "startLine": 2,
       "endColumn": 16,
-      "endLine": 3
+      "endLine": 2
     },
-    "id": "ce8428a0-6a73-4b7f-aa8b-c208ba8e8c19",
+    "id": "e8355f85-b186-4d63-99c9-0905a926c472",
     "symbolType": [
       "null"
     ],
@@ -79,12 +79,12 @@
   },
   "defaultableParameters": [],
   "deprecatedAttachments": [],
-  "endpointNodes": [],
   "body": {
-    "id": "d911c9e2-a67e-4e83-be86-1e28b8ca7b0f",
+    "id": "da67cc14-e4f2-4de3-89b4-8fdd18be393e",
     "statements": [],
     "kind": "Block"
   },
+  "endpointNodes": [],
   "parameters": [],
   "kind": "Function",
   "public": false,

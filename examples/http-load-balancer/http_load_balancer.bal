@@ -16,11 +16,10 @@ http:LoadBalanceClient lbBackendEP = new({
 });
 
 
-// Create an HTTP service bound to the endpoint (loadBlancerEP).
+// Create an HTTP service bound to the endpoint (`loadBlancerEP`).
 @http:ServiceConfig {
     basePath: "/lb"
 }
-
 service loadBalancerDemoService on new http:Listener (9090) {
     // Create a REST resource within the API.
     @http:ResourceConfig {
@@ -40,13 +39,13 @@ service loadBalancerDemoService on new http:Listener (9090) {
                 log:printError("Error sending response",
                                 err = responseToCaller);
             }
-        } else if (response is error) {
+        } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> response.detail().message);
+            outResponse.setPayload(<string>response.detail().message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending respsonse", err = responseToCaller);
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -59,7 +58,7 @@ service mock1 on backendEP {
         path: "/"
     }
     resource function mock1Resource(http:Caller caller, http:Request req) {
-        var responseToCaller = caller->respond("Mock1 Resource is Invoked.");
+        var responseToCaller = caller->respond("Mock1 resource was invoked.");
         if (responseToCaller is error) {
             log:printError("Error sending response from mock service", err = responseToCaller);
         }
@@ -72,7 +71,7 @@ service mock2 on backendEP {
         path: "/"
     }
     resource function mock2Resource(http:Caller caller, http:Request req) {
-        var responseToCaller = caller->respond("Mock2 Resource is Invoked.");
+        var responseToCaller = caller->respond("Mock2 resource was invoked.");
         if (responseToCaller is error) {
             log:printError("Error sending response from mock service", err = responseToCaller);
         }
@@ -85,7 +84,7 @@ service mock3 on backendEP {
         path: "/"
     }
     resource function mock3Resource(http:Caller caller, http:Request req) {
-        var responseToCaller = caller->respond("Mock3 Resource is Invoked.");
+        var responseToCaller = caller->respond("Mock3 resource was invoked.");
         if (responseToCaller is error) {
             log:printError("Error sending response from mock service", err = responseToCaller);
         }

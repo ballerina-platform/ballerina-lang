@@ -7,4 +7,5 @@ export class SimpleBBox {
     public opaque: boolean = false;
     public leftMargin: number = 0;
     public label: string = "";
+    public paddingTop: number = 0;
 }

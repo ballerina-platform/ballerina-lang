@@ -18,7 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
@@ -164,16 +163,14 @@ public class Instruction {
         public boolean channelInSameStrand;
 
         InstructionWRKSendReceive(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
-                                  int sigCPIndex, BType type, int reg, boolean isWorkerSend) {
+                                  int sigCPIndex, BType type, int reg, boolean channelInSameStrand) {
             super(opcode);
             this.channelRefCPIndex = channelRefCPIndex;
             this.dataChannelInfo = dataChannelInfo;
             this.sigCPIndex = sigCPIndex;
             this.type = type;
             this.reg = reg;
-            this.channelInSameStrand = isWorkerSend ? dataChannelInfo.getSource()
-                    .equals(BLangConstants.DEFAULT_WORKER_NAME) : dataChannelInfo.getTarget()
-                    .equals(BLangConstants.DEFAULT_WORKER_NAME);
+            this.channelInSameStrand = channelInSameStrand;
         }
 
         @Override
@@ -407,9 +404,10 @@ public class Instruction {
         public BType type;
         public int reg;
         public int retReg;
+        public boolean isSameStrand;
 
         InstructionWRKSyncSend(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
-                               int sigCPIndex, BType type, int reg, int retReg) {
+                               int sigCPIndex, BType type, int reg, int retReg, boolean isSameStrand) {
             super(opcode);
             this.channelRefCPIndex = channelRefCPIndex;
             this.dataChannelInfo = dataChannelInfo;
@@ -417,6 +415,7 @@ public class Instruction {
             this.type = type;
             this.reg = reg;
             this.retReg = retReg;
+            this.isSameStrand = isSameStrand;
         }
         @Override
         public String toString() {

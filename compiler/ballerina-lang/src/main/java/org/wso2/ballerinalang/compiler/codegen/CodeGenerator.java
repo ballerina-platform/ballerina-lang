@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
@@ -58,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -160,7 +162,9 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -227,6 +231,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -322,7 +327,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Integer> tryCatchErrorRangeFromIPStack = new Stack<>();
     private Stack<Integer> tryCatchErrorRangeToIPStack = new Stack<>();
     private Stack<RegIndex> abortedFromStatus = new Stack<>();
-
+    private static CompilerOptions options;
     private int workerChannelCount = 0;
 
     public static CodeGenerator getInstance(CompilerContext context) {
@@ -330,7 +335,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (codeGenerator == null) {
             codeGenerator = new CodeGenerator(context);
         }
-
+        options = CompilerOptions.getInstance(context);
         return codeGenerator;
     }
 
@@ -1469,7 +1474,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex regIndex = calcAndGetExprRegIndex(trapExpr);
         emit(InstructionCodes.RMOVE, trapExpr.expr.regIndex, regIndex);
         int toIP = nextIP();
-        errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP, toIP, regIndex));
+        errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP - 1, toIP, regIndex));
     }
 
     public void visit(BLangTypedescExpr accessExpr) {
@@ -3812,7 +3817,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
-        pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
+        HashSet<BLangImportPackage> importPkgList = new HashSet<>();
+        importPkgList.addAll(pkgNode.imports);
+
+        // If tests are enabled then get the imports of the testable package as well.
+        String testsEnabled = options.get(CompilerOptionName.SKIP_TESTS);
+        if (testsEnabled != null && testsEnabled.equals(Constants.SKIP_TESTS)) {
+            pkgNode.getTestablePkgs().forEach(testablePackage -> importPkgList.addAll(testablePackage.imports));
+        }
+        importPkgList.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
         if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())
                 && !packageSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
             programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);

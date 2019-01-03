@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
@@ -119,6 +120,13 @@ public class BCompileUtil {
 
     public static CompileResult compileWithoutExperimentalFeatures(String sourceFilePath) {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN, false);
+    }
+
+    public static CompileResult compile(String sourceFilePath, boolean isSiddhiRuntimeEnabled) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        return compile(sourceRoot.toString(), packageName, CompilerPhase.CODE_GEN, isSiddhiRuntimeEnabled, true);
     }
 
     /**
@@ -241,6 +249,29 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
+     * @param sourceRoot root path of the modules
+     * @param packageName name of the module to compile
+     * @param compilerPhase Compiler phase
+     * @param isSiddhiRuntimeEnabled Flag indicating to enable siddhi runtime for stream processing
+     * @param enableExpFeatures Flag indicating to enable the experimental features
+     * @return Semantic errors
+     */
+    public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
+                                        boolean isSiddhiRuntimeEnabled, boolean enableExpFeatures) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.SIDDHI_RUNTIME_ENABLED, Boolean.toString(isSiddhiRuntimeEnabled));
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+
+        return compile(context, packageName, compilerPhase, false);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
      * @param sourceRoot    root path of the modules
      * @param packageName   name of the module to compile
      * @param compilerPhase Compiler phase
@@ -282,6 +313,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(TEST_ENABLED, "true");
+        options.put(SKIP_TESTS, "false");
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
         return context;
     }

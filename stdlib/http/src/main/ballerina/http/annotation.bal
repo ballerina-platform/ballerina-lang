@@ -79,7 +79,8 @@ public type Versioning record {
 # + subProtocols - Negotiable sub protocol by the service
 # + idleTimeoutInSeconds - Idle timeout for the client connection. This can be triggered by putting
 #                          an `onIdleTimeout` resource in the WebSocket service.
-# + maxFrameSize - The maximum payload size of a WebSocket frame in bytes
+# + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
+#                  If this is not set or is negative or zero the default frame size of 65536 will be used.
 public type WSServiceConfig record {
     Listener[] endpoints = [];
     string path = "";

@@ -132,15 +132,16 @@ public class BVMExecutor {
             globalProps.putAll(properties);
         }
 
-        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
+        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback,
+                resourceInfo.workerSendInChannels);
         Strand strand = new Strand(programFile, resourceInfo.getName(), globalProps, strandCallback);
 
-        infectResourceFunction(responseCallback, strand);
+        infectResourceFunction(strandCallback, strand);
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
                                         resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
-                                        FunctionFlags.NOTHING);
+                                        FunctionFlags.NOTHING, resourceInfo.workerSendInChannels);
         copyArgValues(args, idf, resourceInfo.getParamTypes());
         strand.pushFrame(idf);
         // Start observation after pushing the stack frame
@@ -150,7 +151,7 @@ public class BVMExecutor {
         BVMScheduler.schedule(strand);
     }
 
-    private static void infectResourceFunction(CallableUnitCallback responseCallback, Strand strand) {
+    private static void infectResourceFunction(StrandResourceCallback strandResourceCallback, Strand strand) {
         String gTransactionId = (String) strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID);
         if (gTransactionId != null) {
             String globalTransactionId = strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID).toString();
@@ -158,6 +159,7 @@ public class BVMExecutor {
             TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
                     url, "2pc");
             strand.setLocalTransactionContext(transactionLocalContext);
+            strandResourceCallback.setTransactionLocalContext(transactionLocalContext);
         }
     }
 
@@ -168,11 +170,13 @@ public class BVMExecutor {
             globalProps.putAll(properties);
         }
 
-        StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
+        StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0],
+                callableInfo.workerSendInChannels);
         Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
-                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1, FunctionFlags.NOTHING);
+                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1, FunctionFlags.NOTHING,
+                callableInfo.workerSendInChannels);
         copyArgValues(args, idf, callableInfo.getParamTypes());
         strand.pushFrame(idf);
 

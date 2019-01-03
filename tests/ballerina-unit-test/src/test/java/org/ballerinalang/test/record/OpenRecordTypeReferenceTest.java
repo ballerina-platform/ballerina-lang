@@ -55,7 +55,7 @@ public class OpenRecordTypeReferenceTest {
     public void negativeTests() {
         CompileResult negative = BCompileUtil.compile("test-src/record/open_record_type_reference_negative.bal");
         int index = 0;
-        assertEquals(negative.getErrorCount(), 13);
+        assertEquals(negative.getErrorCount(), 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'PersonObj' is not a record", 28, 6);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'IntOrFloat' is not a record", 35, 6);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'FiniteT' is not a record", 41, 6);
@@ -68,7 +68,9 @@ public class OpenRecordTypeReferenceTest {
         BAssertUtil.validateError(negative, index++, "incompatible types: 'xml' is not a record", 51, 6);
         BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 60, 6);
         BAssertUtil.validateError(negative, index++, "missing non-defaultable required record field 'gender'", 77, 18);
-        BAssertUtil.validateError(negative, index, "redeclared symbol 'name'", 82, 6);
+        BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 82, 6);
+        BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 86, 6);
+        BAssertUtil.validateError(negative, index, "unknown type 'Data'", 91, 6);
     }
 
     @Test(description = "Test case for type referencing all value-typed fields")

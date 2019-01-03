@@ -30,18 +30,24 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.actions.httpclient.AbstractHTTPAction;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -51,6 +57,8 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  * Utility class for websockets.
  */
 public class WebSocketUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
     public static ProgramFile getProgramFile(Resource resource) {
         return resource.getResourceInfo().getPackageInfo().getProgramFile();
@@ -190,9 +198,48 @@ public class WebSocketUtil {
 
     }
 
-    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) {
+    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) throws IllegalAccessException {
         connectionInfo.getWebSocketEndpoint().put(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
                                                   new BBoolean(connectionInfo.getWebSocketConnection().isOpen()));
+    }
+
+    public static int findMaxFrameSize(Struct annotation) {
+        long size = annotation.getIntField(WebSocketConstants.ANNOTATION_ATTR_MAX_FRAME_SIZE);
+        if (size <= 0) {
+            return WebSocketConstants.DEFAULT_MAX_FRAME_SIZE;
+        }
+        try {
+            return Math.toIntExact(size);
+        } catch (ArithmeticException e) {
+            logger.warn("The value set for maxFrameSize needs to be less than " + Integer.MAX_VALUE +
+                                ". The maxFrameSize value is set to " + Integer.MAX_VALUE);
+            return Integer.MAX_VALUE;
+        }
+
+    }
+
+    public static int findIdleTimeoutInSeconds(Struct annAttrIdleTimeout) {
+        long timeout = annAttrIdleTimeout.getIntField(WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT);
+        if (timeout <= 0) {
+            return 0;
+        }
+        try {
+            return Math.toIntExact(timeout);
+        } catch (ArithmeticException e) {
+            logger.warn("The value set for idleTimeoutInSeconds needs to be less than" + Integer.MAX_VALUE +
+                                ". The idleTimeoutInSeconds value is set to " + Integer.MAX_VALUE);
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    public static String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
+        Value[] subProtocolsInAnnotation = annAttrSubProtocols.getArrayField(
+                WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS);
+        if (subProtocolsInAnnotation == null) {
+            return new String[0];
+        }
+        return  Arrays.stream(subProtocolsInAnnotation).map(Value::getStringValue)
+                .toArray(String[]::new);
     }
 
     private WebSocketUtil() {

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.bvm.SafeStrandCallback.CallbackStatus;
+import org.ballerinalang.bre.bvm.StrandCallback.CallbackStatus;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 
 import java.util.List;
@@ -128,23 +129,26 @@ public class WaitCallbackHandler {
         return false;
     }
 
-    static Strand handleFlush(Strand strand, int retReg, String[] channels) {
-        Strand flushStrand = strand;
+    static boolean handleFlush(Strand strand, int retReg, String[] channels) {
+        strand.configureFlushDetails(channels);
         for (int i = 0; i < channels.length; i++) {
-            WorkerDataChannel dataChannel = strand.respCallback.parentChannels.getWorkerDataChannel(channels[i]);
-            if (dataChannel.isFailed(strand, retReg)) {
-                return strand;
+            WorkerDataChannel dataChannel;
+            if (strand.currentFrame.callableUnitInfo.getDefaultWorkerInfo()
+                    .getWorkerName().equals(BLangConstants.DEFAULT_WORKER_NAME)) {
+                dataChannel = strand.currentFrame.wdChannels.getWorkerDataChannel(channels[i]);
+            } else {
+                if (strand.fp > 0) {
+                    dataChannel = strand.peekFrame(1).wdChannels.getWorkerDataChannel(channels[i]);
+                } else {
+                    dataChannel = strand.respCallback.parentChannels.getWorkerDataChannel(channels[i]);
+                }
+
             }
-            if (dataChannel.isPanicked(strand, retReg)) {
-                BVM.handleError(strand);
-                return null;
-            }
-            if (!dataChannel.isDataSent(strand, retReg)) {
-                flushStrand = null;
-                break;
+            if (dataChannel.flushChannel(strand, retReg)) {
+                return true;
             }
         }
-        return flushStrand;
+        return false;
     }
 
     private static void copyReturnsInWaitMultiple(StackFrame sf, SafeStrandCallback strandCallback, int retReg,

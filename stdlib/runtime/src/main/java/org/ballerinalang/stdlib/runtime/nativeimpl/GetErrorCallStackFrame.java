@@ -37,7 +37,7 @@ public class GetErrorCallStackFrame extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         final BError errorStruct = (BError) context.getRefArgument(0);
-        BValueArray errorStack = new BValueArray();
+        BValueArray errorStack = new BValueArray(errorStruct.getType());
         for (int i = 0; i < errorStruct.callStack.size(); i++) {
             errorStack.add(i, errorStruct.callStack.get(i));
         }

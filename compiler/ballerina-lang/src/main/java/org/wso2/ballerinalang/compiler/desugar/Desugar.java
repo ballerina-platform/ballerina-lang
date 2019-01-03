@@ -2489,7 +2489,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
-                .stream().map(send -> send.workerIdentifier).collect(Collectors.toList());
+                .stream().map(send -> send.workerIdentifier).distinct().collect(Collectors.toList());
         result = workerFlushExpr;
     }
 
@@ -3330,7 +3330,7 @@ public class Desugar extends BLangNodeVisitor {
         //This won't analyse if else blocks etc to see whether return statements are present
         BLangBlockStmt blockStmt = invokableNode.body;
         if (invokableNode.workers.size() == 0 &&
-                invokableNode.returnTypeNode.type == this.symTable.nilType
+                invokableNode.symbol.type.getReturnType().isNullable()
                 && (blockStmt.stmts.size() < 1 ||
                 blockStmt.stmts.get(blockStmt.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
 
@@ -3817,6 +3817,10 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression expression) {
 
         BLangBinaryExpr binaryExpr;
+        if (NodeKind.BRACED_TUPLE_EXPR == expression.getKind() && ((BLangBracedOrTupleExpr) expression).isBracedExpr) {
+            return createBinaryExpression(pos, varRef, ((BLangBracedOrTupleExpr) expression).expressions.get(0));
+        }
+
         if (NodeKind.BINARY_EXPR == expression.getKind()) {
             binaryExpr = (BLangBinaryExpr) expression;
             BLangExpression lhsExpr = createBinaryExpression(pos, varRef, binaryExpr.lhsExpr);

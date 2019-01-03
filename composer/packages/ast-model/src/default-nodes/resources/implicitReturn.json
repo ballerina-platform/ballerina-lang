@@ -1,0 +1,114 @@
+{
+  "position": {
+    "startColumn": 5,
+    "startLine": 25,
+    "endColumn": 6,
+    "endLine": 27
+  },
+  "id": "0cee7bca-b041-4715-b9e8-629bb4110d27",
+  "variable": {
+    "position": {
+      "startColumn": 5,
+      "startLine": 25,
+      "endColumn": 6,
+      "endLine": 27
+    },
+    "id": "c679ac56-d278-48d5-ad73-92aafa04e0c0",
+    "symbolType": [
+      "future"
+    ],
+    "name": {
+      "id": "04a60ad6-9cb4-4ccf-826e-754e25aeb00f",
+      "literal": false,
+      "value": "workerName",
+      "kind": "Identifier",
+      "valueWithBar": "workerName"
+    },
+    "deprecatedAttachments": [],
+    "annotationAttachments": [],
+    "initialExpression": {
+      "position": {
+        "startColumn": 5,
+        "startLine": 25,
+        "endColumn": 6,
+        "endLine": 27
+      },
+      "id": "ee5445a1-a34f-4eec-be5c-96d22e05b10b",
+      "symbolType": [],
+      "invocationType": "FUNCTION",
+      "iterableOperation": false,
+      "argumentExpressions": [],
+      "packageAlias": {
+        "id": "573ec02d-3071-4167-ae0b-a5c8d661dd4d",
+        "literal": false,
+        "value": "",
+        "kind": "Identifier",
+        "valueWithBar": ""
+      },
+      "async": true,
+      "actionInvocation": false,
+      "name": {
+        "id": "c6d4663f-a819-44ff-abab-15ca97c24ae7",
+        "literal": false,
+        "value": "call",
+        "kind": "Identifier",
+        "valueWithBar": "call"
+      },
+      "expression": {
+        "position": {
+          "startColumn": 5,
+          "startLine": 25,
+          "endColumn": 6,
+          "endLine": 27
+        },
+        "id": "c8d1fe41-67f0-46b7-b695-417753459578",
+        "symbolType": [
+          "other"
+        ],
+        "variableName": {
+          "id": "c5479524-8d46-4510-baa9-f4fff97d11b9",
+          "literal": false,
+          "value": "0workerName",
+          "kind": "Identifier",
+          "valueWithBar": "0workerName"
+        },
+        "packageAlias": {
+          "id": "b27baddb-d206-4eb6-af65-821b5aabb13d",
+          "literal": false,
+          "value": "",
+          "kind": "Identifier",
+          "valueWithBar": ""
+        },
+        "kind": "SimpleVariableRef"
+      },
+      "kind": "Invocation",
+      "isExpression": true
+    },
+    "kind": "Variable",
+    "public": false,
+    "private": false,
+    "remote": false,
+    "native": false,
+    "final": true,
+    "attached": false,
+    "lambda": false,
+    "worker": false,
+    "parallel": false,
+    "listener": false,
+    "deprecated": false,
+    "readonly": false,
+    "function_final": false,
+    "interface": false,
+    "required": false,
+    "record": false,
+    "compensate": false,
+    "abstract": false,
+    "optional": false,
+    "testable": false,
+    "client": false,
+    "resource": false,
+    "service": false,
+    "constant": false
+  },
+  "kind": "VariableDef"
+}

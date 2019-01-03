@@ -18,8 +18,10 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
@@ -39,23 +41,40 @@ public abstract class StrandCallback {
     private BError error;
     private ObserverContext observerContext;
     //TODO try to generalize below to normal data channels
-    //channels are only used in SafeStrandCallback
-    WDChannels parentChannels;
-    WDChannels wdChannels;
+
+    private volatile CallbackStatus status;
+
+    private CallbackStatus valueStatus;
+
+    ChannelDetails[] sendIns;
 
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
-    StrandCallback(BType retType) {
+    public WDChannels parentChannels;
+
+    StrandCallback(BType retType, ChannelDetails[] sendIns, WDChannels parentChannels) {
         this.retType = retType;
-        this.wdChannels = new WDChannels();
+        this.status = CallbackStatus.NOT_RETURNED;
+        this.sendIns = sendIns;
+        this.parentChannels = parentChannels;
+        BVMScheduler.strandCountUp();
     }
 
     /**
      * Method to signal the callback once done.
      */
     public void signal() {
+        this.status = valueStatus;
+        if (this.status == null) {
+            this.status =  CallbackStatus.VALUE_RETURNED;
+        }
         // Stop observation
         ObserveUtils.stopObservation(observerContext);
+        BVMScheduler.strandCountDown();
+    }
+
+    public CallbackStatus getStatus() {
+        return this.status;
     }
 
     /**
@@ -65,6 +84,7 @@ public abstract class StrandCallback {
      */
     public void setIntReturn(long value) {
         this.longVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -74,6 +94,7 @@ public abstract class StrandCallback {
      */
     public void setFloatReturn(double value) {
         this.doubleVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -83,6 +104,7 @@ public abstract class StrandCallback {
      */
     public void setStringReturn(String value) {
         this.stringVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -92,6 +114,7 @@ public abstract class StrandCallback {
      */
     public void setBooleanReturn(int value) {
         this.intVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -101,6 +124,7 @@ public abstract class StrandCallback {
      */
     public void setByteReturn(int value) {
         this.intVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -110,6 +134,11 @@ public abstract class StrandCallback {
      */
     public void setRefReturn(BRefType<?> value) {
         this.refVal = value;
+        if (BVM.checkIsType(this.refVal, BTypes.typeError)) {
+            this.valueStatus = CallbackStatus.ERROR_RETURN;
+        } else {
+            this.valueStatus = CallbackStatus.VALUE_RETURNED;
+        }
     }
 
     /**
@@ -119,6 +148,7 @@ public abstract class StrandCallback {
      */
     public void setError(BError error) {
         this.error = error;
+        this.valueStatus = CallbackStatus.PANIC;
     }
 
     /**
@@ -203,20 +233,15 @@ public abstract class StrandCallback {
     }
 
     /**
-     * Method to get the worker data channels of the strand this callback is associated with.
-     * @return worker data channels or null
+     * Callback statuses.
      */
-    WDChannels getWorkerDataChannels() {
-        //Used in SafeStrandCallback, override if required
-        return this.wdChannels;
-    }
+    public static enum CallbackStatus {
+        NOT_RETURNED(false), VALUE_RETURNED(true), ERROR_RETURN(true), PANIC(false);
 
-    /**
-     * Method to get the parent worker data channels of the strand this callback is associated with.
-     * @return worker data channels or null
-     */
-    WDChannels getParentWorkerDataChannels() {
-        //used in SafeStrandCallback, override if required
-        return this.parentChannels;
+        public final boolean returned;
+
+        CallbackStatus(boolean returned) {
+            this.returned = returned;
+        }
     }
 }

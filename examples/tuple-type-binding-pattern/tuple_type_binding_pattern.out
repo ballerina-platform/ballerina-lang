@@ -2,10 +2,10 @@
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run tuple_type_binding_pattern.bal
 Simple variable : (true, 0.4)
-Tuple variable : true0.4
-Tuple variable : Ballerina46.7
-Tuple variable : Ballerina34true6.7
-Tuple variable : Ballerina3true345.645
-Tuple variable : Ballerina123true
-Tuple variable : Ballerina3true345.645
-Tuple variable : Ballerina3.4456
+Tuple variable : true 0.4
+Tuple variable : Ballerina 4 6.7
+Tuple variable : Ballerina 34 true 6.7
+Tuple variable : Ballerina 3 true 34 5.6 45
+Tuple variable : Ballerina 123 true
+Tuple variable : Ballerina 3 true 34 5.6 45
+Tuple variable : Ballerina 3.4 456
