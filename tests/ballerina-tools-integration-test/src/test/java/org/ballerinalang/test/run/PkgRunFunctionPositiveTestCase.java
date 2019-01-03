@@ -37,7 +37,7 @@ import java.io.File;
 public class PkgRunFunctionPositiveTestCase extends BaseTest {
 
     private static final String PRINT_RETURN = "--printreturn";
-    private static final int LOG_LEECHER_TIMEOUT = 5000;
+    private static final int LOG_LEECHER_TIMEOUT = 10000;
 
     private String sourceRoot = (new File("src/test/resources/run/package/")).getAbsolutePath();
     private String packageName = "entry";

@@ -138,8 +138,9 @@ public class BuildCommand implements BLauncherCmd {
             } else if (Files.isDirectory(sourceRootPath)) { // If the source is a module from a project
                 // Checks if the source is a module and if its inside a project (with a .ballerina folder)
                 if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                    throw LauncherUtils.createLauncherException("did you mean to build the module ? If so build " +
-                                                                        "from the project folder");
+                    throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
+                            "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                            "project and then build the module.");
                 }
                 if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                     throw LauncherUtils.createLauncherException("only modules and " + BLANG_SRC_FILE_SUFFIX + " " +
