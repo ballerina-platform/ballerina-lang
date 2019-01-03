@@ -59,8 +59,9 @@ export class BallerinaPreviewWidget extends ReactWidget {
         this.toDisposePerCurrentEditor.dispose();
         const currentEditor = editorWidget
                     || this.editorManager.currentEditor
-                    || this.editorManager.activeEditor;
-        this.currentEditor = currentEditor;            
+                    || this.editorManager.activeEditor
+                    || this.editorManager.all.find(e => e.isVisible);
+        this.currentEditor = currentEditor;  
         if (currentEditor) {
             const { editor } = currentEditor;
             this.toDisposePerCurrentEditor.push(
