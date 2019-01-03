@@ -546,6 +546,40 @@ public class RecordStampInbuiltFunctionTest {
                 BAnydataType.class);
     }
 
+    @Test
+    public void testStampRecordToConstraintJSON() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToConstraintJSON");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue0.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getClass(), BRecordType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getName(), "Student");
+
+        Assert.assertEquals((mapValue0.getMap()).size(), 4);
+        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("school").toString(), "Hindu College");
+        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("school")).getType().getClass(),
+                BStringType.class);
+    }
+
+    @Test
+    public void testStampRecordToConstraintJSONV2() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToConstraintJSONV2");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue0.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getClass(), BRecordType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getName(), "Person");
+
+        Assert.assertEquals((mapValue0.getMap()).size(), 4);
+        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("school").toString(), "Hindu College");
+        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("school")).getType().getClass(),
+                BStringType.class);
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test
