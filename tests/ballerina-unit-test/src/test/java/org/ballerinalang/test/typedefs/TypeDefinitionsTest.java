@@ -59,35 +59,61 @@ public class TypeDefinitionsTest {
     @Test
     public void testMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
-        Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"Five\":5}");
     }
 
     @Test
     public void testValueType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testValueType");
-        Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
     @Test
     public void testRecord() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRecord");
-        Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{f:\"Ballerina\"}");
     }
 
     @Test
     public void testObject() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObject");
-        Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{}");
     }
 
     @Test
     public void testUnion() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnion");
+        Assert.assertEquals(returns[0].stringValue(), "{g:\"\"}");
+    }
+
+    @Test
+    public void testComplexTuple() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexTuple");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 2]");
+        Assert.assertEquals(returns[1].stringValue(), "[3, 4]");
+        Assert.assertEquals(returns[2].stringValue(), "(2, \"Two\")");
+        Assert.assertEquals(returns[3].stringValue(), "{\"k\":\"v\"}");
+        Assert.assertEquals(returns[4].stringValue(), "{\"k\":1}");
+        Assert.assertEquals(returns[5].stringValue(), "Ballerina");
+        Assert.assertEquals(returns[6].stringValue(), "10");
+        Assert.assertEquals(returns[7].stringValue(), "{f:\"Ballerina\"}");
+        Assert.assertEquals(returns[8].stringValue(), "{g:\"\"}");
+        Assert.assertEquals(returns[9].stringValue(), "reason {}");
+    }
+
+    @Test
+    public void testComplexUnion() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexUnion");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{g:null}");
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 4);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 5);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(2), 6);
+    }
+
+    @Test
+    public void testUnionInTuple() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnionInTuple");
+        Assert.assertEquals(returns[0].stringValue(), "[4, 5, 6]");
+        Assert.assertEquals(returns[1].stringValue(), "(10, 20)");
     }
 }
