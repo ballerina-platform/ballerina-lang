@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.jdbc.transaction;
+package org.ballerinalang.database.sql.transaction;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -47,7 +47,7 @@ public class SQLTransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/jdbc/transaction/sql_transaction_test.bal");
+        result = BCompileUtil.compile("test-src/sql/transaction/sql_transaction_test.bal");
         testDatabase = new FileBasedTestDatabase(DBType.H2,
                 "datafiles/sql/SQLTableCreate.sql", DB_DIRECTORY, DB_NAME);
     }

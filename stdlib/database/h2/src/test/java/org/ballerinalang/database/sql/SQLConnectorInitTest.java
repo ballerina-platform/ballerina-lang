@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.jdbc;
+package org.ballerinalang.database.sql;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -39,7 +39,7 @@ public class SQLConnectorInitTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/jdbc/sql_connector_init_test.bal");
+        result = BCompileUtil.compile("test-src/sql/sql_connector_init_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
