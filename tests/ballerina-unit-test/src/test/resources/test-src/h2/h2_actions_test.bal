@@ -35,10 +35,9 @@ function testSelect() returns (int[]) {
                 i += 1;
             }
         }
-        return customerIds;
-    } else {
-        return [];
     }
+    testDB.stop();
+    return customerIds;
 }
 
 function testUpdate() returns (int) {
@@ -178,7 +177,7 @@ function testUpdateInMemory() returns (int, string) {
     var x = testDB->select("SELECT  * from Customers2", Customer);
     string s = "";
     if (x is table<Customer>) {
-        var res = json.create(x);
+        var res = json.convert(x);
         if (res is json) {
             s = res.toString();
         }
@@ -282,7 +281,7 @@ function testH2MemDBUpdate() returns (int, string) {
 
     string data = "";
     if (dt is table<record {}>) {
-        var j = json.create(dt);
+        var j = json.convert(dt);
         if (j is json) {
             data = io:sprintf("%s", j);
         }

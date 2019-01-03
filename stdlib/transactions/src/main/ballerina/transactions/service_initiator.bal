@@ -72,7 +72,8 @@ service InitiatorService on coordinatorListener {
         body:"regReq",
         consumes:["application/json"]
     }
-    resource function register(http:Caller conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
+    resource function register(http:Caller conn, http:Request req, string transactionBlockId,
+                    RegistrationRequest regReq) {
         string participantId = regReq.participantId;
         string txnId = regReq.transactionId;
         var initiatedTxn = initiatedTransactions[txnId];
@@ -100,7 +101,7 @@ service InitiatorService on coordinatorListener {
                     i = i + 1;
                 }
                 RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
-                var resPayload = json.create(regRes);
+                var resPayload = json.convert(regRes);
                 if (resPayload is json) {
                     http:Response res = new;
                     res.statusCode = http:OK_200;

@@ -129,7 +129,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for invalid resource param type.", enabled = false)
+    @Test(description = "Check the negative test for invalid resource param type.")
     public void testNegativeWithoutInvalidParamType() {
         try {
             final CompileResult compileResult = BCompileUtil
@@ -144,7 +144,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for invalid resource name.", enabled = false)
+    @Test(description = "Check the negative test for invalid resource name.")
     public void testNegativeWithoutInvalidResourceName() {
         try {
             final CompileResult compileResult = BCompileUtil
@@ -186,18 +186,31 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for endpoint config variable",
-          enabled = false)
+    @Test(description = "Check the negative test for endpoint config variable")
     public void testNegativeMissingEndpointVariable() {
         try {
             final CompileResult compileResult = BCompileUtil
                     .compileAndSetup("test-src/file/file-system-negative-missing-variable.bal");
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
-            String actualMsg = e.getMessage();
-            String expectedErrorMsg = "Compilation Failed:\n" + "ERROR: .::"
-                    + "file-system-negative-missing-variable.bal:19:1:: 'path' field empty.\n";
+            String actualMsg = e.getMessage().substring(43, 43 + 21);
+            String expectedErrorMsg = "'path' field is empty";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for empty path.");
+        }
+    }
+
+    @Test(description = "Check the negative test for invalid returns")
+    public void testNegativeInvalidReturn() {
+        try {
+            final CompileResult compileResult = BCompileUtil
+                    .compileAndSetup("test-src/file/file-system-negative-invalid-returns.bal");
+            BServiceUtil.runService(compileResult);
+        } catch (Throwable e) {
+            String actualMsg = e.getMessage();
+            String expect = "Compilation Failed:\n" + "ERROR: .::file-system-negative-invalid-returns.bal:25:5:: "
+                    + "Invalid resource signature for onCreate in service fileSystem. "
+                    + "The parameter should be a file:FileEvent with no returns.\n";
+            Assert.assertEquals(actualMsg, expect, "Didn't get expected error for invalid returns.");
         }
     }
 }

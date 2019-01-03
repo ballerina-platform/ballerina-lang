@@ -40,7 +40,7 @@ public class WDChannels {
         }
         WorkerDataChannel channel = this.wDChannels.get(name);
         if (channel == null) {
-            channel = new WorkerDataChannel();
+            channel = new WorkerDataChannel(name);
             this.wDChannels.put(name, channel);
         }
         return channel;

@@ -21,20 +21,20 @@ service Chat on new grpc:Listener(9090) {
         grpc:Caller ep;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
-        foreach id, con in self.consMap {
-            ep = con;
+        foreach var con in self.consMap {
+            (_, ep) = con;
             error? err = ep->send(msg);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason() + " - "
-                                                    + <string>err.detail().message);
+                                        + <string>err.detail().message);
             }
         }
     }
 
     //This resource is triggered when the server receives an error message from the caller.
     resource function onError(grpc:Caller caller, error err) {
-            io:println("Unexpected Error at client side: " + err.reason() + " - "
-                                                    + <string>err.detail().message);
+            io:println("Unexpected Error at client side: " + err.reason()
+                            + " - " + <string>err.detail().message);
     }
 
     //This resource is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
@@ -43,12 +43,12 @@ service Chat on new grpc:Listener(9090) {
         string msg = string `{{caller.getId()}} left the chat`;
         io:println(msg);
         var v = self.consMap.remove(<string>caller.getId());
-        foreach id, con in self.consMap {
-            ep = con;
+        foreach var con in self.consMap {
+            (_, ep) = con;
             error? err = ep->send(msg);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason() + " - "
-                                                    + <string>err.detail().message);
+                                          + <string>err.detail().message);
             }
         }
     }

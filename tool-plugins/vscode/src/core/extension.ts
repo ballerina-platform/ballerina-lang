@@ -94,17 +94,17 @@ export class BallerinaExtension {
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
                 // if Home is found load Language Server.
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
-                    getServerOptions(this.getBallerinaHome()), this.clientOptions, false);
+                    getServerOptions(this.getBallerinaHome(), this.isExperimental()), this.clientOptions, false);
 
                 // 0.983.0 and 0.982.0 versions are incable of handling client capabilies 
                 if (ballerinaVersion !== "0.983.0" && ballerinaVersion !== "0.982.0") {
                     onBeforeInit(this.langClient);
                 }
-                
+
                 // Following was put in to handle server startup failiers.
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                     if (stateChangeEvent.newState === LS_STATE.Stopped) {
-                        log("Coudn't establish language server connection.");
+                        log("Couldn't establish language server connection.");
                         this.showPluginActivationError();
                     }
                 });
@@ -145,6 +145,7 @@ export class BallerinaExtension {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration('ballerina.home') ||
+                params.affectsConfiguration('ballerina.allowExperimental') ||
                 params.affectsConfiguration('ballerina.debugLog')) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
@@ -173,7 +174,10 @@ export class BallerinaExtension {
     }
 
     checkCompatibleVersion(pluginVersion: string, ballerinaVersion: string): void {
-        const versionCheck = compareVersions(pluginVersion, ballerinaVersion);
+        const pluginVersionParts = pluginVersion.split(".");
+        pluginVersionParts[2] = "*"; // Match with any patch version
+        const pluginMinorVersion = pluginVersionParts.join(".");
+        const versionCheck = compareVersions(pluginMinorVersion, ballerinaVersion);
 
         if (versionCheck > 0) {
             // Plugin version is greater
@@ -260,7 +264,7 @@ export class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina'
+        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina';
         if (fs.existsSync(path.join(homePath, 'bin', ballerinaCmd))) {
             return true;
         }
@@ -281,42 +285,62 @@ export class BallerinaExtension {
         }
     }
 
+    isExperimental(): boolean {
+        return <boolean>workspace.getConfiguration().get('ballerina.allowExperimental');
+    }
+
     autoDitectBallerinaHome(): string {
         // try to ditect the environment.
         const platform: string = process.platform;
-        let path = '';
+        let ballerinaPath = '';
         switch (platform) {
             case 'win32': // Windows
                 if (process.env.BALLERINA_HOME) {
                     return process.env.BALLERINA_HOME;
                 }
                 try {
-                    path = execSync('where ballerina').toString().trim();
+                    ballerinaPath = execSync('where ballerina').toString().trim();
                 } catch (error) {
-                    return path;
+                    return ballerinaPath;
                 }
-                if (path) {
-                    path = path.replace(/bin\\ballerina.bat$/, '');
+                if (ballerinaPath) {
+                    ballerinaPath = ballerinaPath.replace(/bin\\ballerina.bat$/, '');
                 }
                 break;
             case 'darwin': // Mac OS
+                try {
+                    const output = execSync('which ballerina');
+                    ballerinaPath = fs.realpathSync(output.toString().trim());
+                    // remove ballerina bin from ballerinaPath
+                    if (ballerinaPath) {
+                        ballerinaPath = ballerinaPath.replace(/bin\/ballerina$/, '');
+                        // For homebrew installations ballerina executables are in libexcec
+                        const homebrewBallerinaPath = path.join(ballerinaPath, 'libexec');
+                        if (fs.existsSync(homebrewBallerinaPath)) {
+                            ballerinaPath = homebrewBallerinaPath;
+                        }
+                    }
+                } catch {
+                    return ballerinaPath;
+                }
+                break;
             case 'linux': // Linux
                 // lets see where the ballerina command is.
                 try {
                     const output = execSync('which ballerina');
-                    path = fs.realpathSync(output.toString().trim());
+                    ballerinaPath = fs.realpathSync(output.toString().trim());
                     // remove ballerina bin from path
-                    if (path) {
-                        path = path.replace(/bin\/ballerina$/, '');
+                    if (ballerinaPath) {
+                        ballerinaPath = ballerinaPath.replace(/bin\/ballerina$/, '');
                     }
-                    break;
                 } catch {
-                    return path;
+                    return ballerinaPath;
                 }
+                break;
         }
 
         // If we cannot find ballerina home return empty.
-        return path;
+        return ballerinaPath;
     }
 
     private hasBallerinaHomeSetting(): boolean {

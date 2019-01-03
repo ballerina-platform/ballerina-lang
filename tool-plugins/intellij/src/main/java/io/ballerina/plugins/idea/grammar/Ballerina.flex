@@ -173,10 +173,6 @@ STRING_TEMPLATE_LITERAL_END = "`"
 DEPRECATED = "deprecated"
 DEPRECATED_TEMPLATE_START = {DEPRECATED} {WHITE_SPACE}* {LEFT_BRACE}
 
-// Todo - Need to add spaces between braces?
-// Note - This is used in checkExpressionEnd() function.
-DOCUMENTATION_TEMPLATE_ATTRIBUTE_END = {RIGHT_BRACE} {RIGHT_BRACE}
-
 EXPRESSION_START = "{{"
 EXPRESSION_END = "}}"
 
@@ -254,20 +250,10 @@ RETURN_PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCU
 DOCUMENTATION_SPACE = [ ]
 
 // MARKDOWN_DOCUMENTATION_MODE
-DEFINITION_REFERERNCE = {REFERENCE_TYPE} {DOCUMENTATION_SPACE}+
-REFERENCE_TYPE = {TYPE}|{SERVICE}|{VARIABLE}|{VAR}|{ANNOTATION}|{MODULE}|{FUNCTION}|{PARAMETER}
-MARKDOWN_DOCUMENTATION_TEXT = {DOCUMENTATION_TEXT_CHARACTER}+
+MARKDOWN_DOCUMENTATION_TEXT = ({DOCUMENTATION_TEXT_CHARACTER} | {DOCUMENTATION_ESCAPED_CHARACTERS})+
 DOCUMENTATION_TEXT_CHARACTER =  [^`\n] | '\\' {BACKTICK}
 DOCUMENTATION_ESCAPED_CHARACTERS = {DOCUMENTATION_SPACE}
 MARKDOWN_DOCUMENTATION_LINE_END = [\n]
-TYPE = "type"
-SERVICE = "service"
-VARIABLE = "variable"
-VAR = "var"
-ANNOTATION = "annotation"
-MODULE = "module"
-FUNCTION = "function"
-PARAMETER = "parameter"
 HASH = "#"
 ADD = "+"
 SUB = "-"
@@ -355,6 +341,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "__init"                                    { return OBJECT_INIT; }
 
     "abort"                                     { return ABORT; }
+    "aborted"                                   { return ABORTED; }
     "abstract"                                  { return ABSTRACT; }
     "all"                                       { return ALL; }
     "annotation"                                { return ANNOTATION; }
@@ -371,10 +358,10 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
     "client"                                    { return CLIENT; }
+    "committed"                                 { return COMMITTED; }
     "const"                                     { return CONST; }
     "continue"                                  { return CONTINUE; }
 
-    "done"                                      { return DONE; }
     "decimal"                                   { return DECIMAL; }
     "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
@@ -412,8 +399,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "new"                                       { return NEW; }
 
     "object"                                    { return OBJECT; }
-    "onabort"                                   { return ONABORT; }
-    "oncommit"                                  { return ONCOMMIT; }
     "onretry"                                   { return ONRETRY; }
 
     "panic"                                     { return PANIC; }

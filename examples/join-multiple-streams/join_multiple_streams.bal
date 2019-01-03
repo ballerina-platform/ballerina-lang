@@ -20,7 +20,6 @@ stream<ProductMaterial> productionInputStream = new;
 stream<MaterialUsage> materialUsageStream = new;
 
 function initRealtimeProductionAlert() returns () {
-
     // Whenever the `materialUsageStream` stream receives an event from the streaming rules defined in the `forever`
     // block, the `printMaterialUsageAlert` function is invoked.
     materialUsageStream.subscribe(printMaterialUsageAlert);
@@ -43,7 +42,7 @@ function initRealtimeProductionAlert() returns () {
         => (MaterialUsage[] materialUsages) {
         // `materialUsages` is the output that matches the defined streaming rules. It is published to the `materialUsageStream` stream.
         // The selected clause should match the structure of the `MaterialUsage` type.
-            foreach usage in materialUsages {
+            foreach var usage in materialUsages {
                 materialUsageStream.publish(usage);
             }
         }
@@ -51,7 +50,6 @@ function initRealtimeProductionAlert() returns () {
 }
 
 function printMaterialUsageAlert(MaterialUsage materialUsage) {
-
     float materialUsageDifference = (materialUsage.totalRawMaterial -
             materialUsage.totalConsumption) * 100.0 /
                 (materialUsage.totalRawMaterial);
@@ -79,14 +77,14 @@ service productMaterialService on productMaterialListener {
     resource function rawmaterialrequests(http:Caller caller, http:Request req) {
         var jsonMsg = req.getJsonPayload();
         if (jsonMsg is json) {
-            var productMaterial = ProductMaterial.create(jsonMsg);
+            var productMaterial = ProductMaterial.convert(jsonMsg);
             rawMaterialStream.publish(productMaterial);
 
             http:Response res = new;
             res.setJsonPayload({"message": "Raw material request"
                                         + " successfully received"});
             _ = caller->respond(res);
-        } else if (jsonMsg is error) {
+        } else {
             http:Response res = new;
             res.statusCode = 500;
             res.setPayload(untaint jsonMsg.reason());
@@ -102,7 +100,7 @@ service productMaterialService on productMaterialListener {
                                http:Request req) {
         var jsonMsg = req.getJsonPayload();
         if (jsonMsg is json) {
-            var productMaterial = ProductMaterial.create(jsonMsg);
+            var productMaterial = ProductMaterial.convert(jsonMsg);
             productionInputStream.publish(productMaterial);
 
             http:Response res = new;
@@ -110,7 +108,7 @@ service productMaterialService on productMaterialListener {
                                     "request successfully received"});
             _ = caller->respond(res);
 
-        } else if (jsonMsg is error) {
+        } else {
             http:Response res = new;
             res.statusCode = 500;
             res.setPayload(untaint jsonMsg.reason());

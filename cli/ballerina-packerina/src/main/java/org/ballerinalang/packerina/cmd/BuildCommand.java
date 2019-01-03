@@ -75,6 +75,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+    private boolean experimentalFlag;
+
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -92,7 +95,7 @@ public class BuildCommand implements BLauncherCmd {
             genNativeBinary(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
             // ballerina build
-            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests);
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -135,13 +138,25 @@ public class BuildCommand implements BLauncherCmd {
             } else if (Files.isDirectory(sourceRootPath)) { // If the source is a module from a project
                 // Checks if the source is a module and if its inside a project (with a .ballerina folder)
                 if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                    throw LauncherUtils.createLauncherException("did you mean to build the module ? If so build " +
-                                                                        "from the project folder");
+                    throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
+                            "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                            "project and then build the module.");
                 }
                 if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                     throw LauncherUtils.createLauncherException("only modules and " + BLANG_SRC_FILE_SUFFIX + " " +
                                                                 "files can be used with the 'ballerina build' " +
                                                                         "command.");
+                }
+
+                if (Files.exists(resolvedFullPath)) {
+                    if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString()
+                                                                            .endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                        throw LauncherUtils.createLauncherException("only modules and " + BLANG_SRC_FILE_SUFFIX + " " +
+                                                                    "files can be used with the 'ballerina build' " +
+                                                                            "command.");
+                    }
+                } else {
+                    throw LauncherUtils.createLauncherException("ballerina source does not exist '" + sourcePath + "'");
                 }
                 // If we are trying to run a bal file inside a module from a project directory an error is thrown.
                 // To differentiate between top level bals and bals inside modules we need to check if the parent of
@@ -160,7 +175,7 @@ public class BuildCommand implements BLauncherCmd {
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                                                  offline, lockEnabled, skiptests);
+                                                  offline, lockEnabled, skiptests, experimentalFlag);
         }
         Runtime.getRuntime().exit(0);
     }

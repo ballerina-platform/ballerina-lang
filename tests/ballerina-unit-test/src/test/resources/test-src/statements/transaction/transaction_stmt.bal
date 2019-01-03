@@ -232,7 +232,7 @@ function testTransactionStmtWithConstRetryFailed2() returns (string) {
     if (result is string) {
         a = result;
     } else if (result is error) {
-        a = a + result.reason();
+        a = a + <string>result.detail().message;
     }
     a = a + " end";
     return a;

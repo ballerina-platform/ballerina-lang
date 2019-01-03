@@ -38,14 +38,12 @@ public class BallerinaStreamsV2ExternalTimeWindowTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-window-test.bal");
     }
 
     @Test(description = "Test externalTime query")
     public void testExternalTimeQuery() {
                 BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startExternalTimeWindowTest");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 6, "Expected events are not received");

@@ -1,3 +1,7 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run any_type.bal
-25
-Person p's age: 25
+Full name: John Doe
+First name: John
+[1, 3, 5, 6]
+cat

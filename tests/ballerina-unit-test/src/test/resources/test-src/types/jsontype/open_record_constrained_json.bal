@@ -128,19 +128,13 @@ function testJSONToConstraintJsonUnsafeCastPositive() returns (json|error, json|
 
 
 function testConstraintJSONToConstraintJsonCast() returns json|error {
-    json<Person>|error j = json<Person>.create(getStudent());
+    json<Person>|error j = json<Person>.convert(getStudent());
     return j;
 }
 
 function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns json|error {
-    json<Person>|error jp = json<Person>.create(getStudent());
-    var js  = json<Student>.create(jp);
-    return js;
-}
-
-function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json | error) {
-    json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
-    var js = json<Student>.create(je);
+    json<Person>|error jp = json<Person>.convert(getStudent());
+    var js  = json<Student>.convert(jp);
     return js;
 }
 

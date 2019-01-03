@@ -41,7 +41,7 @@ public class GrpcBaseTest extends BaseTest {
                                                                    "private.key").toAbsolutePath().toString());
         String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
                                                                    "public.crt").toAbsolutePath().toString());
-        int[] requiredPorts = new int[]{9090, 9092, 9095, 9096, 9098, 9099, 9100, 9101, 8085, 9317, 9102};
+        int[] requiredPorts = new int[]{9090, 9092, 9095, 9096, 9098, 9099, 9100, 9101, 8085, 9317, 9102, 9103, 9104};
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "grpc").getAbsolutePath();

@@ -18,6 +18,11 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 /**
  * VM callback implementation which can be used for resource execution.
@@ -27,9 +32,10 @@ import org.ballerinalang.model.types.BType;
 public class StrandResourceCallback extends StrandCallback {
 
     private CallableUnitCallback resourceCallback;
+    private TransactionLocalContext transactionLocalContext;
 
-    StrandResourceCallback(BType retType, CallableUnitCallback resourceCallback) {
-        super(retType);
+    StrandResourceCallback(BType retType, CallableUnitCallback resourceCallback, ChannelDetails[] sendIns) {
+        super(retType, sendIns, null);
         this.resourceCallback = resourceCallback;
     }
 
@@ -40,6 +46,18 @@ public class StrandResourceCallback extends StrandCallback {
             resourceCallback.notifyFailure(super.getErrorVal());
             return;
         }
+        BRefType<?> retValue = super.getRefRetVal();
+        if (retValue != null && retValue.getType().getTag() == TypeTags.ERROR_TAG) {
+            resourceCallback.notifyFailure((BError) getRefRetVal());
+            if (transactionLocalContext != null) {
+                transactionLocalContext.notifyLocalRemoteParticipantFailure();
+            }
+            return;
+        }
         resourceCallback.notifySuccess();
+    }
+
+    public void setTransactionLocalContext(TransactionLocalContext transactionLocalContext) {
+        this.transactionLocalContext = transactionLocalContext;
     }
 }

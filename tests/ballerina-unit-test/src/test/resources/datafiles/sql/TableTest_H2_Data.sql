@@ -48,6 +48,9 @@ INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type) VALUES
   (1, X'77736F322062616C6C6572696E6120626C6F6220746573742E', CONVERT('very long text', CLOB),
   X'77736F322062616C6C6572696E612062696E61727920746573742E');
 /
+INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type) VALUES
+  (2, null, null, null);
+/
 CREATE TABLE IF NOT EXISTS ArrayTypes(
   row_id        INTEGER NOT NULL,
   int_array     ARRAY,

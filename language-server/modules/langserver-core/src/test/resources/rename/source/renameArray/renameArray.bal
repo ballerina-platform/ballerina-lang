@@ -1,7 +1,7 @@
 import ballerina/io;
 public function main(string... args) {
     int[] a = [];
-    foreach item in a {
+    foreach int item in a {
         io:println(a);
     }
     iterate(a);

@@ -1,13 +1,13 @@
-#At the command line, navigate to the directory that contains the 
-#`http_retry.bal` file and run the `ballerina run` command to start the server.
+# To start the services, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run http_retry.bal.bal
 Initiating service(s) in 'http_retry.bal'
 [ballerina/http] started HTTP/WS endpoint 0.0.0.0:8080
 [ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
-2018-04-23 15:31:07,872 INFO  [] - Request received from the client to delayed service.
-2018-04-23 15:31:12,888 INFO  [] - Request received from the client to delayed service.
-2018-04-23 15:31:12,905 ERROR [] - Error sending response from mock service : {message:"Connection between remote client and host is closed", cause:null}
-2018-04-23 15:31:16,399 INFO  [] - Request received from the client to delayed service.
-2018-04-23 15:31:17,899 ERROR [] - Error sending response from mock service : {message:"Connection between remote client and host is closed", cause:null}
-2018-04-23 15:31:19,162 INFO  [] - Request received from the client to healthy service.
-2018-04-23 15:31:21,406 ERROR [] - Error sending response from mock service : {message:"Connection between remote client and host is closed", cause:null}
+2018-12-04 13:50:00,687 INFO  [ballerina/log] - Request received from the client to delayed service.
+2018-12-04 13:50:05,713 INFO  [ballerina/log] - Request received from the client to delayed service.
+2018-12-04 13:50:05,716 ERROR [ballerina/log] - Error sending response from mock service : {ballerina/http}HTTPError {message:"Connection between remote client and host is closed"}
+2018-12-04 13:50:10,718 ERROR [ballerina/log] - Error sending response from mock service : {ballerina/http}HTTPError {message:"Connection between remote client and host is closed"}
+2018-12-04 13:50:13,728 INFO  [ballerina/log] - Request received from the client to delayed service.
+2018-12-04 13:50:18,733 ERROR [ballerina/log] - Error sending response from mock service : {ballerina/http}HTTPError {message:"Connection between remote client and host is closed"}
+2018-12-04 13:50:27,740 INFO  [ballerina/log] - Request received from the client to healthy service.

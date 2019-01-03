@@ -18,30 +18,29 @@ import ballerina/http;
 import ballerina/testobserve;
 import ballerina/observe;
 
-endpoint http:Listener listener2 {
-    port: 9092
-};
-
 @http:ServiceConfig {
     basePath: "/echoService"
 }
-service echoService2 bind listener2 {
-    resourceOne(endpoint caller, http:Request clientRequest) {
+service echoService2 on new http:Listener(9092) {
+    resource function resourceOne(http:Caller caller, http:Request clientRequest) {
         int spanId = observe:startRootSpan("uSpanThree");
         http:Response outResponse = new;
-        var response = check callNextResource2(spanId);
+        var response = callNextResource2(spanId);
+        if response is error {
+            panic response;
+        }
         outResponse.setTextPayload("Hello, World!");
         _ = caller->respond(outResponse);
         _ = observe:finishSpan(spanId);
     }
 
-    resourceTwo(endpoint caller, http:Request clientRequest) {
+    resource function resourceTwo(http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         res.setTextPayload("Hello, World 2!");
         _ = caller->respond(res);
     }
 
-    getMockTracers(endpoint caller, http:Request clientRequest) {
+    resource function getMockTracers(http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
@@ -50,9 +49,7 @@ service echoService2 bind listener2 {
 }
 
 function callNextResource2(int parentSpanId) returns (http:Response|error) {
-    endpoint http:Client httpEndpoint {
-        url: "http://localhost:9092/echoService"
-    };
+    http:Client httpEndpoint = new("http://localhost:9092/echoService", config = {});
     int spanId = check observe:startSpan("uSpanFour", parentSpanId = parentSpanId);
     http:Response resp = check httpEndpoint->get("/resourceTwo");
     _ = observe:addTagToSpan(spanId = spanId, "Allowed", "Successful");

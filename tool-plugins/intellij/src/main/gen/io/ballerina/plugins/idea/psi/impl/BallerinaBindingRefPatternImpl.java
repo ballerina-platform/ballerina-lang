@@ -43,6 +43,12 @@ public class BallerinaBindingRefPatternImpl extends BallerinaCompositeElementImp
 
   @Override
   @Nullable
+  public BallerinaErrorRefBindingPattern getErrorRefBindingPattern() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaErrorRefBindingPattern.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaStructuredRefBindingPattern getStructuredRefBindingPattern() {
     return PsiTreeUtil.getChildOfType(this, BallerinaStructuredRefBindingPattern.class);
   }

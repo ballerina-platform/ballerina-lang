@@ -157,4 +157,14 @@ public class BLangConstant extends BLangExpression implements ConstantNode, Anno
         return (typeNode == null ? String.valueOf(type) : String.valueOf(typeNode)) + " " + symbol.name.value +
                 " = " + String.valueOf(value);
     }
+
+    @Override
+    public BLangType getTypeNode() {
+        return typeNode;
+    }
+
+    @Override
+    public BLangTypeDefinition getAssociatedTypeDefinition() {
+        return associatedTypeDefinition;
+    }
 }

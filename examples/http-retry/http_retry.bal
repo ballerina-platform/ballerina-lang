@@ -10,17 +10,17 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // Initial retry interval in milliseconds.
             interval: 3000,
 
-            // Number of retry attempts before giving up
+            // Number of retry attempts before giving up.
             count: 3,
 
             // Multiplier of the retry interval to exponentailly
-            // increase; retry interval
+            // increase; retry interval.
             backOffFactor: 2.0,
 
-            // Upper limit of the retry interval in milliseconds
+            // Upper limit of the retry interval in milliseconds.
             // If `interval` into `backOffFactor` value exceeded
             // `maxWaitInterval` interval value. `maxWaitInterval`
-            // will be considered as the retry intrval.
+            // will be considered as the retry interval.
             maxWaitInterval: 20000
 
         },
@@ -52,17 +52,19 @@ service retryDemoService on new http:Listener(9090) {
 
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
 
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             string errCause = <string> backendResponse.detail().message;
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
         }
     }

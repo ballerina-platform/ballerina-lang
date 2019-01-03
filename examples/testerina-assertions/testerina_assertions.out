@@ -1,23 +1,25 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina test testerina_assertions.bal
 Compiling tests
     testerina_assertions.bal
 
 Running tests
     testerina_assertions.bal
-	[pass] testAssertFail2
-	[pass] testAssertFalse
-	[pass] testAssertTrue
-	[pass] testAssertNotEqualsJson
-	[pass] testAssertNotEqualsString
-	[pass] testAssertFloatArrayEquals
-	[pass] testAssertIntArrayEquals
-	[pass] testAssertStringArrayEquals
-	[pass] testAssertBooleanEquals
-	[pass] testAssertJsonEquals
-	[pass] testAssertStringEquals
-	[pass] testAssertFloatEquals
-	[pass] testAssertIntEquals
+    [pass] testAssertFail
+    [pass] testAssertFalse
+    [pass] testAssertTrue
+    [pass] testAssertNotEqualsJson
+    [pass] testAssertNotEqualsString
+    [pass] testAssertFloatArrayEquals
+    [pass] testAssertIntArrayEquals
+    [pass] testAssertStringArrayEquals
+    [pass] testAssertBooleanEquals
+    [pass] testAssertJsonEquals
+    [pass] testAssertStringEquals
+    [pass] testAssertFloatEquals
+    [pass] testAssertIntEquals
 
-	13 passing
-	0 failing
-	0 skipped
+    13 passing
+    0 failing
+    0 skipped

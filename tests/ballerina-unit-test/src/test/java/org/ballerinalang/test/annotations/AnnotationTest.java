@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for user defined annotations in ballerina.
  */
-@Test(groups = "broken")
 public class AnnotationTest {
 
     private CompileResult compileResult;
@@ -204,9 +203,10 @@ public class AnnotationTest {
     @Test(description = "Test child annotation from a wrong package")
     public void testInvalidChildAnnotation() {
         CompileResult resNegative = BCompileUtil.compile("test-src/lang/annotations/invalid-child-annotation.bal");
-        Assert.assertEquals(resNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resNegative, 0, "invalid usage of record literal with type 'any'",
-                1, 12);
+        Assert.assertEquals(resNegative.getErrorCount(), 3);
+        BAssertUtil.validateError(resNegative, 0, "invalid usage of record literal with type 'anydata'", 1, 12);
+        BAssertUtil.validateError(resNegative, 1, "missing non-defaultable required record field 'value'", 1, 6);
+        BAssertUtil.validateError(resNegative, 2, "missing non-defaultable required record field 'prop'", 1, 6);
     }
 
     @Test(description = "Test array value for a non-array type attribute", enabled = false)

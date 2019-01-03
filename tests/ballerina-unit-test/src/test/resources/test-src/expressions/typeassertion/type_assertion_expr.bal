@@ -382,18 +382,18 @@ function testObjectAssertionNegative() {
     LeadObject e2 = <LeadObject> p;
 }
 
-//function testStreamAssertionPositive() returns boolean {
-//    stream<int> s1;
-//    any a = s1;
-//    stream s2 = <stream<int>> a;
-//    return s1 === s2;
-//}
-//
-//function testStreamAssertionNegative() {
-//    stream<int> s1;
-//    any a = s1;
-//    stream s2 = <stream<json>> a;
-//}
+function testStreamAssertionPositive() returns boolean {
+    stream<int> s1 = new;
+    any a = s1;
+    stream<any> s2 = <stream<int>> a;
+    return s1 === s2;
+}
+
+function testStreamAssertionNegative() {
+    stream<int> s1 = new;
+    any a = s1;
+    stream<json> s2 = <stream<json>> a;
+}
 
 function testTypedescAssertionPositive() returns boolean {
     typedesc t1 = int;
@@ -484,6 +484,19 @@ function testListElementAssertionNegative() {
     any a = t1[2];
     any[] anyArrTwo = <any[]> a;
     int iValTwo = <int> anyArrTwo[0];
+}
+
+function testOutOfOrderUnionConstraintAssertionPositive() returns boolean {
+    map<int|string> m = { one: 1, two: "2" };
+    anydata a = m;
+    map<string|int> m2 = <map<string|int>> a;
+    return m === m2;
+}
+
+function testOutOfOrderUnionConstraintAssertionNegative() {
+    stream<int|float> s1 = new;
+    any a = s1;
+    stream<float|json> s2 = <stream<float|json>> a;
 }
 
 function testStringAsInvalidBasicType() {

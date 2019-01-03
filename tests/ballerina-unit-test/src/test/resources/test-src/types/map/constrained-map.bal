@@ -366,15 +366,8 @@ function testMapToStructConversion () returns ((int, int)|error) {
     map<int> testMap = {};
     testMap["index"] = 100;
     testMap["age"] = 63;
-    Student k = check Student.create(testMap);
+    Student k = check Student.convert(testMap);
     return (k.index, k.age);
-}
-
-function testMapToStructConversionNegative () returns (Student|error) {
-    map<string> testMap = {};
-    testMap["index"] = "100";
-    testMap["age"] = "63";
-    return check Student.create(testMap);
 }
 
 function testMapFunctionsOnConstrainedMaps () returns (string[]) {
@@ -453,7 +446,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
                  alive:true
              };
 
-    var result = PersonComplex.create(j);
+    var result = PersonComplex.convert(j);
     if (result is PersonComplex) {
         map<string> ms = result.address;
         return (ms.city, ms.country);
@@ -496,7 +489,7 @@ function testJsonToStructConversionStructWithConstrainedMapNegative () returns (
                  score:5.67,
                  alive:true
              };
-    return check PersonComplexTwo.create(j);
+    return check PersonComplexTwo.convert(j);
 }
 
 function testConstrainedUnionRetrieveString () returns (string) {

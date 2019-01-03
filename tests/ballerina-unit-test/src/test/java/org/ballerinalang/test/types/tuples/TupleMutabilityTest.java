@@ -61,7 +61,8 @@ public class TupleMutabilityTest {
     @Test(description = "Check if correct type is saved in covariant tuple with record type ",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error: assertion error: expected 'Intern', found 'Employee'.*")
+                    "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion error: expected 'Intern', " +
+                            "found 'Employee'\"\\}.*")
     public void testInvalidCast() {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }
@@ -69,7 +70,8 @@ public class TupleMutabilityTest {
     @Test(description = "Test mutation of record type using covariant tuple",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error: incompatible types: expected 'Employee', found 'Person'.*")
+                    "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected " +
+                            "'Employee', found 'Person'\"\\}.*")
     public void testAssignmentOfSuperTypeMember() {
         BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
     }
@@ -77,7 +79,8 @@ public class TupleMutabilityTest {
     @Test(description = "Test mutation of record type by assigning invalid record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error: incompatible types: expected 'Employee', found 'Student'.*")
+                    "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected " +
+                            "'Employee', found 'Student'\"\\}.*")
     public void testInvalidAssignment() {
         BRunUtil.invoke(compileResult, "testInvalidAssignment");
     }
@@ -85,7 +88,8 @@ public class TupleMutabilityTest {
     @Test(description = "Test mutation of int by inserting nil value to int? covariant tuple",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error: incompatible types: expected 'int', found 'null'.*")
+                    "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected 'int'," +
+                            " found 'null'\"\\}.*")
     public void testCovarianceIntOrNilArray() {
         BRunUtil.invoke(compileResult, "testCovarianceIntOrNilTuple");
     }
@@ -99,7 +103,8 @@ public class TupleMutabilityTest {
     @Test(description = "Test mutation of tuple which include structural and simple values",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error: incompatible types: expected 'boolean\\|float', found 'Person'.*")
+                    "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected " +
+                            "'boolean\\|float', found 'Person'\"\\}.*")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordTuple");
     }

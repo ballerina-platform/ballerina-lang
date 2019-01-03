@@ -14,11 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# TODO: check
-# Represents service endpoint where one or more services can be registered. so that ballerina program can offer
-# service through this endpoint.
-#
-# + id - Caller endpoint id.
+# Represents server listener where one or more services can be registered. so that ballerina program can offer
+# service through this listener.
 public type Listener object {
 
     *AbstractListener;
@@ -27,11 +24,15 @@ public type Listener object {
     private ServiceEndpointConfiguration config = {};
 
     # Starts the registered service.
+    #
+    # + return - Returns an error if encounters an error while starting the server, returns nil otherwise.
     public function __start() returns error? {
         return self.start();
     }
 
     # Stops the registered service.
+    #
+    # + return - Returns an error if encounters an error while stopping the server, returns nil otherwise.
     public function __stop() returns error? {
         return self.stop();
     }
@@ -40,6 +41,7 @@ public type Listener object {
     #
     # + serviceType - The type of the service to be registered.
     # + annotationData - Annotations attached to the service.
+    # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
     public function __attach(service s, map<any> annotationData) returns error? {
         return self.register(s, annotationData);
     }
@@ -68,9 +70,12 @@ public type Listener object {
 #
 # + host - The server hostname.
 # + secureSocket - The SSL configurations for the client endpoint.
+# + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
+#                   disable timeout.
 public type ServiceEndpointConfiguration record {
     string host = "0.0.0.0";
     ServiceSecureSocket? secureSocket = ();
+    int timeoutMillis = 120000; //2 mins
     !...
 };
 

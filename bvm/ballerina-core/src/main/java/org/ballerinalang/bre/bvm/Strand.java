@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This represents a Ballerina execution strand in the new VM.
@@ -51,7 +53,7 @@ public class Strand {
 
     private DebugContext debugContext;
 
-    public BVMCallback respCallback;
+    public StrandCallback respCallback;
 
     private BError error;
 
@@ -59,23 +61,17 @@ public class Strand {
 
     public StrandWaitHandler strandWaitHandler;
 
-    //TODO try to generalize below to normal data channels
-    public WDChannels parentChannels;
-
-    public WDChannels wdChannels;
+    public FlushDetail flushDetail;
 
     private TransactionLocalContext transactionStrandContext;
 
-    public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback,
-                  WDChannels parentChannels) {
+    public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback) {
         this.programFile = programFile;
         this.respCallback = respCallback;
         this.callStack = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
         this.state = State.NEW;
         this.globalProps = properties;
         this.id = name + "-" + UUID.randomUUID().toString();
-        this.parentChannels = parentChannels;
-        this.wdChannels = new WDChannels();
         this.aborted = false;
         this.transactionStrandContext = null;
         initDebugger();
@@ -175,6 +171,10 @@ public class Strand {
         return debugContext;
     }
 
+    public void configureFlushDetails(String[] flushChannels) {
+        this.flushDetail = new FlushDetail(flushChannels);
+    }
+
     /**
      * Strand execution states.
      */
@@ -201,6 +201,21 @@ public class Strand {
             this.callbacksToWaitFor = callBacksToWaitFor;
             this.waitCompleted = false;
             this.executionLock = new Semaphore(1);
+        }
+    }
+
+    /**
+     * Class to hold flush action related details.
+     */
+    public static class FlushDetail {
+        public String[] flushChannels;
+        public int flushedCount;
+        public Lock flushLock;
+
+        public FlushDetail(String[] flushChannels) {
+            this.flushChannels = flushChannels;
+            this.flushedCount = 0;
+            this.flushLock = new ReentrantLock();
         }
     }
 }

@@ -25,23 +25,15 @@ import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
 import io.ballerina.plugins.idea.psi.BallerinaBlock;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaDefaultableParameter;
-import io.ballerina.plugins.idea.psi.BallerinaForeachStatement;
 import io.ballerina.plugins.idea.psi.BallerinaFormalParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaLambdaFunction;
-import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
-import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaParameter;
 import io.ballerina.plugins.idea.psi.BallerinaParameterWithType;
 import io.ballerina.plugins.idea.psi.BallerinaRestParameter;
-import io.ballerina.plugins.idea.psi.BallerinaSimpleVariableReference;
 import io.ballerina.plugins.idea.psi.BallerinaStatement;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaVariableReference;
-import io.ballerina.plugins.idea.psi.BallerinaVariableReferenceList;
-import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -76,81 +68,6 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             BallerinaBlock block = (BallerinaBlock) scopeElement;
 
             while (block != null) {
-                // Check for workers in all blocks.
-                List<BallerinaWorkerDefinition> ballerinaWorkerDefinitions = PsiTreeUtil.getChildrenOfTypeAsList(block,
-                        BallerinaWorkerDefinition.class);
-                for (BallerinaWorkerDefinition ballerinaWorkerDefinition : ballerinaWorkerDefinitions) {
-                    PsiElement identifier = ballerinaWorkerDefinition.getIdentifier();
-                    if (identifier == null) {
-                        continue;
-                    }
-                    if (myResult != null) {
-                        myResult.addElement(BallerinaCompletionUtils.createWorkerLookupElement(identifier));
-                    } else if (myElement.getText().equals(identifier.getText())) {
-                        add(identifier);
-                    }
-                }
-
-                // Check for enclosing lambda function.
-                BallerinaLambdaFunction ballerinaLambdaFunction = PsiTreeUtil.getParentOfType(block,
-                        BallerinaLambdaFunction.class);
-                if (ballerinaLambdaFunction != null) {
-                    BallerinaFormalParameterList formalParameterList = ballerinaLambdaFunction.getFormalParameterList();
-                    if (formalParameterList != null) {
-                        processFormalParameterList(formalParameterList);
-                    }
-                }
-
-                // Check for enclosing foreach statements.
-                BallerinaForeachStatement ballerinaForeachStatement = PsiTreeUtil.getParentOfType(block,
-                        BallerinaForeachStatement.class);
-                if (ballerinaForeachStatement != null) {
-                    BallerinaVariableReferenceList variableReferenceList = ballerinaForeachStatement
-                            .getVariableReferenceList();
-                    if (variableReferenceList != null) {
-                        List<BallerinaVariableReference> referenceList = variableReferenceList
-                                .getVariableReferenceList();
-
-                        for (int i = 0; i < referenceList.size(); i++) {
-                            String type = null;
-                            if (referenceList.size() == 2 && i == 0) {
-
-                                type = "int";
-                                BallerinaVariableReference ballerinaVariableReference = referenceList.get(0);
-                                BallerinaNameReference nameReference = ((BallerinaSimpleVariableReference)
-                                        ballerinaVariableReference).getNameReference();
-                                PsiElement identifier = nameReference.getIdentifier();
-                                if (myResult != null) {
-                                    myResult.addElement(BallerinaCompletionUtils
-                                            .createVariableLookupElement(identifier, type));
-                                } else if (myElement.getText().equals(identifier.getText())) {
-                                    add(identifier);
-                                    return false;
-                                }
-                                continue;
-                            }
-
-                            BallerinaVariableReference ballerinaVariableReference = referenceList.get(i);
-                            if (ballerinaVariableReference instanceof BallerinaSimpleVariableReference) {
-                                PsiElement ballerinaVariableReferenceType = ballerinaVariableReference.getType();
-                                if (ballerinaVariableReferenceType != null) {
-                                    type = ballerinaVariableReferenceType.getText();
-                                }
-
-                                BallerinaNameReference nameReference = ((BallerinaSimpleVariableReference)
-                                        ballerinaVariableReference).getNameReference();
-                                PsiElement identifier = nameReference.getIdentifier();
-                                if (myResult != null) {
-                                    myResult.addElement(BallerinaCompletionUtils
-                                            .createVariableLookupElement(identifier, type));
-                                } else if (myElement.getText().equals(identifier.getText())) {
-                                    add(identifier);
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                }
 
                 // Get variable definitions from statements.
                 List<BallerinaStatement> statements = block.getStatementList();
@@ -240,27 +157,6 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
         }
     }
 
-    private void processObjectFields(@Nullable PsiElement typeName,
-                                     @NotNull List<BallerinaObjectFieldDefinition> fieldDefinitionList) {
-        if (typeName == null) {
-            return;
-        }
-        for (BallerinaObjectFieldDefinition ballerinaFieldDefinition : fieldDefinitionList) {
-            PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
-            if (identifier == null) {
-                continue;
-            }
-            if (myResult != null) {
-                myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier, typeName,
-                        ballerinaFieldDefinition.getTypeName().getText(),
-                        BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition), null,
-                        ballerinaFieldDefinition.getPublic() != null, ballerinaFieldDefinition.getPrivate() != null));
-            } else if (myElement.getText().equals(identifier.getText())) {
-                add(identifier);
-            }
-        }
-    }
-
     private void processFunctionSignature(@NotNull PsiElement scopeElement) {
         BallerinaFunctionDefinition ballerinaFunctionDefinition = PsiTreeUtil.getParentOfType(scopeElement,
                 BallerinaFunctionDefinition.class);
@@ -272,24 +168,6 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
         if (callableUnitSignature == null) {
             return;
         }
-
-        // Todo - Needed here? Cannot access without self?
-        //        BallerinaAttachedObject attachedObject = ballerinaFunctionDefinition.getAttachedObject();
-        //        if (attachedObject != null) {
-        //            PsiElement identifier = callableUnitSignature.getIdentifier();
-        //            PsiReference reference = identifier.getReference();
-        //            if (reference != null) {
-        //                PsiElement resolvedElement = reference.resolve();
-        //                if (resolvedElement != null) {
-        //                    BallerinaObjectFunctionDefinition objectFunctionDefinition =
-        //                            PsiTreeUtil.getParentOfType(resolvedElement, BallerinaObjectFunctionDefinition
-        // .class);
-        //                    if (objectFunctionDefinition != null) {
-        //                        processObjectFunctionDefinition(objectFunctionDefinition);
-        //                    }
-        //                }
-        //            }
-        //        }
 
         BallerinaFormalParameterList formalParameterList = callableUnitSignature.getFormalParameterList();
         if (formalParameterList == null) {

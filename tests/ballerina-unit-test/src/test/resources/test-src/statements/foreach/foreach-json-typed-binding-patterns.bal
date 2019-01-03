@@ -19,7 +19,7 @@ function concatIntJson(int i, json j) {
 }
 
 function concatIntStringAny(int i, string s, anydata a) {
-    output = output + i + ":" + s + ":" + string.create(a) + " ";
+    output = output + i + ":" + s + ":" + string.convert(a) + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ function testJsonWithoutType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach var (k, v) in check map<json>.create(jdata) {
+    foreach var (k, v) in check map<json>.convert(jdata) {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -39,7 +39,7 @@ function testJsonWithType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach (string, json) (k, v) in check map<json>.create(jdata) {
+    foreach (string, json) (k, v) in check map<json>.convert(jdata) {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -116,7 +116,7 @@ function testDirectAccessInvalidElementWithoutType() returns string|error {
     json j = jdata["random"];
 
     int i = 0;
-    foreach var (k, v) in check map<json>.create(j) {
+    foreach var (k, v) in check map<json>.convert(j) {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -129,7 +129,7 @@ function testDirectAccessInvalidElementWithType() returns string|error {
     json j = jdata["random"];
 
     int i = 0;
-    foreach (string, json) (k, v) in check map<json>.create(j) {
+    foreach (string, json) (k, v) in check map<json>.convert(j) {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -142,7 +142,7 @@ function testIteratingCompleteJsonWithoutType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach var (k, v) in check map<json>.create(jdata) {
+    foreach var (k, v) in check map<json>.convert(jdata) {
         if v is json[] {
             foreach var w in v {
                 concatIntStringAny(i, k, w);
@@ -159,7 +159,7 @@ function testIteratingCompleteJsonWithType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach (string, json) (k, v) in check map<json>.create(jdata) {
+    foreach (string, json) (k, v) in check map<json>.convert(jdata) {
         if v is json[] {
             foreach json w in v {
                 concatIntStringAny(i, k, w);
@@ -180,7 +180,7 @@ function testEmptyJsonIteration() returns string|error {
     json j = {};
 
     int i = 0;
-    foreach var (k, v) in check map<json>.create(j) {
+    foreach var (k, v) in check map<json>.convert(j) {
         concatIntStringAny(i, k, v);
         i += 1;
     }

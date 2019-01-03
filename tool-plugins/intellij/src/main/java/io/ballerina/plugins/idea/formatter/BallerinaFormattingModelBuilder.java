@@ -16,23 +16,33 @@
 
 package io.ballerina.plugins.idea.formatter;
 
+import com.intellij.formatting.Block;
 import com.intellij.formatting.FormattingModel;
 import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.formatting.FormattingModelProvider;
 import com.intellij.formatting.Indent;
+import com.intellij.formatting.Spacing;
 import com.intellij.formatting.SpacingBuilder;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.TokenType;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.formatter.common.AbstractBlock;
+import com.intellij.psi.tree.IElementType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
+import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORTED;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORTED_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ACTION_INVOCATION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ADD;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ALL;
@@ -47,7 +57,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ATTACHMENT_POINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_REF_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIT_COMPLEMENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BLOCK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
@@ -62,6 +71,9 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CLIENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COLON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMA;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED_ABORTED_CLAUSES;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPLETE_PACKAGE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_OPERATOR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONST;
@@ -102,6 +114,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLUSH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOLLOWED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH_STATEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREVER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FORK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FROM;
@@ -159,8 +172,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULLABLE_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ON;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONABORT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONCOMMIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONRETRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ON_RETRY_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OR;
@@ -175,6 +186,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.PIPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.POW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PRIVATE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PUBLIC;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.QUESTION_MARK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RANGE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_FIELD_DEFINITION_LIST;
@@ -215,8 +227,10 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SUB;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TERNARY_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
@@ -261,13 +275,52 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
     @NotNull
     @Override
     public FormattingModel createModel(PsiElement element, CodeStyleSettings settings) {
-        BallerinaBlock rootBlock = new BallerinaBlock(
-                element.getNode(), null, Indent.getNoneIndent(), null, settings, createSpaceBuilder(settings),
-                new HashMap<>()
-        );
-        return FormattingModelProvider.createFormattingModelForPsiFile(
-                element.getContainingFile(), rootBlock, settings
-        );
+
+        if (!isGrammarViolated(element.getNode())) {
+            BallerinaBlock rootBlock = new BallerinaBlock(element.getNode(), null, Indent.getNoneIndent(), null,
+                    settings, createSpaceBuilder(settings), new HashMap<>());
+            return FormattingModelProvider
+                    .createFormattingModelForPsiFile(element.getContainingFile(), rootBlock, settings);
+        // If the plugin grammar tree is not generated correctly for the file, code reformat should not work.
+        } else {
+            AbstractBlock rootBlock = new AbstractBlock(element.getNode(), null, null) {
+                @Nullable
+                @Override
+                public Spacing getSpacing(@Nullable Block child1, @NotNull Block child2) {
+                    return null;
+                }
+
+                @Override
+                public boolean isLeaf() {
+                    return false;
+                }
+
+                @Override
+                protected List<Block> buildChildren() {
+                    return new LinkedList<>();
+                }
+            };
+            return FormattingModelProvider
+                    .createFormattingModelForPsiFile(element.getContainingFile(), rootBlock, settings);
+        }
+    }
+
+    // Checks whether the PSI tree for the file is properly generated.
+    private static boolean isGrammarViolated(ASTNode rootNode) {
+        IElementType firstChildType = getFirstChild(rootNode);
+        //Todo: Add more conditions
+        return firstChildType != BallerinaTypes.DEFINITION && firstChildType != BallerinaTypes.IMPORT_DECLARATION
+                && firstChildType != BallerinaTypes.NAMESPACE_DECLARATION;
+    }
+
+    @NotNull
+    private static IElementType getFirstChild(ASTNode parent) {
+        ASTNode child = parent.getFirstChildNode();
+        while (child.getElementType() == BallerinaTypes.LINE_COMMENT
+                || child.getElementType() == TokenType.WHITE_SPACE) {
+            child = child.getTreeNext();
+        }
+        return child.getElementType();
     }
 
     // Note - In case of multiple matching rules, top rule is the one which will get applied.
@@ -294,6 +347,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(FLUSH).spaceIf(true)
                 .around(WAIT).spaceIf(true)
 
+                .around(ABORTED).spaceIf(true)
+                .around(COMMITTED).spaceIf(true)
                 .around(LISTENER).spaceIf(true)
                 .around(VAR).spaceIf(true)
                 .around(CONST).spaceIf(true)
@@ -317,8 +372,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(FAIL).spaceIf(true)
                 .around(ONRETRY).spaceIf(true)
                 .around(RETRIES).spaceIf(true)
-                .around(ONABORT).spaceIf(true)
-                .around(ONCOMMIT).spaceIf(true)
                 .around(LENGTHOF).spaceIf(true)
                 .around(WITH).spaceIf(true)
                 .around(IN).spaceIf(true)
@@ -374,6 +427,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(EQUAL_GT).spaceIf(true)
 
                 // Binding Patterns
+                .betweenInside(LEFT_PARENTHESIS, BINDING_PATTERN, TUPLE_BINDING_PATTERN).spaceIf(false)
+                .betweenInside(BINDING_PATTERN, RIGHT_PARENTHESIS, TUPLE_BINDING_PATTERN).spaceIf(false)
                 .around(BINDING_PATTERN).spaceIf(true)
 
                 // Record binding pattern
@@ -410,6 +465,10 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 // Error
                 .betweenInside(ERROR, LEFT_PARENTHESIS, ERROR_CONSTRUCTOR_EXPRESSION).spaceIf(false)
+
+                // Ternary Expressions
+                .aroundInside(QUESTION_MARK, TERNARY_EXPRESSION).spaceIf(true)
+                .aroundInside(COLON, TERNARY_EXPRESSION).spaceIf(true)
 
                 .between(LEFT_PARENTHESIS, RIGHT_PARENTHESIS).spaceIf(false)
                 .around(RETURN_PARAMETER).spaceIf(true)
@@ -459,6 +518,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(RECORD_FIELD_DEFINITION_LIST).spaceIf(true)
 
                 // Statements
+                .beforeInside(LEFT_BRACE, FOREACH_STATEMENT).spaceIf(true)
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
                 .between(LEFT_BRACKET, RIGHT_BRACKET).spaceIf(false)
                 .between(SIMPLE_VARIABLE_REFERENCE, ASSIGN).spaceIf(true)
@@ -471,6 +531,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(INVOCATION_ARG, COMMA).spaceIf(false)
                 .between(ANY_IDENTIFIER_NAME, LEFT_PARENTHESIS).spaceIf(false)
                 .between(EXPRESSION_LIST, LARROW).spaceIf(true)
+                .between(EXPRESSION_LIST, SERVICE_BODY).spaceIf(true)
                 .around(EXPRESSION_LIST).spaceIf(false)
                 .between(ARRAY_TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .aroundInside(GT, TYPE_CONVERSION_EXPRESSION).spaceIf(false)
@@ -549,6 +610,9 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(ARRAY_TYPE_NAME).spaceIf(false)
 
                 .around(TRANSACTION_PROPERTY_INIT_STATEMENT_LIST).spaceIf(true)
+                .between(TRANSACTION_CLAUSE, COMMITTED_ABORTED_CLAUSES).spaceIf(true)
+                .between(ABORTED_CLAUSE, COMMITTED_CLAUSE).spaceIf(true)
+                .between(COMMITTED_CLAUSE, ABORTED_CLAUSE).spaceIf(true)
 
                 // Streaming
                 .before(WHERE_CLAUSE).spaceIf(true)
@@ -591,7 +655,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .aroundInside(RARROW, WORKER_SEND_ASYNC_STATEMENT).spaceIf(true)
                 .aroundInside(SYNCRARROW, WORKER_SEND_ASYNC_EXPRESSION).spaceIf(false)
                 .afterInside(LARROW, WORKER_RECEIVE_EXPRESSION).spaceIf(false)
-                .between(LEFT_BRACE,WAIT_KEY_VALUE).spaceIf(true)
+                .between(LEFT_BRACE, WAIT_KEY_VALUE).spaceIf(true)
                 .between(WAIT_KEY_VALUE, RIGHT_BRACE).spaceIf(true)
                 .around(RARROW).spaceIf(false)
 

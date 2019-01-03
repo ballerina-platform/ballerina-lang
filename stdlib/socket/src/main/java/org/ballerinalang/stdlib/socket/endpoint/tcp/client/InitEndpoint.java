@@ -83,8 +83,9 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             clientEndpoint.addNativeData(IS_CLIENT, true);
             BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
             Map<String, Resource> resourceMap = null;
+            // Client has a callback service, so filter out resources for future dispatching.
             if (service != null) {
-                resourceMap = getResourceMap(service);
+                resourceMap = getResourceRegistry(service);
             }
             clientEndpoint.addNativeData(SOCKET_SERVICE, new SocketService(socketChannel, resourceMap));
             clientEndpoint.addNativeData(CLIENT_CONFIG, endpointConfig);
@@ -95,10 +96,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             log.error("Unable to initiate the client socket", e);
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initiate the socket"));
         }
-    }
-
-    private Map<String, Resource> getResourceMap(Service service) {
-        return getResourceRegistry(service);
     }
 
     private Map<String, Resource> getResourceRegistry(Service service) {

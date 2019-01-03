@@ -103,7 +103,7 @@ function testTableRemoveInvalidFunctionPointer() returns (int, json) | error {
     if (res is int) {
         count = res;
     }
-    json j = check json.create(dt);
+    json j = check json.convert(dt);
 
     return (count, j);
 }

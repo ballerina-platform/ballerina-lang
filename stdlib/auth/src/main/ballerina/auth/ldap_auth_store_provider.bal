@@ -70,8 +70,8 @@ public type LdapAuthProviderConfig record {
 # + trustStore - Configures the trust store to be used
 # + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
 public type SecureClientSocket record {
-    TrustStore? trustStore;
-    string trustedCertFile;
+    TrustStore? trustStore = ();
+    string trustedCertFile = "";
     !...
 };
 
@@ -80,8 +80,8 @@ public type SecureClientSocket record {
 # + path - Path to the trust store file
 # + password - Trust store password
 public type TrustStore record {
-    string path;
-    string password;
+    string path = "";
+    string password = "";
     !...
 };
 

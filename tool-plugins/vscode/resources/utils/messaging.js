@@ -69,15 +69,8 @@ function getLangClient() {
             });
         },
         astDidChange: (params) => {
-            const ast = JSON.stringify(params.ast, (key, value) => {
-                currentKey = key;
-                if (key === 'parent' || key === 'viewState' || key === '_events'|| key === 'id') {
-                    return undefined;
-                }
-                return value;
-            });
             return new Promise((resolve, reject) => {
-                webViewRPCHandler.invokeRemoteMethod('astDidChange', [ast, params.textDocumentIdentifier.uri], (resp) => {
+                webViewRPCHandler.invokeRemoteMethod('astDidChange', [params.ast, params.textDocumentIdentifier.uri], (resp) => {
                     resolve(resp);
                 });
             })
@@ -96,13 +89,12 @@ function getLangClient() {
                 });
             })
         },
-        revealRange: (model) => {
-            const pos = model.position;
-            if (pos) {
+        revealRange: (params) => {
+            if (params) {
                 return new Promise((resolve, reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'revealRange', 
-                        [pos.startLine, pos.startColumn, pos.endLine, pos.endColumn], 
+                        [JSON.stringify(params)], 
                         (resp) => {
                             resolve(resp);
                         }
@@ -110,11 +102,11 @@ function getLangClient() {
                 })
             }
         },
-        goToSource: (line, column) => {
+        goToSource: (params) => {
             return new Promise((resolve, reject) => {
                 webViewRPCHandler.invokeRemoteMethod(
                     'goToSource', 
-                    [line, column], 
+                    [JSON.stringify(params)], 
                     (resp) => {
                         resolve(resp);
                     }

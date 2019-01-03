@@ -40,7 +40,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Unit tests for server socket.
  */
-@Test
+@Test(timeOut = 120000)
 public class ServerSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);

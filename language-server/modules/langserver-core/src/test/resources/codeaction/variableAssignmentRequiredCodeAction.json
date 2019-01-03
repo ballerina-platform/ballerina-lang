@@ -10,7 +10,7 @@
     }
   },
   "expected": {
-    "title": "Create Variable",
+    "title": "Create Local Variable",
     "command": "CREATE_VAR",
     "arguments": [
       {

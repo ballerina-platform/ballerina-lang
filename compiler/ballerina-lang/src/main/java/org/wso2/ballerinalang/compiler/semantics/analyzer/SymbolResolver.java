@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -29,7 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -99,7 +98,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -267,14 +265,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return true;
     }
 
-    public BSymbol resolveImplicitConversionOp(BType sourceType,
-                                               BType targetType) {
-        BSymbol symbol = resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
+    public BSymbol resolveImplicitCastOp(BType sourceType,
+                                         BType targetType) {
+        BSymbol symbol = resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
         if (symbol == symTable.notFoundSymbol) {
             return symbol;
         }
 
-        BConversionOperatorSymbol castSymbol = (BConversionOperatorSymbol) symbol;
+        BCastOperatorSymbol castSymbol = (BCastOperatorSymbol) symbol;
         if (castSymbol.implicit) {
             return symbol;
         }
@@ -282,12 +280,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public BSymbol resolveConversionOperator(BType sourceType,
-                                             BType targetType) {
+    public BSymbol resolveConversionOperator(BType sourceType, BType targetType) {
         return types.getConversionOperator(sourceType, targetType);
     }
 
-    public BSymbol resolveTypeConversionOrAssertionOperator(BType sourceType, BType targetType) {
+    public BSymbol resolveCastOperator(BType sourceType, BType targetType) {
+        return types.getCastOperator(sourceType, targetType);
+    }
+
+    BSymbol resolveTypeCastOrAssertionOperator(BType sourceType, BType targetType) {
         return types.getTypeAssertionOperator(sourceType, targetType);
     }
 
@@ -374,6 +375,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
     }
 
+
     public BSymbol createSymbolForDetailBuiltInMethod(BLangIdentifier name, BType type) {
         if (type.tag != TypeTags.ERROR) {
             return symTable.notFoundSymbol;
@@ -382,9 +384,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 ((BErrorType) type).detailType, InstructionCodes.DETAIL);
     }
 
-    public BSymbol createSymbolForCreateOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
+    public BSymbol createSymbolForConvertOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
                                           BLangExpression targetTypeExpression) {
-        // If there are more than one argument for create in-built function then fail.
+        // If there are more than one argument for convert in-built function then fail.
         if (functionArgList.size() < 1) {
             dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
             resultType = symTable.semanticError;
@@ -398,7 +400,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BLangExpression argumentExpression = functionArgList.get(0);
         BType variableSourceType = argumentExpression.type;
-        // Create in-built function can only called on typedesc.
+        // Convert in-built function can only called on typedesc.
         if (targetTypeExpression.type.tag != TypeTags.TYPEDESC) {
             dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name, variableSourceType.toString());
             resultType = symTable.semanticError;
@@ -489,7 +491,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             List<BType> unionReturnTypes = new ArrayList<>();
             unionReturnTypes.add(targetType);
             unionReturnTypes.add(symTable.errorType);
-            BType returnType = new BUnionType(null, new LinkedHashSet<>(unionReturnTypes), false);
+            BType returnType = new BUnionType(null, new LinkedHashSet<BType>() {
+                {
+                    addAll(unionReturnTypes);
+                }
+            }, false);
             List<BType> paramTypes = new ArrayList<>();
             paramTypes.add(variableSourceType);
             return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
@@ -558,8 +564,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         int sourceTypeTag = sourceType.tag;
         if (types.isValueType(sourceType)) {
             if (sourceType == targetType) {
-                return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errorType, false,
-                                                              true, InstructionCodes.NOP, null, null);
+                return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType, false, true, 
+                                                        InstructionCodes.NOP, null, null);
             }
 
             if (!(sourceTypeTag == TypeTags.STRING && targetType.tag != TypeTags.STRING)) {
@@ -655,7 +661,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            Set<BType> memberTypes = new OrderedHashSet<BType>() {{
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<BType>() {{
                 add(resultType);
                 add(symTable.nilType);
             }};
@@ -846,7 +852,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        Set<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
+        LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .flatMap(memBType ->
                         memBType.tag == TypeTags.UNION ?
@@ -890,13 +896,20 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC) : EnumSet.noneOf(Flag.class);
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        BRecordType recordType = new BRecordType(recordSymbol);
-        recordSymbol.type = recordType;
-        recordTypeNode.symbol = recordSymbol;
-        resultType = recordType;
+        // If we cannot resolve a type of a type definition, we create a dummy symbol for it. If the type node is
+        // a record, a symbol will be created for it when we define the dummy symbol (from here). When we define the
+        // node later, this method will be called again. In such cases, we don't need to create a new symbol here.
+        if (recordTypeNode.symbol == null) {
+            EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC) : EnumSet.noneOf(Flag.class);
+            BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
+            BRecordType recordType = new BRecordType(recordSymbol);
+            recordSymbol.type = recordType;
+            recordTypeNode.symbol = recordSymbol;
+            resultType = recordType;
+        } else {
+            resultType = recordTypeNode.symbol.type;
+        }
     }
 
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
@@ -1037,7 +1050,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         Map<Name, ScopeEntry> visibleEntries = new HashMap<>();
         visibleEntries.putAll(env.scope.entries);
         if (env.enclEnv != null) {
-            visibleEntries.putAll(getAllVisibleInScopeSymbols(env.enclEnv));
+            getAllVisibleInScopeSymbols(env.enclEnv).forEach((name, scopeEntry) -> {
+                if (!visibleEntries.containsKey(name)) {
+                    visibleEntries.put(name, scopeEntry);
+                }
+            });
         }
         return visibleEntries;
     }

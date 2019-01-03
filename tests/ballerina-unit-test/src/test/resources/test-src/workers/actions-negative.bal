@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type firstRec record {
     int id = 1;
     string name = "default";
@@ -29,11 +45,16 @@ function workerActionFirstTest() {
         // Invalid worker
         var x = flush w4;
     }
-    worker w2 {
+    worker w2 returns error? {
         // Receive expr should get anydata
+        if(false){
+             error err = error("err", { message: "err msg" });
+             return err;
+        }
         Person p2 = <- w1;
         Person p3 = new Person();
         p3 = <- w1;
+        return;
     }
     worker w3 {
         // No send actions to particular worker
@@ -69,10 +90,27 @@ function workerActionThirdTest() {
         var x2 = i ->> w2;
         var result = flush w2;
     }
-    worker w2 {
+    worker w2 returns error?{
+        if(false){
+             error err = error("err", { message: "err msg" });
+             return err;
+        }
         int j =0 ;
         j = <- w1;
         j = <- w1;
+        return;
+    }
+}
+
+function invalidReceiveUsage() {
+    fork {
+        worker w1 {
+            int a = 5;
+            a -> w2;
+        }
+        worker w2 {
+            var a = <- w1;
+        }
     }
 }
 

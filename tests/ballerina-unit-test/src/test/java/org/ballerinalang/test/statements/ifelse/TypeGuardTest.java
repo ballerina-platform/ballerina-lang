@@ -20,6 +20,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -152,6 +153,22 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testTypeGuardInElse_6() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_6");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "int: 5");
+    }
+
+    @Test
+    public void testTypeGuardInElse_7() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_6");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "int: 5");
+    }
+
+    @Test
     public void testComplexTernary_1() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTernary_1");
         Assert.assertEquals(returns.length, 1);
@@ -173,5 +190,28 @@ public class TypeGuardTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
+    @Test
+    public void testUpdatingGuardedVar_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testUpdatingGuardedVar_1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "BALLERINA - updated");
+    }
+
+    @Test
+    public void testUpdatingGuardedVar_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testUpdatingGuardedVar_2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "BALLERINA - updated once - updated via function");
+    }
+
+    @Test
+    public void testFuncPtrTypeInferenceInElseGuard() {
+        BValue[] returns = BRunUtil.invoke(result, "testFuncPtrTypeInferenceInElseGuard");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 100);
     }
 }

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 function waitTest1() returns int {
     future<int> f1 = start add_1(5, 2);
@@ -201,7 +200,7 @@ function waitTest17() returns int|error {
         }
     }
     () results = wait w1 | w2 | w3;
-    return int.create(m["x"]);
+    return int.convert(m["x"]);
 }
 
 function waitTest18() returns int {
@@ -221,6 +220,49 @@ function waitTest18() returns int {
     }
     int result = wait w1 | w2;
     result = result + 50;
+    return result;
+}
+function waitTest19() returns int|error {
+    future<int|error> f1 = start addOrError(5, 2);
+    future<int|error> f2 = start addOrError(10, 12);
+    int|error result = wait f1 | f2;
+    return result;
+}
+
+function waitTest20() returns int|string|error {
+    future<int|error> f1 = start addOrError(10, 12);
+    future<string> f2 = start concat("moo");
+    int|string|error result = wait f1 | f2;
+    return result;
+}
+
+function waitTest21() returns int|error {
+    future<int|error> f1 = start addOrError(10, 12);
+    future<int> f2 = start add_panic1(55, 88);
+    int|error result = wait f1 | f2;
+    return result;
+}
+
+function waitTest22() returns int|string|error {
+    future<string> f3 = start concat("foo");
+    future<int|error> f1 = start addOrError(10, 12);
+    future<int> f2 = start add_panic1(55, 88);
+    int|string|error result = wait f3 | f2 | f1;
+    return result;
+}
+
+function waitTest23() returns int|string|() {
+    future<()> f1 = runtime:timeout(50);
+    future<int> f2 = start add_1(5, 2);
+    future<string> f3 = start greet();
+    int|string|() result = wait f1 | f2 | f3;
+    return result;
+}
+
+function waitTest24() returns int|error {
+    future<int|error> f1 = start fError();
+    future<int|error> f2 = start sError();
+    int|error result = wait f1 | f2;
     return result;
 }
 
@@ -261,6 +303,8 @@ function add_panic3(int i, int j) returns int {
 
 function add_1(int i, int j) returns int {
     int k = i + j;
+    // sleep for 2s
+    runtime:sleep(2000);
     int l = 0;
     while(l < 999999) {
         l = l + 1;
@@ -282,6 +326,11 @@ function concat(string name) returns string {
     return "hello " + name;
 }
 
+function greet() returns string {
+    runtime:sleep(3000);
+    return "good morning";
+}
+
 function status() returns boolean {
     return true;
 }
@@ -300,4 +349,24 @@ function getEmpMap() returns map<string> {
 function getAddrMap() returns map<string> {
     map<string> addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
     return addrMap;
+}
+
+function addOrError(int i, int j) returns int|error {
+    int k = i + j;
+    if (true) {
+        error err = error("err returned" );
+        return err;
+    }
+    return k;
+}
+
+function fError() returns int|error {
+    error err = error("first error returned" );
+    return err;
+}
+
+function sError() returns error {
+    error err = error("A hazardous error occured!!! Abort immediately!!" );
+    runtime:sleep(2000);
+    return err;
 }

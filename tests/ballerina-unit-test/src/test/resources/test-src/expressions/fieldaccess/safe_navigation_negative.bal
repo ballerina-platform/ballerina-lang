@@ -2,7 +2,7 @@ type Person record {
     int a = 0;
     string fname = "John";
     string lname = "";
-    Info|error info1;
+    Info|error info1?;
     Info|() info2 = ();
 };
 
@@ -13,7 +13,7 @@ type Info record {
 
 type Address record {
     string street = "";
-    string city;
+    string city = "";
     string country = "Sri Lanka";
 };
 
@@ -62,4 +62,33 @@ type Student record {
 function testFunctionCallOnJSONInRecord() {
     Student? st = {};
     string s = st.info.toString();
+}
+
+function testSafeNavigateOnXMLAttachedFunctions(xml x) {
+    _ = x!getTextValue();
+}
+
+function testSafeNavigateOnJSONAttachedFunctions(json j) {
+    _ = j!toString();
+}
+
+function getValue() returns json|string {
+    return 10;
+}
+
+function testRedundatSafeNavigate(xml x) {
+    _ = getValue()!toString();
+}
+
+function getJsonValue() returns json {
+    return 10;
+}
+
+function testFieldAccess() returns json|error {
+    return getJsonValue()!foo;
+}
+
+function testSafeNavigationOnIndexBasedAccess() returns json|error {
+    json[] data = [getJsonValue()];
+    return data[0]!foo;
 }

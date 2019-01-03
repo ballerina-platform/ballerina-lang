@@ -226,6 +226,41 @@ function testTypeGuardInElse_5() returns string {
     }
 }
 
+function testTypeGuardInElse_6() returns string {
+    int|string|table<record {}> x = 5;
+    if (x is table<record {}>) {
+        table<record {}> t = x;
+        return "table";
+    } else {
+        int|string y = x;
+        if (y is string) {
+            string s = y;
+            return "string: " + y;
+        } else {
+            int i = y;
+            return "int: " + i;
+        }
+    }
+}
+
+
+function testTypeGuardInElse_7() returns string {
+    int|string|table<A> x = 5;
+    if (x is table<A>) {
+        table<A> t = x;
+        return "table";
+    } else {
+        int|string y = x;
+        if (y is string) {
+            string s = y;
+            return "string: " + y;
+        } else {
+            int i = y;
+            return "int: " + i;
+        }
+    }
+}
+
 function testComplexTernary_1() returns string {
     int|string|float|boolean|int[] x = "string";
     return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : (x is int[] ? "int[]" : x)));
@@ -248,5 +283,56 @@ function testArray() returns int {
         return arr[1];
     } else {
         return -1;
+    }
+}
+
+function testUpdatingGuardedVar_1() returns string {
+    any value = "BALLERINA";
+    if (value is int|string|float) {
+        if (value is string) {
+         value = value + " - updated";
+        } else {
+            return "an int or float";
+        }
+    } else {
+        return "some other type";
+    }
+
+    return string.convert(value);
+}
+
+function testUpdatingGuardedVar_2() returns string {
+    any value = "BALLERINA";
+    if (!(value is int|string|float)) {
+        return "some other type";
+    } else {
+        if (value is string) {
+            value = value + " - updated once";
+            value = getUpdatedString(value);
+        } else {
+            return "an int or float";
+        }
+    }
+
+    return string.convert(value);
+}
+
+function getUpdatedString(string s) returns string {
+    return s + " - updated via function";
+}
+
+type func function() returns boolean;
+int fPtrFlag = 0;
+
+function testFuncPtrTypeInferenceInElseGuard() returns (boolean, int) {
+    func? f = function () returns boolean {
+        fPtrFlag = 100;
+        return true;
+    };
+
+    if (f is ()) {
+        return (false, fPtrFlag);
+    } else {
+        return (f.call(), fPtrFlag);
     }
 }

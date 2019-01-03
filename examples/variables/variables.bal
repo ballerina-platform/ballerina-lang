@@ -6,12 +6,13 @@ int total = 99;
 // Declare a public module-level variable.
 public int count = 0;
 
-// Declare a constant. `const`'s value is frozen. Value is computed at compile time therefore immutable.
+// Declare a constant.
 const string OK = "ok";
 
 // Declare a public final variable that behaves as a constant for other modules.
-// Value of final variable is forzen. All the parameters for a function call is also implicitly final.
-// Value is computed at runtime therefore not immutable but cannot assign any other value since variable is final.
+// Value of the final variable is frozen. Once a value is assigned to a final
+// variable it becomes immutable. All parameters of a function call are
+// implicitly final.
 public final int status = 1;
 
 public function main() {

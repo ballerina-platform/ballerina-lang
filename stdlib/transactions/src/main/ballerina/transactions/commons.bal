@@ -151,7 +151,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError requestError = {errorMessage:msg};
-    var resPayload = json.create(requestError);
+    var resPayload = json.convert(requestError);
     if (resPayload is json) {
         res.setJsonPayload(untaint resPayload);
         var resResult = ep->respond(res);
@@ -165,7 +165,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
     }
 }
 
-function getCoordinatorProtocolAt(string protocolName, int transactionBlockId) returns string {
+function getCoordinatorProtocolAt(string protocolName, string transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
     return "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" +
         transactionBlockId;

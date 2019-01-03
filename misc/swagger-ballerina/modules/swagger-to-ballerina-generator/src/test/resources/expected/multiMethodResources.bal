@@ -28,7 +28,7 @@ service serviceName on ep0 {
         methods:["GET", "POST"],
         path:"/user"
     }
-    resource function resource1 (http:Caller outboundEp, http:Request _resource1Req) {
+    resource function resource1 (http:Caller outboundEp, http:Request _resource1Req) returns error? {
         http:Response _resource1Res = resource1(_resource1Req);
         _ = outboundEp->respond(_resource1Res);
     }
@@ -40,7 +40,7 @@ service serviceName on ep0 {
         methods:["PUT"],
         path:"/user"
     }
-    resource function resource2 (http:Caller outboundEp, http:Request _resource2Req) {
+    resource function resource2 (http:Caller outboundEp, http:Request _resource2Req) returns error? {
         http:Response _resource2Res = resource2(_resource2Req);
         _ = outboundEp->respond(_resource2Res);
     }

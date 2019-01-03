@@ -272,7 +272,9 @@ public interface InstructionCodes {
     int RNEWARRAY = 205;
 
     int CLONE = 206;
+
     int FLUSH = 207;
+
     int LENGTHOF = 208;
     int WAITALL = 209;
 
@@ -280,6 +282,8 @@ public interface InstructionCodes {
     int NEWMAP = 212;
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
+    
+    int CONVERT = 218;
 
     int ITR_NEW = 219;
     int ITR_NEXT = 221;

@@ -1,7 +1,12 @@
-To run the match.bal to execute this example, place this file in a specific location and issue this command.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run match.bal
 value is: 0
 value is: 1
 value is: 2
 value is: 3
 value is: 4
+Cat
+Dog
+Mouse
+Match All

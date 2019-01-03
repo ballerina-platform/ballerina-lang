@@ -393,7 +393,7 @@ function testSelect() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
-    var ret = json.create(salaryTable);
+    var ret = json.convert(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;
@@ -407,7 +407,7 @@ function testSelectCompatibleLambdaInput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
-    var ret = json.create(salaryTable);
+    var ret = json.convert(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;
@@ -421,7 +421,7 @@ function testSelectCompatibleLambdaOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
-    var ret = json.create(salaryTable);
+    var ret = json.convert(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;
@@ -435,7 +435,7 @@ function testSelectCompatibleLambdaInputOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
-    var ret = json.create(salaryTable);
+    var ret = json.convert(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;

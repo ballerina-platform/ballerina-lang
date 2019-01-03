@@ -1,50 +1,106 @@
 import ballerina/io;
 
-public function main() {
-    // A `float` to `int` conversion can result in some of the information getting lost.
-    // However, this type of conversion is always considered safe because the conversion can never fail at runtime.
-    float f = 10.0;
-    var i = <int>f;
-    io:println(i);
+type Person record {
+    string name;
+    int age;
+};
 
-    // An `int` to `string` conversion is always considered safe.
-    int intVal = 45;
-    var strVal = <string>intVal;
+type Employee record {
+    string name;
+    int age;
+    int empNo;
+};
 
-    // A `string` to `int` conversion is considered unsafe.
-    // The compiler requires the user to assign the result of conversion expression to an `int|error` union typed variable.
-    // The `error` typed variable represents an error that occurs during the type conversion.
-    // `create` function will create a new value without modifying the input `strVal` and assign it to `intResult`.
-    // Like `create` function, you can use `stamp` function to get the input value modified and assign it to ressulting variable.
-    strVal = "Sri Lanka";
-    var intResult = int.create(strVal);
-    if (intResult is int) {
-        io:println(intResult);
+// Function to attempt converting an `anydata` record `Employee`, to an `anydata` record `Person`.
+function convertEmployeeToPerson(Employee emp) {
+    // Attempt creating a new value of type `Person` from the `Employee` typed `emp` value, without changing `emp`'s
+    // inherent type.
+    Person|error res = Person.convert(emp);
+    if (res is Person) {
+        // If the conversion is successful, print the `name` field.
+        io:println("Employee to Person, name: ", res["name"]);
     } else {
-        io:println("error: " + intResult.reason());
+        io:println("Error occurred on conversion");
     }
+}
 
-    // A `boolean` to `int` conversion is always considered safe. In such conversions, `0` represents a `false` value, and `1` represents a `true` value.
-    boolean boolVal = true;
-    intVal = <int>boolVal;
-    io:println(intVal);
+// Function to attempt converting an `any` constrained map, to an `anydata` record `Person`.
+// The conversion would return an error if non-`anydata` or an incompatible value is found.
+function convertAnyMapToPerson(map<any> m) {
+    // Attempt creating a new value of type `Person` from the `map<any>` typed `m` value, without changing `m`'s
+    // inherent type.
+    Person|error res = Person.convert(m);
+    if (res is Person) {
+        // If the conversion is successful, print the `name` field.
+        io:println("map<any> to Person, name: ", res["name"]);
+    } else {
+        io:println("Error occurred on conversion");
+    }
+}
 
-    // This is an `int` to `boolean` conversion. The boolean value is `false` only if the int value is `0`.
-    intVal = -10;
-    boolVal = <boolean>intVal;
-    io:println(boolVal);
-
-    // This is a `string` to `boolean` conversion.
-    // This conversion is safe because `string true` always evaluates to `boolean true` and `string false` always evaluates to `boolean false`.
-    strVal = "true";
-    boolean|error strBoolVal = boolean.create(strVal);
-    io:println(strBoolVal);
-
-    // This assigns a value of the `float` type to a variable of the `any` type.
+// Function to convert simple basic types using the `.convert()` built-in method.
+function convertSimpleBasicTypes() {
+    string s1 = "45";
+    string s2 = "abc";
+    string s3 = "true";
+    float f = 10.2;
     any a = 3.14;
 
-    // This shows how to convert a variable of the `any` type to the `float` type.
-    // This conversion is unsafe because the value of the `a` variable is unknown.
-    float|error af = trap <float>a;
-    io:println(af);
+    // `string` to `int` conversion is unsafe, since the `string` value may not be convertible to `int`.
+    int|error res1 = int.convert(s1);
+    if (res1 is int) {
+        io:println("int value: ", res1);
+    } else {
+        io:println("error: ", res1.detail().message);
+    }
+
+    res1 = int.convert(s2);
+    if (res1 is int) {
+        io:println("int value: ", res1);
+    } else {
+        io:println("error: ", res1.detail().message);
+    }
+
+    // A `float` to `int` conversion can result in some of the information getting lost.
+    // However, this conversion is always safe since there is a corresponding `int` representation
+    // for all `float` values except for `NaN` or `infinite` float values, in which case the
+    // the conversion attempt will result in a panic.
+    int intVal = int.convert(f);
+    io:println("int value: ", intVal);
+
+    // A `string` to `boolean` conversion is always safe. The `string` value `true` (ignoring case)
+    // evaluates to the `boolean` value `true`, while any other `string` is converted to the
+    // `boolean` value `false`.
+    boolean b = boolean.convert(s3);
+    io:println("boolean value: ", b);
+
+    // A simple basic typed value held in an `any` typed variable can also be converted to its inherent
+    // type using the `.convert()` method. This attempt is unsafe, since the value may not be compatible
+    // with the target type.
+    float|error res2 = float.convert(a);
+    if (res2 is float) {
+        io:println("float value: ", res2);
+    } else {
+        io:println("error: ", res2.detail().message);
+    }
+}
+
+public function main() {
+    // Attempt converting an `anydata` typed record to another `anydata` typed record.
+    Employee emp = { name: "Jack Sparrow", age: 54, empNo: 100 };
+    convertEmployeeToPerson(emp);
+
+    // Attempt converting an `any` constrained map to an `anydata` typed record.
+    // This conversion would be successful since all the expected elements are present
+    // and no non-`anydata` elements are added to the map.
+    map<any> m = { name: "Jack Sparrow", age: 54, empNo: 100 };
+    convertAnyMapToPerson(m);
+
+    // Add a non-`anydata` element (e.g., `typedesc`) to the map and re-attempt conversion.
+    // The conversion attempt would now return an error.
+    m["name"] = int;
+    convertAnyMapToPerson(m);
+
+    // Attempt converting to/from simple basic types.
+    convertSimpleBasicTypes();
 }

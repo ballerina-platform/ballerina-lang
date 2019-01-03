@@ -17,7 +17,7 @@
  */
 import { cloneDeep, debounce } from "lodash";
 import * as React from "react";
-import { Grid, Input } from "semantic-ui-react";
+import { Form, Grid, Header, Input, List } from "semantic-ui-react";
 import { BallerinaExampleCategory } from "./model";
 
 export interface SamplesListState {
@@ -102,13 +102,14 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
 
     public renderColumnItem(column: BallerinaExampleCategory) {
         return (
-            <ul key={column.title}>
-                <li className="title">{column.title}</li>
-                <ul>
+            <List verticalAlign="middle" divided relaxed key={column.title} className="examples-block">
+                <List.Item>
+                    <List.Header>{column.title}</List.Header>
+                    <List animated verticalAlign="middle">
                     {
                         column.samples.map((sample) => {
                             return (
-                            <li className="list-item" key={sample.url}>
+                            <List.Item className="example" key={sample.url}>
                                 <a
                                     href="#"
                                     onClick={
@@ -116,37 +117,41 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                                 >
                                     {sample.name}
                                 </a>
-                            </li>);
+                            </List.Item>);
                         })
                     }
-                </ul>
-            </ul>
+                    </List>
+                </List.Item>
+            </List>
         );
     }
 
     public render() {
         return (
-            <Grid className="welcome-page">
-                <Grid.Row className="welcome-navbar" columns={2}>
-                    <Grid.Column className="nav-tagline">
-                        Search and open available examples
-                    </Grid.Column>
+            <Grid className="welcome-page" divided>
+                <Grid.Row className="welcome-navbar" columns={1}>
                     <Grid.Column>
-                        <div className="top-nav-links" style={{ paddingRight: 0, marginRight: 40 }}>
-                            <Input
-                                ref={(ref) => {
-                                    this.searchInput = ref as Input;
-                                }}
-                                loading={!this.state || !this.state.samples}
-                                placeholder="Search"
-                                onChange={(event: React.SyntheticEvent<HTMLInputElement>) => {
-                                    this.setState({
-                                        searchQuery: event.currentTarget.value,
-                                    });
-                                    this.onSearchQueryEdit();
-                                }}
-                            />
-                        </div>
+                        <Header as="h3" dividing>
+                            Ballerina Examples
+                        </Header>
+                        <Form>
+                            <Form.Field inline>
+                                <Input
+                                    ref={(ref) => {
+                                        this.searchInput = ref as Input;
+                                    }}
+                                    loading={!this.state || !this.state.samples}
+                                    placeholder="Search"
+                                    onChange={(event: React.SyntheticEvent<HTMLInputElement>) => {
+                                        this.setState({
+                                            searchQuery: event.currentTarget.value,
+                                        });
+                                        this.onSearchQueryEdit();
+                                    }}
+                                    className="search-control"
+                                />
+                            </Form.Field>
+                        </Form>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row className="welcome-content-wrapper">

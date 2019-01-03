@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -32,8 +31,8 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @since 0.94
@@ -153,14 +152,14 @@ public class Symbols {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner);
     }
 
-    public static BConversionOperatorSymbol createConversionOperatorSymbol(final BType sourceType,
-                                                                           final BType targetType,
-                                                                           final BType errorType,
-                                                                           boolean implicit,
-                                                                           boolean safe,
-                                                                           int opcode,
-                                                                           PackageID pkgID,
-                                                                           BSymbol owner) {
+    public static BCastOperatorSymbol createCastOperatorSymbol(final BType sourceType,
+                                                               final BType targetType,
+                                                               final BType errorType,
+                                                               boolean implicit,
+                                                               boolean safe,
+                                                               int opcode,
+                                                               PackageID pkgID,
+                                                               BSymbol owner) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         BType retType;
         if (safe) {
@@ -170,17 +169,17 @@ public class Symbols {
             unionType.memberTypes.add(errorType);
             retType = unionType;
         } else {
-            Set<BType> memberTypes = new OrderedHashSet<>();
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
             memberTypes.add(targetType);
             memberTypes.add(errorType);
             retType = new BUnionType(null, memberTypes, false);
         }
 
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BConversionOperatorSymbol(pkgID, opType, sourceType, owner, implicit, safe, opcode);
+        return new BCastOperatorSymbol(pkgID, opType, sourceType, owner, implicit, safe, opcode);
     }
 
-    public static BConversionOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
+    public static BCastOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
         int opcode;
         switch (targetType.tag) {
             case TypeTags.INT:
@@ -205,7 +204,7 @@ public class Symbols {
 
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         BInvokableType opType = new BInvokableType(paramTypes, targetType, null);
-        return new BConversionOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
+        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {

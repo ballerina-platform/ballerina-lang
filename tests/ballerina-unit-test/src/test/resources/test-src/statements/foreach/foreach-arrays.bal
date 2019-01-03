@@ -311,3 +311,18 @@ function testNestedWithBreakContinue() returns string {
     }
     return output;
 }
+
+function testArrayWithNullElements() returns string {
+    output = "";
+    string?[] sArray = ["d0", (), "d2", ()];
+    int i = 0;
+    foreach var v in sArray {
+        if v is string {
+            output = output + i + ":" + v + " ";
+        } else {
+           output = output + i + ": ";
+        }
+        i += 1;
+    }
+    return output;
+}

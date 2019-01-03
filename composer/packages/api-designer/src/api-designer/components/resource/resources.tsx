@@ -122,11 +122,12 @@ class OpenApiResourceList extends React.Component<OasResourceListProps, OpenApiR
         return (
             <div className="open-api-resource-list-container">
                 <div className="action-container">
-                    <Button size="mini" icon labelPosition="left" onClick={this.showOpenApiAddResource}>
+                    <Button size="mini" primary icon labelPosition="left" onClick={this.showOpenApiAddResource}>
                         <Icon name="plus" />
                         Add Resource
                     </Button>
-                    <Button size="mini" icon labelPosition="left" floated="right" onClick={this.expandAllResources}>
+                    <Button size="mini" basic icon labelPosition="left" floated="right"
+                        onClick={this.expandAllResources}>
                         <Icon name={expandAll ? "compress" : "expand"} />
                         {expandAll || activeIndex.length === Object.keys(openApiResources).length ?
                             "Collapse All" : "Expand All"

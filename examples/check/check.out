@@ -1,9 +1,5 @@
-#At the command line, navigate to the directory that contains the 
-#`.bal` file and run the `ballerina run` command. 
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run check.bal
-validating bob...
-bob has a valid city
-Bob's result:true
-
-validating tom...
-Tom's result:address not found {}
+12
+{ballerina}ConversionError {"message":"'string' cannot be converted to 'int'"}

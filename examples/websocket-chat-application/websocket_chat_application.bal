@@ -16,8 +16,10 @@ service chatAppUpgrader on new http:Listener(9090) {
             upgradeService: chatApp
         }
     }
-    resource function upgrader(http:Caller caller, http:Request req, string name) {
+    resource function upgrader(http:Caller caller, http:Request req,
+                                string name) {
         http:WebSocketCaller wsEp;
+        // Retrieves query parameters from the `http:Request`.
         map<string> queryParams = req.getQueryParams();
         // Cancel handshake by sending a 400 status code if the age parameter is missing in the request.
         if (!queryParams.hasKey("age")){
@@ -29,10 +31,12 @@ service chatAppUpgrader on new http:Listener(9090) {
         }
         map<string> headers = {};
         wsEp = caller->acceptWebSocketUpgrade(headers);
+        // The attributes map of the caller is useful for storing connection specific data.
+        // In this case `NAME`and `AGE` are unique to each connection.
         wsEp.attributes[NAME] = name;
         wsEp.attributes[AGE] = queryParams["age"];
         string msg =
-            "Hi " + name + "! You have succesfully connected to the chat";
+            "Hi " + name + "! You have successfully connected to the chat";
         var err = wsEp->pushText(msg);
         if (err is error) {
             log:printError("Error sending message", err = err);
@@ -45,7 +49,7 @@ map<http:WebSocketCaller> connectionsMap = {};
 
 service chatApp = @http:WebSocketServiceConfig {} service {
 
-    // Store the attributes of the user, such as username and age, once the user connects to the chat client, and
+    // Once a user connects to the chat, store the attributes of the user, such as username and age, and
     // broadcast that the user has joined the chat.
     resource function onOpen(http:WebSocketCaller caller) {
         string msg;
@@ -63,16 +67,18 @@ service chatApp = @http:WebSocketServiceConfig {} service {
     }
 
     // Broadcast that a user has left the chat once a user leaves the chat.
-    resource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {
+    resource function onClose(http:WebSocketCaller caller, int statusCode,
+                                string reason) {
         _ = connectionsMap.remove(caller.id);
         string msg = getAttributeStr(caller, NAME) + " left the chat";
         broadcast(msg);
     }
 };
 
+// Function to perform the broadcasting of text messages.
 function broadcast(string text) {
     http:WebSocketCaller ep;
-    foreach id, con in connectionsMap {
+    foreach var (id, con) in connectionsMap {
         ep = con;
         var err = ep->pushText(text);
         if (err is error) {

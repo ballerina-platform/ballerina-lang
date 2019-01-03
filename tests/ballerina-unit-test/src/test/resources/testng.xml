@@ -29,8 +29,8 @@ under the License.
 
     <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.nativeimpl.functions.socket.ServerSocketTest"/>
             <class name="org.ballerinalang.test.nativeimpl.functions.socket.ClientSocketTest"/>
+            <class name="org.ballerinalang.test.nativeimpl.functions.socket.ServerSocketTest"/>
         </classes>
     </test>
     <!-- Ballerina language Test Cases. -->
@@ -56,9 +56,7 @@ under the License.
             </package>
             <package name="org.ballerinalang.test.jdbc.*"/>
             <package name="org.ballerinalang.test.h2"/>
-            <package name="org.ballerinalang.test.net.*">
-                <exclude name="org.ballerinalang.test.net.websub.WebSubHubStartUpTest"/>
-            </package>
+            <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.debugger.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
             <package name="org.ballerinalang.test.endpoint.*"/>
@@ -90,6 +88,7 @@ under the License.
             <package name="org.ballerinalang.test.privacy.*" />
             <package name="org.ballerinalang.test.serializer.json.*" />
             <package name="org.ballerinalang.test.dataflow.*" />
+            <package name="org.ballerinalang.test.error.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->

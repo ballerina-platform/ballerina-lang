@@ -37,7 +37,11 @@ public class WebSocketResourceValidator {
     private static final String INVALID_RESOURCE_SIGNATURE_FOR = "Invalid resource signature for ";
     private static final String RESOURCE_IN_SERVICE = " resource in service ";
 
-    public static void validate(BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
+    public static void validate(BLangFunction resource, DiagnosticLog dlog, boolean resourceReturnsErrorOrNil,
+                                boolean isClient) {
+        if (!resourceReturnsErrorOrNil) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "Invalid return type: expected error?");
+        }
         switch (resource.getName().getValue()) {
             case WebSocketConstants.RESOURCE_NAME_ON_OPEN:
             case WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT:

@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -101,9 +102,9 @@ public class ErrorTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result =
-                "error: largeNumber {\"message\":\"large number\"}\n" + "\tat errorPanicTest(basicErrorTest.bal:28)\n"
-                        + "\t   errorPanicCallee(basicErrorTest.bal:35)";
+        String result = "error: largeNumber {\"message\":\"large number\"}\n" +
+                "\tat errorPanicCallee(basicErrorTest.bal:36)\n" +
+                "\t   errorPanicTest(basicErrorTest.bal:30)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -139,5 +140,32 @@ public class ErrorTest {
     public void testErrorWithErrorConstructor() {
         BValue[] returns = BRunUtil.invoke(basicErrorTest, "testErrorWithErrorConstructor");
         Assert.assertEquals(returns[0].stringValue(), "test");
+    }
+
+    @Test
+    public void testGetCallStack() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "getCallStackTest");
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
+                "moduleName:\"ballerina/runtime\", fileName:\"<native>\", lineNumber:0}");
+    }
+
+    @Test
+    public void testConsecutiveTraps() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "testConsecutiveTraps");
+        Assert.assertEquals(returns[0].stringValue(), "Error");
+        Assert.assertEquals(returns[1].stringValue(), "Error");
+    }
+
+    @Test
+    public void testOneLinePanic() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "testOneLinePanic");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray array = (BValueArray) returns[0];
+        Assert.assertEquals(array.getString(0), "Error1");
+        Assert.assertEquals(array.getString(1), "Error2");
+        Assert.assertEquals(array.getString(2), "Something Went Wrong");
+        Assert.assertEquals(array.getString(3), "Error3");
+        Assert.assertEquals(array.getString(4), "Something Went Wrong");
+        Assert.assertEquals(array.getString(5), "1");
     }
 }

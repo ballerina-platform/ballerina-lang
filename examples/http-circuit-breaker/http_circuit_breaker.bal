@@ -8,7 +8,7 @@ import ballerina/runtime;
 // the backend until the `resetTime`.
 http:Client backendClientEP = new("http://localhost:8080", config = {
         // Circuit breaker configuration options that control the
-        // behavior of the Ballerina circuit breaker
+        // behavior of the Ballerina circuit breaker.
         circuitBreaker: {
             // Failure calculation window. This is how long Ballerina
             // circuit breaker keeps the statistics for the operations.
@@ -40,7 +40,7 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // When this threshold exceeds, the circuit trips.
             // This is the ratio between failures and total requests
             //  and the ratio is considered only within the configured
-            // `RollingWindow`
+            // `RollingWindow`.
             failureThreshold: 0.2,
 
             // The time period (in milliseconds) to wait before
@@ -84,15 +84,17 @@ service circuitbreaker on new http:Listener(9090) {
 
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             response.setPayload(<string> backendResponse.detail().message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
         }
     }
@@ -100,7 +102,7 @@ service circuitbreaker on new http:Listener(9090) {
 
 public int counter = 1;
 
-// This sample service is used to mock connection timeouts and service outages. 
+// This sample service is used to mock connection timeouts and service outages.
 // Mock a service outage by stopping/starting this service.
 // This should run separately from the `circuitBreakerDemo` service.
 
@@ -119,22 +121,26 @@ service helloWorld on new http:Listener(8080) {
 
             var result = caller->respond("Hello World!!!");
             if (result is error) {
-               log:printError("Error sending response from mock service", err = result);
+               log:printError("Error sending response from mock service",
+                                err = result);
             }
         } else if (counter % 5 == 3) {
             counter = counter + 1;
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload("Internal error occurred while processing the request.");
+            res.setPayload(
+                    "Internal error occurred while processing the request.");
             var result = caller->respond(res);
             if (result is error) {
-               log:printError("Error sending response from mock service", err = result);
+               log:printError("Error sending response from mock service",
+                               err = result);
             }
         } else {
             counter = counter + 1;
             var result = caller->respond("Hello World!!!");
             if (result is error) {
-               log:printError("Error sending response from mock service", err = result);
+               log:printError("Error sending response from mock service",
+                               err = result);
             }
         }
     }

@@ -270,14 +270,14 @@ public class ServiceTest {
     //TODO: add more test cases
 
     /* Negative cases */
-    @Test(description = "verify code analyzer errors in services.", groups = {"broken"})
+    @Test(description = "verify code analyzer errors in services.")
     public void testCheckCodeAnalyzerErrors() {
         BAssertUtil.validateError(negativeResult, 0, "break cannot be used outside of a loop", 10, 9);
         BAssertUtil.validateError(negativeResult, 1, "continue cannot be used outside of a loop", 16, 9);
         BAssertUtil.validateError(negativeResult, 2, "abort cannot be used outside of a transaction block", 22, 9);
         BAssertUtil.validateError(negativeResult, 3, "unreachable code", 29, 9);
-        BAssertUtil.validateError(negativeResult, 4, "worker send/receive interactions are invalid; worker(s) cannot "
-                + "move onwards from the state: '{w1=a -> w2, w2=b -> w1}'", 33, 9);
+        BAssertUtil.validateError(negativeResult, 4, "worker send/receive interactions are invalid; worker(s) cannot " +
+                "move onwards from the state: '[a -> w2, b -> w1, FINISHED]'", 33, 9);
     }
 
     @Test(description = "Test uninitialized service/resource config annotations")
@@ -290,5 +290,18 @@ public class ServiceTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "Uninitialized configs");
+    }
+
+    @Test(description = "Test error returning from resource")
+    public void testErrorReturn() {
+        String path = "/echo/parseJSON";
+        List<Header> headers = new ArrayList<>();
+        headers.add(new Header("Content-Type", "application/json"));
+        String invalidJSON = "{name: \"John Doe\"}";
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", headers, invalidJSON);
+        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+
+        Assert.assertNotNull(responseMsg);
+        Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 500);
     }
 }

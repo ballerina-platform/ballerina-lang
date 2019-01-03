@@ -141,6 +141,18 @@ service echo on echoEP {
         res.statusCode = 204;
         _ = caller->respond(res);
     }
+
+    @http:ResourceConfig {
+        methods:["POST"],
+        path:"/parseJSON"
+    }
+    resource function errorReturn(http:Caller caller, http:Request req) returns error? {
+        json payload = check req.getJsonPayload();
+        http:Response res = new;
+        res.setPayload(untaint payload);
+        res.statusCode = 200;
+        _ = caller->respond(res);
+    }
 }
 
 function getConstPath() returns(string) {

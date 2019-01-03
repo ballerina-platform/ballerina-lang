@@ -73,4 +73,22 @@ public class BStreamType extends BType {
             return "stream" + "<" + constraint.getName() + ">";
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BStreamType)) {
+            return false;
+        }
+
+        BStreamType other = (BStreamType) obj;
+        if (constraint == other.constraint) {
+            return true;
+        }
+
+        if (constraint == null || other.constraint == null) {
+            return false;
+        }
+
+        return constraint.equals(other.constraint);
+    }
 }

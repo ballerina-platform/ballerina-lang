@@ -80,15 +80,17 @@ function lockInsideWhileLoop() returns (int) {
 }
 
 function convertStringToInt() {
-    runtime:sleep(50);
-    lockWithinLockInt1 = lockWithinLockInt1 +1;
-    lockWithinLockString1 = "hello";
-    int ddd;
-    var result = int.create(lockWithinLockString1);
-    if (result is int) {
-        ddd = result;
-    } else {
-        panic result;
+    lock {
+        runtime:sleep(50);
+        lockWithinLockInt1 = lockWithinLockInt1 +1;
+        lockWithinLockString1 = "hello";
+        int ddd;
+        var result = int.convert(lockWithinLockString1);
+        if (result is int) {
+            ddd = result;
+        } else {
+            panic result;
+        }
     }
 }
 
@@ -168,15 +170,16 @@ function throwErrorInsideTryFinallyInsideLock() returns (int, string) {
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
             lockWithinLockString1 = "hello";
             int ddd;
-            var result = int.create(lockWithinLockString1);
+            var result = int.convert(lockWithinLockString1);
             if (result is int) {
                 ddd = result;
             } else {
+                lock {
+                    lockWithinLockInt1 = lockWithinLockInt1 + 1;
+                }
                 panic result;
             }
-            lock {
-                lockWithinLockInt1 = lockWithinLockInt1 + 1;
-            }
+
         }
     }
 

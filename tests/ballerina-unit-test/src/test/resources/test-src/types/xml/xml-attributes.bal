@@ -197,8 +197,8 @@ function testGetAttributesAsMap() returns (map<string>, map<string>, string, str
     var x1 = xml `<root xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     var x2 = xml `<root xmlns="http://sample.com/default/namepsace" xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     
-    map<string> m1 = map<string>.create(x1@);
-    map<string> m2 = map<string>.create(x2@);
+    map<string> m1 = map<string>.convert(x1@);
+    map<string> m2 = map<string>.convert(x2@);
 
     var a = m1["{http://sample.com/wso2/a1}foo1"];
     var s1 = a is string ?  a : "";

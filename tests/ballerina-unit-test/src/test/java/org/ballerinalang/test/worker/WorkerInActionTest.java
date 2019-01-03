@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for usages of worker in actions.
  */
-@Test(groups = "broken")
 public class WorkerInActionTest {
     private CompileResult result;
 
@@ -49,6 +48,13 @@ public class WorkerInActionTest {
         BValue[] returns = BRunUtil.invoke(result, "testAction2");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "request");
+    }
+
+    @Test(description = "Test default strand error before send action")
+    public void testDefaultErrorBeforeSend() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultError");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "REACHED");
     }
 
 }

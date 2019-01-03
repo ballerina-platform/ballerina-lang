@@ -40,7 +40,7 @@ public class BallerinaStreamsV2TableJoinTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-table-join-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-native-table-join-test.bal");
     }
 
     @Test(description = "Test streaming table join query.")

@@ -8,16 +8,27 @@ export interface SVGDropDownMenuTriggerProps {
     position: SimplePoint;
     className?: string;
     onClick?: () => void;
+    radius?: number;
+    icon?: string;
+    onMouseOut?: () => void;
+    onMouseOver?: () => void;
 }
 
 export const SVGDropDownMenuTrigger: StatelessComponent<SVGDropDownMenuTriggerProps> =
-    ({ position, onClick, children }) => {
+    ({ position, onClick, children, radius = 10, icon = "add", className, onMouseOut, onMouseOver }) => {
+    const btnProps = {
+        icon, onClick, position, radius
+    };
     return <DiagramContext.Consumer>
-        {({ editingEnabled }) => {
-            return editingEnabled &&
+        {({ editingEnabled, hasSyntaxErrors }) => {
+            return (editingEnabled && !hasSyntaxErrors) &&
                 <SVGOverlayComponent>
-                   <SVGCircleButton position={position} radius={10} icon="add" onClick={onClick} />
-                   {children}
+                    <g className={className} onMouseOut={onMouseOut} onMouseOver={onMouseOver} >
+                        {children}
+                        <g className="trigger">
+                            <SVGCircleButton {...btnProps} />
+                        </g>
+                   </g>
                 </SVGOverlayComponent>;
         }}
     </DiagramContext.Consumer>;

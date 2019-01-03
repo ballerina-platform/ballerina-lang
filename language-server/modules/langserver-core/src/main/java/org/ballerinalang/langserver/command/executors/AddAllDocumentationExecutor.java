@@ -25,14 +25,20 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,34 +72,42 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
             }
         }
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context,
-                                                               context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY),
-                                                               false, LSCustomErrorStrategy.class, false)
-                .getRight();
+
+        BLangPackage bLangPackage;
+        try {
+            WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+            bLangPackage = lsCompiler.getBLangPackage(context, docManager, false, LSCustomErrorStrategy.class, false);
+        } catch (LSCompilerException e) {
+            throw new LSCommandExecutorException("Couldn't compile the source", e);
+        }
 
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
 
         List<TextEdit> textEdits = new ArrayList<>();
-        String fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
-                .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
-                .forEach(topLevelNode -> {
-                    DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
-                    if (docAttachmentInfo != null) {
-                        textEdits.add(getTextEdit(docAttachmentInfo));
-                    }
-                    if (topLevelNode instanceof BLangService) {
-                        ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
+        for (TopLevelNode topLevelNode : CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context)) {
+            if (topLevelNode instanceof BLangTypeDefinition
+                    && ((BLangTypeDefinition) topLevelNode).flagSet.contains(Flag.SERVICE)) {
+                continue;
+            }
+            DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
+            if (docAttachmentInfo != null) {
+                textEdits.add(getTextEdit(docAttachmentInfo));
+            }
+            if (topLevelNode instanceof BLangService) {
+                BLangService service = (BLangService) topLevelNode;
+                ((BLangObjectTypeNode) service.serviceTypeDefinition.getTypeNode()).getFunctions()
+                        .forEach(bLangResource -> {
                             DocAttachmentInfo resourceInfo = getDocumentationEditForNode(bLangResource);
                             if (resourceInfo != null) {
                                 textEdits.add(getTextEdit(resourceInfo));
                             }
                         });
-                    }
-                });
+            }
+        }
+
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
         return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
                                               context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());

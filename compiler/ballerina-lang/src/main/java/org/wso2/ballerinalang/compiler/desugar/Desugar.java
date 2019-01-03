@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -43,8 +42,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -371,7 +370,7 @@ public class Desugar extends BLangNodeVisitor {
             functionSymbol.params.add(param.symbol);
         }
 
-        LinkedHashSet<BType> members = new OrderedHashSet<>();
+        LinkedHashSet<BType> members = new LinkedHashSet<>();
         members.add(symTable.errorType);
         members.add(symTable.nilType);
         final BUnionType returnType = new BUnionType(null, members, true);
@@ -1058,8 +1057,26 @@ public class Desugar extends BLangNodeVisitor {
 
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
-        result = assignNode;
 
+        // If this is an update of a type guarded variable, then generate code
+        // to update the original variable as well.
+        if (assignNode.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) assignNode.varRef;
+            BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
+            if (varSymbol.originalSymbol != null) {
+                BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol);
+                guardedVarRef = addConversionExprIfRequired(guardedVarRef, varSymbol.originalSymbol.type);
+                BLangSimpleVarRef originalVarRef =
+                        ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol.originalSymbol);
+                BLangAssignment updateOriginalVar =
+                        ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef, guardedVarRef);
+                updateOriginalVar = rewrite(updateOriginalVar, env);
+                result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
+                return;
+            }
+        }
+
+        result = assignNode;
     }
 
     @Override
@@ -2163,8 +2180,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // Check for bitwise shift operator and add type conversion to int
         if (isBitwiseShiftOperation(binaryExpr) && TypeTags.BYTE == rhsExprTypeTag) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
-                    symTable.intType);
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                    symTable.intType);
             return;
         }
 
@@ -2174,14 +2191,14 @@ public class Desugar extends BLangNodeVisitor {
                                                          binaryExpr.opKind == OperatorKind.REF_EQUAL ||
                                                          binaryExpr.opKind == OperatorKind.REF_NOT_EQUAL)) {
             if (lhsExprTypeTag == TypeTags.INT && rhsExprTypeTag == TypeTags.BYTE) {
-                binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
-                                                              symTable.intType);
+                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                        symTable.intType);
                 return;
             }
 
             if (lhsExprTypeTag == TypeTags.BYTE && rhsExprTypeTag == TypeTags.INT) {
-                binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
-                                                              symTable.intType);
+                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                        symTable.intType);
                 return;
             }
         }
@@ -2192,38 +2209,38 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (lhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
-                                                          binaryExpr.lhsExpr.type);
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                    binaryExpr.lhsExpr.type);
             return;
         }
 
         if (rhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
-                                                          binaryExpr.rhsExpr.type);
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                    binaryExpr.rhsExpr.type);
             return;
         }
 
         if (lhsExprTypeTag == TypeTags.DECIMAL) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
-                                                          binaryExpr.lhsExpr.type);
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                    binaryExpr.lhsExpr.type);
             return;
         }
 
         if (rhsExprTypeTag == TypeTags.DECIMAL) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
-                                                          binaryExpr.rhsExpr.type);
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                    binaryExpr.rhsExpr.type);
             return;
         }
 
         if (lhsExprTypeTag == TypeTags.FLOAT) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
-                                                          binaryExpr.lhsExpr.type);
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                    binaryExpr.lhsExpr.type);
             return;
         }
 
         if (rhsExprTypeTag == TypeTags.FLOAT) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
-                                                          binaryExpr.rhsExpr.type);
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                    binaryExpr.rhsExpr.type);
         }
     }
 
@@ -2472,7 +2489,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
-                .stream().map(send -> send.workerIdentifier).collect(Collectors.toList());
+                .stream().map(send -> send.workerIdentifier).distinct().collect(Collectors.toList());
         result = workerFlushExpr;
     }
 
@@ -2644,7 +2661,7 @@ public class Desugar extends BLangNodeVisitor {
             // Create an assignment node. Add a conversion from rhs to lhs of the pattern, if required.
             pattern.expr = addConversionExprIfRequired(pattern.expr, tempResultVarRef.type);
             BLangAssignment assignmentStmt =
-                    ASTBuilderUtil.createAssignmentStmt(pattern.pos, tempResultVarRef, pattern.expr, false);
+                    ASTBuilderUtil.createAssignmentStmt(pattern.pos, tempResultVarRef, pattern.expr);
             BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(pattern.pos, Lists.of(assignmentStmt));
 
             // Create the pattern
@@ -3094,12 +3111,17 @@ public class Desugar extends BLangNodeVisitor {
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
                 break;
-            case CREATE:
-                if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
+            case CONVERT:
+                if (iExpr.symbol.kind == SymbolKind.CAST_OPERATOR) {
+                    BCastOperatorSymbol symbol = (BCastOperatorSymbol) iExpr.symbol;
+                    BInvokableType type = (BInvokableType) symbol.type;
+                    result = createTypeCastExpr(visitConvertCloneMethod(iExpr.pos, iExpr.requiredArgs),
+                                                type.paramTypes.get(1), symbol);
+                } else if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
                     result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
                 } else {
-                    result = visitCreateStampMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
-                                                    (BInvokableSymbol) iExpr.symbol);
+                    result = visitConvertStampMethod(iExpr.pos, iExpr.expr,
+                                                     iExpr.requiredArgs, (BInvokableSymbol) iExpr.symbol);
                 }
                 break;
             case CALL:
@@ -3241,9 +3263,13 @@ public class Desugar extends BLangNodeVisitor {
         return stringLit;
     }
 
-    private BLangExpression createTypeConversionExpr(BLangExpression expr, BType sourceType, BType targetType) {
-        BConversionOperatorSymbol symbol = (BConversionOperatorSymbol)
-                symResolver.resolveConversionOperator(sourceType, targetType);
+    private BLangExpression createTypeCastExpr(BLangExpression expr, BType sourceType, BType targetType) {
+        BOperatorSymbol symbol = (BOperatorSymbol) symResolver.resolveConversionOperator(sourceType, targetType);
+        return createTypeCastExpr(expr, targetType, symbol);
+    }
+
+    private BLangExpression createTypeCastExpr(BLangExpression expr, BType targetType,
+                                               BOperatorSymbol symbol) {
         BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         conversionExpr.pos = expr.pos;
         conversionExpr.expr = expr;
@@ -3252,17 +3278,15 @@ public class Desugar extends BLangNodeVisitor {
         return conversionExpr;
     }
 
-    private BLangInvocation.BLangBuiltInMethodInvocation visitCreateStampMethod(DiagnosticPos pos,
-                                                                                BLangExpression expr,
-                                                                                List<BLangExpression> requiredArgs,
-                                                                                BInvokableSymbol invokableSymbol) {
-        BType targetType = invokableSymbol.retType;
-        if (types.isValueType(targetType) || targetType == symTable.nilType) {
+    private BLangNode visitConvertStampMethod(DiagnosticPos pos, BLangExpression expr,
+                                              List<BLangExpression> requiredArgs, BInvokableSymbol invokableSymbol) {
+        BLangExpression sourceExpression = requiredArgs.get(0);
+        BType sourceType = sourceExpression.type;
+        if (types.isValueType(sourceType)) {
             return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, requiredArgs, symResolver,
                                                       BLangBuiltInMethod.STAMP);
         }
-        BLangExpression sourceExpression = requiredArgs.get(0);
-        BType sourceType = sourceExpression.type;
+        
         List<BType> args = Lists.of(sourceType);
         BInvokableType opType = new BInvokableType(args, sourceType, null);
         BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
@@ -3272,6 +3296,21 @@ public class Desugar extends BLangNodeVisitor {
                                                    symResolver, BLangBuiltInMethod.CLONE);
         return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, Lists.of(cloneInvocation),
                                                   symResolver, BLangBuiltInMethod.STAMP);
+
+    }
+
+    private BLangExpression visitConvertCloneMethod(DiagnosticPos pos, List<BLangExpression> requiredArgs) {
+        BLangExpression sourceExpression = requiredArgs.get(0);
+        if (types.isValueType(sourceExpression.type)) {
+            return sourceExpression;
+        }
+        BType sourceType = sourceExpression.type;
+        List<BType> args = Lists.of(sourceType);
+        BInvokableType opType = new BInvokableType(args, sourceType, null);
+        BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
+                                                          null, opType, null, InstructionCodes.CLONE);
+        return ASTBuilderUtil.createBuiltInMethod(pos, sourceExpression, cloneSymbol,
+                                                  new ArrayList<>(), symResolver, BLangBuiltInMethod.CLONE);
 
     }
 
@@ -3291,7 +3330,7 @@ public class Desugar extends BLangNodeVisitor {
         //This won't analyse if else blocks etc to see whether return statements are present
         BLangBlockStmt blockStmt = invokableNode.body;
         if (invokableNode.workers.size() == 0 &&
-                invokableNode.returnTypeNode.type == this.symTable.nilType
+                invokableNode.symbol.type.getReturnType().isNullable()
                 && (blockStmt.stmts.size() < 1 ||
                 blockStmt.stmts.get(blockStmt.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
 
@@ -3367,7 +3406,7 @@ public class Desugar extends BLangNodeVisitor {
         BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
         Set<BType> returnTypeSet = enclosingFuncReturnType.tag == TypeTags.UNION ?
                 ((BUnionType) enclosingFuncReturnType).memberTypes :
-                new OrderedHashSet<BType>() {{
+                new LinkedHashSet<BType>() {{
                     add(enclosingFuncReturnType);
                 }};
 
@@ -3603,20 +3642,20 @@ public class Desugar extends BLangNodeVisitor {
             return expr;
         }
 
-        BConversionOperatorSymbol conversionSymbol;
+        BCastOperatorSymbol conversionSymbol;
         if (types.isValueType(lhsType)) {
             conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(rhsType, lhsType);
         } else if (lhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.UNION) {
-            conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
-                    InstructionCodes.NOP, null, null);
+            conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
+                                                                InstructionCodes.NOP, null, null);
         } else if (lhsType.tag == TypeTags.MAP || rhsType.tag == TypeTags.MAP) {
-            conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
-                                                                      InstructionCodes.NOP, null, null);
+            conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
+                                                                InstructionCodes.NOP, null, null);
         } else if (lhsType.tag == TypeTags.TABLE || rhsType.tag == TypeTags.TABLE) {
-            conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false,
-                                                                      true, InstructionCodes.NOP, null, null);
+            conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true, 
+                                                                InstructionCodes.NOP, null, null);
         } else {
-            conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(rhsType, lhsType);
+            conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(rhsType, lhsType);
         }
 
         // Create a type cast expression
@@ -3778,6 +3817,10 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression expression) {
 
         BLangBinaryExpr binaryExpr;
+        if (NodeKind.BRACED_TUPLE_EXPR == expression.getKind() && ((BLangBracedOrTupleExpr) expression).isBracedExpr) {
+            return createBinaryExpression(pos, varRef, ((BLangBracedOrTupleExpr) expression).expressions.get(0));
+        }
+
         if (NodeKind.BINARY_EXPR == expression.getKind()) {
             binaryExpr = (BLangBinaryExpr) expression;
             BLangExpression lhsExpr = createBinaryExpression(pos, varRef, binaryExpr.lhsExpr);

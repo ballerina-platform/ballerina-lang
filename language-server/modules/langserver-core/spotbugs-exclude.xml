@@ -82,4 +82,7 @@
     <Match>
         <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaServiceListResponse" />
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.symbols.SymbolFindingVisitor" />
+    </Match>
 </FindBugsFilter>

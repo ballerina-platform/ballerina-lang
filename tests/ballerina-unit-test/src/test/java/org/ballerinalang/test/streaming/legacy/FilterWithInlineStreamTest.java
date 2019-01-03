@@ -38,7 +38,7 @@ public class FilterWithInlineStreamTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/filter-streaming-test-v2.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/filter-streaming-test-v2.bal", true);
     }
 
     @Test(description = "Test filter streaming query")

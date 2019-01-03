@@ -65,6 +65,7 @@ public class FunctionDefinition extends CompletionTest {
                 {"iterableOperation4.json", "function"},
                 {"iterableOperation5.json", "function"},
                 {"iterableOperation6.json", "function"},
+                {"completionWithinWorkersInResource.json", "function"},
                 {"suggestionsInWorkersWithinFunction.json", "function"},
                 {"completionBeforeIfElse.json", "function"},
                 {"completionWithinIf.json", "function"},
@@ -72,7 +73,6 @@ public class FunctionDefinition extends CompletionTest {
                 {"completionWithinElseIf.json", "function"},
                 {"completionBeforeWhile.json", "function"},
                 {"completionWithinWhile.json", "function"},
-                {"completionWithinWorkersInResource.json", "function"},
                 {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
                 {"objectAttachFunctionImpl1.json", "function"},
@@ -86,6 +86,10 @@ public class FunctionDefinition extends CompletionTest {
                 {"anonFunctionSnippetSuggestion1.json", "function"},
                 {"anonFunctionSnippetSuggestion2.json", "function"},
                 {"anonFunctionSnippetSuggestion3.json", "function"},
+                {"typeGuardSuggestions1.json", "function"},
+                {"typeGuardSuggestions2.json", "function"},
+                {"typeGuardSuggestions3.json", "function"},
+                {"typeGuardSuggestions4.json", "function"},
         };
     }
 }

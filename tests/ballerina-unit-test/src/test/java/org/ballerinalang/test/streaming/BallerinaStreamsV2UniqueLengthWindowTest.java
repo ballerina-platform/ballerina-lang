@@ -39,7 +39,6 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result1 = BCompileUtil.compile("test-src/streaming/streamingv2-unique-length-window-test.bal");
         result2 = BCompileUtil.compile("test-src/streaming/streamingv2-unique-length-window-test2.bal");
         resultWithAlias = BCompileUtil.
@@ -49,7 +48,6 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
     @Test(description = "Test uniqueLength window query")
     public void testUniqueLengthQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startUniqueLengthwindowTest1");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
@@ -62,10 +60,9 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
         Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 3);
     }
 
-    @Test(description = "Test uniqueLength window query", enabled = false)
+    @Test(description = "Test uniqueLength window query")
     public void testUniqueLengthQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startUniqueLengthwindowTest2");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 6, "Expected events are not received");
@@ -82,7 +79,6 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
     @Test(description = "Test uniqueLength window query with stream alias")
     public void testUniqueLengthQueryWithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startUniqueLengthwindowTest3");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];

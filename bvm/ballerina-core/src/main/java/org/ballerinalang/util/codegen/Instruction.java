@@ -18,7 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
@@ -164,16 +163,14 @@ public class Instruction {
         public boolean channelInSameStrand;
 
         InstructionWRKSendReceive(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
-                                  int sigCPIndex, BType type, int reg, boolean isWorkerSend) {
+                                  int sigCPIndex, BType type, int reg, boolean channelInSameStrand) {
             super(opcode);
             this.channelRefCPIndex = channelRefCPIndex;
             this.dataChannelInfo = dataChannelInfo;
             this.sigCPIndex = sigCPIndex;
             this.type = type;
             this.reg = reg;
-            this.channelInSameStrand = isWorkerSend ? dataChannelInfo.getSource()
-                    .equals(BLangConstants.DEFAULT_WORKER_NAME) : dataChannelInfo.getTarget()
-                    .equals(BLangConstants.DEFAULT_WORKER_NAME);
+            this.channelInSameStrand = channelInSameStrand;
         }
 
         @Override
@@ -394,6 +391,66 @@ public class Instruction {
                 sj.add(child);
             }
             return Mnemonics.getMnem(opcode) + " " + sj.toString() + " " + retRegIndex;
+        }
+    }
+
+    /**
+     * {@code {@link InstructionWRKSyncSend}} represents synchronous worker send in Ballerina bytecode.
+     */
+    public static class InstructionWRKSyncSend extends Instruction {
+        public int channelRefCPIndex;
+        public WorkerDataChannelInfo dataChannelInfo;
+        public int sigCPIndex;
+        public BType type;
+        public int reg;
+        public int retReg;
+        public boolean isSameStrand;
+
+        InstructionWRKSyncSend(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
+                               int sigCPIndex, BType type, int reg, int retReg, boolean isSameStrand) {
+            super(opcode);
+            this.channelRefCPIndex = channelRefCPIndex;
+            this.dataChannelInfo = dataChannelInfo;
+            this.sigCPIndex = sigCPIndex;
+            this.type = type;
+            this.reg = reg;
+            this.retReg = retReg;
+            this.isSameStrand = isSameStrand;
+        }
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(channelRefCPIndex));
+            sj.add(String.valueOf(sigCPIndex));
+            sj.add(String.valueOf(reg));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code {@link InstructionFlush}} represents worker flush in Ballerina bytecode.
+     */
+    public static class InstructionFlush extends Instruction {
+
+        public int retReg;
+        public String[] channels;
+
+        InstructionFlush(int opcode, int retReg, String[] channels) {
+
+            super(opcode);
+            this.retReg = retReg;
+            this.channels = channels;
+        }
+
+        @Override
+        public String toString() {
+
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(retReg));
+            for (int i = 0; i < channels.length; i++) {
+                sj.add(channels[i]);
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
     }
 
