@@ -34,6 +34,7 @@ import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
+import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaRecordFieldDefinitionList;
@@ -42,6 +43,8 @@ import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaServiceBody;
 import io.ballerina.plugins.idea.psi.BallerinaServiceConstructorExpression;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaWorkerBody;
+import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -63,6 +66,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         buildRecordFoldingRegions(descriptors, root);
         buildFunctionFoldRegions(descriptors, root);
         buildServiceFoldRegions(descriptors, root);
+        buildWorkerFoldingRegions(descriptors, root);
         buildDocumentationFoldingRegions(descriptors, root);
         buildAnnotationFoldingRegions(descriptors, root);
     }
@@ -130,6 +134,20 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             // Add folding descriptor.
             addFoldingDescriptor(descriptors, functionNode, callableUnitBodyNode, false);
         }
+
+        // Get object function nodes.
+        Collection<BallerinaObjectFunctionDefinition> objectFunctions = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaObjectFunctionDefinition.class);
+        for (BallerinaObjectFunctionDefinition objectFunction : objectFunctions) {
+            // Get the function body. This is used to calculate the start offset.
+            BallerinaCallableUnitBody callableUnitBodyNode = PsiTreeUtil.getChildOfType(objectFunction,
+                    BallerinaCallableUnitBody.class);
+            if (callableUnitBodyNode == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, objectFunction, callableUnitBodyNode, false);
+        }
     }
 
     private void buildServiceFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
@@ -159,6 +177,21 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             }
             // Add folding descriptor.
             addFoldingDescriptor(descriptors, serviceNode, serviceBody, false);
+        }
+    }
+
+    private void buildWorkerFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        Collection<BallerinaWorkerDefinition> workerDefinitions = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaWorkerDefinition.class);
+        for (BallerinaWorkerDefinition workerDefinition : workerDefinitions) {
+            // Get the worker body. This is used to calculate the start offset.
+            BallerinaWorkerBody workerBody = PsiTreeUtil.getChildOfType(workerDefinition,
+                    BallerinaWorkerBody.class);
+            if (workerBody == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, workerDefinition, workerBody, false);
         }
     }
 
@@ -214,7 +247,6 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             descriptors.add(new NamedFoldingDescriptor(node, startOffset, endOffset, null, "{...}"));
         }
     }
-
 
     @Override
     protected String getLanguagePlaceholderText(@NotNull ASTNode node, @NotNull TextRange range) {
