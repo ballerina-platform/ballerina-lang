@@ -5,11 +5,13 @@
   "main": "build/composer.js",
   "scripts": {
     "clean": "composer pkg:clean",
+    "copy-theme-assets": "copyfiles -u 4 \"./node_modules/@ballerina/theme/build/assets/**\" \"./build/theme\"",
+    "copy-default-theme-css": "copyfiles -u 4 \"./node_modules/@ballerina/theme/build/ballerina-*.*\" \"./build/theme\"",
     "lint": "composer pkg:lint",
     "prebuild": "npm run clean && npm run lint",
     "test": "echo \"Error: no test specified\"",
     "test-coverage": "echo \"Error: no test specified\"",
-    "build": "composer pkg:build:webpack",
+    "build": "composer pkg:build:webpack && npm run copy-theme-assets && npm run copy-default-theme-css",
     "watch": "composer pkg:watch:webpack"
   },
   "author": "ballerina.io",
