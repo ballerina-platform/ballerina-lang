@@ -326,14 +326,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private boolean findCyclicDependencies(Map<Integer, List<Integer>> multimap, List<BLangSimpleVariable> globalVars) {
         boolean cyclicDepFound = false;
-        for (Integer index : multimap.keySet()) {
-            List<Integer> connectedNodes = multimap.get(index);
-            if (connectedNodes.size() > 1) {
-                cyclicDepFound = true;
-                for (Integer connectedNode : connectedNodes) {
-                    BLangSimpleVariable gVar = globalVars.get(connectedNode);
-                    dlog.error(gVar.pos, DiagnosticCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, gVar.name);
-                }
+        for (List<Integer> cyclicNodes : multimap.values()) {
+            if (cyclicNodes.size() <= 1) {
+                continue;
+            }
+            cyclicDepFound = true;
+
+            List<BLangIdentifier> cycle = cyclicNodes.stream()
+                    .map(index -> globalVars.get(index).name)
+                    .collect(Collectors.toList());
+
+            if (!cycle.isEmpty()) {
+                DiagnosticPos firstPosition = globalVars.get(cyclicNodes.get(0)).pos;
+                dlog.error(firstPosition, DiagnosticCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, cycle);
             }
         }
 

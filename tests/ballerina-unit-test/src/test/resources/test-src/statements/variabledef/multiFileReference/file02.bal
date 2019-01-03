@@ -6,3 +6,5 @@ Person person = {
 };
 
 public (Employee, Person) pp2 = (employee, person);
+
+int i = 5;

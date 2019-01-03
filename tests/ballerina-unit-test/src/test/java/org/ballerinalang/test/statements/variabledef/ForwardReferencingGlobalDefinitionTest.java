@@ -39,20 +39,11 @@ import java.util.Map;
  * @since 0.990.3
  */
 public class ForwardReferencingGlobalDefinitionTest {
-    private CompileResult resultNegative;
-    private CompileResult resultNegativeCycleFound;
-    private CompileResult resultReOrdered;
-
-    @BeforeClass
-    public void setup() {
-        resultNegative = BCompileUtil.
-                compile("test-src/statements/variabledef/forward-reference-in-global-vardef-negative.bal");
-        resultNegativeCycleFound = BCompileUtil.compile(this, "test-src/statements/variabledef", "globalcycle");
-        resultReOrdered = BCompileUtil.compile(this, "test-src/statements/variabledef", "multiFileReference");
-    }
 
     @Test(description = "Test compiler rejecting forward referenced global variables")
     public void globalDefinitionsWithForwardReferences() {
+        CompileResult resultNegative = BCompileUtil.
+                compile("test-src/statements/variabledef/forward-reference-in-global-vardef-negative.bal");
         Diagnostic[] diagnostics = resultNegative.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
         BAssertUtil.validateError(resultNegative, 0, "illegal forward reference to 'employee'", 32, 26);
@@ -63,16 +54,18 @@ public class ForwardReferencingGlobalDefinitionTest {
 
     @Test(description = "Test compiler rejecting cyclic references in global variable definitions")
     public void globalDefinitionsWithCyclicReferences() {
+        CompileResult resultNegativeCycleFound = BCompileUtil.compile(this, "test-src/statements/variabledef",
+                "globalcycle");
         Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
-        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference 'employee'", 19, 1);
-        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference 'dep1'", 38, 1);
-        BAssertUtil.validateError(resultNegativeCycleFound, 2, "illegal cyclic reference 'person'", 3, 1);
-        BAssertUtil.validateError(resultNegativeCycleFound, 3, "illegal cyclic reference 'dep2'", 10, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 19, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 38, 1);
     }
 
     @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")
     public void globalDefinitionsReOrdering() {
+        CompileResult resultReOrdered = BCompileUtil.compile(this, "test-src/statements/variabledef",
+                "multiFileReference");
         Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
         Assert.assertEquals(diagnostics.length, 0);
 
