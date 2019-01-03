@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.nativeimpl.functions.socket;
+package org.ballerinalang.stdlib.socket;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -30,12 +30,15 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Unit tests for server socket.
@@ -45,10 +48,14 @@ public class ServerSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
     private CompileResult normalServer;
+    private Path testResourceRoot;
 
     @BeforeClass
     public void setup() {
-        normalServer = BServiceUtil.setupProgramFile(this, "test-src/socket/server_socket.bal");
+        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
+        testResourceRoot = Paths.get(resourceRoot, "test-src");
+        normalServer = BServiceUtil.setupProgramFile(this, testResourceRoot.resolve("server_socket.bal").toString());
         boolean connectionStatus;
         int numberOfRetryAttempts = 20;
         connectionStatus = isConnected(numberOfRetryAttempts);
@@ -84,7 +91,8 @@ public class ServerSocketTest {
     @Test
     public void testOnDuplicatePortNegative() {
         try {
-            BServiceUtil.setupProgramFile(this, "test-src/socket/server_socket_duplicate_port_negative.bal");
+            BServiceUtil.setupProgramFile(this,
+                    testResourceRoot.resolve("server_socket_duplicate_port_negative.bal").toString());
         } catch (BLangRuntimeException e) {
             String errorStr = e.getMessage().substring(47, 47 + 58);
             Assert.assertEquals(errorStr, "Unable to start the socket service: Address already in use");
