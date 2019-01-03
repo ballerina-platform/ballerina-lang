@@ -38,7 +38,7 @@ public class OrderByTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/orderby-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/orderby-streaming-test.bal", true);
     }
 
     @Test(description = "Test order by in streaming query - a simple one")

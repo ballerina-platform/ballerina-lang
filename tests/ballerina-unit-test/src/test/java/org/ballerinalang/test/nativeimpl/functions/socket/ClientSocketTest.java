@@ -127,6 +127,7 @@ public class ClientSocketTest {
 
     @AfterClass
     public void cleanup() {
+        mockSocketServer.stop();
         executor.shutdownNow();
     }
 

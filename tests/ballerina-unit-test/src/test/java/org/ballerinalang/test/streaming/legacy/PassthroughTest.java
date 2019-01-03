@@ -39,14 +39,13 @@ public class PassthroughTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/passthrough-streaming-test.bal");
-        result2 = BCompileUtil.compile("test-src/streaming/legacy/passthrough-streaming-without-select-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/passthrough-streaming-test.bal", true);
+        result2 = BCompileUtil.compile("test-src/streaming/legacy/passthrough-streaming-without-select-test.bal", true);
     }
 
     @Test(description = "Test passthrough streaming query")
     public void testPassthroughQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPassthroughQuery");
-
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -63,7 +62,6 @@ public class PassthroughTest {
     @Test(description = "Test passthrough streaming query without select")
     public void testPassthroughQueryWithoutSelect() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPassthroughQuery");
-
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");

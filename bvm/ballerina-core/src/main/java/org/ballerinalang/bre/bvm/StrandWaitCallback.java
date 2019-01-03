@@ -32,7 +32,7 @@ public class StrandWaitCallback extends StrandCallback {
     private Semaphore check;
 
     StrandWaitCallback(BType retType, ChannelDetails[] sendIns) {
-        super(retType, sendIns);
+        super(retType, sendIns, null);
         this.check = new Semaphore(0);
     }
 

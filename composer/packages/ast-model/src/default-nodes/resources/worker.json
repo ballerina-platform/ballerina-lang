@@ -1,76 +1,24 @@
 {
-  "ws": [
-    {
-      "ws": "\n    ",
-      "i": 158,
-      "text": "worker",
-      "static": true
-    },
-    {
-      "ws": " ",
-      "i": 160,
-      "text": "workerName",
-      "static": false
-    },
-    {
-      "ws": " ",
-      "i": 162,
-      "text": "{",
-      "static": true
-    },
-    {
-      "ws": "\n        \n    ",
-      "i": 167,
-      "text": "}",
-      "static": true
-    }
-  ],
   "position": {
     "startColumn": 5,
     "startLine": 25,
     "endColumn": 6,
     "endLine": 27
   },
-  "id": "28bffc27-6395-425d-8ff7-eeaed001c9d0",
+  "id": "08149989-5477-441f-93d6-41a39d9c0bed",
   "variable": {
-    "ws": [
-      {
-        "ws": "\n    ",
-        "i": 158,
-        "text": "worker",
-        "static": true
-      },
-      {
-        "ws": " ",
-        "i": 160,
-        "text": "workerName",
-        "static": false
-      },
-      {
-        "ws": " ",
-        "i": 162,
-        "text": "{",
-        "static": true
-      },
-      {
-        "ws": "\n        \n    ",
-        "i": 167,
-        "text": "}",
-        "static": true
-      }
-    ],
     "position": {
       "startColumn": 5,
       "startLine": 25,
       "endColumn": 6,
       "endLine": 27
     },
-    "id": "c932b5d4-a9ec-452d-9478-5abe5d2e9a9b",
+    "id": "77f5dfc4-6ef7-4e77-84cd-8f30ae135d15",
     "symbolType": [
       "other"
     ],
     "name": {
-      "id": "82f84219-2c9b-48da-9008-e66c8fbadb91",
+      "id": "5f7b8527-9346-4d7e-8cf3-349876f19022",
       "literal": false,
       "value": "0workerName",
       "kind": "Identifier",
@@ -85,7 +33,7 @@
         "endColumn": 6,
         "endLine": 27
       },
-      "id": "0bef4287-6df9-41f4-834a-2af0c92cd16b",
+      "id": "b6f1fc3c-5132-4e58-9dc1-beecfda01754",
       "symbolType": [
         "other"
       ],
@@ -122,7 +70,7 @@
           "endColumn": 6,
           "endLine": 27
         },
-        "id": "62b45459-b337-4ba8-a48d-b07503f40a8e",
+        "id": "5f19b13b-13be-40bd-85dc-3e994892f1dd",
         "VisibleEndpoints": [],
         "workers": [],
         "returnTypeAnnotationAttachments": [],
@@ -133,7 +81,7 @@
             "endColumn": 6,
             "endLine": 27
           },
-          "id": "2b6f3476-dd96-4602-bc0f-222571444035",
+          "id": "6d760338-9270-4ddb-a872-0ae504fcecbe",
           "literal": false,
           "value": "$lambda$0",
           "kind": "Identifier",
@@ -147,7 +95,7 @@
             "endColumn": 6,
             "endLine": 27
           },
-          "id": "6a0871a3-99a2-4d1a-aacd-87c1fd1671cc",
+          "id": "02541705-05c3-48a2-9b70-65b2bc89dc61",
           "symbolType": [
             "null"
           ],
@@ -158,12 +106,12 @@
         },
         "defaultableParameters": [],
         "deprecatedAttachments": [],
-        "endpointNodes": [],
         "body": {
-          "id": "67fe56c4-2c78-4648-9d2e-290528899a7d",
+          "id": "66be9bb3-b2d4-47d0-b57d-10e23c4da1d4",
           "statements": [],
           "kind": "Block"
         },
+        "endpointNodes": [],
         "parameters": [],
         "kind": "Function",
         "public": false,
@@ -203,7 +151,7 @@
     "final": true,
     "attached": false,
     "lambda": false,
-    "worker": false,
+    "worker": true,
     "parallel": false,
     "listener": false,
     "deprecated": false,

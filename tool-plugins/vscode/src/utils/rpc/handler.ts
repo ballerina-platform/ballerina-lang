@@ -1,5 +1,5 @@
 import { WebViewMethod, WebViewRPCMessage } from './model';
-import { Webview, Position, Range, Selection, window, Uri, TextEditor, ViewColumn } from 'vscode';
+import { Webview, Position, Range, Selection, window, Uri, TextEditor, ViewColumn, commands } from 'vscode';
 import { ExtendedLangClient } from 'src/core/extended-language-client';
 
 const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] => {
@@ -15,7 +15,7 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'astDidChange',
         handler: (args: any[]) => {
             return langClient.onReady().then(() => {
-                return langClient.triggerASTDidChange(JSON.parse(args[0]), args[1]);
+                return langClient.triggerASTDidChange(args[0], args[1]);
             });
         }
     },
@@ -92,6 +92,27 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
     }];
 };
 
+const undoRedoMethods = [{
+        methodName: 'undo',
+        handler: (args: any[]) => {
+            commands.executeCommand('workbench.action.focusPreviousGroup')
+                .then(() => {
+                    commands.executeCommand('undo');
+                });
+        }
+    },
+    {
+        methodName: 'redo',
+        handler: (args: any[]) => {
+            commands.executeCommand('workbench.action.focusPreviousGroup')
+                .then(() => {
+                    commands.executeCommand('redo');
+                });
+           
+        }
+    }
+];
+
 export class WebViewRPCHandler {
 
     private _sequence: number = 1;
@@ -145,7 +166,7 @@ export class WebViewRPCHandler {
         methods: Array<WebViewMethod> = [])
             : WebViewRPCHandler {
         return new WebViewRPCHandler(
-            [...methods, ...getLangClientMethods(langClient)],
+            [...methods, ...getLangClientMethods(langClient), ...undoRedoMethods],
             webView);
     }
 

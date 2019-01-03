@@ -24,13 +24,13 @@ function testFunc() {
     // Invoking the main function
     main();
     test:assertEquals(outputs[0], "1 == 1 is true");
-    test:assertEquals(outputs[1], "1 == 2 is false");
+    test:assertEquals(outputs[1], "1 != 2 is true");
     test:assertEquals(outputs[2], "(1, 1.0, false) == (1, 1.0, false) is true");
-    test:assertEquals(outputs[3], "(1, 1.0, false) == (11, 1.0, true) is false");
-    test:assertEquals(outputs[4], "{name:\"Jane\", id:1100} == {name:\"Jane\", id:1100} is true");
+    test:assertEquals(outputs[3], "(1, 1.0, false) != (11, 1.0, true) is true");
+    test:assertEquals(outputs[4], "{name:\"Jane\", id:1100} != {name:\"Jane\", id:1100} is false");
     test:assertEquals(outputs[5], "{name:\"Jane\", id:1100} == {name:\"Anne\", id:1100} is false");
     test:assertEquals(outputs[6], "e4 === e5 is true");
-    test:assertEquals(outputs[7], "e4 === e5 is false");
+    test:assertEquals(outputs[7], "e4 !== e5 is true");
     test:assertEquals(outputs[8], "f1 === f2 is true");
-    test:assertEquals(outputs[9], "f1 === f2 is false");
+    test:assertEquals(outputs[9], "f1 !== f2 is true");
 }

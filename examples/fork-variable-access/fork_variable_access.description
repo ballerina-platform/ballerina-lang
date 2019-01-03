@@ -5,4 +5,4 @@
 // defined within the specific worker.
 // Reference type variables such as `map`, `json`, `xml`, and `record` are passed into these workers as a
 // reference to the original data. Therefore, if you update the value of these variables within a worker, the value gets
-// updated for the entire function. You may wait for the worker to return using the `wait` expression.
+// updated for the entire function. You may wait for the worker returns using the `wait` expression.

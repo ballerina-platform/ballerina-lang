@@ -29,7 +29,7 @@ public interface BallerinaTernaryExpression extends BallerinaExpression {
   @Nullable
   PsiElement getColon();
 
-  @NotNull
+  @Nullable
   PsiElement getQuestionMark();
 
 }

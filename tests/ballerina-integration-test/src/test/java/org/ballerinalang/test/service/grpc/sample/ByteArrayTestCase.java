@@ -56,4 +56,19 @@ public class ByteArrayTestCase extends GrpcBaseTest {
         BString responseValues = (BString) responses[0];
         Assert.assertEquals(responseValues.stringValue(), serverMsg);
     }
+
+    @Test(description = "Test transmitting 30KB content in data frame.")
+    public void testLargeByteArray() {
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_byte_client.bal");
+        Path sampleDataFile = Paths.get("src", "test", "resources", "grpc", "clients", "sample_bytes.txt");
+        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        final String serverMsg = "30KB file content transmitted successfully";
+
+        BValue[] responses = BRunUtil.invoke(result, "testLargeByteArray",
+                new BValue[]{new BString(sampleDataFile.toAbsolutePath().toString())});
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        BString responseValues = (BString) responses[0];
+        Assert.assertEquals(responseValues.stringValue(), serverMsg);
+    }
 }

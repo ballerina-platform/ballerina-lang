@@ -149,6 +149,36 @@ function testToJson() returns (json) {
     return retVal;
 }
 
+function testToJsonComplexTypes() returns (json) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize:1}
+    });
+
+    var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
+    json retVal = getJsonConversionResult(result);
+    testDB.stop();
+    return retVal;
+}
+
+function testToJsonComplexTypesNil() returns (json) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize:1}
+    });
+
+    var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
+    json retVal = getJsonConversionResult(result);
+    testDB.stop();
+    return retVal;
+}
+
 function testToXml() returns (xml) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
@@ -160,6 +190,38 @@ function testToXml() returns (xml) {
 
     var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    xml retVal = getXMLConversionResult(result);
+    testDB.stop();
+    return retVal;
+}
+
+function testToXmlComplexTypes() returns (xml) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
+
+    xml retVal = getXMLConversionResult(result);
+    testDB.stop();
+    return retVal;
+}
+
+function testToXmlComplexTypesNil() returns (xml) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
+
     xml retVal = getXMLConversionResult(result);
     testDB.stop();
     return retVal;
@@ -200,6 +262,9 @@ function testToXmlWithAdd() returns (xml) {
     xml result = result1 + result2;
 
     var dt3 = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
+    if (dt3 is table<record{}>) {
+        dt3.close();
+    }
     testDB.stop();
     return result;
 }
@@ -454,7 +519,7 @@ function testArrayData() returns (int[], int[], float[], string[],
     string[] string_arr = [];
     boolean[] boolean_arr = [];
     if (tableOrError is table<ResultMap>) {
-        var rs =tableOrError.getNext();
+        var rs = tableOrError.getNext();
         if (rs is ResultMap) {
             int_arr = rs.INT_ARRAY;
             long_arr = rs.LONG_ARRAY;
@@ -777,8 +842,11 @@ function testTableAutoClose() returns (int, json) {
 
     json jsonData = getJsonConversionResult(selectRet2);
 
-    _ = testDB->select("SELECT int_type, long_type, float_type, double_type,
+    var selectRet3 = testDB->select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    if (selectRet3 is table<record{}>) {
+        selectRet3.close();
+    }
 
     testDB.stop();
     return (i, jsonData);
@@ -876,6 +944,7 @@ function testTablePrintAndPrintln() {
     if (selectRet is table<record {}>) {
         io:println(selectRet);
         io:print(selectRet);
+        selectRet.close();
     } else if (selectRet is error) {
         io:print(<string>selectRet.reason());
     }
@@ -1009,7 +1078,7 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
             s2 = s2 + "_" + "NO";
         }
         if (selectRet5.hasNext()) {
-            var rs2 =selectRet5.getNext();
+            var rs2 = selectRet5.getNext();
             if (rs2 is ResultPrimitiveInt) {
                 s2 = s2 + "_" + rs2.INT_TYPE;
             }
@@ -1055,6 +1124,7 @@ function testHasNextWithoutConsume() returns (boolean, boolean, boolean)
         if (selectRet.hasNext()) {
             b3 = true;
         }
+        selectRet.close();
     }
     testDB.stop();
     return (b1, b2, b3);
@@ -1359,7 +1429,7 @@ function testMultipleRowsWithForEach() returns (int, int) {
     if (selectRet is table<ResultPrimitiveInt>) {
         int i =0;
         foreach var x in selectRet {
-            if (i ==0) {
+            if (i == 0) {
                 rs1 = x;
             } else {
                 rs2 = x;
@@ -1389,6 +1459,7 @@ function testTableAddInvalid() returns string {
         } else if (ret is ()) {
             s = "nil";
         }
+        selectRet.close();
     }
     testDB.stop();
     return s;
@@ -1412,6 +1483,7 @@ function testTableRemoveInvalid() returns string {
         } else if (ret is error) {
             s = <string> ret.detail().message;
         }
+        selectRet.close();
     }
     testDB.stop();
     return s;
@@ -1555,7 +1627,7 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
     return retVal;
 }
 
-function testSelectQueryWithCursorTable() returns (int | error) {
+function testSelectQueryWithCursorTable() returns error? {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1565,12 +1637,17 @@ function testSelectQueryWithCursorTable() returns (int | error) {
     });
 
     table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
-    table<IntData> t1Copy = from t1 select *;
+    error? e = trap testSelectQueryWithCursorTableHelper(t1);
+    t1.close();
     testDB.stop();
-    return 0;
+    return e;
 }
 
-function testJoinQueryWithCursorTable() returns (int | error) {
+function testSelectQueryWithCursorTableHelper(table<IntData> t1) {
+    table<IntData> t1Copy = from t1 select *;
+}
+
+function testJoinQueryWithCursorTable() returns error? {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1582,9 +1659,14 @@ function testJoinQueryWithCursorTable() returns (int | error) {
     table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
     table<IntData> t2 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
 
+    error? e = trap testJoinQueryWithCursorTableHelper(t1, t2);
+    t1.close();
+    t2.close();
+    testDB.stop();
+    return e;
+}
+
+function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
     table<IntData> joinedTable = from t1 as table1 join t2 as table2 on
     table1.int_type == table2.int_type select table1.int_type as int_type;
-
-    testDB.stop();
-    return 0;
 }

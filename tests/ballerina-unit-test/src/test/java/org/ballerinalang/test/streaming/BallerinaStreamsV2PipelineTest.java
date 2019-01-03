@@ -39,14 +39,12 @@ public class BallerinaStreamsV2PipelineTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-pipeline-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
     public void testPipelineQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPipelineQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");

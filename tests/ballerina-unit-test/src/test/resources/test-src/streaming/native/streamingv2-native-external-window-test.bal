@@ -115,7 +115,7 @@ function createStreamingConstruct() {
             };
         });
 
-    streams:Window tmpWindow = streams:externalTimeWindow(["inputStream.timeStamp", 1000],
+    streams:Window tmpWindow = streams:externalTime(["inputStream.timeStamp", 1000],
         nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
 
     inputStream.subscribe(function (Teacher t) {

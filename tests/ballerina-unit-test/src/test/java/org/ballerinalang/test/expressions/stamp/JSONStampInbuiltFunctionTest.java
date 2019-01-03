@@ -329,6 +329,22 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(((BArrayType) mapValue0.get("a").getType()).getElementType().getClass(), BStringType.class);
     }
 
+    @Test
+    public void testStampConstraintJSONToRecord() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampConstraintJSONToRecord");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue0.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue0.getType().getName(), "Student");
+
+        Assert.assertEquals((mapValue0.getMap()).size(), 4);
+        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("batch").toString(), "LK2014");
+        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("batch")).getType().getClass(),
+                BStringType.class);
+    }
+
     //----------------------------------- Negative Test cases ----------------------------------------------------
 
     @Test

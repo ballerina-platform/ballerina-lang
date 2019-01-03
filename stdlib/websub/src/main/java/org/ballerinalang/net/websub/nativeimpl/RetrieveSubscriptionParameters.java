@@ -24,6 +24,8 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -85,7 +87,7 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
         Object[] webSubHttpServices = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
                                         .getServicesByHost(DEFAULT_HOST).values().toArray();
 
-        BValueArray subscriptionDetailArray = new BValueArray();
+        BValueArray subscriptionDetailArray = new BValueArray(new BMapType(BTypes.typeAny));
 
         for (int index = 0; index < webSubHttpServices.length; index++) {
             WebSubHttpService webSubHttpService = (WebSubHttpService) webSubHttpServices[index];
