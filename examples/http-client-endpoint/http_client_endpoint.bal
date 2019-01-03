@@ -52,7 +52,7 @@ public function main() {
     }
 }
 
-//Function to hanlde response received from HTTP remote functions.
+//Function to handle response received from remote HTTP endpoint.
 function handleResponse(http:Response|error response) {
     if (response is http:Response) {
         var msg = response.getJsonPayload();
