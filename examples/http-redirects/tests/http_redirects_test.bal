@@ -12,10 +12,11 @@ function startService() {
     before: "startService",
     after: "stopService"
 }
-function testFunc() {
+function testFunc() returns error? {
     // Invoking the main function
-    endpoint http:Client httpEndpoint { url: "http://localhost:9090" ,
-        followRedirects: { enabled: true, maxCount: 5 }};
+    http:Client httpEndpoint = new("http://localhost:9090", config = {
+            followRedirects: { enabled: true, maxCount: 5 }
+    });
     // Check whether the server is started
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
@@ -23,13 +24,13 @@ function testFunc() {
 
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/redirect1");
-    match response {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, response1);
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response is http:Response) {
+        var res = check response.getTextPayload();
+        test:assertEquals(res, response1);
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
+    return;
 }
 
 function stopService() {

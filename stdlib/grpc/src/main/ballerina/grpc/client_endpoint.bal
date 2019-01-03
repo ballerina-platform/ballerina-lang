@@ -67,8 +67,10 @@ public type Client client object {
 # Represents client endpoint configuration.
 #
 # + secureSocket - The SSL configurations for the client endpoint.
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection.
 public type ClientEndpointConfig record {
     SecureSocket? secureSocket = ();
+    int timeoutMillis = 60000;
     !...
 };
 

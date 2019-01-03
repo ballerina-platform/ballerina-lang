@@ -268,6 +268,13 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(returns[0].stringValue(), "Value is 'Correct'");
     }
 
+    @Test(description = "Test using union within paranthesis")
+    public void testBracedUnionType() {
+        BValue[] returns = BRunUtil.invoke(result, "testBracedUnionType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "11|12");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
         Assert.assertEquals(resultNegative.getErrorCount(), 62);

@@ -39,7 +39,7 @@ public class BooleanTypeTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/boolean-type-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/boolean-type-test.bal", true);
     }
 
     @Test(description = "Test Boolean types in streaming query")

@@ -291,4 +291,17 @@ public class ServiceTest {
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "Uninitialized configs");
     }
+
+    @Test(description = "Test error returning from resource")
+    public void testErrorReturn() {
+        String path = "/echo/parseJSON";
+        List<Header> headers = new ArrayList<>();
+        headers.add(new Header("Content-Type", "application/json"));
+        String invalidJSON = "{name: \"John Doe\"}";
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", headers, invalidJSON);
+        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+
+        Assert.assertNotNull(responseMsg);
+        Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 500);
+    }
 }

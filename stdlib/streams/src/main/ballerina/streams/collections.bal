@@ -366,7 +366,7 @@ public type LinkedList object {
             self.last = prev;
         }
 
-        if (reflect:equals(x, self.curr)) {
+        if (x === self.curr) {
             if (self.ascend) {
                 self.curr = prev;
             } else {

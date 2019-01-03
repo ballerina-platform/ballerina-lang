@@ -49,7 +49,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
     private static final String MOCK_HEADER = "MockHeader";
-    private static final int LOG_LEECHER_TIMEOUT = 3000;
+    private static final int LOG_LEECHER_TIMEOUT = 10000;
 
     private static final String BY_KEY_CREATED_LOG = "Created Notification Received, action: created";
     private static final String BY_KEY_FEATURE_LOG = "Feature Notification Received, domain: feature";

@@ -122,6 +122,13 @@ public class BCompileUtil {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN, false);
     }
 
+    public static CompileResult compile(String sourceFilePath, boolean isSiddhiRuntimeEnabled) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        return compile(sourceRoot.toString(), packageName, CompilerPhase.CODE_GEN, isSiddhiRuntimeEnabled, true);
+    }
+
     /**
      * Compile and return the semantic errors.
      *
@@ -234,6 +241,29 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+
+        return compile(context, packageName, compilerPhase, false);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceRoot root path of the modules
+     * @param packageName name of the module to compile
+     * @param compilerPhase Compiler phase
+     * @param isSiddhiRuntimeEnabled Flag indicating to enable siddhi runtime for stream processing
+     * @param enableExpFeatures Flag indicating to enable the experimental features
+     * @return Semantic errors
+     */
+    public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
+                                        boolean isSiddhiRuntimeEnabled, boolean enableExpFeatures) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.SIDDHI_RUNTIME_ENABLED, Boolean.toString(isSiddhiRuntimeEnabled));
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         return compile(context, packageName, compilerPhase, false);

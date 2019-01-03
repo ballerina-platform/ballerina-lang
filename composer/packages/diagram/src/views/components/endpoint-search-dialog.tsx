@@ -54,6 +54,7 @@ export class EndpointSearchDialog extends React.Component<{
             selected: ep === this.lastUsedEndpoint,
             text: getEPLabel(ep)
         }));
+        const containerRef = (this.context as IDiagramContext).containerRef;
         return <Transition visible={show} animation="fade" duration={500}>
                 <Modal
                     open={show}
@@ -62,6 +63,7 @@ export class EndpointSearchDialog extends React.Component<{
                     size="small"
                     className="endpoint-search-dialog"
                     dimmer
+                    mountNode={containerRef ? containerRef.current : undefined}
                 >
                     <Header as="h4">Select from available endpoints</Header>
                     <Dropdown

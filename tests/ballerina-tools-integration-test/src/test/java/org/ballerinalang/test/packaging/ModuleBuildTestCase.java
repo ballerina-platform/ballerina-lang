@@ -148,7 +148,7 @@ public class ModuleBuildTestCase extends BaseTest {
      */
     @Test(description = "Test building empty module")
     public void testBuildWithEmptyPkg() throws BallerinaTestException, IOException {
-        Path projectPath = tempProjectDirectory.resolve("thirdTestProject");
+        Path projectPath = tempProjectDirectory.resolve("eighthTestProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
 
         // Create empty directory
