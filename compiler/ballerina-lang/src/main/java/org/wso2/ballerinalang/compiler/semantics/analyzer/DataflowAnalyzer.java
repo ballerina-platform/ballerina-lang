@@ -421,7 +421,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable variable) {
         VariableSymbol prevDependentSymbol = setDependentSymbol(variable.symbol);
         try {
-            observeGlobalVariableDefinition(variable.symbol, variable.pos, variable);
+            observeGlobalVariableDefinition(variable.symbol, variable.pos);
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
                 this.uninitializedVars.remove(variable.symbol);
@@ -1222,17 +1222,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void observeGlobalVariableReference(BSymbol symbol, DiagnosticPos pos) {
         boolean isInPkgLevel = this.env.scope.owner.getKind() == SymbolKind.PACKAGE;
         if (isInPkgLevel && globalVarSymbolRefPositions.containsKey(symbol)) {
-            // Add the sequence number we saw this symbol.
             globalVarSymbolRefPositions.get(symbol).add(
-                    RefPosition.newRef(globalVarRefCounter, pos, this.currDependentSymbol));
+                    RefPosition.newRef(pos, this.currDependentSymbol));
         }
     }
 
-    private void observeGlobalVariableDefinition(BSymbol symbol, DiagnosticPos pos, BLangVariable var) {
+    private void observeGlobalVariableDefinition(BSymbol symbol, DiagnosticPos pos) {
         if (globalVarSymbolRefPositions.containsKey(symbol)) {
-            // Add the sequence number we saw this symbol.
+            // Use sequenceNo to find the order we observe this variable def.
             int sequenceNo = globalVarRefCounter++;
-            globalVarSymbolDefPositions.put(symbol, DefPosition.newDef(sequenceNo, pos, var));
+            globalVarSymbolDefPositions.put(symbol, DefPosition.newDef(sequenceNo, pos));
         }
     }
 
@@ -1291,34 +1290,30 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private static class RefPosition {
-        final int refId;
         final DiagnosticPos position;
         final VariableSymbol dependentSymbol;
 
-        private RefPosition(int refId, DiagnosticPos position, VariableSymbol dependentSymbol) {
-            this.refId = refId;
+        private RefPosition(DiagnosticPos position, VariableSymbol dependentSymbol) {
             this.position = position;
             this.dependentSymbol = dependentSymbol;
         }
 
-        static RefPosition newRef(int sequenceNo, DiagnosticPos position, VariableSymbol dependentSymbol) {
-            return new RefPosition(sequenceNo, position, dependentSymbol);
+        static RefPosition newRef(DiagnosticPos position, VariableSymbol dependentSymbol) {
+            return new RefPosition(position, dependentSymbol);
         }
     }
 
     private static class DefPosition {
         final int refId;
         final DiagnosticPos position;
-        final BLangVariable variableNode;
 
-        private DefPosition(int refId, DiagnosticPos position, BLangVariable variableNode) {
+        private DefPosition(int refId, DiagnosticPos position) {
             this.refId = refId;
             this.position = position;
-            this.variableNode = variableNode;
         }
 
-        static DefPosition newDef(int sequenceNo, DiagnosticPos position, BLangVariable var) {
-            return new DefPosition(sequenceNo, position, var);
+        static DefPosition newDef(int sequenceNo, DiagnosticPos position) {
+            return new DefPosition(sequenceNo, position);
         }
     }
 }

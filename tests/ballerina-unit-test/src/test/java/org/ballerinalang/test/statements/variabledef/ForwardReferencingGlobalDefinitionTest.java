@@ -37,11 +37,13 @@ import java.util.Map;
  */
 public class ForwardReferencingGlobalDefinitionTest {
     private CompileResult resultNegative;
+    private CompileResult resultNegativeCycleFound;
 
     @BeforeClass
     public void setup() {
         resultNegative = BCompileUtil.
                 compile("test-src/statements/variabledef/forward-reference-in-global-vardef-negative.bal");
+        resultNegativeCycleFound = BCompileUtil.compile(this, "test-src/statements/variabledef", "globalcycle");
     }
 
     @Test(description = "Test compiler rejecting forward referenced global variables")
@@ -52,6 +54,16 @@ public class ForwardReferencingGlobalDefinitionTest {
         BAssertUtil.validateError(resultNegative, 1, "illegal forward reference to 'person'", 32, 36);
         BAssertUtil.validateError(resultNegative, 2, "illegal forward reference to 'person'", 35, 11);
         BAssertUtil.validateError(resultNegative, 3, "illegal forward reference to 'person'", 36, 10);
+    }
+
+    @Test(description = "Test compiler rejecting cyclic references in global variable definitions")
+    public void globalDefinitionsWithCyclicReferences() {
+        Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
+        Assert.assertTrue(diagnostics.length > 0);
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference 'employee'", 19, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference 'dep1'", 38, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 2, "illegal cyclic reference 'person'", 3, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 3, "illegal cyclic reference 'dep2'", 10, 1);
     }
 
     @Test(description = "Test algorithms on graph with cycles")
