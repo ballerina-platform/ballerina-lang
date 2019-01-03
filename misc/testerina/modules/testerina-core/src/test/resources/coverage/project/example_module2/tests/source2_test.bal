@@ -32,7 +32,7 @@ function testFunction2() {
 
     boolean[] booleanValues = [true, false];
 
-    foreach boolVal in booleanValues {
+    foreach var boolVal in booleanValues {
         sourceFunc2(boolVal);
     }
 

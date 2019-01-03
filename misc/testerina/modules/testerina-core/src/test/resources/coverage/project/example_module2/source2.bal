@@ -22,7 +22,7 @@ public function main(string... args) {
 
     boolean[] booleanValues = [true, false];
 
-    foreach boolVal in booleanValues {
+    foreach var boolVal in booleanValues {
         sourceFunc2(boolVal);
     }
 
