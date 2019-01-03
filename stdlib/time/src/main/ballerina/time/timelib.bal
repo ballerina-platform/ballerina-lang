@@ -12,7 +12,8 @@
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License
+// under the License.
+
 public const TIME_FORMAT_RFC_1123 = "RFC_1123";
 
 public type TimeFormat "RFC_1123";
@@ -44,6 +45,7 @@ public extern function toString(Time time) returns string;
 
 # Returns formatted string representation of the given time.
 #
+# + time - The Time record to be formatted
 # + timeFormat - The format which is used to format the time represented by this object
 # + return - The formatted string of the given time
 public extern function format(Time time, string|TimeFormat timeFormat) returns string;
@@ -62,6 +64,7 @@ public extern function getMonth(Time time) returns int;
 
 # Returns the date representation of the given time.
 #
+# + time - The Time record to get the date representation from
 # + return - The day-of-month, from 1 to 31
 public extern function getDay(Time time) returns int;
 
@@ -124,7 +127,7 @@ public extern function getTime(Time time) returns (int, int, int, int);
 # + milliSeconds - The milli-of-second to represent, from 0 to 999
 # + return - Time object containing time and zone information after the addition
 public extern function addDuration(Time time, int years, int months, int days, int hours, int minutes, int seconds,
-                                   int milliSeconds) returns (Time);
+                                   int milliSeconds) returns Time;
 
 # Subtract specified durations from the given time value.
 #
