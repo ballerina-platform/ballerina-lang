@@ -427,66 +427,54 @@ public class ObjectTest {
         Assert.assertEquals(result.getErrorCount(), 4);
 
         // test accessing object fields without "self" keyword in attached functions.
-        BAssertUtil.validateError(result, 0, "undefined symbol 'age'", 20, 17);
+        BAssertUtil.validateError(result, 0, "undefined symbol 'age'", 14, 17);
         // test duplicate matching attach function implementations
         BAssertUtil.validateError(result, 1, "implementation already exist for the given " +
-                "function 'attachInterface' in same module", 24, 1);
+                "function 'attachInterface' in same module", 18, 1);
 
         // test object without matching function signature within the object
         BAssertUtil.validateError(result, 2, "cannot find function signature for" +
-                " function 'attachInterfaceFunc' in object 'Employee'", 38, 1);
+                " function 'attachInterfaceFunc' in object 'Employee'", 27, 1);
 
         // test accessing object fields without "self" keyword in attached functions.
-        BAssertUtil.validateError(result, 3, "undefined symbol 'age'", 39, 17);
+        BAssertUtil.validateError(result, 3, "undefined symbol 'age'", 28, 17);
     }
 
     @Test (description = "Negative test to test uninitialized object variables")
     public void testObjectNegativeTestForNonInitializable() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
+        Assert.assertEquals(result.getErrorCount(), 5);
         BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 2, 1);
         BAssertUtil.validateError(result, 1, "variable 'ee' is not initialized", 3, 1);
-        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 6, 5);
-        BAssertUtil.validateError(result, 3, "variable 'e' is not initialized", 7, 5);
-        BAssertUtil.validateError(result, 4, "undefined function 'attachInterface' in object 'Person'", 8, 13);
-        BAssertUtil.validateError(result, 5, "object un-initializable field 'Person p' is " +
-                "not present as a constructor parameter", 25, 1);
+        BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in object 'Person'", 8, 13);
+        BAssertUtil.validateError(result, 3, "variable 'p' is not initialized", 8, 13);
+        BAssertUtil.validateError(result, 4, "variable 'p' is not initialized", 8, 35);
     }
 
     @Test (description = "Negative test to test returning different type without type name")
     public void testObjectNegativeTestForReturnDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_new_in_return_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
-        BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 23, 12);
-        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 27, 12);
-        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 31, 26);
-        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 32, 19);
+        Assert.assertEquals(result.getErrorCount(), 5);
+        BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 18, 12);
+        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 22, 12);
+        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 26, 26);
+        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 27, 19);
         BAssertUtil.validateError(result, 4, "invalid variable definition; can not infer the assignment type.",
-                32, 19);
-        BAssertUtil.validateError(result, 5, "invalid usage of 'new' with type 'error'", 33, 21);
+                27, 19);
     }
 
     @Test (description = "Negative test to test returning different type without type name")
     public void testUnInitializableObjFieldAsParam() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_un_initializable_field.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "object un-initializable field 'Foo foo' is not " +
-                "present as a constructor parameter", 18, 1);
+        BAssertUtil.validateError(result, 0, "uninitialized field 'foo'", 18, 5);
     }
 
-    @Test (description = "Negative test to test self reference types")
+    @Test (description = "Negative test to test self reference types", enabled = false)
     public void testSelfReferenceType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
-        BAssertUtil.validateError(result, 0, "object un-initializable field " +
-                "'Employee emp' is not present as a constructor parameter", 7, 1);
-        BAssertUtil.validateError(result, 1, "object un-initializable field " +
-                "'Foo foo' is not present as a constructor parameter", 14, 1);
-        BAssertUtil.validateError(result, 2, "object un-initializable field " +
-                "'Bar bar' is not present as a constructor parameter", 14, 1);
-        BAssertUtil.validateError(result, 3, "object un-initializable field " +
-                "'Bar bar1' is not present as a constructor parameter", 22, 1);
-        BAssertUtil.validateError(result, 4, "cyclic type reference in " +
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "cyclic type reference in " +
                 "'[Person, Employee, Foo, Bar]'", 32, 5);
     }
 
@@ -494,27 +482,28 @@ public class ObjectTest {
     public void testNonMatchingAttachedFunction() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_invalid_attached_func_def.bal");
         int index = 0;
-        Assert.assertEquals(result.getErrorCount(), 10);
+        Assert.assertEquals(result.getErrorCount(), 11);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test0' in the object 'Person'", 42, 1);
+                "function 'test0' in the object 'Person'", 41, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test1' in the object 'Person'", 46, 1);
+                "function 'test1' in the object 'Person'", 45, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test2' in the object 'Person'", 50, 1);
+                "function 'test2' in the object 'Person'", 49, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test3' in the object 'Person'", 54, 1);
+                "function 'test3' in the object 'Person'", 53, 1);
         BAssertUtil.validateError(result, index++, "incompatible types: expected " +
-                "'string', found 'int'", 54, 45);
+                "'string', found 'int'", 53, 44);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test5' in the object 'Person'", 62, 1);
+                "function 'test5' in the object 'Person'", 61, 1);
         BAssertUtil.validateError(result, index++, "visibility modifiers not allowed " +
-                "in object attached function definition 'test6'", 66, 1);
+                "in object attached function definition 'test6'", 65, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test9' in the object 'Person'", 78, 1);
+                "function 'test9' in the object 'Person'", 77, 1);
+        BAssertUtil.validateError(result, index++, "this function must return a result", 77, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test12' in the object 'Person'", 90, 1);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test13' in the object 'Person'", 94, 1);
+                "function 'test12' in the object 'Person'", 89, 1);
+        BAssertUtil.validateError(result, index, "cannot find matching interface " +
+                "function 'test13' in the object 'Person'", 93, 1);
     }
 
     @Test (description = "Negative test to test initializing objects with only interface functions")
@@ -535,9 +524,16 @@ public class ObjectTest {
     @Test (description = "Negative test to test referring undefined field in constructor")
     public void testReferUndefinedFieldBal() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_access_undefined_field.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "undefined symbol 'abc'", 6, 9);
+    }
+
+    @Test (description = "Negative test to test invalid object init functions")
+    public void testObjectInitFunctionNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_init_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "undefined field 'agea' in object 'Person'", 6, 10);
-        BAssertUtil.validateError(result, 1, "undefined symbol 'abc'", 7, 9);
+        BAssertUtil.validateError(result, 0, "object '__init()' function cannot be an 'extern' function", 19, 5);
+        BAssertUtil.validateError(result, 1, "object '__init()' function cannot be an 'extern' function", 23, 5);
     }
 
     @Test (description = "Negative test to test nillable initialization")
@@ -550,10 +546,10 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'Person?'", 6, 18);
         BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'Person?'", 8, 10);
         BAssertUtil.validateError(result, 5, "cannot infer type of the object from 'Person?'", 10, 10);
-        BAssertUtil.validateError(result, 6, "cannot infer type of the object from 'Person?'", 22, 25);
-        BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 25);
-        BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
-        BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
+        BAssertUtil.validateError(result, 6, "cannot infer type of the object from 'Person?'", 19, 25);
+        BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 20, 25);
+        BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 25, 19);
+        BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 26, 19);
     }
 
     @Test (description = "Negative test to test object visibility modifiers")
@@ -561,28 +557,28 @@ public class ObjectTest {
         CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
         Assert.assertEquals(result.getErrorCount(), 14);
         BAssertUtil.validateError(result, 0, "visibility modifiers not allowed in object " +
-                "attached function definition 'func1'", 11, 1);
-        BAssertUtil.validateError(result, 1, "object attached function definition must have a body 'func2'", 15, 1);
-        BAssertUtil.validateError(result, 2, "attempt to refer to non-accessible symbol 'name'", 47, 17);
-        BAssertUtil.validateError(result, 3, "undefined field 'name' in object 'mod:0.0.0:Employee'", 47, 17);
-        BAssertUtil.validateError(result, 4, "attempt to refer to non-accessible symbol 'Employee.getAge'", 51, 14);
-        BAssertUtil.validateError(result, 5, "undefined function 'getAge' in object 'mod:0.0.0:Employee'", 51, 14);
-        BAssertUtil.validateError(result, 6, "attempt to refer to non-accessible symbol 'name'", 58, 17);
-        BAssertUtil.validateError(result, 7, "undefined field 'name' in object 'pkg1:Employee'", 58, 17);
-        BAssertUtil.validateError(result, 8, "attempt to refer to non-accessible symbol 'email'", 59, 17);
-        BAssertUtil.validateError(result, 9, "undefined field 'email' in object 'pkg1:Employee'", 59, 17);
-        BAssertUtil.validateError(result, 10, "attempt to refer to non-accessible symbol 'Employee.getAge'", 62, 14);
-        BAssertUtil.validateError(result, 11, "undefined function 'getAge' in object 'pkg1:Employee'", 62, 14);
+                "attached function definition 'func1'", 10, 1);
+        BAssertUtil.validateError(result, 1, "object attached function definition must have a body 'func2'", 14, 1);
+        BAssertUtil.validateError(result, 2, "attempt to refer to non-accessible symbol 'name'", 46, 17);
+        BAssertUtil.validateError(result, 3, "undefined field 'name' in object 'mod:0.0.0:Employee'", 46, 17);
+        BAssertUtil.validateError(result, 4, "attempt to refer to non-accessible symbol 'Employee.getAge'", 50, 14);
+        BAssertUtil.validateError(result, 5, "undefined function 'getAge' in object 'mod:0.0.0:Employee'", 50, 14);
+        BAssertUtil.validateError(result, 6, "attempt to refer to non-accessible symbol 'name'", 57, 17);
+        BAssertUtil.validateError(result, 7, "undefined field 'name' in object 'pkg1:Employee'", 57, 17);
+        BAssertUtil.validateError(result, 8, "attempt to refer to non-accessible symbol 'email'", 58, 17);
+        BAssertUtil.validateError(result, 9, "undefined field 'email' in object 'pkg1:Employee'", 58, 17);
+        BAssertUtil.validateError(result, 10, "attempt to refer to non-accessible symbol 'Employee.getAge'", 61, 14);
+        BAssertUtil.validateError(result, 11, "undefined function 'getAge' in object 'pkg1:Employee'", 61, 14);
         BAssertUtil.validateError(result, 12, "attempt to refer to non-accessible symbol " +
-                "'Employee.getEmail'", 63, 17);
-        BAssertUtil.validateError(result, 13, "undefined function 'getEmail' in object 'pkg1:Employee'", 63, 17);
+                "'Employee.getEmail'", 62, 17);
+        BAssertUtil.validateError(result, 13, "undefined function 'getEmail' in object 'pkg1:Employee'", 62, 17);
     }
 
     @Test (description = "Negative test to test unknown object field type")
     public void testUnknownObjectFieldType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_undefined_field_type_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "unknown type 'Employee'", 3, 5);
+        BAssertUtil.validateError(result, 0, "unknown type 'Employee'", 3, 13);
     }
 
     @Test
@@ -608,5 +604,15 @@ public class ObjectTest {
         Assert.assertSame(returns[0].getClass(), BMap.class);
         Assert.assertEquals(returns[0].stringValue(), "{age:20, name:\"John\"}");
         Assert.assertEquals(out.toString().trim(), "{age:20, name:\"John\"}");
+    }
+
+    @Test
+    public void testObjectInit() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/object/object_constructor.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInit");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 }

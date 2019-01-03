@@ -44,7 +44,7 @@ public class StatementContextResolver extends AbstractItemResolver {
         Either<List<CompletionItem>, List<SymbolInfo>> itemList;
         if (isInvocationOrInteractionOrFieldAccess(context)) {
             itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
-            return itemList.isLeft() ? itemList.getLeft() : this.getCompletionItemList(itemList.getRight());
+            return itemList.isLeft() ? itemList.getLeft() : this.getCompletionItemList(itemList.getRight(), context);
         } else {
             boolean supportSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
                     .getCompletionItem()
@@ -74,7 +74,7 @@ public class StatementContextResolver extends AbstractItemResolver {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
             });
-            completionItems.addAll(this.getCompletionItemList(filteredList));
+            completionItems.addAll(this.getCompletionItemList(filteredList, context));
             completionItems.addAll(this.getPackagesCompletionItems(context));
             // Now we need to sort the completion items and populate the completion items specific to the scope owner
             // as an example, resource, action, function scopes are different from the if-else, while, and etc

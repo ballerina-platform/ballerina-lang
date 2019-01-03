@@ -17,19 +17,18 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.WorkerData;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.Map;
 
@@ -38,90 +37,79 @@ import java.util.Map;
  */
 public class NativeCallContext implements Context {
 
-    private WorkerExecutionContext parentCtx;
+    private Strand strand;
     
     private CallableUnitInfo callableUnitInfo;
 
-    private WorkerData workerLocal;
+    private StackFrame sf;
 
-    private BValue[] returnValues;
+    private BValue returnValue;
 
-    public NativeCallContext(WorkerExecutionContext parentCtx, CallableUnitInfo callableUnitInfo,
-            WorkerData workerLocal) {
-        this.parentCtx = parentCtx;
+    public NativeCallContext(Strand strand, CallableUnitInfo callableUnitInfo,
+                             StackFrame sf) {
+        this.strand = strand;
         this.callableUnitInfo = callableUnitInfo;
-        this.workerLocal = workerLocal;
+        this.sf = sf;
     }
 
     @Override
-    public WorkerExecutionContext getParentWorkerExecutionContext() {
-        return parentCtx;
+    public Strand getStrand() {
+        return strand;
     }
-    
+
     @Override
     public CallableUnitInfo getCallableUnitInfo() {
         return callableUnitInfo;
     }
 
-    public WorkerData getLocalWorkerData() {
-        return workerLocal;
-    }
-
     @Override
-    public DebugContext getDebugContext() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public void setDebugContext(DebugContext debugContext) {
-        // TODO
-
+    public StackFrame getDataFrame() {
+        return sf;
     }
 
     @Override
     public Object getProperty(String key) {
-        return this.parentCtx.globalProps.get(key);
+        return this.strand.globalProps.get(key);
     }
 
     @Override
     public Map<String, Object> getProperties() {
-        return this.parentCtx.globalProps;
+        return this.strand.globalProps;
     }
 
     @Override
     public void setProperty(String key, Object value) {
-        this.parentCtx.globalProps.put(key, value);
+        this.strand.globalProps.put(key, value);
     }
 
     @Override
     public ServiceInfo getServiceInfo() {
-        return BLangVMUtils.getServiceInfo(this.parentCtx);
+        return BLangVMUtils.getServiceInfo(this.strand);
     }
 
     @Override
     public void setServiceInfo(ServiceInfo serviceInfo) {
-        BLangVMUtils.setServiceInfo(this.parentCtx, serviceInfo);
+        BLangVMUtils.setServiceInfo(this.strand, serviceInfo);
     }
 
     @Override
     public boolean isInTransaction() {
-        return this.parentCtx.isInTransaction();
+        return this.strand.isInTransaction();
     }
 
     @Override
-    public BMap<?, ?> getError() {
-        return this.parentCtx.getError();
+    public BError getError() {
+        return this.strand.getError();
     }
 
     @Override
-    public void setError(BMap<?, ?> error) {
-        this.parentCtx.setError((BMap<String, BValue>) error);
+    public void setError(BError error) {
+        this.strand.setError(error);
     }
 
     @Override
     public ProgramFile getProgramFile() {
-        return this.parentCtx.programFile;
+        return this.strand.programFile;
     }
 
     @Override
@@ -130,7 +118,7 @@ public class NativeCallContext implements Context {
             throw new ArgumentOutOfRangeException(index);
         }
 
-        return workerLocal.longRegs[index];
+        return sf.longRegs[index];
     }
 
     @Override
@@ -139,7 +127,7 @@ public class NativeCallContext implements Context {
             throw new ArgumentOutOfRangeException(index);
         }
 
-        String str = workerLocal.stringRegs[index];
+        String str = sf.stringRegs[index];
         if (str == null) {
             throw new BLangNullReferenceException();
         }
@@ -153,7 +141,7 @@ public class NativeCallContext implements Context {
             throw new ArgumentOutOfRangeException(index);
         }
 
-        return workerLocal.stringRegs[index];
+        return sf.stringRegs[index];
     }
 
     @Override
@@ -162,7 +150,7 @@ public class NativeCallContext implements Context {
             throw new ArgumentOutOfRangeException(index);
         }
 
-        return workerLocal.doubleRegs[index];
+        return sf.doubleRegs[index];
     }
 
     @Override
@@ -171,7 +159,7 @@ public class NativeCallContext implements Context {
             throw new ArgumentOutOfRangeException(index);
         }
 
-        return (workerLocal.intRegs[index] == 1);
+        return (sf.intRegs[index] == 1);
     }
 
     @Override
@@ -180,7 +168,7 @@ public class NativeCallContext implements Context {
             throw new ArgumentOutOfRangeException(index);
         }
 
-        BValue result = workerLocal.refRegs[index];
+        BValue result = sf.refRegs[index];
         if (result == null) {
             throw new BallerinaException("argument " + index + " is null");
         }
@@ -194,26 +182,23 @@ public class NativeCallContext implements Context {
             throw new ArgumentOutOfRangeException(index);
         }
 
-        return workerLocal.refRegs[index];
+        return sf.refRegs[index];
     }
 
     @Override
-    public BValue[] getReturnValues() {
-        if (this.returnValues == null || this.returnValues.length == 0) {
-            if (this.callableUnitInfo.hasReturnType()) {
-                this.returnValues = new BValue[] { null };
-            }
+    public void setReturnValues(BValue... value) {
+        if (value != null && value.length > 0) {
+            this.returnValue = value[0];
         }
-        return this.returnValues;
     }
 
     @Override
-    public void setReturnValues(BValue... values) {
-        this.returnValues = values;
+    public BValue getReturnValue() {
+        return this.returnValue;
     }
 
-    public LocalTransactionInfo getLocalTransactionInfo() {
-        return this.parentCtx.getLocalTransactionInfo();
+    public TransactionLocalContext getLocalTransactionInfo() {
+        return this.strand.getLocalTransactionContext();
     }
 
 }

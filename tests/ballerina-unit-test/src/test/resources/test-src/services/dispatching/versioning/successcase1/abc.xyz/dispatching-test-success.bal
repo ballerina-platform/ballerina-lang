@@ -1,10 +1,7 @@
-
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:NonListener passthruEP {
-    port:9090
-};
+listener http:MockListener passthruEP  = new(9090);
 
 @http:ServiceConfig {
     basePath:"/hello1/{version}",
@@ -14,15 +11,15 @@ endpoint http:NonListener passthruEP {
        matchMajorVersion:true
     }
 }
-service<http:Service> hello1 bind passthruEP {
+service hello1 on passthruEP {
 
     @http:ResourceConfig {
         path:"/go"
     }
-    sample (endpoint conn, http:Request req) {
+    resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"common service"});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
@@ -32,15 +29,15 @@ service<http:Service> hello1 bind passthruEP {
         pattern:"{major}.{minor}"
     }
 }
-service<http:Service> hello2 bind passthruEP {
+service hello2 on passthruEP {
 
     @http:ResourceConfig {
         path:"/go"
     }
-    sample (endpoint conn, http:Request req) {
+    resource function sample (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"Only template"});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
@@ -50,15 +47,15 @@ service<http:Service> hello2 bind passthruEP {
         allowNoVersion:true
     }
 }
-service<http:Service> hello3 bind passthruEP {
+service hello3 on passthruEP {
 
     @http:ResourceConfig {
         path:"/go"
     }
-    sample (endpoint conn, http:Request req) {
+    resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"only allow no version"});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
@@ -68,15 +65,15 @@ service<http:Service> hello3 bind passthruEP {
         matchMajorVersion:true
     }
 }
-service<http:Service> hello4 bind passthruEP {
+service hello4 on passthruEP {
 
     @http:ResourceConfig {
         path:"/go"
     }
-    sample (endpoint conn, http:Request req) {
+    resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"only match major"});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
@@ -86,14 +83,14 @@ service<http:Service> hello4 bind passthruEP {
         pattern:"{MAJOR}.{minor}"
     }
 }
-service<http:Service> hello5 bind passthruEP {
+service hello5 on passthruEP {
 
     @http:ResourceConfig {
         path:"/go"
     }
-    sample (endpoint conn, http:Request req) {
+    resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"without version segment in basePath"});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }

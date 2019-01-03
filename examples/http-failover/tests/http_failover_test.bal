@@ -14,18 +14,21 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
-    // Checking whether the server is started.
+    http:Client httpEndpoint = new("http://localhost:9090");
+    // Check whether the server is started
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
-    // Sending a GET request to the specified endpoint.
+    // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/fo");
-    match response {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, "Mock Resource is Invoked.");
+    if (response is http:Response) {
+        var result = response.getTextPayload();
+        if (result is string) {
+            test:assertEquals(result, "Mock Resource is Invoked.");
+        } else {
+            test:assertFail(msg = "Invalid response message:");
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

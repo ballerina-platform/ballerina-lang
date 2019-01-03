@@ -88,10 +88,11 @@ function finiteAssignmentRefValueTypeCaseTwo() returns foo:POrInt {
 }
 
 function testFiniteTypeWithMatch() returns foo:PreparedResult {
-    match foo() {
-        foo:PreparedResult x => return x;
-        () => return "qqq";
-        error => return "qqq";
+    var x = foo();
+    if (x is foo:PreparedResult) {
+        return x;
+    } else {
+        return "qqq";
     }
 }
 
@@ -170,12 +171,12 @@ function testVarArgs(foo:ParamTest... p1) returns foo:ParamTest {
 
 function testTypeDefinitionWithArray() returns (int, int) {
     foo:ArrayCustom val = [34, 23];
-    return (lengthof val , val[1]);
+    return (val.length() , val[1]);
 }
 
 function testTypeDefinitionWithByteArray() returns (int, byte) {
     foo:ByteArrayType val = [34, 23];
-    return (lengthof val , val[1]);
+    return (val.length() , val[1]);
 }
 
 function testFiniteAssignmentByteType() returns foo:ByteType {
@@ -197,4 +198,23 @@ function testByteTypeDefinitionWithVarArgs() returns (foo:BFType, foo:BFType) {
 
 function testVarByteArgs(foo:BFType... p1) returns foo:BFType {
     return p1[0];
+}
+
+function testTypeDefWithFunctions() returns int {
+    foo:BFuncType fn = function (string s) returns int {
+        return s.length();
+    };
+    return fn.call("Hello");
+}
+
+function testTypeDefWithFunctions2() returns int {
+    foo:BFuncType2 fn = function (string s) returns int {
+        return s.length();
+    };
+
+    if (fn is function (string) returns int) {
+        return fn.call("Hello");
+    }
+
+    return -1;
 }

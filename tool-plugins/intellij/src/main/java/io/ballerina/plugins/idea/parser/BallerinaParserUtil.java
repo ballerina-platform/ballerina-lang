@@ -107,7 +107,6 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.ADD)
                                 && !(rawLookup == BallerinaTypes.QUESTION_MARK
                                 && rawLookup2 == BallerinaTypes.RIGHT_PARENTHESIS)
-                                && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.BIND)
                                 && !(rawLookup == BallerinaTypes.LINE_COMMENT &&
                                 rawLookup2 == BallerinaTypes.LINE_COMMENT)
                                 && !(rawLookup == BallerinaTypes.LINE_COMMENT &&
@@ -116,8 +115,21 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE
                                 && rawLookup2 == BallerinaTypes.RIGHT_BRACKET)
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.RETURN)
+                                && !(rawLookup == BallerinaTypes.QUESTION_MARK
+                                && rawLookup2 == BallerinaTypes.QUESTION_MARK)
                                 ) {
-                            return true;
+                            IElementType rawLookup3;
+                            do {
+                                rawLookup3 = builder.rawLookup(--steps);
+                                if (isWhiteSpaceOrComment(rawLookup3)) {
+                                    continue;
+                                }
+                                // Example - string a = b is string ? b : e;
+                                if ((rawLookup == BallerinaTypes.QUESTION_MARK && rawLookup3 == BallerinaTypes.IS)) {
+                                    return false;
+                                }
+                                return true;
+                            }  while (rawLookup3 != null && isWhiteSpaceOrComment(rawLookup3));
                         } else {
                             LighterASTNode latestDoneMarker = builder.getLatestDoneMarker();
                             if (rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.COLON) {
@@ -171,7 +183,6 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                     // io:println(jwtToken); as the first statement in a function.
                                     // runtime:sleepCurrentWorker(20); in the first statement as the second worker
                                     if (tokenType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE
-                                            || tokenType == BallerinaTypes.OBJECT_CALLABLE_UNIT_SIGNATURE
                                             || tokenType == BallerinaTypes.WORKER_DEFINITION
                                             || tokenType == BallerinaTypes.UNARY_EXPRESSION
                                             || tokenType == BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION
@@ -293,5 +304,30 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
     public static boolean shiftExprPredicate(PsiBuilder builder, int level) {
         IElementType next1Element = builder.lookAhead(-1);
         return next1Element != TokenType.WHITE_SPACE;
+    }
+
+    // Need to differentiate between nullable types and ternary expressions.
+    public static boolean nullableTypePredicate(PsiBuilder builder, int level) {
+        int steps = 1;
+        IElementType next1Element;
+        do {
+            next1Element = builder.rawLookup(steps++);
+            if (isWhiteSpaceOrComment(next1Element)) {
+                continue;
+            }
+            IElementType next2Element;
+            do {
+                next2Element = builder.rawLookup(steps++);
+                if (isWhiteSpaceOrComment(next2Element)) {
+                    continue;
+                }
+                if (next2Element != BallerinaTypes.COLON) {
+                    return true;
+                }
+            } while ((next2Element != null && isWhiteSpaceOrComment(next2Element)));
+
+        } while ((next1Element != null && isWhiteSpaceOrComment(next1Element)));
+
+        return false;
     }
 }

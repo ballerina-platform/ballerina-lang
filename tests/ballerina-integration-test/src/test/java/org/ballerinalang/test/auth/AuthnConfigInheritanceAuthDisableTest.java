@@ -38,8 +38,7 @@ public class AuthnConfigInheritanceAuthDisableTest extends AuthBaseTest {
     private final int servicePort = Constant.DEFAULT_HTTP_PORT;
 
     @Test(description = "non secured resource test case with no auth headers")
-    public void testResourceLevelAuthDisableWithNoAuthHeaders()
-            throws Exception {
+    public void testResourceLevelAuthDisableWithNoAuthHeaders() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 serverInstance.getServerHome());
         Assert.assertNotNull(response);
@@ -47,8 +46,7 @@ public class AuthnConfigInheritanceAuthDisableTest extends AuthBaseTest {
     }
 
     @Test(description = "non secured resource test case")
-    public void testResourceLevelAuthDisable()
-            throws Exception {
+    public void testResourceLevelAuthDisable() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),

@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/log;
 import ballerina/http;
 
-@final string CUSTOM_HEADER = "X-some-header";
+final string CUSTOM_HEADER = "X-some-header";
 
-service<http:Service> simple3 bind { port: 9093 } {
+service simple3 on new http:Listener(9093) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -27,20 +27,21 @@ service<http:Service> simple3 bind { port: 9093 } {
             upgradeService: simpleProxy3
         }
     }
-    websocketProxy(endpoint httpEp, http:Request req) {
-        endpoint http:WebSocketListener wsServiceEp;
+    resource function websocketProxy(http:Caller httpEp, http:Request req) {
+        http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
         wsServiceEp.attributes[CUSTOM_HEADER] = req.getHeader(CUSTOM_HEADER);
     }
 }
 
-service<http:WebSocketService> simpleProxy3 {
+service simpleProxy3 = @http:WebSocketServiceConfig {} service {
 
-    onText(endpoint wsEp, string text) {
-        if (text == "custom-headers"){
-            wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]) but {
-                error e => io:println("Error sending message. " + e.message)
-            };
+    resource function onText(http:WebSocketCaller wsEp, string text) {
+        if (text == "custom-headers") {
+            var returnVal = wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]);
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         }
     }
-}
+};

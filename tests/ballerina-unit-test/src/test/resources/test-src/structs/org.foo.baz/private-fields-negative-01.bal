@@ -1,16 +1,16 @@
 
 public type ParentFoo record {
-    int i;
-    ChildFoo c;
+    int i = 0;
+    ChildFoo c = {};
 };
 
 type ChildFoo record {
-    string name;
+    string name = "";
 };
 
 type privatePerson record {
-    int age;
-    string name;
+    int age = 0;
+    string name = "";
 };
 
 public function newPrivatePerson() returns (privatePerson) {

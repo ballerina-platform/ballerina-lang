@@ -18,7 +18,8 @@ public type Channel object {
 
     public State? b;
 
-    public new (b = "off", boolean a = true){
+    public function __init(State b = "off", boolean a = true){
+        self.b = b;
         State o =  "on";
         if(b == o) {
            int i = 4;
@@ -45,3 +46,7 @@ public type ByteType byte;
 public type ByteArrayType byte[];
 
 public type BFType byte|float;
+
+public type BFuncType function (string) returns int;
+
+public type BFuncType2 (function (string) returns int)|string;

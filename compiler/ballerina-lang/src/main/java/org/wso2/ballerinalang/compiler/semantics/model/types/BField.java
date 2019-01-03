@@ -31,14 +31,10 @@ public class BField implements Field {
     public BType type;
     public BVarSymbol symbol;
 
-    //no need to persist below flag
-    public boolean expAvailable;
-
-    public BField(Name name, BVarSymbol symbol, boolean expAvailable) {
+    public BField(Name name, BVarSymbol symbol) {
         this.name = name;
         this.symbol = symbol;
         this.type = symbol.type;
-        this.expAvailable = expAvailable;
     }
 
     @Override

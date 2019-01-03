@@ -54,6 +54,7 @@ import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -85,7 +86,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,8 +98,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipError;
 
+import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_DIR_NAME;
 
 /**
  * Text document service implementation for ballerina.
@@ -136,9 +142,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
+        final List<CompletionItem> completions = new ArrayList<>();
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
-            List<CompletionItem> completions;
             LSServiceOperationContext context = new LSServiceOperationContext();
             Path completionPath = new LSDocument(fileUri).getPath();
             Path compilationPath = getUntitledFilePath(completionPath.toString()).orElse(completionPath);
@@ -151,13 +157,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                                       CompletionCustomErrorStrategy.class,
-                                                                       false).getRight();
-                context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        bLangPackage.symbol.getName().getValue());
+                                                                        CompletionCustomErrorStrategy.class,
+                                                                        false);
+                context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+                context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
                 CompletionSubRuleParser.parse(context);
+                completions.addAll(CompletionUtil.getCompletionItems(context));
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
@@ -165,7 +172,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
             } finally {
                 lock.ifPresent(Lock::unlock);
-                completions = CompletionUtil.getCompletionItems(context);
             }
             return Either.forLeft(completions);
         });
@@ -189,7 +195,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
             try {
                 BLangPackage currentBLangPackage = lsCompiler.getBLangPackage(hoverContext, documentManager, false,
-                        LSCustomErrorStrategy.class, false).getRight();
+                                                                               LSCustomErrorStrategy.class, false);
                 hoverContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                  currentBLangPackage.symbol.getName().getValue());
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
@@ -224,15 +230,15 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
                 SignatureHelp signatureHelp;
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(signatureContext, documentManager, false,
-                        LSCustomErrorStrategy.class, false).getRight();
+                                                                        LSCustomErrorStrategy.class, false);
                 signatureContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                     bLangPackage.symbol.getName().getValue());
+                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, 
+                        bLangPackage.packageID.getName().getValue());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
                 return signatureHelp;
-            } catch (Exception | AssertionError e) {
+            } catch (Exception | ZipError | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     logger.error("Error while retrieving signature help" + ((msg != null) ? ": " + msg : ""), e);
@@ -256,9 +262,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext definitionContext = new LSServiceOperationContext();
                 definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
-                BLangPackage currentBLangPackage =
-                        lsCompiler.getBLangPackage(definitionContext, documentManager, false,
-                                LSCustomErrorStrategy.class, false).getRight();
+                BLangPackage currentBLangPackage = lsCompiler.getBLangPackage(definitionContext, documentManager, false,
+                                                                               LSCustomErrorStrategy.class, false);
                 definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       currentBLangPackage.symbol.getName().getValue());
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
@@ -290,22 +295,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext referenceContext = new LSServiceOperationContext();
                 referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
-                boolean isBallerinaProject = document.hasProjectRepo();
-                Either<List<BLangPackage>, BLangPackage> eitherBLangPackage =
-                        lsCompiler.getBLangPackage(referenceContext, documentManager, false,
-                                                   LSCustomErrorStrategy.class,
-                                                   isBallerinaProject);
-                BLangPackage currentBLangPackage;
-                List<BLangPackage> bLangPackages;
-                if (isBallerinaProject) {
-                    bLangPackages = eitherBLangPackage.getLeft();
-                    // Get the current package from multiple.
-                    currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
-                } else {
-                    currentBLangPackage = eitherBLangPackage.getRight();
-                    bLangPackages = Collections.singletonList(currentBLangPackage);
+                List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(referenceContext, documentManager, false,
+                                                                               LSCustomErrorStrategy.class, true);
+                // Get the current package from multiple.
+                BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
+                if (currentBLangPackage == null) {
+                    // fail quietly
+                    return contents;
                 }
-
                 referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                      currentBLangPackage.symbol.getName().getValue());
 
@@ -360,7 +357,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(symbolsContext, documentManager, false,
-                        LSCustomErrorStrategy.class, false).getRight();
+                                                                        LSCustomErrorStrategy.class, false);
                 symbolsContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                    bLangPackage.symbol.getName().getValue());
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
@@ -389,21 +386,42 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() -> {
             List<Command> commands = new ArrayList<>();
-            String fileUri = params.getTextDocument().getUri();
+            TextDocumentIdentifier identifier = params.getTextDocument();
+            String fileUri = identifier.getUri();
             try {
-                Position start = params.getRange().getStart();
-                String topLevelNodeType = CommonUtil
-                        .topLevelNodeTypeInLine(params.getTextDocument(), start, documentManager);
-                if (topLevelNodeType != null) {
-                    commands.addAll(CommandUtil.getCommandForNodeType(topLevelNodeType, fileUri, start.getLine()));
+                int line = params.getRange().getStart().getLine();
+                LSDocument document = new LSDocument(fileUri);
+                List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
+
+                String topLevelNodeType = CommonUtil.topLevelNodeInLine(identifier, line, documentManager);
+
+                // Add create test commands
+                String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
+                        .relativize(document.getPath())
+                        .toString().split(Pattern.quote(File.separator))[0];
+                String moduleName = document.getSourceRootPath()
+                        .relativize(LSCompilerUtil.getCurrentModulePath(document.getPath())).toString();
+                if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
+                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
+                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
+                    // Test generation suggested only when;
+                    //     - no code diagnosis exists, inside a bal project, inside a module, not inside /tests folder
+                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
+                                                                         documentManager, lsCompiler));
                 }
-                if (!params.getContext().getDiagnostics().isEmpty()) {
-                    params.getContext().getDiagnostics().forEach(diagnostic -> {
-                        if (start.getLine() == diagnostic.getRange().getStart().getLine()) {
-                            commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params, documentManager,
-                                                                                lsCompiler));
+
+                // Add commands base on node diagnostics
+                if (!diagnostics.isEmpty()) {
+                    diagnostics.forEach(diagnostic -> {
+                        if (line == diagnostic.getRange().getStart().getLine()) {
+                            commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params));
                         }
                     });
+                }
+
+                // Add commands base on node type
+                if (topLevelNodeType != null) {
+                    commands.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
                 }
                 return commands;
             } catch (Exception e) {
@@ -429,7 +447,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            String textEditContent = null;
+            String textEditContent;
             TextEdit textEdit = new TextEdit();
 
             String fileUri = params.getTextDocument().getUri();
@@ -441,14 +459,15 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 formatContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
 
                 // Build the given ast.
-                JsonObject ast = TextDocumentFormatUtil.getAST(fileUri, lsCompiler, documentManager, formatContext);
-                FormattingSourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+                JsonObject ast = TextDocumentFormatUtil.getAST(formattingFilePath, lsCompiler, documentManager,
+                        formatContext);
+                FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
 
                 // Format the given ast.
                 FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
                 formattingUtil.accept(ast.getAsJsonObject("model"));
 
-                // Generate source for the ast.
+                //Generate source for the ast.
                 textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
                 Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
                 int totalLines = 0;
@@ -489,30 +508,25 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             TextDocumentIdentifier identifier = params.getTextDocument();
-            LSDocument document = new LSDocument(identifier.getUri());
+            String fileUri = identifier.getUri();
+            LSDocument document = new LSDocument(fileUri);
             Path renameFilePath = document.getPath();
             Path compilationPath = getUntitledFilePath(renameFilePath.toString()).orElse(renameFilePath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
             try {
                 LSServiceOperationContext renameContext = new LSServiceOperationContext();
-                renameContext.put(DocumentServiceKeys.FILE_URI_KEY, identifier.getUri());
+                renameContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 renameContext.put(DocumentServiceKeys.POSITION_KEY,
                                   new TextDocumentPositionParams(identifier, params.getPosition()));
                 List<Location> contents = new ArrayList<>();
-                boolean isBallerinaProject = document.hasProjectRepo();
-                Either<List<BLangPackage>, BLangPackage> eitherBLangPackage =
-                        lsCompiler.getBLangPackage(renameContext, documentManager, false, LSCustomErrorStrategy.class,
-                                                   isBallerinaProject);
-                BLangPackage currentBLangPackage;
-                List<BLangPackage> bLangPackages;
-                if (isBallerinaProject) {
-                    bLangPackages = eitherBLangPackage.getLeft();
-                    // Get the current package from multiple.
-                    currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, identifier.getUri());
-                } else {
-                    currentBLangPackage = eitherBLangPackage.getRight();
-                    bLangPackages = Collections.singletonList(currentBLangPackage);
+                List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(renameContext, documentManager, false,
+                                                                               LSCustomErrorStrategy.class, true);
+                // Get the current package from multiple.
+                BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
+                if (currentBLangPackage == null) {
+                    // fail quietly
+                    return workspaceEdit;
                 }
 
                 renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,

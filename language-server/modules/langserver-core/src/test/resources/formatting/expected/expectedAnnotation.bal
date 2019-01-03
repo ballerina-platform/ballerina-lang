@@ -54,7 +54,7 @@ public annotation<function> ConfigAnnotation6;
 
 annotation<function> ConfigAnnotation7;
 
-annotation ConfigAnnotation7;
+annotation ConfigAnnotation8;
 
 public type SomeConfiguration4 record {
     int numVal;
@@ -66,4 +66,4 @@ public type SomeConfiguration4 record {
     } recordVal;
 };
 
-annotation ConfigAnnotation8 SomeConfiguration4;
+annotation ConfigAnnotation9 SomeConfiguration4;

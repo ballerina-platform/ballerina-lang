@@ -17,17 +17,17 @@
 import ballerina/h2;
 import ballerina/privacy;
 
-endpoint h2:Client testDB {
+h2:Client testDB = new({
     path: "./target/H2PIIStore/",
     name: "TestDBH2",
     username: "SA",
     password: "",
     poolOptions: { maximumPoolSize: 1 }
-};
+});
 
-@final string TABLE_NAME = "PII_STORE";
-@final string ID_CLOUMN = "id";
-@final string PII_COLUMN = "pii";
+final string TABLE_NAME = "PII_STORE";
+final string ID_CLOUMN = "id";
+final string PII_COLUMN = "pii";
 
 function pseudonymizePii (string pii) returns string|error {
     privacy:H2PiiStore piiStore = new(testDB, TABLE_NAME, ID_CLOUMN, PII_COLUMN);
@@ -47,4 +47,8 @@ function deletePii (string id) returns error? {
 function pseudonymizePiiWithEmptyTableName (string pii) returns string|error {
     privacy:H2PiiStore piiStore = new(testDB, "", ID_CLOUMN, PII_COLUMN);
     return privacy:pseudonymize(piiStore, pii);
+}
+
+function shutdown() {
+    testDB.stop();
 }

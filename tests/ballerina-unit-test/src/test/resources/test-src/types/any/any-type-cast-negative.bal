@@ -1,16 +1,10 @@
-function invalidCastingError() {
-  any abc = intReturn();
-  float val = <float> abc;
+function invalidCastingError() returns error|() {
+  any abc = stringReturn();
+  float val = check trap <float> abc;
+  return ();
 }
 
-function intReturn() returns (any) {
-  int val = 6;
+function stringReturn() returns (any) {
+  string val = "a";
   return val;
 }
-
-
-function undefinedCasting() {
-  any val;
-  int i = <int> val;
-}
-

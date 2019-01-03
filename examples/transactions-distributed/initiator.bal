@@ -7,19 +7,18 @@ import ballerina/transactions;
 @http:ServiceConfig {
     basePath: "/"
 }
-service<http:Service> InitiatorService bind { port: 8080 } {
+service InitiatorService on new http:Listener(8080) {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    init(endpoint conn, http:Request req) {
+    resource function init(http:Caller conn, http:Request req) {
         http:Response res = new;
         log:printInfo("Initiating transaction...");
 
         // When the transaction statement starts, a distributed transaction context is created.
-        transaction with oncommit = printCommit,
-                         onabort = printAbort {
+        transaction {
 
             // Print the current transaction ID
             log:printInfo("Started transaction: " +
@@ -39,36 +38,24 @@ service<http:Service> InitiatorService bind { port: 8080 } {
             // coordination` protocol will run. All participants are prepared
             // and depending on the joint outcome, either a `notify commit` or
             // `notify abort` will be sent to the participants.
+        } committed {
+            log:printInfo("Initiated transaction committed");
+        } aborted {
+            log:printInfo("Initiated transaction aborted");
         }
 
         var result = conn->respond(res);
-        match result {
-            error e =>
-               log:printError("Could not send response back to client", err = e);
-            () =>
-               log:printInfo("Sent response back to client");
+        if (result is error) {
+            log:printError("Could not send response back to client",
+                            err = result);
+        } else {
+            log:printInfo("Sent response back to client");
         }
     }
 }
 
-// The initiator function that will get called when the distributed transaction
-// is aborted
-function printAbort(string transactionId) {
-    log:printInfo("Initiated transaction: " + transactionId + " aborted");
-}
-
-// The initiator function that will get called when the distributed transaction
-// is committed
-function printCommit(string transactionId) {
-    log:printInfo("Initiated transaction: " + transactionId + " committed");
-}
-
 function callBusinessService() returns boolean {
-    endpoint http:Client participantEP {
-        url: "http://localhost:8889/stockquote/update"
-    };
-
-    boolean successful;
+    http:Client participantEP = new("http://localhost:8889/stockquote/update");
 
     float price = math:randomInRange(200, 250) + math:random();
     json bizReq = { symbol: "GOOG", price: price };
@@ -76,11 +63,9 @@ function callBusinessService() returns boolean {
     req.setJsonPayload(bizReq);
     var result = participantEP->post("", req);
     log:printInfo("Got response from bizservice");
-    match result {
-        http:Response res => {
-            successful = (res.statusCode == http:OK_200) ? true : false;
-        }
-        error => successful = false;
+    if (result is error) {
+        return false;
+    }  else {
+        return (result.statusCode == http:OK_200);
     }
-    return successful;
 }

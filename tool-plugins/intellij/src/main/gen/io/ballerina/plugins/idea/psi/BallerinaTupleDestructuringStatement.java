@@ -23,28 +23,16 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaTupleDestructuringStatement extends BallerinaCompositeElement {
 
-  @NotNull
+  @Nullable
   BallerinaExpression getExpression();
 
-  @Nullable
-  BallerinaParameterList getParameterList();
-
-  @Nullable
-  BallerinaVariableReferenceList getVariableReferenceList();
+  @NotNull
+  BallerinaTupleRefBindingPattern getTupleRefBindingPattern();
 
   @NotNull
   PsiElement getAssign();
 
-  @NotNull
-  PsiElement getLeftParenthesis();
-
-  @NotNull
-  PsiElement getRightParenthesis();
-
-  @NotNull
-  PsiElement getSemicolon();
-
   @Nullable
-  PsiElement getVar();
+  PsiElement getSemicolon();
 
 }

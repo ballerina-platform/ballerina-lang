@@ -19,7 +19,9 @@ package org.ballerinalang.test.streaming.negative;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,7 +39,6 @@ public class IncompatibleArgsInWindowTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         incompatibleArgsResult =
                 BCompileUtil.compile("test-src/streaming/negative/incompatible-args-in-window-negative-test.bal");
         notFoundResult =
@@ -46,27 +47,26 @@ public class IncompatibleArgsInWindowTest {
                 BCompileUtil.compile("test-src/streaming/negative/incompatible-return-type-window-negative-test.bal");
     }
 
-    @Test(description = "Checks if the args of window functions have correct types")
+    @Test(description = "Checks if the args of window functions have correct types",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Time window expects an int parameter.*")
     public void testArgTypes() {
-        System.setProperty("enable.siddhiRuntime", "true");
-        Assert.assertEquals(incompatibleArgsResult.getErrorCount(), 1);
-        BAssertUtil.validateError(incompatibleArgsResult, 0,
-                                  "incompatible types: expected 'any[]', found 'string'",
-                                  62, 58);
+        BRunUtil.invoke(incompatibleArgsResult, "startTimeWindowTest");
     }
 
     @Test(description = "Checks whether the window function exists or not")
     public void testForWindowFunction() {
-        System.setProperty("enable.siddhiRuntime", "true");
-        Assert.assertEquals(notFoundResult.getErrorCount(), 1);
+        Assert.assertEquals(notFoundResult.getErrorCount(), 2);
         BAssertUtil.validateError(notFoundResult, 0,
-                                  "undefined function 'nonExistingWindow'",
-                                  62, 47);
+                "invalid streaming 'Window' type 'nonExistingWindow' found",
+                62, 47);
+        BAssertUtil.validateError(notFoundResult, 1,
+                "undefined function 'nonExistingWindow'",
+                62, 47);
     }
 
     @Test(description = "Checks whether the window function returns 'streams:Window' object")
     public void testWindowFunctionReturnType() {
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertEquals(windowReturnResult.getErrorCount(), 1);
         BAssertUtil.validateError(windowReturnResult, 0,
                                   "incompatible types: expected 'streams:Window', found 'Teacher'",

@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type Person record {
     string name;
     int age;
@@ -95,62 +111,56 @@ function testContrainingWithNestedStructs() returns (json, json, json) {
 
 function testConstraintJSONToJSONCast() returns (json) {
     json<Person> j1 = getPerson();
-    json j2 = <json> j1;
+    json j2 = j1;
     return j2;
 }
 
 function testJSONToConstraintJsonUnsafeCast() returns (json | error) {
-    var j = <json<Person>>getPlainJson();
+    var j = json<Person>.stamp(getPlainJson());
     return j;
 }
 
-function testJSONToConstraintJsonUnsafeCastPositive() returns (json, json, json) {
-    json<Person> j;
-    j =check <json<Person>>getPersonEquivalentPlainJson();
-    return (j.name, j.age, j.address);
+function testJSONToConstraintJsonUnsafeCastPositive() returns (json|error, json|error, json|error) {
+    json<Person>|error j;
+    j = json<Person>.stamp(getPersonEquivalentPlainJson());
+    return (j!name, j!age, j!address);
 }
 
 
-function testConstraintJSONToConstraintJsonCast() returns (json) {
-    json<Person> j = <json<Person>> getStudent();
+function testConstraintJSONToConstraintJsonCast() returns json|error {
+    json<Person>|error j = json<Person>.convert(getStudent());
     return j;
 }
 
-function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns (json | error) {
-    json<Person> jp = <json<Person>> getStudent();
-    var js  = <json<Student>> jp;
-    return js;
-}
-
-function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json | error) {
-    json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
-    var js = <json<Student>> je;
+function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns json|error {
+    json<Person>|error jp = json<Person>.convert(getStudent());
+    var js  = json<Student>.convert(jp);
     return js;
 }
 
 function testJSONArrayToConstraintJsonArrayCastPositive() returns (json<Student>[] | error) {
     json j1 = [getStudent()];
-    var j2 = <json<Student>[]> j1;
+    var j2 = json<Student>[].stamp(j1);
     return j2;
 }
 
-function testJSONArrayToConstraintJsonArrayCastNegative() returns (json<Student>[] | error) {
+function testJSONArrayToConstraintJsonArrayCastNegative() returns json<Student>[]|error {
     json j1 = [{"a":"b"}, {"c":"d"}];
-    var j2 = <json<Student>[]> j1;
+    var j2 = json<Student>[].stamp(j1);
     return j2;
 }
 
-function testJSONArrayToCJsonArrayCast() returns (json<Student>[] | error) {
+function testJSONArrayToCJsonArrayCast() returns json<Student>[]|error {
     json[] j1 = [{"name":"John Doe", "age":30, "address":"London", "class":"B"}];
     json j2 = j1;
-    var j3 = <json<Student>[]> j2;
+    var j3 = json<Student>[].stamp(j2);
     return j3;
 }
 
-function testJSONArrayToCJsonArrayCastNegative() returns (json<Student>[] | error) {
+function testJSONArrayToCJsonArrayCastNegative() returns json<Student>[]|error {
     json[] j1 = [{name:"John Doe", age:30, address:"London"}]; // one field is missing
     json j2 = j1;
-    var j3 = <json<Student>[]> j2;
+    var j3 = json<Student>[].stamp(j2);
     return j3;
 }
 
@@ -162,10 +172,10 @@ function testCJSONArrayToJsonAssignment() returns (json) {
     return j2;
 }
 
-function testMixedTypeJSONArrayToCJsonArrayCastNegative() returns (json<Student>[] | error) {
+function testMixedTypeJSONArrayToCJsonArrayCastNegative() returns json<Student>[]|error {
     json[] j1 = [{name:"John Doe", age:30, address:"London", "class":"B"}, [4, 6]];
     json j2 = j1;
-    var j3 = <json<Student>[]> j2;
+    var j3 = json<Student>[].stamp(j2);
     return j3;
 }
 

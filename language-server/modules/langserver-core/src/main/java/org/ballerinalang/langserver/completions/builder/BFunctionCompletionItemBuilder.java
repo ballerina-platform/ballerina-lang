@@ -171,10 +171,10 @@ public final class BFunctionCompletionItemBuilder {
             return getTypeName(bVarSymbol) + " " + bVarSymbol.getName();
         } else {
             String defaultStringVal;
-            if (bVarSymbol.defaultValue == null) {
+            if (bVarSymbol.defaultValue == null || bVarSymbol.defaultValue.getValue() == null) {
                 defaultStringVal = "()";
             } else {
-                defaultStringVal = bVarSymbol.defaultValue.toString();
+                defaultStringVal = bVarSymbol.defaultValue.getValue().toString();
             }
             return getTypeName(bVarSymbol) + " " + bVarSymbol.getName() + " = " + defaultStringVal;
         }
@@ -185,10 +185,10 @@ public final class BFunctionCompletionItemBuilder {
             return "${" + iteration + ":" + bVarSymbol.getName() + "}";
         } else {
             String defaultStringVal;
-            if (bVarSymbol.defaultValue == null) {
+            if (bVarSymbol.defaultValue == null || bVarSymbol.defaultValue.getValue() == null) {
                 defaultStringVal = "()";
             } else {
-                defaultStringVal = bVarSymbol.defaultValue.toString();
+                defaultStringVal = bVarSymbol.defaultValue.getValue().toString();
                 if (bVarSymbol.getType() != null
                         && bVarSymbol.getType().toString().equals(TypeConstants.STRING_TNAME)) {
                     defaultStringVal = "\"" + defaultStringVal + "\"";

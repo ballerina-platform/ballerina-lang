@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.BLangConstants;
@@ -29,14 +27,12 @@ import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import picocli.CommandLine;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.LogManager;
 
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -87,6 +83,9 @@ public class TestCmd implements BLauncherCmd {
     @CommandLine.Option(names = "--nocoverage", hidden = true, description = "to stop creating coverage data file")
     private boolean coverageDisabled;
 
+    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+    private boolean experimentalFlag;
+
     public void execute() {
         if (helpFlag) {
             outStream.println(BLauncherCmd.getCommandUsageInfo("test"));
@@ -134,12 +133,9 @@ public class TestCmd implements BLauncherCmd {
 
         // Setting the source root so it can be accessed from anywhere
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
-        try {
-            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, null);
-            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-        } catch (IOException e) {
-            throw new RuntimeException("failed to read the specified configuration file: " + configFilePath, e);
-        }
+
+        // Load configuration file. The default config file is taken "ballerina.conf" in the source root path
+        LauncherUtils.loadConfigurations(sourceRootPath, runtimeParams, configFilePath, false);
 
         Path[] paths = sourceFileList.stream()
                 .filter(source -> excludedModuleList == null || !excludedModuleList.contains(source))
@@ -153,13 +149,13 @@ public class TestCmd implements BLauncherCmd {
         BTestRunner testRunner = new BTestRunner();
         testRunner.setCoverageDisabled(coverageDisabled);
         if (listGroups) {
-            testRunner.listGroups(sourceRootPath.toString(), paths);
+            testRunner.listGroups(sourceRootPath.toString(), paths, experimentalFlag);
             Runtime.getRuntime().exit(0);
         }
         if (disableGroupList != null) {
-            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false);
+            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false, experimentalFlag);
         } else {
-            testRunner.runTest(sourceRootPath.toString(), paths, groupList);
+            testRunner.runTest(sourceRootPath.toString(), paths, groupList, experimentalFlag);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
             TesterinaUtils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));

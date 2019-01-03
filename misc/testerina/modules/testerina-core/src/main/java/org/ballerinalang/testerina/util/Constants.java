@@ -32,4 +32,8 @@ public class Constants {
     public static final String NEWLINE = "\n";
     public static final String PERCENTAGE = "%";
 
+    public static final String TEST_INIT_FUNCTION_SUFFIX = ".<testinit>";
+    public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
+    public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>";
+
 }

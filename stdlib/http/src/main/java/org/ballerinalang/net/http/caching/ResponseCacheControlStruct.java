@@ -22,8 +22,8 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.util.Map;
@@ -88,7 +88,7 @@ public class ResponseCacheControlStruct {
 
     public ResponseCacheControlStruct setNoCache(boolean noCache, String[] noCacheFields) {
         responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELD, new BBoolean(noCache));
-        responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD, new BStringArray(noCacheFields));
+        responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD, new BValueArray(noCacheFields));
         return this;
     }
 
@@ -109,7 +109,7 @@ public class ResponseCacheControlStruct {
 
     public ResponseCacheControlStruct setPrivate(boolean isPrivate, String[] privateFields) {
         responseCacheControl.put(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, new BBoolean(isPrivate));
-        responseCacheControl.put(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD, new BStringArray(privateFields));
+        responseCacheControl.put(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD, new BValueArray(privateFields));
         return this;
     }
 
@@ -141,7 +141,7 @@ public class ResponseCacheControlStruct {
                     if (value != null) {
                         value = value.replace("\"", "");
                         responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD,
-                                                         new BStringArray(value.split(",")));
+                                                         new BValueArray(value.split(",")));
                     }
                     break;
                 case NO_STORE:
@@ -155,7 +155,7 @@ public class ResponseCacheControlStruct {
                     if (value != null) {
                         value = value.replace("\"", "");
                         responseCacheControl.put(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD,
-                                                         new BStringArray(value.split(",")));
+                                                         new BValueArray(value.split(",")));
                     }
                     break;
                 case PUBLIC:
@@ -165,10 +165,21 @@ public class ResponseCacheControlStruct {
                     responseCacheControl.put(RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD, new BBoolean(TRUE));
                     break;
                 case MAX_AGE:
-                    responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(Long.parseLong(value)));
+                    try {
+                        responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(Long.parseLong(value)));
+                    } catch (NumberFormatException e) {
+                        // Ignore the exception and set 0 as the max-age so that it will be treated as a stale response.
+                        // Note that this won't change the value of the actual cache-control header
+                        responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(0));
+                    }
                     break;
                 case S_MAXAGE:
-                    responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(Long.parseLong(value)));
+                    try {
+                        responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(Long.parseLong(value)));
+                    } catch (NumberFormatException e) {
+                        // Ignore the exception and set 0 as the s-maxage.
+                        responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(0));
+                    }
                     break;
                 default:
                     break;
@@ -185,7 +196,7 @@ public class ResponseCacheControlStruct {
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_NO_CACHE_FIELD) == TRUE) {
             directivesBuilder.add("no-cache" + appendFields(
-                    (BStringArray) responseCacheControl.get(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD)));
+                    (BValueArray) responseCacheControl.get(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD)));
         }
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_NO_STORE_FIELD) == TRUE) {
@@ -198,7 +209,7 @@ public class ResponseCacheControlStruct {
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_IS_PRIVATE_FIELD) == TRUE) {
             directivesBuilder.add("private" + appendFields(
-                    (BStringArray) responseCacheControl.get(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD)));
+                    (BValueArray) responseCacheControl.get(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD)));
         } else {
             directivesBuilder.add("public");
         }
@@ -218,12 +229,12 @@ public class ResponseCacheControlStruct {
         return directivesBuilder.toString();
     }
 
-    private String appendFields(BStringArray values) {
+    private String appendFields(BValueArray values) {
         if (values.size() > 0) {
             StringJoiner joiner = new StringJoiner(",");
 
             for (int i = 0; i < values.size(); i++) {
-                joiner.add(values.get(i));
+                joiner.add(values.getString(i));
             }
 
             return "=\"" + joiner.toString() + "\"";

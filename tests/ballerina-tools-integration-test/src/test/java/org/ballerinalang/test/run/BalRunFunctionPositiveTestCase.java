@@ -37,6 +37,7 @@ import java.io.File;
 public class BalRunFunctionPositiveTestCase extends BaseTest {
 
     private static final String PRINT_RETURN = "--printreturn";
+    private static final int LOG_LEECHER_TIMEOUT = 10000;
 
     private String filePath = (new File("src/test/resources/run/file/test_entry_function.bal")).getAbsolutePath();
 
@@ -48,7 +49,7 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1");
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[0], new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(2000);
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
@@ -62,6 +63,17 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{"1000", "1.0", "Hello Ballerina",
                 "255", "true", "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>", "{ \"name\": \"Em\" }",
                 "just", "the", "rest"}, new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(2000);
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
+    }
+
+    @Test(description = "test running a function where the function name has colons. " +
+            "e.g., ballerina run <SOURCE>:functionWithColons:inName")
+    public void testFunctionNameWithColons() throws BallerinaTestException {
+        String arg = "test arg";
+        sourceArg = (new File("src/test/resources/run/file/test_entry_function_with_colons.bal")).getAbsolutePath() +
+                ":colonsInName:Function";
+        LogLeecher outLogLeecher = new LogLeecher(arg);
+        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg}, new LogLeecher[]{outLogLeecher});
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 }

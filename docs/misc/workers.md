@@ -84,7 +84,7 @@ If the [Reply](statements.md#reply) statement is present, it must be at the end 
 
 ## Invoking the worker
 
-Workers initially come into existence when the enclosing entity-- a [resource](resources.md), [function](functions.md), or [action](actions.md)--becomes active. However, similar to a resource, the worker does not execute until it has been sent a message.
+Workers initially come into existence when the enclosing entity-- a [resource](resources.md), [function](functions.md), or [remote function](remote-functions.md)--becomes active. However, similar to a resource, the worker does not execute until it has been sent a message.
 
 A worker is triggered when a message is sent to the worker. You can configure the enclosing entity to send a message to the worker by dragging the Worker Invoke icon to the enclosing entity and typing the message name:
 
@@ -125,7 +125,7 @@ If there is no wait for completion of a particular worker, and if the enclosing 
 
 ## How workers work
 
-Workers are new actors that are running on separate threads that can be programmed using Ballerina. Every Ballerina program runs on a thread and there is a default thread that executes the given function/resource/action within your Ballerina program. When some program needs to delegate a portion of its workload to another actor (thread), a worker can be used and programmed accordingly.
+Workers are new actors that are running on separate threads that can be programmed using Ballerina. Every Ballerina program runs on a thread and there is a default thread that executes the given function/resource/remote function within your Ballerina program. When some program needs to delegate a portion of its workload to another actor (thread), a worker can be used and programmed accordingly.
 
 Here is a sample syntax of a worker that prints "hello world" in a new thread when this main function is executed.
 
@@ -154,7 +154,7 @@ Hello from worker
 Hello from main
 ```
 
-There are two outputs from the same program because the workers start at the same time that the main program starts. The underlying operating system decides which thread to run first and which thread to run second. All the workers defined in a function/resource/action will start at the beginning of the enclosing component.
+There are two outputs from the same program because the workers start at the same time that the main program starts. The underlying operating system decides which thread to run first and which thread to run second. All the workers defined in a function/resource/remote function will start at the beginning of the enclosing component.
 
 One important thing to notice in the above program is that worker definition must always come at the bottom of the program. 
  
@@ -228,7 +228,7 @@ Float received from sampleWorker is 12.34
 
 Let’s move on to the next program that will demonstrate the capability of accessing scope variables within a worker. Workers can access:  
 
-- Input parameters defined at the function/resource/action level
+- Input parameters defined at the function/resource/remote function level
 - Service level variables or Connector level variables
 - Global constants
 

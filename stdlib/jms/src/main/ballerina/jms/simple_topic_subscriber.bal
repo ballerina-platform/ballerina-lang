@@ -16,128 +16,124 @@
 
 import ballerina/log;
 
-# JMS simple topic subscriber
+# JMS Simplified TopicSubscriber endpoint
 #
-# + config - Simple topic subscrirber enpoint configuration
+# + config - Used to store configurations related to JMS SimpleTopicSubscriber
 public type SimpleTopicSubscriber object {
 
-    public SimpleTopicSubscriberEndpointConfiguration config;
+    *AbstractListener;
 
+    public SimpleTopicSubscriberEndpointConfiguration config = {};
     private Connection? connection;
-    private Session? session;
-    private TopicSubscriber? subscriber;
+    private Session? session = ();
+    private TopicSubscriber subscriber;
 
-    # Initialize simple topic subscirber endpoint
+    # Initialize SimpleTopicSubscirber endpoint
     #
-    # + c - Simple topic subscrirber enpoint configuration
-    public function init(SimpleTopicSubscriberEndpointConfiguration c) {
+    # + c - Configurations related to the SimpleTopicSubscriber endpoint
+    public function __init(SimpleTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: self.config.initialContextFactory,
+                providerUrl: self.config.providerUrl,
+                connectionFactoryName: self.config.connectionFactoryName,
+                properties: self.config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: self.config.acknowledgementMode
             });
         self.session = newSession;
 
-        TopicSubscriber topicSubscriber = new;
         TopicSubscriberEndpointConfiguration consumerConfig = {
-            session:newSession,
+            session: newSession,
             topicPattern: c.topicPattern,
             messageSelector: c.messageSelector
         };
-        topicSubscriber.init(consumerConfig);
-        self.subscriber = topicSubscriber;
+        self.subscriber = new(consumerConfig);
     }
 
-    # Register simple topic subscriber endpoint
+    # Register SimpleTopicSubscriber endpoint
     #
     # + serviceType - Type descriptor of the service
-    public function register(typedesc serviceType) {
-        match (subscriber) {
-            TopicSubscriber c => {
-                c.register(serviceType);
-            }
-            () => {
-                error e = {message:"Topic Subscriber cannot be nil"};
-                throw e;
-            }
-        }
+    # + data - Service annotations
+    # + return - Nil or error upon failure to register listener
+    public function __attach(service serviceType, map<any> data) returns error? {
+          return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions, data);
     }
 
-    # Start simple topic subscriber endpoint
-    public function start() {
-
-    }
-
-    # Get simple topic subscriber actions
+    # Start SimpleTopicSubscriber endpoint
     #
-    # + return - Topic subscriber actions
-    public function getCallerActions() returns TopicSubscriberActions {
-        match (subscriber) {
-            TopicSubscriber c => return c.getCallerActions();
-            () => {
-                error e = {message:"Topic subscriber cannot be nil"};
-                throw e;
-            }
-        }
+    # + return - Nil or error upon failure to start
+    public function __start() returns error? {
+         return ();
     }
 
-    # Stop simple topic subsriber endpoint
-    public function stop() {
+    # Get SimpleTopicSubscriber actions handler
+    #
+    # + return - TopicSubscriber actions handler
+    public function getCallerActions() returns TopicSubscriberCaller {
+        return self.subscriber.getCallerActions();
+    }
 
+    # Stop SimpleTopicSubsriber endpoint
+    #
+    # + return - Nil or error upon failure to close subscriber
+    public function __stop() returns error? {
+        return self.subscriber.closeSubscriber(self.subscriber.consumerActions);
     }
 
     # Create JMS text message
     #
-    # + message - A message body to create a text message
-    # + return - a message or nil if the session is nil
+    # + message - Message body to create a text message
+    # + return - Message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        match (session) {
-            Session s => return s.createTextMessage(message);
-            () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map<any> errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
     # Create JMS map message
     #
-    # + message - A message body to create a map message
-    # + return - a message or nil if the session is nil.
-    public function createMapMessage(map message) returns Message|error {
-        match (session) {
-            Session s => return s.createMapMessage(message);
-            () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
-            }
+    # + message - Message body to create a map message
+    # + return - Message or nil if the session is nil
+    public function createMapMessage(map<any> message) returns Message|error {
+        var session = self.session;
+        if (session is Session) {
+            return session.createMapMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map<any> errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };
 
 # Configuration related to simple topic subscriber endpoint
 #
-# + initialContextFactory - JNDI initial context factory class
-# + providerUrl - JNDI provider URL
-# + connectionFactoryName - JNDI name of the connection factory
-# + acknowledgementMode - JMS session acknwoledge mode
+# + initialContextFactory - JMS provider specific inital context factory
+# + providerUrl - JMS provider specific provider URL used to configure a connection
+# + connectionFactoryName - JMS connection factory to be used in creating JMS connections
+# + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+#                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 # + messageSelector - Message selector condition to filter messages
-# + properties - JMS message properties
-# + topicPattern - Topic name pattern
+# + properties - Additional properties used when initializing the initial context
+# + topicPattern - Name of the target topic
 public type SimpleTopicSubscriberEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string messageSelector;
-    map properties;
-    string topicPattern;
+    string messageSelector = "";
+    map<any> properties = {};
+    string topicPattern = "";
     !...
 };

@@ -19,6 +19,8 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 
+import java.util.Map;
+
 /**
  * The {@code BClosure} holds closure of any BValue in Ballerina.
  *
@@ -50,7 +52,12 @@ public class BClosure implements BValue {
     }
 
     @Override
-    public BValue copy() {
+    public void stamp(BType type) {
+
+    }
+
+    @Override
+    public BValue copy(Map<BValue, BValue> refs) {
         return new BClosure(value, type);
     }
 

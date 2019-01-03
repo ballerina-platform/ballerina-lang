@@ -10,11 +10,10 @@ type RequestCount record {
     int count;
 };
 
-stream<ClientRequest> requestStream;
+stream<ClientRequest> requestStream = new;
+stream<RequestCount> requestCountStream = new;
 
-function initRealtimeRequestCounter() {
-
-    stream<RequestCount> requestCountStream;
+function initRealtimeRequestCounter() returns () {
 
     // Whenever the `requestCountStream` stream receives an event from the streaming rules defined in the `forever` block,
     // the `printRequestCount` function is invoked.
@@ -25,15 +24,14 @@ function initRealtimeRequestCounter() {
     // the `requestCountStream` stream as an alert. This `forever` block is executed once, when initializing the service.
     // The processing happens asynchronously each time the `requestStream` receives an event.
     forever {
-        from requestStream
-        window timeBatch(10000)
-        select host, count(host) as count
-        group by host
-        having count > 6
+        from requestStream window timeBatch(10000)
+        select requestStream.host, count() as count
+            group by requestStream.host
+            having count > 6
         => (RequestCount[] counts) {
         // `counts` is the output of the streaming rules and is published to the `requestCountStream`.
         // The `select` clause should match the structure of the `RequestCount` record.
-            foreach c in counts {
+            foreach var c in counts {
                 requestCountStream.publish(c);
             }
         }
@@ -46,25 +44,23 @@ function printRequestCount(RequestCount reqCount) {
                         "host within 10 seconds : " + reqCount.host);
 }
 
-endpoint http:Listener ep {
-    port: 9090
-};
+listener http:Listener ep = new (9090);
 
 @http:ServiceConfig {
     basePath: "/"
 }
 // The host header is extracted from the requests that come to the service using the `/requests` context. Using this
 // information, the `clientRequest` object is created and published to the `requestStream`.
-service requestService bind ep {
+service requestService on ep {
 
-    future ftr = start initRealtimeRequestCounter();
+    future<()> ftr = start initRealtimeRequestCounter();
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/requests"
     }
-    requests(endpoint conn, http:Request req) {
-        string hostName = untaint conn.remote.host;
+    resource function requests(http:Caller conn, http:Request req) {
+        string hostName = untaint conn.remoteAddress.host;
         ClientRequest clientRequest = { host: hostName };
         requestStream.publish(clientRequest);
 

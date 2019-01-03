@@ -1,13 +1,11 @@
 import ballerina/http;
 
-endpoint http:NonListener helloEP {
-    port:9090
-};
+listener http:MockListener helloEP  = new(9090);
 
 @http:ServiceConfig {
     basePath:"/hello"
 }
-service<http:Service> helloWorldResourceConfig bind helloEP {
+service helloWorldResourceConfig on helloEP {
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -16,9 +14,9 @@ service<http:Service> helloWorldResourceConfig bind helloEP {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    sayHello (endpoint conn, http:Request req) {
+    resource function sayHello (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello World !!!");
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }

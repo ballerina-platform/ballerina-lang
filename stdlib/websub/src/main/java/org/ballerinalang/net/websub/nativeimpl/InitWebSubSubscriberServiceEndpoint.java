@@ -26,10 +26,10 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -53,6 +53,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HE
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
 /**
@@ -64,7 +65,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "initWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = WEBSUB_PACKAGE)
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = WEBSUB_SERVICE_LISTENER,
+                structPackage = WEBSUB_PACKAGE)
 )
 public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableUnit {
 
@@ -79,10 +81,10 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
 
         WebSubServicesRegistry webSubServicesRegistry;
 
-        BMap<String, BValue> extensionConfig = (BMap<String, BValue>) config.get(SERVICE_CONFIG_EXTENSION_CONFIG);
-        if (extensionConfig == null) {
+        if (config == null || config.get(SERVICE_CONFIG_EXTENSION_CONFIG) == null) {
              webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
         } else {
+            BMap<String, BValue> extensionConfig = (BMap<String, BValue>) config.get(SERVICE_CONFIG_EXTENSION_CONFIG);
             String topicIdentifier = extensionConfig.get(EXTENSION_CONFIG_TOPIC_IDENTIFIER).stringValue();
             BString topicHeader = null;
             BMap<String, BValue> headerResourceMap = null;
@@ -170,14 +172,14 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
     private static void populateResourceDetailsByHeader(BMap<String, BValue> headerResourceMap,
                                                         HashMap<String, String[]> resourceDetails) {
         headerResourceMap.getMap().values().forEach(value -> populateResourceDetails(resourceDetails,
-                                                                                     (BRefValueArray) value));
+                                                                                     (BValueArray) value));
     }
 
     private static void populateResourceDetailsByPayload(BMap<String, BMap<String, BValue>> payloadKeyResourceMap,
                                                          HashMap<String, String[]> resourceDetails) {
         payloadKeyResourceMap.getMap().values().forEach(mapByKey -> {
             mapByKey.getMap().values().forEach(value -> populateResourceDetails(resourceDetails,
-                                                                                (BRefValueArray) value));
+                                                                                (BValueArray) value));
         });
     }
 
@@ -187,13 +189,13 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
         headerAndPayloadKeyResourceMap.getMap().values().forEach(mapByHeader -> {
             mapByHeader.getMap().values().forEach(mapByKey -> {
                 mapByKey.getMap().values().forEach(value -> populateResourceDetails(resourceDetails,
-                                                                                    (BRefValueArray) value));
+                                                                                    (BValueArray) value));
             });
         });
     }
 
     private static void populateResourceDetails(HashMap<String, String[]> resourceDetails,
-                                                BRefValueArray resourceDetailTuple) {
+                                                BValueArray resourceDetailTuple) {
         String resourceName = resourceDetailTuple.getBValue(0).stringValue();
         BStructureType paramDetails = (BStructureType) ((BTypeDescValue) (resourceDetailTuple).getBValue(1)).value();
         resourceDetails.put(resourceName, new String[]{paramDetails.getPackagePath(), paramDetails.getName()});

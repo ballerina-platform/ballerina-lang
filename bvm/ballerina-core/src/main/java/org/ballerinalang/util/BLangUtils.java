@@ -58,7 +58,7 @@ public class BLangUtils {
     }
 
     /**
-     * Getter for all instruction handlers for CPU interception.
+     * Getter for all instruction handlers for BVM interception.
      * Instruction handlers will be set after filtering out whether to engage or not for Ip interception.
      *
      * @return list if instruction handlers

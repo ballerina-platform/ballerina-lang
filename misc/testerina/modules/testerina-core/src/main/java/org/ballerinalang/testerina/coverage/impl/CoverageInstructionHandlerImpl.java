@@ -19,7 +19,8 @@ package org.ballerinalang.testerina.coverage.impl;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.bre.InstructionHandler;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.testerina.coverage.CoverageManager;
 import org.ballerinalang.testerina.coverage.ExecutedInstruction;
 import org.ballerinalang.util.codegen.LineNumberInfo;
@@ -32,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This is CPU Ip interceptor API for coverage data collection.
+ * This is BVM Ip execution interceptor API for coverage data collection.
  *
  * @since 0.985.0
  */
@@ -59,25 +60,28 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
     }
 
     /**
-     * Ip interceptor method to handle each Ip for the CPU for coverage data collector.
+     * Ip interceptor method to handle each Ip for the BVM for coverage data
+     * collector.
      *
-     * @param ctx worker execution context for the Ip
+     * @param strand strand of the execution Ip
      */
-    public void handle(WorkerExecutionContext ctx) {
+    public void handle(Strand strand) {
 
-        String pkgPath = ctx.callableUnitInfo.getPkgPath();
+        StackFrame currentStackFrame = strand.currentFrame;
+        String pkgPath = currentStackFrame.callableUnitInfo.getPkgPath();
         // removing ballarina/* modules' Ips
         if (!pkgPath.startsWith(Names.BUILTIN_ORG.getValue() + Names.ORG_NAME_SEPARATOR.getValue())) {
 
-            String entryPkgPath = ctx.programFile.getEntryPackage().pkgPath;
+            String entryPkgPath = strand.programFile.getEntryPackage().pkgPath;
             ProjectLineNumberInfoHolder projectLineNumberInfoHolderForPkg =
                     lineNumberInfoHolderForProject.get(entryPkgPath);
 
             LineNumberInfo lineNumberInfoCurrentPkg = projectLineNumberInfoHolderForPkg.getPackageInfoMap()
-                    .get(pkgPath).getLineNumberInfo(ctx.ip);
+                    .get(pkgPath).getLineNumberInfo(currentStackFrame.ip);
 
-            ExecutedInstruction executedInstruction = new ExecutedInstruction(ctx.ip, pkgPath,
-                    lineNumberInfoCurrentPkg.getFileName(), ctx.callableUnitInfo.getName(), lineNumberInfoCurrentPkg);
+            ExecutedInstruction executedInstruction = new ExecutedInstruction(currentStackFrame.ip, pkgPath,
+                    lineNumberInfoCurrentPkg.getFileName(), currentStackFrame.callableUnitInfo.getName(),
+                    lineNumberInfoCurrentPkg);
             if (executedInstructionOrderMap.get(entryPkgPath) != null) {
                 executedInstructionOrderMap.get(entryPkgPath).add(executedInstruction);
             } else {

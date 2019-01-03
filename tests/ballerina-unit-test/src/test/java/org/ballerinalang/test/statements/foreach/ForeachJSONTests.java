@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -66,7 +65,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONString() {
-        String result = "";
+        String result = "{ballerina}StampError {\"message\":\"incompatible stamp operation: 'string' value cannot be " +
+                "stamped as 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONString");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -74,7 +74,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONNumber() {
-        String result = "";
+        String result = "{ballerina}StampError {\"message\":\"incompatible stamp operation: 'int' value cannot be " +
+                "stamped as 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNumber");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -82,16 +83,16 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONBoolean() {
-        String result = "";
+        String result = "{ballerina}StampError {\"message\":\"incompatible stamp operation: 'boolean' value cannot be" +
+                " stamped as 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONBoolean");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+    @Test
     public void testJSONNull() {
-        String result = "";
+        String result = "{ballerina}StampError {\"message\":\"cannot stamp 'null' value to type 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNull");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -115,8 +116,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testDeleteWhileIteration() {
-        String result = "bob 10 true [{\"subject\":\"maths\", \"marks\":75}, {\"subject\":\"English\", " +
-                "\"marks\":85}] bob 10 true ";
+        String result = "bob 10 true [{\"subject\":\"maths\", \"marks\":75}, {\"subject\":\"English\", \"marks\":85}]" +
+                " bob 10 true ";
         BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);

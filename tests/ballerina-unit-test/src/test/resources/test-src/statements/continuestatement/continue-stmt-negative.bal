@@ -1,5 +1,5 @@
 function calculateExp1 (int x, int y) returns (int) {
-    int z;
+    int z = 0;
     int yCopy = y;
     while (x >= yCopy) {
         yCopy = yCopy + 1;
@@ -18,7 +18,7 @@ function calculateExp1 (int x, int y) returns (int) {
 }
 
 function calculateExp2 (int x, int y) returns (int) {
-    int z;
+    int z = 0;
     int yCopy = y;
     while (x >= yCopy) {
         yCopy = yCopy + 1;

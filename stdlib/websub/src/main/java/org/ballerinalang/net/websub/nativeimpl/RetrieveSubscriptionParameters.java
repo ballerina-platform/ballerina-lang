@@ -24,11 +24,13 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -42,15 +44,13 @@ import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_SERVER_CONNECTOR;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_CALLBACK;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_HUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_RESOURCE_URL;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_HOST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_PORT;
@@ -58,6 +58,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_ENDPOINT_CONFIG_NAME;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_NAME;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
@@ -70,7 +71,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "retrieveSubscriptionParameters",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = WEBSUB_SERVICE_LISTENER,
+                structPackage = WEBSUB_PACKAGE),
         returnType = {@ReturnType(type = TypeKind.ARRAY)}
 )
 public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
@@ -85,7 +87,7 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
         Object[] webSubHttpServices = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
                                         .getServicesByHost(DEFAULT_HOST).values().toArray();
 
-        BRefValueArray subscriptionDetailArray = new BRefValueArray();
+        BValueArray subscriptionDetailArray = new BValueArray(new BMapType(BTypes.typeAny));
 
         for (int index = 0; index < webSubHttpServices.length; index++) {
             WebSubHttpService webSubHttpService = (WebSubHttpService) webSubHttpServices[index];
@@ -121,28 +123,12 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                 subscriptionDetails.put(ANN_WEBSUB_ATTR_SECRET,
                                         new BString(annotationStruct.getStringField(ANN_WEBSUB_ATTR_SECRET)));
 
-                if (annotationStruct.getRefField(ANN_WEBSUB_ATTR_AUTH_CONFIG) != null) {
-                    BMap<String, BValue> authConfig = (BMap<String, BValue>) annotationStruct.getRefField(
-                                                                    ANN_WEBSUB_ATTR_AUTH_CONFIG).getVMValue();
-                    subscriptionDetails.put(ANN_WEBSUB_ATTR_AUTH_CONFIG, authConfig);
+                if (annotationStruct.getRefField(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG) != null) {
+                    BMap<String, BValue> subscriptionClientConfig = (BMap<String, BValue>) annotationStruct.getRefField(
+                            ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG).getVMValue();
+                    subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG, subscriptionClientConfig);
                 } else {
-                    subscriptionDetails.put(ANN_WEBSUB_ATTR_AUTH_CONFIG, null);
-                }
-
-                if (annotationStruct.getRefField(ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG) != null) {
-                    BMap<String, BValue> secureSocket = (BMap<String, BValue>) annotationStruct
-                            .getRefField(ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG).getVMValue();
-                    subscriptionDetails.put(ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG, secureSocket);
-                } else {
-                    subscriptionDetails.put(ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG, null);
-                }
-
-                if (annotationStruct.getRefField(ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG) != null) {
-                    BMap<String, BValue> secureSocket = (BMap<String, BValue>) annotationStruct
-                            .getRefField(ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG).getVMValue();
-                    subscriptionDetails.put(ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG, secureSocket);
-                } else {
-                    subscriptionDetails.put(ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG, null);
+                    subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG, null);
                 }
 
                 String callback = annotationStruct.getStringField(ANN_WEBSUB_ATTR_CALLBACK);
@@ -152,10 +138,9 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                     callback = webSubHttpService.getBasePath();
                     Struct serviceEndpointConfig =
                             serviceEndpoint.getRefField(SERVICE_ENDPOINT_CONFIG_NAME).getStructValue();
-                    if (!serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST).isEmpty()
-                            && serviceEndpointConfig.getIntField(ENDPOINT_CONFIG_PORT) != 0) {
-                        callback = serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST) + ":"
-                                + serviceEndpointConfig.getIntField(ENDPOINT_CONFIG_PORT) + callback;
+                    long port = serviceEndpoint.getIntField(ENDPOINT_CONFIG_PORT);
+                    if (!serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST).isEmpty() && port != 0) {
+                        callback = serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST) + ":" + port + callback;
                     } else {
                         callback = ((ServerConnector) serviceEndpoint.getNativeData(HTTP_SERVER_CONNECTOR))
                                 .getConnectorID() + callback;

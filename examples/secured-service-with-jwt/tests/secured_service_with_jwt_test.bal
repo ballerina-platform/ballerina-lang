@@ -3,20 +3,8 @@ import ballerina/http;
 import ballerina/test;
 import ballerina/runtime;
 
-boolean serviceStarted;
-
-function startService() {
-    //serviceStarted = test:startServices("secured-service-with-jwt");
-}
-
-@test:Config {
-    enable: true,
-    before: "startService",
-    after: "stopService"
-}
+@test:Config
 function testFunc() {
-    // Check whether the server has started. 
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
     setJwtTokenToAuthContext();
     testAuthSuccess();
     clearTokenFromAuthContext();
@@ -30,50 +18,46 @@ function testFunc() {
 
 function testAuthSuccess() {
     // create client
-    endpoint http:Client httpEndpoint {
-        url: "https://localhost:9090",
+    http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: { scheme: http:JWT_AUTH }
-    };
+    });
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
-    match response {
-        http:Response resp => {
-            test:assertEquals(resp.statusCode, 200,
-                msg = "Expected status code 200 not received");
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response is http:Response) {
+        test:assertEquals(response.statusCode, 200,
+            msg = "Expected status code 200 not received");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
 function testAuthnFailure() {
     // Create a client.
-    endpoint http:Client httpEndpoint {
-        url: "https://localhost:9090",
+    http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: { scheme: http:JWT_AUTH }
-    };
+    });
     // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
-    match response {
-        http:Response resp => {
-            test:assertEquals(resp.statusCode, 401,
-                msg = "Expected status code 401 not received");
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response is http:Response) {
+        test:assertEquals(response.statusCode, 401,
+            msg = "Expected status code 401 not received");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
 function testAuthzFailure() {
     // Create a client.
-    endpoint http:Client httpEndpoint { url: "https://localhost:9090",
-        auth: { scheme: http:JWT_AUTH } };
+    http:Client httpEndpoint = new("https://localhost:9090", config = {
+        auth: { scheme: http:JWT_AUTH }
+    });
     // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
-    match response {
-        http:Response resp => {
-            test:assertEquals(resp.statusCode, 403, msg =
-                "Expected status code 403 not received");
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response is http:Response) {
+        test:assertEquals(response.statusCode, 403,
+            msg = "Expected status code 403 not received");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
@@ -123,8 +107,4 @@ function setJwtTokenWithNoScopesToAuthContext () {
         "Ogu12RJMaCE1FlA1ZoyLrmzj2Mm3RHc_A88lKoGvaEBcGzJwllekuQeDUJ1P90SGA";
     runtime:getInvocationContext().authContext.scheme = "jwt";
     runtime:getInvocationContext().authContext.authToken = token;
-}
-
-function stopService() {
-    //test:stopServices("secured-service-with-jwt");
 }

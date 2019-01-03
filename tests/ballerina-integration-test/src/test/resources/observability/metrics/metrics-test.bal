@@ -17,33 +17,39 @@
 import ballerina/http;
 import ballerina/h2;
 import ballerina/sql;
-
-endpoint http:Listener testEp {
-    port:9090
-};
-
-endpoint h2:Client testDB {
-    path: "./target/tempdb/",
-    name: "TEST_DB",
-    username: "SA",
-    password: "",
-    poolOptions: { maximumPoolSize: 10 }
-};
+import ballerina/io;
 
 @http:ServiceConfig {
     basePath:"/test"
 }
-service<http:Service> metricsTest bind testEp {
+service metricsTest on new http:Listener(9090){
     @http:ResourceConfig {
         path: "/"
     }
-    getProduct (endpoint caller, http:Request req) {
+    resource function getProduct (http:Caller caller, http:Request req) {
+        h2:Client testDB =  new({
+            path: "../../tempdb/",
+            name: "TEST_DB",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 10 }
+        });
         var dbResult = testDB -> select("SELECT * FROM Products", null);
-        table dbTable = check dbResult;
-        json jData = check <json>dbTable;
-        string result = jData.toString();
-        http:Response resp = new;
-        resp.setTextPayload(untaint result);
-        _ = caller -> respond(resp);
+        io:println(dbResult);
+        if (dbResult is table<record {}>) {
+            var jData = json.create(dbResult);
+            if (jData is json) {
+                string result = jData.toString();
+                http:Response resp = new;
+                resp.setTextPayload(untaint result);
+                _ = caller -> respond(resp);
+            }  else {
+                error err = error ("error occurred 1111");
+                panic err;
+            }
+        } else {
+            error err = error ("error occurred 2222");
+            panic err;
+        }
     }
 }

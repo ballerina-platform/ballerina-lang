@@ -31,19 +31,11 @@ import io.ballerina.plugins.idea.completion.inserthandlers.ParenthesisInsertHand
 import io.ballerina.plugins.idea.completion.inserthandlers.SmartParenthesisInsertHandler;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaChannelDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaCompositeElement;
 import io.ballerina.plugins.idea.psi.BallerinaDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaGlobalVariable;
-import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclaration;
-import io.ballerina.plugins.idea.psi.BallerinaOnCommitStatement;
-import io.ballerina.plugins.idea.psi.BallerinaOnRetryClause;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
@@ -186,11 +178,7 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                                 // definition.
                                 String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
                                 InsertHandler<LookupElement> insertHandler = SmartParenthesisInsertHandler.INSTANCE;
-                                BallerinaCompositeElement compositeElement = PsiTreeUtil.getParentOfType(myElement,
-                                        BallerinaOnCommitStatement.class, BallerinaOnRetryClause.class);
-                                if (compositeElement != null) {
-                                    insertHandler = ParenthesisInsertHandler.INSTANCE;
-                                }
+
                                 // Todo - Fix the transaction properties grammar.
                                 PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(myElement);
                                 if (nextVisibleLeaf instanceof LeafPsiElement) {
@@ -198,17 +186,6 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                                     if (elementType == BallerinaTypes.COMMA
                                             || elementType == BallerinaTypes.LEFT_BRACE) {
                                         insertHandler = ParenthesisInsertHandler.INSTANCE;
-                                    }
-                                }
-                                BallerinaMatchExpressionPatternClause patternClause =
-                                        PsiTreeUtil.getParentOfType(myElement,
-                                                BallerinaMatchExpressionPatternClause.class);
-                                if (publicFieldsOnly != null) {
-                                    if (child.isPublic()) {
-                                        myResult.addElement(BallerinaCompletionUtils
-                                                .createFunctionLookupElementWithSemicolon(child, insertHandler,
-                                                        patternClause == null));
-                                        lookupElementsFound = true;
                                     }
                                 } else {
 
@@ -219,62 +196,6 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                             } else if (myElement.getText().equals(identifier.getText())) {
                                 add(identifier);
                             }
-                        }
-                    }
-                } else if (lastChild instanceof BallerinaGlobalVariable) {
-                    PsiElement definitionType = lastChild.getFirstChild();
-                    if (definitionType instanceof BallerinaGlobalVariableDefinition) {
-                        BallerinaGlobalVariableDefinition child = (BallerinaGlobalVariableDefinition) definitionType;
-                        PsiElement identifier = child.getIdentifier();
-                        if (identifier != null) {
-                            if (myResult != null) {
-                                String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
-                                if (publicFieldsOnly != null) {
-                                    if (child.isPublic()) {
-                                        myResult.addElement(BallerinaCompletionUtils
-                                                .createGlobalVariableLookupElement(child, BallerinaPsiImplUtil
-                                                        .formatBallerinaTypeName(child.getTypeName())));
-                                        lookupElementsFound = true;
-                                    }
-                                } else {
-                                    myResult.addElement(BallerinaCompletionUtils
-                                            .createGlobalVariableLookupElement(child, BallerinaPsiImplUtil
-                                                    .formatBallerinaTypeName(child.getTypeName())));
-                                    lookupElementsFound = true;
-                                }
-                            } else if (myElement.getText().equals(identifier.getText())) {
-                                add(identifier);
-                            }
-                        }
-                    } else if (definitionType instanceof BallerinaChannelDefinition) {
-                        BallerinaChannelDefinition child = (BallerinaChannelDefinition) definitionType;
-                        PsiElement identifier = child.getIdentifier();
-                        if (myResult != null) {
-                            myResult.addElement(BallerinaCompletionUtils
-                                    .createChannelVariableLookupElement(child, null));
-                            lookupElementsFound = true;
-                        } else if (myElement.getText().equals(identifier.getText())) {
-                            add(identifier);
-                        }
-                    }
-                } else if (lastChild instanceof BallerinaGlobalEndpointDefinition) {
-                    BallerinaGlobalEndpointDefinition child = (BallerinaGlobalEndpointDefinition) lastChild;
-                    PsiElement identifier = child.getIdentifier();
-                    if (identifier != null) {
-                        if (myResult != null) {
-                            String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
-                            if (publicFieldsOnly != null) {
-                                if (child.isPublic()) {
-                                    myResult.addElement(BallerinaCompletionUtils.createGlobalEndpointLookupElement
-                                            (child));
-                                    lookupElementsFound = true;
-                                }
-                            } else {
-                                myResult.addElement(BallerinaCompletionUtils.createGlobalEndpointLookupElement(child));
-                                lookupElementsFound = true;
-                            }
-                        } else if (myElement.getText().equals(identifier.getText())) {
-                            add(identifier);
                         }
                     }
                 } else if (lastChild instanceof BallerinaTypeDefinition) {

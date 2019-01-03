@@ -135,9 +135,9 @@ function testNamespaceDclr() returns (string, string, string) {
 }
 
 function testInnerScopeNamespaceDclr() returns (string, string, string) {
-    string s1;
-    string s2;
-    string s3;
+    string s1 = "";
+    string s2 = "";
+    string s3 = "";
     
     if (true) {
         s1 = ns1:foo;
@@ -149,4 +149,13 @@ function testInnerScopeNamespaceDclr() returns (string, string, string) {
     s3 = ns1:foo;
     
     return (s1, s2, s3);
+}
+
+type Person object {
+    xml info = xml `<p:person xmlns:p="foo" xmlns:q="bar">hello</p:person>`;
+};
+
+function testObjectLevelXML() returns xml {
+    Person p = new();
+    return p.info;
 }

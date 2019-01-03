@@ -24,15 +24,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElementImpl<BallerinaGlobalVariableDefinitionStub> implements BallerinaGlobalVariableDefinition {
-
-  public BallerinaGlobalVariableDefinitionImpl(@NotNull BallerinaGlobalVariableDefinitionStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaGlobalVariableDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaGlobalVariableDefinition {
 
   public BallerinaGlobalVariableDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -54,9 +48,15 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElement
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaTypeName getTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaChannelType getChannelType() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaChannelType.class);
   }
 
   @Override
@@ -73,14 +73,32 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElement
 
   @Override
   @Nullable
+  public PsiElement getFinal() {
+    return findChildByType(FINAL);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
   }
 
   @Override
   @Nullable
+  public PsiElement getListener() {
+    return findChildByType(LISTENER);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getPublic() {
     return findChildByType(PUBLIC);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getVar() {
+    return findChildByType(VAR);
   }
 
 }

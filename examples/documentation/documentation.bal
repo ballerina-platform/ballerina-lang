@@ -1,19 +1,17 @@
 import ballerina/io;
 
 public function main() {
-    io:println("Documentation attachments are non executable constructs in Ballerina.");
+    io:println("Documentation attachments are non executable constructs.");
 }
 
-// This is the documentation attachment for object `DummyObject`.
-# `DummyObject` is a user defined object type in Ballerina program. This
-# `DummyObject` is used to hold two string data fields and
-# one attached function definition, `doThatOnObject` performs that functionality
+// This is the documentation attachment for the `DummyObject` object.
+# `DummyObject` is a user defined object.
+# This `DummyObject` has two `string` data fields and one attached
+# function definition `doThatOnObject` that performs a certain functionality
 # on the associated `DummyObject` instance.
 #
 # + fieldOne - This is the description for the `DummyObject`'s field `fieldOne`.
-#              `F` doc prefix is used to mark a field on Object.
 # + fieldTwo - This is the description for the `DummyObject`'s field `fieldTwo`.
-#              `F` doc prefix is used to mark a field on Object.
 public type DummyObject abstract object {
 
     public string fieldOne;
@@ -22,25 +20,20 @@ public type DummyObject abstract object {
     // This is the documentation attachment for function `doThatOnObject`.
     # `doThatOnObject` is an attached function for the object `DummyObject`.
     #
-    # + paramOne - This is the description for the `doThatOnObject` function
-    #              parameter. `P` doc prefix is used to mark a parameter for
-    #              a function.
-    # + return - This is the description for the `doThatOnObject` function Return
-    #            value. `R` doc prefix is used to mark a return value for a function.
+    # + paramOne - This is the description for the parameter of
+    #              `doThatOnObject` function.
+    # + return - This is the description for the return value of
+    #            `doThatOnObject` function.
     public function doThatOnObject(string paramOne) returns (boolean);
-
 };
 
-// This is the documentation attachment for record `DummyType`.
-# `DummyType` is a user defined record type in Ballerina program.
-# This `DummyType` is used to hold a string type data field and an int type
-# data field.
+// This is the documentation attachment for the `DummyRecord` record.
+# `DummyRecord` is a user defined record.
+# This `DummyRecord` has a `string` data field and an `int` data field.
 #
-# + fieldOne - This is the description for the `DummyType`'s field `fieldOne`.
-#              `F` doc prefix is used to mark a field on Record.
-# + fieldTwo - This is the description for the `DummyType`'s field `fieldTwo`.
-#              `F` doc prefix is used to mark a field on Record.
-public type DummyType record {
+# + fieldOne - This is the description for `DummyRecord`'s field `fieldOne`.
+# + fieldTwo - This is the description for `DummyRecord`'s field `fieldTwo`.
+public type DummyRecord record {
     string fieldOne;
     int fieldTwo;
 };

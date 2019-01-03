@@ -16,12 +16,12 @@
 
 import ballerina/file;
 
-endpoint file:Listener localFolder {
+listener file:Listener localFolder = new ({
     path: "",
     recursive: false
-};
+});
 
-service fileSystem bind localFolder {
-    onCreate (file:FileEvent m) {
+service fileSystem on localFolder {
+    resource function onCreate (file:FileEvent m) {
     }
 }

@@ -159,9 +159,9 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
 
         boolean skipTestFunctionIps = false;
 
-        if (executedInstruction.getFunctionName().endsWith(Names.TEST_INIT_FUNCTION_SUFFIX.getValue()) ||
-                executedInstruction.getFunctionName().endsWith(Names.TEST_START_FUNCTION_SUFFIX.getValue()) ||
-                executedInstruction.getFunctionName().endsWith(Names.TEST_STOP_FUNCTION_SUFFIX.getValue())) {
+        if (executedInstruction.getFunctionName().endsWith(Constants.TEST_INIT_FUNCTION_SUFFIX) ||
+                executedInstruction.getFunctionName().endsWith(Constants.TEST_START_FUNCTION_SUFFIX) ||
+                executedInstruction.getFunctionName().endsWith(Constants.TEST_STOP_FUNCTION_SUFFIX)) {
 
             skipTestFunctionIps = true;
 

@@ -1,0 +1,26 @@
+{
+  "name": "@ballerina/theme",
+  "version": "0.983.1-SNAPSHOT",
+  "description": "Theme for web components of Ballerina Tooling.",
+  "keywords": [
+    "ballerina",
+    "ballerina-lang",
+    "composer",
+    "theme"
+  ],
+  "main": "src/index.js",
+  "scripts": {
+    "build": "",
+    "test": "",
+    "test-coverage": "",
+    "watch": ""
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "@ballerina/font": "^0.983.1-SNAPSHOT"
+  }
+}

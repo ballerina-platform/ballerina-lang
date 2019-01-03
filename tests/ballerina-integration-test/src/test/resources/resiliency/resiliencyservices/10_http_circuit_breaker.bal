@@ -19,12 +19,9 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-endpoint http:Listener circuitBreakerEP03 {
-    port:9309
-};
+listener http:Listener circuitBreakerEP03 = new(9309);
 
-endpoint http:Client simpleClientEP {
-    url: "http://localhost:8089",
+http:ClientEndpointConfig conf03 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowMillis: 60000,
@@ -35,55 +32,54 @@ endpoint http:Client simpleClientEP {
         resetTimeMillis: 1000,
         statusCodes: [501, 502, 503]
     },
-
     timeoutMillis: 2000
 };
+
+http:Client simpleClientEP = new("http://localhost:8089", config = conf03);
 
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker03 bind circuitBreakerEP03 {
+service circuitbreaker03 on circuitBreakerEP03 {
 
     @http:ResourceConfig {
         path: "/getstate"
     }
-    getState(endpoint caller, http:Request request) {
-        http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>simpleClientEP.getCallerActions();
+    resource function getState(http:Caller caller, http:Request request) {
+        http:CircuitBreakerClient cbClient = <http:CircuitBreakerClient>simpleClientEP.httpClient;
         var backendRes = simpleClientEP->forward("/simple", request);
         http:CircuitState currentState = cbClient.getCurrentState();
-        match backendRes {
-            http:Response res => {
-                if (!(currentState == http:CB_CLOSED_STATE)) {
-                    res.setPayload("Circuit Breaker is not in correct state state");
-                }
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
-
+        if (backendRes is http:Response) {
+            if (!(currentState == http:CB_CLOSED_STATE)) {
+                backendRes.setPayload("Circuit Breaker is not in correct state state");
             }
-            error responseError => {
-                http:Response response = new;
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+            var responseToCaller = caller->respond(backendRes);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
+            }
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            string errCause = <string> backendRes.detail().message;
+            response.setPayload(errCause);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
 }
 
 @http:ServiceConfig { basePath: "/simple" }
-service<http:Service> simpleservice bind { port: 8089 } {
+service simpleservice on new http:Listener(8089) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
     }
-    sayHello(endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setPayload("Hello World!!!");
-        caller->respond(res) but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+    resource function sayHello(http:Caller caller, http:Request req) {
+        var responseToCaller = caller->respond("Hello World!!!");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }

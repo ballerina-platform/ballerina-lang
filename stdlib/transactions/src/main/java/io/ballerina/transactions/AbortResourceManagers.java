@@ -36,14 +36,14 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
         orgName = "ballerina", packageName = "transactions",
         functionName = "abortResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING),
-                @Argument(name = "transactionBlockId", type = TypeKind.INT)},
+                @Argument(name = "transactionBlockId", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
 public class AbortResourceManagers extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         String transactionId = ctx.getStringArgument(0);
-        int transactionBlockId = (int) ctx.getIntArgument(0);
+        String transactionBlockId = ctx.getStringArgument(1);
         boolean abortSuccessful =
                 TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId, false);
         ctx.setReturnValues(new BBoolean(abortSuccessful));

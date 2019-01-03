@@ -21,10 +21,11 @@ package org.ballerinalang.mime.nativeimpl.headers;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -63,7 +64,7 @@ public class GetHeaders extends BlockingNativeCallableUnit {
             throw new BallerinaException("Http Header does not exist!");
         }
         int i = 0;
-        BStringArray bStringArray = new BStringArray();
+        BValueArray bStringArray = new BValueArray(BTypes.typeString);
         for (String headerValue : headerValueList) {
             bStringArray.add(i, headerValue);
             i++;

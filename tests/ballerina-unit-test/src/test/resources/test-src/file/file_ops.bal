@@ -32,7 +32,7 @@ function createDirectoryAndList(string pathValue) returns (string []){
     string [] pathValues = [];
     int pathIterations = 0;
 
-    foreach path in pathArray{
+    foreach var path in pathArray{
         pathValues[pathIterations] =  path.getPathValue();
         pathIterations = pathIterations + 1;
     }
@@ -49,7 +49,7 @@ function testCreateFile(string pathValue) returns (string){
    var pathArray =check file:list(dirPath);
    int pathIterations = 0;
 
-   foreach path in pathArray{
+   foreach var path in pathArray{
        pathValues[pathIterations] =  path.getPathValue();
        pathIterations = pathIterations + 1;
    }

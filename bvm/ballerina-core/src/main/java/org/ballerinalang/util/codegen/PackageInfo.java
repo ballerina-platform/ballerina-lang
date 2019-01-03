@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
@@ -56,8 +57,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Instruction[] instructions;
     private List<Instruction> instructionList = new ArrayList<>();
-
-    private Map<String, PackageVarInfo> constantInfoMap = new LinkedHashMap<>();
 
     private Map<String, PackageVarInfo> globalVarInfoMap = new LinkedHashMap<>();
 
@@ -109,18 +108,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public ConstantPoolEntry[] getConstPoolEntries() {
         return constPool;
-    }
-
-    public PackageVarInfo getConstantInfo(String constantName) {
-        return constantInfoMap.get(constantName);
-    }
-
-    public void addConstantInfo(String constantName, PackageVarInfo constantInfo) {
-        constantInfoMap.put(constantName, constantInfo);
-    }
-
-    public PackageVarInfo[] getConstantInfoEntries() {
-        return constantInfoMap.values().toArray(new PackageVarInfo[0]);
     }
 
     public PackageVarInfo getPackageVarInfo(String globalVarName) {
@@ -181,10 +168,14 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return serviceInfoMap.get(serviceName);
     }
 
+    public ServiceInfo getServiceInfo(BType serviceType) {
+        return serviceInfoMap.values().stream()
+                .filter(serviceInfo -> serviceInfo.serviceType.getType().equals(serviceType)).findFirst().orElse(null);
+    }
+
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
         serviceInfo.setPackageInfo(this);
         serviceInfoMap.put(serviceName, serviceInfo);
-        structureTypeInfoMap.put(serviceName, serviceInfo);
     }
 
     public CustomTypeInfo getStructureTypeInfo(String structureTypeName) {

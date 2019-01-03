@@ -1,151 +1,271 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/http;
 import ballerina/io;
 import ballerina/file;
+import ballerina/log;
 import ballerina/mime;
 
-endpoint http:Client clientEP1 {
-    url:"http://localhost:9115/test"
-};
+listener http:Listener testEP = new(9115);
 
-endpoint http:Listener testEP {
-    port:9115
-};
+http:Client clientEP1 = new("http://localhost:9115/test");
 
 @http:ServiceConfig {basePath:"/reuseObj"}
-service<http:Service> testService_1 bind testEP {
+service testService_1 on testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/request_without_entity"
     }
-    getWithoutEntity(endpoint outboundEP, http:Request clientRequest) {
+    resource function getWithoutEntity(http:Caller caller, http:Request clientRequest) {
         http:Request clientReq = new;
-        http:Response firstResponse = check clientEP1 -> get("", message = clientReq);
-        http:Response secondResponse = check clientEP1 -> get("", message = clientReq);
+        string firstVal = "";
+        string secondVal = "";
+
+        var firstResponse = clientEP1 -> get("", message = clientReq);
+        if (firstResponse is http:Response) {
+            var result = untaint firstResponse.getTextPayload();
+            if (result is string) {
+                firstVal = result;
+            } else if (result is error) {
+                firstVal = result.reason();
+            }
+        } else if (firstResponse is error) {
+            firstVal = firstResponse.reason();
+        }
+
+        var secondResponse = clientEP1 -> get("", message = clientReq);
+        if (secondResponse is http:Response) {
+            var result = untaint secondResponse.getTextPayload();
+            if (result is string) {
+                secondVal = result;
+            } else if (result is error) {
+                secondVal = result.reason();
+            }
+        } else if (secondResponse is error) {
+            secondVal = secondResponse.reason();
+        }
         http:Response testResponse = new;
-        string firstVal = untaint check firstResponse.getTextPayload();
-        string secondVal = untaint check secondResponse.getTextPayload();
-        testResponse.setTextPayload(firstVal + secondVal);
-        _ = outboundEP -> respond(testResponse);
+        testResponse.setPayload(firstVal + secondVal);
+        _ = caller -> respond(testResponse);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/request_with_empty_entity"
     }
-    getWithEmptyEntity(endpoint outboundEP, http:Request clientRequest) {
+    resource function getWithEmptyEntity(http:Caller caller, http:Request clientRequest) {
         http:Request clientReq = new;
         mime:Entity entity = new;
         clientReq.setEntity(entity);
-        http:Response firstResponse = check clientEP1 -> get("", message = clientReq);
-        http:Response secondResponse = check clientEP1 -> get("", message = clientReq);
+
+        string firstVal = "";
+        string secondVal = "";
+
+        var firstResponse = clientEP1 -> get("", message = clientReq);
+        if (firstResponse is http:Response) {
+            var result = untaint firstResponse.getTextPayload();
+            if (result is string) {
+                firstVal = result;
+            } else if (result is error) {
+                firstVal = result.reason();
+            }
+        } else if (firstResponse is error) {
+            firstVal = firstResponse.reason();
+        }
+
+        var secondResponse = clientEP1 -> get("", message = clientReq);
+        if (secondResponse is http:Response) {
+            var result = untaint secondResponse.getTextPayload();
+            if (result is string) {
+                secondVal = result;
+            } else if (result is error) {
+                secondVal = result.reason();
+            }
+        } else if (secondResponse is error) {
+            secondVal = secondResponse.reason();
+        }
         http:Response testResponse = new;
-        string firstVal = untaint check firstResponse.getTextPayload();
-        string secondVal = untaint check secondResponse.getTextPayload();
-        testResponse.setTextPayload(firstVal + secondVal);
-        _ = outboundEP -> respond(testResponse);
+        testResponse.setPayload(firstVal + secondVal);
+        _ = caller -> respond(testResponse);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/two_request_same_entity"
     }
-    getWithEntity(endpoint outboundEP, http:Request clientRequest) {
+    resource function getWithEntity(http:Caller caller, http:Request clientRequest) {
         http:Request clientReq = new;
         clientReq.setHeader("test1", "value1");
         http:Request newRequest = new;
-        mime:Entity entity = check clientReq.getEntity();
-        newRequest.setEntity(entity);
-        http:Response firstResponse = check clientEP1 -> get("", message = clientReq);
-        newRequest.setHeader("test2", "value2");
-        http:Response secondResponse = check clientEP1 -> get("", message = newRequest);
+        string firstVal = "";
+        string secondVal = "";
         http:Response testResponse = new;
-        string firstVal = untaint check firstResponse.getTextPayload();
-        string secondVal = untaint check secondResponse.getTextPayload();
+
+        var entity = clientReq.getEntity();
+        if (entity is mime:Entity) {
+            newRequest.setEntity(entity);
+            var firstResponse = clientEP1 -> get("", message = clientReq);
+            if (firstResponse is http:Response) {
+                newRequest.setHeader("test2", "value2");
+                var secondResponse = clientEP1 -> get("", message = newRequest);
+                if (secondResponse is http:Response) {
+                    var result1 = untaint firstResponse.getTextPayload();
+                    if (result1 is string) {
+                        firstVal = result1;
+                    } else if (result1 is error) {
+                        firstVal = result1.reason();
+                    }
+                    var result2 = untaint secondResponse.getTextPayload();
+                    if (result2 is string) {
+                        secondVal = result2;
+                    } else if (result2 is error) {
+                        secondVal = result2.reason();
+                    }
+                } else if (secondResponse is error) {
+                    log:printError(secondResponse.reason(), err = secondResponse);
+                }
+            } else if (firstResponse is error) {
+                log:printError(firstResponse.reason(), err = firstResponse);
+            }
+        } else if (entity is error) {
+            log:printError(entity.reason(), err = entity);
+        }
         testResponse.setTextPayload(firstVal + secondVal);
-        _ = outboundEP -> respond(testResponse);
+        _ = caller -> respond(testResponse);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/request_with_datasource"
     }
-    postWithEntity(endpoint outboundEP, http:Request clientRequest) {
+    resource function postWithEntity(http:Caller caller, http:Request clientRequest) {
         http:Request clientReq = new;
         clientReq.setTextPayload("String datasource");
-        http:Response firstResponse = check clientEP1 -> post("/datasource", clientReq);
-        http:Response secondResponse = check clientEP1 -> post("/datasource", clientReq);
+
+        string firstVal = "";
+        string secondVal = "";
+
+        var firstResponse = clientEP1 -> post("/datasource", clientReq);
+        if (firstResponse is http:Response) {
+            var result = untaint firstResponse.getTextPayload();
+            if (result is string) {
+                firstVal = result;
+            } else if (result is error) {
+                firstVal = result.reason();
+            }
+        } else if (firstResponse is error) {
+            firstVal = firstResponse.reason();
+        }
+
+        var secondResponse = clientEP1 -> post("/datasource", clientReq);
+        if (secondResponse is http:Response) {
+            var result = untaint secondResponse.getTextPayload();
+            if (result is string) {
+                secondVal = result;
+            } else if (result is error) {
+                secondVal = result.reason();
+            }
+        } else if (secondResponse is error) {
+            secondVal = secondResponse.reason();
+        }
         http:Response testResponse = new;
-        string firstVal = untaint check firstResponse.getTextPayload();
-        string secondVal = untaint check secondResponse.getTextPayload();
-        testResponse.setTextPayload(firstVal + secondVal);
-        _ = outboundEP -> respond(testResponse);
+        testResponse.setPayload(firstVal + secondVal);
+        _ = caller -> respond(testResponse);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/request_with_bytechannel"
     }
-    postWithByteChannel(endpoint outboundEP, http:Request clientRequest) {
+    resource function postWithByteChannel(http:Caller caller, http:Request clientRequest) {
         http:Request clientReq = new;
-        io:ReadableByteChannel byteChannel = check clientRequest.getByteChannel();
-        clientReq.setByteChannel(byteChannel, contentType = "text/plain");
-        http:Response firstResponse = check clientEP1 -> post("/consumeChannel", clientReq);
-        var secondResponse = clientEP1 -> post("/consumeChannel", clientReq);
-        http:Response testResponse = new;
-        string secondVal;
-        match secondResponse {
-            error err => {
-                secondVal = err.message;
+        var byteChannel = clientRequest.getByteChannel();
+        if (byteChannel is io:ReadableByteChannel) {
+            clientReq.setByteChannel(byteChannel, contentType = "text/plain");
+            var firstResponse = clientEP1 -> post("/consumeChannel", clientReq);
+            if (firstResponse is http:Response) {
+                var secondResponse = clientEP1 -> post("/consumeChannel", clientReq);
+                http:Response testResponse = new;
+                string firstVal = "";
+                string secondVal = "";
+                if (secondResponse is http:Response) {
+                    var result1 = secondResponse.getTextPayload();
+                    if  (result1 is string) {
+                        secondVal = result1;
+                    } else if (result1 is error) {
+                        secondVal = "Error in parsing payload";
+                    }
+                } else if (secondResponse is error) {
+                    secondVal = <string> secondResponse.detail().message;
+                }
+                var result2 = firstResponse.getTextPayload();
+                if (result2 is string) {
+                    firstVal = result2;
+                } else if (result2 is error) {
+                    firstVal = result2.reason();
+                }
+                testResponse.setTextPayload(untaint firstVal + untaint secondVal);
+                _ = caller -> respond(testResponse);
+            } else if (firstResponse is error) {
+                log:printError(firstResponse.reason(), err = firstResponse);
             }
-            http:Response response => {
-                secondVal = check response.getTextPayload();
-            }
+        } else if (byteChannel is error) {
+            log:printError(byteChannel.reason(), err = byteChannel);
         }
-        string firstVal = check firstResponse.getTextPayload();
-        testResponse.setTextPayload(untaint firstVal + untaint secondVal);
-        _ = outboundEP -> respond(testResponse);
     }
 }
 
 @http:ServiceConfig {basePath:"/test"}
-service<http:Service> testService_2 bind testEP {
+service testService_2 on testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    testForGet(endpoint outboundEP, http:Request clientRequest) {
+    resource function testForGet(http:Caller caller, http:Request clientRequest) {
         http:Response response = new;
         response.setTextPayload("Hello from GET!");
-        _ = outboundEP -> respond(response);
+        _ = caller -> respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/datasource"
     }
-    testForPost(endpoint outboundEP, http:Request clientRequest) {
+    resource function testForPost(http:Caller caller, http:Request clientRequest) {
         http:Response response = new;
         response.setTextPayload("Hello from POST!");
-        _ = outboundEP -> respond(response);
+        _ = caller -> respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/consumeChannel"
     }
-    testRequestBody(endpoint outboundEP, http:Request clientRequest) {
+    resource function testRequestBody(http:Caller caller, http:Request clientRequest) {
         http:Response response = new;
         var stringPayload = clientRequest.getTextPayload();
-        match stringPayload {
-            string receivedVal => {
-                response.setTextPayload(untaint receivedVal);
-            }
-            error err => {
-                response.setTextPayload(untaint err.message);
-            }
+        if (stringPayload is string) {
+            response.setPayload(untaint stringPayload);
+        } else if (stringPayload is error) {
+            string errMsg = <string> stringPayload.detail().message;
+            response.setPayload(untaint errMsg);
         }
-        _ = outboundEP -> respond(response);
+        _ = caller -> respond(response);
     }
 }

@@ -1,7 +1,7 @@
 # Trace logs are logged at `TRACE` level. 
 # To enable trace logs, the log level has to be set to `TRACE` using the runtime argument: <br> '-e b7a.http.tracelog.console=true'. <br>
-# At the command line, navigate to the directory that contains the 
-# `.bal` file and run the `ballerina run` command with this runtime argument. 
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command with this runtime argument.
 $ ballerina run -e b7a.http.tracelog.console=true http_trace_logs.bal
 ballerina: HTTP trace log enabled
 Initiating service(s) in 'http_trace_logs.bal'

@@ -92,18 +92,18 @@ function nestedArrayInit() returns (int, int) {
 }
 
 function testStringArrayIterator() returns string {
-    string[][][] sss;
-    string[][] ss;
-    string[] s;
+    string[][][] sss = [];
+    string[][] ss = [];
+    string[] s = [];
     s[3] = "B";
     ss[2] = s;
     sss[5] = ss;
 
-    string str;
+    string str = "";
 
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 str = str + s3;
             }
         }
@@ -113,18 +113,18 @@ function testStringArrayIterator() returns string {
 }
 
 function testIntArrayIterator() returns int {
-    int[][][] sss;
-    int[][] ss;
-    int[] s;
+    int[][][] sss = [];
+    int[][] ss = [];
+    int[] s = [];
     s[3] = 7;
     ss[2] = s;
     sss[5] = ss;
 
     int a = 3;
 
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 a = a + s3;
             }
         }
@@ -134,18 +134,18 @@ function testIntArrayIterator() returns int {
 }
 
 function testFloatArrayIterator() returns float {
-    float[][][] sss;
-    float[][] ss;
-    float[] s;
+    float[][][] sss = [];
+    float[][] ss = [];
+    float[] s = [];
     s[3] = 4.0;
     ss[2] = s;
     sss[5] = ss;
 
     float f = 3.1;
 
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 f = f + s3;
             }
         }
@@ -157,17 +157,17 @@ function testFloatArrayIterator() returns float {
 
 
 function testByteArrayIterator() returns byte[] {
-    byte[][][][] sss;
-    byte[][][] ss;
-    byte[][] s;
+    byte[][][][] sss = [];
+    byte[][][] ss = [];
+    byte[][] s = [];
     s[3] = base16 `aa`;
     ss[2] = s;
     sss[5] = ss;
 
     byte[] a;
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 a = s3;
             }
         }
@@ -177,17 +177,17 @@ function testByteArrayIterator() returns byte[] {
 }
 
 function testRefArrayIterator() returns A {
-    A[][][] sss;
-    A[][] ss;
-    A[] s;
+    A[][][] sss = [];
+    A[][] ss = [];
+    A[] s = [];
     s[3] = {name:"ballerina"};
     ss[2] = s;
     sss[5] = ss;
 
     A a;
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 a = s3;
             }
         }
@@ -196,5 +196,5 @@ function testRefArrayIterator() returns A {
 }
 
 type A record {
-    string name;
+    string name = "";
 };

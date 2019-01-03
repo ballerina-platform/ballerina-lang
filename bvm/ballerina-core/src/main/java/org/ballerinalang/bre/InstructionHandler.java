@@ -17,10 +17,11 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.Strand;
 
 /**
- * This is CPU Ip interceptor API for debugger and coverage data collection.
+ * This is BVM Ip execution interceptor API for debugger and coverage data
+ * collection.
  *
  * @since 0.985.0
  */
@@ -34,10 +35,10 @@ public interface InstructionHandler {
     boolean shouldEngageIn();
 
     /**
-     * Ip interceptor method to handle each Ip for the CPU.
+     * Ip interceptor method to handle each Ip for the BVM.
      *
-     * @param ctx worker execution context for the Ip
+     * @param strand strand of the execution Ip
      */
-    void handle(WorkerExecutionContext ctx);
+    void handle(Strand strand);
 
 }

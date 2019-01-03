@@ -31,8 +31,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamExternalTimeBatchTest2;
-stream<TeacherOutput > outputStreamExternalTimeBatchTest2;
+stream<Teacher> inputStreamExternalTimeBatchTest2 = new;
+stream<TeacherOutput > outputStreamExternalTimeBatchTest2 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startExternalTimeBatchwindowTest2() returns (TeacherOutput[]) {
@@ -52,8 +52,8 @@ function startExternalTimeBatchwindowTest2() returns (TeacherOutput[]) {
 
     testExternalTimeBatchwindow2();
 
-    outputStreamExternalTimeBatchTest2.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStreamExternalTimeBatchTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStreamExternalTimeBatchTest2.publish(t);
     }
 
@@ -61,7 +61,7 @@ function startExternalTimeBatchwindowTest2() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 2 || count == 10) {
+        if((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
     }
@@ -71,12 +71,12 @@ function startExternalTimeBatchwindowTest2() returns (TeacherOutput[]) {
 function testExternalTimeBatchwindow2() {
 
     forever {
-        from inputStreamExternalTimeBatchTest2 window externalTimeBatchWindow(
-                            [inputStreamExternalTimeBatchTest2.timestamp, 1000, (), 1200])
+        from inputStreamExternalTimeBatchTest2 window externalTimeBatch(
+                            inputStreamExternalTimeBatchTest2.timestamp, 1000, (), 1200)
         select inputStreamExternalTimeBatchTest2.timestamp, inputStreamExternalTimeBatchTest2.name, count() as count
         group by inputStreamExternalTimeBatchTest2.school
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStreamExternalTimeBatchTest2.publish(t);
             }
         }

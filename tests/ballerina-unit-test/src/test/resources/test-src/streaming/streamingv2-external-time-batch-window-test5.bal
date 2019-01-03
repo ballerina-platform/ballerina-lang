@@ -31,8 +31,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamExternalTimeBatchTest5;
-stream<TeacherOutput > outputStreamExternalTimeBatchTest5;
+stream<Teacher> inputStreamExternalTimeBatchTest5 = new;
+stream<TeacherOutput > outputStreamExternalTimeBatchTest5 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startExternalTimeBatchwindowTest5() returns (TeacherOutput[]) {
@@ -52,8 +52,8 @@ function startExternalTimeBatchwindowTest5() returns (TeacherOutput[]) {
 
     testExternalTimeBatchwindow5();
 
-    outputStreamExternalTimeBatchTest5.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStreamExternalTimeBatchTest5.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStreamExternalTimeBatchTest5.publish(t);
         runtime:sleep(450);
     }
@@ -62,7 +62,7 @@ function startExternalTimeBatchwindowTest5() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 2 || count == 10) {
+        if((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
     }
@@ -72,12 +72,12 @@ function startExternalTimeBatchwindowTest5() returns (TeacherOutput[]) {
 function testExternalTimeBatchwindow5() {
 
     forever {
-        from inputStreamExternalTimeBatchTest5 window externalTimeBatchWindow(
-                                                          [inputStreamExternalTimeBatchTest5.timestamp, 1000, 1000, 1200])
+        from inputStreamExternalTimeBatchTest5 window externalTimeBatch(
+                                                          inputStreamExternalTimeBatchTest5.timestamp, 1000, 1000, 1200)
         select inputStreamExternalTimeBatchTest5.timestamp, inputStreamExternalTimeBatchTest5.name, count() as count
         group by inputStreamExternalTimeBatchTest5.school
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStreamExternalTimeBatchTest5.publish(t);
             }
         }

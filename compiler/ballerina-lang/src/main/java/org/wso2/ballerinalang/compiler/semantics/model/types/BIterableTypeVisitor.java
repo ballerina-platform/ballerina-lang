@@ -45,12 +45,17 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
     @Override
     public List<BType> visit(BType type, Operation op) {
         dlog.error(op.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, op.collectionType);
-        return Lists.of(symTable.errType);
+        return Lists.of(symTable.semanticError);
+    }
+
+    @Override
+    public List<BType> visit(BSemanticErrorType type, Operation op) {
+        return Lists.of(symTable.semanticError);
     }
 
     @Override
     public List<BType> visit(BErrorType type, Operation op) {
-        return Lists.of(symTable.errType);
+        return Lists.of(symTable.semanticError);
     }
 
     /* Following  types are not iterable and will be handler at BType visitor */
@@ -62,6 +67,11 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
     @Override
     public List<BType> visit(BAnyType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
+    @Override
+    public List<BType> visit(BAnydataType type, Operation op) {
         return visit((BType) type, op);
     }
 
@@ -110,6 +120,16 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         return visit((BType) type, op);
     }
 
+    @Override
+    public List<BType> visit(BServiceType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
+    @Override
+    public List<BType> visit(BJSONType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
     /* Util functions */
 
     protected void logTooManyVariablesError(Operation op) {
@@ -145,11 +165,6 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
         @Override
         public List<BType> visit(BXMLType t, Operation operation) {
-            return Lists.of(calculateType(operation, t));
-        }
-
-        @Override
-        public List<BType> visit(BJSONType t, Operation operation) {
             return Lists.of(calculateType(operation, t));
         }
 

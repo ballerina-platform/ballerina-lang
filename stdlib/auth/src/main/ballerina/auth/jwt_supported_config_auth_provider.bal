@@ -14,31 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
-import ballerina/runtime;
-import ballerina/time;
-import ballerina/config;
-import ballerina/crypto;
-import ballerina/internal;
-import ballerina/system;
-
 public type ConfigJwtAuthProvider object {
-    public InferredJwtAuthProviderConfig configJwtAuthProviderConfig;
-    public ConfigAuthStoreProvider configAuthProvider;
 
-    public new(configJwtAuthProviderConfig) {
+    public InferredJwtAuthProviderConfig configJwtAuthProviderConfig;
+    public ConfigAuthStoreProvider configAuthProvider = new;
+
+    public function __init(InferredJwtAuthProviderConfig configJwtAuthProviderConfig) {
+        self.configJwtAuthProviderConfig = configJwtAuthProviderConfig;
     }
 
     public function authenticate(string username, string password) returns boolean {
-        boolean isAuthenticated = configAuthProvider.authenticate(username, password);
+        boolean isAuthenticated = self.configAuthProvider.authenticate(username, password);
         if (isAuthenticated){
-            setAuthToken(username, configJwtAuthProviderConfig);
+            setAuthToken(username, self.configJwtAuthProviderConfig);
         }
         return isAuthenticated;
     }
 
     public function getScopes(string username) returns string[] {
-        return configAuthProvider.getScopes(username);
+        return self.configAuthProvider.getScopes(username);
     }
 
 };

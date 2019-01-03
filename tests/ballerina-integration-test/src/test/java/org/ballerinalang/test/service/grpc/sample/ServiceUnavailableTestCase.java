@@ -49,15 +49,26 @@ public class ServiceUnavailableTestCase extends GrpcBaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unavailable_service_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
-        final String expectedMsg = "Error from Connector: Status{ code UNAVAILABLE, description null, cause " +
-                "Connection refused:";
-        final String expectedHostDetails = "localhost/127.0.0.1:9110";
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}UNAVAILABLE - Connection refused: " +
+                "localhost/127.0.0.1:9110";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
-        Assert.assertTrue(responses[0].stringValue().startsWith(expectedMsg) && responses[0].stringValue()
-                .contains(expectedHostDetails));
+        Assert.assertEquals(responses[0].stringValue(), expectedMsg);
     }
 
+    @Test(description = "Test invoking service with slow response. Connector error is expected with Idle timeout " +
+            "triggered.")
+    public void testClientSocketTimeout() {
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_client_socket_timeout.bal");
+        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}UNAVAILABLE - Idle timeout triggered before" +
+                " initiating inbound response";
+
+        BValue[] responses = BRunUtil.invoke(result, "testClientSocketTimeout", new BValue[]{});
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), expectedMsg);
+    }
 }

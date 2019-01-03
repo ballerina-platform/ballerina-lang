@@ -24,7 +24,7 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaTableTypeName extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaNameReference getNameReference();
+  BallerinaTypeName getTypeName();
 
   @Nullable
   PsiElement getGt();

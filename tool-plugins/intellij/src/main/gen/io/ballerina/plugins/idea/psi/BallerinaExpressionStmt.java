@@ -26,7 +26,7 @@ public interface BallerinaExpressionStmt extends BallerinaCompositeElement {
   @NotNull
   BallerinaExpression getExpression();
 
-  @Nullable
+  @NotNull
   PsiElement getSemicolon();
 
 }

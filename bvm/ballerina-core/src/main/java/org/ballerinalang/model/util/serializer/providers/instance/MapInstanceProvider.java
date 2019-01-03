@@ -20,7 +20,7 @@ package org.ballerinalang.model.util.serializer.providers.instance;
 import org.ballerinalang.model.util.serializer.JsonSerializerConst;
 import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Provide object instance to serialize map.
@@ -35,11 +35,11 @@ public class MapInstanceProvider implements TypeInstanceProvider {
 
     @Override
     public Object newInstance() {
-        return new HashMap<>();
+        return new LinkedHashMap<>();
     }
 
     @Override
     public Class getTypeClass() {
-        return HashMap.class;
+        return LinkedHashMap.class;
     }
 }
