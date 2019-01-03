@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.bre.emitter;
 
+import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
@@ -24,6 +25,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
@@ -230,6 +232,14 @@ public class BalxEmitter {
                 println(tabs + "}");
                 break;
             case ERROR_TABLE:
+                ErrorTableAttributeInfo errAttr = (ErrorTableAttributeInfo) attr;
+                println(" {");
+                for (ErrorTableEntry ete : errAttr.getErrorTableEntriesList()) {
+                    println(tabs + "\t" + "ipFrom " + tabs + "\t" + "ipTo " +
+                            tabs + "\t" + "ipTarget " + tabs + "\t" + "regIndex " + tabs + "\t" + ete.toString());
+                }
+                println(tabs + "}");
+                break;
             case TAINT_TABLE:
             case ANNOTATIONS_ATTRIBUTE:
             case DEFAULT_VALUE_ATTRIBUTE:

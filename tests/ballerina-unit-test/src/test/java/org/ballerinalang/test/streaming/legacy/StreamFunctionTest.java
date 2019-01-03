@@ -38,7 +38,7 @@ public class StreamFunctionTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/stream-functions-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/stream-functions-test.bal", true);
     }
 
     @Test(description = "Test stream functions")

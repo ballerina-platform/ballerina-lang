@@ -37,12 +37,12 @@ import org.ballerinalang.net.http.WebSocketClientConnectorListener;
 import org.ballerinalang.net.http.WebSocketClientHandshakeListener;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
+import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -113,22 +113,20 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
     private void populateClientConnectorConfig(Struct clientEndpointConfig,
                                                WebSocketClientConnectorConfig clientConnectorConfig) {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
-        Value[] subProtocolValues = clientEndpointConfig
-                .getArrayField(WebSocketConstants.CLIENT_SUB_PROTOCOLS_CONFIG);
-        if (subProtocolValues != null) {
-            clientConnectorConfig.setSubProtocols(Arrays.stream(subProtocolValues).map(Value::getStringValue)
-                                                          .toArray(String[]::new));
-        }
+        clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
         Map<String, Value> headerValues = clientEndpointConfig.getMapField(
                 WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
         if (headerValues != null) {
             clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
         }
 
-        long idleTimeoutInSeconds = clientEndpointConfig.getIntField(WebSocketConstants.CLIENT_IDLE_TIMOUT_CONFIG);
+        long idleTimeoutInSeconds = WebSocketUtil.findIdleTimeoutInSeconds(clientEndpointConfig);
         if (idleTimeoutInSeconds > 0) {
             clientConnectorConfig.setIdleTimeoutInMillis((int) (idleTimeoutInSeconds * 1000));
         }
+
+        clientConnectorConfig.setMaxFrameSize(WebSocketUtil.findMaxFrameSize(clientEndpointConfig));
+
         Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);

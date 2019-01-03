@@ -14,13 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Check whether 2 values are deeply equal. Supports string, int, float, boolean, type, structs, maps, arrays, any,
-# JSON. Any other type returns FALSE.
-#
-# + value1 - The first value for equality.
-# + value2 - The second value for equality.
-# + return - TRUE if values are deeply equal, else FALSE.
-public extern function equals(any value1, any value2) returns (boolean);
+public type anyStruct record {
+    any...
+};
 
 public type annotationData record {
     string name;

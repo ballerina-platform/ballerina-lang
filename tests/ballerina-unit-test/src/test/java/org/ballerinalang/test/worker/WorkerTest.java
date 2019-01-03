@@ -235,6 +235,13 @@ public class WorkerTest {
         }
     }
 
+    @Test
+    public void workerTestWithLambda() {
+        BValue[] returns = BRunUtil.invoke(result, "workerTestWithLambda");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
+    }
+
     private void sameStrandMultipleInvocationTest() {
         PrintStream defaultOut = System.out;
         try {

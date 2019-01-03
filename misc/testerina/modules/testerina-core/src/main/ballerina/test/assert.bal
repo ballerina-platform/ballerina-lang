@@ -69,7 +69,14 @@ public function assertFalse(boolean condition, string msg = "Assertion Failed!")
 # + expected - Expected value
 # + msg - Assertion error message
 public function assertEquals(any actual, any expected, string msg = "Assertion Failed!") {
-    if (!reflect:equals(actual,expected)) {
+    boolean isEqual = false;
+    if (actual is anydata && expected is anydata) {
+        isEqual = actual == expected;
+    } else {
+        isEqual = actual === expected;
+    }
+
+    if (!isEqual) {
         string expectedStr = io:sprintf("%s", expected);
         string actualStr = io:sprintf("%s", actual);
         string errorMsg = string `{{msg}}: expected '{{expectedStr}}' but found '{{actualStr}}'`;
@@ -83,7 +90,14 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
 # + expected - Expected value
 # + msg - Assertion error message
 public function assertNotEquals(any actual, any expected, string msg = "Assertion Failed!") {
-    if (reflect:equals(actual,expected)) {
+    boolean isEqual = false;
+    if (actual is anydata && expected is anydata) {
+        isEqual = actual == expected;
+    } else {
+        isEqual = actual === expected;
+    }
+
+    if (isEqual) {
         string expectedStr = io:sprintf("%s", expected);
         string actualStr = io:sprintf("%s", actual);
         string errorMsg = string `{{msg}}: expected the actual value not to be '{{expectedStr}}'`;

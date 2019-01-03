@@ -340,15 +340,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (Symbols.isNative(funcNode.symbol)) {
             return;
         }
-        boolean invokableReturns = funcNode.returnTypeNode.type != symTable.nilType;
+        boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
         if (isPublicInvokableNode(funcNode)) {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
-            /* the function returns, but none of the statements surely returns */
-            if (invokableReturns && !this.statementReturns) {
+            
+            // If the return signature is nil-able, an implicit return will be added in Desugar.
+            // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
+            if (!isNilableReturn && !this.statementReturns) {
                 this.dlog.error(funcNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
             }
@@ -1628,6 +1630,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             String workerVarName = ((BLangSimpleVariable) bLangLambdaFunction.parent).name.value;
             if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
                 String workerName = workerVarName.substring(1);
+                // Check if the worker name is default, if so log an error
+                // TODO Remove this after the default worker node is defined in SymbolEnter.
+                if (workerName.equalsIgnoreCase(DEFAULT_WORKER_NAME)) {
+                    dlog.error(bLangLambdaFunction.pos, DiagnosticCode.EXPLICIT_WORKER_CANNOT_BE_DEFAULT);
+                }
                 isWorker = true;
                 this.workerActionSystemStack.peek().startWorkerActionStateMachine(workerName,
                                                                                   bLangLambdaFunction.function.pos,

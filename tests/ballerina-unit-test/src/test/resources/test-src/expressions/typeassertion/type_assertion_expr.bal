@@ -486,6 +486,19 @@ function testListElementAssertionNegative() {
     int iValTwo = <int> anyArrTwo[0];
 }
 
+function testOutOfOrderUnionConstraintAssertionPositive() returns boolean {
+    map<int|string> m = { one: 1, two: "2" };
+    anydata a = m;
+    map<string|int> m2 = <map<string|int>> a;
+    return m === m2;
+}
+
+function testOutOfOrderUnionConstraintAssertionNegative() {
+    stream<int|float> s1 = new;
+    any a = s1;
+    stream<float|json> s2 = <stream<float|json>> a;
+}
+
 function testStringAsInvalidBasicType() {
     string|int u1 = "I'm not an int!";
     any a = u1;

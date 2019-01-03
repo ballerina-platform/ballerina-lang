@@ -896,13 +896,20 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC) : EnumSet.noneOf(Flag.class);
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        BRecordType recordType = new BRecordType(recordSymbol);
-        recordSymbol.type = recordType;
-        recordTypeNode.symbol = recordSymbol;
-        resultType = recordType;
+        // If we cannot resolve a type of a type definition, we create a dummy symbol for it. If the type node is
+        // a record, a symbol will be created for it when we define the dummy symbol (from here). When we define the
+        // node later, this method will be called again. In such cases, we don't need to create a new symbol here.
+        if (recordTypeNode.symbol == null) {
+            EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC) : EnumSet.noneOf(Flag.class);
+            BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
+            BRecordType recordType = new BRecordType(recordSymbol);
+            recordSymbol.type = recordType;
+            recordTypeNode.symbol = recordSymbol;
+            resultType = recordType;
+        } else {
+            resultType = recordTypeNode.symbol.type;
+        }
     }
 
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
@@ -1043,7 +1050,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         Map<Name, ScopeEntry> visibleEntries = new HashMap<>();
         visibleEntries.putAll(env.scope.entries);
         if (env.enclEnv != null) {
-            visibleEntries.putAll(getAllVisibleInScopeSymbols(env.enclEnv));
+            getAllVisibleInScopeSymbols(env.enclEnv).forEach((name, scopeEntry) -> {
+                if (!visibleEntries.containsKey(name)) {
+                    visibleEntries.put(name, scopeEntry);
+                }
+            });
         }
         return visibleEntries;
     }

@@ -14,50 +14,57 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function
-    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
-    // Chck whether the server is started
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
+    http:Client httpEndpoint = new("http://localhost:9090");
 
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint->get("/lb");
-    match response {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, "Mock1 Resource is invoked.");
+    var response1 = httpEndpoint->get("/lb");
+    if (response1 is http:Response) {
+        var result = response1.getTextPayload();
+        if (result is string) {
+            test:assertEquals(result, "Mock1 resource was invoked.");
+        } else {
+            test:assertFail(msg = "Invalid response message:");
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 
-    // Send a GET request to the specified endpoint
     var response2 = httpEndpoint->get("/lb");
-    match response2 {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, "Mock2 Resource is Invoked.");
+    if (response2 is http:Response) {
+        var result = response2.getTextPayload();
+        if (result is string) {
+            test:assertEquals(result, "Mock2 resource was invoked.");
+        } else {
+            test:assertFail(msg = "Invalid response message:");
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 
-    // Invoke the service for the third time
     // Send a GET request to the specified endpoint
     var response3 = httpEndpoint->get("/lb");
-    match response3 {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, "Mock3 Resource is Invoked.");
+    if (response3 is http:Response) {
+        var result = response3.getTextPayload();
+        if (result is string) {
+            test:assertEquals(result, "Mock3 resource was invoked.");
+        } else {
+            test:assertFail(msg = "Invalid response message:");
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 
-    // Invoke the service for the third time
     // Send a GET request to the specified endpoint
     var response4 = httpEndpoint->get("/lb");
-    match response4 {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, "Mock1 Resource is invoked.");
+    if (response4 is http:Response) {
+        var result = response4.getTextPayload();
+        if (result is string) {
+            test:assertEquals(result, "Mock1 resource was invoked.");
+        } else {
+            test:assertFail(msg = "Invalid response message:");
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
