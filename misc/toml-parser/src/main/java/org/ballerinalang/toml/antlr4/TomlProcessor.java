@@ -15,13 +15,11 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.toml.util;
+package org.ballerinalang.toml.antlr4;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.ballerinalang.toml.antlr4.TomlLexer;
-import org.ballerinalang.toml.antlr4.TomlParser;
 
 /**
  * Util methods for toml processor.
@@ -34,16 +32,15 @@ public class TomlProcessor {
      * Generate the proxy object by passing in the toml file.
      *
      * @param stream charstream object containing the content
+     * @param path path to the toml file
      * @return proxy object
      */
-    public static ParseTree parseTomlContent(CharStream stream) {
+    public static ParseTree parseTomlContent(CharStream stream, String path) {
         TomlLexer lexer = new TomlLexer(stream);
-
-        // Get a list of matched tokens
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-        // Pass the tokens to the parser
         TomlParser parser = new TomlParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(TomlErrorListener.getErrorListener(path));
         return parser.toml();
     }
 }
