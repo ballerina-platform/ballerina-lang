@@ -23,6 +23,7 @@ public type StreamJoinProcessor object {
     public string? rhsStream;
     public string? unidirectionalStream;
     public JoinType joinType;
+    public int lockField = 0;
 
     public function __init(function (StreamEvent[]) nextProcessor, JoinType joinType,
                            (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? onConditionFunc) {
@@ -38,73 +39,77 @@ public type StreamJoinProcessor object {
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent?[] joinedEvents = [];
-        int i = 0;
-        foreach var event in streamEvents {
-            string originStream = event.data.keys()[0].split("\\.")[0];
-            // resolve trigger according to join direction
-            boolean triggerJoin = false;
-            var s = self.unidirectionalStream;
-            if (s is string) {
-                // unidirectional
-                if (s.equalsIgnoreCase(originStream)) {
-                    triggerJoin = true;
-                }
-            } else {
-                // bidirectional
-                triggerJoin = true;
-            }
-
-            if (triggerJoin) {
-                (StreamEvent?, StreamEvent?)[] candidateEvents = [];
-                // join events according to the triggered side
-                if (self.lhsStream.equalsIgnoreCase(originStream) ?: false) {
-                    // triggered from LHS
-                    var evtArr = self.rhsWindow.getCandidateEvents(event, self.onConditionFunc);
-                    if (evtArr is (StreamEvent?, StreamEvent?)[]) {
-                        candidateEvents = evtArr;
-                        // with left/full joins, we need to emit an event even there's no candidate events in rhs.
-                        if (candidateEvents.length() == 0 && (self.joinType == "LEFTOUTERJOIN"
-                                || self.joinType == "FULLOUTERJOIN")) {
-                            candidateEvents[0] = (event, ());
-                        }
-                    } else {
-                        if (self.joinType == "LEFTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
-                            candidateEvents[0] = (event, ());
-                        }
-                    }
-
-                    foreach var evtTuple in candidateEvents {
-                        joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1]);
-                        i += 1;
+        StreamEvent[] outputEvents = [];
+        lock {
+            self.lockField += 1;
+            int i = 0;
+            foreach var event in streamEvents {
+                string originStream = event.data.keys()[0].split("\\.")[0];
+                // resolve trigger according to join direction
+                boolean triggerJoin = false;
+                var s = self.unidirectionalStream;
+                if (s is string) {
+                    // unidirectional
+                    if (s.equalsIgnoreCase(originStream)) {
+                        triggerJoin = true;
                     }
                 } else {
-                    var evtArr = self.lhsWindow.getCandidateEvents(event, self.onConditionFunc, isLHSTrigger = false);
-                    if (evtArr is (StreamEvent?, StreamEvent?)[]) {
-                        candidateEvents = evtArr;
-                        // with right/full joins, we need to emit an event even there's no candidate events in rhs.
-                        if (candidateEvents.length() == 0 && (self.joinType == "RIGHTOUTERJOIN"
-                                || self.joinType == "FULLOUTERJOIN")) {
-                            candidateEvents[0] = ((), event);
+                    // bidirectional
+                    triggerJoin = true;
+                }
+
+                if (triggerJoin) {
+                    (StreamEvent?, StreamEvent?)[] candidateEvents = [];
+                    // join events according to the triggered side
+                    if (self.lhsStream.equalsIgnoreCase(originStream) ?: false) {
+                        // triggered from LHS
+                        var evtArr = self.rhsWindow.getCandidateEvents(event, self.onConditionFunc);
+                        if (evtArr is (StreamEvent?, StreamEvent?)[]) {
+                            candidateEvents = evtArr;
+                            // with left/full joins, we need to emit an event even there's no candidate events in rhs.
+                            if (candidateEvents.length() == 0 && (self.joinType == "LEFTOUTERJOIN"
+                                    || self.joinType == "FULLOUTERJOIN")) {
+                                candidateEvents[0] = (event, ());
+                            }
+                        } else {
+                            if (self.joinType == "LEFTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
+                                candidateEvents[0] = (event, ());
+                            }
+                        }
+
+                        foreach var evtTuple in candidateEvents {
+                            joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1]);
+                            i += 1;
                         }
                     } else {
-                        if (self.joinType == "RIGHTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
-                            candidateEvents[0] = ((), event);
+                        var evtArr = self.lhsWindow.getCandidateEvents(event, self.onConditionFunc, isLHSTrigger = false);
+                        if (evtArr is (StreamEvent?, StreamEvent?)[]) {
+                            candidateEvents = evtArr;
+                            // with right/full joins, we need to emit an event even there's no candidate events in rhs.
+                            if (candidateEvents.length() == 0 && (self.joinType == "RIGHTOUTERJOIN"
+                                    || self.joinType == "FULLOUTERJOIN")) {
+                                candidateEvents[0] = ((), event);
+                            }
+                        } else {
+                            if (self.joinType == "RIGHTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
+                                candidateEvents[0] = ((), event);
+                            }
                         }
-                    }
-                    foreach var evtTuple in candidateEvents {
-                        joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1], lhsTriggered = false);
-                        i += 1;
+                        foreach var evtTuple in candidateEvents {
+                            joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1], lhsTriggered = false);
+                            i += 1;
+                        }
                     }
                 }
             }
-        }
 
-        StreamEvent[] outputEvents = [];
-        i = 0;
-        foreach var e in joinedEvents {
-            if (e is StreamEvent) {
-                outputEvents[i] = e;
-                i += 1;
+            outputEvents = [];
+            i = 0;
+            foreach var e in joinedEvents {
+                if (e is StreamEvent) {
+                    outputEvents[i] = e;
+                    i += 1;
+                }
             }
         }
         self.nextProcessor.call(outputEvents);

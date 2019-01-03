@@ -24,7 +24,13 @@ function forkWithTimeoutTest1() returns map<any> {
     }
 
     future<map<any>> f = start timeoutFunction1(1000, m);
-    return (wait w3 | f);
+    map<any> waitedResult = (wait w3 | f);
+    var result = waitedResult.clone();
+    if result is map<any> {
+        return result;
+    } else {
+        return {x: 100};
+    }
 }
 
 function forkWithTimeoutTest2() returns map<any> {
@@ -47,7 +53,13 @@ function forkWithTimeoutTest2() returns map<any> {
     }
 
     future<map<any>> f = start timeoutFunction1(5000, m);
-    return (wait w3 | f);
+    map<any> waitedResult = (wait w3 | f);
+    var result = waitedResult.clone();
+    if result is map<any> {
+        return result;
+    } else {
+        return {x: 100};
+    }
 }
 
 // Function used to provide timeout functionality

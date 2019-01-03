@@ -35,7 +35,7 @@ public class StrandResourceCallback extends StrandCallback {
     private TransactionLocalContext transactionLocalContext;
 
     StrandResourceCallback(BType retType, CallableUnitCallback resourceCallback, ChannelDetails[] sendIns) {
-        super(retType, sendIns);
+        super(retType, sendIns, null);
         this.resourceCallback = resourceCallback;
     }
 

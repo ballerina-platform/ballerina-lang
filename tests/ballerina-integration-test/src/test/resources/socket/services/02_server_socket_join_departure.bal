@@ -17,23 +17,21 @@
 import ballerina/io;
 import ballerina/socket;
 
-listener socket:Listener server = new ({
-    port:61598
-});
+listener socket:Listener server = new(61598);
 
 int joinee = 0;
 int leavers = 0;
 
 service echoServer on server {
-    resource function onAccept (socket:Caller caller) {
+    resource function onAccept(socket:Caller caller) {
         joinee = joinee + 1;
         io:println("Join: ", joinee);
     }
 
-    resource function onReadReady (socket:Caller caller, byte[] content) {
+    resource function onReadReady(socket:Caller caller, byte[] content) {
         io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
         io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
-        var str =  characterChannel.read(20);
+        var str = characterChannel.read(20);
         if (str is string) {
             io:println(untaint str);
         } else if (str is error) {

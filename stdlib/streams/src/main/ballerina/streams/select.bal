@@ -18,13 +18,13 @@ public type Select object {
 
     private function (StreamEvent[]) nextProcessorPointer;
     private Aggregator[] aggregatorArr;
-    private ((function (StreamEvent o) returns anydata)[]) groupbyFuncArray;
+    private ((function (StreamEvent o) returns anydata)[])? groupbyFuncArray;
     private function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc;
     private map<Aggregator[]> aggregatorsCloneMap;
 
 
     function __init(function (StreamEvent[]) nextProcessorPointer, Aggregator[] aggregatorArr,
-                    (function (StreamEvent) returns anydata)[] groupbyFuncArray,
+                    ((function (StreamEvent) returns anydata)[])? groupbyFuncArray,
                     function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc) {
         self.aggregatorsCloneMap = {};
         self.nextProcessorPointer = nextProcessorPointer;
@@ -75,12 +75,14 @@ public type Select object {
         }
     }
 
-    public function getGroupByKey((function (StreamEvent o) returns anydata)[] groupbyFunctionArray, StreamEvent e)
+    public function getGroupByKey(((function (StreamEvent o) returns anydata)[])? groupbyFunctionArray, StreamEvent e)
                         returns string {
         string key = "";
-        foreach var func in groupbyFunctionArray {
-            key += <string>func.call(e);
-            key += ",";
+        if(groupbyFunctionArray is (function (StreamEvent o) returns anydata)[]) {
+            foreach var func in groupbyFunctionArray {
+                key += <string > func.call(e);
+                key += ",";
+            }
         }
         return key;
     }
@@ -88,7 +90,7 @@ public type Select object {
 
 public function createSelect(function (StreamEvent[]) nextProcPointer,
                              Aggregator[] aggregatorArr,
-                             ((function (StreamEvent o) returns anydata)[]) groupbyFuncArray,
+                             ((function (StreamEvent o) returns anydata)[])? groupbyFuncArray,
                              function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc)
                     returns Select {
 

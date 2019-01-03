@@ -70,9 +70,12 @@ public type Listener object {
 #
 # + host - The server hostname.
 # + secureSocket - The SSL configurations for the client endpoint.
+# + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
+#                   disable timeout.
 public type ServiceEndpointConfiguration record {
     string host = "0.0.0.0";
     ServiceSecureSocket? secureSocket = ();
+    int timeoutMillis = 120000; //2 mins
     !...
 };
 

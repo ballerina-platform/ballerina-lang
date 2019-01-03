@@ -144,6 +144,7 @@ public class GrpcConstants {
     public static final String ENDPOINT_CONFIG_HOST = "host";
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
+    public static final String ENDPOINT_CONFIG_TIMEOUT = "timeoutMillis";
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
 
@@ -153,6 +154,7 @@ public class GrpcConstants {
     public static final String PKCS_STORE_TYPE = "PKCS12";
 
     public static final String CLIENT_ENDPOINT_URL = "url";
+    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
 
     //Header keys
     static final String GRPC_STATUS_KEY = "grpc-status";

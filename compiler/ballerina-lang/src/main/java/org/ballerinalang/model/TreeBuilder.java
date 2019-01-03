@@ -802,8 +802,8 @@ public class TreeBuilder {
         return new BLangStreamingQueryStatement();
     }
 
-    public static ForeverNode createForeverNode() {
-        return new BLangForever();
+    public static ForeverNode createForeverNode(boolean isSiddhiRuntimeEnabled) {
+        return new BLangForever(isSiddhiRuntimeEnabled);
     }
 
     public static WithinClause createWithinClause() {

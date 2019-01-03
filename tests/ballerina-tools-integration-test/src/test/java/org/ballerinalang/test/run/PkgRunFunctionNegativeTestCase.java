@@ -38,6 +38,7 @@ import java.io.File;
 public class PkgRunFunctionNegativeTestCase extends BaseTest {
 
     private String sourceRoot = (new File("src/test/resources/run/package/")).getAbsolutePath();
+    private static final int LOG_LEECHER_TIMEOUT = 10000;
 
     @Test(description = "test an invalid source argument, ending with a colon, e.g., ballerina run <PKG>:")
     public void testInvalidSourceArg() throws BallerinaTestException {
@@ -45,7 +46,7 @@ public class PkgRunFunctionNegativeTestCase extends BaseTest {
         LogLeecher errLogLeecher = new LogLeecher("error: ballerina source does not exist 'entry:'",
                                                   LeecherType.ERROR);
         balClient.runMain(sourceRoot, sourceArg, new LogLeecher[]{errLogLeecher});
-        errLogLeecher.waitForText(2000);
+        errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(description = "test an invalid function name with ballerina run, where the function name includes colons")
@@ -54,6 +55,6 @@ public class PkgRunFunctionNegativeTestCase extends BaseTest {
         LogLeecher errLogLeecher = new LogLeecher("'colonsInName:WrongFunction' function not found in " +
                                                           "'pkg_with_colons'", LeecherType.ERROR);
         balClient.runMain(sourceRoot, sourceArg, new LogLeecher[]{errLogLeecher});
-        errLogLeecher.waitForText(2000);
+        errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 }

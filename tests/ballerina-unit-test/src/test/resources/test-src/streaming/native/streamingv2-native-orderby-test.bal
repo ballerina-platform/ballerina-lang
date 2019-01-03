@@ -133,7 +133,7 @@ function foo() {
         }
     );
 
-    streams:Window tmpWindow = streams:lengthBatchWindow([5], nextProcessPointer = function (streams:StreamEvent[] e)
+    streams:Window tmpWindow = streams:lengthBatch([5], nextProcessPointer = function (streams:StreamEvent[] e)
         {select.process(e);});
 
     streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {tmpWindow.process(e);},

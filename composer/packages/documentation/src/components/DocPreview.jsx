@@ -146,6 +146,10 @@ export default class DocPreview extends React.Component {
                 console.error(e);
             }
         });
-        return docElements;
+        if (docElements.length > 0) {
+            return docElements;
+        } else {
+            return <p>{"No documentation to show"}</p>
+        }
     }
 }

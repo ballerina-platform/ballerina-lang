@@ -24,13 +24,13 @@ function testFunc() {
     main();
 
     string out1 = "Simple variable : (true, 0.4)";
-    string out2 = "Tuple variable : true0.4";
-    string out3 = "Tuple variable : Ballerina46.7";
-    string out4 = "Tuple variable : Ballerina34true6.7";
-    string out5 = "Tuple variable : Ballerina3true345.645";
-    string out6 = "Tuple variable : Ballerina123true";
-    string out7 = "Tuple variable : Ballerina3true345.645";
-    string out8 = "Tuple variable : Ballerina3.4456";
+    string out2 = "Tuple variable : true 0.4";
+    string out3 = "Tuple variable : Ballerina 4 6.7";
+    string out4 = "Tuple variable : Ballerina 34 true 6.7";
+    string out5 = "Tuple variable : Ballerina 3 true 34 5.6 45";
+    string out6 = "Tuple variable : Ballerina 123 true";
+    string out7 = "Tuple variable : Ballerina 3 true 34 5.6 45";
+    string out8 = "Tuple variable : Ballerina 3.4 456";
 
     test:assertEquals(outputs[0], out1);
     test:assertEquals(outputs[1], out2);
