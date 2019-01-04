@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines an `object` called `Person`. It has a constructor that can be used to initialize the `object`.
+// Defines an object called `Person`. Each object has its own `__init()` method which gets invoked when creating objects. You can place the logic for initializing the fields of the object within the body of the `__init()` method.
 type Person object {
     public int age;
     public string name;
