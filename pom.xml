@@ -1680,13 +1680,12 @@
                 <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
-                <module>stdlib/http</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/reflect</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1765,13 +1764,12 @@
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
-                <module>stdlib/http</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/reflect</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1846,13 +1844,12 @@
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
-                <module>stdlib/http</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/reflect</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
+                <module>stdlib/grpc</module>ª
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
