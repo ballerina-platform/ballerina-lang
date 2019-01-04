@@ -33,4 +33,4 @@ scenarioConfigs:
   remoteBranch: "ballerina-scenarios"
   name: "ballerina-scenarios"
   description: "ballerina-scenarios"
-  file: product-scenarios/test.sh
+  file: product-scenarios/test-data.sh
