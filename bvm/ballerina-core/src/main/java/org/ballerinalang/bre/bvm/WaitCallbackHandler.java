@@ -135,10 +135,10 @@ public class WaitCallbackHandler {
             WorkerDataChannel dataChannel;
             if (strand.currentFrame.callableUnitInfo.getDefaultWorkerInfo()
                     .getWorkerName().equals(BLangConstants.DEFAULT_WORKER_NAME)) {
-                dataChannel = strand.currentFrame.wdChannels.getWorkerDataChannel(channels[i]);
+                dataChannel = strand.currentFrame.getWDChannels().getWorkerDataChannel(channels[i]);
             } else {
                 if (strand.fp > 0) {
-                    dataChannel = strand.peekFrame(1).wdChannels.getWorkerDataChannel(channels[i]);
+                    dataChannel = strand.peekFrame(1).getWDChannels().getWorkerDataChannel(channels[i]);
                 } else {
                     dataChannel = strand.respCallback.parentChannels.getWorkerDataChannel(channels[i]);
                 }
@@ -153,7 +153,7 @@ public class WaitCallbackHandler {
 
     private static void copyReturnsInWaitMultiple(StackFrame sf, SafeStrandCallback strandCallback, int retReg,
                                                   int keyReg) {
-        String keyValue = ((UTF8CPEntry) sf.constPool[keyReg]).getValue();
+        String keyValue = ((UTF8CPEntry) sf.callableUnitInfo.getPackageInfo().getConstPoolEntries()[keyReg]).getValue();
         switch (strandCallback.retType.getTag()) {
             case TypeTags.INT_TAG:
                 ((BMap) sf.refRegs[retReg]).put(keyValue, new BInteger (strandCallback.getIntRetVal()));

@@ -139,8 +139,7 @@ public class BVMExecutor {
         infectResourceFunction(strandCallback, strand);
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
-        StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
-                                        resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
+        StackFrame idf = new StackFrame(resourceInfo, resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
                                         FunctionFlags.NOTHING, resourceInfo.workerSendInChannels);
         copyArgValues(args, idf, resourceInfo.getParamTypes());
         strand.pushFrame(idf);
@@ -174,9 +173,8 @@ public class BVMExecutor {
                 callableInfo.workerSendInChannels);
         Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback);
 
-        StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
-                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1, FunctionFlags.NOTHING,
-                callableInfo.workerSendInChannels);
+        StackFrame idf = new StackFrame(callableInfo, callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(),
+                -1, FunctionFlags.NOTHING, callableInfo.workerSendInChannels);
         copyArgValues(args, idf, callableInfo.getParamTypes());
         strand.pushFrame(idf);
 

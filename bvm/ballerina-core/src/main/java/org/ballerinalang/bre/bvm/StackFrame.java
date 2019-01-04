@@ -51,13 +51,15 @@ public class StackFrame {
 
     public CallableUnitInfo callableUnitInfo;
 
-    public Map<String, Object> localProps = new HashMap<>();
+    public StackFrame prevFrame;
+
+    private Map<String, Object> localProps;
 
     // Cached value
-    ConstantPoolEntry[] constPool;
+//    ConstantPoolEntry[] constPool;
 
     // Cached value
-    public Instruction[] code;
+//    public Instruction[] code;
 
     // Instruction pointer
     public int ip;
@@ -73,13 +75,11 @@ public class StackFrame {
     // RefReg index of returning error value of the frame, -1 if not returning error
     int errorRetReg = -1;
 
-    public WDChannels wdChannels;
+    private WDChannels wdChannels;
 
     public CallableUnitInfo.ChannelDetails[] workerSendInChannels;
 
-    public StackFrame() {}
-
-    public StackFrame(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg,
+    public StackFrame(CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg,
                       int invocationFlags, CallableUnitInfo.ChannelDetails[] workerSendInChannels) {
         if (ci.maxLongRegs > 0) {
             this.longRegs = new long[ci.maxLongRegs];
@@ -98,11 +98,10 @@ public class StackFrame {
         }
         this.ip = ci.getCodeAddrs();
         this.callableUnitInfo = callableUnitInfo;
-        this.constPool = packageInfo.getConstPoolEntries();
-        this.code = packageInfo.getInstructions();
+//        this.constPool = packageInfo.getConstPoolEntries();
+//        this.code = packageInfo.getInstructions();
         this.retReg = retReg;
         this.invocationFlags = invocationFlags;
-        this.wdChannels = new WDChannels();
         this.workerSendInChannels = workerSendInChannels;
     }
 
@@ -117,7 +116,7 @@ public class StackFrame {
             WorkerDataChannel channel;
             CallableUnitInfo.ChannelDetails channelDetails = workerSendInChannels[i];
             if (channelDetails.channelInSameStrand) {
-                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
+                channel = this.getWDChannels().getWorkerDataChannel(channelDetails.name);
             } else {
                 channel = parentChannels.getWorkerDataChannel(channelDetails.name);
             }
@@ -134,7 +133,7 @@ public class StackFrame {
             WorkerDataChannel channel;
             CallableUnitInfo.ChannelDetails channelDetails = workerSendInChannels[i];
             if (channelDetails.channelInSameStrand) {
-                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
+                channel = this.getWDChannels().getWorkerDataChannel(channelDetails.name);
             } else {
                 channel = parentChannels.getWorkerDataChannel(channelDetails.name);
             }
@@ -146,4 +145,29 @@ public class StackFrame {
         }
     }
 
+    public Map<String, Object> getLocalProps() {
+        if (this.localProps == null) {
+            initLocalProps();
+        }
+        return this.localProps;
+    }
+
+    private synchronized void initLocalProps() {
+        if (this.localProps == null) {
+            this.localProps = new HashMap<>();
+        }
+    }
+
+    public WDChannels getWDChannels() {
+        if (this.wdChannels == null) {
+            initWDChannels();
+        }
+        return this.wdChannels;
+    }
+
+    private synchronized void initWDChannels() {
+        if (this.wdChannels == null) {
+            this.wdChannels = new WDChannels();
+        }
+    }
 }

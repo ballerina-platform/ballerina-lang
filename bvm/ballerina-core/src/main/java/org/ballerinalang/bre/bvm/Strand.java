@@ -24,8 +24,8 @@ import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -36,13 +36,13 @@ public class Strand {
 
     private static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
 
+    private static AtomicInteger count = new AtomicInteger(0);
+
     private String id;
 
     public State state;
 
     public volatile boolean aborted;
-
-    private StackFrame[] callStack;
 
     // Stack frame pointer;
     public int fp = -1;
@@ -68,10 +68,9 @@ public class Strand {
     public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback) {
         this.programFile = programFile;
         this.respCallback = respCallback;
-        this.callStack = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
         this.state = State.NEW;
         this.globalProps = properties;
-        this.id = name + "-" + UUID.randomUUID().toString();
+        this.id = name + "-" + count.incrementAndGet();
         this.aborted = false;
         this.transactionStrandContext = null;
         initDebugger();
@@ -90,41 +89,34 @@ public class Strand {
     }
 
     public StackFrame pushFrame(StackFrame frame) {
-        callStack[++fp] = frame;
-        currentFrame = frame;
+        if (this.fp >= 2000) {
+            //TODO fail
+        }
+        frame.prevFrame = this.currentFrame;
+        this.currentFrame = frame;
+        this.fp++;
         return currentFrame;
     }
 
     public StackFrame popFrame() {
-        StackFrame poppedFrame = currentFrame;
-        callStack[fp] = null;
-        if (fp > 0) {
-            currentFrame = callStack[--fp];
-        } else {
-            currentFrame = null;
-            fp--;
+        StackFrame poppedFrame = this.currentFrame;
+        if (poppedFrame != null) {
+            this.currentFrame = poppedFrame.prevFrame;
         }
+        this.fp--;
         return poppedFrame;
     }
 
     public StackFrame peekFrame(int offset) {
-        StackFrame peekFrame = null;
-        if (fp - offset >= 0 && fp - offset < callStack.length) {
-            peekFrame = callStack[fp - offset];
+        StackFrame peekedFrame = this.currentFrame;
+        for (int i = 0; i < offset; i++) {
+            peekedFrame = peekedFrame.prevFrame;
         }
-        return peekFrame;
-    }
-
-    public StackFrame getRootFrame() {
-        return callStack[0];
+        return peekedFrame;
     }
 
     public StackFrame getCurrentFrame() {
         return currentFrame;
-    }
-
-    public StackFrame[] getStack() {
-        return callStack;
     }
 
     public void setError(BError error) {

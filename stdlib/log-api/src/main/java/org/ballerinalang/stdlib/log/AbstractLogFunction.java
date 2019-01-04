@@ -115,7 +115,7 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
             pkgPath = strand.peekFrame(1).callableUnitInfo.getPackageInfo().getPkgPath();
             pkgPath = pkgPath.split(":")[0];
         } else {
-            pkgPath = strand.peekFrame(0).callableUnitInfo.getPackageInfo().getPkgPath();
+            pkgPath = strand.currentFrame.callableUnitInfo.getPackageInfo().getPkgPath();
         }
         return pkgPath;
     }

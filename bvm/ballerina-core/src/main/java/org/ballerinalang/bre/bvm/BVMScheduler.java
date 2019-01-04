@@ -221,7 +221,7 @@ public class BVMScheduler {
                     // Maybe we can omit this since natives cannot have worker interactions
                     if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
                         strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(),
-                                strand.peekFrame(1).wdChannels);
+                                strand.peekFrame(1).getWDChannels());
                     }
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
@@ -245,7 +245,7 @@ public class BVMScheduler {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             if (strand.fp > 0) {
-                strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).wdChannels);
+                strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).getWDChannels());
                 strand.popFrame();
             } else {
                 strand.currentFrame.handleChannelPanic(error, strand.respCallback.parentChannels);

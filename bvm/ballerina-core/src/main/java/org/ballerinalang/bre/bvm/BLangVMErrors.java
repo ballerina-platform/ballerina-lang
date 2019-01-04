@@ -139,9 +139,14 @@ public class BLangVMErrors {
     }
 
     public static void attachStack(BError error, StructureTypeInfo typeInfo, Strand strand) {
-        for (StackFrame frame : strand.getStack()) {
-            Optional.ofNullable(getStackFrame(typeInfo, frame)).ifPresent(sf -> error.callStack.add(0, sf));
+        StackFrame currentFrame = strand.currentFrame;
+        while (currentFrame != null) {
+            Optional.ofNullable(getStackFrame(typeInfo, currentFrame)).ifPresent(sf -> error.callStack.add(sf));
+            currentFrame = currentFrame.prevFrame;
         }
+//        for (StackFrame frame : strand.getStack()) {
+//            Optional.ofNullable(getStackFrame(typeInfo, frame)).ifPresent(sf -> error.callStack.add(0, sf));
+//        }
     }
 
     public static BValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
@@ -163,12 +168,20 @@ public class BLangVMErrors {
     public static BValueArray generateCallStack(ProgramFile programFile, Strand strand) {
         StructureTypeInfo typeInfo = getStructureTypeInfo(programFile);
         List<BMap<String, BValue>> sfList = new ArrayList<>();
-        for (StackFrame frame : strand.getStack()) {
-            BMap<String, BValue> sf = getStackFrame(typeInfo, frame);
+        StackFrame currentFrame = strand.currentFrame;
+        while (currentFrame != null) {
+            BMap<String, BValue> sf = getStackFrame(typeInfo, currentFrame);
             if (sf != null) {
-                sfList.add(0, sf);
+                sfList.add(sf);
             }
+            currentFrame = currentFrame.prevFrame;
         }
+//        for (StackFrame frame : strand.getStack()) {
+//            BMap<String, BValue> sf = getStackFrame(typeInfo, frame);
+//            if (sf != null) {
+//                sfList.add(0, sf);
+//            }
+//        }
 
         BValueArray callStack = new BValueArray(typeInfo.getType());
         for (int i = 0; i < sfList.size(); i++) {

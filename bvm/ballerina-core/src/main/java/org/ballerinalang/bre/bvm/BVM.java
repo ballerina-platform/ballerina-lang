@@ -104,6 +104,7 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -194,7 +195,7 @@ public class BVM {
                 return;
             }
 
-            Instruction instruction = sf.code[sf.ip];
+            Instruction instruction = sf.callableUnitInfo.getPackageInfo().getInstructions()[sf.ip];
             int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();
             sf.ip++;
@@ -203,23 +204,27 @@ public class BVM {
                 case InstructionCodes.ICONST:
                     cpIndex = operands[0];
                     i = operands[1];
-                    sf.longRegs[i] = ((IntegerCPEntry) sf.constPool[cpIndex]).getValue();
+                    sf.longRegs[i] = ((IntegerCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex]).getValue();
                     break;
                 case InstructionCodes.FCONST:
                     cpIndex = operands[0];
                     i = operands[1];
-                    sf.doubleRegs[i] = ((FloatCPEntry) sf.constPool[cpIndex]).getValue();
+                    sf.doubleRegs[i] = ((FloatCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex]).getValue();
                     break;
                 case InstructionCodes.DCONST:
                     cpIndex = operands[0];
                     i = operands[1];
-                    String decimalVal = ((UTF8CPEntry) sf.constPool[cpIndex]).getValue();
+                    String decimalVal = ((UTF8CPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex]).getValue();
                     sf.refRegs[i] = new BDecimal(new BigDecimal(decimalVal, MathContext.DECIMAL128));
                     break;
                 case InstructionCodes.SCONST:
                     cpIndex = operands[0];
                     i = operands[1];
-                    sf.stringRegs[i] = ((StringCPEntry) sf.constPool[cpIndex]).getValue();
+                    sf.stringRegs[i] = ((StringCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex]).getValue();
                     break;
                 case InstructionCodes.ICONST_0:
                     i = operands[0];
@@ -284,12 +289,14 @@ public class BVM {
                 case InstructionCodes.BICONST:
                     cpIndex = operands[0];
                     i = operands[1];
-                    sf.intRegs[i] = ((ByteCPEntry) sf.constPool[cpIndex]).getValue();
+                    sf.intRegs[i] = ((ByteCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex]).getValue();
                     break;
                 case InstructionCodes.BACONST:
                     cpIndex = operands[0];
                     i = operands[1];
-                    sf.refRegs[i] = new BValueArray(((BlobCPEntry) sf.constPool[cpIndex]).getValue());
+                    sf.refRegs[i] = new BValueArray(((BlobCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex]).getValue());
                     break;
 
                 case InstructionCodes.IMOVE:
@@ -390,7 +397,8 @@ public class BVM {
                 case InstructionCodes.TYPELOAD:
                     cpIndex = operands[0];
                     j = operands[1];
-                    TypeRefCPEntry typeEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+                    TypeRefCPEntry typeEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex];
                     sf.refRegs[j] = new BTypeDescValue(typeEntry.getType());
                     break;
                 case InstructionCodes.HALT:
@@ -530,7 +538,8 @@ public class BVM {
                         break;
                     }
                     cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) sf.constPool[cpIndex];
+                    funcCallCPEntry = (FunctionCallCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex];
                     functionInfo = ((BFunctionPointer) sf.refRegs[i]).value();
                     strand = invokeCallable(strand, (BFunctionPointer) sf.refRegs[i], funcCallCPEntry,
                             functionInfo, sf, funcCallCPEntry.getFlags());
@@ -542,8 +551,10 @@ public class BVM {
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    funcRefCPEntry = (FunctionRefCPEntry) sf.constPool[i];
-                    typeEntry = (TypeRefCPEntry) sf.constPool[k];
+                    funcRefCPEntry = (FunctionRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[i];
+                    typeEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[k];
                     BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry.getFunctionInfo(),
                             typeEntry.getType());
                     sf.refRegs[j] = functionPointer;
@@ -554,8 +565,9 @@ public class BVM {
                     j = operands[1];
                     k = operands[2];
                     int m = operands[5];
-                    funcRefCPEntry = (FunctionRefCPEntry) sf.constPool[i];
-                    typeEntry = (TypeRefCPEntry) sf.constPool[k];
+                    ConstantPoolEntry[] cp = sf.callableUnitInfo.getPackageInfo().getConstPoolEntries();
+                    funcRefCPEntry = (FunctionRefCPEntry) cp[i];
+                    typeEntry = (TypeRefCPEntry) cp[k];
 
                     BMap<String, BValue> structVal = (BMap<String, BValue>) sf.refRegs[m];
                     if (structVal == null) {
@@ -669,7 +681,8 @@ public class BVM {
                 case InstructionCodes.RNEWARRAY:
                     i = operands[0];
                     cpIndex = operands[1];
-                    typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+                    typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex];
                     sf.refRegs[i] = new BValueArray(typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.NEWSTRUCT:
@@ -678,7 +691,8 @@ public class BVM {
                 case InstructionCodes.NEWMAP:
                     i = operands[0];
                     cpIndex = operands[1];
-                    typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+                    typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex];
                     sf.refRegs[i] = new BMap<String, BRefType>(typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.NEWTABLE:
@@ -687,7 +701,8 @@ public class BVM {
                     j = operands[2];
                     k = operands[3];
                     l = operands[4];
-                    typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+                    typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries()[cpIndex];
                     BValueArray indexColumns = (BValueArray) sf.refRegs[j];
                     BValueArray keyColumns = (BValueArray) sf.refRegs[k];
                     BValueArray dataRows = (BValueArray) sf.refRegs[l];
@@ -701,8 +716,10 @@ public class BVM {
                 case InstructionCodes.NEWSTREAM:
                     i = operands[0];
                     cpIndex = operands[1];
-                    typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
-                    StringCPEntry name = (StringCPEntry) sf.constPool[operands[2]];
+                    ConstantPoolEntry[] cps = sf.callableUnitInfo.getPackageInfo()
+                            .getConstPoolEntries();
+                    typeRefCPEntry = (TypeRefCPEntry) cps[cpIndex];
+                    StringCPEntry name = (StringCPEntry) cps[operands[2]];
                     BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
                     sf.refRegs[i] = stream;
                     break;
@@ -766,7 +783,8 @@ public class BVM {
                             ObserveUtils.stopCallableObservation(strand);
                             if (sf.errorRetReg > -1) {
                                 //notifying waiting workers
-                                sf.handleChannelError(sf.refRegs[sf.errorRetReg], strand.peekFrame(1).wdChannels);
+                                sf.handleChannelError(sf.refRegs[sf.errorRetReg],
+                                        strand.peekFrame(1).getWDChannels());
                             }
                             strand.popFrame();
                             break;
@@ -859,9 +877,8 @@ public class BVM {
     private static Strand invokeCallable(Strand strand, CallableUnitInfo callableUnitInfo,
                                        int[] argRegs, int retReg, int flags) {
         //TODO refactor when worker info is removed from compiler
-        StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
-                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags,
-                callableUnitInfo.workerSendInChannels);
+        StackFrame df = new StackFrame(callableUnitInfo, callableUnitInfo.getDefaultWorkerInfo()
+                .getCodeAttributeInfo(), retReg, flags, callableUnitInfo.workerSendInChannels);
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
         if (!FunctionFlags.isAsync(df.invocationFlags)) {
@@ -885,7 +902,7 @@ public class BVM {
         }
 
         SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
-                strand.currentFrame.wdChannels, callableUnitInfo.workerSendInChannels);
+                strand.currentFrame.getWDChannels(), callableUnitInfo.workerSendInChannels);
 
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strandCallback);
@@ -924,7 +941,7 @@ public class BVM {
                     ObserveUtils.stopCallableObservation(strand);
                     if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
                         strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(),
-                                strand.peekFrame(1).wdChannels);
+                                strand.peekFrame(1).getWDChannels());
                     }
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
@@ -951,7 +968,7 @@ public class BVM {
         // Stop the observation context before popping the stack frame
         ObserveUtils.stopCallableObservation(strand);
         if (strand.fp > 0) {
-            strand.currentFrame.handleChannelPanic(strand.getError(), strand.peekFrame(1).wdChannels);
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.peekFrame(1).getWDChannels());
             strand.popFrame();
         } else {
             strand.currentFrame.handleChannelPanic(strand.getError(), strand.respCallback.parentChannels);
@@ -997,7 +1014,8 @@ public class BVM {
         int j = operands[1];
         int k = operands[2];
         int l = operands[3];
-        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[i];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[i];
         sf.refRegs[l] = (BRefType<?>) BLangVMErrors
                 .createError(strand, true, (BErrorType) typeRefCPEntry.getType(), sf.stringRegs[j],
                         (BMap<String, BValue>) sf.refRegs[k]);
@@ -1063,7 +1081,8 @@ public class BVM {
         int k = operands[2];
 
         BRefType<?> valueToBeStamped = sf.refRegs[i];
-        BType stampType = ((TypeRefCPEntry) sf.constPool[j]).getType();
+        BType stampType = ((TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[j]).getType();
         BType targetType;
 
         if (stampType.getTag() == TypeTags.UNION_TAG) {
@@ -1112,7 +1131,8 @@ public class BVM {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
-        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[cpIndex];
         BRefType bRefTypeValue = sf.refRegs[i];
         if (bRefTypeValue == null) {
             sf.refRegs[j] = null;
@@ -1702,7 +1722,8 @@ public class BVM {
                     break;
                 }
 
-                IntegerCPEntry exceptCPEntry = (IntegerCPEntry) sf.constPool[operands[3]];
+                IntegerCPEntry exceptCPEntry = (IntegerCPEntry) sf.callableUnitInfo.getPackageInfo()
+                        .getConstPoolEntries()[operands[3]];
                 boolean except = exceptCPEntry.getValue() == 1;
                 try {
                     sf.refRegs[k] = bMap.get(sf.stringRegs[j], except);
@@ -2278,14 +2299,16 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[j];
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                        .getConstPoolEntries()[j];
                 sf.intRegs[k] = checkIsType(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
                 break;
             case InstructionCodes.IS_LIKE:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                typeRefCPEntry = (TypeRefCPEntry) sf.constPool[j];
+                typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                        .getConstPoolEntries()[j];
                 sf.intRegs[k] = checkIsLikeType(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
                 break;
             default:
@@ -2425,7 +2448,8 @@ public class BVM {
                 i = operands[0];
                 cpIndex = operands[1];
                 j = operands[2];
-                typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+                typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                        .getConstPoolEntries()[cpIndex];
                 BType expectedType = typeRefCPEntry.getType();
 
                 bRefTypeValue = sf.refRegs[i];
@@ -2535,7 +2559,8 @@ public class BVM {
                 i = operands[0];
                 cpIndex = operands[1];
                 j = operands[2];
-                typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+                typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                        .getConstPoolEntries()[cpIndex];
 
                 bRefTypeValue = sf.refRegs[i];
 
@@ -2550,7 +2575,8 @@ public class BVM {
                 i = operands[0];
                 cpIndex = operands[1];
                 j = operands[2];
-                typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+                typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                        .getConstPoolEntries()[cpIndex];
                 bRefTypeValue = sf.refRegs[i];
                 if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
                     sf.intRegs[j] = 1;
@@ -2568,7 +2594,8 @@ public class BVM {
                 i = operands[0];
                 cpIndex = operands[1];
                 j = operands[2];
-                BJSONType targetType = (BJSONType) ((TypeRefCPEntry) sf.constPool[cpIndex]).getType();
+                BJSONType targetType = (BJSONType) ((TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                        .getConstPoolEntries()[cpIndex]).getType();
                 bRefTypeValue = sf.refRegs[i];
                 sf.refRegs[j] = JSONUtils.convertUnionTypeToJSON(bRefTypeValue, targetType);
                 break;
@@ -3025,8 +3052,9 @@ public class BVM {
         }
 
         //lock on field access
-        strand.currentFrame.localProps.putIfAbsent(uuid, new Stack<VarLock>());
-        Stack lockStack = (Stack) strand.currentFrame.localProps.get(uuid);
+        Map<String, Object> localProps = strand.currentFrame.getLocalProps();
+        localProps.putIfAbsent(uuid, new Stack<VarLock>());
+        Stack lockStack = (Stack) localProps.get(uuid);
 
         for (int i = 0; (i < varRegs.length - varCount) && lockAcquired; i++) {
             int regIndex = varRegs[varCount + i];
@@ -3043,7 +3071,7 @@ public class BVM {
     private static void handleVariableUnlock(Strand strand, BType[] types, int[] pkgRegs, int[] varRegs,
                                              int varCount, String uuid, boolean hasFieldVar) {
         if (hasFieldVar) {
-            Stack<VarLock> lockStack = (Stack<VarLock>) strand.currentFrame.localProps.get(uuid);
+            Stack<VarLock> lockStack = (Stack<VarLock>) strand.currentFrame.getLocalProps().get(uuid);
             while (!lockStack.isEmpty()) {
                 lockStack.pop().unlock();
             }
@@ -3215,7 +3243,8 @@ public class BVM {
     private static void createNewStruct(int[] operands, StackFrame sf) {
         int cpIndex = operands[0];
         int i = operands[1];
-        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) sf.constPool[cpIndex];
+        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[cpIndex];
         StructureTypeInfo structInfo = (StructureTypeInfo) ((TypeDefInfo) structureRefCPEntry
                 .getStructureTypeInfo()).typeInfo;
         sf.refRegs[i] = new BMap<>(structInfo.getType());
@@ -3271,14 +3300,16 @@ public class BVM {
         // Register committed function handler if exists.
         BFunctionPointer fpCommitted = null;
         if (committedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[committedFuncIndex];
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame
+                    .callableUnitInfo.getPackageInfo().getConstPoolEntries()[committedFuncIndex];
             fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
         }
 
         // Register aborted function handler if exists.
         BFunctionPointer fpAborted = null;
         if (abortedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[abortedFuncIndex];
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame
+                    .callableUnitInfo.getPackageInfo().getConstPoolEntries()[abortedFuncIndex];
             fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
         }
         String transactionBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdIndex);
@@ -3313,7 +3344,8 @@ public class BVM {
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         BFunctionPointer fpCommitted = null;
         if (committedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[committedFuncIndex];
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame
+                    .callableUnitInfo.getPackageInfo().getConstPoolEntries()[committedFuncIndex];
             fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
             transactionResourceManager.registerCommittedFunction(transactionBlockId, fpCommitted);
         }
@@ -3321,7 +3353,8 @@ public class BVM {
         // Register aborted function handler if exists.
         BFunctionPointer fpAborted = null;
         if (abortedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[abortedFuncIndex];
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame
+                    .callableUnitInfo.getPackageInfo().getConstPoolEntries()[abortedFuncIndex];
             fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
             transactionResourceManager.registerAbortedFunction(transactionBlockId, fpAborted);
         }
@@ -3334,7 +3367,8 @@ public class BVM {
     }
 
     private static String getTrxBlockIdFromCP(Strand strand, int index) {
-        StringCPEntry stringCPEntry = (StringCPEntry) strand.currentFrame.constPool[index];
+        StringCPEntry stringCPEntry = (StringCPEntry) strand.currentFrame.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[index];
         return stringCPEntry.getValue();
     }
 
@@ -3531,10 +3565,10 @@ public class BVM {
 
     private static WorkerDataChannel getWorkerChannel(Strand ctx, String name, boolean channelInSameStrand) {
         if (channelInSameStrand) {
-            return ctx.currentFrame.wdChannels.getWorkerDataChannel(name);
+            return ctx.currentFrame.getWDChannels().getWorkerDataChannel(name);
         }
         if (ctx.fp > 0) {
-            return ctx.peekFrame(1).wdChannels.getWorkerDataChannel(name);
+            return ctx.peekFrame(1).getWDChannels().getWorkerDataChannel(name);
         }
         return ctx.respCallback.parentChannels.getWorkerDataChannel(name);
     }
@@ -4214,7 +4248,8 @@ public class BVM {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
-        BJSONType targetType = (BJSONType) ((TypeRefCPEntry) sf.constPool[cpIndex]).getType();
+        BJSONType targetType = (BJSONType) ((TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[cpIndex]).getType();
 
         BMap<String, BValue> bStruct = (BMap<String, BValue>) sf.refRegs[i];
         try {
@@ -4244,7 +4279,8 @@ public class BVM {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
-        BArrayType targetType = (BArrayType) ((TypeRefCPEntry) sf.constPool[cpIndex]).getType();
+        BArrayType targetType = (BArrayType) ((TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[cpIndex]).getType();
 
         BRefType<?> json = sf.refRegs[i];
         if (json == null) {
@@ -4265,7 +4301,8 @@ public class BVM {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
-        BJSONType targetType = (BJSONType) ((TypeRefCPEntry) sf.constPool[cpIndex]).getType();
+        BJSONType targetType = (BJSONType) ((TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[cpIndex]).getType();
 
         BMap<String, ?> bMap = (BMap<String, ?>) sf.refRegs[i];
         try {
@@ -4281,7 +4318,8 @@ public class BVM {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
-        BMapType targetType = (BMapType) ((TypeRefCPEntry) sf.constPool[cpIndex]).getType();
+        BMapType targetType = (BMapType) ((TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[cpIndex]).getType();
 
         BRefType<?> json = sf.refRegs[i];
         if (json == null) {
@@ -4303,7 +4341,8 @@ public class BVM {
         int cpIndex = operands[1];
         int j = operands[2];
 
-        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[cpIndex];
         BStructureType structType = (BStructureType) typeRefCPEntry.getType();
         BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
 
@@ -4408,7 +4447,8 @@ public class BVM {
         int cpIndex = operands[1];
         int j = operands[2];
 
-        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[cpIndex];
         BRefType<?> bjson = sf.refRegs[i];
         if (bjson == null) {
             handleTypeConversionError(ctx, sf, j, bjson != null ? bjson.getType() : BTypes.typeNull,
@@ -4444,7 +4484,7 @@ public class BVM {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             StackFrame popedFrame = strand.popFrame();
-            popedFrame.handleChannelPanic(strand.getError(), strand.currentFrame.wdChannels);
+            popedFrame.handleChannelPanic(strand.getError(), strand.currentFrame.getWDChannels());
             signalTransactionError(strand, popedFrame.trxParticipant);
             handleError(strand);
         } else {
@@ -4485,7 +4525,8 @@ public class BVM {
         int cpIndex = operands[1];
         int j = operands[2];
 
-        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[cpIndex];
         int typeTag = typeRefCPEntry.getType().getTag();
         if (typeTag == TypeTags.STRING_TAG) {
             sf.longRegs[j] = sf.stringRegs[i].length();
@@ -4520,7 +4561,8 @@ public class BVM {
 
     private static boolean execWait(Strand strand, int[] operands) {
         int c = operands[0];
-        TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[1]];
+        TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[operands[1]];
         BType expType = typeEntry.getType();
         int retValReg = operands[2];
 
@@ -4537,7 +4579,8 @@ public class BVM {
     private static boolean execWaitForAll(Strand strand, int[] operands) {
         int c = operands[0];
         // TODO: 11/22/18  Remove this from the CodeGen
-        TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[1]];
+        TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.callableUnitInfo.getPackageInfo()
+                .getConstPoolEntries()[operands[1]];
         BType expType = typeEntry.getType();
         int retValReg = operands[2];
 
@@ -4558,21 +4601,6 @@ public class BVM {
                                                                             getKeyRegIndex)
                                                               .collect(Collectors.toList())));
         return WaitCallbackHandler.handleReturnInWaitMultiple(strand, retValReg, callbackList);
-    }
-    /**
-     * This is used to propagate the results of {@link BVM#handleError(Strand)} to the
-     * main CPU instruction loop.
-     */
-    public static class HandleErrorException extends BallerinaException {
-
-        private static final long serialVersionUID = 1L;
-
-        public WorkerExecutionContext ctx;
-
-        public HandleErrorException(WorkerExecutionContext ctx) {
-            this.ctx = ctx;
-        }
-
     }
 
     private static void handleMapStore(Strand ctx, BMap<String, BRefType> bMap, String fieldName,
