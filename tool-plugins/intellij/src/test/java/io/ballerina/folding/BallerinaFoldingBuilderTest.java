@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package io.ballerina.codefolding;
+package io.ballerina.folding;
 
 import io.ballerina.BallerinaCodeInsightFixtureTestCase;
 
@@ -61,6 +61,10 @@ public class BallerinaFoldingBuilderTest extends BallerinaCodeInsightFixtureTest
     }
 
     public void testAnnotation() {
+        doTest();
+    }
+
+    public void testComments() {
         doTest();
     }
 

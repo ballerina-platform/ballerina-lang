@@ -69,14 +69,15 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         buildWorkerFoldingRegions(descriptors, root);
         buildDocumentationFoldingRegions(descriptors, root);
         buildAnnotationFoldingRegions(descriptors, root);
+        buildMultiCommentFoldingRegions(descriptors, root);
     }
 
     private void buildImportFoldingRegion(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
         Collection<BallerinaImportDeclaration> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(root,
                 BallerinaImportDeclaration.class);
         if (!importDeclarationNodes.isEmpty()) {
-            BallerinaImportDeclaration[] importDeclarationNodesArray =
-                    importDeclarationNodes.toArray(new BallerinaImportDeclaration[importDeclarationNodes.size()]);
+            BallerinaImportDeclaration[] importDeclarationNodesArray = importDeclarationNodes
+                    .toArray(new BallerinaImportDeclaration[importDeclarationNodes.size()]);
             BallerinaImportDeclaration firstImport = importDeclarationNodesArray[0];
             BallerinaImportDeclaration lastImport = importDeclarationNodesArray[importDeclarationNodes.size() - 1];
 
@@ -95,8 +96,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 BallerinaObjectTypeName.class);
         for (BallerinaObjectTypeName objectDefinition : objectDefinitions) {
             // Get the object body. This is used to calculate the start offset.
-            BallerinaObjectBody objectBody = PsiTreeUtil.getChildOfType(objectDefinition, BallerinaObjectBody
-                    .class);
+            BallerinaObjectBody objectBody = PsiTreeUtil.getChildOfType(objectDefinition, BallerinaObjectBody.class);
             if (objectBody == null) {
                 continue;
             }
@@ -156,8 +156,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 BallerinaServiceDefinition.class);
         for (BallerinaServiceDefinition serviceNode : serviceNodes) {
             // Get the service body. This is used to calculate the start offset.
-            BallerinaServiceBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode,
-                    BallerinaServiceBody.class);
+            BallerinaServiceBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode, BallerinaServiceBody.class);
             if (serviceBody == null) {
                 continue;
             }
@@ -170,8 +169,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 BallerinaServiceConstructorExpression.class);
         for (BallerinaServiceConstructorExpression serviceNode : serviceVariableNodes) {
             // Get the service body. This is used to calculate the start offset.
-            BallerinaServiceBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode,
-                    BallerinaServiceBody.class);
+            BallerinaServiceBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode, BallerinaServiceBody.class);
             if (serviceBody == null) {
                 continue;
             }
@@ -185,8 +183,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 BallerinaWorkerDefinition.class);
         for (BallerinaWorkerDefinition workerDefinition : workerDefinitions) {
             // Get the worker body. This is used to calculate the start offset.
-            BallerinaWorkerBody workerBody = PsiTreeUtil.getChildOfType(workerDefinition,
-                    BallerinaWorkerBody.class);
+            BallerinaWorkerBody workerBody = PsiTreeUtil.getChildOfType(workerDefinition, BallerinaWorkerBody.class);
             if (workerBody == null) {
                 continue;
             }
@@ -248,6 +245,33 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         }
     }
 
+    private void buildMultiCommentFoldingRegions(@NotNull List<FoldingDescriptor> descriptors,
+            @NotNull PsiElement root) {
+
+        Collection<PsiComment> comments = PsiTreeUtil.findChildrenOfType(root, PsiComment.class);
+
+        for (PsiComment comment : comments) {
+            PsiElement prevSibling = getPreviousElement(comment);
+            if (!(prevSibling instanceof PsiComment)) {
+                PsiElement lastElement = getNextElement(comment);
+                // Prevents folding single line comments.
+                if (lastElement != null && lastElement instanceof PsiComment) {
+                    PsiElement nextSibling = getNextElement(lastElement);
+                    while (nextSibling != null && nextSibling instanceof PsiComment) {
+                        lastElement = nextSibling;
+                        nextSibling = getNextElement(lastElement);
+                    }
+                    // Calculates the region of the multiline comment.
+                    int startOffset = comment.getTextRange().getStartOffset();
+                    int endOffset = lastElement.getTextRange().getEndOffset();
+
+                    // Add the new folding descriptor.
+                    descriptors.add(new NamedFoldingDescriptor(comment, startOffset, endOffset, null, "// ..."));
+                }
+            }
+        }
+    }
+
     @Override
     protected String getLanguagePlaceholderText(@NotNull ASTNode node, @NotNull TextRange range) {
         return "...";
@@ -256,5 +280,21 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
     @Override
     protected boolean isRegionCollapsedByDefault(@NotNull ASTNode node) {
         return false;
+    }
+
+    private PsiElement getPreviousElement(PsiElement element) {
+        PsiElement prev = element.getPrevSibling();
+        while (prev != null && prev instanceof PsiWhiteSpace) {
+            prev = prev.getPrevSibling();
+        }
+        return prev;
+    }
+
+    private PsiElement getNextElement(PsiElement element) {
+        PsiElement next = element.getNextSibling();
+        while (next != null && next instanceof PsiWhiteSpace) {
+            next = next.getNextSibling();
+        }
+        return next;
     }
 }
