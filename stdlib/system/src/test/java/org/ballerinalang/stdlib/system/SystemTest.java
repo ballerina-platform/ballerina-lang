@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.nativeimpl.functions;
+
+package org.ballerinalang.stdlib.system;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -35,7 +36,7 @@ public class SystemTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/system-test.bal");
+        compileResult = BCompileUtil.compile("test-src/system-test.bal");
     }
 
     @Test
