@@ -1670,18 +1670,18 @@
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
-                <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
+                <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/reflect</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
@@ -1754,18 +1754,18 @@
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
-                <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
+                <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/reflect</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
@@ -1834,18 +1834,18 @@
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
-                <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
+                <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/reflect</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>

@@ -219,20 +219,6 @@ public class ConfigTest {
         Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
     }
 
-//    @Test(description = "Test for configuring a service")
-//    public void testConfiguringAService() throws IOException {
-//        registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "service-config.conf").toString(),
-//                              null);
-//
-//        String serviceFile = Paths.get(resourceRoot, "test-src", "config", "service_configuration.bal").toString();
-//        CompileResult configuredService = BServiceUtil.setupProgramFile(this, serviceFile);
-//
-//        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/hello", "GET");
-//        HttpCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);
-//
-//        Assert.assertNotNull(responseMsg);
-//    }
-
     @Test(description = "Test for getAsInt")
     public void testGetAsInt() throws IOException {
         BString key = new BString("http1.port");
