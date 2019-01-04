@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS Customers(
   PRIMARY KEY (customerId)
 );
 /
-CREATE ALIAS JAVAFUNC FOR "H2ClientActionsTest.javafunc";
+CREATE ALIAS JAVAFUNC FOR "org.ballerinalang.test.database.h2.H2ClientActionsTest.javafunc";
 /
 INSERT INTO Customers VALUES (1, 'Oliver', 200000, 'UK');
 /
