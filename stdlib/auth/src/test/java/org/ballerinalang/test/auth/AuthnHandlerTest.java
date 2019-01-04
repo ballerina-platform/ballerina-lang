@@ -40,26 +40,24 @@ import java.util.Collections;
  * Authentication handler testcase.
  */
 public class AuthnHandlerTest {
+
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
-    private String resourceRoot;
-    private String secretFile = "secret.txt";
     private Path secretCopyPath;
 
     @BeforeClass
-    public void setup() throws Exception {
-        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+    public void setup() throws IOException {
+        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
                 .getAbsolutePath();
-        //Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        Path ballerinaConfPath = Paths
-                .get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
+        Path sourceRoot = Paths.get(resourceRoot, "test-src");
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
 
-        //compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-handler-test.bal").toString());
-        compileResult = BCompileUtil.compileAndSetup("test-src/authn-handler-test.bal");
+        // Copy the ballerina.conf to the source root before starting the tests
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-handler-test.bal").toString());
 
+        String secretFile = "secret.txt";
         Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
-        secretCopyPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider",
-                secretFile);
+        secretCopyPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", secretFile);
         Files.deleteIfExists(secretCopyPath);
         copySecretFile(secretFilePath.toString(), secretCopyPath.toString());
 
@@ -104,15 +102,14 @@ public class AuthnHandlerTest {
     @Test(description = "Test case for extracting non existing basic auth header value")
     public void testNonExistingBasicAuthHeaderValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistingBasicAuthHeaderValue");
-        Assert.assertTrue(returns != null);
-        // TODO: fix properly
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNotNull(returns);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test case for extracting basic auth header value")
     public void testExtractBasicAuthHeaderValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthHeaderValue");
-        Assert.assertTrue(returns != null);
+        Assert.assertNotNull(returns);
         // no error should be returned
         Assert.assertEquals(returns[0].stringValue(), "Basic aXN1cnU6eHh4");
     }

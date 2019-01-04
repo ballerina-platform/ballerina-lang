@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.auth;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -44,26 +42,23 @@ import java.util.Collections;
  * Configuration auth provider testcase.
  */
 public class ConfigAuthProviderTest {
-    private static final Log log = LogFactory.getLog(ConfigAuthProviderTest.class);
+
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
-    private String resourceRoot;
-    private String secretFile = "secret.txt";
     private Path secretCopyPath;
 
     @BeforeClass
-    public void setup() throws Exception {
-        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+    public void setup() throws IOException {
+        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
                 .getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
-        Path ballerinaConfPath = Paths
-                .get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
 
         compileResult = BCompileUtil.compile(sourceRoot.resolve("config_auth_provider_test.bal").toString());
 
+        String secretFile = "secret.txt";
         Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
-        secretCopyPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider",
-                secretFile);
+        secretCopyPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", secretFile);
         Files.deleteIfExists(secretCopyPath);
         copySecretFile(secretFilePath.toString(), secretCopyPath.toString());
 
@@ -80,42 +75,42 @@ public class ConfigAuthProviderTest {
     @Test(description = "Test case for creating file based userstore")
     public void testCreateConfigAuthProvider() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateConfigAuthProvider");
-        Assert.assertTrue(returns != null);
+        Assert.assertNotNull(returns);
         Assert.assertTrue(returns[0] instanceof BMap);
     }
 
     @Test(description = "Test case for authenticating non-existing user")
     public void testAuthenticationOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingUser");
-        Assert.assertTrue(returns != null);
+        Assert.assertNotNull(returns);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for authenticating with invalid password")
     public void testAuthenticationOfNonExistingPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingPassword");
-        Assert.assertTrue(returns != null);
+        Assert.assertNotNull(returns);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for successful authentication")
     public void testAuthentication() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthentication");
-        Assert.assertTrue(returns != null);
+        Assert.assertNotNull(returns);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for reading groups of non-existing user")
     public void testReadScopesOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfNonExistingUser");
-        Assert.assertTrue(returns != null);
+        Assert.assertNotNull(returns);
         Assert.assertEquals(((BValueArray) returns[0]).size(), 0);
     }
 
     @Test(description = "Test case for reading groups of a user")
     public void testReadScopesOfUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfUser");
-        Assert.assertTrue(returns != null);
+        Assert.assertNotNull(returns);
         BValueArray groups = ((BValueArray) returns[0]);
         Assert.assertEquals(groups.size(), 1);
 

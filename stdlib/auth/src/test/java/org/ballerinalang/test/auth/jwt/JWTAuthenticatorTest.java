@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -99,13 +100,10 @@ public class JWTAuthenticatorTest {
         resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
                 .getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
-        Path ballerinaConfPath = Paths
-                .get(resourceRoot, "datafiles", "config", "jwt", BALLERINA_CONF);
-        Path ballerinaKeyStorePath = Paths
-                .get(resourceRoot, "datafiles", "keystore", KEY_STORE);
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "jwt", BALLERINA_CONF);
+        Path ballerinaKeyStorePath = Paths.get(resourceRoot, "datafiles", "keystore", KEY_STORE);
         ballerinaKeyStoreCopyPath = sourceRoot.resolve(KEY_STORE);
-        Path ballerinaTrustStorePath = Paths
-                .get(resourceRoot, "datafiles", "keystore", TRUST_SORE);
+        Path ballerinaTrustStorePath = Paths.get(resourceRoot, "datafiles", "keystore", TRUST_SORE);
         ballerinaTrustStoreCopyPath = sourceRoot.resolve(TRUST_SORE);
         // Copy test resources to source root before starting the tests
         Files.copy(ballerinaKeyStorePath, ballerinaKeyStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
@@ -135,12 +133,12 @@ public class JWTAuthenticatorTest {
     }
 
     @AfterClass
-    public void tearDown() throws Exception {
+    public void tearDown() throws IOException {
         Files.deleteIfExists(ballerinaKeyStoreCopyPath);
         Files.deleteIfExists(ballerinaTrustStoreCopyPath);
     }
 
-    String generateJWT() throws Exception {
+    private String generateJWT() throws Exception {
         String header = buildHeader();
         String jwtHeader = new String(Base64.getUrlEncoder().encode(header.getBytes()));
         String body = buildBody();
@@ -164,14 +162,14 @@ public class JWTAuthenticatorTest {
         return pkEntry.getPrivateKey();
     }
 
-    String buildHeader() {
+    private String buildHeader() {
         return "{\n" +
                 "  \"alg\": \"RS256\",\n" +
                 "  \"typ\": \"JWT\"\n" +
                 "}";
     }
 
-    String buildBody() {
+    private String buildBody() {
         long time = System.currentTimeMillis() + 10000000;
         return "{\n" +
                 "  \"sub\": \"John\",\n" +
