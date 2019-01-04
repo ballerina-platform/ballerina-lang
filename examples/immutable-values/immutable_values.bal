@@ -49,7 +49,7 @@ public function main() {
     map<any> m3 = { stringVal: "str", intVal: 1, recVal: d };
 
     // Attempt freezing `m3`. Note how the return type could now be an `error`, since there is the possibility that a
-    // `map` constrained by type `any` could have `non-anydata` values.
+    // `map` constrained by type `any` could have non-anydata values.
     map<any>|error freezeResult = m3.freeze();
     if (freezeResult is error) {
         io:println("'.freeze()' failed for m3: ",
