@@ -56,7 +56,7 @@ public class SQLDBUtils {
      * @param sqlFile SQL statements for initialization.
      */
     public static void initH2Database(String dbDirectory, String dbName, String sqlFile) {
-        String jdbcURL = "sql:h2:file:" + dbDirectory + dbName;
+        String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
         initDatabase(jdbcURL, "sa", "", sqlFile);
     }
 
@@ -210,12 +210,12 @@ public class SQLDBUtils {
             switch (dbType) {
             case H2:
                 SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
-                jdbcUrl = "sql:h2:file:" + dbDirectory + dbName;
+                jdbcUrl = "jdbc:h2:file:" + dbDirectory + dbName;
                 username = "sa";
                 break;
             case HSQLDB:
                 SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
-                jdbcUrl = "sql:hsqldb:file:" + dbDirectory + dbName;
+                jdbcUrl = "jdbc:hsqldb:file:" + dbDirectory + dbName;
                 username = "SA";
                 break;
             default:
