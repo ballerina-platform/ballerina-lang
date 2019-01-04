@@ -4,6 +4,9 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -32,7 +35,7 @@ public class EncryptedConfigsTest {
     private String key;
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() {
         resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
                 .getAbsolutePath();
         sourceRoot = Paths.get(resourceRoot, "test-src", "config");
@@ -96,6 +99,42 @@ public class EncryptedConfigsTest {
         BRunUtil.invoke(compileResult, "getDecryptedValue", args);
 
         Files.deleteIfExists(Paths.get(resourceRoot, "datafiles", "config", "invalid-secret-copy.txt"));
+    }
+
+    @Test(description = "Test reading an encrypted int value from a config file")
+    public void testIntEncryptedField() throws IOException {
+        copySecret("secret.txt");
+        registry.initRegistry(null, confRoot.resolve("encrypted-configs.conf").toString(), null);
+
+        BValue[] args = {new BString("int.value")};
+        BValue[] returns = BRunUtil.invoke(compileResult, "getDecryptedInt", args);
+
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+    }
+
+    @Test(description = "Test reading an encrypted float value from a config file")
+    public void testFloatEncryptedField() throws IOException {
+        copySecret("secret.txt");
+        registry.initRegistry(null, confRoot.resolve("encrypted-configs.conf").toString(), null);
+
+        BValue[] args = {new BString("float.value")};
+        BValue[] returns = BRunUtil.invoke(compileResult, "getDecryptedFloat", args);
+
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 123.45);
+    }
+
+    @Test(description = "Test reading an encrypted boolean value from a config file")
+    public void testBooleanEncryptedField() throws IOException {
+        copySecret("secret.txt");
+        registry.initRegistry(null, confRoot.resolve("encrypted-configs.conf").toString(), null);
+
+        BValue[] args = {new BString("boolean.value")};
+        BValue[] returns = BRunUtil.invoke(compileResult, "getDecryptedBoolean", args);
+
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
     }
 
     private void copySecret(String file) throws IOException {

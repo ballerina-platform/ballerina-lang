@@ -26,13 +26,6 @@ under the License.
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
-
-    <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.test.nativeimpl.functions.socket.ClientSocketTest"/>
-            <class name="org.ballerinalang.test.nativeimpl.functions.socket.ServerSocketTest"/>
-        </classes>
-    </test>
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <groups>
@@ -51,9 +44,7 @@ under the License.
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
-            <package name="org.ballerinalang.test.nativeimpl.functions.*">
-                <exclude name="org.ballerinalang.test.nativeimpl.functions.socket"/>
-            </package>
+            <package name="org.ballerinalang.test.nativeimpl.functions.*"/>
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.debugger.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
@@ -100,13 +91,6 @@ under the License.
         <packages>
             <package name="org.ballerinalang.test.auth.*"/>
         </packages>
-    </test>
-    <test name="ballerina-observe-test-suite" preserve-order="true" parallel="false">
-        <classes >
-            <class name="org.ballerinalang.test.observe.SummaryTest"/>
-            <class name="org.ballerinalang.test.observe.RegistryTest"/>
-            <class name="org.ballerinalang.test.observe.CounterTest"/>
-        </classes>
     </test>
     <test name="ballerina-entry-function-test-suite" preserve-order="true" parallel="false">
         <packages >
