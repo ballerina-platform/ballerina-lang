@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.net.http.resiliency;
+package org.ballerinalang.test.resiliency;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -39,7 +39,7 @@ public class FailoverConnectorTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/net/http/resiliency/failover-connector-test.bal");
+        compileResult = BCompileUtil.compile("test-src/resiliency/failover-connector-test.bal");
     }
 
     /**

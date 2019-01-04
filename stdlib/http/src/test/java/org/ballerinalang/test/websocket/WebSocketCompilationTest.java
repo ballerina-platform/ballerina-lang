@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.net.websocket.compilation;
+package org.ballerinalang.test.websocket;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  * Test WebSocket Service Compilation.
  */
 public class WebSocketCompilationTest {
-    private static final String TEST_PATH = "test-src/net/websocket/compilation/";
+    private static final String TEST_PATH = "test-src/websocket/";
 
     @Test(description = "Successfully compiling WebSocketService")
     public void testSuccessServer() {

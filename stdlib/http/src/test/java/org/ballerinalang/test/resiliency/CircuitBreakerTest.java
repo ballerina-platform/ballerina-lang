@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.net.http.resiliency;
+package org.ballerinalang.test.resiliency;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -30,9 +30,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.HTTPTestRequest;
+import org.ballerinalang.test.utils.MessageUtils;
+import org.ballerinalang.test.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -59,7 +59,7 @@ public class CircuitBreakerTest {
 
     @BeforeClass
     public void setup() {
-        String sourceFilePath = "test-src/net/http/resiliency/circuit-breaker-test.bal";
+        String sourceFilePath = "test-src/resiliency/circuit-breaker-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
