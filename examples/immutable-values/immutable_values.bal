@@ -61,7 +61,7 @@ public function main() {
     // Create an `Employee` object.
     Employee e = new("Anne");
 
-    // Now, create a `map` that may hold `anydata` values, and add the `non-anydata` object `Employee` too.
+    // Now, create a `map` that may hold `anydata` values, and add the non-anydata object `Employee` too.
     map<any> m4 = { stringVal: "str", intVal: 1, objVal: e };
 
     // Attempt freezing `m4`.
