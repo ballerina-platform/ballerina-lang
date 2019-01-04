@@ -29,7 +29,7 @@ Message[] globalChildrenMessageArray = [];
 function initProjectionQuery() {
     // This is a streaming query that filters events based on the attribute age
     // and generates a custom message by calling a user defined function.
-    // Filterted events are pushed to a `stream` called `childrenMessageStream`.
+    // Filtered events are pushed to a `stream` called `childrenMessageStream`.
     forever {
         from personStream where personStream.age <= 16
         select personStream.name, personStream.address,
