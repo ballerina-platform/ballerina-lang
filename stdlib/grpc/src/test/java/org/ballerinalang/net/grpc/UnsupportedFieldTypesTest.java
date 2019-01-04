@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.net.grpc;
+package org.ballerinalang.net.grpc;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -34,7 +34,7 @@ public class UnsupportedFieldTypesTest {
     @Test
     public void testUnsupportedJsonType() {
 
-        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src", "net", "grpc",
+        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc",
                 "negative_json_message_type.bal");
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());
@@ -46,7 +46,7 @@ public class UnsupportedFieldTypesTest {
     @Test
     public void testUnsupportedMapType() {
 
-        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src", "net", "grpc",
+        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc",
                 "negative_map_message_type.bal");
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());

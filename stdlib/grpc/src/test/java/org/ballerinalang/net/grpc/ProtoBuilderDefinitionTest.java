@@ -15,8 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.ballerinalang.test.net.grpc;
+package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;

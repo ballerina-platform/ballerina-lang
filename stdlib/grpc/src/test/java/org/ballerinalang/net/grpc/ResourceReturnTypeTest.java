@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.net.grpc;
+package org.ballerinalang.net.grpc;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -34,7 +34,7 @@ public class ResourceReturnTypeTest {
     @Test
     public void testValidReturnType() {
 
-        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src", "net", "grpc",
+        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc",
                 "resource_with_vaild_return_type.bal");
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(0, result.getErrorCount());
@@ -43,7 +43,7 @@ public class ResourceReturnTypeTest {
     @Test
     public void testInvalidReturnType() {
 
-        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src", "net", "grpc",
+        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc",
                 "resource_with_invalid_return_type.bal");
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 5);

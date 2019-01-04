@@ -15,9 +15,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.net.grpc;
+package org.ballerinalang.net.grpc;
 
-import org.ballerinalang.net.grpc.Codec;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
