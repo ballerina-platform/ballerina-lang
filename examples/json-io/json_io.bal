@@ -19,7 +19,7 @@ function closeWc(io:WritableCharacterChannel wc) {
     }
 }
 
-// Writes json to a given path.
+// Writes the provided `json` to the specified path.
 function write(json content, string path) returns error? {
     // Creates a writable byte channel from the given path.
     io:WritableByteChannel wbc = io:openWritableFile(path);
