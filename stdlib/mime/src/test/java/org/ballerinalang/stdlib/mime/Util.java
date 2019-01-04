@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.mime;
+package org.ballerinalang.stdlib.mime;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BCompileUtil;

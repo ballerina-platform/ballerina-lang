@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.entity;
+package org.ballerinalang.stdlib.entity;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;

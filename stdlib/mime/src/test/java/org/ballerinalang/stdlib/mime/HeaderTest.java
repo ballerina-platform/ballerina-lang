@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.mime;
+package org.ballerinalang.stdlib.mime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;

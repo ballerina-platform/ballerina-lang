@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.multipart;
+package org.ballerinalang.stdlib.multipart;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -25,9 +25,9 @@ import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.test.utils.HTTPTestRequest;
-import org.ballerinalang.test.utils.ResponseReader;
-import org.ballerinalang.test.utils.Services;
+import org.ballerinalang.stdlib.utils.HTTPTestRequest;
+import org.ballerinalang.stdlib.utils.ResponseReader;
+import org.ballerinalang.stdlib.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,18 +39,18 @@ import java.util.Map;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_TRANSFER_ENCODING_7_BIT;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_TRANSFER_ENCODING_8_BIT;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
-import static org.ballerinalang.mime.Util.getArrayOfBodyParts;
-import static org.ballerinalang.mime.Util.getBinaryBodyPart;
-import static org.ballerinalang.mime.Util.getBinaryFilePart;
-import static org.ballerinalang.mime.Util.getJsonBodyPart;
-import static org.ballerinalang.mime.Util.getJsonFilePart;
-import static org.ballerinalang.mime.Util.getTextBodyPart;
-import static org.ballerinalang.mime.Util.getTextFilePart;
-import static org.ballerinalang.mime.Util.getTextFilePartWithEncoding;
-import static org.ballerinalang.mime.Util.getXmlBodyPart;
-import static org.ballerinalang.mime.Util.getXmlFilePart;
-import static org.ballerinalang.test.utils.MultipartUtils.createPrerequisiteMessages;
-import static org.ballerinalang.test.utils.MultipartUtils.getCarbonMessageWithBodyParts;
+import static org.ballerinalang.stdlib.mime.Util.getArrayOfBodyParts;
+import static org.ballerinalang.stdlib.mime.Util.getBinaryBodyPart;
+import static org.ballerinalang.stdlib.mime.Util.getBinaryFilePart;
+import static org.ballerinalang.stdlib.mime.Util.getJsonBodyPart;
+import static org.ballerinalang.stdlib.mime.Util.getJsonFilePart;
+import static org.ballerinalang.stdlib.mime.Util.getTextBodyPart;
+import static org.ballerinalang.stdlib.mime.Util.getTextFilePart;
+import static org.ballerinalang.stdlib.mime.Util.getTextFilePartWithEncoding;
+import static org.ballerinalang.stdlib.mime.Util.getXmlBodyPart;
+import static org.ballerinalang.stdlib.mime.Util.getXmlFilePart;
+import static org.ballerinalang.stdlib.utils.MultipartUtils.createPrerequisiteMessages;
+import static org.ballerinalang.stdlib.utils.MultipartUtils.getCarbonMessageWithBodyParts;
 
 /**
  * Test cases for multipart/form-data handling.

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.dispatching;
+package org.ballerinalang.stdlib.services.dispatching;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;

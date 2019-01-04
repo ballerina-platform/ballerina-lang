@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.resiliency;
+package org.ballerinalang.stdlib.resiliency;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;

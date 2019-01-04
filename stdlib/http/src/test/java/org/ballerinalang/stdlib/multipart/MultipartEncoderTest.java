@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.multipart;
+package org.ballerinalang.stdlib.multipart;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -28,9 +28,9 @@ import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.test.utils.HTTPTestRequest;
-import org.ballerinalang.test.utils.MessageUtils;
-import org.ballerinalang.test.utils.Services;
+import org.ballerinalang.stdlib.utils.HTTPTestRequest;
+import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.Services;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +52,12 @@ import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FIEL
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILENAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
-import static org.ballerinalang.mime.Util.getContentDispositionStruct;
-import static org.ballerinalang.mime.Util.getEntityStruct;
-import static org.ballerinalang.mime.Util.getMultipartEntity;
-import static org.ballerinalang.mime.Util.getNestedMultipartEntity;
-import static org.ballerinalang.mime.Util.validateBodyPartContent;
-import static org.ballerinalang.test.utils.MultipartUtils.createNestedPartRequest;
+import static org.ballerinalang.stdlib.mime.Util.getContentDispositionStruct;
+import static org.ballerinalang.stdlib.mime.Util.getEntityStruct;
+import static org.ballerinalang.stdlib.mime.Util.getMultipartEntity;
+import static org.ballerinalang.stdlib.mime.Util.getNestedMultipartEntity;
+import static org.ballerinalang.stdlib.mime.Util.validateBodyPartContent;
+import static org.ballerinalang.stdlib.utils.MultipartUtils.createNestedPartRequest;
 
 /**
  * Unit tests for multipart encoder.

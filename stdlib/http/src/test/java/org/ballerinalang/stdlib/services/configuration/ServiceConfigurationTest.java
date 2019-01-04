@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.configuration;
+package org.ballerinalang.stdlib.services.configuration;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;

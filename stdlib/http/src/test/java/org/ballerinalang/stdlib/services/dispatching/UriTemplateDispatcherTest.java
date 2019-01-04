@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.services.dispatching;
+package org.ballerinalang.stdlib.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -25,9 +25,9 @@ import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.test.utils.HTTPTestRequest;
-import org.ballerinalang.test.utils.MessageUtils;
-import org.ballerinalang.test.utils.Services;
+import org.ballerinalang.stdlib.utils.HTTPTestRequest;
+import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;

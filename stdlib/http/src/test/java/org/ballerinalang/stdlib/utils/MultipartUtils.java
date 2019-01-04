@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.utils;
+package org.ballerinalang.stdlib.utils;
 
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -40,7 +40,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.mime.FileUploadContentHolder;
+import org.ballerinalang.stdlib.mime.FileUploadContentHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Header;
@@ -59,8 +59,8 @@ import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_NAME;
-import static org.ballerinalang.mime.Util.getEntityStruct;
-import static org.ballerinalang.mime.Util.getMediaTypeStruct;
+import static org.ballerinalang.stdlib.mime.Util.getEntityStruct;
+import static org.ballerinalang.stdlib.mime.Util.getMediaTypeStruct;
 
 public class MultipartUtils {
 

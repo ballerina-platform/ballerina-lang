@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.websocket;
+package org.ballerinalang.stdlib.websocket;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;

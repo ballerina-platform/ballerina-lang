@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.nativeimpl;
+package org.ballerinalang.stdlib.services.nativeimpl;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;

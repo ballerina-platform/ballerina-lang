@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.session;
+package org.ballerinalang.stdlib.services.session;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.test.utils.CookieUtils;
-import org.ballerinalang.test.utils.HTTPTestRequest;
-import org.ballerinalang.test.utils.MessageUtils;
-import org.ballerinalang.test.utils.Services;
+import org.ballerinalang.stdlib.utils.CookieUtils;
+import org.ballerinalang.stdlib.utils.HTTPTestRequest;
+import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

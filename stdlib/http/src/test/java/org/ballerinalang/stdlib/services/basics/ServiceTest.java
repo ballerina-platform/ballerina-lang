@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.basics;
+package org.ballerinalang.stdlib.services.basics;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -30,10 +30,10 @@ import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.test.utils.HTTPTestRequest;
-import org.ballerinalang.test.utils.MessageUtils;
-import org.ballerinalang.test.utils.ResponseReader;
-import org.ballerinalang.test.utils.Services;
+import org.ballerinalang.stdlib.utils.HTTPTestRequest;
+import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.ResponseReader;
+import org.ballerinalang.stdlib.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

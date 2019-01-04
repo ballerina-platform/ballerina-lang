@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.cachingclient;
+package org.ballerinalang.stdlib.cachingclient;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.compiler.CompilerPhase;

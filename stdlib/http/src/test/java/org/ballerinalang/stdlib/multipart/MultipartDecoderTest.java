@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.multipart;
+package org.ballerinalang.stdlib.multipart;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.StringUtil;
@@ -25,11 +25,11 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.test.utils.HTTPTestRequest;
-import org.ballerinalang.test.utils.MessageUtils;
-import org.ballerinalang.test.utils.MultipartUtils;
-import org.ballerinalang.test.utils.ResponseReader;
-import org.ballerinalang.test.utils.Services;
+import org.ballerinalang.stdlib.utils.HTTPTestRequest;
+import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.MultipartUtils;
+import org.ballerinalang.stdlib.utils.ResponseReader;
+import org.ballerinalang.stdlib.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

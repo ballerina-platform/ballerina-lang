@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.basics;
+package org.ballerinalang.stdlib.services.basics;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;

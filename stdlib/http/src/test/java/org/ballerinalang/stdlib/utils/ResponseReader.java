@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.utils;
+package org.ballerinalang.stdlib.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
