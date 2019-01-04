@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.net.grpc;
+package org.ballerinalang.net.grpc;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -26,28 +26,32 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Test class for gRPC resource return type.
+ * Test class for gRPC unsupported types.
  *
  */
-public class ResourceReturnTypeTest {
+public class UnsupportedFieldTypesTest {
 
     @Test
-    public void testValidReturnType() {
+    public void testUnsupportedJsonType() {
 
-        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src", "net", "grpc",
-                "resource_with_vaild_return_type.bal");
+        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
+                "negative_json_message_type.bal");
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
-        Assert.assertEquals(0, result.getErrorCount());
+        Assert.assertEquals(1, result.getErrorCount());
+        Assert.assertEquals(1, result.getDiagnostics().length);
+        Assert.assertEquals("Unsupported field type, field type json currently not supported.", result
+                .getDiagnostics()[0].getMessage());
     }
 
     @Test
-    public void testInvalidReturnType() {
+    public void testUnsupportedMapType() {
 
-        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src", "net", "grpc",
-                "resource_with_invalid_return_type.bal");
+        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
+                "negative_map_message_type.bal");
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
-        Assert.assertEquals(result.getErrorCount(), 5);
-        Assert.assertEquals(result.getDiagnostics().length, 5);
-        Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "Invalid return type: expected error?");
+        Assert.assertEquals(1, result.getErrorCount());
+        Assert.assertEquals(1, result.getDiagnostics().length);
+        Assert.assertEquals("Unsupported field type, field type map currently not supported.", result.getDiagnostics
+                ()[0].getMessage());
     }
 }
