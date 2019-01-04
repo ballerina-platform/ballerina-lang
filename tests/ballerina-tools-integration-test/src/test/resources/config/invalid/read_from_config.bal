@@ -13,21 +13,13 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/io;
 import ballerina/config;
 
-function getDecryptedValue(string key) returns string {
-    return config:getAsString(key);
-}
-
-function getDecryptedInt(string key) returns int {
-    return config:getAsInt(key);
-}
-
-function getDecryptedFloat(string key) returns float {
-    return config:getAsFloat(key);
-}
-
-function getDecryptedBoolean(string key) returns boolean {
-    return config:getAsBoolean(key);
+public function main (string... args) {
+    string host = config:getAsString("host");
+    string port = config:getAsString("port");
+    string username = config:getAsString("username");
+    string password = config:getAsString("password");
+    io:println("host -> " + host + ", port -> " + port + ", username ->" + username + ", password -> " + password);
 }
