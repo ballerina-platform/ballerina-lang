@@ -1,27 +1,37 @@
 {
-  "ws": [
-    {
-      "ws": " ",
-      "i": 150,
-      "text": "=",
-      "static": true
-    },
-    {
-      "ws": "",
-      "i": 155,
-      "text": ";",
-      "static": true
-    }
-  ],
   "position": {
     "startColumn": 5,
     "startLine": 24,
     "endColumn": 38,
     "endLine": 24
   },
-  "id": "c1bc2005-6db4-4b4d-aec7-f604aaa5b5e5",
+  "id": "6d97317e-f4b1-4199-9f46-4d946a1e0bcc",
   "variable": {
     "ws": [
+      {
+        "ws": " ",
+        "i": 148,
+        "text": "endpointName",
+        "static": false
+      },
+      {
+        "ws": " ",
+        "i": 150,
+        "text": "=",
+        "static": true
+      },
+      {
+        "ws": "",
+        "i": 155,
+        "text": ";",
+        "static": true
+      },
+      {
+        "ws": " ",
+        "i": 148,
+        "text": "endpointName",
+        "static": false
+      },
       {
         "ws": " ",
         "i": 150,
@@ -41,12 +51,12 @@
       "endColumn": 38,
       "endLine": 24
     },
-    "id": "99a1f6d2-624c-4abd-a775-00f8debf53e5",
+    "id": "e1092aa3-06c0-4ac1-9fa1-5bf3d5afe519",
     "symbolType": [
       "object"
     ],
     "name": {
-      "id": "1bf39fb8-1fb0-4d25-8e45-3684f517d183",
+      "id": "7333bda4-48a8-4180-ba92-24b88c6503ad",
       "literal": false,
       "value": "endpointName",
       "kind": "Identifier",
@@ -79,18 +89,25 @@
         "endColumn": 16,
         "endLine": 24
       },
-      "id": "0e97b2d2-d3a1-4871-80cc-57d0a9f461ff",
+      "id": "ea6bc687-e84b-4b2c-8b08-6fc0f2dd1b6e",
       "symbolType": [
         "object"
       ],
       "packageAlias": {
-        "id": "283aaac4-7fe7-4918-a21d-7baaeac6ce40",
+        "id": "d9dee402-1292-47b2-9622-de9365f797c6",
         "literal": false,
         "value": "http",
         "kind": "Identifier",
         "valueWithBar": "http"
       },
       "grouped": false,
+      "typeName": {
+        "id": "74758390-8db8-4439-a191-116b86680527",
+        "literal": false,
+        "value": "Client",
+        "kind": "Identifier",
+        "valueWithBar": "Client"
+      },
       "public": false,
       "private": false,
       "remote": false,
@@ -115,13 +132,6 @@
       "resource": false,
       "service": false,
       "constant": false,
-      "typeName": {
-        "id": "64281677-9d03-4460-92b9-33627a416c47",
-        "literal": false,
-        "value": "Client",
-        "kind": "Identifier",
-        "valueWithBar": "Client"
-      },
       "nullable": false,
       "kind": "UserDefinedType"
     },
@@ -129,12 +139,6 @@
     "annotationAttachments": [],
     "initialExpression": {
       "ws": [
-        {
-          "ws": " ",
-          "i": 148,
-          "text": "endpointName",
-          "static": false
-        },
         {
           "ws": " ",
           "i": 152,
@@ -160,7 +164,7 @@
         "endColumn": 37,
         "endLine": 24
       },
-      "id": "77dde7bd-e1b5-485d-a991-987a3a3b7950",
+      "id": "91cbeda2-46f2-4ba5-9f4d-db9b91846674",
       "symbolType": [
         "object"
       ],

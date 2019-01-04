@@ -40,7 +40,6 @@ public class StreamingAggregatorFunctionsWithOtherBalFunctionsTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-aggregator-funcs-with-other-bal-funcs-test.bal");
         resultWithAlias = BCompileUtil.
                 compile("test-src/streaming/alias/streamingv2-aggregator-funcs-with-other-bal-funcs-test.bal");
@@ -49,7 +48,6 @@ public class StreamingAggregatorFunctionsWithOtherBalFunctionsTest {
     @Test(description = "Test aggregator streaming query with other ballerina functions")
     public void testQuery() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(result, "startAggregationWithGroupByQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
         Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 
@@ -83,7 +81,6 @@ public class StreamingAggregatorFunctionsWithOtherBalFunctionsTest {
     @Test(description = "Test aggregator streaming query with other ballerina function with stream alias")
     public void testQueryWithAlias() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(resultWithAlias, "startAggregationWithGroupByQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
         Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 

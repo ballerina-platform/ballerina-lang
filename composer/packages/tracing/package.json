@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/tracing",
-  "version": "0.983.1-SNAPSHOT",
+  "version": "0.990.3-SNAPSHOT",
   "description": "",
   "main": "lib/src/index.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "clean": "composer pkg:clean",
     "lint": "composer pkg:lint",
     "build": "composer pkg:build",
-    "test": "",
+    "test": "composer pkg:test",
     "coverage": "composer pkg:test:coverage",
     "watch": "composer pkg:watch",
     "watch:test": "composer pkg:test:watch",
@@ -18,7 +18,7 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
+    "@ballerina/composer-cli": "^0.990.3-SNAPSHOT",
     "@types/lodash": "^4.14.116"
   },
   "dependencies": {

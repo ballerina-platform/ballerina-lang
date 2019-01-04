@@ -10,8 +10,8 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    string outstr;
-    foreach str in s{
+    string outstr = "";
+    foreach var str in s {
         outstr = outstr + <string>str;
     }
     outputs[counter] = outstr;
@@ -24,5 +24,5 @@ function testFunc() {
     main();
 
     string out = "Error occurred: {ballerina}DivisionByZero";
-    test:assertEquals(outputs[0], out1);
+    test:assertEquals(outputs[0], out);
 }

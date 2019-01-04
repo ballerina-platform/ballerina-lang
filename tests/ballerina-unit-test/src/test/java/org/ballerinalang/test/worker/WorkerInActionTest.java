@@ -50,4 +50,11 @@ public class WorkerInActionTest {
         Assert.assertEquals(returns[0].stringValue(), "request");
     }
 
+    @Test(description = "Test default strand error before send action")
+    public void testDefaultErrorBeforeSend() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultError");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "REACHED");
+    }
+
 }

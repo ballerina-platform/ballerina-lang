@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -187,13 +186,16 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                 }
                 
                 funcDTOs.forEach(fDto ->
-                        this.populateIdCompletionMap(completionMap, fDto.getPackageId(), fDto.getCompletionItem()));
+                        CommonUtil.populateIdCompletionMap(completionMap, fDto.getPackageId(),
+                                fDto.getCompletionItem()));
                 recordDTOs.forEach(rDto ->
-                        this.populateIdCompletionMap(completionMap, rDto.getPackageId(), rDto.getCompletionItem()));
+                        CommonUtil.populateIdCompletionMap(completionMap, rDto.getPackageId(),
+                                rDto.getCompletionItem()));
                 objDTOs.forEach(objDto ->
-                        this.populateIdCompletionMap(completionMap, objDto.getPackageId(), objDto.getCompletionItem()));
+                        CommonUtil.populateIdCompletionMap(completionMap, objDto.getPackageId(),
+                                objDto.getCompletionItem()));
                 otherTypeDTOs.forEach(otherDto ->
-                        this.populateIdCompletionMap(completionMap, otherDto.getPackageId(),
+                        CommonUtil.populateIdCompletionMap(completionMap, otherDto.getPackageId(),
                                 otherDto.getCompletionItem()));
                 
                 return Either.forLeft(CommonUtil.fillCompletionWithPkgImport(completionMap, context));
@@ -210,14 +212,5 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         List<SymbolInfo> filteredSymbols = FilterUtils.getInvocationAndFieldSymbolsOnVar(context, pkgName,
                 delimiter, visibleSymbols);
         return Either.forRight(filteredSymbols);
-    }
-    
-    private void populateIdCompletionMap(HashMap<Integer, ArrayList<CompletionItem>> map, int id,
-                                         CompletionItem completionItem) {
-        if (map.containsKey(id)) {
-            map.get(id).add(completionItem);
-        } else {
-            map.put(id, new ArrayList<>(Collections.singletonList(completionItem)));
-        }
     }
 }

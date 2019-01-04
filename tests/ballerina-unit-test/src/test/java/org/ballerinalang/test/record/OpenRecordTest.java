@@ -165,7 +165,8 @@ public class OpenRecordTest {
 
     @Test(description = "Negative test to test attaching functions to record literal")
     public void testStructLiteralAttachedFunc() {
-        CompileResult result = BCompileUtil.compile("test-src/record/record_literal_with_attached_functions.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/record/record_literal_with_attached_functions_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 7, 1);
         BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 8, 12);

@@ -38,17 +38,13 @@ public class BallerinaStreamsV2LengthBatchWindowTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result1 = BCompileUtil.compile("test-src/streaming/streamingv2-length-batch-window-test.bal");
-
-        System.setProperty("enable.siddhiRuntime", "false");
         result2 = BCompileUtil.compile("test-src/streaming/streamingv2-length-batch-window-test2.bal");
     }
 
     @Test(description = "Test lengthBatch window query")
     public void testExternalTimeBatchQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startLengthBatchwindowTest1");
-        System.setProperty("enable.siddhiRuntime", "true");
 
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -63,7 +59,6 @@ public class BallerinaStreamsV2LengthBatchWindowTest {
     @Test(description = "Test lengthBatch window query")
     public void testExternalTimeBatchQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startLengthBatchwindowTest2");
-        System.setProperty("enable.siddhiRuntime", "true");
 
         Assert.assertNotNull(outputEmployeeEvents);
 

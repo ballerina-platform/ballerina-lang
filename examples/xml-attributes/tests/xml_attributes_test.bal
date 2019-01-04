@@ -31,5 +31,5 @@ function testFunc() {
     test:assertEquals(outputs[3], op3);
     test:assertEquals(outputs[4], op4);
     test:assertEquals(outputs[5], op5);
-    test:assertEquals(<string>outputs[6], op6);
+    test:assertEquals(string.convert(outputs[6]), op6);
 }

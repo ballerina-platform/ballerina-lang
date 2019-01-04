@@ -39,11 +39,11 @@ public interface DataIterator {
 
     String getString(int columnIndex);
 
-    long getInt(int columnIndex);
+    Long getInt(int columnIndex);
 
-    double getFloat(int columnIndex);
+    Double getFloat(int columnIndex);
 
-    boolean getBoolean(int columnIndex);
+    Boolean getBoolean(int columnIndex);
 
     String getBlob(int columnIndex);
 

@@ -148,7 +148,7 @@ public class ModuleBuildTestCase extends BaseTest {
      */
     @Test(description = "Test building empty module")
     public void testBuildWithEmptyPkg() throws BallerinaTestException, IOException {
-        Path projectPath = tempProjectDirectory.resolve("thirdTestProject");
+        Path projectPath = tempProjectDirectory.resolve("eighthTestProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
 
         // Create empty directory
@@ -249,7 +249,28 @@ public class ModuleBuildTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("emptyProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
         LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found to compile",
-                                                  LeecherType.ERROR);
+                                                  LogLeecher.LeecherType.ERROR);
+        balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                          projectPath.toString());
+        clientLeecher.waitForText(3000);
+    }
+
+    /**
+     * Building an empty project without any modules.
+     *
+     * @throws BallerinaTestException When an error occurs executing the command.
+     */
+    @Test(description = "Test building a project with an invalid manifest file")
+    public void testBuildOnInvalidManifest() throws BallerinaTestException, IOException {
+        Path projectPath = tempProjectDirectory.resolve("invalidManifest");
+        initProject(projectPath, EMPTY_PROJECT_OPTS);
+
+        String invalidContent = "[project]\n org-name = \"integrationtests\"\n version = \"1.0.0";
+        Files.write(projectPath.resolve("Ballerina.toml"), invalidContent.getBytes(),
+                    StandardOpenOption.TRUNCATE_EXISTING);
+
+        LogLeecher clientLeecher = new LogLeecher("error: invalid toml syntax at Ballerina.toml:3",
+                LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           projectPath.toString());
         clientLeecher.waitForText(3000);
@@ -312,6 +333,22 @@ public class ModuleBuildTestCase extends BaseTest {
         LogLeecher secLeecher = new LogLeecher(buildMsg);
         balClient.runMain("test", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{secLeecher},
                           projectPath.toString());
+    }
+
+    @Test(description = "Test building a module which is not inside a project")
+    public void testBuildingModuleWithoutProject() throws BallerinaTestException, IOException {
+        Path projectPath = tempProjectDirectory.resolve("moduleWithoutProject");
+        initProject(projectPath, SINGLE_PKG_PROJECT_OPTS);
+
+        // Remove the .ballerina folder
+        FileUtils.deleteDirectory(projectPath.resolve(".ballerina").toFile());
+
+        String msg = "error: you are trying to build a module that is not inside a project. Run `ballerina init` " +
+                "from " + projectPath.toString() + " to initialize it as a project and then build the module.";
+        LogLeecher leecher = new LogLeecher(msg, LeecherType.ERROR);
+        balClient.runMain("build", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{leecher},
+                projectPath.toString());
+        leecher.waitForText(3000);
     }
 
     /**

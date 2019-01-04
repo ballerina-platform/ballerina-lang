@@ -42,7 +42,6 @@ public class BallerinaStreamsV2OrderByTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-orderby-test.bal");
         result2 = BCompileUtil.compile("test-src/streaming/streamingv2-orderby-with-functions-test.bal");
         resultWithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-orderby-test.bal");
@@ -71,7 +70,6 @@ public class BallerinaStreamsV2OrderByTest {
 
     private void executeFunction(CompileResult result) {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startOrderByQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");

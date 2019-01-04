@@ -106,7 +106,7 @@ public class Init extends AbstractGrpcNativeFunction {
         String host = endpointConfig.getStringField(GrpcConstants.ENDPOINT_CONFIG_HOST);
         Struct sslConfig = endpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         long idleTimeout = endpointConfig.getIntField(ENDPOINT_CONFIG_TIMEOUT);
-        
+
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         
         if (host == null || host.trim().isEmpty()) {
@@ -126,11 +126,11 @@ public class Init extends AbstractGrpcNativeFunction {
         }
 
         if (idleTimeout < 0) {
-            throw new BallerinaConnectorException("Idle timeout cannot be negative. If you want to disable the " +
-                    "timeout please use value 0");
+            throw new BallerinaConnectorException("Idle timeout cannot be negative. To disable the " +
+                    "timeout, set value to 0");
         }
         listenerConfiguration.setSocketIdleTimeout(Math.toIntExact(idleTimeout));
-        
+
         listenerConfiguration.setServerHeader(getServerName());
         listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
 
