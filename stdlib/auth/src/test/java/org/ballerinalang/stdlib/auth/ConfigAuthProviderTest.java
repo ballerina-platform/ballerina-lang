@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.stdlib.auth;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -25,6 +25,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -38,9 +39,9 @@ import java.nio.file.Paths;
 import java.util.Collections;
 
 /**
- * Authentication handler chain Testcase.
+ * Configuration auth provider testcase.
  */
-public class AuthnHandlerChainTest {
+public class ConfigAuthProviderTest {
 
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
@@ -53,8 +54,7 @@ public class AuthnHandlerChainTest {
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
         Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
 
-        // Copy the ballerina.conf to the source root before starting the tests
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-handler-chain-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("config_auth_provider_test.bal").toString());
 
         String secretFile = "secret.txt";
         Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
@@ -72,39 +72,49 @@ public class AuthnHandlerChainTest {
         Files.copy(Paths.get(from), Paths.get(to));
     }
 
-    @Test(description = "Test case for creating authn handler chain")
-    public void testCreateAuthnHandlerChain() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateAuthnHandlerChain");
+    @Test(description = "Test case for creating file based userstore")
+    public void testCreateConfigAuthProvider() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateConfigAuthProvider");
+        Assert.assertNotNull(returns);
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertNotNull(returns[0]);
     }
 
-    @Test(description = "Test case for authn handler chain authn failure scenario")
-    public void testAuthFailure() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthFailure");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
+    @Test(description = "Test case for authenticating non-existing user")
+    public void testAuthenticationOfNonExistingUser() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingUser");
+        Assert.assertNotNull(returns);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for authn handler chain authn failure scenario with specific handlers")
-    public void testAuthFailureWithSpecificHandlers() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthFailureWithSpecificHandlers");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
+    @Test(description = "Test case for authenticating with invalid password")
+    public void testAuthenticationOfNonExistingPassword() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingPassword");
+        Assert.assertNotNull(returns);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for authn handler chain authn success scenario")
-    public void testAuthSuccessWithSpecificHandlers() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthSuccessWithSpecificHandlers");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
+    @Test(description = "Test case for successful authentication")
+    public void testAuthentication() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthentication");
+        Assert.assertNotNull(returns);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for authn handler chain authn success scenario with specific handlers")
-    public void testAuthSuccess() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthSuccess");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    @Test(description = "Test case for reading groups of non-existing user")
+    public void testReadScopesOfNonExistingUser() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfNonExistingUser");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 0);
+    }
+
+    @Test(description = "Test case for reading groups of a user")
+    public void testReadScopesOfUser() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfUser");
+        Assert.assertNotNull(returns);
+        BValueArray groups = ((BValueArray) returns[0]);
+        Assert.assertEquals(groups.size(), 1);
+
+        Assert.assertEquals(groups.getString(0), "scope1");
     }
 
     @AfterClass

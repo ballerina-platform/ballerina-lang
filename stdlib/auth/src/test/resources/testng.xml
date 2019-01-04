@@ -28,7 +28,7 @@ under the License.
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.test.auth.*"/>
+            <package name="org.ballerinalang.stdlib.auth.*"/>
         </packages>
     </test>
 </suite>

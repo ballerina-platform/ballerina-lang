@@ -16,14 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.test.auth.jwt;
+package org.ballerinalang.stdlib.auth.jwt;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
@@ -50,9 +49,9 @@ import java.util.Map;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
- * Test JWT authenticator.
+ * Test Http JWT authentication handler.
  */
-public class JWTAuthenticatorTest {
+public class JWTAuthnHandlerTest {
 
     /**
      * #JWT Authenticator configurations.
@@ -109,7 +108,7 @@ public class JWTAuthenticatorTest {
         Files.copy(ballerinaKeyStorePath, ballerinaKeyStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
         Files.copy(ballerinaTrustStorePath, ballerinaTrustStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
 
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-authenticator-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-authn-handler-test.bal").toString());
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), ballerinaConfPath.toString(), null);
@@ -117,17 +116,31 @@ public class JWTAuthenticatorTest {
         jwtToken = generateJWT();
     }
 
-    @Test(description = "Test case for creating JWT authenticator with a cache")
-    public void testCreateJwtAuthenticatorWithCache() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJwtAuthenticatorCreationWithCache");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0] instanceof BMap);
+    @Test(description = "Test case for JWT auth interceptor canHandle method, without the bearer header")
+    public void testCanHandleHttpJwtAuthWithoutHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpJwtAuthWithoutHeader");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for JWT authenticator for authentication success")
-    public void testAuthenticationSuccess() {
+    @Test(description = "Test case for JWT auth interceptor canHandle method")
+    public void testCanHandleHttpJwtAuth() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpJwtAuth");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for JWT auth interceptor authentication failure")
+    public void testHandleHttpJwtAuthFailure() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuthFailure");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for JWT auth interceptor authentication success")
+    public void testHandleHttpJwtAuth() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSuccess", inputBValues);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuth", inputBValues);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -157,8 +170,8 @@ public class JWTAuthenticatorTest {
                 "datafiles/keystore/ballerinaKeystore.p12").getPath()));
         keyStore = KeyStore.getInstance("pkcs12");
         keyStore.load(file, "ballerina".toCharArray());
-        KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ballerina", new KeyStore
-                .PasswordProtection("ballerina".toCharArray()));
+        KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ballerina",
+                new KeyStore.PasswordProtection("ballerina".toCharArray()));
         return pkEntry.getPrivateKey();
     }
 
