@@ -23,8 +23,8 @@ under the License.
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.database.h2"/>
-            <package name="org.ballerinalang.test.database.sql"/>
+            <package name="org.ballerinalang.database.h2"/>
+            <package name="org.ballerinalang.database.sql"/>
         </packages>
     </test>
 </suite>
