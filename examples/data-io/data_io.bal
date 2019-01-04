@@ -21,7 +21,7 @@ function serialize(Person p, io:WritableByteChannel byteChannel) {
     var closeResult = dc.close();
 }
 
-//Deserialize `record` into binary.
+//Deserialize `record` from binary.
 function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     Person person = {};
     int nameLength = 0;
