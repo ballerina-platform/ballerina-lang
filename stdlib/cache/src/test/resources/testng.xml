@@ -21,12 +21,7 @@ under the License.
 
 <suite name="ballerina-test-suite">
     <!-- Ballerina cache Test Cases. -->
-    <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
+    <test name="ballerina-cache-test-suite" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.cache"/>
         </packages>

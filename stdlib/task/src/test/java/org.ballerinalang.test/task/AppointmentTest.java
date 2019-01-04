@@ -37,7 +37,6 @@ import static org.testng.Assert.assertNotNull;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-
 /**
  * Tests for Ballerina appointment tasks.
  */

@@ -48,12 +48,11 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
-
 import static org.awaitility.Awaitility.await;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Tests for Ballerina timer tasks.
