@@ -108,7 +108,8 @@ public class SQLConnectorInitTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Failed to initialize pool: Database "
+          expectedExceptionsMessageRegExp =
+                  ".*error in sql connector configuration:Exception during pool initialization:Database "
                   + "\".*/target/tempdb/NON_EXISTING_DB\" not found.*")
     public void testConnectionFailure() {
         BRunUtil.invokeFunction(result, "testConnectionFailure");

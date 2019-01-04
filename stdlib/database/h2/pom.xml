@@ -56,6 +56,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-runtime</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -74,6 +79,10 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-io</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
