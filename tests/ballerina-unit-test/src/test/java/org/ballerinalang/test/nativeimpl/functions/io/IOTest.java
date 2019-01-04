@@ -35,7 +35,6 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
 import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.test.mime.Util;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,6 +49,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.stream.Stream;
+
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
+import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 
 /**
  * Tests I/O related functions.
@@ -390,7 +392,7 @@ public class IOTest {
     @Test
     public void testBase64EncodeByteChannel() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
-        BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
+        BMap<String, BValue> byteChannelStruct = getByteChannelStruct(bytesInputOutputProgramFile);
         InputStream inputStream = new ByteArrayInputStream("Hello Ballerina".getBytes());
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(inputStream);
         byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
@@ -406,7 +408,7 @@ public class IOTest {
     @Test
     public void testBase64DecodeByteChannel() {
         String expectedValue = "Hello Ballerina!";
-        BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
+        BMap<String, BValue> byteChannelStruct = getByteChannelStruct(bytesInputOutputProgramFile);
         byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
         InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);
@@ -418,6 +420,10 @@ public class IOTest {
         BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
         Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
+    }
+
+    public static BMap<String, BValue> getByteChannelStruct(CompileResult result) {
+        return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_IO, READABLE_BYTE_CHANNEL_STRUCT);
     }
 }
 
