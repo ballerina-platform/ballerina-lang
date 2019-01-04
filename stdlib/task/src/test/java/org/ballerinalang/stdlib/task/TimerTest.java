@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.test.task;
+package org.ballerinalang.stdlib.task;
 
 /*
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.

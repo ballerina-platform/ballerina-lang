@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.test.task;
+package org.ballerinalang.stdlib.task;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

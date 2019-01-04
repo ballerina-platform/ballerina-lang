@@ -23,7 +23,7 @@ under the License.
     <!-- Ballerina cache Test Cases. -->
     <test name="ballerina-cache-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.cache"/>
+            <package name="org.ballerinalang.stdlib.cache"/>
         </packages>
     </test>
 </suite>

@@ -23,7 +23,7 @@ under the License.
     <!-- Ballerina math Test Cases. -->
     <test name="ballerina-math-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.math"/>
+            <package name="org.ballerinalang.stdlib.math.nativeimpl"/>
         </packages>
     </test>
 </suite>

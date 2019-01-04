@@ -23,7 +23,7 @@ under the License.
     <!-- Ballerina task Test Cases. -->
     <test name="ballerina-task-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.task"/>
+            <package name="org.ballerinalang.stdlib.task"/>
         </packages>
     </test>
 </suite>
