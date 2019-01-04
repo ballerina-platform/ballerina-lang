@@ -11,12 +11,12 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 
-package org.ballerinalang.test.nativeimpl.functions.socket;
+package org.ballerinalang.stdlib.socket;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -32,8 +32,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,7 +69,10 @@ public class ClientSocketTest {
             log.error("Unable to open Socket Server: " + e.getMessage(), e);
             Assert.fail(e.getMessage());
         }
-        socketClient = BCompileUtil.compile("test-src/socket/client_socket.bal");
+        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
+        Path testResourceRoot = Paths.get(resourceRoot, "test-src");
+        socketClient = BCompileUtil.compile(testResourceRoot.resolve("client_socket.bal").toString());
     }
 
     /**
