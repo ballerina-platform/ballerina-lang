@@ -19,8 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -216,7 +216,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private int globalVarRefCounter;
-    private VariableSymbol currDependentSymbol;
+    private Symbol currDependentSymbol;
 
     private DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
@@ -351,7 +351,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean foundForwardRef = false;
         List<RefPosition> sameFileForwardReferences = accessedSequence.stream()
                 .filter(p -> p.position.src.cUnitName.equals(defFile))
-                .filter(p -> globalVarSymbolDefPositions.get(p.dependentSymbol).refId < defPosition.refId)
+                .filter(p -> globalVarSymbolDefPositions.get((BSymbol) p.dependentSymbol).refId < defPosition.refId)
                 .collect(Collectors.toList());
 
         for (RefPosition refPosition : sameFileForwardReferences) {
@@ -412,19 +412,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(var, env);
     }
 
-    private void resetDependentSymbol(VariableSymbol prevDependentId) {
+    private void resetDependentSymbol(Symbol prevDependentId) {
         this.currDependentSymbol = prevDependentId;
     }
 
-    private VariableSymbol setDependentSymbol(VariableSymbol symbol) {
-        VariableSymbol prevDependentSym = this.currDependentSymbol;
+    private Symbol setDependentSymbol(Symbol symbol) {
+        Symbol prevDependentSym = this.currDependentSymbol;
         this.currDependentSymbol = symbol;
         return prevDependentSym;
     }
 
     @Override
     public void visit(BLangSimpleVariable variable) {
-        VariableSymbol prevDependentSymbol = setDependentSymbol(variable.symbol);
+        Symbol prevDependentSymbol = setDependentSymbol(variable.symbol);
         try {
             observeGlobalVariableDefinition(variable.symbol, variable.pos);
             if (variable.expr != null) {
@@ -1296,14 +1296,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private static class RefPosition {
         final DiagnosticPos position;
-        final VariableSymbol dependentSymbol;
+        final Symbol dependentSymbol;
 
-        private RefPosition(DiagnosticPos position, VariableSymbol dependentSymbol) {
+        private RefPosition(DiagnosticPos position, Symbol dependentSymbol) {
             this.position = position;
             this.dependentSymbol = dependentSymbol;
         }
 
-        static RefPosition newRef(DiagnosticPos position, VariableSymbol dependentSymbol) {
+        static RefPosition newRef(DiagnosticPos position, Symbol dependentSymbol) {
             return new RefPosition(position, dependentSymbol);
         }
     }
