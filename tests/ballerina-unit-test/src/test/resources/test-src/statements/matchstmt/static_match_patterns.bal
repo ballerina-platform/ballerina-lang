@@ -363,3 +363,13 @@ function caz3(any f) returns string {
 
     return "Value is Default pattern - " + io:sprintf("%s", f);
 }
+
+function testBracedUnionType() returns string {
+    any a = 12;
+    match a {
+        (1 | 2) => return "1|2";
+        3 | 4 => return "3|4";
+        (11 | 12) => return "11|12";
+        _ => return "Default";
+    }
+}

@@ -110,9 +110,12 @@ public type WebSocketClient client object {
 # + subProtocols - Negotiable sub protocols for the client
 # + customHeaders - Custom headers which should be sent to the server
 # + idleTimeoutInSeconds - Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)
-# + readyOnConnect - true if the client is ready to recieve messages as soon as the connection is established. This is true by default. If changed to false the function ready() of the
+# + readyOnConnect - `true` if the client is ready to recieve messages as soon as the connection is established.
+#                    This is true by default. If changed to false the function ready() of the
 #                    `WebSocketClient`needs to be called once to start receiving messages.
 # + secureSocket - SSL/TLS related options
+# + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
+#                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
 public type WebSocketClientEndpointConfig record {
     service? callbackService = ();
     string[] subProtocols = [];
@@ -120,5 +123,6 @@ public type WebSocketClientEndpointConfig record {
     int idleTimeoutInSeconds = -1;
     boolean readyOnConnect = true;
     SecureSocket? secureSocket = ();
+    int maxFrameSize = 0;
     !...
 };

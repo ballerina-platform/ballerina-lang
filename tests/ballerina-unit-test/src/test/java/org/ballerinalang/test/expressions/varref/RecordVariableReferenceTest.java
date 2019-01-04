@@ -180,7 +180,7 @@ public class RecordVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 17);
+        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         final String undefinedSymbol = "undefined symbol ";
         final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
@@ -212,5 +212,9 @@ public class RecordVariableReferenceTest {
                 "invalid record binding pattern; unknown field 'unknown2' in record type 'Person'", 122, 5);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 122, 27);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "unknown type 'Data'", 126, 6);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "unknown type 'Data'", 131, 6);
     }
 }

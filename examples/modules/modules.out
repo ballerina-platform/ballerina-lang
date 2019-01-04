@@ -2,5 +2,3 @@
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run modules.bal
 3.141592653589793
-
-

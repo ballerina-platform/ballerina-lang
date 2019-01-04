@@ -122,6 +122,8 @@ public enum Snippet {
 
     ITR_COUNT(SnippetGenerator.getIterableCountSnippet()),
 
+    ITR_SELECT(SnippetGenerator.getIterableSelectSnippet()),
+
     ITR_MIN(SnippetGenerator.getIterableMinSnippet()),
 
     ITR_MAX(SnippetGenerator.getIterableMaxSnippet()),
@@ -148,6 +150,10 @@ public enum Snippet {
     BUILTIN_IS_FINITE(SnippetGenerator.getBuiltinIsFiniteSnippet()),
 
     BUILTIN_IS_INFINITE(SnippetGenerator.getBuiltinIsInFiniteSnippet()),
+
+    BUILTIN_DETAIL(SnippetGenerator.getBuiltinDetailSnippet()),
+
+    BUILTIN_REASON(SnippetGenerator.getBuiltinReasonSnippet()),
     
     // Iterable operators' lambda function parameters
     ITR_ON_MAP_PARAMS(SnippetGenerator.getIterableOnMapParamSnippet()),

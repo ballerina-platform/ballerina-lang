@@ -55,7 +55,7 @@ public class ClosedRecordTypeReferenceTest {
     public void negativeTests() {
         CompileResult negative = BCompileUtil.compile("test-src/record/closed_record_type_reference_negative.bal");
         int index = 0;
-        assertEquals(negative.getErrorCount(), 13);
+        assertEquals(negative.getErrorCount(), 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'PersonObj' is not a record", 28, 6);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'IntOrFloat' is not a record", 36, 6);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'FiniteT' is not a record", 43, 6);
@@ -68,7 +68,9 @@ public class ClosedRecordTypeReferenceTest {
         BAssertUtil.validateError(negative, index++, "incompatible types: 'xml' is not a record", 54, 6);
         BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 64, 6);
         BAssertUtil.validateError(negative, index++, "missing non-defaultable required record field 'gender'", 83, 18);
-        BAssertUtil.validateError(negative, index, "redeclared symbol 'name'", 88, 6);
+        BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 88, 6);
+        BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 93, 6);
+        BAssertUtil.validateError(negative, index, "unknown type 'Data'", 99, 6);
     }
 
     @Test(description = "Test case for type referencing all value-typed fields")
