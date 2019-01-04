@@ -35,6 +35,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ICONST_3] = "iconst_3";
         mnemonics[InstructionCodes.ICONST_4] = "iconst_4";
         mnemonics[InstructionCodes.ICONST_5] = "iconst_5";
+        mnemonics[InstructionCodes.FCONST_0] = "fconst_0";
+        mnemonics[InstructionCodes.FCONST_1] = "fconst_1";
+        mnemonics[InstructionCodes.FCONST_2] = "fconst_2";
+        mnemonics[InstructionCodes.FCONST_3] = "fconst_3";
+        mnemonics[InstructionCodes.FCONST_4] = "fconst_4";
+        mnemonics[InstructionCodes.FCONST_5] = "fconst_5";
         mnemonics[InstructionCodes.BCONST_0] = "bconst_0";
         mnemonics[InstructionCodes.BCONST_1] = "bconst_1";
         mnemonics[InstructionCodes.RCONST_NULL] = "rconst_null";
