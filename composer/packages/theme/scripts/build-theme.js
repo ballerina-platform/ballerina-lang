@@ -27,101 +27,105 @@ const RewriteImportPlugin = require("less-plugin-rewrite-import");
 const NpmImportPlugin = require('less-plugin-npm-import');
 
 const buildDir = path.join(__dirname, '..', 'build');
+const tempCSSBuildDir = path.join(__dirname, '..', 'temp');
 const themesDir = path.join(__dirname, '..', 'src', 'themes');
 
 const lessNpmModuleDir = path.dirname(require.resolve('less'));
 const semanticUILessModuleDir = path.join(lessNpmModuleDir, '..', 'semantic-ui-less');
 
-const generateThemes = () => {
-    fs.readdir(themesDir, function(error, themes) {
-        if (error) {
-            console.error(error);
-        }
+let promises = [];
 
-        themes.forEach(function(theme) {
-            const filePath = path.join(themesDir, theme, 'theme.less');
-            const options = {
-                compress: false,
-                sourceMap: true,
-                filename: path.resolve(filePath),
-                plugins: [
-                    new NpmImportPlugin({ prefix: '~' }),
-                    new RewriteImportPlugin({
-                        paths: {
-                            "../../theme.config": path.join(themesDir, theme, 'theme.config'),
-                        }
-                    })
-                ]
+const generateThemes = () => {
+    const themes = fs.readdirSync(themesDir);
+
+    promises = themes.map(theme => {
+        const filePath = path.join(themesDir, theme, 'theme.less');
+        const options = {
+            compress: false,
+            sourceMap: true,
+            filename: path.resolve(filePath),
+            plugins: [
+                new NpmImportPlugin({ prefix: '~' }),
+                new RewriteImportPlugin({
+                    paths: {
+                        "../../theme.config": path.join(themesDir, theme, 'theme.config'),
+                    }
+                })
+            ]
+        };
+
+        const src = fs.readFileSync(filePath, 'utf8');
+
+        return less.render(src, options).then(function(output) {
+            const minifiedOutput = new CleanCSS().minify(output.css);
+            const files = {
+                '.css': output.css,
+                '.css.map': output.map,
+                '.min.css': minifiedOutput.styles
             };
 
-            fs.readFile(filePath, 'utf8', function(error, src) {
-                if (error) {
-                    console.error(error);
-                }
-
-                less.render(src, options)
-                    .then(function(output) {
-                            const minifiedOutput = new CleanCSS().minify(output.css);
-
-                            fs.writeFile(path.join(buildDir, "ballerina-" + theme + ".css"), output.css, function(error) {
-                                if (error) {
-                                    console.error("ballerina-" + theme + ".css generation failed.");
-                                    console.error(error);
-                                } else {
-                                    console.info("ballerina-" + theme + ".css generated.");
-                                }
-                            });
-                            fs.writeFile(path.join(buildDir, "ballerina-" + theme + ".css.map"), output.map, function(error) {
-                                if (error) {
-                                    console.error("ballerina-" + theme + ".css.map generation failed.");
-                                    console.error(error);
-                                } else {
-                                    console.info("ballerina-" + theme + ".css.map generated.");
-                                }
-                            });
-                            fs.writeFile(path.join(buildDir, "ballerina-" + theme + ".min.css"), minifiedOutput.styles, function(error) {
-                                if (error) {
-                                    console.error("ballerina-" + theme + ".min.css generation failed.");
-                                    console.error(error);
-                                } else {
-                                    console.info("ballerina-" + theme + ".min.css generated.");
-                                }
-                            });
-                            fs.writeFile(path.join(buildDir, "ballerina-" + theme + ".min.css.map"), minifiedOutput.sourceMap, function(error) {
-                                if (error) {
-                                    console.error("ballerina-" + theme + ".min.css.map generation failed.");
-                                    console.error(error);
-                                } else {
-                                    console.info("ballerina-" + theme + ".min.css.map generated.");
-                                }
-                            });
-                        },
-                        function(error) {
-                            console.error(error);
-                        });
-            });
+            Object.keys(files).map(key => writeFile(theme, key, files[key]));
+        }, (error) => {
+            console.error(error);
         });
     });
-}
+
+    Promise.all(promises).then(function(buffers) {
+        copyFiles();
+    }).catch(function(error) {
+        console.error(error);
+    });
+};
+
+const writeFile = (theme, file, content) => {
+    fs.writeFileSync(path.join(tempCSSBuildDir, "ballerina-" + theme + file), content, (error) => {
+        console.error("ballerina-" + theme + file + " generation failed.");
+        console.error(error);
+    });
+
+    console.info("ballerina-" + theme + file + " generated.");
+};
+
+const copyFiles = () => {
+    if (!fs.existsSync(buildDir)) {
+        fs.mkdirSync(buildDir, () => {
+            copyCSS();
+            copyAssets();
+        });
+    } else {
+        rimraf(buildDir + '/*', () => {
+            copyCSS();
+            copyAssets();
+        });
+    }
+};
+
+const copyCSS = () => {
+    fs.copy(tempCSSBuildDir, buildDir)
+        .then(() => {
+            console.error('generated css files copied.');
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+};
 
 const copyAssets = () => {
-    fs.copy(path.join(semanticUILessModuleDir, 'themes', 'default', 'assets'), path.join(buildDir, 'assets'), function(error) {
-        if (error) {
-            console.error(error);
-        } else {
+    fs.copy(path.join(semanticUILessModuleDir, 'themes', 'default', 'assets'), path.join(buildDir, 'assets'))
+        .then(() => {
             console.error('semantic-ui-less assets copied.');
-        }
-    });
-}
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+};
 
-if (!fs.existsSync(buildDir)) {
-    fs.mkdirSync(buildDir, function() {
+if (!fs.existsSync(tempCSSBuildDir)) {
+    fs.mkdirSync(tempCSSBuildDir, () => {
         generateThemes();
-        copyAssets();
     });
 } else {
-    rimraf(buildDir + '/*', function() {
+    rimraf(tempCSSBuildDir + '/*', () => {
         generateThemes();
-        copyAssets();
     });
 }

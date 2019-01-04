@@ -1,5 +1,6 @@
 const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -55,13 +56,18 @@ module.exports = {
             }
         ]
     },
-    watchOptions: {
-        ignored: /(node_modules|build)/
-    },
+    // watchOptions: {
+    //     ignored: /(node_modules|build)/
+    // },
     devServer: {
         contentBase: path.join(__dirname, 'build'),
         port: 9000
     },
+    plugins: [
+        new CopyWebpackPlugin([
+            { context: 'node_modules/@ballerina/theme', from: 'build', to: 'theme' }
+        ])
+    ],
     devtool: 'source-map',
     optimization: {
         minimizer: [
