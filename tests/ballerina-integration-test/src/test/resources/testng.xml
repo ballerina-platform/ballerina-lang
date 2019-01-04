@@ -243,4 +243,9 @@
             <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
         </classes>
     </test>
+    <test name="ballerina-future-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>
+        </classes>
+    </test>
 </suite>

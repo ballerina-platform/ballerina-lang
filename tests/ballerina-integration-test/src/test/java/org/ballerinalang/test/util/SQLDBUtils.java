@@ -198,13 +198,12 @@ public class SQLDBUtils {
      * @param jdbcURL JDBC URL
      * @param username  Username for the DB
      * @param password Password to connect to the DB
-     * @param sqlFile SQL statements for initialization.
+     * @param queries SQL statements for initialization.
      */
-    public static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
+    public static void initDatabase(String jdbcURL, String username, String password, String queries) {
         try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
                 Statement st = connection.createStatement()) {
-            String sql = readFileToString(sqlFile);
-            String[] sqlQuery = sql.trim().split("/");
+            String[] sqlQuery = queries.trim().split("/");
             for (String query : sqlQuery) {
                 st.executeUpdate(query.trim());
             }
@@ -222,7 +221,7 @@ public class SQLDBUtils {
     public static class FileBasedTestDatabase extends TestDatabase {
         private String dbDirectory;
 
-        public FileBasedTestDatabase(DBType dbType, String databaseScript, String dbDirectory, String dbName) {
+        public FileBasedTestDatabase(DBType dbType, String queries, String dbDirectory, String dbName) {
             this.dbDirectory = dbDirectory;
             switch (dbType) {
             case H2:
@@ -240,7 +239,7 @@ public class SQLDBUtils {
                         "Creating a file based database is not supported for: " + dbType);
             }
             password = "";
-            initDatabase(jdbcUrl, username, password, databaseScript);
+            initDatabase(jdbcUrl, username, password, queries);
         }
 
         public void stop() {
