@@ -11,13 +11,14 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 
-package org.ballerinalang.test.nativeimpl.functions.file;
+package org.ballerinalang.stdlib.file;
 
+import org.awaitility.Awaitility;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -39,7 +40,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Comparator;
 
-import static org.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
@@ -49,6 +49,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 public class DirectoryListenerConnectorTest {
 
     private File rootDirectory;
+    private Path testResourceRoot;
 
     @BeforeClass
     public void init() {
@@ -56,6 +57,9 @@ public class DirectoryListenerConnectorTest {
             Path rootListenFolderPath = Files.createDirectory(Paths.get("target", "fs"));
             rootDirectory = rootListenFolderPath.toFile();
             rootDirectory.deleteOnExit();
+            String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                    .getAbsolutePath();
+            testResourceRoot = Paths.get(resourceRoot, "test-src");
         } catch (IOException e) {
             Assert.fail("Unable to create root folder to setup watch.", e);
         }
@@ -77,21 +81,22 @@ public class DirectoryListenerConnectorTest {
 
     @Test(description = "Check the valid successful usecase.")
     public void testValidLocalFileSystemServerConnectorSyntax() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("test-src/file/file-system.bal");
+        CompileResult compileResult = BCompileUtil
+                .compileAndSetup(testResourceRoot.resolve("file-system.bal").toString());
         BServiceUtil.runService(compileResult);
         try {
             final Path file = Files.createFile(Paths.get("target", "fs", "temp.txt"));
-            await().atMost(1, MINUTES).until(() -> {
+            Awaitility.await().atMost(1, MINUTES).until(() -> {
                 BValue[] result = BRunUtil.invokeStateful(compileResult, "isCreateInvoked");
                 return ((BBoolean) result[0]).booleanValue();
             });
             Files.setLastModifiedTime(file, FileTime.fromMillis(System.currentTimeMillis()));
-            await().atMost(1, MINUTES).until(() -> {
+            Awaitility.await().atMost(1, MINUTES).until(() -> {
                 BValue[] result = BRunUtil.invokeStateful(compileResult, "isModifyInvoked");
                 return ((BBoolean) result[0]).booleanValue();
             });
             Files.deleteIfExists(file);
-            await().atMost(1, MINUTES).until(() -> {
+            Awaitility.await().atMost(1, MINUTES).until(() -> {
                 BValue[] result = BRunUtil.invokeStateful(compileResult, "isDeleteInvoked");
                 return ((BBoolean) result[0]).booleanValue();
             });
@@ -104,7 +109,7 @@ public class DirectoryListenerConnectorTest {
     public void testNegativeWithoutResource() {
         try {
             final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup("test-src/file/file-system-negative-without-resource.bal");
+                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-without-resource.bal").toString());
             BServiceUtil.runService(compileResult);
         } catch (BLangRuntimeException e) {
             String actualMsg = e.getMessage().substring(7, 133);
@@ -117,8 +122,8 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for invalid resource param count.", enabled = false)
     public void testNegativeWithoutInvalidParamCount() {
         try {
-            final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup("test-src/file/file-system-negative-invalid-param-count.bal");
+            final CompileResult compileResult = BCompileUtil.compileAndSetup(
+                    testResourceRoot.resolve("file-system-negative-invalid-param-count.bal").toString());
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
@@ -132,8 +137,8 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for invalid resource param type.")
     public void testNegativeWithoutInvalidParamType() {
         try {
-            final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup("test-src/file/file-system-negative-invalid-param-type.bal");
+            final CompileResult compileResult = BCompileUtil.compileAndSetup(
+                    testResourceRoot.resolve("file-system-negative-invalid-param-type.bal").toString());
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
@@ -147,8 +152,8 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for invalid resource name.")
     public void testNegativeWithoutInvalidResourceName() {
         try {
-            final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup("test-src/file/file-system-negative-invalid-resource-name.bal");
+            final CompileResult compileResult = BCompileUtil.compileAndSetup(
+                    testResourceRoot.resolve("file-system-negative-invalid-resource-name.bal").toString());
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
@@ -164,7 +169,7 @@ public class DirectoryListenerConnectorTest {
         try {
             Files.createFile(Paths.get("target", "fs", "file.txt"));
             final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup("test-src/file/file-system-negative-not-folder.bal");
+                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-not-folder.bal").toString());
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage().substring(43, 43 + 46);
@@ -177,7 +182,7 @@ public class DirectoryListenerConnectorTest {
     public void testNegativeDirectoryNotExist() {
         try {
             final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup("test-src/file/file-system-negative-folder-exist.bal");
+                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-folder-exist.bal").toString());
             BServiceUtil.runService(compileResult);
         } catch (BLangRuntimeException e) {
             String actualMsg = e.getMessage().substring(43, 43 + 38);
@@ -190,7 +195,7 @@ public class DirectoryListenerConnectorTest {
     public void testNegativeMissingEndpointVariable() {
         try {
             final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup("test-src/file/file-system-negative-missing-variable.bal");
+                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-missing-variable.bal").toString());
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage().substring(43, 43 + 21);
@@ -203,7 +208,7 @@ public class DirectoryListenerConnectorTest {
     public void testNegativeInvalidReturn() {
         try {
             final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup("test-src/file/file-system-negative-invalid-returns.bal");
+                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-invalid-returns.bal").toString());
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
