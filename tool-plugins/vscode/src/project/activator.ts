@@ -1,5 +1,5 @@
 import { BallerinaExtension, ExtendedLangClient, BALLERINA_LANG_ID } from "../core";
-import { workspace, window, commands, Uri } from "vscode";
+import { workspace, window, Uri } from "vscode";
 
 function promptOpenFolder(path: string) {
     if (workspace.workspaceFolders) {
@@ -10,9 +10,9 @@ function promptOpenFolder(path: string) {
             return;
         }
     }
-    const action = "Open Folder";
-    window.showInformationMessage("File resides within a project. " +
-        "Do you want to open the project folder at  " + path, action)
+    const action = "Open Project";
+    window.showInformationMessage("File resides within a Ballerina project at " +
+        path, action)
         .then((selection) => {
             if (selection === action) {
                 workspace.updateWorkspaceFolders(0, 0, { uri: Uri.file(path)});
