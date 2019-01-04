@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.testutils;
+package org.ballerinalang.test.utils;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;

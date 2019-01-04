@@ -1,6 +1,5 @@
 import ballerina/http;
 import ballerina/mime;
-import ballerina/file;
 
 listener http:MockListener mockEP = new(9090);
 
@@ -18,7 +17,7 @@ service test on mockEP {
 
         //Create another body part with a xml file.
         mime:Entity bodyPart2 = new;
-        bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/mime/file.xml", contentType = mime:TEXT_XML);
+        bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/file.xml", contentType = mime:TEXT_XML);
 
         //Create a text body part.
         mime:Entity bodyPart3 = new;
@@ -26,7 +25,7 @@ service test on mockEP {
 
         //Create another body part with a text file.
         mime:Entity bodyPart4 = new;
-        bodyPart4.setFileAsEntityBody("src/test/resources/datafiles/mime/test.tmp");
+        bodyPart4.setFileAsEntityBody("src/test/resources/datafiles/test.tmp");
 
         //Create an array to hold all the body parts.
         mime:Entity[] bodyParts = [bodyPart1, bodyPart2, bodyPart3, bodyPart4];

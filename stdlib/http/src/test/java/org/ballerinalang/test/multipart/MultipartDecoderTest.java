@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.mime;
+package org.ballerinalang.test.multipart;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.StringUtil;
@@ -25,10 +25,11 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.HTTPTestRequest;
+import org.ballerinalang.test.utils.MessageUtils;
+import org.ballerinalang.test.utils.MultipartUtils;
 import org.ballerinalang.test.utils.ResponseReader;
+import org.ballerinalang.test.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,7 +52,7 @@ public class MultipartDecoderTest {
 
     @BeforeClass
     public void setup() {
-        String sourceFilePath = "test-src/mime/multipart-request.bal";
+        String sourceFilePath = "test-src/multipart/multipart-request.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
@@ -167,7 +168,7 @@ public class MultipartDecoderTest {
     @Test(description = "Test whether the nested parts can be properly decoded.")
     public void testNestedPartsForOneLevel() {
         String path = "/test/nestedparts";
-        HTTPTestRequest inRequestMsg = Util.createNestedPartRequest(path);
+        HTTPTestRequest inRequestMsg = MultipartUtils.createNestedPartRequest(path);
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Child Part 1" + StringUtil.NEWLINE

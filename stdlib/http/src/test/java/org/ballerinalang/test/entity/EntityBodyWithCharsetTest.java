@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.mime;
+package org.ballerinalang.test.entity;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -25,9 +25,9 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.HTTPTestRequest;
+import org.ballerinalang.test.utils.MessageUtils;
+import org.ballerinalang.test.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,7 +49,7 @@ public class EntityBodyWithCharsetTest {
 
     @BeforeClass
     public void setup() {
-        String sourceFilePath = "test-src/mime/entity-body-with-charset-test.bal";
+        String sourceFilePath = "test-src/entity/entity-body-with-charset-test.bal";
         compileResult = BCompileUtil.compileAndSetup(sourceFilePath);
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }

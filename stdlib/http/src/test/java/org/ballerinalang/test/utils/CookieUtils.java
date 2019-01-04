@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.testutils;
+package org.ballerinalang.test.utils;
 
 import org.ballerinalang.net.http.HttpConstants;
 
