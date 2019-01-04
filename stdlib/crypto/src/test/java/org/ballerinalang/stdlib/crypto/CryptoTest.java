@@ -13,7 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.test.nativeimpl.functions;
+
+package org.ballerinalang.stdlib.crypto;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -41,7 +42,7 @@ public class CryptoTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/crypto-test.bal");
+        compileResult = BCompileUtil.compile("test-src/crypto-test.bal");
     }
 
     @Test
@@ -110,7 +111,7 @@ public class CryptoTest {
         BValue[] args = {new BString("Ballerina HMAC test"), new BString("")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA1", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
+                "Invalid return value");
     }
 
     @Test
@@ -140,7 +141,7 @@ public class CryptoTest {
         String expectedCRC32Hash = "e1ad4853";
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForText",
-                                                new BValue[]{new BString(payload)});
+                new BValue[]{new BString(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
@@ -151,8 +152,8 @@ public class CryptoTest {
         String expectedCRC32Hash = "f3638b7f";
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForBinary",
-                                                new BValue[]{new BValueArray(payload.
-                                                        getBytes(StandardCharsets.UTF_8))});
+                new BValue[]{new BValueArray(payload.
+                        getBytes(StandardCharsets.UTF_8))});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
@@ -166,7 +167,7 @@ public class CryptoTest {
         String expectedCRC32Hash = Long.toHexString(crc.getValue());
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForJSON",
-                                                new BValue[]{ JsonParser.parse(payload) });
+                new BValue[]{JsonParser.parse(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
@@ -177,7 +178,7 @@ public class CryptoTest {
         String expectedCRC32Hash = "748efc2";
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForXML",
-                                                new BValue[]{new BXMLItem(payload)});
+                new BValue[]{new BXMLItem(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
