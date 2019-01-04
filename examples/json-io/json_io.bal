@@ -35,7 +35,7 @@ function write(json content, string path) returns error? {
     }
 }
 
-// Reads json from a given path.
+// Reads a `json` value from the specified path.
 function read(string path) returns json|error {
     // Creates a readable byte channel from the given path.
     io:ReadableByteChannel rbc = io:openReadableFile(path);
