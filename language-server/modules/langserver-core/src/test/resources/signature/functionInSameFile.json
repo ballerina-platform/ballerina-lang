@@ -8,15 +8,21 @@
       "signatures":[
         {
           "label":"getGreeting(int year, string message)",
-          "documentation":"Returns a sample greeting with the given content",
+          "documentation":{
+            "left":"Returns a sample greeting with the given content"
+          },
           "parameters":[
             {
               "label":"year",
-              "documentation":"Year to print "
+              "documentation":{
+                "left":"Year to print "
+              }
             },
             {
               "label":"message",
-              "documentation":"Greeting message to print "
+              "documentation":{
+                "left":"Greeting message to print "
+              }
             }
           ]
         }

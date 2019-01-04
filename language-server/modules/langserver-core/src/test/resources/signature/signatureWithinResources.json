@@ -8,11 +8,15 @@
       "signatures":[
         {
           "label":"respond(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)",
-          "documentation":"Sends the outbound response to the caller.",
+          "documentation":{
+            "left":"Sends the outbound response to the caller."
+          },
           "parameters":[
             {
               "label":"message",
-              "documentation":"The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`"
+              "documentation":{
+                "left":"The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`"
+              }
             }
           ]
         }

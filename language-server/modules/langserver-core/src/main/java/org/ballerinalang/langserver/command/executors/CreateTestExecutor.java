@@ -45,6 +45,7 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -219,9 +220,8 @@ public class CreateTestExecutor implements LSCommandExecutor {
             // Send edits
             VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
             identifier.setUri(testFile.toPath().toUri().toString());
-            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(identifier, content);
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-            workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+            TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(identifier, content);
+            WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
             ApplyWorkspaceEditParams editParams = new ApplyWorkspaceEditParams();
             editParams.setEdit(workspaceEdit);
             if (client != null) {

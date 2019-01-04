@@ -26,6 +26,7 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
+import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
@@ -108,7 +109,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getCompletionResponse(String filePath, Position position, Endpoint endpoint) {
-        CompletableFuture result = endpoint.request(COMPLETION, getTextDocumentPositionParams(filePath, position));
+        CompletableFuture result = endpoint.request(COMPLETION, getCompletionParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -341,6 +342,14 @@ public class TestUtil {
         positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
 
         return positionParams;
+    }
+
+    private static CompletionParams getCompletionParams(String filePath, Position position) {
+        CompletionParams completionParams = new CompletionParams();
+        completionParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        completionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        return completionParams;
     }
 
     private static String getResponseString(CompletableFuture completableFuture) {

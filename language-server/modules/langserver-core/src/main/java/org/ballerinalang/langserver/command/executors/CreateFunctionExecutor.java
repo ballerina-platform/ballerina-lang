@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -68,8 +69,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
     @Override
     public Object execute(LSContext context) throws LSCommandExecutorException {
         String documentUri = null;
-        String returnType = null;
-        String returnValue = null;
+        String returnType;
+        String returnValue;
         String funcArgs = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
@@ -110,7 +111,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         Path filePath = Paths.get(URI.create(documentUri));
         Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
-        String fileContent = null;
+        String fileContent;
         try {
             fileContent = documentManager.getFileContent(compilationPath);
         } catch (WorkspaceDocumentException e) {
@@ -152,7 +153,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
         edits.add(new TextEdit(range, editText));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
-        return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit), client);
+        return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
     }
 
     private TextEdit addPackage(String pkgName, BLangPackage srcOwnerPkg, LSContext context) {
