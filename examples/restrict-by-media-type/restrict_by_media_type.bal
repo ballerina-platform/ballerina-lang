@@ -4,7 +4,7 @@ import ballerina/log;
 // The `consumes` and `produces` annotations that contain MIME types as an array of strings.
 service infoService on new http:Listener(9092) {
 
-    // The resource can consume/accept `text/json` and `application/json` media types only. Therefore, the `Content-Type` header must have one of the types.
+     // The resource can consume/accept `text/json` and `application/json` media types only. Therefore, the `Content-Type` header of the request must have one of these two types.
     // The resource can produce `application/xml` payloads. Therefore, the `Accept` header should be set accordingly.
     @http:ResourceConfig {
         methods: ["POST"],
