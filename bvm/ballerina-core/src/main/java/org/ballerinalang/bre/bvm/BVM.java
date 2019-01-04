@@ -186,8 +186,7 @@ public class BVM {
 
         while (sf.ip >= 0) {
             if (strand.aborted) {
-                strand.currentFrame.ip = -1;
-                BVMScheduler.strandCountDown();
+                handleChannelTermination(strand);
                 return;
             }
             if (debugEnabled && debug(strand)) {
@@ -827,6 +826,33 @@ public class BVM {
             }
             sf = strand.currentFrame;
         }
+    }
+
+    private static void handleChannelTermination(Strand strand) {
+        // Stop the observation context before popping the stack frame
+        ObserveUtils.stopCallableObservation(strand);
+        // Set error to strand and callback
+        BError error = BLangVMErrors.createCancelledFutureError(strand);
+        strand.setError(error);
+        strand.respCallback.setError(error);
+        // Make the ip of current frame to -1
+        strand.currentFrame.ip = -1;
+        // Panic all stack frames in the strand
+        panicStackFrame(strand);
+        // Panic all channels in the strand
+        signalTransactionError(strand, StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT);
+        strand.respCallback.signal();
+    }
+    private static void panicStackFrame(Strand strand) {
+        if (strand.fp < 0) {
+            return;
+        }
+        StackFrame poppedFrame = strand.popFrame();
+        // Panic channels in the current frame
+        poppedFrame.handleChannelPanic(strand.getError(), poppedFrame.wdChannels);
+        // Panic all channels in the current frame
+        signalTransactionError(strand, poppedFrame.trxParticipant);
+        panicStackFrame(strand);
     }
 
     private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
@@ -4468,6 +4494,8 @@ public class BVM {
             transactionLocalContext.notifyLocalRemoteParticipantFailure();
         } else if (transactionParticipant == StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT) {
             transactionLocalContext.notifyLocalParticipantFailure();
+        } else {
+            transactionLocalContext.rollbackTransactionOnCancelledFuture();
         }
     }
 
