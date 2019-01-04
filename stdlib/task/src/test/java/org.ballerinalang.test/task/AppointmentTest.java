@@ -28,12 +28,15 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import java.util.Arrays;
 
 import static org.awaitility.Awaitility.await;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
+
 
 /**
  * Tests for Ballerina appointment tasks.
