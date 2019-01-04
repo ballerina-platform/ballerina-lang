@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.mime;
+package org.ballerinalang.mime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -64,10 +64,10 @@ import static org.ballerinalang.mime.util.MimeConstants.PRIMARY_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.SUBTYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_FIELD;
-import static org.ballerinalang.test.mime.Util.assertJBytesWithBBytes;
-import static org.ballerinalang.test.mime.Util.getTemporaryFile;
-import static org.ballerinalang.test.mime.Util.validateBodyPartContent;
-import static org.ballerinalang.test.mime.Util.verifyMimeError;
+import static org.ballerinalang.mime.Util.assertJBytesWithBBytes;
+import static org.ballerinalang.mime.Util.getTemporaryFile;
+import static org.ballerinalang.mime.Util.validateBodyPartContent;
+import static org.ballerinalang.mime.Util.verifyMimeError;
 
 /**
  * Unit tests for MIME package utilities.

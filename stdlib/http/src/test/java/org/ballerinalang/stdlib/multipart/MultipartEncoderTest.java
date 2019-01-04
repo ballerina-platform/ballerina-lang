@@ -52,11 +52,11 @@ import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FIEL
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILENAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
-import static org.ballerinalang.test.mime.Util.getContentDispositionStruct;
-import static org.ballerinalang.test.mime.Util.getEntityStruct;
-import static org.ballerinalang.test.mime.Util.getMultipartEntity;
-import static org.ballerinalang.test.mime.Util.getNestedMultipartEntity;
-import static org.ballerinalang.test.mime.Util.validateBodyPartContent;
+import static org.ballerinalang.mime.Util.getContentDispositionStruct;
+import static org.ballerinalang.mime.Util.getEntityStruct;
+import static org.ballerinalang.mime.Util.getMultipartEntity;
+import static org.ballerinalang.mime.Util.getNestedMultipartEntity;
+import static org.ballerinalang.mime.Util.validateBodyPartContent;
 import static org.ballerinalang.test.utils.MultipartUtils.createNestedPartRequest;
 
 /**

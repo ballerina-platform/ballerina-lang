@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.mime;
+package org.ballerinalang.mime;
 
 import io.netty.handler.codec.http.HttpRequest;
 import org.ballerinalang.mime.util.MimeConstants;
