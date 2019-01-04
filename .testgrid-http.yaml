@@ -10,27 +10,23 @@ infrastructureConfig:
   - JDK : ORACLE_JDK8
   includes:
   - Ubuntu-18.04
-  - MySQL-5.7
-  - OracleJDK-8
   provisioners:
   - name: single-node-deployment
-    remoteRepository: "git@github.com:manuri/aws-ballerina.git"
+    remoteRepository: "git@github.com:VijithaEkanayake/aws-ballerina.git"
     remoteBranch: "master"
     description: Provision Infra for running scenario tests
     scripts:
     - name: 'ballerina-scenario-deployment'
       description: ''
       type: CLOUDFORMATION
-      file: data-integration/data-integration.yaml
+      file: http-resiliency/http-resiliency.yaml
       inputParameters:
         KeyPairName: "deployment-prod"
         CertificateName: "wso2-testgrid"
-        DBUsername: "ballerina"
-        DBPassword: "DB_Password"
 scenarioConfigs:
 - testType: TESTNG
   remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
   remoteBranch: "ballerina-scenarios"
   name: "ballerina-scenarios"
   description: "ballerina-scenarios"
-  file: product-scenarios/test.sh
+  file: product-scenarios/test-http.sh
