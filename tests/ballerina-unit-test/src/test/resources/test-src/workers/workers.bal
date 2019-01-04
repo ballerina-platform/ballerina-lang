@@ -360,36 +360,6 @@ public function workerWithFutureTest3() returns int {
     return wait w2;
 }
 
-channel<string> chn = new;
-
-function workerWithFutureTest4() returns string {
-    worker w1 {
-        string msg = "Hello John";
-        workerWithDataChannels();
-        msg -> chn, "001";
-    }
-
-    boolean cancel_w1 = w1.cancel();
-    string result = <- chn, "001";
-    return result;
-}
-
-function workerWithDataChannels() {
-    worker w1 {
-        string msg = "Hello John";
-        waitFor();
-        msg -> chn, "001";
-    }
-
-    worker w2 {
-       string msg = "Hello Peter";
-       waitFor();
-       msg -> chn, "002";
-    }
-    string result_w1 = <- chn, "001";
-    string result_w2 = <- chn, "002";
-}
-
 function add(int i, int j) returns int {
   waitFor();
   return i + j;

@@ -270,12 +270,6 @@ public class WorkerTest {
         }
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*", enabled = false)
-    public void workerWithFutureTest4() {
-        BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest4");
-    }
-
     private void sameStrandMultipleInvocationTest() {
         PrintStream defaultOut = System.out;
         try {
