@@ -62,6 +62,11 @@ import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_NAME;
 import static org.ballerinalang.test.mime.Util.getEntityStruct;
 import static org.ballerinalang.test.mime.Util.getMediaTypeStruct;
 
+/**
+ * Utility functions for interact with Ballerina mime Entity.
+ *
+ * @since 0.990.3
+ */
 public class MultipartUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(MultipartUtils.class);
