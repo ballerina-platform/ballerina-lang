@@ -186,7 +186,7 @@ public class BVM {
 
         while (sf.ip >= 0) {
             if (strand.aborted) {
-                handleChannelTermination(strand);
+                handleFutureTermination(strand);
                 return;
             }
             if (debugEnabled && debug(strand)) {
@@ -828,13 +828,13 @@ public class BVM {
         }
     }
 
-    private static void handleChannelTermination(Strand strand) {
+    private static void handleFutureTermination(Strand strand) {
         // Stop the observation context before popping the stack frame
         ObserveUtils.stopCallableObservation(strand);
         // Set error to strand and callback
         BError error = BLangVMErrors.createCancelledFutureError(strand);
         strand.setError(error);
-        strand.respCallback.setError(error);
+        ((SafeStrandCallback) strand.respCallback).setErrorForCancelledFuture(error);
         // Make the ip of current frame to -1
         strand.currentFrame.ip = -1;
         // Panic all stack frames in the strand
@@ -4495,7 +4495,8 @@ public class BVM {
         } else if (transactionParticipant == StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT) {
             transactionLocalContext.notifyLocalParticipantFailure();
         } else {
-            transactionLocalContext.rollbackTransactionOnCancelledFuture();
+            String blockID = transactionLocalContext.getCurrentTransactionBlockId();
+            notifyTransactionAbort(strand, blockID, transactionLocalContext);
         }
     }
 

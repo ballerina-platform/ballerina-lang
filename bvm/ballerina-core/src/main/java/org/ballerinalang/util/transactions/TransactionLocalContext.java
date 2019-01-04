@@ -149,11 +149,6 @@ public class TransactionLocalContext {
         TransactionResourceManager.getInstance().notifyResourceFailure(globalTransactionId);
     }
 
-    public void rollbackTransactionOnCancelledFuture() {
-        String blockID = transactionBlockIdStack.peek();
-        transactionResourceManager.rollbackTransaction(globalTransactionId, blockID);
-    }
-
     public boolean onTransactionEnd(String transactionBlockId) {
         boolean isOuterTx = false;
         transactionBlockIdStack.pop();
