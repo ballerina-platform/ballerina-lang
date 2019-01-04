@@ -1,4 +1,4 @@
-// This is the client implementation for the client streaming scenario.
+// This is the B7a test for the client streaming scenario.
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/test;
@@ -10,14 +10,11 @@ string responseMsg = "";
 
 @test:Config
 function testClientStreamingService() {
-
     grpc:StreamingClient ep;
     // Execute the unary non-blocking call that registers a server message listener.
     var res = helloWorldEp->lotsOfGreetings(MessageListener);
-
     if (res is error) {
-        string errorMsg = "Error from Connector: " + res.reason() + " - "
-                                                    + <string>res.detail().message;
+        string errorMsg = "Error from Connector: " + res.reason() + " - " + <string>res.detail().message;
         test:assertFail(msg = errorMsg);
         return;
     } else {
@@ -31,14 +28,12 @@ function testClientStreamingService() {
     foreach string greet in greets {
         error? connErr = ep->send(greet + " " + name);
         if (connErr is error) {
-            string errorMsg = "Error from Connector: " + connErr.reason() + " - "
-                                                    + <string>connErr.detail().message;
+            string errorMsg = "Error from Connector: " + connErr.reason() + " - " + <string>connErr.detail().message;
             test:assertFail(msg = errorMsg);
         } else {
             io:println("Send greeting: " + greet + " " + name);
         }
     }
-
     // Once all the messages are sent, the server notifies the caller with a `complete` message.
     _ = ep->complete();
 
@@ -53,7 +48,6 @@ function testClientStreamingService() {
     test:assertEquals(completed, true, msg = "Incomplete response message.");
     string expected = "Ack";
     test:assertEquals(responseMsg, expected);
-
 }
 
 // Server Message Listener.
@@ -69,8 +63,7 @@ service MessageListener = service {
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         completed = true;
-        responseMsg = "Error from Connector: " + untaint err.reason() + " - "
-                                            + untaint <string>err.detail().message;
+        responseMsg = "Error from Connector: " + untaint err.reason() + " - " + untaint <string>err.detail().message;
     }
 
     // Resource registered to receive server completed messages.

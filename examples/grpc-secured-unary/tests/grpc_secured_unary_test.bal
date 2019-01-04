@@ -1,4 +1,4 @@
-// This is the server implementation for the secured connection (HTTPS) scenario.
+// This is the B7a test for the secured connection (HTTPS) scenario.
 import ballerina/io;
 import ballerina/test;
 
@@ -15,12 +15,10 @@ HelloWorldBlockingClient helloWorldBlockingEp = new("https://localhost:9090",
 
 @test:Config
 function testSecuredUnaryService() {
-
     // Executes unary blocking secured call.
     var unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is error) {
-        string errorMsg = "Error from Connector: " + unionResp.reason() + " - "
-                                            + <string>unionResp.detail().message;
+        string errorMsg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
         test:assertFail(msg = errorMsg);
     } else {
         string result;

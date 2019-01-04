@@ -34,7 +34,7 @@ public class UnsupportedFieldTypesTest {
     @Test
     public void testUnsupportedJsonType() {
 
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc",
+        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
                 "negative_json_message_type.bal");
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());
@@ -46,7 +46,7 @@ public class UnsupportedFieldTypesTest {
     @Test
     public void testUnsupportedMapType() {
 
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc",
+        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
                 "negative_map_message_type.bal");
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());

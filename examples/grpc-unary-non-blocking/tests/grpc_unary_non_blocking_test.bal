@@ -1,4 +1,4 @@
-// This is the client implementation for the unary non blocking scenario.
+// This is the B7a test for the unary non blocking scenario.
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/test;
@@ -12,10 +12,8 @@ string responseMsg = "";
 function testUnaryNonBlockingClient() {
     // Execute the unary non-blocking call that registers the server message listener.
     error? result = helloWorldEp->hello("WSO2", messageListener);
-
     if (result is error) {
-        string errorMsg = "Error from Connector: " + result.reason() + " - "
-            + <string>result.detail().message;
+        string errorMsg = "Error from Connector: " + result.reason() + " - " + <string>result.detail().message;
         test:assertFail(msg = errorMsg);
     } else {
         io:println("Connected successfully");
@@ -44,8 +42,7 @@ service messageListener = service {
 
     // Resource registered to receive server error messages.
     resource function onError(error err) {
-        responseMsg = "Error from Connector: " + untaint err.reason() + " - "
-            + untaint <string>err.detail().message;
+        responseMsg = "Error from Connector: " + untaint err.reason() + " - " + untaint <string>err.detail().message;
     }
 
     // Resource registered to receive server completed messages.

@@ -1,4 +1,4 @@
-// This is the client implementation for the server streaming scenario.
+// This is the B7a test for the server streaming scenario.
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/test;
@@ -15,8 +15,7 @@ function testServerStreamingService() {
     // Execute the unary non-blocking call that registers the server message listener.
     error? result = streamingEp->lotsOfReplies("Sam", messageListener);
     if (result is error) {
-        test:assertFail(msg = "Error from Connector: " + result.reason() + " - "
-                + <string>result.detail().message);
+        test:assertFail(msg = "Error from Connector: " + result.reason() + " - " + <string>result.detail().message);
     } else {
         io:println("Connected successfully");
     }
@@ -37,6 +36,7 @@ function testServerStreamingService() {
     foreach string msg in responseMsgs {
         test:assertTrue(msg == expectedMsg1 || msg == expectedMsg2 || msg == expectedMsg3);
     }
+    test:assertEquals(respError, "");
 }
 
 // Server Message Listener.
@@ -50,8 +50,7 @@ service messageListener = service {
 
     // Resource registered to receive server error messages.
     resource function onError(error err) {
-        respError = "Error from Connector: " + untaint err.reason() + " - "
-            + untaint <string>err.detail().message;
+        respError = "Error from Connector: " + untaint err.reason() + " - " + untaint <string>err.detail().message;
     }
 
     // Resource registered to receive server completed messages.

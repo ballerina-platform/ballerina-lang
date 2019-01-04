@@ -1,4 +1,4 @@
-// This is client implementation for unary blocking scenario.
+// This is the B7a test for unary blocking scenario.
 import ballerina/grpc;
 import ballerina/test;
 
@@ -13,11 +13,8 @@ function testUnaryBlockingService() {
 
     // Executes unary blocking call with headers.
     var unionResp = blockingEp->hello("WSO2", headers = headers);
-
-    // Reads message and headers from response.
     if (unionResp is error) {
-        string errorMsg = "Error from Connector: " + unionResp.reason() + " - "
-            + <string>unionResp.detail().message;
+        string errorMsg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
         test:assertFail(msg = errorMsg);
     } else {
         string result;

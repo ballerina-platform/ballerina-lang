@@ -1,4 +1,4 @@
-// This is client implementation for bidirectional streaming scenario.
+// This is the B7a test for bidirectional streaming scenario.
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/test;
@@ -13,10 +13,8 @@ function testBidiStreamingService() {
     grpc:StreamingClient ep;
     // Executes unary non-blocking call registering server message listener.
     var res = chatEp->chat(MessageListener);
-
     if (res is error) {
-        string errorMsg = "Error from Connector: " + res.reason() + " - "
-                                            + <string>res.detail().message;
+        string errorMsg = "Error from Connector: " + res.reason() + " - " + <string>res.detail().message;
         test:assertFail(msg = errorMsg);
         return;
     } else {
@@ -27,12 +25,11 @@ function testBidiStreamingService() {
     // Sends multiple messages to the server.
     ChatMessage mes = { name: "Sam", message: "Hi" };
     error? connErr = ep->send(mes);
-
     if (connErr is error) {
-        string errorMsg = "Error from Connector: " + connErr.reason() + " - "
-            + <string>connErr.detail().message;
+        string errorMsg = "Error from Connector: " + connErr.reason() + " - " + <string>connErr.detail().message;
         test:assertFail(msg = errorMsg);
     }
+
     int waitCount = 0;
     while(!received) {
         runtime:sleep(1000);
@@ -48,7 +45,6 @@ function testBidiStreamingService() {
     _ = ep->complete();
 }
 
-
 service MessageListener = service {
 
     // Resource registered to receive server messages.
@@ -61,7 +57,7 @@ service MessageListener = service {
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         responseMsg = "Error reported from server: " + untaint err.reason() + " - "
-                                  + untaint <string>err.detail().message;
+                                                                            + untaint <string>err.detail().message;
         received = true;
     }
 
