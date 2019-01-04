@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines a `object `called `Person`. It has attached functions both inside and outside of the `object`.
+// Defines an object called `Person`. It has attached functions both inside and outside of the object.
 type Person object {
     public int age;
     public string firstName;
