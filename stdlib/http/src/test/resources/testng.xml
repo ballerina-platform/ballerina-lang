@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 
 WSO2 Inc. licenses this file to you under the Apache License,
 Version 2.0 (the "License"); you may not use this file except
@@ -29,16 +29,16 @@ under the License.
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.test.entity.*"/>
-            <package name="org.ballerinalang.test.multipart.*"/>
-            <package name="org.ballerinalang.test.services.basics.*"/>
-            <package name="org.ballerinalang.test.services.configuration.*"/>
-            <package name="org.ballerinalang.test.services.cors.*"/>
-            <package name="org.ballerinalang.test.services.dispatching.*"/>
-            <package name="org.ballerinalang.test.services.nativeimpl.*"/>
-            <package name="org.ballerinalang.test.resiliency.*"/>
-            <package name="org.ballerinalang.test.websocket.*"/>
-            <package name="org.ballerinalang.test.cachingclient.*"/>
+            <package name="org.ballerinalang.stdlib.entity.*"/>
+            <package name="org.ballerinalang.stdlib.multipart.*"/>
+            <package name="org.ballerinalang.stdlib.services.basics.*"/>
+            <package name="org.ballerinalang.stdlib.services.configuration.*"/>
+            <package name="org.ballerinalang.stdlib.services.cors.*"/>
+            <package name="org.ballerinalang.stdlib.services.dispatching.*"/>
+            <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
+            <package name="org.ballerinalang.stdlib.resiliency.*"/>
+            <package name="org.ballerinalang.stdlib.websocket.*"/>
+            <package name="org.ballerinalang.stdlib.cachingclient.*"/>
         </packages>
     </test>
 </suite>
