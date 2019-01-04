@@ -19,9 +19,11 @@ package org.ballerinalang.test.worker;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -240,6 +242,38 @@ public class WorkerTest {
         BValue[] returns = BRunUtil.invoke(result, "workerTestWithLambda");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+    public void workerWithFutureTest1() {
+        BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void workerWithFutureTest2() {
+        BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+    }
+
+    @Test
+    public void workerWithFutureTest3() {
+        try {
+            BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest3");
+            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
+        } catch (BLangRuntimeException e) {
+            Assert.assertTrue(e.getMessage().contains("error: future is already cancelled {}"));
+        }
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*", enabled = false)
+    public void workerWithFutureTest4() {
+        BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest4");
     }
 
     private void sameStrandMultipleInvocationTest() {
