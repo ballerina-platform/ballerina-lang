@@ -32,7 +32,7 @@ public type Employee object {
 };
 
 public function main() {
-    // Initializing variable of `object` type Employee and assign that to `Person` type variable.
+    // Create an object of type `Employee` and assign that to a variable of type `Person`.
     Person p1 = new Employee(50, "John", "street1");
     io:println(p1);
 
