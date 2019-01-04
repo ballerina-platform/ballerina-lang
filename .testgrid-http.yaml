@@ -1,0 +1,36 @@
+# TestGrid job configuration
+
+version: '0.9'
+emailToList: "manurip@wso2.com,vijithae@wso2.com"
+infrastructureConfig:
+  iacProvider: CLOUDFORMATION
+  infrastructureProvider: AWS
+  containerOrchestrationEngine: None
+  parameters:
+  - JDK : ORACLE_JDK8
+  includes:
+  - Ubuntu-18.04
+  - MySQL-5.7
+  - OracleJDK-8
+  provisioners:
+  - name: single-node-deployment
+    remoteRepository: "git@github.com:manuri/aws-ballerina.git"
+    remoteBranch: "master"
+    description: Provision Infra for running scenario tests
+    scripts:
+    - name: 'ballerina-scenario-deployment'
+      description: ''
+      type: CLOUDFORMATION
+      file: data-integration/data-integration.yaml
+      inputParameters:
+        KeyPairName: "deployment-prod"
+        CertificateName: "wso2-testgrid"
+        DBUsername: "ballerina"
+        DBPassword: "DB_Password"
+scenarioConfigs:
+- testType: TESTNG
+  remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
+  remoteBranch: "ballerina-scenarios"
+  name: "ballerina-scenarios"
+  description: "ballerina-scenarios"
+  file: product-scenarios/test.sh
