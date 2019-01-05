@@ -1,7 +1,6 @@
 # TestGrid Test Configuration Parameters
 version: '0.9'
 infrastructureConfig:
-  iacProvider: TERRAFORM
   infrastructureProvider: SHELL
   containerOrchestrationEngine: K8S
   includes:
