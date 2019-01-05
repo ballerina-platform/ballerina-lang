@@ -42,6 +42,15 @@ listener http:Listener httpListener = new(9090);
 
 // By default, Ballerina assumes that the service is to be exposed via HTTP/1.1.
 service hello on httpListener {
+
+    resource function sayHello(http:Caller caller, http:Request req) {
+        // Send a response back to the caller.
+        var result = caller->respond("Hello, World!");
+        // Log the `error` in case of a failure.
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
+    }
     // curl -v http://localhost:9090/hello/select
     resource function select(http:Caller caller, http:Request req) {
         http:Response res = new;
