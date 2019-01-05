@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/time;
 
 public function main() {
-    // To create the `time:Time` object you can use either the `currentTime`, `createTime`, or the `parse` function.
+    // To create the `time:Time` object you can use either the `currentTime()`, `createTime()`, or the `parse()` function.
     // This fetches the current time.
     time:Time time = time:currentTime();
     int currentTimeMills = time.time;
