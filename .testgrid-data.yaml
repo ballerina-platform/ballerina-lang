@@ -32,7 +32,7 @@ scenarioConfigs:
   file: product-scenarios/test-data.sh
 deploymentConfig:
   deploymentPatterns:
-    - name: 'scenario tests'
+    - name: 'scenario-tests'
       description: 'dummy'
       remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
       remoteBranch: "ballerina-scenarios"
