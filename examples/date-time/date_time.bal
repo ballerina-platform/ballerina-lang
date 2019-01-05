@@ -17,7 +17,7 @@ public function main() {
     time:Time t1 = time:parse("2017-06-26T09:46:22.444-0500",
                               "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     io:println("Parsed Time: " + t1.toString());
-    // You can retrieve the string representation of the time via the `toString` or the `format` function.
+    // You can retrieve the string representation of the time via the `toString()` function or the `format()` function.
     // This fetches the ISO 8601 formatted string of a given time.
     string standardTimeString = time.toString();
     io:println("Current system time in ISO format: " + standardTimeString);
