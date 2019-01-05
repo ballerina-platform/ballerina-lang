@@ -27,7 +27,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     int nameLength = 0;
     string nameValue;
     io:ReadableDataChannel dc = new io:ReadableDataChannel(byteChannel);
-    //Read 32 bit singed integer.
+    //Read 32 bit signed integer.
     var int32Result = dc.readInt32();
     if (int32Result is int) {
         nameLength = int32Result;
