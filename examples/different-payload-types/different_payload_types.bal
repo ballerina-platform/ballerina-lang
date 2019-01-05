@@ -36,7 +36,7 @@ service actionService on new http:Listener(9090) {
         response = clientEP->post("/echo", { name: "apple", color: "red" });
         handleResponse(response);
 
-        //POST remote function with `byte` array as payload.
+        //POST remote function with `byte[]` as payload.
         string textVal = "Sample Text";
         byte[] binaryValue = textVal.toByteArray("UTF-8");
         response = clientEP->post("/echo", binaryValue);
