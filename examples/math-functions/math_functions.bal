@@ -31,5 +31,5 @@ public function main() {
     io:println("Cube root of -27.0                  : " + cubeRoot);
 
     //There are over 40 methods in the ballerina math API that can be used to perform numeric operations.
-    //You can find them in the `ballerina.math` module.
+    //You can find them in the `ballerina/math` module.
 }
