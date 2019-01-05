@@ -20,14 +20,10 @@ package org.ballerinalang.config;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ballerinalang.bcl.parser.BConfig;
 import org.ballerinalang.bcl.parser.BConfigLangListener;
-import org.ballerinalang.toml.antlr4.TomlLexer;
-import org.ballerinalang.toml.antlr4.TomlParser;
+import org.ballerinalang.toml.antlr4.TomlProcessor;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -158,7 +154,9 @@ public class ConfigProcessor {
         ANTLRFileStream configFileStream = new ANTLRFileStream(path);
         BConfig configEntries = new BConfig();
         ParseTreeWalker treeWalker = new ParseTreeWalker();
-        treeWalker.walk(new BConfigLangListener(configEntries), buildParseTree(configFileStream));
+        Path configFileName = Paths.get(path).getFileName();
+        treeWalker.walk(new BConfigLangListener(configEntries),
+                        TomlProcessor.parseTomlContent(configFileStream, configFileName.toString()));
         return configEntries;
     }
 
@@ -173,15 +171,9 @@ public class ConfigProcessor {
         ANTLRInputStream runtimeConfigsStream = new ANTLRInputStream(stringBuilder.toString());
         BConfig runtimeConfigEntries = new BConfig();
         ParseTreeWalker treeWalker = new ParseTreeWalker();
-        treeWalker.walk(new BConfigLangListener(runtimeConfigEntries), buildParseTree(runtimeConfigsStream));
+        treeWalker.walk(new BConfigLangListener(runtimeConfigEntries),
+                        TomlProcessor.parseTomlContent(runtimeConfigsStream, null));
         return runtimeConfigEntries;
-    }
-
-    private static ParseTree buildParseTree(CharStream configEntriesStream) {
-        TomlLexer lexer = new TomlLexer(configEntriesStream);
-        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-        TomlParser parser = new TomlParser(tokenStream);
-        return parser.toml();
     }
 
     private static void addErrorMsg(StringBuilder errMsgBuilder, String msg, String key, String val) {

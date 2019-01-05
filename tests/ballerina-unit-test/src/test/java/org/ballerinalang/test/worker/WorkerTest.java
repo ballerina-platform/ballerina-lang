@@ -102,7 +102,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expected = "error: error: err from panic {}\n\tat $lambda$9(workers.bal:";
+        String expected = "error: error: err from panic {}\n\tat $lambda$";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -129,7 +129,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expected = "error: error: err from panic {}\n" + "\tat $lambda$11(workers.bal:";
+        String expected = "error: error: err from panic {}\n" + "\tat $lambda$";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -185,7 +185,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expected = "error: error: err from panic {}\n" + "\tat $lambda$15(workers.bal:";
+        String expected = "error: error: err from panic {}\n" + "\tat $lambda$";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -281,5 +281,12 @@ public class WorkerTest {
         } finally {
             System.setOut(defaultOut);
         }
+    }
+
+    @Test
+    public void waitOnSameFutureByMultiple() {
+        BValue[] returns = BRunUtil.invoke(result, "waitOnSameFutureByMultiple");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
     }
 }

@@ -30,7 +30,7 @@ public type {{cut info.title " "}}Client client object {
         // TODO: Update the request as needed
     {{#equals . "GET"}}return check ep->{{lower .}}("{{../../../key}}", message = request);{{else}}{{#equals . "HEAD"}}
         return check ep->{{lower .}}("{{../../../key}}", message = request);{{else}}{{#equals . "OPTIONS"}}
-        return check ep->{{lower .}}("{{../../../key}}", message = request);{{/equals}}{{else}}{{/equals}}
+        return check ep->{{lower .}}("{{../../../key}}", message = request);{{/equals}}{{/equals}}
         return check ep->{{lower .}}("{{../../../key}}", request);{{/equals}}
     }
     {{/methods}}{{else}}{{#allMethods}}
@@ -41,7 +41,7 @@ public type {{cut info.title " "}}Client client object {
         // TODO: Update the request as needed{{#equals key "GET"}}
         return check _{{operationId}}Ep->{{lower .}}("{{../../../key}}", message = request);{{else}}{{#equals key "HEAD"}}
         return check _{{operationId}}Ep->{{lower .}}("{{../../../key}}", message = request);{{else}}{{#equals key "OPTIONS"}}
-        return check _{{operationId}}Ep->{{lower .}}("{{../../../key}}", message = request);{{/equals}}{{else}}{{/equals}}
+        return check _{{operationId}}Ep->{{lower .}}("{{../../../key}}", message = request);{{/equals}}{{/equals}}
         return check _{{operationId}}Ep->{{lower .}}("{{../../../key}}", request);{{/equals}}
     }
     {{/allMethods}}{{/if}}{{else}}
@@ -56,7 +56,7 @@ public type {{cut info.title " "}}Client client object {
         // TODO: Update the request as needed{{#equals key "GET"}}
         return check _{{operationId}}Ep->{{lower key}}("{{../../key}}", message = request);{{else}}{{#equals key "HEAD"}}
         return check _{{operationId}}Ep->{{lower key}}("{{../../key}}", message = request);{{else}}{{#equals key "OPTIONS"}}
-        return check _{{operationId}}Ep->{{lower key}}("{{../../key}}", message = request);{{/equals}}{{else}}{{/equals}}
+        return check _{{operationId}}Ep->{{lower key}}("{{../../key}}", message = request);{{/equals}}{{/equals}}
         return check _{{operationId}}Ep->{{lower key}}("{{../../key}}", request);{{/equals}}
     }
     {{/equals}}{{/value}}{{/operations}}{{/value}}{{/paths}}

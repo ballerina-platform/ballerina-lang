@@ -9,6 +9,34 @@ function workerReturnTest() returns int{
     return (wait wx) + 1;
 }
 
+int updateMultiple = 0;
+function waitOnSameFutureByMultiple() returns int {
+    worker w1 returns int {
+        return 9;
+    }
+
+    waitOnSameFutureWorkers(w1);
+    runtime:sleep(1000);
+    return updateMultiple;
+
+}
+
+function waitOnSameFutureWorkers(future<int> aa) {
+
+    worker w1 {
+        int result = wait aa;
+        lock {
+        updateMultiple = updateMultiple + result;
+        }
+    }
+    worker w2 {
+        int result = wait aa;
+        lock {
+        updateMultiple = updateMultiple + result;
+        }
+    }
+
+}
 
 public function workerSendToWorker() returns int {
     worker w1 {
