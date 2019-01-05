@@ -4,12 +4,10 @@ infrastructureConfig:
   iacProvider: TERRAFORM
   infrastructureProvider: SHELL
   containerOrchestrationEngine: K8S
-  parameters:
-    - JDK : ORACLE_JDK8
   includes:
-    - UBUNTU
-    - mysql
-    - ORACLE_JDK8
+    - Ubuntu-18.04
+    - MySQL-5.7
+    - OracleJDK-8
   provisioners:
   - name: ballerina-deployment
     remoteRepository: "git@github.com:manuri/aws-ballerina.git"
