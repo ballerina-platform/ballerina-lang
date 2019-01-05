@@ -59,9 +59,8 @@ public function main() {
                         err = tblResult);
     }
     closeReadableCSVChannel(rCsvChannel2);
-    // Writing the a `table` to a `.CSV` file.
+    // Open a CSV channel in "write" mode and write the `table` to a `.CSV` file.
     string targetFileName = "./files/output.csv";
-    // Opening CSV channel in "write" mode.
     io:WritableCSVChannel wCsvChannel2 = io:openWritableCsvFile(targetFileName);
     io:println("Creating a table and adding data");
     table<Employee> employeeTable = createTableAndAddData();

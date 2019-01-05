@@ -9,7 +9,7 @@ public type Person record {
     !...
 };
 
-// Serialize `record` into binary.
+// Serialize record into binary.
 function serialize(Person p, io:WritableByteChannel byteChannel) {
     io:WritableDataChannel dc = new io:WritableDataChannel(byteChannel);
     var length = p.name.toByteArray("UTF-8").length();
@@ -21,7 +21,7 @@ function serialize(Person p, io:WritableByteChannel byteChannel) {
     var closeResult = dc.close();
 }
 
-//Deserialize `record` from binary.
+//Deserialize record from binary.
 function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     Person person = {};
     int nameLength = 0;
@@ -86,10 +86,10 @@ function readRecordFromFile(string path) returns Person {
 public function main() {
     Person wPerson = { name: "Ballerina", age: 21,
                        income: 1543.12, isMarried: true };
-    //Write `record` to file.
+    //Write record to file.
     writeRecordToFile(wPerson, "./files/person.bin");
     io:println("Person record successfully written to file");
-    //Read `record` from file.
+    //Read record from file.
     Person rPerson = readRecordFromFile("./files/person.bin");
     io:println("Reading person record from file");
     io:println(rPerson);

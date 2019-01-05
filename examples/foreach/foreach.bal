@@ -21,9 +21,9 @@ public function main() {
 
     io:println("\nIterating over a json object :");
     json apple = { name: "apple", colors: ["red", "green"], price: 5 };
-    map<json> mapValue = <map<json>> map<json>.convert(apple);
     // Iterating over a JSON is not supported. To iterate over a JSON, first convert the JSON to a `map` and then iterate
     // over the newly created `map`.
+    map<json> mapValue = <map<json>> map<json>.convert(apple);
     foreach var (i, j) in mapValue {
         if (j is string) {
             io:println("string value: ", j);
