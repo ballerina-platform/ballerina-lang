@@ -1,0 +1,38 @@
+plugins {
+    id 'antlr'
+}
+
+apply from: "$rootDir/gradle/java.gradle"
+
+dependencies {
+    compile project(':ballerina-streaming:siddhi-query-api')
+    compile 'org.slf4j:slf4j-simple:1.7.22'
+    compile 'org.mvel:mvel2:2.2.1.Final'
+    compile 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    testCompile 'org.testng:testng:6.13.1'
+    antlr "org.antlr:antlr4:4.5.1" 
+}
+
+description = 'Ballerina - Streaming - Siddhi Query Compiler'
+
+
+checkstyleMain {
+    // TODO: move gernrated code to diffrent package, eg 'antlr' then exculde that
+    exclude 'org/ballerinalang/siddhi/query/compiler'
+
+}
+
+test {
+    useTestNG()
+}
+
+generateGrammarSource {
+    arguments += ["-visitor", "-no-listener"]
+}
+
+sourceSets.main.java.srcDirs = ['build/generated-src/antlr/main' ,'src/main/java']
+
+compileJava {
+    dependsOn generateGrammarSource
+}
+

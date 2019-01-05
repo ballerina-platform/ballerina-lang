@@ -1,0 +1,21 @@
+apply from: "$rootDir/gradle/java.gradle"
+
+
+dependencies {
+//    compile project(':stdlib:ballerina-builtin')
+//    compile project(':ballerina-config-api')
+//    compile project(':ballerina-crypto')
+//    compile project(':ballerina-cache')
+//    compile project(':ballerina-log-api')
+//    compile project(':ballerina-runtime')
+//    compile project(':ballerina-internal')
+//    compile project(':ballerina-system')
+//    compile project(':ballerina-time')
+    implementation project(':ballerina-core')
+    implementation 'org.apache.commons:commons-lang3:3.5'
+
+    compileOnly project(':ballerina-lang')
+    annotationProcessor project(':ballerina-lang')
+}
+
+description = 'Ballerina - Auth'

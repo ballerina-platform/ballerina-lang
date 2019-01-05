@@ -1,0 +1,8 @@
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.22'
+    compile project(':lib-creator')
+    compile project(':ballerina-core')
+    compile project(':ballerina-lang')
+}
+
+description = 'Ballerina - Built-in Implementation'
