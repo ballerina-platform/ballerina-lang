@@ -7,12 +7,9 @@ infrastructureConfig:
   parameters:
     - JDK : ORACLE_JDK8
   includes:
-    - CentOS
+    - UBUNTU
     - mysql
     - ORACLE_JDK8
-    - OPEN_JDK8
-  excludes:
-    - UBUNTU
   provisioners:
   - name: ballerina-deployment
     remoteRepository: "git@github.com:manuri/aws-ballerina.git"
