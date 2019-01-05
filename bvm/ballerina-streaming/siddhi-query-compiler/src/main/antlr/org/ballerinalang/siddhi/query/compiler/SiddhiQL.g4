@@ -19,6 +19,7 @@
 grammar SiddhiQL;
 
 @header {
+    package org.ballerinalang.siddhi.query.compiler;
 	//import SiddhiParserException;
 }
 

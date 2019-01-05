@@ -1,0 +1,34 @@
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+
+apply from: "$rootDir/gradle/repositories.gradle"
+
+dependencies {
+    checkstyle project(':build-config:checkstyle')
+    checkstyle 'com.puppycrawl.tools:checkstyle:7.8.2'
+}
+
+sourceCompatibility = '1.8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+checkstyle {
+    toolVersion '7.8.2'
+    configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
+}
+
+compileJava {
+    def generatedSources = "$buildDir/generated-from-annot"
+    def generatedOutputDir = file("$generatedSources")
+    def pkgName = project.name.replace("ballerina-", "")
+    options.compilerArgs += ["-AnativeEntityProviderClass=StandardNativeElementProvider", 
+                             "-AnativeEntityProviderPackage=org.ballerinalang.${pkgName}.generated.providers",
+                             "-s", "$generatedSources"]
+    doFirst {
+        generatedOutputDir.exists() || generatedOutputDir.mkdirs()
+    }
+}
+
+

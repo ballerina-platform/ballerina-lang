@@ -1,0 +1,8 @@
+subprojects {
+    apply from: "$rootDir/gradle/java.gradle"
+
+    dependencies {
+        compileOnly project(':ballerina-lang')
+        annotationProcessor project(':ballerina-lang')
+    }
+}
