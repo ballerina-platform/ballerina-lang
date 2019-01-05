@@ -34,7 +34,7 @@ public function main() {
     // Check if `m1` is frozen.
     io:println("Frozen status of m1: ", m1.isFrozen());
 
-    // Attempt adding an entry to the `map`, and `trap` the error if an error occurs.
+    // Attempt adding an entry to the `map`, and `trap` the panic if it results in a panic.
     error? updateResult = trap addEntryToMap(m2, "intValTwo", 10);
     if (updateResult is error) {
         // An error should occur since `m2` is frozen
