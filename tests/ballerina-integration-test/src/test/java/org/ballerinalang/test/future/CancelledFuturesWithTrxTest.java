@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 import static org.ballerinalang.test.util.SQLDBUtils.DB_DIRECTORY;
 
@@ -39,16 +40,8 @@ public class CancelledFuturesWithTrxTest extends BaseTest {
 
     @BeforeClass
     public void setup() {
-        String queries = "CREATE TABLE IF NOT EXISTS Customers(\n" +
-                "  customerId INTEGER NOT NULL IDENTITY,\n" +
-                "  firstName  VARCHAR(300),\n" +
-                "  lastName  VARCHAR(300),\n" +
-                "  registrationID INTEGER,\n" +
-                "  creditLimit DOUBLE,\n" +
-                "  country  VARCHAR(300),\n" +
-                "  PRIMARY KEY (customerId)\n" +
-                ");";
-        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2, queries, DB_DIRECTORY,
+        String dbScriptPath = Paths.get("future", "SQLTableCreate.sql").toString();
+        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScriptPath, DB_DIRECTORY,
                 "TEST_SQL_CONNECTOR_TR");
     }
 

@@ -198,12 +198,13 @@ public class SQLDBUtils {
      * @param jdbcURL JDBC URL
      * @param username  Username for the DB
      * @param password Password to connect to the DB
-     * @param queries SQL statements for initialization.
+     * @param sqlFile SQL statements for initialization.
      */
-    public static void initDatabase(String jdbcURL, String username, String password, String queries) {
+    public static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
         try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
-                Statement st = connection.createStatement()) {
-            String[] sqlQuery = queries.trim().split("/");
+             Statement st = connection.createStatement()) {
+            String sql = readFileToString(sqlFile);
+            String[] sqlQuery = sql.trim().split("/");
             for (String query : sqlQuery) {
                 st.executeUpdate(query.trim());
             }

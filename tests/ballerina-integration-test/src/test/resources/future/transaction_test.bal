@@ -36,7 +36,7 @@ function startTrx() {
         io:println(trx);
         // Receive from channel
         int intResult = <- intChn, 88;
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
+        _ = testDB->update("Insert into FactoryEmployee (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 211, 5000.75, 'USA')");
         trx = trx + " endTrx";
         io:println(trx);

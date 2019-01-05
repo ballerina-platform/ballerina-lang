@@ -829,8 +829,6 @@ public class BVM {
     }
 
     private static void handleFutureTermination(Strand strand) {
-        // Stop the observation context before popping the stack frame
-        ObserveUtils.stopCallableObservation(strand);
         // Set error to strand and callback
         BError error = BLangVMErrors.createCancelledFutureError(strand);
         strand.setError(error);
@@ -839,18 +837,21 @@ public class BVM {
         strand.currentFrame.ip = -1;
         // Panic all stack frames in the strand
         panicStackFrame(strand);
-        // Panic all channels in the strand
+        // Signal transactions for errors
         signalTransactionError(strand, StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT);
         strand.respCallback.signal();
     }
+
     private static void panicStackFrame(Strand strand) {
         if (strand.fp < 0) {
             return;
         }
         StackFrame poppedFrame = strand.popFrame();
+        // Stop observation
+        ObserveUtils.stopObservation(poppedFrame.observerContext);
         // Panic channels in the current frame
         poppedFrame.handleChannelPanic(strand.getError(), poppedFrame.wdChannels);
-        // Panic all channels in the current frame
+        // Signal transactions for errors
         signalTransactionError(strand, poppedFrame.trxParticipant);
         panicStackFrame(strand);
     }
@@ -4495,8 +4496,10 @@ public class BVM {
         } else if (transactionParticipant == StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT) {
             transactionLocalContext.notifyLocalParticipantFailure();
         } else {
-            String blockID = transactionLocalContext.getCurrentTransactionBlockId();
-            notifyTransactionAbort(strand, blockID, transactionLocalContext);
+            if (strand.aborted) {
+                String blockID = transactionLocalContext.getCurrentTransactionBlockId();
+                notifyTransactionAbort(strand, blockID, transactionLocalContext);
+            }
         }
     }
 
