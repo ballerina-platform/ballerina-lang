@@ -73,14 +73,29 @@ export DATA_BUCKET_LOCATION=${INPUT_DIR}
 # YOUR TEST EXECUTION LOGIC GOES HERE
 # A sample execution for maven-based testng/junit tests is shown below.
 # For maven, we add -fae (fail-at-end), and a system property to reduce jar download log verbosity.
-IFS='=' read -r -a array <<< "$(head -n 1 infrastructure.properties)"
+#IFS='=' read -r -a array <<< "$(head -n 1 infrastructure.properties)"
 
-export DATABASE_HOST=${array[1]};
-export DATABASE_PORT=${array[3]};
-export DATABASE_NAME=${array[5]};
-export DATABASE_USERNAME=${array[7]};
-export DATABASE_PASSWORD=${array[9]};
-ClusterName${array[11]};
+cat $INPUT_DIR/infrastructure.properties
+
+pwd
+ls
+
+# Read configuration into an associative array
+declare -A CONFIG
+# IFS is the 'internal field separator'. In this case, your file uses '='
+IFS="="
+while read -r key value
+do
+     CONFIG[$key]=$value
+done < $INPUT_DIR/infrastructure.properties
+unset IFS
+
+export DATABASE_HOST=${CONFIG[DatabaseHost]}
+export DATABASE_PORT=${CONFIG[DatabasePort]}
+export DATABASE_NAME=${CONFIG[DatabaseName]}
+export DATABASE_USERNAME=${CONFIG[DBUsername]}
+export DATABASE_PASSWORD=${CONFIG[DBPassword]}
+ClusterName${CONFIG[ClusterName]};
 
 wget https://product-dist.ballerina.io/downloads/0.990.2/ballerina-linux-installer-x64-0.990.2.deb
 sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb
@@ -91,10 +106,6 @@ ballerina build scenarios/1/data-service.bal
 
 kubectl apply -f scenarios/1/kubernetes/
 
-#=============== Copy Surefire Reports ===========================================
-# SUREFIRE REPORTS MUST NEED TO BE COPIED TO OUTPUT_DIR.
-# You need to preserve the folder structure in order to identify executed scenarios.
-echo "Copying surefire-reports to ${OUTPUT_DIR}"
+external_ip=kubectl get svc ballerina-data-service -o jsonpath='{.spec.externalIP}'
 
-mkdir -p ${OUTPUT_DIR}
-find ./* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR} \;
+echo "ExternalIP=$external_ip" >> $output_dir/deployment.properties

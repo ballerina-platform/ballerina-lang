@@ -27,7 +27,8 @@ type Employee record {
 }
 
 @kubernetes:Service {
-    serviceType: "NodePort",
+    serviceType:"LoadBalancer",
+    port:80,
     name: "ballerina-data-service"
 }
 

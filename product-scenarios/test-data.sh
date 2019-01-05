@@ -44,10 +44,6 @@ while getopts "$optspec" optchar; do
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                     OUTPUT_DIR=$val
                     ;;
-                mvn-opts)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    MAVEN_OPTS=$val
-                    ;;
                 *)
                     usage
                     if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
@@ -61,9 +57,6 @@ while getopts "$optspec" optchar; do
             ;;
         o)
             OUTPUT_DIR=$val
-            ;;
-        m)
-            MVN_OPTS=$val
             ;;
         i)
             INPUT_DIR=$val
@@ -88,9 +81,13 @@ export DATA_BUCKET_LOCATION=${INPUT_DIR}
 # A sample execution for maven-based testng/junit tests is shown below.
 # For maven, we add -fae (fail-at-end), and a system property to reduce jar download log verbosity.
 
-mvn clean install -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
--fae -B -f ./pom.xml
+IFS='=' read -r -a array <<< "$(head -n 1 $INPUT_DIR/deployment.properties)"
+EXTERNAL_IP=${array[1]};
+unset IFS
 
+cat $INPUT_DIR/deployment.properties
+
+curl http://$EXTERNAL-IP/hello/sayHello -v
 
 #=============== Copy Surefire Reports ===========================================
 # SUREFIRE REPORTS MUST NEED TO BE COPIED TO OUTPUT_DIR.
