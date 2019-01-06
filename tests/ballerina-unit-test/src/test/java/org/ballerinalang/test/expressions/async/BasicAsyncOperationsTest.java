@@ -20,7 +20,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.*;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -92,7 +95,7 @@ public class BasicAsyncOperationsTest {
     @Test
     public void testAsyncNonNativeBasic9() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic9", new BValue[0]);
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 7);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
