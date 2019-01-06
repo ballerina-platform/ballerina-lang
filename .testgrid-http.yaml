@@ -1,6 +1,6 @@
 # TestGrid Test Configuration Parameters
 version: '0.9'
-emailToList: "vijithae@wso2.com"
+emailToList: "manurip@wso2.com,vijithae@wso2.com"
 infrastructureConfig:
   infrastructureProvider: SHELL
   containerOrchestrationEngine: K8S
@@ -13,15 +13,15 @@ infrastructureConfig:
     remoteBranch: "master"
     description: creates infrastructure for ballerina scenario tests
     scripts:
-    - name: ballerina-deployment
-      description: Creates Kubernetes infrastructure for Ballerina installed instance.
-      type: SHELL
-      phase: CREATE
-      file: http/resiliency/provision-infrastructure.sh
-    - name: destroy
-      file: http/resiliency/destroy-cluster.sh
-      type: SHELL
-      phase: DESTROY
+      - name: ballerina-deployment
+        description: Creates Kubernetes infrastructure for Ballerina installed instance.
+        type: SHELL
+        phase: CREATE
+        file: http/resiliency/provision-infrastructure.sh
+      - name: destroy
+        file: http/resiliency/destroy-cluster.sh
+        type: SHELL
+        phase: DESTROY
 scenarioConfigs:
 - testType: JMETER
   remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
@@ -31,12 +31,12 @@ scenarioConfigs:
   file: product-scenarios/test-http.sh
 deploymentConfig:
   deploymentPatterns:
-  - name: 'scenario-tests'
-    description: 'HTTP resiliency scenarios deployment'
-    remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
-    remoteBranch: "ballerina-scenarios"
-    dir: .
-    scripts:
-    - name: 'default'
-      type: SHELL
-      file: product-scenarios/deployment-http.sh
+    - name: 'scenario-tests'
+      description: 'HTTP resiliency scenarios deployment'
+      remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
+      remoteBranch: "ballerina-scenarios"
+      dir: .
+      scripts:
+        - name: 'default'
+          type: SHELL
+          file: product-scenarios/deployment-http.sh
