@@ -353,9 +353,9 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 # + topic - The topic for which registration is changing
 function persistTopicRegistrationChange(string mode, string topic) {
     if (mode == MODE_REGISTER) {
-        hubPersistenceObjectImpl.addTopic(topic);
+        hubPersistenceStoreImpl.addTopic(topic);
     } else {
-        hubPersistenceObjectImpl.removeTopic(topic);
+        hubPersistenceStoreImpl.removeTopic(topic);
     }
 }
 
@@ -365,27 +365,27 @@ function persistTopicRegistrationChange(string mode, string topic) {
 # + subscriptionDetails - The details of the subscription changing
 function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) {
     if (mode == MODE_SUBSCRIBE) {
-        hubPersistenceObjectImpl.addSubscription(subscriptionDetails);
+        hubPersistenceStoreImpl.addSubscription(subscriptionDetails);
     } else {
-        hubPersistenceObjectImpl.removeSubscription(subscriptionDetails);
+        hubPersistenceStoreImpl.removeSubscription(subscriptionDetails);
     }
 }
 
 # Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        if (hubPersistenceObjectImpl is HubPersistenceObject) {
+        if (hubPersistenceStoreImpl is HubPersistenceStore) {
             // always true since already checked
-            addTopicRegistrationsOnStartup(hubPersistenceObjectImpl);
-            addSubscriptionsOnStartup(hubPersistenceObjectImpl); //TODO:verify against topics
+            addTopicRegistrationsOnStartup(hubPersistenceStoreImpl);
+            addSubscriptionsOnStartup(hubPersistenceStoreImpl); //TODO:verify against topics
         }
     }
     return;
 }
 
 # Function to load persisted topic registrations.
-function addTopicRegistrationsOnStartup(HubPersistenceObject persistenceObject) {
-    string[] topics = persistenceObject.retrieveTopics();
+function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) {
+    string[] topics = persistenceStore.retrieveTopics();
     foreach string topic in topics {
         var registerStatus = registerTopicAtHub(topic, loadingOnStartUp = true);
         if (registerStatus is error) {
@@ -396,13 +396,13 @@ function addTopicRegistrationsOnStartup(HubPersistenceObject persistenceObject) 
 }
 
 # Function to add subscriptions to the broker on startup, if persistence is enabled.
-function addSubscriptionsOnStartup(HubPersistenceObject persistenceObject) {
-    SubscriptionDetails[] subscriptions = persistenceObject.retrieveAllSubscribers();
+function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) {
+    SubscriptionDetails[] subscriptions = persistenceStore.retrieveAllSubscribers();
 
     foreach SubscriptionDetails subscription in subscriptions {
         int time = time:currentTime().time;
         if (time - subscription.leaseSeconds > subscription.createdAt) {
-            persistenceObject.removeSubscription(subscription);
+            persistenceStore.removeSubscription(subscription);
             continue;
         }
         addSubscription(subscription);

@@ -35,8 +35,7 @@ service publisher on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_ONE);
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted(message = response);
         if (err is error) {
             log:printError("Error responding on discovery", err = err);
         }
@@ -52,8 +51,7 @@ service publisher on publisherServiceEP {
         }
 
         http:Response response = new;
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted(message = response);
         if (err is error) {
             log:printError("Error responding on notify request", err = err);
         }
@@ -73,8 +71,7 @@ service publisherTwo on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_TWO);
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted(message = response);
         if (err is error) {
             log:printError("Error responding on discovery", err = err);
         }
@@ -90,8 +87,7 @@ service publisherTwo on publisherServiceEP {
         }
 
         http:Response response = new;
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted(message = response);
         if (err is error) {
             log:printError("Error responding on notify request", err = err);
         }
@@ -137,8 +133,8 @@ function startWebSubHub() returns websub:WebSubHub {
         password: "",
         poolOptions: { maximumPoolSize: 5 }
     });
-    websub:HubPersistenceObject hpo = new websub:H2HubPersistenceObject(h2Client);
-    var result = websub:startHub(new http:Listener(9191), hubConfiguration = { hubPersistenceObject: hpo });
+    websub:HubPersistenceStore hpo = new websub:H2HubPersistenceStore(h2Client);
+    var result = websub:startHub(new http:Listener(9191), hubConfiguration = { hubPersistenceStore: hpo });
     if (result is websub:WebSubHub) {
         return result;
     } else {

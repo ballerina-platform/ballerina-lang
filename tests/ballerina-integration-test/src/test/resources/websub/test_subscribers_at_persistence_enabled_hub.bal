@@ -29,13 +29,9 @@ listener websub:Listener websubEP = new websub:Listener(8383);
     secret: "Kslk30SNF2AChs2"
 }
 service websubSubscriber on websubEP {
-    resource function onNotification (websub:Notification notification) {
-        var payload = notification.getJsonPayload();
-        if (payload is json) {
-            io:println("WebSub Notification Received by One: " + payload.toString());
-        } else {
-            panic payload;
-        }
+    resource function onNotification (websub:Notification notification) returns error? {
+        json payload = check notification.getJsonPayload();
+        io:println("WebSub Notification Received by One: " + payload.toString());
     }
 }
 
@@ -46,12 +42,8 @@ service websubSubscriber on websubEP {
     leaseSeconds: 1200
 }
 service websubSubscriberTwo on websubEP {
-    resource function onNotification (websub:Notification notification) {
-        var payload = notification.getJsonPayload();
-        if (payload is json) {
-            io:println("WebSub Notification Received by Two: " + payload.toString());
-        } else {
-            panic payload;
-        }
+    resource function onNotification (websub:Notification notification) returns error? {
+        json payload = check notification.getJsonPayload();
+        io:println("WebSub Notification Received by Two: " + payload.toString());
     }
 }

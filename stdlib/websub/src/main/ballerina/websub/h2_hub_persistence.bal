@@ -31,21 +31,21 @@ const string DELETE_FROM_SUBSCRIPTIONS = "DELETE FROM subscriptions WHERE topic=
 const string SELECT_FROM_SUBSCRIPTIONS = "SELECT topic, callback, secret, lease_seconds, created_at FROM subscriptions";
 
 # Represents H2 based hub persistence configuration and functions.
-public type H2HubPersistenceObject object {
+public type H2HubPersistenceStore object {
 
     // TODO: make private
     public h2:Client subscriptionDbClient;
 
     public function __init(h2:Client subscriptionDbClient) {
         self.subscriptionDbClient = subscriptionDbClient;
-        var ret = self.subscriptionDbClient->update(CREATE_TOPICS_TABLE);
-        if (ret is error) {
-            log:printError("'topics' table creation failed: " + <string>ret.detail().message);
+        var updateResult = self.subscriptionDbClient->update(CREATE_TOPICS_TABLE);
+        if (updateResult is error) {
+            panic updateResult;
         }
 
-        ret = self.subscriptionDbClient->update(CREATE_SUBSCRIPTIONS_TABLE);
-        if (ret is error) {
-            log:printError("'subscriptions' table creation failed: " + <string>ret.detail().message);
+        updateResult = self.subscriptionDbClient->update(CREATE_SUBSCRIPTIONS_TABLE);
+        if (updateResult is error) {
+            panic updateResult;
         }
     }
 
@@ -62,7 +62,7 @@ public type H2HubPersistenceObject object {
         var rowCount = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
         if (rowCount is int) {
             log:printDebug("Successfully removed " + rowCount + " entries for existing subscription");
-        } else if (rowCount is error) {
+        } else {
             string errCause = <string> rowCount.detail().message;
             log:printError("Error occurred deleting subscription data: " + errCause);
         }
@@ -71,7 +71,7 @@ public type H2HubPersistenceObject object {
                                                     untaint para3, untaint para4, untaint para5);
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for subscription");
-        } else if (rowCount is error) {
+        } else {
             string errCause = <string> rowCount.detail().message;
             log:printError("Error occurred updating subscription data: " + errCause);
         }
@@ -87,7 +87,7 @@ public type H2HubPersistenceObject object {
 
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for unsubscription");
-        } else if (rowCount is error) {
+        } else {
             string errCause = <string> rowCount.detail().message;
             log:printError("Error occurred updating unsubscription data: " + errCause);
         }
@@ -101,7 +101,7 @@ public type H2HubPersistenceObject object {
         var rowCount = self.subscriptionDbClient->update(INSERT_INTO_TOPICS, para1);
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for topic registration");
-        } else if (rowCount is error) {
+        } else {
             string errCause = <string> rowCount.detail().message;
             log:printError("Error occurred updating topic registration data: " + errCause);
         }
@@ -116,7 +116,7 @@ public type H2HubPersistenceObject object {
         var rowCount = self.subscriptionDbClient->update(DELETE_FROM_TOPICS, para1);
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for topic unregistration");
-        } else if (rowCount is error) {
+        } else {
             string errCause = <string> rowCount.detail().message;
             log:printError("Error occurred updating topic unregistration data: " + errCause);
         }
@@ -136,12 +136,12 @@ public type H2HubPersistenceObject object {
                 if (registrationDetails is TopicRegistration) {
                     topics[topicIndex] = registrationDetails.topic;
                     topicIndex += 1;
-                } else if (registrationDetails is error) {
+                } else {
                     string errCause = <string> registrationDetails.detail().message;
                     log:printError("Error retreiving topic registration details from the database: " + errCause);
                 }
             }
-        } else if (dbResult is error) {
+        } else {
             string errCause = <string> dbResult.detail().message;
             log:printError("Error retreiving data from the database: " + errCause);
         }
@@ -161,12 +161,12 @@ public type H2HubPersistenceObject object {
                 if (subscriptionDetails is SubscriptionDetails) {
                     subscriptions[subscriptionIndex] = subscriptionDetails;
                     subscriptionIndex += 1;
-                } else if (subscriptionDetails is error) {
+                } else {
                     string errCause = <string> subscriptionDetails.detail().message;
                     log:printError("Error retreiving subscription details from the database: " + errCause);
                 }
             }
-        } else if (dbResult is error) {
+        } else {
             string errCause = <string> dbResult.detail().message;
             log:printError("Error retreiving data from the database: " + errCause);
         }

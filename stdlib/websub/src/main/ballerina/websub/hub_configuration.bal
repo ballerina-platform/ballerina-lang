@@ -38,7 +38,7 @@ boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
 http:ClientEndpointConfig? hubClientConfig = ();
 
-HubPersistenceObject? hubPersistenceObjectImpl = ();
+HubPersistenceStore? hubPersistenceStoreImpl = ();
 boolean hubPersistenceEnabled = false;
 
 # Function to attach and start the Ballerina WebSub Hub service.

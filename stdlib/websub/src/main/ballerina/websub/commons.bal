@@ -457,7 +457,7 @@ public type SubscriptionChangeResponse record {
 # + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
 #               `http(s)://localhost:{port}/websub/hub` if unspecified
 # + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
-# + hubPersistenceObject - The `HubPersistenceObject` to use to persist hub data
+# + hubPersistenceStore - The `HubPersistenceStore` to use to persist hub data
 public type HubConfiguration record {
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -465,7 +465,7 @@ public type HubConfiguration record {
     boolean topicRegistrationRequired = true;
     string publicUrl?;
     http:ClientEndpointConfig clientConfig?;
-    HubPersistenceObject hubPersistenceObject?;
+    HubPersistenceStore hubPersistenceStore?;
     !...
 };
 
@@ -501,8 +501,8 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration? hub
     // configs in the native code
     hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
-    hubPersistenceObjectImpl = hubConfiguration["hubPersistenceObject"];
-    if (hubPersistenceObjectImpl is HubPersistenceObject) {
+    hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
+    if (hubPersistenceStoreImpl is HubPersistenceStore) {
         hubPersistenceEnabled = true;
     }
 
