@@ -5,8 +5,8 @@ infrastructureConfig:
   infrastructureProvider: SHELL
   containerOrchestrationEngine: K8S
   includes:
-  - Ubuntu-18.04
-  - OracleJDK-8
+    - Ubuntu-18.04
+    - OracleJDK-8
   provisioners:
   - name: ballerina-deployment
     remoteRepository: "git@github.com:VijithaEkanayake/aws-ballerina.git"
