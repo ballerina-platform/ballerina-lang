@@ -187,6 +187,7 @@ public class BVM {
         while (sf.ip >= 0) {
             if (strand.aborted) {
                 strand.currentFrame.ip = -1;
+                BVMScheduler.strandCountDown();
                 return;
             }
             if (debugEnabled && debug(strand)) {
@@ -243,6 +244,30 @@ public class BVM {
                 case InstructionCodes.ICONST_5:
                     i = operands[0];
                     sf.longRegs[i] = 5;
+                    break;
+                case InstructionCodes.FCONST_0:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 0;
+                    break;
+                case InstructionCodes.FCONST_1:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 1;
+                    break;
+                case InstructionCodes.FCONST_2:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 2;
+                    break;
+                case InstructionCodes.FCONST_3:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 3;
+                    break;
+                case InstructionCodes.FCONST_4:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 4;
+                    break;
+                case InstructionCodes.FCONST_5:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 5;
                     break;
                 case InstructionCodes.BCONST_0:
                     i = operands[0];
@@ -463,7 +488,7 @@ public class BVM {
                 case InstructionCodes.WORKERSYNCSEND:
                     Instruction.InstructionWRKSyncSend syncSendIns = (Instruction.InstructionWRKSyncSend) instruction;
                     if (!handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type, syncSendIns.reg,
-                            syncSendIns.retReg)) {
+                            syncSendIns.retReg, syncSendIns.isSameStrand)) {
                         return;
                     }
                     //worker data channel will resume this upon data retrieval or error
@@ -731,13 +756,24 @@ public class BVM {
                         } else {
                             strand.respCallback.setRefReturn(sf.refRegs[j]);
                         }
+                        if (checkIsType(sf.refRegs[j], BTypes.typeError)) {
+                            sf.errorRetReg = j;
+                        }
                         break;
                     case InstructionCodes.RET:
                         if (strand.fp > 0) {
                             // Stop the observation context before popping the stack frame
                             ObserveUtils.stopCallableObservation(strand);
+                            if (sf.errorRetReg > -1) {
+                                //notifying waiting workers
+                                sf.handleChannelError(sf.refRegs[sf.errorRetReg], strand.peekFrame(1).wdChannels);
+                            }
                             strand.popFrame();
                             break;
+                        }
+                        if (sf.errorRetReg > -1) {
+                            //notifying waiting workers
+                            sf.handleChannelError(sf.refRegs[sf.errorRetReg], strand.respCallback.parentChannels);
                         }
                         sf.ip = -1;
                         strand.respCallback.signal();
@@ -794,9 +830,9 @@ public class BVM {
     }
 
     private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
-                                                int reg, int retReg) {
+                                                int reg, int retReg, boolean isSameStrand) {
         BRefType val = extractValue(strand.currentFrame, type, reg);
-        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), false);
+        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), isSameStrand);
         return dataChannel.syncSendData(val, strand, retReg);
     }
 
@@ -824,12 +860,12 @@ public class BVM {
                                        int[] argRegs, int retReg, int flags) {
         //TODO refactor when worker info is removed from compiler
         StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
-                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags);
+                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags,
+                callableUnitInfo.workerSendInChannels);
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
         if (!FunctionFlags.isAsync(df.invocationFlags)) {
             try {
-                strand.respCallback.wdChannels = new WDChannels();
                 strand.pushFrame(df);
             } catch (ArrayIndexOutOfBoundsException e) {
                 // Need to decrement the frame pointer count. Otherwise ArrayIndexOutOfBoundsException will
@@ -849,7 +885,7 @@ public class BVM {
         }
 
         SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
-                strand.respCallback.getWorkerDataChannels(), callableUnitInfo.workerSendInChannels);
+                strand.currentFrame.wdChannels, callableUnitInfo.workerSendInChannels);
 
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strandCallback);
@@ -886,10 +922,18 @@ public class BVM {
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
+                    if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
+                        strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(),
+                                strand.peekFrame(1).wdChannels);
+                    }
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, retReg, ctx.getReturnValue(), retType);
                     return strand;
+                }
+                if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
+                    strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(),
+                            strand.respCallback.parentChannels);
                 }
                 strand.respCallback.signal();
                 return null;
@@ -906,7 +950,13 @@ public class BVM {
         }
         // Stop the observation context before popping the stack frame
         ObserveUtils.stopCallableObservation(strand);
-        strand.popFrame();
+        if (strand.fp > 0) {
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.peekFrame(1).wdChannels);
+            strand.popFrame();
+        } else {
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.respCallback.parentChannels);
+            strand.popFrame();
+        }
         handleError(strand);
         return strand;
     }
@@ -3481,9 +3531,12 @@ public class BVM {
 
     private static WorkerDataChannel getWorkerChannel(Strand ctx, String name, boolean channelInSameStrand) {
         if (channelInSameStrand) {
-            return ctx.respCallback.getWorkerDataChannels().getWorkerDataChannel(name);
+            return ctx.currentFrame.wdChannels.getWorkerDataChannel(name);
         }
-        return ctx.respCallback.getParentWorkerDataChannels().getWorkerDataChannel(name);
+        if (ctx.fp > 0) {
+            return ctx.peekFrame(1).wdChannels.getWorkerDataChannel(name);
+        }
+        return ctx.respCallback.parentChannels.getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
@@ -4391,10 +4444,12 @@ public class BVM {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             StackFrame popedFrame = strand.popFrame();
+            popedFrame.handleChannelPanic(strand.getError(), strand.currentFrame.wdChannels);
             signalTransactionError(strand, popedFrame.trxParticipant);
             handleError(strand);
         } else {
             strand.respCallback.setError(strand.getError());
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.respCallback.parentChannels);
             signalTransactionError(strand, StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT);
             //Below is to return current thread from VM
             sf.ip = -1;

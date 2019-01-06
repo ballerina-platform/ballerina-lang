@@ -19,7 +19,8 @@ function testFunc() {
     main();
     test:assertEquals(outputs[0], 5);
     test:assertEquals(outputs[1], 15);
+    test:assertEquals(outputs[2], 25);
     int[] ia = [1, 3, 5, 6];
-    test:assertEquals(outputs[2], ia);
-    test:assertEquals(outputs[3], "cat");
+    test:assertEquals(outputs[3], ia);
+    test:assertEquals(outputs[4], "cat");
 }

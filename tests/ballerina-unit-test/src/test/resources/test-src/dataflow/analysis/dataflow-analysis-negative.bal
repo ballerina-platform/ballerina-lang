@@ -614,3 +614,15 @@ function testDataflow_13() returns (int, int) {
 }
 
 (function () returns (int)) fb;
+
+type F object {
+    public int a;
+    public int b;
+    string c;
+
+    function __init();
+};
+
+function F.__init() {
+    self.a = 1;
+}

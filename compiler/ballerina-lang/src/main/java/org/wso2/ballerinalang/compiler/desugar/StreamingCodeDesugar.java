@@ -870,7 +870,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         mapAccessExpr = (BLangExpression) preSelectDesuagr.rewrite(expr,
                 new BSymbol[] {createEventDataFieldAccessExpr(expr.pos, varStreamEvent.symbol).symbol}, streamAliasMap,
-                rhsStream);
+                rhsStream, outputEventType);
 
         // return <anydata>e.data[<fieldName in string>];
         BLangExpression conversionExpr = desugar.addConversionExprIfRequired(mapAccessExpr, symTable.anydataType);
@@ -906,7 +906,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BType lhsType = onExpr.lhsExpr.type;
             BType rhsType = onExpr.rhsExpr.type;
             BLangBinaryExpr refactoredOnExpr = (BLangBinaryExpr) preSelectDesuagr.rewrite(onExpr,
-                    new BSymbol[]{lhsDataMap.symbol, rhsDataMap.symbol}, streamAliasMap, rhsStream);
+                    new BSymbol[]{lhsDataMap.symbol, rhsDataMap.symbol}, streamAliasMap, rhsStream, outputEventType);
 
             refactoredOnExpr.lhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.lhsExpr, lhsType);
             refactoredOnExpr.rhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.rhsExpr, rhsType);
@@ -989,7 +989,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // table<Stock> stocks = queryStocksTable(<string> s.data["twitterStream.company"], 1);
         onConditionExpr = (BLangExpression) preSelectDesuagr.rewrite(onConditionExpr, new BSymbol[]{
                 createEventDataFieldAccessExpr(onConditionExpr.pos, streamEventVarArg.symbol).symbol},
-                                                                     streamAliasMap, rhsStream);
+                                                                     streamAliasMap, rhsStream, outputEventType);
         BTableType tableType = (BTableType) onConditionExpr.type;
 
         BLangSimpleVariable resultTableVariable =
@@ -1385,6 +1385,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             } else if (expr.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
                 BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) expr;
                 convertFieldAccessArgsToStringLiteral(arrayLiteral.exprs);
+            } else {
+                expr.typeChecked = false;
             }
         }
     }
@@ -1451,7 +1453,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         //always the condition lambda has one required param
         BSymbol varSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangExpression conditionExpr = (BLangExpression) preSelectDesuagr.rewrite((BLangNode) where.getExpression(),
-                new BSymbol[]{varSymbol}, streamAliasMap, rhsStream);
+                new BSymbol[]{varSymbol}, streamAliasMap, rhsStream, outputEventType);
         visitFilter(where.pos, conditionExpr, lambda);
     }
 
@@ -1624,28 +1626,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BLangRecordLiteral.BLangRecordKeyValue recordKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
                     TreeBuilder.createRecordKeyValue();
 
-            if (selectExpression.getIdentifier() != null) {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                varRef.variableName = ASTBuilderUtil.createIdentifier(pos,
-                        selectExpression.getIdentifier());
-                recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
-                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventType,
-                        selectExpression.getIdentifier());
-            } else {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                varRef.variableName = ((BLangFieldBasedAccess) selectExpression.getExpression()).field;
-                recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
-                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventType,
-                        ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
-            }
+            createOutputMapKey(pos, selectExpression, recordKeyValue);
             if (selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
-                setInvocationToRecordKeyValue(recordKeyValue, streamEventSymbol, aggregatorArraySymbol,
+                recordKeyValue.valueExpr = refactorSelectorInvocation(streamEventSymbol, aggregatorArraySymbol,
                         aggregatorIndex, selectExpression, groupBy);
             } else {
                 BLangExpression expr = (BLangExpression) selectExpression.getExpression();
                 BLangExpression refactoredExpr = (BLangExpression) preSelectDesuagr.rewrite(expr,
                         new BSymbol[]{createEventDataFieldAccessExpr(selectExpression.pos, streamEventSymbol).symbol},
-                        streamAliasMap, rhsStream);
+                        streamAliasMap, rhsStream, outputEventType);
                 recordKeyValue.valueExpr = desugar.addConversionExprIfRequired(refactoredExpr, symTable.anydataType);
             }
             recordKeyValueList.add(recordKeyValue);
@@ -1653,29 +1642,61 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return recordKeyValueList;
     }
 
+    private void createOutputMapKey(DiagnosticPos pos, BLangSelectExpression selectExpression,
+                                    BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+        if (selectExpression.getIdentifier() != null) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            varRef.variableName = ASTBuilderUtil.createIdentifier(pos, selectExpression.getIdentifier());
+            recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
+            BVarSymbol symbol = getOutputEventFieldSymbol(outputEventType, selectExpression.getIdentifier());
+            if (symbol == null) {
+                dlog.error(varRef.pos, DiagnosticCode.UNDEFINED_OUTPUT_STREAM_ATTRIBUTE, varRef);
+            } else {
+                recordKeyValue.key.fieldSymbol = symbol;
+            }
+        } else {
+            if (selectExpression.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                varRef.variableName = ((BLangFieldBasedAccess) selectExpression.getExpression()).field;
+                recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
+                BVarSymbol symbol = getOutputEventFieldSymbol(outputEventType,
+                        ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
+                if (symbol == null) {
+                    dlog.error(varRef.pos, DiagnosticCode.UNDEFINED_OUTPUT_STREAM_ATTRIBUTE, varRef);
+                } else {
+                    recordKeyValue.key.fieldSymbol = symbol;
+                }
+            } else {
+                BLangExpression expr = (BLangExpression) selectExpression.getExpression();
+                recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(expr);
+                dlog.error(expr.pos, DiagnosticCode.UNDEFINED_SELECT_EXPR_ALIAS);
+            }
+        }
+    }
+
     //this function will refactor the selector invocations appropriately by checking whether it is an aggregate or not
-    private void setInvocationToRecordKeyValue(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue,
-                                               BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol,
-                                               LongAdder aggregatorIndex, BLangSelectExpression selectExpression,
-                                               BLangGroupBy groupBy) {
+    private BLangExpression refactorSelectorInvocation(BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol,
+                                                       LongAdder aggregatorIndex, BLangSelectExpression selectExpr,
+                                                       BLangGroupBy groupBy) {
         // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
-        BLangInvocation invocation = (BLangInvocation) selectExpression.getExpression();
+        BLangInvocation invocation = (BLangInvocation) selectExpr.getExpression();
 
         BInvokableSymbol symbol = getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
         if (symbol != null) {
             if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, symbol)) {
-
-                // aggregatorArr[0].process(e.data["inputStream.age"], e.eventType)
-                recordKeyValue.valueExpr = generateAggregatorInvocation(streamEventSymbol, aggregatorArraySymbol,
-                        aggregatorIndex.longValue(), invocation);
                 aggregatorIndex.increment();
+                // aggregatorArr[0].process(e.data["inputStream.age"], e.eventType)
+                return generateAggregatorInvocation(streamEventSymbol, aggregatorArraySymbol,
+                        aggregatorIndex.longValue() - 1, invocation);
             } else {
                 invocation = (BLangInvocation) preSelectDesuagr.rewrite(invocation,
                         new BSymbol[]{createEventDataFieldAccessExpr(invocation.pos, streamEventSymbol).symbol},
-                                                                        streamAliasMap, rhsStream);
-                recordKeyValue.valueExpr = desugar.addConversionExprIfRequired(invocation, symTable.anydataType);
+                                                                        streamAliasMap, rhsStream, outputEventType);
+                return desugar.addConversionExprIfRequired(invocation, symTable.anydataType);
             }
         }
+
+        return null;
     }
 
     private BLangInvocation generateAggregatorInvocation(BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol,

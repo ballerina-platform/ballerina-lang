@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.990.1-SNAPSHOT</version>
+    <version>0.990.3-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -915,11 +915,11 @@
                 <artifactId>ballerina-to-swagger</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>org.ballerinalang</groupId>-->
-                <!--<artifactId>ballerina-codegen</artifactId>-->
-                <!--<version>${ballerina.version}</version>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-codegen</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>protobuf-ballerina</artifactId>
@@ -2227,7 +2227,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.990.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.990.3-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>

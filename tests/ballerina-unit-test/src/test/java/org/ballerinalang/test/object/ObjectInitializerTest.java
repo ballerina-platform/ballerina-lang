@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -58,8 +59,7 @@ public class ObjectInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInitializerOrder");
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
-        //TODO: enable below assertion once https://github.com/ballerina-platform/ballerina-lang/issues/6849 is fixed.
-//        Assert.assertEquals(returns[1].stringValue(), "AB");
+        Assert.assertEquals(returns[1].stringValue(), "AB");
     }
 
     @Test(description = "Test negative object initializers scenarios")
@@ -70,6 +70,26 @@ public class ObjectInitializerTest {
 //        BAssertUtil.validateError(result, 1,
 //                "unknown type 'student'", 6, 5);
 
+    }
+
+    @Test(description = "Test negative object initializers scenarios")
+    public void testObjectInitializerNegatives() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_initializer_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'Foo.__init'", 7, 14);
+        BAssertUtil.validateError(result, 1,
+                "object initializer function can not be declared as private", 11, 4);
+
+    }
+
+    @Test(description = "Test object initializer invocation")
+    public void testObjectInitializerUsedAsAFunction() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInitializerUsedAsAFunction");
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+        Assert.assertEquals(returns[1].stringValue(), "James");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 10);
+        Assert.assertEquals(returns[3].stringValue(), "Peter");
     }
 }
 

@@ -175,23 +175,28 @@ public type LoadBalanceActionErrorData record {
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
 
 remote function LoadBalanceClient.post(string path, OutboundRequestEntity message) returns Response|error {
-    return performLoadBalanceAction(self, path, <Request>message, HTTP_POST);
+    Request req = buildRequest(message);
+    return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
 remote function LoadBalanceClient.head(string path, OutboundRequestEntity message = ()) returns Response|error {
-    return performLoadBalanceAction(self, path, <Request>message, HTTP_HEAD);
+    Request req = buildRequest(message);
+    return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
 remote function LoadBalanceClient.patch(string path, OutboundRequestEntity message) returns Response|error {
-    return performLoadBalanceAction(self, path, <Request>message, HTTP_PATCH);
+    Request req = buildRequest(message);
+    return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
 remote function LoadBalanceClient.put(string path, OutboundRequestEntity message) returns Response|error {
-    return performLoadBalanceAction(self, path, <Request>message, HTTP_PUT);
+    Request req = buildRequest(message);
+    return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
 remote function LoadBalanceClient.options(string path, OutboundRequestEntity message = ()) returns Response|error {
-    return performLoadBalanceAction(self, path, <Request>message, HTTP_OPTIONS);
+    Request req = buildRequest(message);
+    return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
 
 remote function LoadBalanceClient.forward(string path, Request request) returns Response|error {
@@ -199,15 +204,18 @@ remote function LoadBalanceClient.forward(string path, Request request) returns 
 }
 
 remote function LoadBalanceClient.execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {
-    return performLoadBalanceExecuteAction(self, path, <Request>message, httpVerb);
+    Request req = buildRequest(message);
+    return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
 
 remote function LoadBalanceClient.delete(string path, OutboundRequestEntity message) returns Response|error {
-    return performLoadBalanceAction(self, path, <Request>message, HTTP_DELETE);
+    Request req = buildRequest(message);
+    return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
 remote function LoadBalanceClient.get(string path, OutboundRequestEntity message = ()) returns Response|error {
-    return performLoadBalanceAction(self, path, <Request>message, HTTP_GET);
+    Request req = buildRequest(message);
+    return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
 remote function LoadBalanceClient.submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {

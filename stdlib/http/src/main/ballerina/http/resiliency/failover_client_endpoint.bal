@@ -189,23 +189,28 @@ public type FailoverClient client object {
 };
 
 remote function FailoverClient.post(string path, OutboundRequestEntity message) returns Response|error {
-    return performFailoverAction(path, <Request>message, HTTP_POST, self);
+    Request req = buildRequest(message);
+    return performFailoverAction(path, req, HTTP_POST, self);
 }
 
 remote function FailoverClient.head(string path, OutboundRequestEntity message = ()) returns Response|error {
-    return performFailoverAction(path, <Request>message, HTTP_HEAD, self);
+    Request req = buildRequest(message);
+    return performFailoverAction(path, req, HTTP_HEAD, self);
 }
 
 remote function FailoverClient.patch(string path, OutboundRequestEntity message) returns Response|error {
-    return performFailoverAction(path, <Request>message, HTTP_PATCH, self);
+    Request req = buildRequest(message);
+    return performFailoverAction(path, req, HTTP_PATCH, self);
 }
 
 remote function FailoverClient.put(string path, OutboundRequestEntity message) returns Response|error {
-    return performFailoverAction(path, <Request>message, HTTP_PUT, self);
+    Request req = buildRequest(message);
+    return performFailoverAction(path, req, HTTP_PUT, self);
 }
 
 remote function FailoverClient.options(string path, OutboundRequestEntity message = ()) returns Response|error {
-    return performFailoverAction(path, <Request>message, HTTP_OPTIONS, self);
+    Request req = buildRequest(message);
+    return performFailoverAction(path, req, HTTP_OPTIONS, self);
 }
 
 remote function FailoverClient.forward(string path, Request request) returns Response|error {
@@ -213,15 +218,18 @@ remote function FailoverClient.forward(string path, Request request) returns Res
 }
 
 remote function FailoverClient.execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {
-    return performExecuteAction(path, <Request>message, httpVerb, self);
+    Request req = buildRequest(message);
+    return performExecuteAction(path, req, httpVerb, self);
 }
 
 remote function FailoverClient.delete(string path, OutboundRequestEntity message) returns Response|error {
-    return performFailoverAction(path, <Request>message, HTTP_DELETE, self);
+    Request req = buildRequest(message);
+    return performFailoverAction(path, req, HTTP_DELETE, self);
 }
 
 remote function FailoverClient.get(string path, OutboundRequestEntity message = ()) returns Response|error {
-    return performFailoverAction(path, <Request>message, HTTP_GET, self);
+    Request req = buildRequest(message);
+    return performFailoverAction(path, req, HTTP_GET, self);
 }
 
 remote function FailoverClient.submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {

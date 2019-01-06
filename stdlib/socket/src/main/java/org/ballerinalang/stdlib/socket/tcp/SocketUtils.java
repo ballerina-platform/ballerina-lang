@@ -41,6 +41,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_ADDRESS;
 import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 
 /**
  * Represents the util functions of Socket operations.
@@ -83,15 +84,22 @@ public class SocketUtils {
      * Create a `Caller` object that associated with the given SocketChannel.
      *
      * @param programFile A program file
-     * @param client      SocketClient that associate with this caller action
+     * @param socketService {@link SocketService} instance that contains SocketChannel and resource map
      * @return 'Caller' object
      */
-    public static BMap<String, BValue> createClient(ProgramFile programFile, SocketChannel client) {
+    public static BMap<String, BValue> createClient(ProgramFile programFile, SocketService socketService) {
         BValue[] args = new BValue[] { null };
+        // Passing parameters as null to prevent object init in the socket client.
         BMap<String, BValue> caller = BLangConnectorSPIUtil.createObject(programFile, SOCKET_PACKAGE, CLIENT, args);
-        caller.addNativeData(SOCKET_KEY, client);
-        // Client could be null, if any error happen during the onAccept function.
+        caller.addNativeData(SOCKET_SERVICE, socketService);
+        SocketChannel client = null;
+        // An error can be thrown during the onAccept function. So there is a possibility of client not
+        // available at that time. Hence the below null check.
+        if (socketService.getSocketChannel() != null) {
+            client = (SocketChannel) socketService.getSocketChannel();
+        }
         if (client != null) {
+            caller.addNativeData(SOCKET_KEY, client);
             Socket socket = client.socket();
             caller.put(REMOTE_PORT, new BInteger(socket.getPort()));
             caller.put(LOCAL_PORT, new BInteger(socket.getLocalPort()));

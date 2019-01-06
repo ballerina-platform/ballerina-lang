@@ -1129,6 +1129,12 @@ public class PackageInfoReader {
                 case InstructionCodes.ICONST_3:
                 case InstructionCodes.ICONST_4:
                 case InstructionCodes.ICONST_5:
+                case InstructionCodes.FCONST_0:
+                case InstructionCodes.FCONST_1:
+                case InstructionCodes.FCONST_2:
+                case InstructionCodes.FCONST_3:
+                case InstructionCodes.FCONST_4:
+                case InstructionCodes.FCONST_5:
                 case InstructionCodes.BCONST_0:
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:
@@ -1427,9 +1433,12 @@ public class PackageInfoReader {
                     BType syncSendType = getParamTypes(packageInfo, syncSigCPEntry.getValue())[0];
                     int exprIndex = codeStream.readInt();
                     int syncSendIndex = codeStream.readInt();
+                    WorkerDataChannelInfo syncChannelInfo = syncChannelRefCPEntry.getWorkerDataChannelInfo();
+                    boolean channelSendInSameStrand =
+                            syncChannelInfo.getSource().equals(BLangConstants.DEFAULT_WORKER_NAME);
                     packageInfo.addInstruction(new Instruction.InstructionWRKSyncSend(opcode, syncChannelRefCPIndex,
-                            syncChannelRefCPEntry.getWorkerDataChannelInfo(), syncSigCPIndex, syncSendType, exprIndex
-                            , syncSendIndex));
+                            syncChannelInfo, syncSigCPIndex, syncSendType, exprIndex
+                            , syncSendIndex, channelSendInSameStrand));
                     break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:

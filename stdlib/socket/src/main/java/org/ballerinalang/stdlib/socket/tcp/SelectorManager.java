@@ -158,6 +158,7 @@ public class SelectorManager {
                         .register(selector, channelRegisterCallback.getInitialInterest(), socketService);
             } catch (ClosedChannelException e) {
                 channelRegisterCallback.notifyFailure("Socket already closed");
+                continue;
             }
             channelRegisterCallback
                     .notifyRegister(channelRegisterCallback.getInitialInterest() == SelectionKey.OP_READ);
@@ -176,26 +177,30 @@ public class SelectorManager {
 
     private void onAccept(SelectionKey key) {
         SocketService socketService = (SocketService) key.attachment();
+        ServerSocketChannel server = (ServerSocketChannel) socketService.getSocketChannel();
         try {
-            ServerSocketChannel server = (ServerSocketChannel) socketService.getSocketChannel();
             SocketChannel client = server.accept();
             client.configureBlocking(false);
             // Creating a new SocketService instance with the newly accepted client.
-            // We don't ServerSocketChannel in here since we have all the necessary resources.
+            // We don't need the ServerSocketChannel in here since we have all the necessary resources.
             SocketService clientSocketService = new SocketService(client, socketService.getResources());
             // Registering the channel against the selector directly without going through the queue,
             // since we are in same thread.
             client.register(selector, OP_READ, clientSocketService);
-            SelectorDispatcher.invokeOnAccept(clientSocketService, client);
+            SelectorDispatcher.invokeOnAccept(clientSocketService);
         } catch (ClosedByInterruptException e) {
-            SelectorDispatcher.invokeOnError(socketService, "Client accept interrupt by another process");
+            SelectorDispatcher.invokeOnError(new SocketService(socketService.getResources()),
+                    "Client accept interrupt by another process");
         } catch (AsynchronousCloseException e) {
-            SelectorDispatcher.invokeOnError(socketService, "Client closed by another process");
+            SelectorDispatcher
+                    .invokeOnError(new SocketService(socketService.getResources()), "Client closed by another process");
         } catch (ClosedChannelException e) {
-            SelectorDispatcher.invokeOnError(socketService, "Client is already closed");
+            SelectorDispatcher
+                    .invokeOnError(new SocketService(socketService.getResources()), "Client is already closed");
         } catch (IOException e) {
             log.error("An error occurred while accepting new client", e);
-            SelectorDispatcher.invokeOnError(socketService, "Unable to accept a new client");
+            SelectorDispatcher
+                    .invokeOnError(new SocketService(socketService.getResources()), "Unable to accept a new client");
         }
     }
 

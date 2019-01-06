@@ -1278,6 +1278,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code stringFunctionInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringFunctionInvocationReference(BallerinaParser.StringFunctionInvocationReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code stringFunctionInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringFunctionInvocationReference(BallerinaParser.StringFunctionInvocationReferenceContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#field}.
 	 * @param ctx the parse tree
 	 */

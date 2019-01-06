@@ -183,6 +183,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -250,6 +251,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         });
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
@@ -837,7 +839,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
-            objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
+            if (objectTypeNode.initFunction.body == null) {
+                // if the __init() function is defined as an outside function definition
+                Optional<BLangFunction> outerFuncDef =
+                        objectEnv.enclPkg.functions.stream()
+                                .filter(f -> f.symbol.name.equals((objectTypeNode.initFunction).symbol.name))
+                                .findFirst();
+                outerFuncDef.ifPresent(bLangFunction -> objectTypeNode.initFunction = bLangFunction);
+            }
+
+            if (objectTypeNode.initFunction.body != null) {
+                objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
+            }
         }
 
         if (!anonymousModelHelper.isAnonymousType(objectTypeNode.symbol) &&
