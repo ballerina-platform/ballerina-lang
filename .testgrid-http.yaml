@@ -1,32 +1,42 @@
-# TestGrid job configuration
-
+# TestGrid Test Configuration Parameters
 version: '0.9'
 emailToList: "manurip@wso2.com,vijithae@wso2.com"
 infrastructureConfig:
-  iacProvider: CLOUDFORMATION
-  infrastructureProvider: AWS
-  containerOrchestrationEngine: None
-  parameters:
-  - JDK : ORACLE_JDK8
+  infrastructureProvider: SHELL
+  containerOrchestrationEngine: K8S
   includes:
   - Ubuntu-18.04
+  - OracleJDK-8
   provisioners:
-  - name: single-node-deployment
+  - name: ballerina-deployment
     remoteRepository: "git@github.com:VijithaEkanayake/aws-ballerina.git"
     remoteBranch: "master"
-    description: Provision Infra for running scenario tests
+    description: creates infrastructure for ballerina scenario tests
     scripts:
-    - name: 'ballerina-scenario-deployment'
-      description: ''
-      type: CLOUDFORMATION
-      file: http-resiliency/http-resiliency.yaml
-      inputParameters:
-        KeyPairName: "deployment-prod"
-        CertificateName: "wso2-testgrid"
+    - name: ballerina-deployment
+      description: Creates Kubernetes infrastructure for a database and ballerina installed instance.
+      type: SHELL
+      phase: CREATE
+      file: http/resiliency/provision-infrastructure.sh
+    - name: destroy
+      file: http/resiliency/destroy-cluster.sh
+      type: SHELL
+      phase: DESTROY
 scenarioConfigs:
-- testType: TESTNG
+- testType: JMETER
   remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
   remoteBranch: "ballerina-scenarios"
   name: "ballerina-scenarios"
   description: "ballerina-scenarios"
   file: product-scenarios/test-http.sh
+deploymentConfig:
+  deploymentPatterns:
+  - name: 'scenario-tests'
+    description: 'HTTP resiliency scenarios deployment'
+    remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
+    remoteBranch: "ballerina-scenarios"
+    dir: .
+    scripts:
+    - name: 'default'
+      type: SHELL
+      file: product-scenarios/deployment-http.sh
