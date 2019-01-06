@@ -222,7 +222,7 @@ public class SQLDBUtils {
     public static class FileBasedTestDatabase extends TestDatabase {
         private String dbDirectory;
 
-        public FileBasedTestDatabase(DBType dbType, String queries, String dbDirectory, String dbName) {
+        public FileBasedTestDatabase(DBType dbType, String databaseScript, String dbDirectory, String dbName) {
             this.dbDirectory = dbDirectory;
             switch (dbType) {
             case H2:
@@ -240,7 +240,7 @@ public class SQLDBUtils {
                         "Creating a file based database is not supported for: " + dbType);
             }
             password = "";
-            initDatabase(jdbcUrl, username, password, queries);
+            initDatabase(jdbcUrl, username, password, databaseScript);
         }
 
         public void stop() {

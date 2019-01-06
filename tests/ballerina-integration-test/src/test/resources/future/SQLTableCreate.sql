@@ -7,4 +7,3 @@ CREATE TABLE IF NOT EXISTS FactoryEmployee(
   country  VARCHAR(300),
   PRIMARY KEY (customerId)
 );
-/
