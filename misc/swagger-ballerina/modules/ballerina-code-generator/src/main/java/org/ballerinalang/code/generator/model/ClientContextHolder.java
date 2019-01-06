@@ -53,7 +53,7 @@ public class ClientContextHolder {
         for (BLangSimpleVariable ep : endpoints) {
             EndpointContextHolder epContext = EndpointContextHolder.buildContext(service, ep);
             if (epContext != null) {
-                context.endpoints.add(EndpointContextHolder.buildContext(service, ep));
+                context.endpoints.add(epContext);
             }
         }
 

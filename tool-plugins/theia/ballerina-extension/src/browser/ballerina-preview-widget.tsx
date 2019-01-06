@@ -27,7 +27,7 @@ export class BallerinaPreviewWidget extends ReactWidget {
     ) {
         super();
         this.id = 'ballerina-preview-widget';
-        this.title.label = 'Ballerina Interaction';
+        this.title.label = 'Ballerina Diagram';
         this.title.closable = true;
         this.addClass('ballerina-preview');
         // this is a workaround to fix styles until ballerina theme is fixed
@@ -59,8 +59,9 @@ export class BallerinaPreviewWidget extends ReactWidget {
         this.toDisposePerCurrentEditor.dispose();
         const currentEditor = editorWidget
                     || this.editorManager.currentEditor
-                    || this.editorManager.activeEditor;
-        this.currentEditor = currentEditor;            
+                    || this.editorManager.activeEditor
+                    || this.editorManager.all.find(e => e.isVisible);
+        this.currentEditor = currentEditor;  
         if (currentEditor) {
             const { editor } = currentEditor;
             this.toDisposePerCurrentEditor.push(

@@ -410,13 +410,11 @@ public class XMLUtils {
                 return isXmlItemEqual((BXMLItem) xmlOne, (BXMLItem) xmlTwo);
             } else {
                 if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlOne.isSingleton().booleanValue()) {
-                    return Arrays.equals(canonicalize((BXMLItem) ((BXMLSequence) xmlOne).getItem(0)),
-                                         canonicalize((BXMLItem) xmlTwo));
+                    return isXmlSingletonSequenceItemEqual((BXMLSequence) xmlOne, (BXMLItem) xmlTwo);
                 }
 
                 if (xmlTwoNodeType == XMLNodeType.SEQUENCE && xmlTwo.isSingleton().booleanValue()) {
-                    return Arrays.equals(canonicalize((BXMLItem) xmlOne),
-                                         canonicalize((BXMLItem) ((BXMLSequence) xmlTwo).getItem(0)));
+                    return isXmlSingletonSequenceItemEqual((BXMLSequence) xmlTwo, (BXMLItem) xmlOne);
                 }
             }
         } catch (Exception e) {
@@ -445,6 +443,17 @@ public class XMLUtils {
                 return Arrays.equals(canonicalize(xmlItemOne), canonicalize(xmlItemTwo));
             default:
                 return xmlItemOne.stringValue().equals(xmlItemTwo.stringValue());
+        }
+    }
+
+    private static boolean isXmlSingletonSequenceItemEqual(BXMLSequence singletonXmlSequence, BXMLItem xmlItem)
+            throws CanonicalizationException {
+        switch (xmlItem.getNodeType()) {
+            case ELEMENT:
+                return Arrays.equals(canonicalize((BXMLItem) ((BXMLSequence) singletonXmlSequence).getItem(0)),
+                                     canonicalize(xmlItem));
+            default:
+                return ((BXMLSequence) singletonXmlSequence).getItem(0).stringValue().equals(xmlItem.stringValue());
         }
     }
 
