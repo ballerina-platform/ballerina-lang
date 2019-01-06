@@ -1,6 +1,6 @@
 # TestGrid Test Configuration Parameters
 version: '0.9'
-emailToList: "manurip@wso2.com,vijithae@wso2.com"
+emailToList: "vijithae@wso2.com"
 infrastructureConfig:
   infrastructureProvider: SHELL
   containerOrchestrationEngine: K8S
@@ -14,7 +14,7 @@ infrastructureConfig:
     description: creates infrastructure for ballerina scenario tests
     scripts:
     - name: ballerina-deployment
-      description: Creates Kubernetes infrastructure for a database and ballerina installed instance.
+      description: Creates Kubernetes infrastructure for Ballerina installed instance.
       type: SHELL
       phase: CREATE
       file: http/resiliency/provision-infrastructure.sh

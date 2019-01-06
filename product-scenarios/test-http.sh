@@ -94,7 +94,7 @@ unset IFS
 
 cat $INPUT_DIR/deployment.properties
 
-curl http://$EXTERNAL-IP:80/cb -v
+curl http://$EXTERNAL-IP/cb -v
 
 #=============== Copy Surefire Reports ===========================================
 # SUREFIRE REPORTS MUST NEED TO BE COPIED TO OUTPUT_DIR.
