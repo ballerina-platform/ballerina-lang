@@ -17,9 +17,9 @@ infrastructureConfig:
         description: Creates Kubernetes infrastructure for Ballerina installed instance.
         type: SHELL
         phase: CREATE
-        file: http/resiliency/provision-infrastructure.sh
+        file: http-integration/provision-infrastructure.sh
       - name: destroy
-        file: http/resiliency/destroy-cluster.sh
+        file: http-integration/destroy-cluster.sh
         type: SHELL
         phase: DESTROY
 scenarioConfigs:
