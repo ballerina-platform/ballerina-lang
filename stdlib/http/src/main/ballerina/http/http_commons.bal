@@ -101,6 +101,9 @@ public const COMPRESSION_NEVER = "NEVER";
 # The types of messages that are accepted by HTTP `client` when sending out the outbound request.
 public type OutboundRequestEntity Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
 
+# The types of messages that are accepted by HTTP `listener` when sending out the outbound response.
+public type OutboundResponseEntity Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
+
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
 #
 # `FORWARD`: Forward the specified payload
@@ -216,7 +219,7 @@ function buildRequest(OutboundRequestEntity message) returns Request {
     return request;
 }
 
-function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Response {
+function buildResponse(OutboundResponseEntity message) returns Response {
     Response response = new;
     if (message is ()) {
         return response;
@@ -236,14 +239,6 @@ function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mi
         response.setBodyParts(message);
     }
     return response;
-}
-
-function isNonEntityBody(OutboundRequestEntity message) returns boolean {
-    if (message is ()) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 # The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
