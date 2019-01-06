@@ -9,7 +9,7 @@ infrastructureConfig:
     - OracleJDK-8
   provisioners:
   - name: ballerina-deployment
-    remoteRepository: "git@github.com:VijithaEkanayake/aws-ballerina.git"
+    remoteRepository: "git@github.com:vijithaekanayake/aws-ballerina.git"
     remoteBranch: "master"
     description: creates infrastructure for ballerina scenario tests
     scripts:
