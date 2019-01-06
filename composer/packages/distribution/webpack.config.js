@@ -56,16 +56,19 @@ module.exports = {
             }
         ]
     },
-    // watchOptions: {
-    //     ignored: /(node_modules|build)/
-    // },
+    watchOptions: {
+        ignored: [
+            /node_modules([\\]+|\/)+(?!@ballerina)/,
+            /build/
+        ]
+    },
     devServer: {
         contentBase: path.join(__dirname, 'build'),
         port: 9000
     },
     plugins: [
         new CopyWebpackPlugin([
-            { context: 'node_modules/@ballerina/theme', from: 'build', to: 'theme' }
+            { context: 'node_modules/@ballerina/theme', from: 'lib', to: 'themes' }
         ])
     ],
     devtool: 'source-map',
