@@ -71,11 +71,11 @@ public class SendingHeaders implements SenderState {
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         if (isLastHttpContent(httpContent)) {
-            long contentLength = httpContent.content().readableBytes();
-            if (checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest, contentLength)) {
+            if (checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest)) {
                 if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
                     setupChunkedRequest(httpOutboundRequest);
                 } else {
+                    long contentLength = httpContent.content().readableBytes();
                     setupContentLengthRequest(httpOutboundRequest, contentLength);
                 }
             }

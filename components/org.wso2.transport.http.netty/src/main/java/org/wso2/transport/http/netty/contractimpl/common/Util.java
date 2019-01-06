@@ -267,10 +267,13 @@ public class Util {
         httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
     }
 
-    public static boolean checkContentLengthAndTransferEncodingHeaderAllowance(HttpCarbonMessage httpOutboundRequest,
-                                                                               long contentLength) {
+    public static boolean checkContentLengthAndTransferEncodingHeaderAllowance(HttpCarbonMessage httpOutboundRequest) {
         HttpMethod method = getHttpMethod(httpOutboundRequest);
-        if (contentLength == 0 && (HttpMethod.GET.equals(method)
+        if (httpOutboundRequest.getProperty(Constants.NON_ENTITY_BODY_REQUEST) == null) {
+            return true;
+        }
+        boolean nonEntityBodyRequest = (boolean) httpOutboundRequest.getProperty(Constants.NON_ENTITY_BODY_REQUEST);
+        if (nonEntityBodyRequest && (HttpMethod.GET.equals(method)
                 || HttpMethod.HEAD.equals(method) || HttpMethod.OPTIONS.equals(method))) {
             removeContentLengthAndTransferEncodingHeaders(httpOutboundRequest);
             return false;

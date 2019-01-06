@@ -80,7 +80,8 @@ public class CommonUtilTestCase {
         HttpCarbonMessage httpOutboundRequest = new HttpCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/get", headers));
         httpOutboundRequest.setProperty(Constants.HTTP_METHOD, HttpMethod.GET.toString());
-        boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest, 0);
+        httpOutboundRequest.setProperty(Constants.NON_ENTITY_BODY_REQUEST, true);
+        boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest);
 
         Assert.assertEquals(allow, false, "Content length header should not be updated");
         Assert.assertEquals(httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()), null,
@@ -94,7 +95,8 @@ public class CommonUtilTestCase {
         HttpCarbonMessage httpOutboundRequest = new HttpCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/get", headers));
         httpOutboundRequest.setProperty(Constants.HTTP_METHOD, HttpMethod.GET.toString());
-        boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest, 20);
+        httpOutboundRequest.setProperty(Constants.NON_ENTITY_BODY_REQUEST, false);
+        boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest);
 
         Assert.assertEquals(allow, true, "Content length header should be updated");
         Assert.assertEquals(httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()), "10",
