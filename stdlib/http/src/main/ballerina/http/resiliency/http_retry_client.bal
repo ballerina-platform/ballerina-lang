@@ -72,8 +72,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns Response|error;
+    public remote function post(string path, OutboundRequestEntity message) returns Response|error;
 
     # The `head()` function wraps the underlying HTTP remote functions in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
@@ -82,8 +81,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message = ()) returns Response|error;
+    public remote function head(string path, OutboundRequestEntity message = ()) returns Response|error;
 
     # The `put()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
@@ -92,8 +90,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns Response|error;
+    public remote function put(string path, OutboundRequestEntity message) returns Response|error;
 
     # The `forward()` function wraps the underlying HTTP remote function in a way to provide retrying functionality
     # for a given endpoint with inbound request's HTTP verb to recover from network level failures.
@@ -111,8 +108,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error;
+    public remote function execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error;
 
     # The `patch()` function wraps the undeline underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
@@ -121,8 +117,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns Response|error;
+    public remote function patch(string path, OutboundRequestEntity message) returns Response|error;
 
     # The `delete()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
@@ -131,8 +126,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message) returns Response|error;
+    public remote function delete(string path, OutboundRequestEntity message) returns Response|error;
 
     # The `get()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
@@ -141,8 +135,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message = ()) returns Response|error;
+    public remote function get(string path, OutboundRequestEntity message = ()) returns Response|error;
 
     # The `options()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
@@ -151,8 +144,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message = ()) returns Response|error;
+    public remote function options(string path, OutboundRequestEntity message = ()) returns Response|error;
 
     # Submits an HTTP request to a service with the specified HTTP verb.
 	#cThe `submit()` function does not give out a `Response` as the result,
@@ -163,8 +155,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public remote function submit(string httpVerb, string path,
-                Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error;
+    public remote function submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error;
 
     # Retrieves the `Response` for a previously submitted request.
     #
@@ -197,62 +188,44 @@ public type RetryClient client object {
     public remote function rejectPromise(PushPromise promise);
 };
 
-remote function RetryClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                message) returns Response|error {
-    Request req = buildRequest(message);
-    return performRetryAction(path, req, HTTP_POST, self);
+remote function RetryClient.post(string path, OutboundRequestEntity message) returns Response|error {
+    return performRetryAction(path, <Request>message, HTTP_POST, self);
 }
 
-remote function RetryClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                message = ()) returns Response|error {
-    Request req = buildRequest(message);
-    return performRetryAction(path, req, HTTP_HEAD, self);
+remote function RetryClient.head(string path, OutboundRequestEntity message = ()) returns Response|error {
+    return performRetryAction(path, <Request>message, HTTP_HEAD, self);
 }
 
-remote function RetryClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                message) returns Response|error {
-    Request req = buildRequest(message);
-    return performRetryAction(path, req, HTTP_PUT, self);
+remote function RetryClient.put(string path, OutboundRequestEntity message) returns Response|error {
+    return performRetryAction(path, <Request>message, HTTP_PUT, self);
 }
 
 remote function RetryClient.forward(string path, Request request) returns Response|error {
     return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
-remote function RetryClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
-                                                                    |mime:Entity[]|() message) returns Response|error {
-    Request req = buildRequest(message);
-    return performRetryClientExecuteAction(path, req, httpVerb, self);
+remote function RetryClient.execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {
+    return performRetryClientExecuteAction(path, <Request>message, httpVerb, self);
 }
 
-remote function RetryClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                    message) returns Response|error {
-    Request req = buildRequest(message);
-    return performRetryAction(path, req, HTTP_PATCH, self);
+remote function RetryClient.patch(string path, OutboundRequestEntity message) returns Response|error {
+    return performRetryAction(path, <Request>message, HTTP_PATCH, self);
 }
 
-remote function RetryClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                    message) returns Response|error {
-    Request req = buildRequest(message);
-    return performRetryAction(path, req, HTTP_DELETE, self);
+remote function RetryClient.delete(string path, OutboundRequestEntity message) returns Response|error {
+    return performRetryAction(path, <Request>message, HTTP_DELETE, self);
 }
 
-remote function RetryClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                message = ()) returns Response|error {
-    Request req = buildRequest(message);
-    return performRetryAction(path, req, HTTP_GET, self);
+remote function RetryClient.get(string path, OutboundRequestEntity message = ()) returns Response|error {
+    return performRetryAction(path, <Request>message, HTTP_GET, self);
 }
 
-remote function RetryClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                    message = ()) returns Response|error {
-    Request req = buildRequest(message);
-    return performRetryAction(path, req, HTTP_OPTIONS, self);
+remote function RetryClient.options(string path, OutboundRequestEntity message = ()) returns Response|error {
+    return performRetryAction(path, <Request>message, HTTP_OPTIONS, self);
 }
 
-remote function RetryClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|
-                                                                    mime:Entity[]|() message) returns HttpFuture|error {
-    Request req = buildRequest(message);
-    return self.httpClient->submit(httpVerb, path, req);
+remote function RetryClient.submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {
+    return self.httpClient->submit(httpVerb, path, <Request>message);
 }
 
 remote function RetryClient.getResponse(HttpFuture httpFuture) returns Response|error {

@@ -67,9 +67,8 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns Response|error {
-        Request req = buildRequest(message);
+    public remote function post(string path, OutboundRequestEntity message) returns Response|error {
+        Request req = <Request>message;
         check generateSecureRequest(req, self.config);
         Response response = check self.httpClient->post(path, req);
         boolean isRetry = isRetryRequired(response, self.config);
@@ -87,9 +86,8 @@ public type HttpSecureClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message = ()) returns Response|error {
-        Request req = buildRequest(message);
+    public remote function head(string path, OutboundRequestEntity message = ()) returns Response|error {
+        Request req = <Request>message;
         check generateSecureRequest(req, self.config);
         Response response = check self.httpClient->head(path, message = req);
         boolean isRetry = isRetryRequired(response, self.config);
@@ -107,9 +105,8 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function put(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns Response|error {
-        Request req = buildRequest(message);
+    public remote function put(string path, OutboundRequestEntity message) returns Response|error {
+        Request req = <Request>message;
         check generateSecureRequest(req, self.config);
         Response response = check self.httpClient->put(path, req);
         boolean isRetry = isRetryRequired(response, self.config);
@@ -128,9 +125,8 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                             message) returns Response|error {
-        Request req = buildRequest(message);
+    public remote function execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {
+        Request req = <Request>message;
         check generateSecureRequest(req, self.config);
         Response response = check self.httpClient->execute(httpVerb, path, req);
         boolean isRetry = isRetryRequired(response, self.config);
@@ -148,9 +144,8 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function patch(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message) returns Response|error {
-        Request req = buildRequest(message);
+    public remote function patch(string path, OutboundRequestEntity message) returns Response|error {
+        Request req = <Request>message;
         check generateSecureRequest(req, self.config);
         Response response = check self.httpClient->patch(path, req);
         boolean isRetry = isRetryRequired(response, self.config);
@@ -168,9 +163,8 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message) returns Response|error {
-        Request req = buildRequest(message);
+    public remote function delete(string path, OutboundRequestEntity message) returns Response|error {
+        Request req = <Request>message;
         check generateSecureRequest(req, self.config);
         Response response = check self.httpClient->delete(path, req);
         boolean isRetry = isRetryRequired(response, self.config);
@@ -188,9 +182,8 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message = ()) returns Response|error {
-        Request req = buildRequest(message);
+    public remote function get(string path, OutboundRequestEntity message = ()) returns Response|error {
+        Request req = <Request>message;
         check generateSecureRequest(req, self.config);
         Response response = check self.httpClient->get(path, message = req);
         boolean isRetry = isRetryRequired(response, self.config);
@@ -208,9 +201,8 @@ public type HttpSecureClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message = ()) returns Response|error {
-        Request req = buildRequest(message);
+    public remote function options(string path, OutboundRequestEntity message = ()) returns Response|error {
+        Request req = <Request>message;
         check generateSecureRequest(req, self.config);
         Response response = check self.httpClient->options(path, message = req);
         boolean isRetry = isRetryRequired(response, self.config);
@@ -246,9 +238,8 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public remote function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns HttpFuture|error {
-        Request req = buildRequest(message);
+    public remote function submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {
+        Request req = <Request>message;
         check generateSecureRequest(req, self.config);
         return self.httpClient->submit(httpVerb, path, req);
     }

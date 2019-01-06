@@ -80,8 +80,7 @@ public type FailoverClient client object {
     # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns Response|error;
+    public remote function post(string path, OutboundRequestEntity message) returns Response|error;
 
     # The HEAD remote function implementation of the Failover Connector.
     #
@@ -89,8 +88,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message = ()) returns Response|error;
+    public remote function head(string path, OutboundRequestEntity message = ()) returns Response|error;
 
     # The PATCH remote function implementation of the Failover Connector.
     #
@@ -98,8 +96,7 @@ public type FailoverClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message) returns Response|error;
+    public remote function patch(string path, OutboundRequestEntity message) returns Response|error;
 
     # The PUT remote function  implementation of the Failover Connector.
     #
@@ -107,8 +104,7 @@ public type FailoverClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns Response|error;
+    public remote function put(string path, OutboundRequestEntity message) returns Response|error;
 
     # The OPTIONS remote function implementation of the Failover Connector.
     #
@@ -116,8 +112,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message = ()) returns Response|error;
+    public remote function options(string path, OutboundRequestEntity message = ()) returns Response|error;
 
     # Invokes an HTTP call using the incoming request's HTTP method.
     #
@@ -133,8 +128,7 @@ public type FailoverClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function execute(string httpVerb, string path,
-            Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error;
+    public remote function execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error;
 
     # The DELETE remote function implementation of the Failover Connector.
     #
@@ -142,8 +136,7 @@ public type FailoverClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message) returns Response|error;
+    public remote function delete(string path, OutboundRequestEntity message) returns Response|error;
 
     # The GET remote function implementation of the Failover Connector.
     #
@@ -151,8 +144,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message = ()) returns Response|error;
+    public remote function get(string path, OutboundRequestEntity message = ()) returns Response|error;
 
     # Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
     # a `Response` as the result, rather it returns an `HttpFuture` which can be used for subsequent interactions
@@ -163,8 +155,7 @@ public type FailoverClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(string httpVerb, string path,
-                Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns HttpFuture|error;
+    public remote function submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error;
 
     # Retrieves the `Response` for a previously submitted request.
     #
@@ -197,60 +188,43 @@ public type FailoverClient client object {
     public remote function rejectPromise(PushPromise promise);
 };
 
-remote function FailoverClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                    message) returns Response|error {
-    Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_POST, self);
+remote function FailoverClient.post(string path, OutboundRequestEntity message) returns Response|error {
+    return performFailoverAction(path, <Request>message, HTTP_POST, self);
 }
 
-remote function FailoverClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                    message = ()) returns Response|error {
-    Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_HEAD, self);
+remote function FailoverClient.head(string path, OutboundRequestEntity message = ()) returns Response|error {
+    return performFailoverAction(path, <Request>message, HTTP_HEAD, self);
 }
 
-remote function FailoverClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                        message) returns Response|error {
-    Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_PATCH, self);
+remote function FailoverClient.patch(string path, OutboundRequestEntity message) returns Response|error {
+    return performFailoverAction(path, <Request>message, HTTP_PATCH, self);
 }
 
-remote function FailoverClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                    message) returns Response|error {
-    Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_PUT, self);
+remote function FailoverClient.put(string path, OutboundRequestEntity message) returns Response|error {
+    return performFailoverAction(path, <Request>message, HTTP_PUT, self);
 }
 
-remote function FailoverClient.options(string path,
-            Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message = ()) returns Response|error {
-    Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_OPTIONS, self);
+remote function FailoverClient.options(string path, OutboundRequestEntity message = ()) returns Response|error {
+    return performFailoverAction(path, <Request>message, HTTP_OPTIONS, self);
 }
 
 remote function FailoverClient.forward(string path, Request request) returns Response|error {
     return performFailoverAction(path, request, HTTP_FORWARD, self);
 }
 
-remote function FailoverClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
-                                                                |mime:Entity[]|() message) returns Response|error {
-    Request req = buildRequest(message);
-    return performExecuteAction(path, req, httpVerb, self);
+remote function FailoverClient.execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {
+    return performExecuteAction(path, <Request>message, httpVerb, self);
 }
 
-remote function FailoverClient.delete(string path,
-                Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error {
-    Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_DELETE, self);
+remote function FailoverClient.delete(string path, OutboundRequestEntity message) returns Response|error {
+    return performFailoverAction(path, <Request>message, HTTP_DELETE, self);
 }
 
-remote function FailoverClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                    message = ()) returns Response|error {
-    Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_GET, self);
+remote function FailoverClient.get(string path, OutboundRequestEntity message = ()) returns Response|error {
+    return performFailoverAction(path, <Request>message, HTTP_GET, self);
 }
 
-remote function FailoverClient.submit(string httpVerb, string path,
-            Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
+remote function FailoverClient.submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }

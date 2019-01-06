@@ -39,7 +39,7 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(@sensitive string path, ClientMessage message) returns Response|error {
+    public remote function post(@sensitive string path, OutboundRequestEntity message) returns Response|error {
         return nativePost(self.url, self.config, path, <Request>message);
     }
 
@@ -49,7 +49,7 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(@sensitive string path, ClientMessage message = ()) returns Response|error {
+    public remote function head(@sensitive string path, OutboundRequestEntity message = ()) returns Response|error {
         return nativeHead(self.url, self.config, path, <Request>message);
     }
 
@@ -59,7 +59,7 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function put(@sensitive string path, ClientMessage message) returns Response|error {
+    public remote function put(@sensitive string path, OutboundRequestEntity message) returns Response|error {
         return nativePut(self.url, self.config, path, <Request>message);
     }
 
@@ -70,7 +70,7 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(@sensitive string httpVerb, @sensitive string path, ClientMessage message) returns Response|error {
+    public remote function execute(@sensitive string httpVerb, @sensitive string path, OutboundRequestEntity message) returns Response|error {
         return nativeExecute(self.url, self.config, httpVerb, path, <Request>message);
     }
 
@@ -80,7 +80,7 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function patch(@sensitive string path, ClientMessage message) returns Response|error {
+    public remote function patch(@sensitive string path, OutboundRequestEntity message) returns Response|error {
         return nativePatch(self.url, self.config, path, <Request>message);
     }
 
@@ -90,7 +90,7 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function delete(@sensitive string path, ClientMessage message) returns Response|error {
+    public remote function delete(@sensitive string path, OutboundRequestEntity message) returns Response|error {
         return nativeDelete(self.url, self.config, path, <Request>message);
     }
 
@@ -100,7 +100,7 @@ public type HttpCaller client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(@sensitive string path, ClientMessage message = ()) returns Response|error {
+    public remote function get(@sensitive string path, OutboundRequestEntity message = ()) returns Response|error {
         return nativeGet(self.url, self.config, path, <Request>message);
     }
 
@@ -110,7 +110,7 @@ public type HttpCaller client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function options(@sensitive string path, ClientMessage message = ()) returns Response|error {
+    public remote function options(@sensitive string path, OutboundRequestEntity message = ()) returns Response|error {
         return nativeOptions(self.url, self.config, path, <Request>message);
     }
 
@@ -132,7 +132,7 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(@sensitive string httpVerb, string path, ClientMessage message) returns HttpFuture|error {
+    public remote function submit(@sensitive string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {
         return nativeSubmit(self.url, self.config, httpVerb, path, <Request>message);
     }
 

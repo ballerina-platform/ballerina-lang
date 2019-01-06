@@ -98,8 +98,8 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 # Never set accept-encoding/content-encoding header in outbound request/response.
 public const COMPRESSION_NEVER = "NEVER";
 
-# The types of messages that are accepted by HTTP `client`.
-public type ClientMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
+# The types of messages that are accepted by HTTP `client` when sending out the outbound request.
+public type OutboundRequestEntity Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
 
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
 #
@@ -193,7 +193,7 @@ type HTTPError record {
 //TODO: Make the error nillable
 public extern function parseHeader (string headerValue) returns (string, map<any>)|error;
 
-function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Request {
+function buildRequest(OutboundRequestEntity message) returns Request {
     Request request = new;
     if (message is ()) {
         request.nonEntityBody = true;
@@ -238,7 +238,7 @@ function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mi
     return response;
 }
 
-function isNonEntityBody(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns boolean {
+function isNonEntityBody(OutboundRequestEntity message) returns boolean {
     if (message is ()) {
         return true;
     } else {

@@ -291,8 +291,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
-
-    private static boolean isNonEntityBodyRequest(BMap<String, BValue> requestStruct) {
+    static boolean isNonEntityBodyRequest(BMap<String, BValue> requestStruct) {
         BValue nonEntityBodyReq = requestStruct.get(HttpConstants.REQUEST_NON_ENTITY_BODY_FIELD);
         return ((BBoolean) nonEntityBodyReq).booleanValue();
     }

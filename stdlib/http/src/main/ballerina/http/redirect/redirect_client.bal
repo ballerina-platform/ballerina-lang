@@ -56,10 +56,8 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message = ()) returns Response|error {
-        Request request = buildRequest(message);
-        return performRedirectIfEligible(self, path, request, HTTP_GET);
+    public function get(string path, OutboundRequestEntity message = ()) returns Response|error {
+        return performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
     }
 
     # If the received response for the `post()` remote function is redirect eligible, redirect will be performed automatically
@@ -69,10 +67,8 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns Response|error {
-        Request request = buildRequest(message);
-        return performRedirectIfEligible(self, path, request, HTTP_POST);
+    public function post(string path, OutboundRequestEntity message) returns Response|error {
+        return performRedirectIfEligible(self, path, <Request>message, HTTP_POST);
     }
 
     # If the received response for the `head()` remote function is redirect eligible, redirect will be performed automatically
@@ -82,10 +78,8 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message = ()) returns Response|error {
-        Request request = buildRequest(message);
-        return performRedirectIfEligible(self, path, request, HTTP_HEAD);
+    public function head(string path, OutboundRequestEntity message = ()) returns Response|error {
+        return performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
     }
 
     # If the received response for the `put()` remote function is redirect eligible, redirect will be performed automatically
@@ -95,10 +89,8 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns Response|error {
-        Request request = buildRequest(message);
-        return performRedirectIfEligible(self, path, request, HTTP_PUT);
+    public function put(string path, OutboundRequestEntity message) returns Response|error {
+        return performRedirectIfEligible(self, path, <Request>message, HTTP_PUT);
     }
 
     # The `forward()` function is used to invoke an HTTP call with inbound request's HTTP verb.
@@ -117,9 +109,8 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        Request request = buildRequest(message);
+    public remote function execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {
+        Request request = <Request>message;
         //Redirection is performed only for HTTP methods
         if (HTTP_NONE == extractHttpOperation(httpVerb)) {
             return self.httpClient->execute(httpVerb, path, request);
@@ -135,10 +126,8 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message) returns Response|error {
-        Request request = buildRequest(message);
-        return performRedirectIfEligible(self, path, request, HTTP_PATCH);
+    public function patch(string path, OutboundRequestEntity message) returns Response|error {
+        return performRedirectIfEligible(self, path, <Request>message, HTTP_PATCH);
     }
 
     # If the received response for the `delete()` remote function is redirect eligible, redirect will be performed automatically
@@ -148,10 +137,8 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message) returns Response|error {
-        Request request = buildRequest(message);
-        return performRedirectIfEligible(self, path, request, HTTP_DELETE);
+    public function delete(string path, OutboundRequestEntity message) returns Response|error {
+        return performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
     }
 
     # If the received response for the `options()` remote function is redirect eligible, redirect will be performed automatically
@@ -161,10 +148,8 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                            message = ()) returns Response|error {
-        Request request = buildRequest(message);
-        return performRedirectIfEligible(self, path, request, HTTP_OPTIONS);
+    public function options(string path, OutboundRequestEntity message = ()) returns Response|error {
+        return performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
@@ -176,10 +161,8 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public remote function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                message) returns HttpFuture|error {
-        Request request = buildRequest(message);
-        return self.httpClient->submit(httpVerb, path, request);
+    public remote function submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {
+        return self.httpClient->submit(httpVerb, path, <Request>message);
     }
 
     # Retrieves the `Response` for a previously submitted request.
