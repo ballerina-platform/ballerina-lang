@@ -101,9 +101,16 @@ cd product-scenarios/scenarios/
 
 ballerina init
 
-ballerina build 2/
+ballerina build 3/
 
-kubectl apply -f target/kubernetes/2
+echo "current context"
+kubectl config current-context
+echo "all available contexts"
+kubectl config get-contexts
+echo "all available contexts"
+kubectl config view
+
+kubectl apply -f target/kubernetes/3
 
 external_ip=kubectl get svc ballerina-circuit-breaker-service -o jsonpath='{.spec.externalIP}'
 
