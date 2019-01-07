@@ -2431,7 +2431,7 @@ public class BVM {
                 bRefTypeValue = sf.refRegs[i];
 
                 if (bRefTypeValue == null) {
-                    if (expectedType.getTag() == TypeTags.NULL_TAG) {
+                    if (isAssignable(BTypes.typeNull, expectedType, new ArrayList<>())) {
                         sf.refRegs[j] = null;
                         break;
                     }
@@ -2442,7 +2442,7 @@ public class BVM {
                     handleError(ctx);
                 } else if (isSimpleBasicType(expectedType)) {
                     execExplicitlyTypedExpressionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
-                } else if (expectedType.equals(bRefTypeValue.getType())) {
+                } else if (isAssignable(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
                     sf.refRegs[j] = bRefTypeValue;
                 } else {
                     ctx.setError(
@@ -3753,23 +3753,8 @@ public class BVM {
             return true;
         }
 
-        if (targetMapType.getConstrainedType().getTag() == TypeTags.ANY_TAG) {
-            return true;
-        }
-
-        if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG &&
-                targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            return checkObjectEquivalency((BStructureType) sourceMapType.getConstrainedType(),
-                    (BStructureType) targetMapType.getConstrainedType(), unresolvedTypes);
-        }
-
-        if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
-                targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-            return checkRecordEquivalency((BRecordType) targetMapType.getConstrainedType(),
-                                          (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
-        }
-
-        return false;
+        return isAssignable(sourceMapType.getConstrainedType(), ((BMapType) targetType).getConstrainedType(),
+                            new ArrayList<>());
     }
 
     private static boolean checkArrayCast(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {

@@ -902,7 +902,7 @@ public class Types {
 
         if (isValueType(targetType)) {
             return symResolver.getExplicitlyTypedExpressionSymbol(sourceType, targetType);
-        } else if (isAssignable(targetType, sourceType)) {
+        } else if (isAssignable(targetType, sourceType) || isAssignable(sourceType, targetType)) {
             return symResolver.createTypeAssertionSymbol(sourceType, targetType);
         }
         return symTable.notFoundSymbol;
