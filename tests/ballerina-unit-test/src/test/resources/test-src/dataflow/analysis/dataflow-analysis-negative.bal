@@ -626,3 +626,7 @@ type F object {
 function F.__init() {
     self.a = 1;
 }
+
+public function testDataFlow_14(){
+    object { public string s; } o = new;
+}
