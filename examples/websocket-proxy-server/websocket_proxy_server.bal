@@ -12,7 +12,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
 
     // This `resource` triggered when a new client is connected.
     // Since messages to the server are not read by service until `onOpen` resource execution finishes,
-    // operations which should happen before reading messages should be done in `onOpen` resource.
+    // operations which should happen before reading messages should be done in the `onOpen` resource.
     resource function onOpen(http:WebSocketCaller caller) {
 
         http:WebSocketClient wsClientEp = new(
