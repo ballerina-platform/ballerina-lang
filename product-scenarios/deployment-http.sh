@@ -107,7 +107,7 @@ echo "current context"
 kubectl config current-context
 echo "all available contexts"
 kubectl config get-contexts
-echo "all available contexts"
+echo "view kubectl configurations"
 kubectl config view
 
 kubectl apply -f target/kubernetes/3
