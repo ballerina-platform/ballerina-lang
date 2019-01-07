@@ -37,7 +37,12 @@ type Employee record {
     baseImage: "ballerina/ballerina:0.990.2",
     name: "ballerina-employee-database-service",
     copyFiles: [{ target: "/ballerina/runtime/bre/lib",
-                source: "/home/manurip/Documents/Work/Tasks/Support/Tools/mysql-connector-java-5.1.46.jar" }]
+                source: "mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar" }],
+    env: { "DATABASE_HOST": "$env{DATABASE_HOST}",
+        "DATABASE_PORT": "$env{DATABASE_PORT}",
+        "DATABASE_NAME": "$env{DATABASE_NAME}",
+        "DATABASE_USERNAME": "$env{DATABASE_USERNAME}",
+        "DATABASE_PASSWORD": "$env{DATABASE_PASSWORD}" }
 }
 listener http:Listener httpListener = new(9090);
 
