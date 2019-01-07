@@ -999,8 +999,8 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
   def mouseMoved(e: EditorMouseEvent): Unit = {
     if (e.getEditor == editor) {
       val language = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument).getLanguage
-      if ((BallerinaLSPState.getInstance().isAlwaysSendRequests || LanguageDocumentation.INSTANCE.allForLanguage(language).isEmpty || language.equals(PlainTextLanguage.INSTANCE))
-        && (isCtrlDown || EditorSettingsExternalizable.getInstance().isShowQuickDocOnMouseOverElement)) {
+      if ((EditorSettingsExternalizable.getInstance().isShowQuickDocOnMouseOverElement && //Fixes double doc if documentation provider is present
+        (LanguageDocumentation.INSTANCE.allForLanguage(language).isEmpty || language.equals(PlainTextLanguage.INSTANCE))) || isCtrlDown) {
         val curTime = System.nanoTime()
         if (predTime == (-1L) || ctrlTime == (-1L)) {
           predTime = curTime

@@ -29,7 +29,14 @@ object HoverHandler {
         val contents = hoverContents.getLeft.asScala
         val result = if (contents == null || contents.isEmpty) "" else {
           val parsedContent = contents.map(c => {
-            if (c.isLeft) c.getLeft else if (c.isRight) {
+            if (c.isLeft) {
+              val options = new MutableDataSet()
+              val parser = Parser.builder(options).build()
+              val renderer = HtmlRenderer.builder(options).build()
+              val string  = c.getLeft
+              if (!string.isEmpty) "<html>" + renderer.render(parser.parse(string)) + "</html>" else ""
+            }
+            else if (c.isRight) {
               useHtml = true
               val options = new MutableDataSet()
               val parser = Parser.builder(options).build()
