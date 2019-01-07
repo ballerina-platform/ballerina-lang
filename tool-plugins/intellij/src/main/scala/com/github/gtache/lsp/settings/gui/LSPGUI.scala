@@ -1,6 +1,6 @@
 package com.github.gtache.lsp.settings.gui
 
-import com.github.gtache.lsp.settings.BallerinaLSPState
+import com.github.gtache.lsp.settings.{BallerinaLSPState, LSPState}
 import javax.swing.JPanel
 
 trait LSPGUI {

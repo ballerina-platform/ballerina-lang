@@ -1,4 +1,4 @@
-package com.github.gtache.lsp.contributors
+package com.github.gtache.lsp.contributors.fixes
 
 import com.github.gtache.lsp.contributors.psi.LSPPsiElement
 import com.github.gtache.lsp.editor.EditorEventManager
@@ -12,10 +12,10 @@ import org.eclipse.lsp4j.Command
   * @param uri     The file in which the commands will be applied
   * @param command The command to run
   */
-class LSPQuickFix(uri: String, command: Command) extends LocalQuickFix {
+class LSPCommandFix(uri: String, command: Command) extends LocalQuickFix {
   override def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
     descriptor.getPsiElement match {
-      case element: LSPPsiElement =>
+      case _: LSPPsiElement =>
         EditorEventManager.forUri(uri).foreach(m => m.executeCommands(Array(command)))
       case _ =>
     }
