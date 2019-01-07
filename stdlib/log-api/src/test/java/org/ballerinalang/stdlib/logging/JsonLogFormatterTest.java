@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.logging;
+package org.ballerinalang.stdlib.logging;
 
 import org.ballerinalang.logging.formatters.JsonLogFormatter;
 import org.testng.Assert;
@@ -83,7 +83,7 @@ public class JsonLogFormatterTest extends TestNG {
         logRecord.setResourceBundleName("rb name");
         logRecord.setSourceClassName("class");
         logRecord.setSourceMethodName("method");
-        logRecord.setParameters(new Object[] { new Integer(100), new Object() });
+        logRecord.setParameters(new Object[]{new Integer(100), new Object()});
         logRecord.setThreadID(1000);
         logRecord.setSequenceNumber(12321312);
         logRecord.setMillis(0);
