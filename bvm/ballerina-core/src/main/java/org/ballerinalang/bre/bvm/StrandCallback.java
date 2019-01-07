@@ -41,9 +41,6 @@ public abstract class StrandCallback {
     private BError error;
     private ObserverContext observerContext;
     //TODO try to generalize below to normal data channels
-    //channels are only used in SafeStrandCallback
-    WDChannels parentChannels;
-    WDChannels wdChannels;
 
     private volatile CallbackStatus status;
 
@@ -53,11 +50,14 @@ public abstract class StrandCallback {
 
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
-    StrandCallback(BType retType, ChannelDetails[] sendIns) {
+    public WDChannels parentChannels;
+
+    StrandCallback(BType retType, ChannelDetails[] sendIns, WDChannels parentChannels) {
         this.retType = retType;
         this.status = CallbackStatus.NOT_RETURNED;
-        this.wdChannels = new WDChannels();
         this.sendIns = sendIns;
+        this.parentChannels = parentChannels;
+        BVMScheduler.strandCountUp();
     }
 
     /**
@@ -68,46 +68,9 @@ public abstract class StrandCallback {
         if (this.status == null) {
             this.status =  CallbackStatus.VALUE_RETURNED;
         }
-        if (this.status == CallbackStatus.PANIC) {
-            handleChannelPanic();
-        }
-        if (this.status == CallbackStatus.ERROR_RETURN) {
-            handleChannelError();
-        }
         // Stop observation
         ObserveUtils.stopObservation(observerContext);
-    }
-
-    private void handleChannelPanic() {
-        for (int i = 0; i < sendIns.length; i++) {
-            WorkerDataChannel channel;
-            if (sendIns[i].channelInSameStrand) {
-                channel = this.wdChannels.getWorkerDataChannel(sendIns[i].name);
-            } else {
-                channel = this.parentChannels.getWorkerDataChannel(sendIns[i].name);
-            }
-            if (sendIns[i].send) {
-                channel.setSendPanic(this.getErrorVal());
-            } else {
-                channel.setReceiverPanic(this.getErrorVal());
-            }
-        }
-    }
-
-    private void handleChannelError() {
-        for (int i = 0; i < sendIns.length; i++) {
-            WorkerDataChannel channel;
-            if (sendIns[i].channelInSameStrand) {
-                channel = this.wdChannels.getWorkerDataChannel(sendIns[i].name);
-            } else {
-                channel = this.parentChannels.getWorkerDataChannel(sendIns[i].name);
-            }
-            if (sendIns[i].send) {
-                channel.setSendError(this.refVal);
-            } else {
-                channel.setRecieveError(this.refVal);
-            }
-        }
+        BVMScheduler.strandCountDown();
     }
 
     public CallbackStatus getStatus() {
@@ -267,24 +230,6 @@ public abstract class StrandCallback {
      */
     public ObserverContext getObserverContext() {
         return this.observerContext;
-    }
-
-    /**
-     * Method to get the worker data channels of the strand this callback is associated with.
-     * @return worker data channels or null
-     */
-    WDChannels getWorkerDataChannels() {
-        //Used in SafeStrandCallback, override if required
-        return this.wdChannels;
-    }
-
-    /**
-     * Method to get the parent worker data channels of the strand this callback is associated with.
-     * @return worker data channels or null
-     */
-    WDChannels getParentWorkerDataChannels() {
-        //used in SafeStrandCallback, override if required
-        return this.parentChannels;
     }
 
     /**

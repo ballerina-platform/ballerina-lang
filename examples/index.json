@@ -189,6 +189,10 @@
                 "url": "records"
             },
             {
+                "name": "Anonymous Records",
+                "url": "anonymous-records"
+            },
+            {
                 "name": "Optional Fields",
                 "url": "record-optional-fields"
             },
@@ -223,6 +227,10 @@
                 "url": "abstract-objects"
             },
             {
+                "name": "Anonymous Objects",
+                "url": "anonymous-objects"
+            },
+            {
                 "name": "Object Type Reference",
                 "url": "object-type-reference"
             }
@@ -232,7 +240,12 @@
         "title": "Value/Type Operations",
         "column": 1,
         "category": "Language concepts",
-        "samples": [{
+        "samples": [
+            {
+                "name": "Compound Assignment Operators",
+                "url": "compound-assignment-operators"
+            },
+            {
                 "name": "Equality",
                 "url": "equality"
             },
@@ -363,8 +376,8 @@
                 "url": "panic"
             },
             {
-                "name": "Trap Error",
-                "url": "trap-error"
+                "name": "Trap",
+                "url": "trap"
             }
         ]
     },
@@ -425,6 +438,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "JSON to CSV Transform",
+                "url": "json-csv"
             }
         ]
     },
@@ -916,6 +933,16 @@
         ]
     },
     {
+        "title": "Socket",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "TCP Socket Basic Example",
+                "url": "tcp-socket-listener-client"
+            }
+        ]
+    },
+    {
         "title": "Streams",
         "column": 0,
         "category": "Experimental features",
@@ -926,6 +953,10 @@
             {
               "name": "Simple Filtering",
               "url": "simple-filtering"
+            },
+            {
+              "name": "Projection",
+              "url": "projection"
             },
             {
                 "name": "Temporal Aggregations",

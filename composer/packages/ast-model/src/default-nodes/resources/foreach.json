@@ -14,6 +14,12 @@
     },
     {
       "ws": " ",
+      "i": 130,
+      "text": "item",
+      "static": false
+    },
+    {
+      "ws": " ",
       "i": 132,
       "text": "in",
       "static": true
@@ -37,15 +43,9 @@
     "endColumn": 6,
     "endLine": 23
   },
-  "id": "2cd9896d-e8dd-4cd8-9bd2-51a7034fe88d",
+  "id": "4d623ea3-2d8d-4ef7-925f-1e07dee9f4a1",
   "collection": {
     "ws": [
-      {
-        "ws": " ",
-        "i": 130,
-        "text": "item",
-        "static": false
-      },
       {
         "ws": " ",
         "i": 134,
@@ -59,19 +59,19 @@
       "endColumn": 33,
       "endLine": 21
     },
-    "id": "0bd44af6-397b-427f-b401-77583e5f4bd5",
+    "id": "929ae7b3-e3ed-4629-a15e-a0ca8df1f624",
     "symbolType": [
       "[]"
     ],
     "variableName": {
-      "id": "0d41ac98-215b-4feb-bfed-8bde68542159",
+      "id": "f720ec5d-6277-411a-b29b-abe8f1fe40ac",
       "literal": false,
       "value": "itemList",
       "kind": "Identifier",
       "valueWithBar": "itemList"
     },
     "packageAlias": {
-      "id": "447df022-374e-4a01-b1c6-556429f2b2cc",
+      "id": "77a4943b-1863-47d4-bfd8-dfe6e95d2e8c",
       "literal": false,
       "value": "",
       "kind": "Identifier",
@@ -80,45 +80,13 @@
     "kind": "SimpleVariableRef"
   },
   "variableDefinitionNode": {
-    "ws": [
-      {
-        "ws": "\n    ",
-        "i": 126,
-        "text": "foreach",
-        "static": true
-      },
-      {
-        "ws": " ",
-        "i": 128,
-        "text": "var",
-        "static": true
-      },
-      {
-        "ws": " ",
-        "i": 132,
-        "text": "in",
-        "static": true
-      },
-      {
-        "ws": " ",
-        "i": 136,
-        "text": "{",
-        "static": true
-      },
-      {
-        "ws": "\n        \n    ",
-        "i": 141,
-        "text": "}",
-        "static": true
-      }
-    ],
     "position": {
       "startColumn": 5,
       "startLine": 21,
       "endColumn": 6,
       "endLine": 23
     },
-    "id": "1d783dff-4a34-44fb-84fa-2e94c7f2393d",
+    "id": "de5526e5-f9b8-4212-993f-756efd62f390",
     "variable": {
       "ws": [
         {
@@ -132,6 +100,48 @@
           "i": 128,
           "text": "var",
           "static": true
+        },
+        {
+          "ws": " ",
+          "i": 130,
+          "text": "item",
+          "static": false
+        },
+        {
+          "ws": " ",
+          "i": 132,
+          "text": "in",
+          "static": true
+        },
+        {
+          "ws": " ",
+          "i": 136,
+          "text": "{",
+          "static": true
+        },
+        {
+          "ws": "\n        \n    ",
+          "i": 141,
+          "text": "}",
+          "static": true
+        },
+        {
+          "ws": "\n    ",
+          "i": 126,
+          "text": "foreach",
+          "static": true
+        },
+        {
+          "ws": " ",
+          "i": 128,
+          "text": "var",
+          "static": true
+        },
+        {
+          "ws": " ",
+          "i": 130,
+          "text": "item",
+          "static": false
         },
         {
           "ws": " ",
@@ -158,12 +168,12 @@
         "endColumn": 6,
         "endLine": 23
       },
-      "id": "de12a43c-9f4b-4363-9719-8805ab464740",
+      "id": "663ad0a2-dd03-48ef-ad59-4f4b4c742638",
       "symbolType": [
         "int"
       ],
       "name": {
-        "id": "9a78de02-04ae-4bcc-87e6-c8dbe08b83e2",
+        "id": "77a2ec29-c9e5-4df2-9287-87a28c9542bd",
         "literal": false,
         "value": "item",
         "kind": "Identifier",
@@ -200,7 +210,6 @@
     "kind": "VariableDef"
   },
   "kind": "Foreach",
-  "declaredWithVar": true,
   "body": {
     "position": {
       "startColumn": 5,
@@ -208,8 +217,9 @@
       "endColumn": 6,
       "endLine": 23
     },
-    "id": "476728d6-2306-4a9c-9c46-9a22d0858427",
+    "id": "af2479bd-71f6-42c9-8a40-65df22d61324",
     "statements": [],
     "kind": "Block"
-  }
+  },
+  "declaredWithVar": true
 }

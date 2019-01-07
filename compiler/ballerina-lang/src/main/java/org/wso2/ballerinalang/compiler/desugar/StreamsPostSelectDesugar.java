@@ -18,9 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -30,11 +30,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.List;
 import java.util.Map;
@@ -51,6 +54,7 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private final SymbolTable symTable;
     private final Desugar desugar;
+    private final BLangDiagnosticLog dlog;
 
     private BLangNode result;
     private BSymbol mapVarSymbol;
@@ -60,6 +64,7 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
         context.put(STREAMING_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.desugar = Desugar.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static StreamsPostSelectDesugar getInstance(CompilerContext context) {
@@ -103,7 +108,7 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
                 .collect(Collectors.toMap(field -> field.name.getValue(), field -> field, (a, b) -> b));
         String key = varRef.variableName.value;
         if (fields.containsKey(key)) {
-            result = createMapVariableIndexAccessExpr((BVarSymbol) mapVarSymbol,
+            result = createMapVariableIndexAccessExpr(
                     ASTBuilderUtil.createLiteral(varRef.pos, symTable.stringType, getEquivalentOutputMapField(key)));
             result = desugar.addConversionExprIfRequired((BLangExpression) result, varRef.type);
         } else {
@@ -125,17 +130,27 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
         result = binaryExpr;
     }
 
+    @Override
+    public void visit(BLangFieldBasedAccess expr) {
+
+        result = desugar.addConversionExprIfRequired(createMapVariableIndexAccessExpr(expr), expr.type);
+
+        BType type = expr.expr.type;
+        if (type != null && type.tag == TypeTags.STREAM) {
+            dlog.error(expr.pos, DiagnosticCode.STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY, expr.field.value);
+        }
+    }
+
 
     private String getEquivalentOutputMapField(String key) {
         return "OUTPUT." + key;
     }
 
-    private BLangIndexBasedAccess createMapVariableIndexAccessExpr(BVarSymbol mapVariableSymbol,
-                                                                   BLangExpression expression) {
-        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(expression.pos, mapVariableSymbol);
+    private BLangIndexBasedAccess createMapVariableIndexAccessExpr(BLangExpression expression) {
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(expression.pos, mapVarSymbol);
         BLangIndexBasedAccess indexExpr = ASTBuilderUtil.createIndexAccessExpr(varRef,
                 ASTBuilderUtil.createLiteral(expression.pos, symTable.stringType, expression.toString()));
-        indexExpr.type = ((BMapType) mapVariableSymbol.type).constraint;
+        indexExpr.type = ((BMapType) mapVarSymbol.type).constraint;
         indexExpr.pos = expression.pos;
         return indexExpr;
     }

@@ -39,6 +39,10 @@ public class SocketService {
         this.resources = resources;
     }
 
+    public SocketService(Map<String, Resource> resources) {
+        this.resources = resources;
+    }
+
     SelectableChannel getSocketChannel() {
         return socketChannel;
     }

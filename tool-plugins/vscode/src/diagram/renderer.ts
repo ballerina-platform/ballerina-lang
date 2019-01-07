@@ -96,6 +96,7 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
                 \`;
             }
             drawDiagram();
+            enableUndoRedo();
         }
     `;
 

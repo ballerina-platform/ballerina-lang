@@ -51,9 +51,9 @@ service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/
     }{{#deprecated}}
     deprecated {}
     {{/deprecated}}
-    resource function {{resourceName}} (http:Caller outboundEp, http:Request _{{resourceName}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {{=<% %>=}}{<%={{ }}=%>{{#equals requestBody.selectedMedia.mediaType "multipart/form-data"}}
+    resource function {{resourceName}} (http:Caller outboundEp, http:Request _{{resourceName}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) returns error? {{=<% %>=}}{<%={{ }}=%>{{#equals requestBody.selectedMedia.mediaType "multipart/form-data"}}
         mime:Entity[] _{{resourceName}}Body = check _{{resourceName}}Req.getBodyParts();{{/equals}}
-        http:Response _{{resourceName}}Res = {{resourceName}}(_{{resourceName}}Req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}}{{#requestBody}}, _{{resourceName}}Body{{/requestBody}});
+        http:Response _{{resourceName}}Res = {{resourceName}}(_{{resourceName}}Req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}}{{#requestBody}}, {{#if requestBody.selectedMedia.schema.type}}_{{resourceName}}Body{{/if}}{{^requestBody.selectedMedia.schema.type}}{{#if requestBody.selectedMedia.schema.properties}}{{#requestBody}}{{#selectedMedia}}{{#schema}}{{#properties}}{{key}}{{#unless @last}}, {{/unless}}{{/properties}}{{/schema}}{{/selectedMedia}}{{/requestBody}}{{/if}}{{/requestBody.selectedMedia.schema.type}}{{/requestBody}});
         _ = outboundEp->respond(_{{resourceName}}Res);
     }{{/value}}{{/sameResourceOperations}}{{/if}}{{#if noOperationsForPath}}{{#deprecated}} {{!-- If there is not operations available for a path generate a empty resource --}}
     deprecated {}{{/deprecated}}
@@ -87,9 +87,9 @@ service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/
         body:"_{{operationId}}Body"{{/equals}}{{/requestBody}}
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource function {{operationId}} (http:Caller outboundEp, http:Request _{{operationId}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {{=<% %>=}}{<%={{ }}=%>{{#equals requestBody.selectedMedia.mediaType "multipart/form-data"}}
+    resource function {{operationId}} (http:Caller outboundEp, http:Request _{{operationId}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) returns error? {{=<% %>=}}{<%={{ }}=%>{{#equals requestBody.selectedMedia.mediaType "multipart/form-data"}}
         mime:Entity[] _{{operationId}}Body = check _{{operationId}}Req.getBodyParts();{{/equals}}
-        http:Response _{{operationId}}Res = {{operationId}}(_{{operationId}}Req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}}{{#requestBody}}, _{{operationId}}Body{{/requestBody}});
+        http:Response _{{operationId}}Res = {{operationId}}(_{{operationId}}Req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}}{{#requestBody}}, {{#if requestBody.selectedMedia.schema.type}}_{{operationId}}Body{{/if}}{{^requestBody.selectedMedia.schema.type}}{{#if requestBody.selectedMedia.schema.properties}}{{#requestBody}}{{#selectedMedia}}{{#schema}}{{#properties}}{{key}}{{#unless @last}}, {{/unless}}{{/properties}}{{/schema}}{{/selectedMedia}}{{/requestBody}}{{/if}}{{/requestBody.selectedMedia.schema.type}}{{/requestBody}});
         _ = outboundEp->respond(_{{operationId}}Res);
     }{{/value}}{{/operations}}{{/value}}{{/paths}}
 

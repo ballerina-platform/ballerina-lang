@@ -1475,7 +1475,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex regIndex = calcAndGetExprRegIndex(trapExpr);
         emit(InstructionCodes.RMOVE, trapExpr.expr.regIndex, regIndex);
         int toIP = nextIP();
-        errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP, toIP, regIndex));
+        errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP - 1, toIP, regIndex));
     }
 
     public void visit(BLangTypedescExpr accessExpr) {

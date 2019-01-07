@@ -18,23 +18,31 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.List;
 import java.util.Map;
@@ -52,16 +60,19 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private final SymbolTable symTable;
     private final Desugar desugar;
+    private final BLangDiagnosticLog dlog;
 
     private BSymbol[] mapVarSymbols;
     private BLangNode result;
     private Map<String, String> aliasMap;
     private BLangVariableReference rhsStream;
+    private BRecordType outputType;
 
     private StreamsPreSelectDesuagr(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.desugar = Desugar.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static StreamsPreSelectDesuagr getInstance(CompilerContext context) {
@@ -74,7 +85,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     }
 
     public BLangNode rewrite(BLangNode node, BSymbol[] mapVarSymbol, Map<String, String> aliasMap,
-                             BLangVariableReference rhsStream) {
+                             BLangVariableReference rhsStream, BType outputType) {
         if (node == null) {
             return null;
         }
@@ -82,6 +93,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         this.mapVarSymbols = mapVarSymbol;
         this.aliasMap = aliasMap;
         this.rhsStream = rhsStream;
+        this.outputType = (BRecordType) outputType;
         node.accept(this);
         BLangNode resultNode = this.result;
 
@@ -89,12 +101,9 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         this.aliasMap = null;
         this.rhsStream = null;
         this.mapVarSymbols = null;
+        this.outputType = null;
 
         return resultNode;
-    }
-
-    public BLangNode rewrite(BLangNode node, BSymbol[] mapVarSymbols) {
-        return rewrite(node, mapVarSymbols, aliasMap, rhsStream);
     }
 
     private BLangNode rewrite(BLangNode node) {
@@ -116,11 +125,53 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+        indexAccessExpr.indexExpr =
+                desugar.addConversionExprIfRequired((BLangExpression) rewrite(indexAccessExpr.indexExpr),
+                                                    indexAccessExpr.indexExpr.type);
+        result = indexAccessExpr;
+    }
+
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        typeTestExpr.expr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(typeTestExpr.expr),
+                                                                typeTestExpr.expr.type);
+        result = typeTestExpr;
+    }
+
+    @Override
+    public void visit(BLangElvisExpr elvisExpr) {
+        elvisExpr.lhsExpr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(elvisExpr.lhsExpr),
+                                                                elvisExpr.lhsExpr.type);
+        elvisExpr.rhsExpr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(elvisExpr.rhsExpr),
+                                                                elvisExpr.rhsExpr.type);
+        result = elvisExpr;
+    }
+
+    @Override
+    public void visit(BLangTernaryExpr ternaryExpr) {
+        ternaryExpr.expr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(ternaryExpr.expr),
+                                                               ternaryExpr.expr.type);
+        ternaryExpr.thenExpr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(ternaryExpr.thenExpr),
+                                                                   ternaryExpr.thenExpr.type);
+        ternaryExpr.elseExpr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(ternaryExpr.elseExpr),
+                                                                   ternaryExpr.elseExpr.type);
+        result = ternaryExpr;
+    }
+
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+        unaryExpr.expr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(unaryExpr.expr),
+                                                             unaryExpr.expr.type);
+        result = unaryExpr;
+    }
+
+    @Override
     public void visit(BLangInvocation invocationExpr) {
         if (invocationExpr.requiredArgs.size() > 0) {
             List<BLangExpression> refactoredArgExprs;
             List<BLangExpression> functionArgsList = invocationExpr.requiredArgs;
-            refactoredArgExprs = functionArgsList.stream().map(arg -> (BLangExpression) rewrite(arg))
+            refactoredArgExprs = functionArgsList.stream().map(arg -> (BLangExpression) refactorArgsList(arg))
                     .collect(Collectors.toList());
             invocationExpr.argExprs = refactoredArgExprs;
             invocationExpr.requiredArgs = refactoredArgExprs;
@@ -129,23 +180,35 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         result = invocationExpr;
     }
 
+    private BLangNode refactorArgsList(BLangExpression arg) {
+        BLangNode refactoredArg = rewrite(arg);
+        return desugar.addConversionExprIfRequired((BLangExpression) refactoredArg, arg.type);
+    }
+
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         IntStream.range(0, bracedOrTupleExpr.expressions.size()).forEach(i -> bracedOrTupleExpr.expressions
-                .set(i, (BLangExpression) rewrite(bracedOrTupleExpr.expressions.get(i))));
+                .set(i, (BLangExpression) refactorArgsList(bracedOrTupleExpr.expressions.get(i))));
         result = bracedOrTupleExpr;
     }
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        binaryExpr.lhsExpr = (BLangExpression) rewrite(binaryExpr.lhsExpr);
-        binaryExpr.rhsExpr = (BLangExpression) rewrite(binaryExpr.rhsExpr);
+        binaryExpr.lhsExpr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(binaryExpr.lhsExpr),
+                                                                 binaryExpr.lhsExpr.type);
+        binaryExpr.rhsExpr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(binaryExpr.rhsExpr),
+                                                                 binaryExpr.rhsExpr.type);
         result = binaryExpr;
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         result = varRefExpr;
+        outputType.fields.forEach(bField -> {
+            if (bField.name.value.equals(varRefExpr.variableName.value)) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.OUTPUT_FIELD_VISIBLE_IN_HAVING_ORDER_BY, varRefExpr);
+            }
+        });
     }
 
     @Override
@@ -155,7 +218,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM) {
+        if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM || fieldAccessExpr.expr.type.tag == TypeTags.TABLE) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) fieldAccessExpr.expr;
             BLangSimpleVarRef mapRef;
             int mapVarArgIndex;
@@ -178,7 +241,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
                                                                      mapKey);
             BLangIndexBasedAccess mapAccessExpr = createMapVariableIndexAccessExpr((BVarSymbol) mapRef.symbol,
                                                                                    indexExpr);
-            result = desugar.addConversionExprIfRequired(mapAccessExpr, fieldAccessExpr.type);
+            result = mapAccessExpr;
         } else {
             result = fieldAccessExpr;
         }

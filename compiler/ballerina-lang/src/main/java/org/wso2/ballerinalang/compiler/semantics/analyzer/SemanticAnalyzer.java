@@ -317,9 +317,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (objectTypeNode.initFunction.flagSet.contains(Flag.PRIVATE)) {
+            this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.PRIVATE_OBJECT_CONSTRUCTOR,
+                    objectTypeNode.symbol.name);
+            return;
+        }
+
         if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
             this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.ABSTRACT_OBJECT_CONSTRUCTOR,
                     objectTypeNode.symbol.name);
+            return;
+        }
+
+        if (objectTypeNode.initFunction.flagSet.contains(Flag.NATIVE)) {
+            this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN,
+                            objectTypeNode.symbol.name);
             return;
         }
 
@@ -1689,7 +1701,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
-        streamsQuerySemanticAnalyzer.analyzeNode(foreverStatement, env);
+        streamsQuerySemanticAnalyzer.analyze(foreverStatement, env);
     }
 
     @Override
@@ -1934,8 +1946,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (Entry<BVarSymbol, LinkedHashSet<BType>> entry : this.typeGuards.entrySet()) {
             BVarSymbol originalVarSymbol = entry.getKey();
             BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
-            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
-                    this.env.scope.owner);
+            BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, remainingType, originalVarSymbol.name, this.env);
             varSymbol.originalSymbol = getOriginalVarSymbol(originalVarSymbol);
             symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, elseEnv);
 
