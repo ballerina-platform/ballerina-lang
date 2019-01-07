@@ -107,7 +107,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
         }
     }
 
-    //This `resource` is triggered when a new binary frame is received from the remote backend.
+    //This resource gets invoked upon receiving a new binary frame from the remote backend.
     resource function onBinary(http:WebSocketClient caller, byte[] data,
                                 boolean finalFrame) {
 
