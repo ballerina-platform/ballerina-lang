@@ -1,7 +1,7 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile 'org.slf4j:slf4j-simple:1.7.22'
+    implementation 'org.slf4j:slf4j-simple:1.7.22'
     testCompile 'org.testng:testng:6.13.1'
 }
 

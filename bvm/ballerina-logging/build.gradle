@@ -1,8 +1,8 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-config')
-    compile 'com.google.code.gson:gson:2.7'
+    implementation project(':ballerina-config')
+    implementation 'com.google.code.gson:gson:2.7'
 }
 
 description = 'Ballerina - Logging'

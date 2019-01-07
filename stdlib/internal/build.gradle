@@ -1,16 +1,18 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
-    compile project(':ballerina-time')
-    compile project(':ballerina-io')
-    compile project(':lib-creator')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-file')
-    compile project(':ballerina-time')
-    compile project(':ballerina-io')
-    compile project(':ballerina-log-api')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-io')
+    implementation project(':lib-creator')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-file')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-log-api')
+
+    implementation 'commons-io:commons-io:2.6'
 }
 
 description = 'Ballerina - Internal'

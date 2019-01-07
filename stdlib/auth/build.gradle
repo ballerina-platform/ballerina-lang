@@ -13,6 +13,8 @@ dependencies {
 //    compile project(':ballerina-time')
     implementation project(':ballerina-core')
     implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation 'org.slf4j:slf4j-api:1.7.22'
+    implementation 'commons-logging:commons-logging:1.1.1'
 
     compileOnly project(':ballerina-lang')
     annotationProcessor project(':ballerina-lang')

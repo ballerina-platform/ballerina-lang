@@ -1,10 +1,10 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-lang')
-    compile project(':ballerina-core')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':lib-creator')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-core')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':lib-creator')
 }
 
 description = 'Ballerina - Socket'

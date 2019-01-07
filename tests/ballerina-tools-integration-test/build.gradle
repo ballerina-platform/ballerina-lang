@@ -1,11 +1,11 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-integration-test-utils')
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
-    compile project(':ballerina-packerina')
-    compile project(':ballerina-launcher')
+    implementation project(':ballerina-integration-test-utils')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-packerina')
+    implementation project(':ballerina-launcher')
     testCompile 'org.awaitility:awaitility:3.0.0'
 }
 

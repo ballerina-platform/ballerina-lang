@@ -1,10 +1,12 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
-    compile project(':ballerina-time')
-    compile project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-time')
+    implementation project(':stdlib:ballerina-builtin')
+
+    implementation 'com.zaxxer:HikariCP:3.1.0'
 }
 
 description = 'Ballerina - sql'

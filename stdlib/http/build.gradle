@@ -1,26 +1,27 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.22'
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
-    compile project(':ballerina-mime')
-    compile project(':ballerina-auth')
-    compile project(':ballerina-file')
-    compile project(':ballerina-io')
-    compile project(':ballerina-log-api')
-    compile project(':ballerina-math')
-    compile project(':ballerina-reflect')
-    compile project(':ballerina-time')
-    compile project(':ballerina-cache')
-    compile project(':ballerina-crypto')
-    compile project(':ballerina-logging')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-mime')
-    compile 'io.netty:netty-codec-http:4.1.19.Final'
-    compile 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
-    compile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
-    compile 'org.apache.commons:commons-lang3:3.5'
+    implementation 'org.slf4j:slf4j-api:1.7.22'
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-mime')
+    implementation project(':ballerina-auth')
+    implementation project(':ballerina-file')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-log-api')
+    implementation project(':ballerina-math')
+    implementation project(':ballerina-reflect')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-cache')
+    implementation project(':ballerina-crypto')
+    implementation project(':ballerina-logging')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-mime')
+    implementation project(':ballerina-config')
+    implementation 'io.netty:netty-codec-http:4.1.19.Final'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
+    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
+    implementation 'org.apache.commons:commons-lang3:3.5'
 }
 
 description = 'Ballerina - Http/WS'

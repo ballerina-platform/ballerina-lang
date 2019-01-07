@@ -1,7 +1,7 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-lang')
+    implementation project(':ballerina-lang')
 }
 
 description = 'Ballerina - Library creation utility'

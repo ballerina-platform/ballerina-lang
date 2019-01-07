@@ -1,12 +1,12 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-lang')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-llvm')
-    compile project(':ballerina-io')
-    compile project(':ballerina-internal')
-    compile project(':ballerina-bir')
+    implementation project(':ballerina-lang')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-llvm')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-internal')
+    implementation project(':ballerina-bir')
 }
 
 description = 'Ballerina - LLVM Compiler Backend'

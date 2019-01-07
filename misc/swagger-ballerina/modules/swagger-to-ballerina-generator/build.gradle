@@ -1,11 +1,11 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile 'io.swagger.parser.v3:swagger-parser:2.0.0-rc3'
-    compile 'com.github.jknack:handlebars:4.0.6'
-    compile 'info.picocli:picocli:3.3.0'
-    compile project(':ballerina-launcher')
-    compile project(':swagger-ballerina:ballerina-to-swagger')
+    implementation 'io.swagger.parser.v3:swagger-parser:2.0.0-rc3'
+    implementation 'com.github.jknack:handlebars:4.0.6'
+    implementation 'info.picocli:picocli:3.3.0'
+    implementation project(':ballerina-launcher')
+    implementation project(':swagger-ballerina:ballerina-to-swagger')
 }
 
 description = 'Ballerina - Swagger Tooling - Swagger to Ballerina'

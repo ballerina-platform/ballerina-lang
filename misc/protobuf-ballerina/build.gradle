@@ -1,15 +1,15 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile 'org.apache.maven:maven-plugin-api:2.0'
-    compile 'org.slf4j:slf4j-simple:1.7.22'
-    compile project(':ballerina-launcher')
-    compile 'org.apache.commons:commons-lang3:3.5'
-    compile 'com.google.protobuf:protobuf-java:3.5.1'
-    compile project(':ballerina-grpc')
-    compile project(':ballerina-core')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-lang')
+    implementation 'org.apache.maven:maven-plugin-api:2.0'
+    implementation 'org.slf4j:slf4j-simple:1.7.22'
+    implementation project(':ballerina-launcher')
+    implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation 'com.google.protobuf:protobuf-java:3.5.1'
+    implementation project(':ballerina-grpc')
+    implementation project(':ballerina-core')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-lang')
     testCompile 'org.testng:testng:6.13.1'
     compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
 }

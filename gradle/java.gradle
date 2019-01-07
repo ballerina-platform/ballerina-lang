@@ -6,6 +6,8 @@ apply from: "$rootDir/gradle/repositories.gradle"
 dependencies {
     checkstyle project(':build-config:checkstyle')
     checkstyle 'com.puppycrawl.tools:checkstyle:7.8.2'
+
+    implementation 'org.slf4j:slf4j-api:1.7.22'
 }
 
 sourceCompatibility = '1.8'

@@ -1,17 +1,17 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-core')
-    compile project(':ballerina-config')
-    compile project(':ballerina-launcher')
-    compile project(':ballerina-cli-utils')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-lang')
-    compile project(':ballerina-logging')
-    compile project(':lib-creator')
-    compile project(':ballerina-http')
-    compile project(':ballerina-observability')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-cli-utils')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-logging')
+    implementation project(':lib-creator')
+    implementation project(':ballerina-http')
+    implementation project(':ballerina-observability')
 }
 
 description = 'Ballerina - Prometheus Extension for Metrics'
