@@ -251,6 +251,24 @@ public class LSCompilerUtil {
     }
 
     /**
+     * Get the project dir for given file.
+     *
+     * @param filePath file path
+     * @return {@link String} project directory path or null if not in a project
+     */
+    public static String getProjectDir(Path filePath) {
+        if (filePath == null || filePath.getParent() == null) {
+            return null;
+        }
+        Path parentPath = filePath.getParent();
+        if (parentPath == null) {
+            return null;
+        }
+
+        return findProjectRoot(parentPath.toString());
+    }
+
+    /**
      * Returns top-level module path of a given file path.
      * <p>
      * If it is a non-project file; returns immediate parent.

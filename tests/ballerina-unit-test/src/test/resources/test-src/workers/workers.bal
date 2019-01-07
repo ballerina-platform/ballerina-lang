@@ -360,3 +360,67 @@ public function testComplexType() returns Rec {
 
     return wait w2;
 }
+
+// First cancel the future and then wait
+public function workerWithFutureTest1() returns int {
+    future<int> f1 = start add(5, 5);
+    worker w1 {
+      int i = 40;
+      boolean cancelled = f1.cancel();
+    }
+
+    worker w2 returns int {
+      // Delay the execution of worker w2
+      runtime:sleep(200);
+      int i = wait f1;
+      return i;
+    }
+
+    return wait w2;
+}
+
+// First wait on the future and then cancel
+public function workerWithFutureTest2() returns int {
+    future<int> f1 = start add(6, 6);
+    worker w1 {
+      int i = 40;
+      // Delay the execution of worker w1
+      runtime:sleep(200);
+      boolean cancelled = f1.cancel();
+    }
+
+    worker w2 returns int {
+      int i = wait f1;
+      return i;
+    }
+    return wait w2;
+}
+
+// Concurrently run cancel in worker w1 and wait in worker w2
+public function workerWithFutureTest3() returns int {
+    future<int> f1 = start add(10, 8);
+    worker w1 {
+      int i = 40;
+      boolean cancelled = f1.cancel();
+    }
+
+    worker w2 returns int {
+      // Delay the execution of worker w1
+      runtime:sleep(5);
+      int i = wait f1;
+      return i;
+    }
+    return wait w2;
+}
+
+function add(int i, int j) returns int {
+  waitFor();
+  return i + j;
+}
+
+function waitFor() {
+   int l = 0;
+   while (l < 99999) {
+    l = l +1;
+   }
+}
