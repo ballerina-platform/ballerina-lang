@@ -94,7 +94,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
 //Client service to receive frames from the remote server.
 service ClientService = @http:WebSocketServiceConfig {} service {
 
-    //This `resource` is triggered when a new text frame is received from the remote backend.
+    //This resource gets invoked upon receiving a new text frame from the remote backend.
     resource function onText(http:WebSocketClient caller, string text,
                                 boolean finalFrame) {
 
