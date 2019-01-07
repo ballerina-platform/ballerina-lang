@@ -31,10 +31,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Comparator;
 
 /**
  * Util class for SQL DB Tests.
@@ -90,14 +94,11 @@ public class SQLDBUtils {
      * @param directory Directory to delete.
      */
     public static boolean deleteDirectory(File directory) {
-        if (!directory.isDirectory()) {
-            return directory.delete();
-        }
-        for (File f : directory.listFiles()) {
-            boolean success = deleteDirectory(f);
-            if (!success) {
-                return false;
-            }
+        try {
+            Files.walk(directory.toPath(), FileVisitOption.FOLLOW_LINKS)
+                    .sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+        } catch (IOException e) {
+            return false;
         }
         return true;
     }
