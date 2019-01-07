@@ -26,9 +26,9 @@ service multipartResponseEncoder on new http:Listener(9092) {
         childPart1.setJson({ "name": "wso2" });
         // Creates another child part with a file.
         mime:Entity childPart2 = new;
-        // This file path is relative to where the Ballerina is running.
-        //If your file is located outside, give the
-        //absolute file path instead.
+        // The file path is relative to the current working directory.
+        // If your file does not reside in the directory tree of the
+        // current working directory, give the absolute file path instead.
         childPart2.setFileAsEntityBody("./files/test.xml",
             contentType = mime:TEXT_XML);
         // Creates an array to hold the child parts.
