@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.net.websub;
+package org.ballerinalang.net.websub;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -48,7 +48,7 @@ public class WebSubDiscoveryResponseParserTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/net/websub/discovery/test_discovery_response_parsing.bal");
+        result = BCompileUtil.compile("test-src/discovery/test_discovery_response_parsing.bal");
     }
 
     @Test(description = "Test discovery parsing for topic and single hub", dataProvider = "topicAndSingleHubTests")
