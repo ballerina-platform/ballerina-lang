@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 public type anyStruct record {
     any...
 };
@@ -21,7 +22,7 @@ public type annotationData record {
     string name;
     string moduleName;
     string moduleVersion;
-    anyStruct value;
+    record { any... } value;
 };
 
 public extern function getServiceAnnotations(service serviceType) returns (annotationData[]);
