@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.net.websub;
+package org.ballerinalang.net.websub;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 public class WebSubCompilationTest {
 
     private CompileResult negativeCompilationResult =
-            BCompileUtil.compile("test-src/net/websub/compilation/test_compilation_failure.bal");
+            BCompileUtil.compile("test-src/compilation/test_compilation_failure.bal");
 
     @Test(description = "Verify compilation error count")
     public void testErrorDiagLength() {
