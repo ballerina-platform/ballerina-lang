@@ -77,13 +77,78 @@ function testMemberReferenceByInvalidIntegerIndex() {
     float[] floatArray = [1.1, 0.0, 2.20]; 
 
     int index = -1;
-    assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange", "invalid reason on access by negative index");
+    assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange", 
+                      "invalid reason on access by negative index");
 
     index = floatArray.length();
-    assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange", "invalid reason on access by index == array length");
+    assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange", 
+                      "invalid reason on access by index == array length");
 
     index = floatArray.length() + 3;
-    assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange", "invalid reason on access by index > array length");
+    assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange", 
+                      "invalid reason on access by index > array length");
+}
+
+// The shape of a list value is an ordered list of the shapes of its members.
+@test:Config {}
+function testShape() {
+    // TODO: 
+}
+
+// A list is iterable as a sequence of its members.
+@test:Config {}
+function testMemberIteration() {
+    int a = 4;
+    string b = "string 1";
+    string c = "string 2";
+    int d = 1;
+
+    (int|string)[] array = [a, b, c, d];
+    (int|string)[] arrayTwo = [a, b, c, d];
+    int currentIndex = 0;
+
+    foreach string|int intValue in array {
+        test:assertEquals(intValue, arrayTwo[currentIndex], 
+                          msg = "incorrect member value found on iteration");
+        currentIndex = currentIndex + 1;
+    }
+}
+
+// The inherent type of a list value determines a type Ti for a member with index i.
+// The runtime system will enforce a constraint that a value written to index i will
+// belong to type Ti. Note that the constraint is not merely that the value looks
+// like Ti.
+@test:Config {}
+function testInherentTypeViolation() {
+    int[] intArray = [1, 2];
+    any[] anyArray = intArray;
+    assertErrorReason(trap insertElementToArray(anyArray, intArray.length() - 1, "not an int"), 
+                      "{ballerina}InherentTypeViolation", 
+                      "invalid reason on inherent type violating array insertion");
+
+    map<string>[] stringMapArray = [ 
+        { 
+            one: "test string 1",
+            two: "test string 2" 
+        },
+        { 
+            three: "test string 3"
+        }
+    ];
+    anyArray = stringMapArray;
+
+    // `m` looks like `map<string>`
+    map<string|int> stringOrIntMap = {
+        one: "test string 1",
+        two: "test string 2"
+    };
+    assertErrorReason(trap insertElementToArray(anyArray, 0, stringOrIntMap), 
+                      "{ballerina}InherentTypeViolation", 
+                      "invalid reason on inherent type violating array insertion");
+}
+
+function insertElementToArray(any[] array, int index, any element) {
+    array[index] = element;
 }
 
 # Util method expected to be used with the result of a trapped expression. 
