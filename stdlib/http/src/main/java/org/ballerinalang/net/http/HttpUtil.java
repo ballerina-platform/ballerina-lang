@@ -626,8 +626,6 @@ public class HttpUtil {
                 new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD)));
         inboundRequestStruct.put(HttpConstants.REQUEST_VERSION_FIELD,
                 new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION)));
-        inboundRequestStruct.put(HttpConstants.REQUEST_SSL_HANDSHAKE_RESULT,
-                new BString((String) inboundRequestMsg.getProperty("SSL_RESULT")));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null && resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO) != null) {

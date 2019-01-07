@@ -53,6 +53,46 @@ function testAsyncNonNativeBasic6() returns boolean {
   return !a && v1 == 10.0 && b && !c && d && !e && !f;
 }
 
+function testAsyncNonNativeBasic7() returns int {
+  future<int> f1 = start addNum(5, 2);
+  boolean cancelled = f1.cancel();
+  int result = wait f1;
+  return result;
+}
+
+function testAsyncNonNativeBasic8() returns int {
+  future<int> f1 = start addNum(5, 2);
+  future<int> f2 = start addNum(5, 2);
+  boolean cancelled_f1 = f1.cancel();
+  boolean cancelled_f2 = f2.cancel();
+  int result = wait f1 | f2;
+  return result;
+}
+
+function testAsyncNonNativeBasic9() returns int {
+  future<int> f1 = start addNum(5, 2);
+  future<int> f2 = start addNum(5, 2);
+  boolean cancelled_f1 = f1.cancel();
+  int result = wait f1 | f2;
+  return result;
+}
+
+function testAsyncNonNativeBasic10() returns any {
+  future<int> f1 = start addNum(5, 2);
+  future<int> f2 = start addNum(5, 2);
+  boolean cancelled_f1 = f1.cancel();
+  any result = wait {f1,f2};
+  return result;
+}
+
+function addNum(int i, int j) returns int {
+  int l = 0;
+  while (l < 10000) {
+    l = l +1;
+  }
+  return i + j;
+}
+
 function add(int a, int b) returns int {
   return a + b;
 }

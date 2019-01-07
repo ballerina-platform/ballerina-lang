@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
 
@@ -34,7 +33,6 @@ public type Request object {
     public string httpVersion = "";
     public string userAgent = "";
     public string extraPathInfo = "";
-    public string sslHandshake = "";
     public RequestCacheControl? cacheControl = ();
 
     private mime:Entity entity;

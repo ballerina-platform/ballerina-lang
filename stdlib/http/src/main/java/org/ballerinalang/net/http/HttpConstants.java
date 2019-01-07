@@ -222,7 +222,6 @@ public class HttpConstants {
     public static final String REQUEST_USER_AGENT_FIELD = "userAgent";
     public static final String REQUEST_EXTRA_PATH_INFO_FIELD = "extraPathInfo";
     public static final String REQUEST_CACHE_CONTROL_FIELD = "cacheControl";
-    public static final String REQUEST_SSL_HANDSHAKE_RESULT = "sslHandshake";
 
     //Response struct field names
     public static final String RESPONSE_STATUS_CODE_FIELD = "statusCode";
