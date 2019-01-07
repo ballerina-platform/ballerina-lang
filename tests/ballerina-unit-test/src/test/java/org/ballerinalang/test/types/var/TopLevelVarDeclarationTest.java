@@ -91,13 +91,13 @@ public class TopLevelVarDeclarationTest {
     public void testFunctionInvocation() {
         BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocation");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals( returns[0].stringValue(), "{\"k\":\"v\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"k\":\"v\"}");
     }
 
     @Test
     public void testVarAssign() {
         BValue[] returns = BRunUtil.invoke(result, "testVarAssign");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals( returns[0].stringValue(), "{\"x\":\"y\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"x\":\"y\"}");
     }
 }
