@@ -106,9 +106,9 @@ wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47
 
 tar -xvzf mysql-connector-java-5.1.47.tar.gz --directory ./
 
-ballerina build ballerina-lang/product-scenarios/scenarios/1/data-service.bal
+ballerina build product-scenarios/scenarios/1/data-service.bal
 
-kubectl apply -f ballerina-lang/product-scenarios/scenarios/1/kubernetes/
+kubectl apply -f product-scenarios/scenarios/1/kubernetes/
 
 external_ip=kubectl get svc ballerina-data-service -o jsonpath='{.spec.externalIP}'
 
