@@ -56,8 +56,8 @@ public class ConfigTest {
     private String customConfigFilePath;
 
     @BeforeClass
-    public void setup() throws IOException {
-       resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+    public void setup() {
+        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
                .getAbsolutePath();
         sourceRoot = Paths.get(resourceRoot, "test-src", "config");
         ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "default", BALLERINA_CONF);
@@ -265,7 +265,7 @@ public class ConfigTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), (double) 0.3455);
+        Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 0.3455);
     }
 
     @Test(description = "Test for getting an int as a float")
