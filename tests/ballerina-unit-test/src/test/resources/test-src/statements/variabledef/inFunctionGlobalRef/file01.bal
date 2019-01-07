@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
-import ballerina/io;
-
 public type Person record {
     string name = "";
     int age = 0;
@@ -32,21 +29,39 @@ public function getEmployee2() returns Employee {
     return employee;
 }
 
+
 public Employee employee = {
     name: person.name,
     age: person.age,
     empNo: 100
 };
 
-(Employee, Person) pp = (employee, person);
+public function forwardEmp(Employee emp) returns Employee {
+    return emp;
+}
+Employee e = getEmployee();
+Employee b = forwardEmp(e);
 
 public function getEmployee() returns Employee {
     return employee;
 }
 
-public function main1() {
-    var e = getEmployee();
-    var e2 = getEmployee2();
-    log:printInfo("end");
-    io:println("end");
+public function getEmployeeEmployee() returns Employee {
+    var f = basicClosure();
+    int r = f();
+    return getEmployee();
+}
+
+int globalA = 11;
+
+function basicClosure() returns (function (int) returns int) {
+    int a = 3;
+    var foo = function (int b) returns int {
+        int c = 34;
+        if (b == 3) {
+            c = c + b + a + globalA;
+        }
+        return c + a;
+    };
+    return foo;
 }

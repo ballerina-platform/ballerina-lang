@@ -19,15 +19,16 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GDependencyAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.TarjanSccSolverAdjacencyList;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -177,13 +178,16 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -204,6 +208,8 @@ import java.util.stream.Stream;
  */
 public class DataflowAnalyzer extends BLangNodeVisitor {
 
+    private final SymbolResolver symResolver;
+    private final Names names;
     private SymbolEnv env;
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
@@ -213,16 +219,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Map<BSymbol, DefPosition> globalVarSymbolDefPositions;
     private boolean flowTerminated = false;
     private BLangAnonymousModelHelper anonymousModelHelper;
+    private final GDependencyAnalyzer globalVarAnalyzer;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private int globalVarRefCounter;
-    private Symbol currDependentSymbol;
+    private Deque<BSymbol> currDependentSymbol;
 
     private DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.globalVarAnalyzer = GDependencyAnalyzer.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
+        this.names = Names.getInstance(context);
+        this.currDependentSymbol = new ArrayDeque<>();
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
@@ -266,6 +277,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         analyzeGlobalVariableReferencePatterns(pkgNode, this.globalVarSymbolRefPositions, dlog);
+        //globalVarAnalyzer.analyze(pkgNode);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
@@ -351,7 +363,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean foundForwardRef = false;
         List<RefPosition> sameFileForwardReferences = accessedSequence.stream()
                 .filter(p -> p.position.src.cUnitName.equals(defFile))
-                .filter(p -> globalVarSymbolDefPositions.get((BSymbol) p.dependentSymbol).refId < defPosition.refId)
+                .filter(p -> globalVarSymbolDefPositions.get(p.dependentSymbol).refId < defPosition.refId)
                 .collect(Collectors.toList());
 
         for (RefPosition refPosition : sameFileForwardReferences) {
@@ -412,19 +424,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(var, env);
     }
 
-    private void resetDependentSymbol(Symbol prevDependentId) {
-        this.currDependentSymbol = prevDependentId;
-    }
-
-    private Symbol setDependentSymbol(Symbol symbol) {
-        Symbol prevDependentSym = this.currDependentSymbol;
-        this.currDependentSymbol = symbol;
-        return prevDependentSym;
-    }
-
     @Override
     public void visit(BLangSimpleVariable variable) {
-        Symbol prevDependentSymbol = setDependentSymbol(variable.symbol);
+        this.currDependentSymbol.push(variable.symbol);
         try {
             observeGlobalVariableDefinition(variable.symbol, variable.pos);
             if (variable.expr != null) {
@@ -441,7 +443,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             addUninitializedVar(variable);
         } finally {
-            resetDependentSymbol(prevDependentSymbol);
+            this.currDependentSymbol.pop();
         }
     }
 
@@ -643,6 +645,22 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.namedArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
+        BSymbol owner = this.env.scope.owner;
+        if (owner.kind == SymbolKind.FUNCTION) {
+            BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) owner;
+            Name name = names.fromIdNode(invocationExpr.name);
+            // we need to handle lambda functions, i.e. lambda function assigned into a variable (var a = getLambda();
+            // where getLambda returns a lambda function that refers a global variable g1
+            // and then pass that into a another function f2
+            // now f2 has dependency on g1
+            // BSymbol dependsOnFunctionSym = symResolver.lookupSymbol(this.env, name, SymTag.VARIABLE); is lambda as a
+            // variable
+
+            BSymbol dependsOnFunctionSym = symResolver.lookupSymbol(this.env, name, SymTag.FUNCTION);
+            if (symTable.notFoundSymbol != dependsOnFunctionSym) {
+                invokableOwnerSymbol.dependsOn.add(dependsOnFunctionSym);
+            }
+        }
     }
 
     @Override
@@ -1225,10 +1243,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void observeGlobalVariableReference(BSymbol symbol, DiagnosticPos pos) {
-        boolean isInPkgLevel = this.env.scope.owner.getKind() == SymbolKind.PACKAGE;
+        BSymbol ownerSymbol = this.env.scope.owner;
+        boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
+        // Restrict to observations made in pkg level.
         if (isInPkgLevel && globalVarSymbolRefPositions.containsKey(symbol)) {
             globalVarSymbolRefPositions.get(symbol).add(
-                    RefPosition.newRef(pos, this.currDependentSymbol));
+                    RefPosition.newRef(pos, this.currDependentSymbol.peek()));
+        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && globalVarSymbolRefPositions.containsKey(symbol)) {
+            // global variable ref from non package level
+            BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) ownerSymbol;
+            invokableOwnerSymbol.dependsOn.add(symbol);
         }
     }
 
@@ -1296,14 +1320,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private static class RefPosition {
         final DiagnosticPos position;
-        final Symbol dependentSymbol;
+        final BSymbol dependentSymbol;
 
-        private RefPosition(DiagnosticPos position, Symbol dependentSymbol) {
+        private RefPosition(DiagnosticPos position, BSymbol dependentSymbol) {
             this.position = position;
             this.dependentSymbol = dependentSymbol;
         }
 
-        static RefPosition newRef(DiagnosticPos position, Symbol dependentSymbol) {
+        static RefPosition newRef(DiagnosticPos position, BSymbol dependentSymbol) {
             return new RefPosition(position, dependentSymbol);
         }
     }

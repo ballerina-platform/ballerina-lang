@@ -73,6 +73,18 @@ public class ForwardReferencingGlobalDefinitionTest {
         Assert.assertEquals(employeeName, "Sumedha");
     }
 
+    @Test(description = "Test global variable reference in function")
+    public void inFunctionGlobalReference() {
+        CompileResult resultReOrdered = BCompileUtil.compile(this, "test-src/statements/variabledef",
+                "inFunctionGlobalRef");
+//        Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
+//        Assert.assertEquals(diagnostics.length, 0);
+
+        BValue[] employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
+        String employeeName = ((BMap) employee[0]).get("name").stringValue();
+        Assert.assertEquals(employeeName, "Sumedha");
+    }
+
     @Test(description = "Test algorithms on graph with cycles")
     public void dependencyGraphWithCycles() {
         int n = 8;
