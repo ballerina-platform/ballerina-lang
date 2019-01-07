@@ -380,38 +380,4 @@ public class IOTest {
         lines.close();
         return data.toString();
     }
-
-//    @Test
-//    public void testBase64EncodeByteChannel() {
-//        String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
-//        BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
-//        InputStream inputStream = new ByteArrayInputStream("Hello Ballerina".getBytes());
-//        Base64ByteChannel base64ByteChannel = new Base64ByteChannel(inputStream);
-//        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
-//        BValue[] args = new BValue[]{byteChannelStruct};
-//        BValue[] returnValues = BRunUtil.invoke(bytesInputOutputProgramFile, "testBase64EncodeByteChannel", args);
-//        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-//                "Invalid return value");
-//        BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
-//        Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-//        Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
-//    }
-//
-//    @Test
-//    public void testBase64DecodeByteChannel() {
-//        String expectedValue = "Hello Ballerina!";
-//        BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
-//        byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
-//        InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
-//        Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);
-//        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
-//        BValue[] args = new BValue[]{byteChannelStruct};
-//        BValue[] returnValues = BRunUtil.invoke(bytesInputOutputProgramFile, "testBase64DecodeByteChannel", args);
-//        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-//                "Invalid return value");
-//        BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
-//        Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-//        Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
-//    }
 }
-
