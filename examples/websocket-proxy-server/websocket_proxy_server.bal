@@ -34,7 +34,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
         }
     }
 
-    //This `resource` is triggered when a new text frame is received from a client.
+    //This resource gets invoked upon receiving a new text frame from a client.
     resource function onText(http:WebSocketCaller caller, string text,
                                 boolean finalFrame) {
 
