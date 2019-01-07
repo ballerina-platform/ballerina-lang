@@ -10,7 +10,7 @@ final string REMOTE_BACKEND = "ws://echo.websocket.org";
 }
 service SimpleProxyService on new http:WebSocketListener(9090) {
 
-    // This `resource` triggered when a new client is connected.
+    // This resource gets invoked when a new client connects.
     // Since messages to the server are not read by the service until the execution of the `onOpen` resource finishes,
     // operations which should happen before reading messages should be done in the `onOpen` resource.
     resource function onOpen(http:WebSocketCaller caller) {
