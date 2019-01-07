@@ -28,10 +28,10 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.code.generator.exception.CodeGeneratorException;
 import org.ballerinalang.code.generator.model.ClientContextHolder;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * <p>This class generates Service definitions, clients for a provided ballerina service.</p>
@@ -42,17 +42,17 @@ public class CodeGenerator {
      * Generates code(client, server etc) for ballerina source provided  in <code>definitionPath</code>.
      * <p>Method can be used for generating OAS 3.0.0, Swagger or Ballerina Client</p>
      *
-     * @param type        Output type. Following types are supported
-     *                    <ul>
-     *                    <li>client</li>
-     *                    <li>openapi</li>
-     *                    <li>swagger</li>
-     *                    </ul>
+     * @param type    Output type. Following types are supported
+     *                <ul>
+     *                <li>client</li>
+     *                <li>openapi</li>
+     *                <li>swagger</li>
+     *                </ul>
      * @param context Context details for generating the client
      * @return generated source is string representation of generated source.
      * @throws CodeGeneratorException when file operations fail
      */
-    public String generateOutput(GeneratorConstants.GenType type, ClientContextHolder context)
+    public static String generateOutput(GeneratorConstants.GenType type, ClientContextHolder context)
             throws CodeGeneratorException {
         String output = "";
         switch (type) {
@@ -71,28 +71,30 @@ public class CodeGenerator {
     }
 
     /**
-     * Write generated source of a given <code>context</code> to a file at <code>outpath</code>.
+     * Write given file content to a file at <code>targetDirPath</code>.
      *
-     * @param type    Generator Type to be used. Following types are supported.
-     *                <ul>
-     *                <li>client</li>
-     *                <li>openapi</li>
-     *                <li>swagger</li>
-     *                </ul>
-     * @param context Definition object containing required properties to be extracted for code generation
-     * @param outPath resulting file path
+     * @param targetDirPath target dir path where the generated files to be created
+     * @param fileName      file name to be created
+     * @param fileContent   content to be written in to the file
      * @throws CodeGeneratorException when error occurred while generating the code
      */
-    public void writeGeneratedSource(GeneratorConstants.GenType type, ClientContextHolder context, String outPath)
+    public static void writeFile(Path targetDirPath, String fileName, String fileContent)
             throws CodeGeneratorException {
+        if (targetDirPath == null) {
+            throw new CodeGeneratorException("Target file directory path is null.");
+        }
+        try {
+            // Create parent directory if doesn't exist.
+            if (!Files.exists(targetDirPath)) {
+                Files.createDirectories(targetDirPath);
+            }
 
-        try (PrintWriter writer = new PrintWriter(outPath, "UTF-8")) {
-            String generatedSource = generateOutput(type, context);
-            writer.println(generatedSource);
-        } catch (FileNotFoundException e) {
-            throw new CodeGeneratorException("Error while writing converted string due to output file not found", e);
-        } catch (UnsupportedEncodingException e) {
-            throw new CodeGeneratorException("Error while writing converted string due to unsupported encoding", e);
+            // Write the given file content in to a file.
+            Path clientFilePath = Paths.get(targetDirPath.toString(), fileName);
+            Files.write(clientFilePath, fileContent.getBytes("UTF-8"));
+        } catch (IOException e) {
+            throw new CodeGeneratorException("Error while writing generated client to a file.",
+                    e);
         }
     }
 
@@ -106,7 +108,7 @@ public class CodeGenerator {
      * @return generated string representation of passed object(ballerina service node)
      * @throws CodeGeneratorException when error occurs while compile, build context.
      */
-    public String getConvertedString(Object object, String templateDir, String templateName)
+    private static String getConvertedString(Object object, String templateDir, String templateName)
             throws CodeGeneratorException {
         Template template = compileTemplate(templateDir, templateName);
         Context context = Context.newBuilder(object).resolver(
@@ -129,7 +131,9 @@ public class CodeGenerator {
      * @return compiled template generated for template definition.
      * @throws CodeGeneratorException throws IOException when compilation error occurs.
      */
-    private Template compileTemplate(String defaultTemplateDir, String templateName) throws CodeGeneratorException {
+    private static Template compileTemplate(String defaultTemplateDir, String templateName)
+            throws CodeGeneratorException {
+        defaultTemplateDir = defaultTemplateDir.replaceAll("\\\\", "/");
         String templatesDirPath = System.getProperty(GeneratorConstants.TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
@@ -145,8 +149,12 @@ public class CodeGenerator {
             if (param0 == null) {
                 throw new IllegalArgumentException("found 'null', expected 'string'");
             }
-            if (object != null && object.toString().equals(param0.toString())) {
-                result = options.fn(options.context);
+            if (object != null) {
+                if (object.toString().equals(param0.toString())) {
+                    result = options.fn(options.context);
+                } else {
+                    result = options.inverse();
+                }
             } else {
                 result = null;
             }
@@ -160,5 +168,4 @@ public class CodeGenerator {
             throw new CodeGeneratorException("Error while compiling template", e);
         }
     }
-
 }
