@@ -77,7 +77,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getSourceRoot;
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getProjectDir;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -324,7 +324,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             Path sourceFilePath = new LSDocument(params.getDocumentIdentifier().getUri()).getPath();
             BallerinaProject project = new BallerinaProject();
-            project.setPath(getSourceRoot(sourceFilePath));
+            project.setPath(getProjectDir(sourceFilePath));
             return project;
         });
     }
