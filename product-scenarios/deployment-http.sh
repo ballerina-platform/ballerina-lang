@@ -97,9 +97,13 @@ sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb
 
 ballerina version
 
-ballerina build product-scenarios/scenarios/2/
+cd product-scenarios/scenarios/
 
-kubectl apply -f product-scenarios/scenarios/2/kubernetes/
+ballerina init
+
+ballerina build 2/
+
+kubectl apply -f target/kubernetes/2
 
 external_ip=kubectl get svc ballerina-circuit-breaker-service -o jsonpath='{.spec.externalIP}'
 
