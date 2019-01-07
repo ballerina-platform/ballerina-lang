@@ -86,10 +86,8 @@ const writeFile = (theme, file, content) => {
 
 const copyFiles = () => {
     if (!fs.existsSync(libDir)) {
-        fs.mkdirSync(libDir, () => {
-            copyCSS();
-        });
-        fs.removeSync(buildDir);
+        fs.mkdirSync(libDir);
+        copyCSS();
     } else {
         rimraf(libDir + '/*', () => {
             copyCSS();
@@ -121,9 +119,8 @@ const copyAssets = () => {
 };
 
 if (!fs.existsSync(buildDir)) {
-    fs.mkdirSync(buildDir, () => {
-        generateThemes();
-    });
+    fs.mkdirSync(buildDir);
+    generateThemes();
 } else {
     rimraf(buildDir + '/*', () => {
         generateThemes();
