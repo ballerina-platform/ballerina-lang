@@ -112,7 +112,7 @@ function handleContent(mime:Entity bodyPart) {
             string strValue = io:sprintf("%s", payload);
              log:printInfo("XML data: " + strValue);
         } else {
-            log:printError("Error in parsing xml data", err = payload);
+             log:printError("Error in parsing XML data", err = payload);
         }
     } else if (mime:APPLICATION_JSON == baseType) {
         // Extracts `json` data from the body part.
