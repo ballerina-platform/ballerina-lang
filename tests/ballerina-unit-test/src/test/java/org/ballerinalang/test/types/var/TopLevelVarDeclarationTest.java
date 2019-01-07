@@ -86,4 +86,18 @@ public class TopLevelVarDeclarationTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
     }
+
+    @Test
+    public void testFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocation");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals( returns[0].stringValue(), "{\"k\":\"v\"}");
+    }
+
+    @Test
+    public void testVarAssign() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarAssign");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals( returns[0].stringValue(), "{\"x\":\"y\"}");
+    }
 }

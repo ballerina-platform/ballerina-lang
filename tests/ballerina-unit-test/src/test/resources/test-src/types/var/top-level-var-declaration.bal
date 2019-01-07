@@ -34,3 +34,26 @@ function testGetByte() returns byte|error {
 function testGetFloat() returns float {
     return floatValue;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+var value = getValue();
+
+function getValue() returns map<string> {
+    map<string> m = { "k": "v" };
+    return m;
+}
+
+function testFunctionInvocation() returns map<string> {
+    return value;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+map<string> data = { "x": "y" };
+
+var v = data;
+
+function testVarAssign() returns map<string> {
+    return v;
+}
