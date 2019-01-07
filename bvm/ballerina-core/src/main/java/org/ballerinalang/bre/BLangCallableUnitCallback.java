@@ -56,7 +56,9 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     public void notifySuccess() {
         if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
-            ObserveUtils.stopCallableObservation(strand);
+            if (ObserveUtils.enabled) {
+                ObserveUtils.stopCallableObservation(strand);
+            }
             if (BVM.checkIsType(this.nativeCallCtx.getReturnValue(), BTypes.typeError)) {
                 strand.currentFrame.handleChannelError((BRefType) this.nativeCallCtx.getReturnValue(),
                         strand.peekFrame(1).getWDChannels());
@@ -79,7 +81,9 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     public void notifyFailure(BError error) {
         if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
-            ObserveUtils.stopCallableObservation(strand);
+            if (ObserveUtils.enabled) {
+                ObserveUtils.stopCallableObservation(strand);
+            }
             strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).getWDChannels());
             strand.popFrame();
             strand.setError(error);

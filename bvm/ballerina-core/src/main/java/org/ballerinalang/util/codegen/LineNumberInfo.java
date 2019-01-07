@@ -119,7 +119,7 @@ public class LineNumberInfo {
 
     public boolean checkIpRangeForInstructionCode(Instruction[] codes, int matchingCode) {
         for (int i = ip; i < endIp; i++) {
-            if (codes[i].getOpcode() == matchingCode) {
+            if (codes[i].opcode == matchingCode) {
                 return true;
             }
         }

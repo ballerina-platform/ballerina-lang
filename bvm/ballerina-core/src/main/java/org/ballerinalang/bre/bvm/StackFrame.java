@@ -55,12 +55,6 @@ public class StackFrame {
 
     private Map<String, Object> localProps;
 
-    // Cached value
-//    ConstantPoolEntry[] constPool;
-
-    // Cached value
-//    public Instruction[] code;
-
     // Instruction pointer
     public int ip;
 
@@ -96,10 +90,8 @@ public class StackFrame {
         if (ci.maxBValueRegs > 0) {
             this.refRegs = new BRefType[ci.maxBValueRegs];
         }
-        this.ip = ci.getCodeAddrs();
+        this.ip = ci.codeAddrs;
         this.callableUnitInfo = callableUnitInfo;
-//        this.constPool = packageInfo.getConstPoolEntries();
-//        this.code = packageInfo.getInstructions();
         this.retReg = retReg;
         this.invocationFlags = invocationFlags;
         this.workerSendInChannels = workerSendInChannels;

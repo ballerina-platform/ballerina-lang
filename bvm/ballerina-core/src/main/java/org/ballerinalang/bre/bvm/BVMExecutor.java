@@ -81,7 +81,7 @@ public class BVMExecutor {
      * @return results
      */
     public static BValue[] executeEntryFunction(ProgramFile programFile, FunctionInfo functionInfo, BValue... args) {
-        int requiredArgNo = functionInfo.getParamTypes().length;
+        int requiredArgNo = functionInfo.paramTypes.length;
         int providedArgNo = args.length;
         if (requiredArgNo != providedArgNo) {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
@@ -103,7 +103,7 @@ public class BVMExecutor {
      * @return results
      */
     public static BValue[] executeFunction(ProgramFile programFile, FunctionInfo functionInfo, BValue... args) {
-        int requiredArgNo = functionInfo.getParamTypes().length;
+        int requiredArgNo = functionInfo.paramTypes.length;
         int providedArgNo = args.length;
         if (requiredArgNo != providedArgNo) {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
@@ -139,12 +139,14 @@ public class BVMExecutor {
         infectResourceFunction(strandCallback, strand);
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
-        StackFrame idf = new StackFrame(resourceInfo, resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
+        StackFrame idf = new StackFrame(resourceInfo, resourceInfo.getDefaultWorkerInfo().codeAttributeInfo, -1,
                                         FunctionFlags.NOTHING, resourceInfo.workerSendInChannels);
-        copyArgValues(args, idf, resourceInfo.getParamTypes());
+        copyArgValues(args, idf, resourceInfo.paramTypes);
         strand.pushFrame(idf);
         // Start observation after pushing the stack frame
-        ObserveUtils.startResourceObservation(strand, observerContext);
+        if (ObserveUtils.enabled) {
+            ObserveUtils.startResourceObservation(strand, observerContext);
+        }
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
         BVMScheduler.schedule(strand);
@@ -173,9 +175,9 @@ public class BVMExecutor {
                 callableInfo.workerSendInChannels);
         Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback);
 
-        StackFrame idf = new StackFrame(callableInfo, callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(),
+        StackFrame idf = new StackFrame(callableInfo, callableInfo.getDefaultWorkerInfo().codeAttributeInfo,
                 -1, FunctionFlags.NOTHING, callableInfo.workerSendInChannels);
-        copyArgValues(args, idf, callableInfo.getParamTypes());
+        copyArgValues(args, idf, callableInfo.paramTypes);
         strand.pushFrame(idf);
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);

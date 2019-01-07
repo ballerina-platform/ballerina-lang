@@ -32,20 +32,12 @@ import java.util.StringJoiner;
  */
 public class Instruction {
 
-    int opcode;
-    int[] operands;
+    public final int opcode;
+    public final int[] operands;
 
     Instruction(int opcode, int... operands) {
         this.opcode = opcode;
         this.operands = operands;
-    }
-
-    public int getOpcode() {
-        return opcode;
-    }
-
-    public int[] getOperands() {
-        return operands;
     }
 
     @Override

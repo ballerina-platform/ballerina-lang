@@ -52,7 +52,7 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_SPAN_KIND_SERVER;
  */
 public class ObserveUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
-    private static final boolean enabled;
+    public static final boolean enabled;
     private static final boolean tracingEnabled;
     private static final String PACKAGE_SEPARATOR = ".";
 
@@ -78,9 +78,6 @@ public class ObserveUtils {
      * @param observerContext observer context
      */
     public static void startResourceObservation(Strand strand, ObserverContext observerContext) {
-        if (!enabled) {
-            return;
-        }
         ObserverContext newObContext = observerContext;
         if (newObContext == null) {
             CallableUnitInfo callableUnitInfo = strand.currentFrame.callableUnitInfo;
@@ -113,7 +110,7 @@ public class ObserveUtils {
      * @param observerContext observer context to be stopped
      */
     public static void stopObservation(ObserverContext observerContext) {
-        if (!enabled || observerContext == null) {
+        if (observerContext == null) {
             return;
         }
         if (observerContext.isServer()) {
@@ -131,9 +128,6 @@ public class ObserveUtils {
      * @param flags  action invocation flags
      */
     public static void startCallableObservation(Strand strand, int flags) {
-        if (!enabled) {
-            return;
-        }
         StackFrame previousFrame = strand.peekFrame(1);
         ObserverContext parentCtx = previousFrame == null ?
                 strand.respCallback.getObserverContext() : previousFrame.observerContext;
@@ -186,9 +180,6 @@ public class ObserveUtils {
      * @param parentCtx parent observer context
      */
     public static void startCallableObservation(Strand strand, ObserverContext parentCtx) {
-        if (!enabled) {
-            return;
-        }
         ObserverContext newObContext = new ObserverContext();
         newObContext.setParent(parentCtx);
         newObContext.setStarted();
@@ -208,10 +199,6 @@ public class ObserveUtils {
      * @param strand current strand
      */
     public static void stopCallableObservation(Strand strand) {
-        if (!enabled) {
-            return;
-        }
-
         if (!FunctionFlags.isObserved(strand.currentFrame.invocationFlags)) {
             strand.peekFrame(1).observerContext = strand.currentFrame.observerContext;
             return;

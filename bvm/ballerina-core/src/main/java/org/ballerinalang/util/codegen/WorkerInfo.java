@@ -38,7 +38,7 @@ public class WorkerInfo implements AttributeInfoPool {
     private int wrkrDtChnlRefCPIndex = -1;
     private WorkerDataChannelInfo workerDataChannelInfoForForkJoin;
 
-    private CodeAttributeInfo codeAttributeInfo;
+    public CodeAttributeInfo codeAttributeInfo;
 
     private ForkjoinInfo[] forkjoinInfos;
     private List<ForkjoinInfo> forkjoinInfoList = new ArrayList<>();

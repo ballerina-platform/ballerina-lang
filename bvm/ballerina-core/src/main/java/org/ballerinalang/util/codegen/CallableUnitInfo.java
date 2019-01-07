@@ -47,7 +47,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     protected int pkgCPIndex;
     protected int nameCPIndex;
 
-    protected BType[] paramTypes;
+    public BType[] paramTypes;
     protected BType[] retParamTypes;
 
     protected int signatureCPIndex;
@@ -62,7 +62,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     // Key - data channel name
     private Map<String, WorkerDataChannelInfo> dataChannelInfoMap = new HashMap<>();
 
-    private PackageInfo packageInfo;
+    public PackageInfo packageInfo;
     protected WorkerInfo defaultWorkerInfo;
     protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
     

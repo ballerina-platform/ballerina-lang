@@ -123,7 +123,7 @@ public class BLangVMUtils {
     }
 
     private static WorkerData createWorkerData(WorkerInfo workerInfo) {
-        return new WorkerData(workerInfo.getCodeAttributeInfo());
+        return new WorkerData(workerInfo.codeAttributeInfo);
     }
 
     @SuppressWarnings("rawtypes")
@@ -305,7 +305,7 @@ public class BLangVMUtils {
         WorkerDataIndex wdi1 = callableUnitInfo.paramWorkerIndex;
         WorkerDataIndex wdi2 = callableUnitInfo.retWorkerIndex;
         WorkerData local = createWorkerData(wdi1, wdi2);
-        BType[] types = callableUnitInfo.getParamTypes();
+        BType[] types = callableUnitInfo.paramTypes;
         int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, refParamCount = 0;
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {

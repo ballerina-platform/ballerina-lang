@@ -55,7 +55,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private ConstantPoolEntry[] constPool;
     private List<ConstantPoolEntry> constantPoolEntries = new ArrayList<>();
 
-    private Instruction[] instructions;
+    public Instruction[] instructions;
     private List<Instruction> instructionList = new ArrayList<>();
 
     private Map<String, PackageVarInfo> globalVarInfoMap = new LinkedHashMap<>();
