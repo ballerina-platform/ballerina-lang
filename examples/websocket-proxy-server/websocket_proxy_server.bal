@@ -136,7 +136,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
                         err = err);
     }
 
-    //This `resource` is triggered when a client connection is closed by the remote backend.
+    //This resource gets invoked when a client connection is closed by the remote backend.
     resource function onClose(http:WebSocketClient caller, int statusCode,
                                 string reason) {
 
