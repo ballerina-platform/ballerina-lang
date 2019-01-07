@@ -54,9 +54,6 @@ public class SQLDatasource implements BValue {
     private String connectorId;
     private boolean xaConn;
 
-    public SQLDatasource() {
-    }
-
     public boolean init(SQLDatasourceParams sqlDatasourceParams) {
         databaseName = sqlDatasourceParams.dbName;
         peerAddress = sqlDatasourceParams.jdbcUrl;
