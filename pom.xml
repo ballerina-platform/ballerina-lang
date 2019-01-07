@@ -915,11 +915,11 @@
                 <artifactId>ballerina-to-swagger</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>org.ballerinalang</groupId>-->
-                <!--<artifactId>ballerina-codegen</artifactId>-->
-                <!--<version>${ballerina.version}</version>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-codegen</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>protobuf-ballerina</artifactId>
@@ -1670,7 +1670,6 @@
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
-                <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
@@ -1686,6 +1685,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/http</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1754,7 +1754,6 @@
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
-                <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
@@ -1770,6 +1769,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/http</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1834,7 +1834,6 @@
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
-                <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
@@ -1850,6 +1849,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/http</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
