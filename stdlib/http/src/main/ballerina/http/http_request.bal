@@ -34,6 +34,7 @@ public type Request object {
     public string httpVersion = "";
     public string userAgent = "";
     public string extraPathInfo = "";
+    public string sslHandshake = "";
     public RequestCacheControl? cacheControl = ();
 
     private mime:Entity entity;
