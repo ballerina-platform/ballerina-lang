@@ -26,7 +26,7 @@ public function main() {
         // until worker `w2` receives the message.
         () send = i ->> w2;
 
-        // Synchronous send returns `nil` if the message is sent successfully or
+        // Synchronous send returns `nil` if the message was successfully sent or
         // returns an error or panics based on the receiving worker's state.
         io:println("[w1 ->> w2] successful!!");
 
