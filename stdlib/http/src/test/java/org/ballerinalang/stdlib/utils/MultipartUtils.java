@@ -63,9 +63,7 @@ import static org.ballerinalang.stdlib.mime.Util.getEntityStruct;
 import static org.ballerinalang.stdlib.mime.Util.getMediaTypeStruct;
 
 /**
- * Utility functions for interact with Ballerina mime Entity.
- *
- * @since 0.990.3
+ * Utility functions for multipart handling.
  */
 public class MultipartUtils {
 
