@@ -42,7 +42,7 @@ type Employee record {
         "DATABASE_PORT": "$env{DATABASE_PORT}",
         "DATABASE_NAME": "$env{DATABASE_NAME}",
         "DATABASE_USERNAME": "$env{DATABASE_USERNAME}",
-        "DATABASE_PASSWORD": "$env{DATABASE_PASSWORD}" }
+        "DATABASE_PASSWORD": "" }
 }
 listener http:Listener httpListener = new(9090);
 
