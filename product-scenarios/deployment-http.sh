@@ -16,7 +16,7 @@
 
 set -o xtrace
 
-HOME=`pwd`
+WORK_DIR=`pwd`
 
 function usage()
 {
@@ -63,7 +63,7 @@ while getopts "$optspec" optchar; do
     esac
 done
 
-echo "working Directory : ${HOME}"
+echo "working Directory : ${WORK_DIR}"
 echo "input directory : ${INPUT_DIR}"
 echo "output directory : ${OUTPUT_DIR}"
 
