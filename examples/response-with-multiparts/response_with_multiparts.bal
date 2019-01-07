@@ -110,7 +110,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getXml();
         if (payload is xml) {
             string strValue = io:sprintf("%s", payload);
-            log:printInfo("Xml data: " + strValue);
+             log:printInfo("XML data: " + strValue);
         } else {
             log:printError("Error in parsing xml data", err = payload);
         }
