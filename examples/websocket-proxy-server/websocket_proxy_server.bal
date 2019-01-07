@@ -120,7 +120,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
         }
     }
 
-    //This `resource` is triggered when an error occurs in the connection.
+    //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketClient caller, error err) {
 
         http:WebSocketCaller serverEp =
