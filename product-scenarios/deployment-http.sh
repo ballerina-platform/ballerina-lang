@@ -103,6 +103,9 @@ ballerina init
 
 ballerina build 3/
 
+whoami
+echo $HOME
+
 echo "current context"
 kubectl config current-context
 echo "all available contexts"
