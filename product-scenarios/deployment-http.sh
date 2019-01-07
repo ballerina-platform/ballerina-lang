@@ -90,16 +90,16 @@ do
 done < $INPUT_DIR/infrastructure.properties
 unset IFS
 
-ClusterName${CONFIG[ClusterName]};
+ClusterName=${CONFIG[ClusterName]};
 
 wget https://product-dist.ballerina.io/downloads/0.990.2/ballerina-linux-installer-x64-0.990.2.deb
 sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb
 
 ballerina version
 
-ballerina build scenarios/2/
+ballerina build ballerina-lang/product-scenarios/scenarios/2/
 
-kubectl apply -f scenarios/2/kubernetes/
+kubectl apply -f ballerina-lang/product-scenarios/scenarios/2/kubernetes/
 
 external_ip=kubectl get svc ballerina-circuit-breaker-service -o jsonpath='{.spec.externalIP}'
 
