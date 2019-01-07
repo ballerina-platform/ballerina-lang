@@ -22,25 +22,6 @@ module.exports = {
                 use: ['style-loader', 'css-loader']
             },
             {
-                exclude: /(themes).*\.less/,
-                test: /\.less$/,
-                use: [
-                    'style-loader',
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            sourceMap: true
-                        }
-                    },
-                    {
-                        loader: 'less-loader',
-                        options: {
-                            sourceMap: true
-                        }
-                    }
-                ]
-            },
-            {
                 test: /\.(png|jpg|svg|cur|gif|eot|svg|ttf|woff|woff2)$/,
                 use: ['url-loader'],
             },
