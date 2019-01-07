@@ -18,7 +18,7 @@ infrastructureConfig:
         description: Creates Kubernetes infrastructure for a database and ballerina installed instance.
         type: SHELL
         phase: CREATE
-        file: data-integration/dummy-provision-infratructure.sh
+        file: data-integration/provision-infrastructure.sh
       - name: destroy
         file: data-integration/destroy-cluster.sh
         type: SHELL
