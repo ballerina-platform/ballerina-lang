@@ -102,13 +102,13 @@ sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb
 
 ballerina version
 
-https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz
+wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz
 
 tar -xvzf mysql-connector-java-5.1.47.tar.gz --directory ./
 
-ballerina build scenarios/1/data-service.bal
+ballerina build ballerina-lang/product-scenarios/scenarios/1/data-service.bal
 
-kubectl apply -f scenarios/1/kubernetes/
+kubectl apply -f ballerina-lang/product-scenarios/scenarios/1/kubernetes/
 
 external_ip=kubectl get svc ballerina-data-service -o jsonpath='{.spec.externalIP}'
 
