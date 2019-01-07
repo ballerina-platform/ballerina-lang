@@ -14,14 +14,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.database.sql;
+package org.ballerinalang.stdlib.database.sql;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.stdlib.utils.SQLDBUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;

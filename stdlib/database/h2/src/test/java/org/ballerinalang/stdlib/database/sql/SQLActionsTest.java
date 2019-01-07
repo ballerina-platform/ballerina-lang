@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.database.sql;
+package org.ballerinalang.stdlib.database.sql;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -24,10 +24,10 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.utils.SQLDBUtils;
-import org.ballerinalang.utils.SQLDBUtils.DBType;
-import org.ballerinalang.utils.SQLDBUtils.FileBasedTestDatabase;
-import org.ballerinalang.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.stdlib.utils.SQLDBUtils;
+import org.ballerinalang.stdlib.utils.SQLDBUtils.DBType;
+import org.ballerinalang.stdlib.utils.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinalang.stdlib.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
