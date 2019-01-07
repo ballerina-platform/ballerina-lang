@@ -60,7 +60,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
         }
     }
 
-    //This `resource` is triggered when an error occurs in the connection.
+    //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketCaller caller, error err) {
 
         http:WebSocketClient clientEp =
