@@ -76,7 +76,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
                         err = err);
     }
 
-    //This `resource` is triggered when a client connection is closed from the client side.
+    //This resource gets invoked when a client connection is closed from the client side.
     resource function onClose(http:WebSocketCaller caller, int statusCode,
                                 string reason) {
 
