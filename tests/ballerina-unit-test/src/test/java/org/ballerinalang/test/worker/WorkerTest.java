@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -260,5 +261,13 @@ public class WorkerTest {
         BValue[] returns = BRunUtil.invoke(result, "waitOnSameFutureByMultiple");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
+    }
+
+    @Test
+    public void testComplexTypeSend() {
+        BValue[] returns = BRunUtil.invoke(result, "testComplexType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getType().getName(), "Rec");
+        Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
     }
 }

@@ -335,3 +335,28 @@ function invokeTestFunc(int c) {
     int b = 9;
     b -> w1;
 }
+
+public type Rec record {
+    int k = 0;
+};
+
+public function testComplexType() returns Rec {
+    worker w1 {
+      Rec rec = {};
+      rec.k = 10;
+      //int i = 40;
+      rec -> w2;
+      rec.k = 50;
+      5 -> w2;
+    }
+
+    worker w2 returns Rec {
+      int l = 25;
+      Rec j = {};
+      j = <- w1;
+      l = <- w1;
+      return j;
+    }
+
+    return wait w2;
+}
