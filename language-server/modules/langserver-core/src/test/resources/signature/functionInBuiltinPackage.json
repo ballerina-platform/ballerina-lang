@@ -8,11 +8,15 @@
       "signatures":[
         {
           "label":"parseHeader(string headerValue)",
-          "documentation":"Parses the given header value to extract its value and parameter map.",
+          "documentation":{
+            "left":"Parses the given header value to extract its value and parameter map."
+          },
           "parameters":[
             {
               "label":"headerValue",
-              "documentation":"The header value"
+              "documentation":{
+                "left":"The header value"
+              }
             }
           ]
         }

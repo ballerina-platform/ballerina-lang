@@ -48,12 +48,14 @@ import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.model.elements.PackageID;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -63,6 +65,7 @@ import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentOnTypeFormattingParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
@@ -71,9 +74,11 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
@@ -98,6 +103,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
@@ -140,8 +146,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
-    completion(TextDocumentPositionParams position) {
+    public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
         final List<CompletionItem> completions = new ArrayList<>();
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
@@ -345,13 +350,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
+    public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>>
+    documentSymbol(DocumentSymbolParams params) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = params.getTextDocument().getUri();
             Path docSymbolFilePath = new LSDocument(fileUri).getPath();
             Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
-            List<SymbolInformation> symbols = new ArrayList<>();
+            List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
             try {
                 LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
                 symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
@@ -383,9 +389,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
+    public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            List<Command> commands = new ArrayList<>();
+            List<Either<Command, CodeAction>> commands = new ArrayList<>();
             TextDocumentIdentifier identifier = params.getTextDocument();
             String fileUri = identifier.getUri();
             try {
@@ -559,9 +565,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     ReferenceUtil.findReferences(renameContext, bLangPackage);
                 }
 
-                workspaceEdit.setDocumentChanges(RenameUtil.getRenameTextEdits(contents, documentManager,
-                                                                             params.getNewName(),
-                                                                             replaceableSymbolName));
+                List<Either<TextDocumentEdit, ResourceOperation>> docChanges = RenameUtil.getRenameTextEdits(contents,
+                        documentManager, params.getNewName(), replaceableSymbolName)
+                        .stream()
+                        .map(Either::<TextDocumentEdit, ResourceOperation>forLeft)
+                        .collect(Collectors.toList());
+                workspaceEdit.setDocumentChanges(docChanges);
+
                 return workspaceEdit;
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {

@@ -8,11 +8,15 @@
       "signatures":[
         {
           "label":"get(string path)",
-          "documentation":"The `get()` function can be used to send HTTP GET requests to HTTP endpoints.",
+          "documentation":{
+            "left":"The `get()` function can be used to send HTTP GET requests to HTTP endpoints."
+          },
           "parameters":[
             {
               "label":"path",
-              "documentation":"Request path"
+              "documentation":{
+                "left":"Request path"
+              }
             }
           ]
         }

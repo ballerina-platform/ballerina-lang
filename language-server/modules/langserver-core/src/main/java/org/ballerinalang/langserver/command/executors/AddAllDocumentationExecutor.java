@@ -35,6 +35,8 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -109,8 +111,8 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         }
 
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
-        return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
-                                              context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+        LanguageClient languageClient = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), languageClient);
     }
 
     /**
