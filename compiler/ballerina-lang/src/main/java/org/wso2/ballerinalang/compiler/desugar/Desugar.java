@@ -208,7 +208,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
@@ -2466,7 +2465,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        List<BLangExpression> list = Arrays.asList(rewriteExpr(workerSendNode.expr));
+        List<BLangExpression> list = Lists.of(rewriteExpr(workerSendNode.expr));
         workerSendNode.expr = appendCloneMethod(workerSendNode.expr.pos, list);
         if (workerSendNode.keyExpr != null) {
             workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
@@ -2476,7 +2475,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        List<BLangExpression> list = Arrays.asList(rewriteExpr(syncSendExpr.expr));
+        List<BLangExpression> list = Lists.of(rewriteExpr(syncSendExpr.expr));
         syncSendExpr.expr = appendCloneMethod(syncSendExpr.expr.pos, list);
         result = syncSendExpr;
     }
