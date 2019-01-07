@@ -5,7 +5,7 @@ function testAnonObjectAsFuncParam() returns (int) {
 
 function testAnonObjectFunc(int i, object {
                                         public int k = 10; 
-                                        public string s; 
+                                        public string s = "";
                                         
                                         function __init (int k, string s) {
                                             self.k = k;
@@ -17,7 +17,7 @@ function testAnonObjectFunc(int i, object {
 
 
 function testAnonObjectAsLocalVar() returns (int) {
-    object {public int k = 11; public string s;} anonSt = new;
+    object {public int k = 11; public string s = "";} anonSt = new;
 
     return anonSt.k;
 }
@@ -46,11 +46,11 @@ type employee object {
     public string lname;
     public int age;
     public object {
-        public string line01;
-        public string line02;
-        public string city;
-        public string state;
-        public string zipcode;
+        public string line01 = "";
+        public string line02 = "";
+        public string city = "";
+        public string state = "";
+        public string zipcode = "";
         public function __init (string line01, string city, string state, string zipcode) {
                                 self.line01 = line01;
                                 self.city = city;
@@ -67,11 +67,11 @@ type employee object {
 
     function __init (string fname, string lname, int age, 
                         object {
-                            public string line01;
-                            public string line02;
-                            public string city;
-                            public string state;
-                            public string zipcode;
+                            public string line01 = "";
+                            public string line02 = "";
+                            public string city = "";
+                            public string state= "";
+                            public string zipcode = "";
                             public function __init (string line01, string city, string state, string zipcode) {
                                 self.line01 = line01;
                                 self.city = city;
@@ -100,14 +100,14 @@ function testAnonObjectAsObjectField() returns (string) {
     return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
 }
 
-object { public int age; public string name; function __init (int age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p = new (5, "hello");
+object { public int age = 0; public string name = ""; function __init (int age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p = new (5, "hello");
 
 function testAnonObjectWithFunctionAsGlobalVar () returns string {
     return p.getName();
 }
 
 function testAnonObjectWithFunctionAsLocalVar () returns string {
-    object { public int age; public string name; function __init (int age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p1 = new (5, "hello");
+    object { public int age = 0; public string name = ""; function __init (int age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p1 = new (5, "hello");
     return p1.getName();
 }
 
@@ -137,10 +137,10 @@ function Person.getKind() returns string {
 
 function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string, string) {
     object { 
-        public int age; 
-        public string name; 
-        public int length; 
-        public string kind;
+        public int age = 0;
+        public string name = "";
+        public int length = 0;
+        public string kind = "";
         public function __init (int age, string name, string value) {
             self.name = name;
             self.age = age;
