@@ -1,12 +1,12 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-lang')
-    compile project(':ballerina-core')
-    compile project(':ballerina-config')
-    compile project(':lib-creator')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-system')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-config')
+    implementation project(':lib-creator')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-system')
 }
 
 description = 'Ballerina - Config API'

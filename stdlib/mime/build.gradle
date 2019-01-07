@@ -1,15 +1,15 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
-    compile project(':ballerina-io')
-    compile 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
-    compile 'org.jvnet.mimepull:mimepull:1.9.7'
-    compile project(':lib-creator')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-file')
-    compile project(':ballerina-io')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-io')
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
+    implementation 'org.jvnet.mimepull:mimepull:1.9.7'
+    implementation project(':lib-creator')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-file')
+    implementation project(':ballerina-io')
 }
 
 description = 'Ballerina - MIME Implementation'

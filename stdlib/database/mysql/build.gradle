@@ -1,11 +1,11 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
-    compile project(':ballerina-sql')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-sql')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-sql')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-sql')
 }
 
 description = 'Ballerina - mysql'

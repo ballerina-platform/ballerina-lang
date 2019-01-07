@@ -1,14 +1,14 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile 'io.swagger:swagger-core:1.5.18'
-    compile project(':ballerina-core')
-    compile project(':language-server:language-server-compiler')
-    compile project(':ballerina-lang')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-launcher')
-    compile 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.0-rc3'
-    compile project(':stdlib:ballerina-builtin')
+    implementation 'io.swagger:swagger-core:1.5.18'
+    implementation project(':ballerina-core')
+    implementation project(':language-server:language-server-compiler')
+    implementation project(':ballerina-lang')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-launcher')
+    implementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.0-rc3'
+    implementation project(':stdlib:ballerina-builtin')
     testCompile 'org.testng:testng:6.13.1'
 }
 

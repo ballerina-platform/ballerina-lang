@@ -1,7 +1,7 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
 }
 
 checkstyleMain {

@@ -1,11 +1,11 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':lib-creator')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-system')
-    compile project(':ballerina-task')
-    compile project(':ballerina-time')
+    implementation project(':lib-creator')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-system')
+    implementation project(':ballerina-task')
+    implementation project(':ballerina-time')
 }
 
 description = 'Ballerina - Cache'

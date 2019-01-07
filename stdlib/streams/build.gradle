@@ -1,16 +1,16 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-time')
-    compile project(':ballerina-task')
-    compile project(':ballerina-io')
-    compile project(':ballerina-reflect')
-    compile project(':ballerina-math')
-    compile project(':ballerina-crypto')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-task')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-reflect')
+    implementation project(':ballerina-math')
+    implementation project(':ballerina-crypto')
 }
 
 description = 'Ballerina - Streams'

@@ -1,8 +1,9 @@
 dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.22'
-    compile project(':lib-creator')
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
+    implementation 'org.slf4j:slf4j-api:1.7.22'
+    implementation project(':lib-creator')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-streaming:siddhi-core')
 }
 
 description = 'Ballerina - Built-in Implementation'

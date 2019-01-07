@@ -1,11 +1,11 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-lang')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':ballerina-llvm')
-    compile project(':ballerina-io')
-    compile project(':ballerina-internal')
+    implementation project(':ballerina-lang')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-llvm')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-internal')
 }
 
 description = 'Ballerina - BIR Model'

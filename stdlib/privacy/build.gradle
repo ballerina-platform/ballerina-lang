@@ -1,9 +1,9 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-h2')
-    compile project(':ballerina-mysql')
-    compile project(':ballerina-system')
+    implementation project(':ballerina-h2')
+    implementation project(':ballerina-mysql')
+    implementation project(':ballerina-system')
 }
 
 description = 'Ballerina - Privacy'

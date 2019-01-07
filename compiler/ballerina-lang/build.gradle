@@ -1,10 +1,10 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     implementation 'org.apache.commons:commons-lang3:3.5'
-    compile project(':toml-parser')
-    compile 'io.netty:netty-buffer:4.1.19.Final'
+    implementation project(':toml-parser')
+    implementation 'io.netty:netty-buffer:4.1.19.Final'
     testCompile 'org.testng:testng:6.13.1'
 }
 

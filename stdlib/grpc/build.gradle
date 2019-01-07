@@ -1,16 +1,17 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.22'
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
-    compile project(':ballerina-logging')
-    compile 'com.google.protobuf:protobuf-java:3.5.1'
-    compile 'com.github.jknack:handlebars:4.0.6'
-    compile 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
-    compile project(':ballerina-http')
-    compile project(':lib-creator')
-    compile project(':stdlib:ballerina-builtin')
+    implementation 'org.slf4j:slf4j-api:1.7.22'
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-logging')
+    implementation project(':ballerina-config')
+    implementation 'com.google.protobuf:protobuf-java:3.5.1'
+    implementation 'com.github.jknack:handlebars:4.0.6'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
+    implementation project(':ballerina-http')
+    implementation project(':lib-creator')
+    implementation project(':stdlib:ballerina-builtin')
     testCompile 'org.testng:testng:6.13.1'
 }
 

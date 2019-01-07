@@ -1,12 +1,12 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-lang')
-    compile project(':ballerina-backend-llvm')
-    compile project(':ballerina-core')
-    compile project(':ballerina-launcher')
-    compile project(':testerina:testerina-core')
-    compile 'info.picocli:picocli:3.3.0'
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-backend-llvm')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-launcher')
+    implementation project(':testerina:testerina-core')
+    implementation 'info.picocli:picocli:3.3.0'
 }
 
 description = 'Ballerina - Packerina'

@@ -1,7 +1,7 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':language-server:language-server-core')
+    implementation project(':language-server:language-server-core')
 }
 
 description = 'Ballerina - Language server - Stdio launcher'

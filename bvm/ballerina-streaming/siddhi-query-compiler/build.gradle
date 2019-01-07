@@ -5,10 +5,10 @@ plugins {
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-streaming:siddhi-query-api')
-    compile 'org.slf4j:slf4j-simple:1.7.22'
-    compile 'org.mvel:mvel2:2.2.1.Final'
-    compile 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    implementation project(':ballerina-streaming:siddhi-query-api')
+    implementation 'org.slf4j:slf4j-simple:1.7.22'
+    implementation 'org.mvel:mvel2:2.2.1.Final'
+    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     testCompile 'org.testng:testng:6.13.1'
     antlr "org.antlr:antlr4:4.5.1" 
 }

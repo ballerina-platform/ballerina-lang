@@ -1,15 +1,15 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-streaming:siddhi-query-api')
-    compile project(':ballerina-streaming:siddhi-query-compiler')
-    compile project(':ballerina-streaming:siddhi-annotations')
-    compile 'org.slf4j:slf4j-simple:1.7.22'
-    compile 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
-    compile 'org.quartz-scheduler:quartz:2.3.0'
-    compile 'io.dropwizard.metrics:metrics-core:3.1.0'
-    compile 'com.google.code.gson:gson:2.7'
-    compile 'com.google.guava:guava:19.0'
+    implementation project(':ballerina-streaming:siddhi-query-api')
+    implementation project(':ballerina-streaming:siddhi-query-compiler')
+    implementation project(':ballerina-streaming:siddhi-annotations')
+    implementation 'org.slf4j:slf4j-simple:1.7.22'
+    implementation 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
+    implementation 'org.quartz-scheduler:quartz:2.3.0'
+    implementation 'io.dropwizard.metrics:metrics-core:3.1.0'
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'com.google.guava:guava:19.0'
     testCompile 'org.testng:testng:6.13.1'
     testCompile 'org.awaitility:awaitility:3.0.0'
 }

@@ -1,11 +1,11 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
-    compile project(':ballerina-lang')
-    compile project(':ballerina-core')
-    compile project(':lib-creator')
-    compile project(':stdlib:ballerina-builtin')
+    implementation 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-core')
+    implementation project(':lib-creator')
+    implementation project(':stdlib:ballerina-builtin')
 }
 
 description = 'Ballerina - LLVM Binding'

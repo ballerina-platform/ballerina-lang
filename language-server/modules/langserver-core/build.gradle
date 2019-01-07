@@ -1,27 +1,27 @@
 apply from: "$rootDir/gradle/java.gradle"
 
 dependencies {
-    compile project(':ballerina-launcher')
-    compile 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.3.0'
-    compile 'com.h2database:h2:1.4.197'
-    compile 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
-    compile project(':ballerina-core')
-    compile project(':ballerina-lang')
-    compile project(':stdlib:ballerina-builtin')
-    compile project(':language-server:language-server-compiler')
-    compile 'commons-io:commons-io:2.6'
-    compile project(':ballerina-http')
-    compile project(':ballerina-swagger')
-    compile project(':ballerina-h2')
-    compile project(':ballerina-mysql')
-    compile project(':ballerina-sql')
-    compile project(':ballerina-transactions')
-    compile project(':ballerina-websub')
-    compile project(':ballerina-jms')
-    compile project(':ballerina-grpc')
-    compile project(':testerina:testerina-core')
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.1'
+    implementation project(':ballerina-launcher')
+    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.3.0'
+    implementation 'com.h2database:h2:1.4.197'
+    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':language-server:language-server-compiler')
+    implementation 'commons-io:commons-io:2.6'
+    implementation project(':ballerina-http')
+    implementation project(':ballerina-swagger')
+    implementation project(':ballerina-h2')
+    implementation project(':ballerina-mysql')
+    implementation project(':ballerina-sql')
+    implementation project(':ballerina-transactions')
+    implementation project(':ballerina-websub')
+    implementation project(':ballerina-jms')
+    implementation project(':ballerina-grpc')
+    implementation project(':testerina:testerina-core')
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.1'
     testCompile 'org.testng:testng:6.13.1'
 }
 
