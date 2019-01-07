@@ -22,11 +22,6 @@ under the License.
 <suite name="ballerina-test-suite">
 
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
         <packages>
             <package name="org.ballerinalang.stdlib.system.*"/>
         </packages>
