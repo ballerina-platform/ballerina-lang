@@ -118,7 +118,7 @@ function handleContent(mime:Entity bodyPart) {
         // Extracts `json` data from the body part.
         var payload = bodyPart.getJson();
         if (payload is json) {
-            log:printInfo("Json data: " + payload.toString());
+            log:printInfo("JSON data: " + payload.toString());
         } else {
              log:printError("Error in parsing JSON data", err = payload);
         }
