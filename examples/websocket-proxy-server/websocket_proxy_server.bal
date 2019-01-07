@@ -47,7 +47,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
         }
     }
 
-    //This `resource` is triggered when a new binary frame is received from a client.
+    //This resource gets invoked upon receiving a new binary frame from a client.
     resource function onBinary(http:WebSocketCaller caller, byte[] data,
                                 boolean finalFrame) {
 
