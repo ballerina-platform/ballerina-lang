@@ -88,7 +88,7 @@ function onAbortFunction(string transactionId) {
     io:println("Transaction: " + transactionId + " aborted");
 }
 
-// Function to handle return values of the `update` remote function.
+// Function to handle return values of the `update()` remote function.
 function handleUpdate(int|error returned, string message) {
     if (returned is int) {
         io:println(message + " status: " + returned);
