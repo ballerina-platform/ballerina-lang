@@ -208,6 +208,22 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
 
+    @Test(description = "Testing nested IfCondition.")
+    public void testNestedIf() {
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test_nested_if.bal", 2);
+        String file = "test_nested_if.bal";
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 2, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 4, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 5, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 13, RESUME, 1));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 4, 0, new ArrayList<>(), false);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test_nested_if.bal", breakPoints, expRes);
+    }
+
     @Test(description = "Testing Step over in WhileStmt.")
     public void testStepOverWhileStmt() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".", FILE, 13, 14, 20, 22);
