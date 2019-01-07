@@ -4495,11 +4495,9 @@ public class BVM {
             transactionLocalContext.notifyLocalRemoteParticipantFailure();
         } else if (transactionParticipant == StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT) {
             transactionLocalContext.notifyLocalParticipantFailure();
-        } else {
-            if (strand.aborted) {
-                String blockID = transactionLocalContext.getCurrentTransactionBlockId();
-                notifyTransactionAbort(strand, blockID, transactionLocalContext);
-            }
+        } else if (strand.aborted) {
+            String blockID = transactionLocalContext.getCurrentTransactionBlockId();
+            notifyTransactionAbort(strand, blockID, transactionLocalContext);
         }
     }
 
