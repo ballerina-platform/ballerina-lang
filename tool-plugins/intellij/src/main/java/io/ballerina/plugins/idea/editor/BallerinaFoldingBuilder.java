@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -223,6 +223,36 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         }
     }
 
+    private void buildMultiCommentFoldingRegions(@NotNull List<FoldingDescriptor> descriptors,
+            @NotNull PsiElement root) {
+
+        Collection<PsiComment> comments = PsiTreeUtil.findChildrenOfType(root, PsiComment.class);
+
+        for (PsiComment comment : comments) {
+            PsiElement prevSibling = getPreviousElement(comment);
+            // Prevents adding sub folding regions inside the comment blocks.
+            if (prevSibling instanceof PsiComment) {
+                continue;
+            }
+            PsiElement lastElement = getNextElement(comment);
+            // Prevents folding single line comments.
+            if (lastElement == null || !(lastElement instanceof PsiComment)) {
+                continue;
+            }
+            PsiElement nextSibling = getNextElement(lastElement);
+            while (nextSibling != null && nextSibling instanceof PsiComment) {
+                lastElement = nextSibling;
+                nextSibling = getNextElement(lastElement);
+            }
+            // Calculates the region of the multiline comment.
+            int startOffset = comment.getTextRange().getStartOffset();
+            int endOffset = lastElement.getTextRange().getEndOffset();
+
+            // Add the new folding descriptor.
+            descriptors.add(new NamedFoldingDescriptor(comment, startOffset, endOffset, null, "// ..."));
+        }
+    }
+
     private void addFoldingDescriptor(@NotNull List<FoldingDescriptor> descriptors, PsiElement node,
             PsiElement bodyNode, boolean includePrevious) {
 
@@ -242,33 +272,6 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             int endOffset = node.getTextRange().getEndOffset();
             // Add the new folding descriptor.
             descriptors.add(new NamedFoldingDescriptor(node, startOffset, endOffset, null, "{...}"));
-        }
-    }
-
-    private void buildMultiCommentFoldingRegions(@NotNull List<FoldingDescriptor> descriptors,
-            @NotNull PsiElement root) {
-
-        Collection<PsiComment> comments = PsiTreeUtil.findChildrenOfType(root, PsiComment.class);
-
-        for (PsiComment comment : comments) {
-            PsiElement prevSibling = getPreviousElement(comment);
-            if (!(prevSibling instanceof PsiComment)) {
-                PsiElement lastElement = getNextElement(comment);
-                // Prevents folding single line comments.
-                if (lastElement != null && lastElement instanceof PsiComment) {
-                    PsiElement nextSibling = getNextElement(lastElement);
-                    while (nextSibling != null && nextSibling instanceof PsiComment) {
-                        lastElement = nextSibling;
-                        nextSibling = getNextElement(lastElement);
-                    }
-                    // Calculates the region of the multiline comment.
-                    int startOffset = comment.getTextRange().getStartOffset();
-                    int endOffset = lastElement.getTextRange().getEndOffset();
-
-                    // Add the new folding descriptor.
-                    descriptors.add(new NamedFoldingDescriptor(comment, startOffset, endOffset, null, "// ..."));
-                }
-            }
         }
     }
 
