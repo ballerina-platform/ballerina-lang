@@ -33,7 +33,7 @@ type Employee record {
 }
 
 @kubernetes:Deployment {
-    image: "ballerina.scenariotests/employee_database_service:v1.0",
+    image: "ballerinascenarios/employee_database_service:v1.0",
     baseImage: "ballerina/ballerina:0.990.2",
     name: "ballerina-employee-database-service",
     copyFiles: [{ target: "/ballerina/runtime/bre/lib",
@@ -42,7 +42,10 @@ type Employee record {
         "DATABASE_PORT": "__DATABASE_PORT__",
         "DATABASE_NAME": "__DATABASE_NAME__",
         "DATABASE_USERNAME": "__DATABASE_USERNAME__",
-        "DATABASE_PASSWORD": "__DATABASE_PASSWORD__" }
+        "DATABASE_PASSWORD": "__DATABASE_PASSWORD__" },
+    username:"ballerinascenarios",
+    password:"ballerina75389",
+    push:true
 }
 listener http:Listener httpListener = new(9090);
 
