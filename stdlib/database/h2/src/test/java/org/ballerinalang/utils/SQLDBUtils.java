@@ -39,7 +39,7 @@ import java.sql.Statement;
 /**
  * Util class for SQL DB Tests.
  *
- * @since 0.8.0
+ * @since 0.990.3
  */
 public class SQLDBUtils {
 
@@ -52,8 +52,8 @@ public class SQLDBUtils {
      * Create H2 DB with the given name and initialize with given SQL file.
      *
      * @param dbDirectory Name of the DB directory.
-     * @param dbName  Name of the DB instance.
-     * @param sqlFile SQL statements for initialization.
+     * @param dbName      Name of the DB instance.
+     * @param sqlFile     SQL statements for initialization.
      */
     public static void initH2Database(String dbDirectory, String dbName, String sqlFile) {
         String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
@@ -63,14 +63,14 @@ public class SQLDBUtils {
     /**
      * Create a DB and initialize with given SQL file.
      *
-     * @param jdbcURL JDBC URL
-     * @param username  Username for the DB
+     * @param jdbcURL  JDBC URL
+     * @param username Username for the DB
      * @param password Password to connect to the DB
-     * @param sqlFile SQL statements for initialization.
+     * @param sqlFile  SQL statements for initialization.
      */
     public static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
         try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
-                Statement st = connection.createStatement()) {
+             Statement st = connection.createStatement()) {
             String sql = readFileToString(sqlFile);
             String[] sqlQuery = sql.trim().split("/");
             for (String query : sqlQuery) {
@@ -90,29 +90,32 @@ public class SQLDBUtils {
      * @param directory Directory to delete.
      */
     public static boolean deleteDirectory(File directory) {
-        if (directory.isDirectory()) {
-            for (File f : directory.listFiles()) {
-                boolean success = deleteDirectory(f);
-                if (!success) {
-                    return false;
-                }
+        if (!directory.isDirectory()) {
+            return directory.delete();
+        }
+        for (File f : directory.listFiles()) {
+            boolean success = deleteDirectory(f);
+            if (!success) {
+                return false;
             }
         }
-        return directory.delete();
+        return true;
     }
 
     /**
      * Delete all the files and sub directories which matches given prefix in a given directory.
      *
      * @param directory Directory which contains files to delete.
-     * @param affix    Affix for finding the matching files to delete.
+     * @param affix     Affix for finding the matching files to delete.
      */
     public static void deleteFiles(File directory, String affix) {
-        if (directory.isDirectory()) {
-            for (File f : directory.listFiles()) {
-                if (f.getName().startsWith(affix) || f.getName().endsWith(affix)) {
-                    deleteDirectory(f);
-                }
+        if (!directory.isDirectory()) {
+            return;
+        }
+
+        for (File f : directory.listFiles()) {
+            if (f.getName().startsWith(affix) || f.getName().endsWith(affix)) {
+                deleteDirectory(f);
             }
         }
     }
@@ -141,6 +144,7 @@ public class SQLDBUtils {
      * This class represents a database used for testing data clients.
      */
     public abstract static class TestDatabase {
+
         String jdbcUrl;
         String username;
         String password;
@@ -164,6 +168,7 @@ public class SQLDBUtils {
      * This class represents a container based database used for testing data clients.
      */
     public static class ContainerizedTestDatabase extends TestDatabase {
+
         private JdbcDatabaseContainer databaseContainer;
 
         public ContainerizedTestDatabase(DBType dbType, String databaseScript) {
@@ -173,15 +178,15 @@ public class SQLDBUtils {
 
         public ContainerizedTestDatabase(DBType dbType) {
             switch (dbType) {
-            case MYSQL:
-                databaseContainer = new MySQLContainer();
-                break;
-            case POSTGRES:
-                databaseContainer = new PostgreSQLContainer();
-                break;
-            default:
-                throw new UnsupportedOperationException(
-                        "Creating a containerized database is not supported for: " + dbType);
+                case MYSQL:
+                    databaseContainer = new MySQLContainer();
+                    break;
+                case POSTGRES:
+                    databaseContainer = new PostgreSQLContainer();
+                    break;
+                default:
+                    throw new UnsupportedOperationException(
+                            "Creating a containerized database is not supported for: " + dbType);
             }
             databaseContainer.start();
             jdbcUrl = databaseContainer.getJdbcUrl();
@@ -198,6 +203,7 @@ public class SQLDBUtils {
      * This class represents a file based database used for testing data clients.
      */
     public static class FileBasedTestDatabase extends TestDatabase {
+
         private String dbDirectory;
 
         public FileBasedTestDatabase(DBType dbType, String databaseScript, String dbDirectory, String dbName) {
@@ -208,19 +214,19 @@ public class SQLDBUtils {
         public FileBasedTestDatabase(DBType dbType, String dbDirectory, String dbName) {
             this.dbDirectory = dbDirectory;
             switch (dbType) {
-            case H2:
-                SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
-                jdbcUrl = "jdbc:h2:file:" + dbDirectory + dbName;
-                username = "sa";
-                break;
-            case HSQLDB:
-                SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
-                jdbcUrl = "jdbc:hsqldb:file:" + dbDirectory + dbName;
-                username = "SA";
-                break;
-            default:
-                throw new UnsupportedOperationException(
-                        "Creating a file based database is not supported for: " + dbType);
+                case H2:
+                    SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
+                    jdbcUrl = "jdbc:h2:file:" + dbDirectory + dbName;
+                    username = "sa";
+                    break;
+                case HSQLDB:
+                    SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
+                    jdbcUrl = "jdbc:hsqldb:file:" + dbDirectory + dbName;
+                    username = "SA";
+                    break;
+                default:
+                    throw new UnsupportedOperationException(
+                            "Creating a file based database is not supported for: " + dbType);
             }
             password = "";
         }
