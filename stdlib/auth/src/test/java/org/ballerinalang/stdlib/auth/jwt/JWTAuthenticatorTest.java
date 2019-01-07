@@ -16,13 +16,14 @@
  * under the License.
  */
 
-package org.ballerinalang.test.auth.jwt;
+package org.ballerinalang.stdlib.auth.jwt;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
@@ -34,6 +35,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -48,9 +50,9 @@ import java.util.Map;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
- * Test Http JWT authentication handler.
+ * Test JWT authenticator.
  */
-public class JWTAuthenHandlerTest {
+public class JWTAuthenticatorTest {
 
     /**
      * #JWT Authenticator configurations.
@@ -94,23 +96,20 @@ public class JWTAuthenHandlerTest {
     @BeforeClass
     public void setup() throws Exception {
         trustStorePath = getClass().getClassLoader().getResource(
-                "datafiles/security/keyStore/ballerinaTruststore.p12").getPath();
+                "datafiles/keystore/ballerinaTruststore.p12").getPath();
         resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
                 .getAbsolutePath();
-        Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        Path ballerinaConfPath = Paths
-                .get(resourceRoot, "datafiles", "config", "auth", "jwt", BALLERINA_CONF);
-        Path ballerinaKeyStorePath = Paths
-                .get(resourceRoot, "datafiles", "security", "keyStore", KEY_STORE);
+        Path sourceRoot = Paths.get(resourceRoot, "test-src");
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "jwt", BALLERINA_CONF);
+        Path ballerinaKeyStorePath = Paths.get(resourceRoot, "datafiles", "keystore", KEY_STORE);
         ballerinaKeyStoreCopyPath = sourceRoot.resolve(KEY_STORE);
-        Path ballerinaTrustStorePath = Paths
-                .get(resourceRoot, "datafiles", "security", "keyStore", TRUST_SORE);
+        Path ballerinaTrustStorePath = Paths.get(resourceRoot, "datafiles", "keystore", TRUST_SORE);
         ballerinaTrustStoreCopyPath = sourceRoot.resolve(TRUST_SORE);
         // Copy test resources to source root before starting the tests
         Files.copy(ballerinaKeyStorePath, ballerinaKeyStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
         Files.copy(ballerinaTrustStorePath, ballerinaTrustStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
 
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-authn-handler-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-authenticator-test.bal").toString());
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), ballerinaConfPath.toString(), null);
@@ -118,42 +117,28 @@ public class JWTAuthenHandlerTest {
         jwtToken = generateJWT();
     }
 
-    @Test(description = "Test case for JWT auth interceptor canHandle method, without the bearer header")
-    public void testCanHandleHttpJwtAuthWithoutHeader() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpJwtAuthWithoutHeader");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    @Test(description = "Test case for creating JWT authenticator with a cache")
+    public void testCreateJwtAuthenticatorWithCache() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJwtAuthenticatorCreationWithCache");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
 
-    @Test(description = "Test case for JWT auth interceptor canHandle method")
-    public void testCanHandleHttpJwtAuth() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpJwtAuth");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for JWT auth interceptor authentication failure")
-    public void testHandleHttpJwtAuthFailure() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuthFailure");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for JWT auth interceptor authentication success")
-    public void testHandleHttpJwtAuth() {
+    @Test(description = "Test case for JWT authenticator for authentication success")
+    public void testAuthenticationSuccess() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuth", inputBValues);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSuccess", inputBValues);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @AfterClass
-    public void tearDown() throws Exception {
+    public void tearDown() throws IOException {
         Files.deleteIfExists(ballerinaKeyStoreCopyPath);
         Files.deleteIfExists(ballerinaTrustStoreCopyPath);
     }
 
-    String generateJWT() throws Exception {
+    private String generateJWT() throws Exception {
         String header = buildHeader();
         String jwtHeader = new String(Base64.getUrlEncoder().encode(header.getBytes()));
         String body = buildBody();
@@ -169,22 +154,22 @@ public class JWTAuthenHandlerTest {
     private PrivateKey getPrivateKey() throws Exception {
         KeyStore keyStore;
         InputStream file = new FileInputStream(new File(getClass().getClassLoader().getResource(
-                "datafiles/security/keyStore/ballerinaKeystore.p12").getPath()));
-        keyStore = java.security.KeyStore.getInstance("pkcs12");
+                "datafiles/keystore/ballerinaKeystore.p12").getPath()));
+        keyStore = KeyStore.getInstance("pkcs12");
         keyStore.load(file, "ballerina".toCharArray());
         KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ballerina", new KeyStore
                 .PasswordProtection("ballerina".toCharArray()));
         return pkEntry.getPrivateKey();
     }
 
-    String buildHeader() {
+    private String buildHeader() {
         return "{\n" +
                 "  \"alg\": \"RS256\",\n" +
                 "  \"typ\": \"JWT\"\n" +
                 "}";
     }
 
-    String buildBody() {
+    private String buildBody() {
         long time = System.currentTimeMillis() + 10000000;
         return "{\n" +
                 "  \"sub\": \"John\",\n" +
@@ -199,7 +184,7 @@ public class JWTAuthenHandlerTest {
     private Map<String, String> getRuntimeProperties() {
         Map<String, String> runtimeConfigs = new HashMap<>();
         runtimeConfigs.put(BALLERINA_CONF,
-                Paths.get(resourceRoot, "datafiles", "config", "auth", "jwt", BALLERINA_CONF).toString());
+                Paths.get(resourceRoot, "datafiles", "config", "jwt", BALLERINA_CONF).toString());
         return runtimeConfigs;
     }
 

@@ -1,5 +1,4 @@
 import ballerina/auth;
-import ballerina/http;
 
 function testCreateConfigAuthProvider() returns (auth:ConfigAuthStoreProvider) {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
