@@ -6,10 +6,11 @@ infrastructureConfig:
   containerOrchestrationEngine: K8S
   includes:
     - Ubuntu-18.04
+    - MySQL-5.7
     - OracleJDK-8
   provisioners:
   - name: ballerina-deployment
-    remoteRepository: "git@github.com:vijithaekanayake/aws-ballerina.git"
+    remoteRepository: "git@github.com:VijithaEkanayake/aws-ballerina.git"
     remoteBranch: "master"
     description: creates infrastructure for ballerina scenario tests
     scripts:
