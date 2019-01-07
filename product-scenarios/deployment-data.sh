@@ -95,7 +95,7 @@ export DATABASE_PORT=${CONFIG[DatabasePort]}
 export DATABASE_NAME=${CONFIG[DatabaseName]}
 export DATABASE_USERNAME=${CONFIG[DBUsername]}
 export DATABASE_PASSWORD=${CONFIG[DBPassword]}
-ClusterName${CONFIG[ClusterName]};
+ClusterName=${CONFIG[ClusterName]};
 
 wget https://product-dist.ballerina.io/downloads/0.990.2/ballerina-linux-installer-x64-0.990.2.deb
 sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb
