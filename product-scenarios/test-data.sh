@@ -87,12 +87,14 @@ unset IFS
 
 cat $INPUT_DIR/deployment.properties
 
-curl http://$EXTERNAL-IP/hello/sayHello -v
+curl http://$EXTERNAL_IP/hello/sayHello -v
+
+curl http://$EXTERNAL_IP/hello/select -v
 
 #=============== Copy Surefire Reports ===========================================
 # SUREFIRE REPORTS MUST NEED TO BE COPIED TO OUTPUT_DIR.
 # You need to preserve the folder structure in order to identify executed scenarios.
-echo "Copying surefire-reports to ${OUTPUT_DIR}"
+#echo "Copying surefire-reports to ${OUTPUT_DIR}"
 
-mkdir -p ${OUTPUT_DIR}
-find ./* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR} \;
+#mkdir -p ${OUTPUT_DIR}
+#find ./* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR} \;
