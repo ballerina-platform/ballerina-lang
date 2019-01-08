@@ -95,3 +95,15 @@ task zip(type: Zip) {
 build {
     dependsOn zip
 }
+
+// This section makes sure that checkstyle/spotbug runs when dist is build.
+project.afterEvaluate {
+    configurations.dist.dependencies
+        .findAll { it instanceof ProjectDependency }
+        .each {
+            it.dependencyProject.afterEvaluate {
+                def dependencyCheck = it.tasks.find { it.name == 'check' }
+                check.dependsOn dependencyCheck
+            }
+        }
+}
