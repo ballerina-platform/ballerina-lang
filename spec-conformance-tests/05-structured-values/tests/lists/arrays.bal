@@ -150,18 +150,3 @@ function testArrayInherentTypeViolation() {
 function insertElementToArray(any[] array, int index, any element) {
     array[index] = element;
 }
-
-# Util method expected to be used with the result of a trapped expression. 
-# Validates that `result` is of type `error` and that the error has the reason specified as `expectedReason`,
-# and fails with the `invalidReasonFailureMessage` string if the reasons mismatch.
-# 
-# + result - the result of the trapped expression
-# + expectedReason - the reason the error is expected to have
-# + invalidReasonFailureMessage - the failure message on reason mismatch
-function assertErrorReason(any|error result, string expectedReason, string invalidReasonFailureMessage) {
-    if (result is error) {
-        test:assertEquals(result.reason(), expectedReason, msg = invalidReasonFailureMessage);
-    } else {
-        test:assertFail(msg = "expected expression to panic");
-    }
-}
