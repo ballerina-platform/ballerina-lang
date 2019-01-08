@@ -180,6 +180,7 @@ public final class Constants {
     public static final String LOCALHOST = "localhost";
 
     public static final String HTTP_OBJECT_AGGREGATOR = "HTTP_OBJECT_AGGREGATOR";
+    public static final String WEBSOCKET_COMPRESSION_HANDLER = "websocket-compression-handler";
     public static final String WS_SCHEME = "ws";
     public static final String WSS_SCHEME = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
@@ -189,6 +190,7 @@ public final class Constants {
     public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
     public static final int WEBSOCKET_STATUS_CODE_PROTOCOL_ERROR = 1002;
     public static final int WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE = 1006;
+    public static final int WEBSOCKET_STATUS_CODE_INVALD_DATA = 1007;
     public static final int WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION = 1011;
     public static final int WEBSOCKET_REQUEST_SIZE = 8192;
 

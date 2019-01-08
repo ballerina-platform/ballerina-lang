@@ -30,10 +30,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.websocketx.Utf8FrameValidator;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
@@ -149,6 +149,7 @@ public class WebSocketClient {
         // Assuming that WebSocket Handshake messages will not be large than 8KB
         pipeline.addLast(new HttpObjectAggregator(8192));
         pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
+        pipeline.addLast(Utf8FrameValidator.class.getName(), new Utf8FrameValidator());
         if (idleTimeout > 0) {
             pipeline.addLast(new IdleStateHandler(0, 0, idleTimeout, TimeUnit.MILLISECONDS));
         }

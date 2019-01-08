@@ -39,7 +39,9 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
+import org.wso2.transport.http.netty.contractimpl.listener.MaxEntityBodyValidator;
 import org.wso2.transport.http.netty.contractimpl.listener.MessageQueueHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.UriAndHeaderLengthValidator;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultServerHandshakeFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketUtil;
@@ -58,19 +60,19 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
     private final ServerConnectorFuture connectorFuture;
     private final String target;
     private final boolean secureConnection;
-    private final boolean serverMessage;
     private boolean cancelled = false;
     private boolean handshakeStarted = false;
     private HttpCarbonRequest request;
+    private boolean allowExtensions;
 
     public DefaultWebSocketHandshaker(ChannelHandlerContext ctx, ServerConnectorFuture connectorFuture,
-                                      FullHttpRequest httpRequest, String target, boolean serverMessage) {
+                                      FullHttpRequest httpRequest, String target, boolean allowExtensions) {
         this.ctx = ctx;
         this.connectorFuture = connectorFuture;
         this.secureConnection = ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null;
         this.httpRequest = httpRequest;
         this.target = target;
-        this.serverMessage = serverMessage;
+        this.allowExtensions = allowExtensions;
     }
 
     @Override
@@ -81,13 +83,13 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
     @Override
     public ServerHandshakeFuture handshake() {
         WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), null, true);
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), null, allowExtensions);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
         return handleHandshake(handshaker, 0, null);
     }
 
     @Override
-    public ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions) {
+    public ServerHandshakeFuture handshake(String[] subProtocols) {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
                                                      allowExtensions);
@@ -96,7 +98,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
     }
 
     @Override
-    public ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout) {
+    public ServerHandshakeFuture handshake(String[] subProtocols, int idleTimeout) {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
                                                      getSubProtocolsCSV(subProtocols), allowExtensions);
@@ -105,7 +107,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
     }
 
     @Override
-    public ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+    public ServerHandshakeFuture handshake(String[] subProtocols, int idleTimeout,
                                            HttpHeaders responseHeaders) {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
@@ -115,7 +117,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
     }
 
     @Override
-    public ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+    public ServerHandshakeFuture handshake(String[] subProtocols, int idleTimeout,
                                            HttpHeaders responseHeaders, int maxFramePayloadLength) {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
@@ -169,7 +171,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
 
     @Override
     public boolean isServerMessage() {
-        return this.serverMessage;
+        return true;
     }
 
     @Override
@@ -184,10 +186,12 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
 
     private ServerHandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout,
                                                   HttpHeaders headers) {
+        DefaultServerHandshakeFuture handshakeFuture = new DefaultServerHandshakeFuture();
         if (handshaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
+            handshakeFuture.notifyError(new UnsupportedOperationException("Unsupported WebSocket version"));
+            return handshakeFuture;
         }
-        DefaultServerHandshakeFuture handshakeFuture = new DefaultServerHandshakeFuture();
         if (cancelled) {
             Throwable e = new IllegalAccessException("Handshake is already cancelled.");
             handshakeFuture.notifyError(e);
@@ -212,6 +216,13 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
     private void configureFrameHandlingPipeline(int idleTimeout, WebSocketInboundFrameHandler frameHandler) {
         ChannelPipeline pipeline = ctx.pipeline();
         pipeline.remove(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER);
+        pipeline.remove(Constants.HTTP_CHUNK_WRITER);
+        if (pipeline.get(UriAndHeaderLengthValidator.class) == null) {
+            pipeline.remove(UriAndHeaderLengthValidator.class);
+        }
+        if (pipeline.get(MaxEntityBodyValidator.class) != null) {
+            pipeline.remove(MaxEntityBodyValidator.class);
+        }
         if (idleTimeout > 0) {
             pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
                              new IdleStateHandler(0, 0, idleTimeout, TimeUnit.MILLISECONDS));
