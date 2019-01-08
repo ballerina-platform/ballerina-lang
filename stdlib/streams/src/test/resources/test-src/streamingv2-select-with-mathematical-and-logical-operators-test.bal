@@ -36,6 +36,7 @@ type TeacherOutput record{
     string school;
     boolean isString;
     string companyName;
+    string concat;
 };
 
 int index = 0;
@@ -85,7 +86,7 @@ function testSelectQuery() {
                 (inputStream.age >= 50) && inputStream.status == "single" as isMarried,
                 inputStream.age > 30 ? "older" : "younger" as isYounger,
                 inputStream.school ?: "School not found" as school, inputStream.batch is string as isString,
-                companyArr[inputStream.indexNo] as companyName
+                companyArr[inputStream.indexNo] as companyName, inputStream.name + " " + inputStream.age as concat
         => (TeacherOutput[] teachers) {
             foreach var t in teachers {
                 outputStream.publish(t);

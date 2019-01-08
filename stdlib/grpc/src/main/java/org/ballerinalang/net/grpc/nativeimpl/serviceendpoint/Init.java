@@ -106,7 +106,7 @@ public class Init extends AbstractGrpcNativeFunction {
         String host = endpointConfig.getStringField(GrpcConstants.ENDPOINT_CONFIG_HOST);
         Struct sslConfig = endpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         long idleTimeout = endpointConfig.getIntField(ENDPOINT_CONFIG_TIMEOUT);
-        
+
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         
         if (host == null || host.trim().isEmpty()) {
@@ -130,7 +130,7 @@ public class Init extends AbstractGrpcNativeFunction {
                     "timeout, set value to 0");
         }
         listenerConfiguration.setSocketIdleTimeout(Math.toIntExact(idleTimeout));
-        
+
         listenerConfiguration.setServerHeader(getServerName());
         listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
 

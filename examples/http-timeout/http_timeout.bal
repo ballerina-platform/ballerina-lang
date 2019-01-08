@@ -3,7 +3,7 @@ import ballerina/log;
 import ballerina/runtime;
 
 http:Client backendClientEP = new("http://localhost:8080", config = {
-    // Timeout configuration
+    // Timeout configuration.
     timeoutMillis: 10000
 
 });
@@ -23,7 +23,7 @@ service timeoutService on new http:Listener(9090) {
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
 
         var backendResponse = backendClientEP->forward("/hello", request);
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and an `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.

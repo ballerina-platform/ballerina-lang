@@ -1,13 +1,13 @@
 import ballerina/io;
 import ballerina/runtime;
 
-// Create a record type named `StatusCount`.
+// Create a `record` type named `StatusCount`.
 type StatusCount record {
     string status;
     int totalCount;
 };
 
-// Create a record type named `Teacher` and define the attributes.
+// Create a `record` type named `Teacher` and define the attributes.
 type Teacher record {
     string name;
     int age;
@@ -19,7 +19,7 @@ type Teacher record {
 function testAggregationQuery(
     stream<StatusCount> filteredStatusCountStream,
     stream<Teacher> teacherStream) {
-    // Create a forever statement block with an appropriate streaming query.
+    // Create a `forever` statement block with an appropriate streaming query.
     // Write a query to filter teachers who are older than 18 years, wait for the stream to collect three teacher
     // objects, group the 3 teachers based on their marital status, and then obtain the
     // unique marital status counts.
@@ -38,13 +38,13 @@ function testAggregationQuery(
 }
 
 public function main() {
-    // Create a stream that is constrained by the `StatusCount` record type.
+    // Create a `stream` that is constrained by the `StatusCount` record type.
     stream<StatusCount> filteredStatusCountStream = new;
 
-    // Create a stream that is constrained by the `Teacher` record type.
+    // Create a `stream` that is constrained by the `Teacher` record type.
     stream<Teacher> teacherStream = new;
 
-    //Invoke the method that contains the forever streaming statement.
+    //Invoke the method that contains the `forever` streaming statement.
     testAggregationQuery(filteredStatusCountStream, teacherStream);
 
     // Create sample events, and send the events to the `teacherStream` input stream.
@@ -72,4 +72,3 @@ function printStatusCount(StatusCount s) {
     io:println("Event received; status: " + s.status +
             ", total occurrences: " + s.totalCount);
 }
-

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.utils;
 
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 
@@ -41,22 +40,6 @@ public class ByteArrayUtils {
             data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
         }
         return data;
-    }
-
-    public static String byteArrayToHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(bytes.length * 2);
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
-    }
-
-    public static BValueArray createBByteArray(byte[] bytes) {
-        BValueArray byteArray = new BValueArray(BTypes.typeByte);
-        for (int i = 0; i < bytes.length; i++) {
-            byteArray.add(i, bytes[i]);
-        }
-        return byteArray;
     }
 
     public static void assertJBytesWithBBytes(byte[] jBytes, BValueArray bBytes) {
