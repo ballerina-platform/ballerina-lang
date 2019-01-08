@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'checkstyle'
+apply plugin: "com.github.spotbugs"
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
@@ -33,4 +34,17 @@ compileJava {
     }
 }
 
+// startsWith had to be used https://github.com/spotbugs/spotbugs-gradle-plugin/issues/32
+tasks.findAll { it.name.startsWith('spotbugs') }.each {
+    it.effort "max"
+    it.reportLevel "low"
+    it.reports {
+        xml.enabled false
+        html.enabled true
+    }
+    def excludeFile = file('spotbugs-exclude.xml')
+    if(excludeFile.exists()) {
+        it.excludeFilter = excludeFile
+    }
+}
 
