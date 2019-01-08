@@ -49,7 +49,7 @@ service alwaysCompressWithContentType on mockEP {
     }
     resource function test2 (http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setJsonPayload({ test: "testValue" }, contentType = "application/json;charset=\"ISO_8859-1:1987\"");
+        res.setJsonPayload({ test: "testValue" }, contentType = "application/json");
         _ = caller->respond(res);
     }
 }
@@ -102,7 +102,7 @@ service autoCompressWithInCompatibleContentType on mockEP {
     }
     resource function test1 (http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setJsonPayload({ test: "testValue" }, contentType = "application/json;charset=\"ISO_8859-1:1987\"");
+        res.setJsonPayload({ test: "testValue" }, contentType = "application/json");
         _ = caller->respond(res);
     }
 }
