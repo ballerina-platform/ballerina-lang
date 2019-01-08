@@ -1,31 +1,14 @@
-apply plugin: 'base'
-
-buildscript {
-  repositories {
-    jcenter()
-  }
-  dependencies {
-    classpath 'ca.cutterslade.gradle:gradle-dependency-analyze:1.3.0'
-  }
+plugins {
+    id 'base'
+    id "com.dorongold.task-tree" version "1.3.1"
 }
 
 allprojects {
-    //apply plugin: 'ca.cutterslade.analyze'
-    apply plugin: 'project-report'
-
-}
-
-
-
-allprojects {
-//    apply plugin: 'maven'
-
     group = 'org.ballerinalang'
     version = '0.990.3-SNAPSHOT'
 }
 
 subprojects {
-//    apply from: "$rootDir/gradle/javajj.gradle"
 }
 
 dependencies {
