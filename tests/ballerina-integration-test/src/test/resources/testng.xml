@@ -78,6 +78,12 @@
         </classes>
     </test>
 
+    <test name="ballerina-future-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>
+        </classes>
+    </test>
+
     <test name="ballerina-http2-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.http2.Http2BaseTest"/>
@@ -149,13 +155,15 @@
             <class name="org.ballerinalang.test.service.websocket.PushAndOnTextResourceTest"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketQueryAndPathParamSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketServiceNotFoundTest"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketSslProxyTest"/>
             <class name="org.ballerinalang.test.service.websocket.OnBinaryContinuationTest"/>
             <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
             <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
+            <class name="org.ballerinalang.test.service.websocket.SslEchoTest"/>
         </classes>
     </test>
 

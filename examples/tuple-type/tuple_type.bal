@@ -22,7 +22,7 @@ public function main() {
     var (q, r) = divideBy10(6);
     io:println("06/10: " + "quotient=" + q + " " + "remainder=" + r);
 
-    // To ignore a value in a tuple, use '_'.
+    // To ignore a value in a tuple, use `_`.
     // This ignores the second return value.
     var (q1, _) = divideBy10(57);
     io:println("57/10: " + "quotient=" + q1);

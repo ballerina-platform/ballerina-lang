@@ -1663,6 +1663,28 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitStringFunctionInvocationReference(BallerinaParser.StringFunctionInvocationReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        TerminalNode node = ctx.QuotedStringLiteral();
+        DiagnosticPos pos = getCurrentPos(ctx);
+        Set<Whitespace> ws = getWS(ctx);
+
+        String actualText = node.getText();
+        actualText = actualText.substring(1, actualText.length() - 1);
+        actualText = StringEscapeUtils.unescapeJava(actualText);
+
+        this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, actualText, node.getText());
+
+        boolean argsAvailable = ctx.invocation().invocationArgList() != null;
+        String invocation = ctx.invocation().anyIdentifierName().getText();
+        boolean safeNavigate = ctx.invocation().NOT() != null;
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
+    }
+
+    @Override
     public void exitFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx) {
         if (isInErrorState) {
             return;

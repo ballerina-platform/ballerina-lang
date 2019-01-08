@@ -24,4 +24,3 @@ $ ws.send("closeMe");
 
 # Wait for 120 seconds to check the connection closure due to the connection timeout 
 # or change the timeout in the configuration annotation.
-

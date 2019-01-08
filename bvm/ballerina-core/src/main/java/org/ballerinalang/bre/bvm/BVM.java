@@ -186,8 +186,7 @@ public class BVM {
 
         while (sf.ip >= 0) {
             if (strand.aborted) {
-                strand.currentFrame.ip = -1;
-                BVMScheduler.strandCountDown();
+                handleFutureTermination(strand);
                 return;
             }
             if (debugEnabled && debug(strand)) {
@@ -244,6 +243,30 @@ public class BVM {
                 case InstructionCodes.ICONST_5:
                     i = operands[0];
                     sf.longRegs[i] = 5;
+                    break;
+                case InstructionCodes.FCONST_0:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 0;
+                    break;
+                case InstructionCodes.FCONST_1:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 1;
+                    break;
+                case InstructionCodes.FCONST_2:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 2;
+                    break;
+                case InstructionCodes.FCONST_3:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 3;
+                    break;
+                case InstructionCodes.FCONST_4:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 4;
+                    break;
+                case InstructionCodes.FCONST_5:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 5;
                     break;
                 case InstructionCodes.BCONST_0:
                     i = operands[0];
@@ -803,6 +826,34 @@ public class BVM {
             }
             sf = strand.currentFrame;
         }
+    }
+
+    private static void handleFutureTermination(Strand strand) {
+        // Set error to strand and callback
+        BError error = BLangVMErrors.createCancelledFutureError(strand);
+        strand.setError(error);
+        ((SafeStrandCallback) strand.respCallback).setErrorForCancelledFuture(error);
+        // Make the ip of current frame to -1
+        strand.currentFrame.ip = -1;
+        // Panic all stack frames in the strand
+        panicStackFrame(strand);
+        // Signal transactions for errors
+        signalTransactionError(strand, StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT);
+        strand.respCallback.signal();
+    }
+
+    private static void panicStackFrame(Strand strand) {
+        if (strand.fp < 0) {
+            return;
+        }
+        StackFrame poppedFrame = strand.popFrame();
+        // Stop observation
+        ObserveUtils.stopObservation(poppedFrame.observerContext);
+        // Panic channels in the current frame
+        poppedFrame.handleChannelPanic(strand.getError(), poppedFrame.wdChannels);
+        // Signal transactions for errors
+        signalTransactionError(strand, poppedFrame.trxParticipant);
+        panicStackFrame(strand);
     }
 
     private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
@@ -4444,6 +4495,9 @@ public class BVM {
             transactionLocalContext.notifyLocalRemoteParticipantFailure();
         } else if (transactionParticipant == StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT) {
             transactionLocalContext.notifyLocalParticipantFailure();
+        } else if (strand.aborted) {
+            String blockID = transactionLocalContext.getCurrentTransactionBlockId();
+            notifyTransactionAbort(strand, blockID, transactionLocalContext);
         }
     }
 

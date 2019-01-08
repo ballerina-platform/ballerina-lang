@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { AbstractViewContribution } from '@theia/core/lib/browser';
 import { BallerinaPreviewWidget } from './ballerina-preview-widget';
 
-export const BALLERINA_PREVIEW_WIDGET_FACTORY_ID = 'ballerina-preview';
+export const BALLERINA_PREVIEW_WIDGET_FACTORY_ID = 'ballerina-diagram';
 
 @injectable()
 export class BallerinaPreviewContribution extends AbstractViewContribution<BallerinaPreviewWidget> {
@@ -10,12 +10,12 @@ export class BallerinaPreviewContribution extends AbstractViewContribution<Balle
     constructor() {
         super({
             widgetId: BALLERINA_PREVIEW_WIDGET_FACTORY_ID,
-            widgetName: 'BallerinaPreview',
+            widgetName: 'Ballerina Diagram',
             defaultWidgetOptions: {
                 area: 'right',
                 rank: 100,
             },
-            toggleCommandId: 'ballerinaPreview:toggle',
+            toggleCommandId: 'ballerinaDiagram:toggle',
             toggleKeybinding: 'ctrlcmd+shift+y'
         });
     }

@@ -122,7 +122,7 @@ constantDefinition
 
 globalVariableDefinition
     :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
-    |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
+    |   PUBLIC? FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier ASSIGN expression SEMICOLON
     ;
 
@@ -546,6 +546,7 @@ variableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference invocation                                            # invocationReference
     |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
+    |   QuotedStringLiteral invocation                                          # stringFunctionInvocationReference
     ;
 
 field

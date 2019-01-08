@@ -2,7 +2,7 @@ import ballerina/io;
 
 public function main() {
 
-    // The fork block allows you to spawn (fork) multiple workers
+    // The `fork` block allows you to spawn (fork) multiple workers
     // within any execution flow of a Ballerina program.
     fork {
         worker w1 returns (int, string) {
@@ -21,7 +21,7 @@ public function main() {
         }
     }
 
-    // Workers are visible outside the fork as futures.
+    // Workers are visible outside the `fork` as futures.
     // The `wait` action will wait for both workers `w1` and `w2` to finish.
     record{ (int, string) w1; float w2; } results = wait {w1, w2};
 
