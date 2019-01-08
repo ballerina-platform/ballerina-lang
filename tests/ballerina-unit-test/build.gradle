@@ -46,7 +46,7 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-file')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-auth')
+    implementation project(':stdlib:ballerina-auth')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-io')
