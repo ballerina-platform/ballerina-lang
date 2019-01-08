@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -18,7 +18,7 @@ import ballerina/test;
 
 // A list value is a container that keeps its members in an ordered list.
 @test:Config {}
-function testMemberOrder() {
+function testArrayMemberOrder() {
     int a1 = 30;
     int a2 = 10;
     int a3 = 20;
@@ -46,7 +46,7 @@ function testMemberOrder() {
 // A member of a list can be referenced by an integer index representing its position in the list.
 // For a list of length n, the indices of the members of the list, from first to last, are 0,1,...,n - 1.
 @test:Config {}
-function testMemberReferenceByValidIntegerIndex() {
+function testArrayMemberReferenceByValidIntegerIndex() {
     string a1 = "test string 1";
     string a2 = "test string 2";
     string a3 = "test string 3";
@@ -73,7 +73,7 @@ function testMemberReferenceByValidIntegerIndex() {
 }
 
 @test:Config {}
-function testMemberReferenceByInvalidIntegerIndex() {
+function testArrayMemberReferenceByInvalidIntegerIndex() {
     float[] floatArray = [1.1, 0.0, 2.20]; 
 
     int index = -1;
@@ -91,13 +91,13 @@ function testMemberReferenceByInvalidIntegerIndex() {
 
 // The shape of a list value is an ordered list of the shapes of its members.
 @test:Config {}
-function testShape() {
+function testArrayShape() {
     // TODO: 
 }
 
 // A list is iterable as a sequence of its members.
 @test:Config {}
-function testMemberIteration() {
+function testArrayMemberIteration() {
     int a = 4;
     string b = "string 1";
     string c = "string 2";
@@ -119,7 +119,7 @@ function testMemberIteration() {
 // belong to type Ti. Note that the constraint is not merely that the value looks
 // like Ti.
 @test:Config {}
-function testInherentTypeViolation() {
+function testArrayInherentTypeViolation() {
     int[] intArray = [1, 2];
     any[] anyArray = intArray;
     assertErrorReason(trap insertElementToArray(anyArray, intArray.length() - 1, "not an int"), 
