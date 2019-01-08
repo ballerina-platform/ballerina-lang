@@ -119,7 +119,7 @@ sed -i "s/__DATABASE_PASSWORD__/${DATABASE_PASSWORD}/" product-scenarios/scenari
 
 ballerina build product-scenarios/scenarios/1/data-service.bal
 
-kubectl apply -f product-scenarios/scenarios/1/kubernetes/
+kubectl apply -f kubernetes/
 
 kubectl get svc
 
@@ -129,4 +129,4 @@ kubectl get svc ballerina-data-service -o=json
 
 external_ip='kubectl get svc ballerina-data-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}''
 
-echo "ExternalIP=$external_ip" >> $output_dir/deployment.properties
+echo "ExternalIP=$external_ip" >> $OUTPUT_DIR/deployment.properties
