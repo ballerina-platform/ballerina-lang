@@ -55,10 +55,8 @@ under the License.
             <package name="org.ballerinalang.test.launch.*"/>
             <package name="org.ballerinalang.test.lock.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
-            <package name="org.ballerinalang.test.config.*"/>
             <package name="org.ballerinalang.test.object.*"/>
             <package name="org.ballerinalang.test.record.*"/>
-            <package name="org.ballerinalang.test.net.grpc"/>
             <package name="org.ballerinalang.test.balo.*" />
             <package name="org.ballerinalang.test.variable.shadowing.*" />
             <package name="org.ballerinalang.test.channels.*" />
@@ -74,11 +72,6 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
 		</classes>
-    </test>
-    <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.auth.*"/>
-        </packages>
     </test>
     <test name="ballerina-entry-function-test-suite" preserve-order="true" parallel="false">
         <packages >
