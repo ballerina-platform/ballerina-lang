@@ -16,7 +16,7 @@
 
 set -o xtrace
 
-HOME=`pwd`
+WORK_DIR=`pwd`
 TEST_SCRIPT=test.sh
 
 function usage()

@@ -121,6 +121,12 @@ ballerina build product-scenarios/scenarios/1/data-service.bal
 
 kubectl apply -f product-scenarios/scenarios/1/kubernetes/
 
-external_ip=kubectl get svc ballerina-data-service -o jsonpath='{.spec.externalIP}'
+kubectl get svc
+
+kubectl get pods
+
+kubectl get svc ballerina-data-service -o=json
+
+external_ip='kubectl get svc ballerina-data-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}''
 
 echo "ExternalIP=$external_ip" >> $output_dir/deployment.properties
