@@ -117,6 +117,6 @@ kubectl apply -f target/kubernetes/2
 
 lb_ingress_host=kubectl get svc circuit-breaker-frontend-service -o jsonpath='{.status.loadBalancer.ingress[*].hostname}'
 
-cat $output_dir/deployment.properties
+cat $OUTPUT_DIR/deployment.properties
 
-#echo "LBIngressHost=ingress_host" >> $output_dir/deployment.properties
+echo "LB_INGRESS_HOST=$lb_ingress_host" >> $OUTPUT_DIR/deployment.properties

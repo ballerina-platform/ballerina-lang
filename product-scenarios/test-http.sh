@@ -89,12 +89,12 @@ export DATA_BUCKET_LOCATION=${INPUT_DIR}
 # For maven, we add -fae (fail-at-end), and a system property to reduce jar download log verbosity.
 
 IFS='=' read -r -a array <<< "$(head -n 1 $INPUT_DIR/deployment.properties)"
-EXTERNAL_IP=${array[1]};
+LB_INGRESS_HOST=${array[1]};
 unset IFS
 
 cat $INPUT_DIR/deployment.properties
 
-curl http://$EXTERNAL-IP/cb -v
+curl http://$LB_INGRESS_HOST/cb -v
 
 #=============== Copy Surefire Reports ===========================================
 # SUREFIRE REPORTS MUST NEED TO BE COPIED TO OUTPUT_DIR.
