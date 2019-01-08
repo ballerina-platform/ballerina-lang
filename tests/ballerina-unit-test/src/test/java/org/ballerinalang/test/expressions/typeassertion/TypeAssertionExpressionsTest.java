@@ -90,7 +90,7 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'json', found 'int'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'json', found 'xml'.*")
     public void testJsonAssertionNegative() {
         BRunUtil.invoke(result, "testJsonAssertionNegative");
     }
@@ -149,7 +149,7 @@ public class TypeAssertionExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
         expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion error:" +
-                " expected 'stream<json>', found 'stream<int>'\"\\}.*")
+                " expected 'stream<boolean>', found 'stream<int>'\"\\}.*")
     public void testStreamAssertionNegative() {
         BRunUtil.invoke(result, "testStreamAssertionNegative");
     }
@@ -161,7 +161,7 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'map<json>', found 'map<string>'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'map<int>', found 'map<string>'.*")
     public void testMapElementAssertionNegative() {
         BRunUtil.invoke(result, "testMapElementAssertionNegative");
     }
@@ -174,7 +174,7 @@ public class TypeAssertionExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'stream<float\\|json>', found 'stream<int\\|float>'\"\\}.*")
+                    "error: expected 'stream<boolean\\|EmployeeObject>', found 'stream<int\\|float>'\"\\}.*")
     public void testOutOfOrderUnionConstraintAssertionNegative() {
         BRunUtil.invoke(result, "testOutOfOrderUnionConstraintAssertionNegative");
     }
@@ -185,31 +185,23 @@ public class TypeAssertionExpressionsTest {
         BRunUtil.invoke(result, "testStringAsInvalidBasicType");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'PersonObject', found " +
-                    "'EmployeeObject'.*")
-    public void testBroaderObjectAssertion() {
-        BRunUtil.invoke(result, "testBroaderObjectAssertion");
-    }
-
     @Test
     public void testAssertionPanicWithCheckTrap() {
         BValue[] returns = BRunUtil.invoke(result, "testAssertionPanicWithCheckTrap");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'PersonObject', found 'EmployeeObject'");
+                            "assertion error: expected 'function (string) returns (string)', found " +
+                                    "'function (string,int) returns (string)'");
     }
 
     @Test
     public void testAssertionNegatives() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be explicitly typed as 'Abc'",
                       19, 15);
-        validateError(resultNegative, errIndex++, "incompatible types: 'map<int>' cannot be explicitly typed as 'map'",
-                      22, 19);
-        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 28, 22);
+        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 25, 22);
     }
 
     @DataProvider
@@ -236,7 +228,8 @@ public class TypeAssertionExpressionsTest {
                 {"testTypedescAssertionPositive"},
                 {"testMapElementAssertionPositive"},
                 {"testListElementAssertionPositive"},
-                {"testOutOfOrderUnionConstraintAssertionPositive"}
+                {"testOutOfOrderUnionConstraintAssertionPositive"},
+                {"testBroaderObjectAssertion"}
         };
     }
 }

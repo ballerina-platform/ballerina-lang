@@ -387,33 +387,33 @@ public class TypeCastExprTest {
 //        Assert.assertEquals(returns[0], null);
 //    }
 
-    @Test(description = "Test casting an int as any type to json",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*assertion error: expected 'json', found 'int'.*")
+    @Test(description = "Test casting an int as any type to json")
     public void testAnyIntToJson() {
-        BRunUtil.invoke(result, "testAnyIntToJson");
+        BValue[] returns = BRunUtil.invoke(result, "testAnyIntToJson");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
     }
 
-    @Test(description = "Test casting a string as any type to json",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*assertion error: expected 'json', found 'string'.*")
+    @Test(description = "Test casting a string as any type to json")
     public void testAnyStringToJson() {
-        BRunUtil.invoke(result, "testAnyStringToJson");
+        BValue[] returns = BRunUtil.invoke(result, "testAnyStringToJson");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Supun");
     }
 
-    @Test(description = "Test casting a boolean as any type to json",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                  "error: expected 'json', found 'boolean'\"\\}.*")
+    @Test(description = "Test casting a boolean as any type to json")
     public void testAnyBooleanToJson() {
-        BRunUtil.invoke(result, "testAnyBooleanToJson");
+        BValue[] returns = BRunUtil.invoke(result, "testAnyBooleanToJson");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test casting a float as any type to json",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*assertion error: expected 'json', found 'float'.*")
+    @Test(description = "Test casting a float as any type to json")
     public void testAnyFloatToJson() {
         BRunUtil.invoke(result, "testAnyFloatToJson");
+        BValue[] returns = BRunUtil.invoke(result, "testAnyFloatToJson");
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 8.73);
     }
 
     @Test(description = "Test casting a map as any type to json",

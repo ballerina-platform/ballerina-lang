@@ -38,7 +38,7 @@ type TableEmployee record {
 };
 
 type TableEmployeeTwo record {
-    int id;
+    boolean id;
     string name;
     !...
 };
@@ -251,9 +251,9 @@ function testJsonAssertionPositive() returns boolean {
 }
 
 function testJsonAssertionNegative() {
-    json j = 5;
-    any a = j;
-    json j2 = <json> a;
+    xml x = xml `text`;
+    any a = x;
+    json j = <json> a;
 }
 
 function testMapAssertionPositive() returns boolean {
@@ -392,7 +392,7 @@ function testStreamAssertionPositive() returns boolean {
 function testStreamAssertionNegative() {
     stream<int> s1 = new;
     any a = s1;
-    stream<json> s2 = <stream<json>> a;
+    stream<boolean> s2 = <stream<boolean>> a;
 }
 
 function testTypedescAssertionPositive() returns boolean {
@@ -452,7 +452,7 @@ function testMapElementAssertionNegative() {
 
     Employee e3 = <Employee> m.emp1;
     int iVal2 = <int> m.intVal;
-    map<json> strMapValTwo = <map<json>> m.mapVal;
+    map<int> strMapValTwo = <map<int>> m.mapVal;
 }
 
 function testListElementAssertionPositive() returns boolean {
@@ -496,7 +496,7 @@ function testOutOfOrderUnionConstraintAssertionPositive() returns boolean {
 function testOutOfOrderUnionConstraintAssertionNegative() {
     stream<int|float> s1 = new;
     any a = s1;
-    stream<float|json> s2 = <stream<float|json>> a;
+    stream<boolean|EmployeeObject> s2 = <stream<boolean|EmployeeObject>> a;
 }
 
 function testStringAsInvalidBasicType() {
@@ -505,18 +505,20 @@ function testStringAsInvalidBasicType() {
     int i = <int> a;
 }
 
-function testBroaderObjectAssertion() {
-    EmployeeObject e = new("Em Zee");
+function testBroaderObjectAssertion() returns boolean {
+    string name = "Em Zee";
+    EmployeeObject e = new(name);
     PersonObject p = e;
     PersonObject p2 = <PersonObject> p;
+    return e === p2 && p2.name == name;
 }
 
 function testAssertionPanicWithCheckTrap() returns string|int|error {
-    return check trap broaderObjectAssertionHelper();
+    return check trap testFunctionAssertionNegativeHelper();
 }
 
-function broaderObjectAssertionHelper() returns string|int {
-    testBroaderObjectAssertion();
+function testFunctionAssertionNegativeHelper() returns string|int {
+    testFunctionAssertionNegative();
     return "successful";
 }
 

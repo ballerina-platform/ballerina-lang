@@ -3726,7 +3726,11 @@ public class BVM {
         }
 
         if (rhsType.getTag() == TypeTags.TABLE_TAG && lhsType.getTag() == TypeTags.TABLE_TAG) {
-            return true;
+            BTableType lhsTableType = (BTableType) lhsType;
+            BTableType rhsTableType = (BTableType) rhsType;
+            return rhsTableType.equals(lhsTableType) || rhsTableType.getConstrainedType() == null ||
+                    isAssignable(rhsTableType.getConstrainedType(), lhsTableType.getConstrainedType(),
+                                 new ArrayList<>());
         }
 
         if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {

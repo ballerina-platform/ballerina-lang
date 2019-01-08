@@ -34,10 +34,3 @@ function testAnyStreamAsInvalidArgument() returns stream<Person> {
 function returnStream(stream<Person> m) returns stream<Person> {
     return m;
 }
-
-function testInvalidConstrainedStreamAssertion() returns stream<Employee> {
-    stream<Person> testPersonStream = new;
-    stream<Employee> testEmployeeStream = new;
-    testEmployeeStream = <stream<Employee>>testPersonStream;
-    return testEmployeeStream;
-}

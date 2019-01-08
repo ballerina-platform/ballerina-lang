@@ -17,9 +17,6 @@
 function testAssertionWithUnassignableTypes() {
     Def def = { name: "Em", id: 123.4 };
     Abc abc = <Abc> def;
-
-    map<int> m1 = {};
-    map<any> m2 = <map<any>> m1;
 }
 
 function testAssertionForCurrentlyUnsupportedTypes() {
