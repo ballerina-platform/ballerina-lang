@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.stdlib.streams;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -39,7 +39,7 @@ public class BallerinaStreamsV2CustomWindowTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-custom-window-test.bal");
+        result = BCompileUtil.compile("test-src/streamingv2-custom-window-test.bal");
     }
 
     @Test(description = "Test streaming query with a custom window")
