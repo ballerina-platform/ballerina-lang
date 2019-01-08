@@ -1,11 +1,11 @@
 import ballerina/io;
 
-// Defines an object called 'Person'. It contains public, private and protected fields along with their types.
+// Defines an `object` called `Person`. It contains `public`, `private` and protected fields along with their types.
 // For fields, the default value must be defined.
 type Person object {
     public int age = 0;
     public string name = "";
-    // If you need to have a field with own type, you need to make that field defaultable. Here we have made 'parent' field defaultable by making it nullable.
+    // If you need to have a field with own type, you need to make that field defaultable. Here we have made `parent` field defaultable by making it nullable.
     public Person? parent = ();
     // Private fields are only visible within the object and its functions.
     private string email = "default@abc.com";
@@ -14,7 +14,7 @@ type Person object {
 };
 
 public function main() {
-    // There are three ways to initialize this object.
+    // There are three ways to initialize this `object`.
     Person p1 = new;
     io:println(p1);
 

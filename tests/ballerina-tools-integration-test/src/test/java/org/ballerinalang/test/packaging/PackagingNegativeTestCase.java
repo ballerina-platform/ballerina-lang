@@ -213,6 +213,15 @@ public class PackagingNegativeTestCase extends BaseTest {
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
+    @Test(description = "Pull a non-existing module")
+    public void testPullNonExistingPackage() throws Exception {
+        String msg = "could not find module natasha/nomodule:*";
+        LogLeecher leecher = new LogLeecher(msg, LogLeecher.LeecherType.ERROR);
+        balClient.runMain("pull", new String[]{"natasha/nomodule"}, envVariables, new String[0],
+                new LogLeecher[]{leecher}, balServer.getServerHome());
+        leecher.waitForText(5000);
+    }
+
     @Test(description = "Test install already installed package")
     public void testInstallPreInstalledSource() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectToInstall");

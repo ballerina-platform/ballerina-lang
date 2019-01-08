@@ -13,8 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-import ballerina/file;
 import ballerina/io;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.

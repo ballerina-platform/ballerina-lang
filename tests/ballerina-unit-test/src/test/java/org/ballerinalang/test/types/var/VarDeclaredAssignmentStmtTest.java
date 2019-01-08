@@ -153,16 +153,6 @@ public class VarDeclaredAssignmentStmtTest {
         BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting '='", 2, 12);
     }
 
-    @Test(description = "Test var in global variable def.")
-    public void testVarTypeInGlobalVariableDefStatement() {
-        //var type is not not allowed in global variable def statements
-        CompileResult res = BCompileUtil.compile("test-src/types/var/global-variable-def-var-type-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 2);
-        BAssertUtil.validateError(res, 0, "extraneous input 'var'", 1, 1);
-        BAssertUtil.validateError(res, 1,
-                "mismatched input '='. expecting {'[', '?', '|', Identifier}", 1, 15);
-    }
-
     @Test
     public void testVarTypeInServiceLevelVariableDefStatement() {
         //var type is not not allowed in service level variable def statements
