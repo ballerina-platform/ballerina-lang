@@ -5,3 +5,8 @@ dependencies {
 }
 
 description = 'Ballerina - Streaming - Siddhi Annotations'
+
+spotbugsMain {
+    //TODO: remove
+    ignoreFailures true
+}
