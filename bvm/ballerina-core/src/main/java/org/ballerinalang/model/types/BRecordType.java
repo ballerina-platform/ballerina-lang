@@ -43,7 +43,7 @@ public class BRecordType extends BStructureType {
      * @param flags of the record type
      */
     public BRecordType(RecordTypeInfo recordTypeInfo, String typeName, String pkgPath, int flags) {
-        super(typeName, pkgPath, flags, BMap.class);
+        super(typeName, pkgPath, flags, BMap.class, TypeTags.RECORD_TYPE_TAG);
         this.recordTypeInfo = recordTypeInfo;
     }
 
@@ -61,9 +61,5 @@ public class BRecordType extends BStructureType {
         return (V) new BMap<>(this);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.RECORD_TYPE_TAG;
-    }
 }
 

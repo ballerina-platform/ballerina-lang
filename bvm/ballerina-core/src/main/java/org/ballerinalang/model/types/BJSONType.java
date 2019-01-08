@@ -37,11 +37,11 @@ public class BJSONType extends BType {
      * @param pkgPath of the type
      */
     public BJSONType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BRefType.class);
+        super(typeName, pkgPath, BRefType.class, TypeTags.JSON_TAG);
     }
 
     public BJSONType(BType constraint) {
-        super(TypeConstants.JSON_TNAME, null, BRefType.class);
+        super(TypeConstants.JSON_TNAME, null, BRefType.class, TypeTags.JSON_TAG);
         this.constraint = constraint;
     }
 
@@ -57,11 +57,6 @@ public class BJSONType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return (V) new BMap();
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.JSON_TAG;
     }
 
     @Override

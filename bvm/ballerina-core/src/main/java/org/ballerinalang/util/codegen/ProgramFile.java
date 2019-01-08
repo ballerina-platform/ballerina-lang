@@ -55,7 +55,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private short version = VERSION_NUMBER;
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
-    private Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
+    public final Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
 
     private int entryPkgCPIndex;
     private String entryPkgName;
@@ -68,7 +68,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     //entries of this program file.
     public int currentPkgIndex = 0;
 
-    private Debugger debugger;
+    public Debugger debugger;
 
     // Cached values.
     // This is the actual path given by the user and this is used primarily for error reporting
@@ -231,10 +231,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     public void setDebugger(Debugger debugManager) {
         this.debugger = debugManager;
-    }
-
-    public Debugger getDebugger() {
-        return debugger;
     }
 
 }

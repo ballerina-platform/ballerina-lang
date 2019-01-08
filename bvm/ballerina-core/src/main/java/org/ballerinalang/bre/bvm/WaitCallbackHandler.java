@@ -133,7 +133,7 @@ public class WaitCallbackHandler {
         strand.configureFlushDetails(channels);
         for (int i = 0; i < channels.length; i++) {
             WorkerDataChannel dataChannel;
-            if (strand.currentFrame.callableUnitInfo.getDefaultWorkerInfo()
+            if (strand.currentFrame.callableUnitInfo.defaultWorkerInfo
                     .getWorkerName().equals(BLangConstants.DEFAULT_WORKER_NAME)) {
                 dataChannel = strand.currentFrame.getWDChannels().getWorkerDataChannel(channels[i]);
             } else {

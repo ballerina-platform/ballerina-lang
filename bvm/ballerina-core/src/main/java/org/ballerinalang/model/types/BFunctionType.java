@@ -37,13 +37,13 @@ public class BFunctionType extends BType {
     private String[] returnsParametersFieldsNames = new String[0];
 
     public BFunctionType() {
-        super("function ()", null, BFunctionPointer.class);
+        super("function ()", null, BFunctionPointer.class, TypeTags.FUNCTION_POINTER_TAG);
         this.paramTypes = new BType[0];
         this.retParamTypes = new BType[0];
     }
 
     public BFunctionType(BType[] paramTypes, BType[] retParamType) {
-        super("function ()", null, BFunctionPointer.class);
+        super("function ()", null, BFunctionPointer.class, TypeTags.FUNCTION_POINTER_TAG);
         this.paramTypes = paramTypes;
         this.retParamTypes = retParamType;
     }
@@ -64,11 +64,6 @@ public class BFunctionType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null;
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.FUNCTION_POINTER_TAG;
     }
 
     public static String getTypeName(BType[] parameterType, BType[] returnParameterType) {

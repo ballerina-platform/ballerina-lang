@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BValue;
 public class BIteratorType extends BType {
 
     BIteratorType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BIterator.class);
+        super(typeName, pkgPath, BIterator.class, TypeTags.ITERATOR_TAG);
     }
 
     public <V extends BValue> V getZeroValue() {
@@ -40,8 +40,4 @@ public class BIteratorType extends BType {
         return null;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.ITERATOR_TAG;
-    }
 }

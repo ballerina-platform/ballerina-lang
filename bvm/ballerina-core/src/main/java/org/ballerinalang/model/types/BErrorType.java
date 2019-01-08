@@ -31,13 +31,13 @@ public class BErrorType extends BType {
     public BType detailsType;
 
     BErrorType(String typeName, BType reasonType, BType detailsType, String pkgPath) {
-        super(typeName, pkgPath, BError.class);
+        super(typeName, pkgPath, BError.class, TypeTags.ERROR_TAG);
         this.reasonType = reasonType;
         this.detailsType = detailsType;
     }
 
     public BErrorType(BType reasonType, BType detailsType) {
-        super(TypeConstants.ERROR, null, BError.class);
+        super(TypeConstants.ERROR, null, BError.class, TypeTags.ERROR_TAG);
         this.reasonType = reasonType;
         this.detailsType = detailsType;
     }
@@ -52,8 +52,4 @@ public class BErrorType extends BType {
         return null;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.ERROR_TAG;
-    }
 }

@@ -44,8 +44,8 @@ public abstract class BStructureType extends BType {
      * @param flags of the structure type
      * @param valueClass of the structure type
      */
-    public BStructureType(String typeName, String pkgPath, int flags, Class<? extends BValue> valueClass) {
-        super(typeName, pkgPath, valueClass);
+    protected BStructureType(String typeName, String pkgPath, int flags, Class<? extends BValue> valueClass, int tag) {
+        super(typeName, pkgPath, valueClass, tag);
         this.flags = flags;
     }
 

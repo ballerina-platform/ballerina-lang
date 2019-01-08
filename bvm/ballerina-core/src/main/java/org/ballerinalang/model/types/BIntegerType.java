@@ -33,7 +33,7 @@ class BIntegerType extends BType {
      * @param typeName string name of the type
      */
     BIntegerType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BInteger.class);
+        super(typeName, pkgPath, BInteger.class, TypeTags.INT_TAG);
     }
 
     @SuppressWarnings("unchecked")
@@ -46,8 +46,4 @@ class BIntegerType extends BType {
         return (V) new BInteger(0);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.INT_TAG;
-    }
 }

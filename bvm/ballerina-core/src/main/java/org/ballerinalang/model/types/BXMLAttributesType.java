@@ -33,7 +33,7 @@ public class BXMLAttributesType extends BType {
      * @param pkgPath package path
      */
     BXMLAttributesType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, null);
+        super(typeName, pkgPath, null, TypeTags.XML_ATTRIBUTES_TAG);
     }
 
     public <V extends BValue> V getZeroValue() {
@@ -45,8 +45,4 @@ public class BXMLAttributesType extends BType {
         return (V) null;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.XML_ATTRIBUTES_TAG;
-    }
 }

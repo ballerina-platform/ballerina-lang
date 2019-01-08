@@ -43,12 +43,12 @@ public class BMapType extends BType implements BIndexedType {
      * @param pkgPath    package for the type.
      */
     public BMapType(String typeName, BType constraint, String pkgPath) {
-        super(typeName, pkgPath, BMap.class);
+        super(typeName, pkgPath, BMap.class, TypeTags.MAP_TAG);
         this.constraint = constraint;
     }
 
     public BMapType(BType constraint) {
-        super(TypeConstants.MAP_TNAME, null, BMap.class);
+        super(TypeConstants.MAP_TNAME, null, BMap.class, TypeTags.MAP_TAG);
         this.constraint = constraint;
     }
 
@@ -80,11 +80,6 @@ public class BMapType extends BType implements BIndexedType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return (V) new BMap<BString, V>();
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.MAP_TAG;
     }
 
     @Override

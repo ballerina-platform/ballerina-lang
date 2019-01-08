@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  */
 public class Debugger {
 
-    private boolean debugEnabled = false;
+    public boolean debugEnabled;
 
     private ProgramFile programFile;
 
@@ -80,6 +80,8 @@ public class Debugger {
         String debug = System.getProperty(Constants.SYSTEM_PROP_BAL_DEBUG);
         if (debug != null && !debug.isEmpty()) {
             debugEnabled = true;
+        } else {
+            debugEnabled = false;
         }
     }
 
@@ -424,7 +426,7 @@ public class Debugger {
 
         // Add local variables to the frame TODO remove default worker info
         LocalVariableAttributeInfo localVarAttrInfo
-                = (LocalVariableAttributeInfo) ctx.currentFrame.callableUnitInfo.getDefaultWorkerInfo()
+                = (LocalVariableAttributeInfo) ctx.currentFrame.callableUnitInfo.defaultWorkerInfo
                 .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
 
         localVarAttrInfo.getLocalVariables().forEach(variableInfo -> {
@@ -516,15 +518,6 @@ public class Debugger {
                 break;
         }
         return variableDTO;
-    }
-
-    /**
-     * Method to check debug enabled or not.
-     *
-     * @return debugEnabled value.
-     */
-    public boolean isDebugEnabled() {
-        return debugEnabled;
     }
 
     /**

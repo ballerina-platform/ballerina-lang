@@ -34,7 +34,7 @@ public class BStringType extends BType {
      * @param typeName string name of the type
      */
     BStringType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BString.class);
+        super(typeName, pkgPath, BString.class, TypeTags.STRING_TAG);
     }
 
     @SuppressWarnings("unchecked")
@@ -47,8 +47,4 @@ public class BStringType extends BType {
         return (V) new BString(BLangConstants.STRING_EMPTY_VALUE);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.STRING_TAG;
-    }
 }

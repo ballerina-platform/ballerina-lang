@@ -75,7 +75,7 @@ public class BLangProgramRunner {
                     extractEntryFuncArgs(functionInfo, args));
         } finally {
             if (!programFile.isServiceEPAvailable()) {
-                if (debugger.isDebugEnabled()) {
+                if (debugger.debugEnabled) {
                     debugger.notifyExit();
                 }
                 BVMExecutor.stopProgramFile(programFile);
@@ -86,7 +86,7 @@ public class BLangProgramRunner {
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
         programFile.setDebugger(debugger);
-        if (debugger.isDebugEnabled()) {
+        if (debugger.debugEnabled) {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }

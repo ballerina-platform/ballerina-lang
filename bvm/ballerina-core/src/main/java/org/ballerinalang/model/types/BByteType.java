@@ -34,7 +34,7 @@ class BByteType extends BType {
      * @param typeName string name of the type
      */
     BByteType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BByte.class);
+        super(typeName, pkgPath, BByte.class, TypeTags.BYTE_TAG);
     }
 
     @Override
@@ -49,8 +49,4 @@ class BByteType extends BType {
         return (V) new BByte((byte) 0);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.BYTE_TAG;
-    }
 }

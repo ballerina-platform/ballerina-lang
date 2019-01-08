@@ -40,7 +40,7 @@ public class BArrayType extends BType implements BIndexedType {
     private BArrayState state = BArrayState.UNSEALED;
 
     public BArrayType(BType elementType) {
-        super(null, null, BNewArray.class);
+        super(null, null, BNewArray.class, TypeTags.ARRAY_TAG);
         this.elementType = elementType;
         if (elementType instanceof BArrayType) {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;
@@ -48,7 +48,7 @@ public class BArrayType extends BType implements BIndexedType {
     }
 
     public BArrayType(BType elemType, int size) {
-        super(null, null, BNewArray.class);
+        super(null, null, BNewArray.class, TypeTags.ARRAY_TAG);
         this.elementType = elemType;
         if (elementType instanceof BArrayType) {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;
@@ -100,11 +100,6 @@ public class BArrayType extends BType implements BIndexedType {
             default:
                 return (V) new BValueArray();
         }
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.ARRAY_TAG;
     }
 
     @Override

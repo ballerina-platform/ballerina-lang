@@ -37,12 +37,12 @@ public class BStreamType extends BType {
      * @param pkgPath    package path
      */
     BStreamType(String typeName, BType constraint, String pkgPath) {
-        super(typeName, pkgPath, BStream.class);
+        super(typeName, pkgPath, BStream.class, TypeTags.STREAM_TAG);
         this.constraint = constraint;
     }
 
     public BStreamType(BType constraint) {
-        super(TypeConstants.STREAM_TNAME, null, BStream.class);
+        super(TypeConstants.STREAM_TNAME, null, BStream.class, TypeTags.STREAM_TAG);
         this.constraint = constraint;
     }
 
@@ -58,11 +58,6 @@ public class BStreamType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null; //TODO:check - return (V) new BStream();
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.STREAM_TAG;
     }
 
     @Override

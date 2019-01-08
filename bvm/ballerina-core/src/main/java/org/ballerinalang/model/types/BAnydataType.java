@@ -32,7 +32,7 @@ public class BAnydataType extends BType {
      * @param typeName string name of the type
      */
     BAnydataType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BValue.class);
+        super(typeName, pkgPath, BValue.class, TypeTags.ANYDATA_TAG);
     }
 
     @Override
@@ -45,8 +45,4 @@ public class BAnydataType extends BType {
         return null;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.ANYDATA_TAG;
-    }
 }

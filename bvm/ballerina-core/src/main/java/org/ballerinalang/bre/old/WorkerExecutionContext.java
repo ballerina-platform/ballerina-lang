@@ -128,7 +128,7 @@ public class WorkerExecutionContext {
     }
 
     private void initDebugger() {
-        if (!programFile.getDebugger().isDebugEnabled()) {
+        if (!programFile.debugger.debugEnabled) {
             return;
         }
 //        if (parent == null) {

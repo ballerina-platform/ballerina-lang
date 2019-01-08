@@ -37,7 +37,7 @@ public class BUnionType extends BType {
      * Create a {@code BUnionType} which represents the union type.
      */
     public BUnionType() {
-        super(null, null, BValue.class);
+        super(null, null, BValue.class, TypeTags.UNION_TAG);
     }
 
     /**
@@ -47,7 +47,7 @@ public class BUnionType extends BType {
      */
     public BUnionType(List<BType> memberTypes) {
         super(String.join("|", memberTypes.stream().map(BType::toString).collect(Collectors.toList())), null,
-              BValue.class);
+              BValue.class, TypeTags.UNION_TAG);
         this.memberTypes = memberTypes;
         this.nullable = memberTypes.contains(BTypes.typeNull);
     }
@@ -68,11 +68,6 @@ public class BUnionType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null;
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.UNION_TAG;
     }
 
     @Override

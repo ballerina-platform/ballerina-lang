@@ -34,7 +34,7 @@ class BFloatType extends BType {
      * @param typeName string name of the type
      */
     BFloatType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BFloat.class);
+        super(typeName, pkgPath, BFloat.class, TypeTags.FLOAT_TAG);
     }
 
     @SuppressWarnings("unchecked")
@@ -47,8 +47,4 @@ class BFloatType extends BType {
         return (V) new BFloat(0);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.FLOAT_TAG;
-    }
 }

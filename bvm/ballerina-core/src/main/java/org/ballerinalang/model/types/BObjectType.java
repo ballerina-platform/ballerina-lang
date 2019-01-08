@@ -40,7 +40,12 @@ public class BObjectType extends BStructureType {
      * @param flags flags of the object type
      */
     public BObjectType(ObjectTypeInfo objectTypeInfo, String typeName, String pkgPath, int flags) {
-        super(typeName, pkgPath, flags, BMap.class);
+        super(typeName, pkgPath, flags, BMap.class, TypeTags.OBJECT_TYPE_TAG);
+        this.objectTypeInfo = objectTypeInfo;
+    }
+
+    public BObjectType(ObjectTypeInfo objectTypeInfo, String typeName, String pkgPath, int flags, int tag) {
+        super(typeName, pkgPath, flags, BMap.class, tag);
         this.objectTypeInfo = objectTypeInfo;
     }
 
@@ -56,11 +61,6 @@ public class BObjectType extends BStructureType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return (V) new BMap<>(this);
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.OBJECT_TYPE_TAG;
     }
 
 }

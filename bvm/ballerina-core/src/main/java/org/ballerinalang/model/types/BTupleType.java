@@ -37,7 +37,7 @@ public class BTupleType extends BType {
      * @param typeList of the tuple type
      */
     public BTupleType(List<BType> typeList) {
-        super(null, null, BValue.class);
+        super(null, null, BValue.class, TypeTags.TUPLE_TAG);
         this.tupleTypes = typeList;
     }
 
@@ -54,11 +54,6 @@ public class BTupleType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null;
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.TUPLE_TAG;
     }
 
     @Override

@@ -35,11 +35,11 @@ public class BTableType extends BType {
      * @param typeName string name of the type
      */
     BTableType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BTable.class);
+        super(typeName, pkgPath, BTable.class, TypeTags.TABLE_TAG);
     }
 
     public BTableType(BType constraint) {
-        super(TypeConstants.TABLE_TNAME, null, BTable.class);
+        super(TypeConstants.TABLE_TNAME, null, BTable.class, TypeTags.TABLE_TAG);
         this.constraint = constraint;
     }
 
@@ -55,11 +55,6 @@ public class BTableType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return (V) new BTable();
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.TABLE_TAG;
     }
 
     @Override

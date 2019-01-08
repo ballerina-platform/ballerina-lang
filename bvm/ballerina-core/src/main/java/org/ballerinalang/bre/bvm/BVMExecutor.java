@@ -139,7 +139,7 @@ public class BVMExecutor {
         infectResourceFunction(strandCallback, strand);
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
-        StackFrame idf = new StackFrame(resourceInfo, resourceInfo.getDefaultWorkerInfo().codeAttributeInfo, -1,
+        StackFrame idf = new StackFrame(resourceInfo, resourceInfo.defaultWorkerInfo.codeAttributeInfo, -1,
                                         FunctionFlags.NOTHING, resourceInfo.workerSendInChannels);
         copyArgValues(args, idf, resourceInfo.paramTypes);
         strand.pushFrame(idf);
@@ -175,7 +175,7 @@ public class BVMExecutor {
                 callableInfo.workerSendInChannels);
         Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback);
 
-        StackFrame idf = new StackFrame(callableInfo, callableInfo.getDefaultWorkerInfo().codeAttributeInfo,
+        StackFrame idf = new StackFrame(callableInfo, callableInfo.defaultWorkerInfo.codeAttributeInfo,
                 -1, FunctionFlags.NOTHING, callableInfo.workerSendInChannels);
         copyArgValues(args, idf, callableInfo.paramTypes);
         strand.pushFrame(idf);
@@ -202,7 +202,7 @@ public class BVMExecutor {
         int refRegIndex = -1;
         for (int i = 0; i < paramTypes.length; i++) {
             BType paramType = paramTypes[i];
-            switch (paramType.getTag()) {
+            switch (paramType.tag) {
                 case TypeTags.INT_TAG:
                     callee.longRegs[++longRegIndex] = ((BValueType) args[i]).intValue();
                     break;
@@ -233,7 +233,7 @@ public class BVMExecutor {
     private static BValue populateReturnData(StrandCallback strandCallback, CallableUnitInfo callableUnitInfo) {
         BValue returnValue;
         BType retType = callableUnitInfo.getRetParamTypes()[0]; //TODO this should have single type instead of an array
-        switch (retType.getTag()) {
+        switch (retType.tag) {
             case TypeTags.INT_TAG:
                 returnValue = new BInteger(strandCallback.getIntRetVal());
                 break;
@@ -263,7 +263,7 @@ public class BVMExecutor {
      * @param programFile to be invoked.
      */
     private static void invokePackageInitFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+        for (PackageInfo info : programFile.packageInfoMap.values()) {
             BValue result = execute(programFile, info.getInitFunctionInfo(), new BValue[0], null, true);
             validateInvocationError(result);
         }
@@ -276,7 +276,7 @@ public class BVMExecutor {
      * @param programFile to be invoked.
      */
     private static void invokePackageStartFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+        for (PackageInfo info : programFile.packageInfoMap.values()) {
             BValue result = execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
             validateInvocationError(result);
         }
@@ -302,7 +302,7 @@ public class BVMExecutor {
      * @value BValue to be validated.
      */
     private static void validateInvocationError(BValue value) {
-        if (value != null && value.getType().getTag() == TypeTags.ERROR_TAG) {
+        if (value != null && value.getType().tag == TypeTags.ERROR_TAG) {
             throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace((BError) value));
         }
     }

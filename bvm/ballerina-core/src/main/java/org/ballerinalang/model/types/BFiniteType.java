@@ -31,7 +31,7 @@ public class BFiniteType extends BType {
     public Set<BValue> valueSpace;
 
     public BFiniteType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BValue.class);
+        super(typeName, pkgPath, BValue.class, TypeTags.FINITE_TYPE_TAG);
         this.valueSpace = new LinkedHashSet<>();
     }
 
@@ -45,8 +45,4 @@ public class BFiniteType extends BType {
         return null;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.FINITE_TYPE_TAG;
-    }
 }

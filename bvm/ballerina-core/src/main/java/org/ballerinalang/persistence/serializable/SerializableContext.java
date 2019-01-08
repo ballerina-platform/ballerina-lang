@@ -139,7 +139,7 @@ public class SerializableContext {
                 callableUnitInfo = serviceInfo.getResourceInfo(callableUnitName);
                 if (callableUnitInfo != null) {
                     if (Constants.DEFAULT.equals(workerName)) {
-                        workerInfo = callableUnitInfo.getDefaultWorkerInfo();
+                        workerInfo = callableUnitInfo.defaultWorkerInfo;
                     } else {
                         workerInfo = callableUnitInfo.getWorkerInfo(workerName);
                     }
@@ -148,7 +148,7 @@ public class SerializableContext {
                 callableUnitInfo = packageInfo.getFunctionInfo(callableUnitName);
                 if (callableUnitInfo != null) {
                     if (Constants.DEFAULT.equals(workerName)) {
-                        workerInfo = callableUnitInfo.getDefaultWorkerInfo();
+                        workerInfo = callableUnitInfo.defaultWorkerInfo;
                     } else {
                         workerInfo = callableUnitInfo.getWorkerInfo(workerName);
                     }

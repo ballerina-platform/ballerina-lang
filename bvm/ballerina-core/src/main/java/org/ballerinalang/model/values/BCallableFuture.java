@@ -74,7 +74,7 @@ public class BCallableFuture implements BFuture {
         //TODO double check below logic, current frame may be already dropped.
         /* only non-native workers can be cancelled */
         StackFrame currentFrame = strand.currentFrame;
-        if (currentFrame != null &&  currentFrame.callableUnitInfo.isNative()) {
+        if (currentFrame != null &&  currentFrame.callableUnitInfo.isNative) {
             return false;
         }
         BVMScheduler.stateChange(strand, State.RUNNABLE, State.TERMINATED);

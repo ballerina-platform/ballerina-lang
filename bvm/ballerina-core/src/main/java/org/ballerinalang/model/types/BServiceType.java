@@ -26,11 +26,7 @@ import org.ballerinalang.util.codegen.ObjectTypeInfo;
 public class BServiceType extends BObjectType {
 
     public BServiceType(ObjectTypeInfo objectTypeInfo, String typeName, String pkgPath, int flags) {
-        super(objectTypeInfo, typeName, pkgPath, flags);
+        super(objectTypeInfo, typeName, pkgPath, flags, TypeTags.SERVICE_TAG);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.SERVICE_TAG;
-    }
 }

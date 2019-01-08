@@ -32,7 +32,7 @@ public class BAnyType extends BType {
      * @param typeName string name of the type
      */
     BAnyType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BValue.class);
+        super(typeName, pkgPath, BValue.class, TypeTags.ANY_TAG);
     }
 
     @Override
@@ -45,8 +45,4 @@ public class BAnyType extends BType {
         return null;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.ANY_TAG;
-    }
 }

@@ -34,7 +34,7 @@ public class BChannelType extends BType {
      * @param pkgPath   package path
      */
     BChannelType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BChannel.class);
+        super(typeName, pkgPath, BChannel.class, TypeTags.CHANNEL_TAG);
     }
 
     @Override
@@ -45,11 +45,6 @@ public class BChannelType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null;
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.CHANNEL_TAG;
     }
 
     @Override

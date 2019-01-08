@@ -36,11 +36,11 @@ public class BFutureType extends BType {
      * @param pkgPath of the type
      */
     public BFutureType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BFuture.class);
+        super(typeName, pkgPath, BFuture.class, TypeTags.FUTURE_TAG);
     }
 
     public BFutureType(BType constraint) {
-        super(TypeConstants.FUTURE_TNAME, null, BFuture.class);
+        super(TypeConstants.FUTURE_TNAME, null, BFuture.class, TypeTags.FUTURE_TAG);
         this.constraint = constraint;
     }
 
@@ -58,9 +58,4 @@ public class BFutureType extends BType {
         return null;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.FUTURE_TAG;
-    }
-    
 }

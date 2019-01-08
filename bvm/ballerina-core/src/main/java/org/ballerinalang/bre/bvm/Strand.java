@@ -70,18 +70,18 @@ public class Strand {
         this.respCallback = respCallback;
         this.state = State.NEW;
         this.globalProps = properties;
-        this.id = name + "-" + count.incrementAndGet();
+        StringBuilder sb = new StringBuilder(name);
+        this.id = sb.append("-").append(count.incrementAndGet()).toString();
         this.aborted = false;
         this.transactionStrandContext = null;
-        initDebugger();
+        if (programFile.debugger.debugEnabled) {
+            initDebugger();
+        }
     }
 
     private void initDebugger() {
-        if (!programFile.getDebugger().isDebugEnabled()) {
-            return;
-        }
         this.debugContext = new DebugContext();
-        this.programFile.getDebugger().addStrand(this);
+        this.programFile.debugger.addStrand(this);
     }
 
     public String getId() {

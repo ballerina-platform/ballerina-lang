@@ -97,7 +97,7 @@ public class TesterinaUtils {
      */
     public static void initDebugger(ProgramFile programFile, Debugger debugger) {
         programFile.setDebugger(debugger);
-        if (debugger.isDebugEnabled()) {
+        if (debugger.debugEnabled) {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }

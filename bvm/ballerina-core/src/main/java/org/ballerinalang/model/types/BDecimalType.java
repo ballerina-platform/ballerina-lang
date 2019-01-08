@@ -37,7 +37,7 @@ class BDecimalType extends BType {
      * @param typeName string name of the type
      */
     BDecimalType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BDecimal.class);
+        super(typeName, pkgPath, BDecimal.class, TypeTags.DECIMAL_TAG);
     }
 
     @Override
@@ -52,8 +52,4 @@ class BDecimalType extends BType {
         return (V) new BDecimal(BigDecimal.ZERO);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.DECIMAL_TAG;
-    }
 }

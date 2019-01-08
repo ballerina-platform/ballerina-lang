@@ -120,7 +120,7 @@ public class ExpressionEvaluator {
 
     private List<LocalVariableInfo> getLocalVariables(StackFrame ctx) {
         LocalVariableAttributeInfo localVarAttrInfo
-                = (LocalVariableAttributeInfo) ctx.callableUnitInfo.getDefaultWorkerInfo().
+                = (LocalVariableAttributeInfo) ctx.callableUnitInfo.defaultWorkerInfo.
                 getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE); //TODO check default worker - rajith
         return localVarAttrInfo.getLocalVariables();
     }

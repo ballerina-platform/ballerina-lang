@@ -33,7 +33,7 @@ public class BNullType extends BType {
      * @param pkgPath package path
      */
     BNullType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, null);
+        super(typeName, pkgPath, null, TypeTags.NULL_TAG);
     }
 
     public <V extends BValue> V getZeroValue() {
@@ -45,8 +45,4 @@ public class BNullType extends BType {
         return (V) null;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.NULL_TAG;
-    }
 }

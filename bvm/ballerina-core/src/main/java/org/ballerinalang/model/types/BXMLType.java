@@ -34,7 +34,7 @@ public class BXMLType extends BType {
      * @param typeName string name of the type
      */
     BXMLType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BXML.class);
+        super(typeName, pkgPath, BXML.class, TypeTags.XML_TAG);
     }
 
     @Override
@@ -47,8 +47,4 @@ public class BXMLType extends BType {
         return (V) new BXMLSequence();
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.XML_TAG;
-    }
 }

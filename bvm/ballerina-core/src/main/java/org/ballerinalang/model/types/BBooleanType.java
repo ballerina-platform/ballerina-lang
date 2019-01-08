@@ -33,7 +33,7 @@ class BBooleanType extends BType {
      * @param typeName string name of the type
      */
     BBooleanType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BBoolean.class);
+        super(typeName, pkgPath, BBoolean.class, TypeTags.BOOLEAN_TAG);
     }
 
     @SuppressWarnings("unchecked")
@@ -46,8 +46,4 @@ class BBooleanType extends BType {
         return (V) BBoolean.FALSE;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.BOOLEAN_TAG;
-    }
 }

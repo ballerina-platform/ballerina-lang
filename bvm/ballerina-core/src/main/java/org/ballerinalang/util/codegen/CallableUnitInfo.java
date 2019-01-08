@@ -39,7 +39,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     protected String pkgPath;
     protected String name;
-    protected boolean isNative;
+    public boolean isNative;
     private boolean isPublic;
     public int flags;
 
@@ -63,7 +63,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     private Map<String, WorkerDataChannelInfo> dataChannelInfoMap = new HashMap<>();
 
     public PackageInfo packageInfo;
-    protected WorkerInfo defaultWorkerInfo;
+    public WorkerInfo defaultWorkerInfo;
     protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
     
     public WorkerDataIndex paramWorkerIndex;
@@ -136,10 +136,6 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
         this.packageInfo = packageInfo;
     }
 
-    public boolean isNative() {
-        return isNative;
-    }
-
     public void setNative(boolean aNative) {
         isNative = aNative;
     }
@@ -175,10 +171,6 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
         return hasReturnType;
     }
 
-    public WorkerInfo getDefaultWorkerInfo() {
-        return defaultWorkerInfo;
-    }
-
     public void setDefaultWorkerInfo(WorkerInfo defaultWorkerInfo) {
         this.defaultWorkerInfo = defaultWorkerInfo;
         this.populateWorkerSet();
@@ -200,9 +192,9 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     private void populateWorkerSet() {
         this.workerSet.generalWorkers = this.workerInfoMap.values().toArray(new WorkerInfo[0]);
         if (this.workerSet.generalWorkers.length == 0) {
-            this.workerSet.generalWorkers = new WorkerInfo[] { this.getDefaultWorkerInfo() };
+            this.workerSet.generalWorkers = new WorkerInfo[] { this.defaultWorkerInfo };
         } else {
-            this.workerSet.initWorker = this.getDefaultWorkerInfo();
+            this.workerSet.initWorker = this.defaultWorkerInfo;
         }
     }
     

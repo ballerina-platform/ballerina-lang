@@ -160,7 +160,7 @@ public class TesterinaFunction {
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
         programFile.setDebugger(debugger);
-        if (debugger.isDebugEnabled()) {
+        if (debugger.debugEnabled) {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }
