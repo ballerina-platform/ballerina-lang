@@ -45,34 +45,19 @@ under the License.
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.functions.*"/>
-            <package name="org.ballerinalang.test.jdbc.*"/>
-            <package name="org.ballerinalang.test.h2"/>
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.debugger.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
             <package name="org.ballerinalang.test.endpoint.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
-            <package name="org.ballerinalang.test.services.nativeimpl.*"/>
-            <package name="org.ballerinalang.test.services.basics"/>
-            <package name="org.ballerinalang.test.services.cors"/>
-            <package name="org.ballerinalang.test.services.configuration"/>
-            <package name="org.ballerinalang.test.services.dispatching"/>
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.launch.*"/>
             <package name="org.ballerinalang.test.lock.*"/>
-            <package name="org.ballerinalang.test.task.*"/>
-            <package name="org.ballerinalang.test.cache.*"/>
-            <package name="org.ballerinalang.test.mime.*"/>
-            <package name="org.ballerinalang.test.jwt.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
-            <package name="org.ballerinalang.test.config.*"/>
             <package name="org.ballerinalang.test.object.*"/>
             <package name="org.ballerinalang.test.record.*"/>
-            <package name="org.ballerinalang.test.net.grpc"/>
-            <package name="org.ballerinalang.test.runtime.*"/>
             <package name="org.ballerinalang.test.balo.*" />
-            <package name="org.ballerinalang.test.compression.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*" />
             <package name="org.ballerinalang.test.channels.*" />
             <package name="org.ballerinalang.test.privacy.*" />
@@ -87,11 +72,6 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
 		</classes>
-    </test>
-    <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.auth.*"/>
-        </packages>
     </test>
     <test name="ballerina-entry-function-test-suite" preserve-order="true" parallel="false">
         <packages >

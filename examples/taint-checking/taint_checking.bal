@@ -42,8 +42,8 @@ public function main(string... args) {
     userDefinedSecureOperation(args[0]);
 
     if (isInteger(args[0])) {
-        // After performing necessary validations and/or escaping, the 'untaint' unary expression can be used to mark
-        // the proceeding value as 'trusted' and pass it to a sensitive parameter.
+        // After performing necessary validations and/or escaping, the `untaint` unary expression can be used to mark
+        // the proceeding value as `trusted` and pass it to a sensitive parameter.
         userDefinedSecureOperation(untaint args[0]);
     } else {
         error err = error("Validation error: ID should be an integer");

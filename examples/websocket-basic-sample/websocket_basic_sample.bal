@@ -12,7 +12,7 @@ service basic on new http:WebSocketListener(9090) {
     string ping = "ping";
     byte[] pingData = ping.toByteArray("UTF-8");
 
-    // This resource is triggered after a successful client connection.
+    // This `resource` is triggered after a successful client connection.
     resource function onOpen(http:WebSocketCaller caller) {
         io:println("\nNew client connected");
         io:println("Connection ID: " + caller.id);
@@ -21,7 +21,7 @@ service basic on new http:WebSocketListener(9090) {
         io:println("Is connection secured: " + caller.isSecure);
     }
 
-    // This resource is triggered when a new text frame is received from a client.
+    // This `resource` is triggered when a new text frame is received from a client.
     resource function onText(http:WebSocketCaller caller, string text,
                                 boolean finalFrame) {
         io:println("\ntext message: " + text + " & final fragment: "
@@ -45,7 +45,7 @@ service basic on new http:WebSocketListener(9090) {
         }
     }
 
-    // This resource is triggered when a new binary frame is received from a client.
+    // This `resource` is triggered when a new binary frame is received from a client.
     resource function onBinary(http:WebSocketCaller caller, byte[] b) {
         io:println("\nNew binary message received");
         io:print("UTF-8 decoded binary message: ");
@@ -56,8 +56,8 @@ service basic on new http:WebSocketListener(9090) {
         }
     }
 
-    // This resource is triggered when a ping message is received from the client. If this resource is not implemented,
-    // a pong message is automatically sent to the connected http:WebSocketCaller when a ping is received.
+    // This `resource` is triggered when a ping message is received from the client. If this resource is not implemented,
+    // a pong message is automatically sent to the connected `http:WebSocketCaller` when a ping is received.
     resource function onPing(http:WebSocketCaller caller, byte[] data) {
         var err = caller->pong(data);
         if (err is error) {

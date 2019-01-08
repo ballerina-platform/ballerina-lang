@@ -89,6 +89,10 @@ public class SafeStrandCallback extends StrandCallback {
         errStream.println("error: " + BLangVMErrors.getPrintableStackTrace(error));
     }
 
+    public void setErrorForCancelledFuture(BError error) {
+        super.setError(error);
+    }
+
     void acquireDataLock() {
         this.callbackWaitHandler.dataLock.lock();
     }
