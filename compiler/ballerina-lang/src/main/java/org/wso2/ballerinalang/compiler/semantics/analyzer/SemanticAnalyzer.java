@@ -304,10 +304,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
-        objectTypeNode.fields.forEach(field -> analyzeDef(field, objectEnv));
 
-        // Visit functions as they are not in the same scope/env as the object fields
-        objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
+        if (!objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
+            objectTypeNode.fields.forEach(field -> analyzeDef(field, objectEnv));
+
+            // Visit functions as they are not in the same scope/env as the object fields
+            objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
+        } else {
+            // Restrict private visibility in abstract objects
+            objectTypeNode.fields.forEach(field -> {
+                analyzeDef(field, objectEnv);
+                if (field.flagSet.contains(Flag.PRIVATE)) {
+                    this.dlog.error(field.pos, DiagnosticCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
+                }
+            });
+
+            objectTypeNode.functions.forEach(func -> {
+                analyzeDef(func, env);
+                if (func.flagSet.contains(Flag.PRIVATE)) {
+                    this.dlog.error(func.pos, DiagnosticCode.PRIVATE_FUNC_ABSTRACT_OBJECT, func.name);
+                }
+            });
+        }
 
         // Validate the referenced functions that don't have implementations within the function.
         ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions

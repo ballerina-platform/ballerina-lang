@@ -67,3 +67,11 @@ type Person5 abstract object {
 function Person5.getName() returns string {
     return "my name";
 }
+
+// Abstract object with private field
+type Person6 abstract object {
+    private int age = 0;
+    public string name = "";
+
+    private function getName() returns string;
+};
