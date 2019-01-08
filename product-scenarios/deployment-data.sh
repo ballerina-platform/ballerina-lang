@@ -112,7 +112,7 @@ wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47
 tar -xvzf mysql-connector-java-5.1.47.tar.gz --directory ./
 
 sed -i "s/__DATABASE_HOST__/${DATABASE_HOST}/" product-scenarios/scenarios/1/data-service.bal
-sed -i "s/\"__DATABASE_PORT__\"/${DATABASE_PORT}/" product-scenarios/scenarios/1/data-service.bal
+sed -i "s/__DATABASE_PORT__/${DATABASE_PORT}/" product-scenarios/scenarios/1/data-service.bal
 sed -i "s/__DATABASE_NAME__/${DATABASE_NAME}/" product-scenarios/scenarios/1/data-service.bal
 sed -i "s/__DATABASE_USERNAME__/${DATABASE_USERNAME}/" product-scenarios/scenarios/1/data-service.bal
 sed -i "s/__DATABASE_PASSWORD__/${DATABASE_PASSWORD}/" product-scenarios/scenarios/1/data-service.bal
@@ -123,17 +123,19 @@ kubectl apply -f kubernetes/
 
 READY_REPLICAS=0
 START_TIME=$SECONDS
-DURATION=1 #Just an initialization value
-while [ "$READY_REPLICAS" != 1 ] && [ $DURATION > 0 ]
+TIMEOUT=300
+DURATION=0 #Just an initialization value
+while [ "$READY_REPLICAS" != 1 ] && [ $TIMEOUT -gt $DURATION ]
 do
    READY_REPLICAS=$(kubectl get deployment ballerina-employee-database-service -o jsonpath='{.status.readyReplicas}')
    echo $READY_REPLICAS
    sleep 20s
-   DURATION=$SECONDS-$START_TIME
+   DURATION=`expr $SECONDS - $START_TIME`
+   echo $DURATION
 done
 
 if [ "$READY_REPLICAS" != 1 ]; then
-	exit 1
+	exit 1;
 fi
 
 kubectl get svc
