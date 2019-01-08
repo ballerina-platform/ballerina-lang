@@ -124,6 +124,7 @@ public type TimeWindow object {
     public LinkedList timerQueue;
     public function (StreamEvent[])? nextProcessPointer;
     public int lastTimestamp = -0x8000000000000000;
+    public Scheduler scheduler;
 
     public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -132,6 +133,9 @@ public type TimeWindow object {
         self.expiredEventQueue = new;
         self.timerQueue = new;
         self.initParameters(windowParameters);
+        self.scheduler = new(function (StreamEvent[] events) {
+                self.process(events);
+            });
     }
 
     public function initParameters(any[] parameters) {
@@ -182,11 +186,7 @@ public type TimeWindow object {
                     self.expiredEventQueue.addLast(clonedEvent);
 
                     if (self.lastTimestamp < clonedEvent.timestamp) {
-                        task:Timer timer = new task:Timer(function () returns error? {return self.invokeProcess();},
-                            function (error e) {self.handleError(e);}, self.timeInMillis,
-                            delay = self.timeInMillis - (time:currentTime().time - clonedEvent.timestamp));
-                        _ = timer.start();
-                        self.timerQueue.addLast(timer);
+                        self.scheduler.schedule(clonedEvent.timestamp);
                         self.lastTimestamp = clonedEvent.timestamp;
                     }
                 } else {
@@ -217,7 +217,7 @@ public type TimeWindow object {
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
         if (!self.timerQueue.isEmpty()) {
-            task:Timer timer = <task:Timer>self.timerQueue.removeFirst();
+            task:Timer timer = <task:Timer>self.timerQueue.getFirst();
             _ = timer.stop();
         }
         return ();
