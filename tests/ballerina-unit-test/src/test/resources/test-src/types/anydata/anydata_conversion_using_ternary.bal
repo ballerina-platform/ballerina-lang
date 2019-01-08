@@ -16,7 +16,7 @@
 
 type Foo record {
     int a;
-    anydata... // TODO: Remove this line once the default rest field type is changed to anydata
+    anydata...; // TODO: Remove this line once the default rest field type is changed to anydata
 };
 
 type ClosedFoo record {
