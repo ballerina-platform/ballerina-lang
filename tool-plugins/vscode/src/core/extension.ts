@@ -21,7 +21,7 @@
 import {
     workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction, OutputChannel,
+    Extension, ExtensionContext, IndentAction,
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
@@ -116,6 +116,8 @@ export class BallerinaExtension {
                     disposeDidChange.dispose();
                     this.context!.subscriptions.push(disposable);
                 });
+            }).catch(e => {
+                log(`Error when checking ballerina version. Got ${e}`);
             });
 
         } catch (ex) {
@@ -205,6 +207,11 @@ export class BallerinaExtension {
         return new Promise((resolve, reject) => {
             exec(command, (err, stdout, stderr) => {
                 const version = stdout.length > 0 ? stdout : stderr;
+                if (version.startsWith("Error:")) {
+                    reject(version);
+                    return;
+                }
+                
                 resolve(version.replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
             });
         });
