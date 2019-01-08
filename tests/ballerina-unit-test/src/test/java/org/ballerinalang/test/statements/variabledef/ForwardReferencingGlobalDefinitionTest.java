@@ -39,26 +39,14 @@ import java.util.Map;
  */
 public class ForwardReferencingGlobalDefinitionTest {
 
-    @Test(description = "Test compiler rejecting forward referenced global variables")
-    public void globalDefinitionsWithForwardReferences() {
-        CompileResult resultNegative = BCompileUtil.
-                compile("test-src/statements/variabledef/forward-reference-in-global-vardef-negative.bal");
-        Diagnostic[] diagnostics = resultNegative.getDiagnostics();
-        Assert.assertTrue(diagnostics.length > 0);
-        BAssertUtil.validateError(resultNegative, 0, "illegal forward reference to 'employee'", 32, 26);
-        BAssertUtil.validateError(resultNegative, 1, "illegal forward reference to 'person'", 32, 36);
-        BAssertUtil.validateError(resultNegative, 2, "illegal forward reference to 'person'", 35, 11);
-        BAssertUtil.validateError(resultNegative, 3, "illegal forward reference to 'person'", 36, 10);
-    }
-
     @Test(description = "Test compiler rejecting cyclic references in global variable definitions")
     public void globalDefinitionsWithCyclicReferences() {
-        CompileResult resultNegativeCycleFound = BCompileUtil.compile(this, "test-src/statements/variabledef",
-                "globalcycle");
+        CompileResult resultNegativeCycleFound = BCompileUtil.compile(this,
+                "test-src/statements/variabledef/globalcycle", "simple");
         Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
-        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 19, 1);
-        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 38, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[person, employee]'", 19, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep2, dep1]'", 38, 1);
     }
 
     @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")
@@ -77,12 +65,24 @@ public class ForwardReferencingGlobalDefinitionTest {
     public void inFunctionGlobalReference() {
         CompileResult resultReOrdered = BCompileUtil.compile(this, "test-src/statements/variabledef",
                 "inFunctionGlobalRef");
-//        Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
-//        Assert.assertEquals(diagnostics.length, 0);
 
         BValue[] employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
         String employeeName = ((BMap) employee[0]).get("name").stringValue();
         Assert.assertEquals(employeeName, "Sumedha");
+
+        BValue[] employee2 = BRunUtil.invoke(resultReOrdered, "getfromFuncA");
+        String employee2Name = ((BMap) employee2[0]).get("name").stringValue();
+        Assert.assertEquals(employee2Name, "Sumedha");
+    }
+
+    @Test(description = "Test global variable reference cycle via function")
+    public void inFunctionGlobalReferenceCauseCycle() {
+        CompileResult cycle = BCompileUtil.compile(this, "test-src/statements/variabledef/globalcycle",
+                "viafunc");
+
+        Assert.assertTrue(cycle.getDiagnostics().length > 0);
+        BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFunc, getPersonOuter, getPersonInner, " +
+                "getfromFuncA, fromFuncA]'", 22, 1);
     }
 
     @Test(description = "Test algorithms on graph with cycles")

@@ -20,10 +20,14 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Implement Tarjan's strongly connected components algorithm.
@@ -44,6 +48,26 @@ public class TarjanSccSolverAdjacencyList {
     private int[] lowLinks;
     private Deque<Integer> stack;
     public final List<Integer> dependencyOrder;
+    private HashMap<Integer, List<Integer>> stronglyConnectedComponents;
+
+    /**
+     * Get sorted node ids of nodes that needs to be topologically sorted.
+     * This doesn't return nodes that are independent in the graph.
+     * @return sorted node id list
+     */
+    public List<Integer> getDependencyOrderFiltered() {
+        Set<Integer> applicableItems = new HashSet<>();
+        for (int i = 0; i < adjacencyList.size(); i++) {
+            if (!adjacencyList.get(i).isEmpty()) {
+                applicableItems.add(i);
+                applicableItems.addAll(adjacencyList.get(i));
+            }
+        }
+        List<Integer> order = dependencyOrder.stream().filter(applicableItems::contains).collect(Collectors.toList());
+        Collections.reverse(order);
+        return order;
+    }
+
 
     private static final int UNVISITED = -1;
 
@@ -54,6 +78,7 @@ public class TarjanSccSolverAdjacencyList {
         nodeCount = adjacencyList.size();
         this.adjacencyList = adjacencyList;
         dependencyOrder = new ArrayList<>();
+        stronglyConnectedComponents = new HashMap<>();
     }
 
     /**
@@ -107,6 +132,7 @@ public class TarjanSccSolverAdjacencyList {
             for (int node = stack.pop(); true; node = stack.pop()) {
                 onStack[node] = false;
                 lowLinks[node] = ids[at];
+                trackSCC(at, node);
                 if (node == at) {
                     break;
                 }
@@ -115,6 +141,10 @@ public class TarjanSccSolverAdjacencyList {
         }
 
         dependencyOrder.add(at);
+    }
+
+    private void trackSCC(int at, int node) {
+        stronglyConnectedComponents.computeIfAbsent(at, k -> new ArrayList<>()).add(node);
     }
 
     /**
@@ -146,14 +176,11 @@ public class TarjanSccSolverAdjacencyList {
      */
     public Map<Integer, List<Integer>> getSCCs() {
         solve();
-
-        Map<Integer, List<Integer>> multimap = new TreeMap<>();
-        for (int i = 0; i < this.nodeCount; i++) {
-            if (!multimap.containsKey(lowLinks[i])) {
-                multimap.put(lowLinks[i], new ArrayList<>());
-            }
-            multimap.get(lowLinks[i]).add(i);
+        for (List<Integer> value : stronglyConnectedComponents.values()) {
+            // Reversing the list gives visited order.
+            Collections.reverse(value);
         }
-        return multimap;
+
+        return stronglyConnectedComponents;
     }
 }

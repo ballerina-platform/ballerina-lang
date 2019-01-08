@@ -24,6 +24,9 @@ import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
 
 /**
@@ -40,9 +43,11 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
      * Represent the index of the variable in a memory block of the VM.
      */
     public RegIndex varIndex;
+    public List<BSymbol> dependents;
 
     public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(VARIABLE, flags, name, pkgID, type, owner);
+        this.dependents = new ArrayList<>();
     }
 
     @Override
