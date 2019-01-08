@@ -94,7 +94,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  * @since 0.8.0
  */
 public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
-    
+
     private Calendar utcCalendar;
     private static final BTupleType executeUpdateWithKeysTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, new BArrayType(BTypes.typeString)));

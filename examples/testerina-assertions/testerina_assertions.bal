@@ -29,7 +29,7 @@ function testAssertStringEquals() {
     test:assertEquals(concatenated, "JohnDoe", msg = "string values not equal");
 }
 
-// Compare values of type `JSON`.
+// Compare values of type `json`.
 @test:Config
 function testAssertJsonEquals() {
     json a = { "name": "Ballerina" };
@@ -77,7 +77,7 @@ function testAssertNotEqualsString() {
     test:assertNotEquals(s1, s2, msg = "string values are equal");
 }
 
-// Compare distinct values of type `JSON`.
+// Compare distinct values of type `json`.
 @test:Config
 function testAssertNotEqualsJson() {
     json s1 = { "a": "b" };
@@ -85,14 +85,14 @@ function testAssertNotEqualsJson() {
     test:assertNotEquals(s1, s2, msg = "JSON values are equal");
 }
 
-// Asserting true.
+// Asserting `true`.
 @test:Config
 function testAssertTrue() {
     boolean value = true;
     test:assertTrue(value, msg = "AssertTrue failed");
 }
 
-// Asserting false.
+// Asserting `false`.
 @test:Config
 function testAssertFalse() {
     boolean value = false;

@@ -287,6 +287,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
                 <!--<version>2.6</version>-->
                 <executions>
                     <execution>

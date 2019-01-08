@@ -105,6 +105,7 @@ public class BallerinaStreamsV2SelectorTest {
         Assert.assertEquals(employee0.get("school").stringValue(), "Ananda College");
         Assert.assertEquals(((BBoolean) employee0.get("isString")).booleanValue(), true);
         Assert.assertEquals(employee0.get("companyName").stringValue(), "wso2");
+        Assert.assertEquals(employee0.get("concat").stringValue(), "Raja 25");
 
         Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
         Assert.assertEquals(((BInteger) employee2.get("netSalary")).intValue(), 9000);
@@ -116,6 +117,7 @@ public class BallerinaStreamsV2SelectorTest {
         Assert.assertEquals(employee2.get("school").stringValue(), "School not found");
         Assert.assertEquals(((BBoolean) employee2.get("isString")).booleanValue(), true);
         Assert.assertEquals(employee2.get("companyName").stringValue(), "microsoft");
+        Assert.assertEquals(employee2.get("concat").stringValue(), "Shareek 50");
 
     }
 }
