@@ -5,14 +5,14 @@ import ballerinax/kubernetes;
 
 @kubernetes:Ingress {
     hostname: "scenariotests.ballerina.io",
-    name: "ballerina-circuit-breaker-service",
+    name: "circuit_breaker_frontend_service",
     path: "/"
 }
 
 @kubernetes:Service {
     serviceType:"LoadBalancer",
     port:80,
-    name: "ballerina-circuit-breaker-service"
+    name: "circuit_breaker_frontend_service"
 }
 
 @kubernetes:Deployment {
