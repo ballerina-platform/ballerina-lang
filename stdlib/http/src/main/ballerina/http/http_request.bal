@@ -239,6 +239,11 @@ public type Request object {
 
     // For use within the module. Takes the Cache-Control header and parses it to a RequestCacheControl object.
     function parseCacheControlHeader();
+
+    # Check whether the entity body is present.
+    #
+    # + return - a boolean indicating entity body availability
+    extern function checkEntityBodyAvailability() returns boolean;
 };
 
 /////////////////////////////////

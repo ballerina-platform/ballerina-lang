@@ -214,7 +214,8 @@ remote function FailoverClient.options(string path, OutboundRequestEntity messag
 }
 
 remote function FailoverClient.forward(string path, Request request) returns Response|error {
-    return performFailoverAction(path, request, HTTP_FORWARD, self);
+    Request req = buildRequest(request);
+    return performFailoverAction(path, req, HTTP_FORWARD, self);
 }
 
 remote function FailoverClient.execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {

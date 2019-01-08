@@ -143,7 +143,8 @@ public type Client client object {
     # + request - An HTTP inbound request message
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function forward(@sensitive string path, Request request) returns Response|error {
-        return self.httpClient->forward(path, request);
+        Request req = buildRequest(request);
+        return self.httpClient->forward(path, req);
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.

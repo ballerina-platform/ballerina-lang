@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -64,20 +63,14 @@ public class Forward extends AbstractHTTPAction {
 
         if (HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
             HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
-            prepareOutboundRequest(context, path, outboundRequestMsg, isNonEntityBodyReq(outboundRequestMsg));
+            prepareOutboundRequest(context, path, outboundRequestMsg, isNonEntityBodyRequest(requestStruct));
             outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
                     BLangConnectorSPIUtil.toStruct(requestStruct).getStringField(HttpConstants.HTTP_REQUEST_METHOD));
         } else {
-            prepareOutboundRequest(context, path, outboundRequestMsg, isNonEntityBodyReq(outboundRequestMsg));
+            prepareOutboundRequest(context, path, outboundRequestMsg, isNonEntityBodyRequest(requestStruct));
             String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
             outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
         }
         return outboundRequestMsg;
-    }
-
-    private Boolean isNonEntityBodyReq(HttpCarbonMessage outboundRequestMsg) {
-        String contentLength = outboundRequestMsg.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-        String transferEncoding = outboundRequestMsg.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
-        return contentLength == null && transferEncoding == null;
     }
 }

@@ -200,7 +200,8 @@ remote function LoadBalanceClient.options(string path, OutboundRequestEntity mes
 }
 
 remote function LoadBalanceClient.forward(string path, Request request) returns Response|error {
-    return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
+    Request req = buildRequest(request);
+    return performLoadBalanceAction(self, path, req, HTTP_FORWARD);
 }
 
 remote function LoadBalanceClient.execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {

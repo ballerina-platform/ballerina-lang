@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/io;
 
 http:Client stockqEP = new("http://localhost:9107");
 
@@ -21,7 +22,7 @@ service headerService on new http:Listener(9106) {
 
     resource function id(http:Caller caller, http:Request req) {
         http:Response clntResponse = new;
-        var clientResponse = stockqEP -> forward("/sample/customers", req);
+        var clientResponse = stockqEP -> forward("/sample/customers", untaint req);
         if (clientResponse is http:Response) {
             json payload = {};
             if (clientResponse.hasHeader("person")) {
@@ -37,6 +38,62 @@ service headerService on new http:Listener(9106) {
             _ = caller->respond(payload);
         } else if (clientResponse is error) {
             _ = caller->respond(clientResponse.reason());
+        }
+    }
+
+    resource function nonEntityBodyGet(http:Caller caller, http:Request req) {
+        var result = stockqEP -> get("/sample/entitySizeChecker");
+        if (result is http:Response) {
+            _ = caller->respond(result);
+        } else if (result is error) {
+            _ = caller->respond(result.reason());
+        }
+    }
+
+    resource function entityBodyGet(http:Caller caller, http:Request req) {
+        var result = stockqEP -> get("/sample/entitySizeChecker", message = "hello");
+        if (result is http:Response) {
+            _ = caller->respond(result);
+        } else if (result is error) {
+            _ = caller->respond(result.reason());
+        }
+    }
+
+    resource function entityGet(http:Caller caller, http:Request req) {
+        http:Request request = new;
+        request.setHeader("X_test", "One header");
+        var result = stockqEP -> get("/sample/entitySizeChecker", message = request);
+        if (result is http:Response) {
+            _ = caller->respond(result);
+        } else if (result is error) {
+            _ = caller->respond(result.reason());
+        }
+    }
+
+    resource function entityForward(http:Caller caller, http:Request req) {
+        var result = stockqEP -> forward("/sample/entitySizeChecker", untaint req);
+        if (result is http:Response) {
+            _ = caller->respond(result);
+        } else if (result is error) {
+            _ = caller->respond(result.reason());
+        }
+    }
+
+    resource function entityExecute(http:Caller caller, http:Request req) {
+        var result = stockqEP -> execute("GET", "/sample/entitySizeChecker", "hello ballerina");
+        if (result is http:Response) {
+            _ = caller->respond(result);
+        } else if (result is error) {
+            _ = caller->respond(result.reason());
+        }
+    }
+
+    resource function noEntityExecute(http:Caller caller, http:Request req) {
+        var result = stockqEP -> execute("GET", "/sample/entitySizeChecker", ());
+        if (result is http:Response) {
+            _ = caller->respond(result);
+        } else if (result is error) {
+            _ = caller->respond(result.reason());
         }
     }
 }
@@ -76,5 +133,13 @@ service quoteService1 on new http:Listener(9107) {
         res.setHeader("person", "kkk");
         res.addHeader("person", "jjj");
         _ = caller->respond(res);
+    }
+
+    resource function entitySizeChecker(http:Caller caller, http:Request req) {
+        if (req.hasHeader("content-length")) {
+            _ = caller->respond("Content-length header available");
+        } else {
+            _ = caller->respond("No Content size related header present");
+        }
     }
 }

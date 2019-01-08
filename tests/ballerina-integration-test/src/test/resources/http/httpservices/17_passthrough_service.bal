@@ -41,7 +41,7 @@ service passthroughService on passthroughEP1 {
     }
     resource function forwardMultipart(http:Caller caller, http:Request clientRequest) {
         http:Client nyseEP1 = new("http://localhost:9113");
-        var response = nyseEP1->forward("/nyseStock/stocksAsMultiparts", clientRequest);
+        var response = nyseEP1->forward("/nyseStock/stocksAsMultiparts", untaint clientRequest);
         if (response is http:Response) {
             _ = caller->respond(response);
         } else if (response is error) {

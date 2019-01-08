@@ -203,6 +203,7 @@ function buildRequest(OutboundRequestEntity message) returns Request {
         return request;
     } else if (message is Request) {
         request = message;
+        request.nonEntityBody = !request.checkEntityBodyAvailability();
     } else if (message is string) {
         request.setTextPayload(message);
     } else if (message is xml) {

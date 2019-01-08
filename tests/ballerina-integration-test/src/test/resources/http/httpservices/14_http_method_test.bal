@@ -44,7 +44,7 @@ service headQuoteService on serviceEndpoint4 {
         path:"/forward11"
     }
     resource function forwardRes11 (http:Caller caller, http:Request req) {
-        var response = endPoint -> forward("/getQuote/stocks", req);
+        var response = endPoint -> forward("/getQuote/stocks", untaint req);
         if (response is http:Response) {
             _ = caller -> respond(response);
         } else if (response is error) {
@@ -57,7 +57,7 @@ service headQuoteService on serviceEndpoint4 {
         path:"/forward22"
     }
     resource function forwardRes22 (http:Caller caller, http:Request req) {
-        var response = endPoint -> forward("/getQuote/stocks", req);
+        var response = endPoint -> forward("/getQuote/stocks", untaint req);
         if (response is http:Response) {
             _ = caller -> respond(response);
         } else if (response is error) {
