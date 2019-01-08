@@ -56,7 +56,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function get(string path, OutboundRequestEntity message = ()) returns Response|error {
+    public function get(string path, RequestMessage message = ()) returns Response|error {
         return performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
     }
 
@@ -67,7 +67,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function post(string path, OutboundRequestEntity message) returns Response|error {
+    public function post(string path, RequestMessage message) returns Response|error {
         return performRedirectIfEligible(self, path, <Request>message, HTTP_POST);
     }
 
@@ -78,7 +78,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function head(string path, OutboundRequestEntity message = ()) returns Response|error {
+    public function head(string path, RequestMessage message = ()) returns Response|error {
         return performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
     }
 
@@ -89,7 +89,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function put(string path, OutboundRequestEntity message) returns Response|error {
+    public function put(string path, RequestMessage message) returns Response|error {
         return performRedirectIfEligible(self, path, <Request>message, HTTP_PUT);
     }
 
@@ -109,7 +109,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {
+    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error {
         Request request = <Request>message;
         //Redirection is performed only for HTTP methods
         if (HTTP_NONE == extractHttpOperation(httpVerb)) {
@@ -126,7 +126,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function patch(string path, OutboundRequestEntity message) returns Response|error {
+    public function patch(string path, RequestMessage message) returns Response|error {
         return performRedirectIfEligible(self, path, <Request>message, HTTP_PATCH);
     }
 
@@ -137,7 +137,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function delete(string path, OutboundRequestEntity message) returns Response|error {
+    public function delete(string path, RequestMessage message) returns Response|error {
         return performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
     }
 
@@ -148,7 +148,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function options(string path, OutboundRequestEntity message = ()) returns Response|error {
+    public function options(string path, RequestMessage message = ()) returns Response|error {
         return performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
     }
 
@@ -161,7 +161,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public remote function submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
         return self.httpClient->submit(httpVerb, path, <Request>message);
     }
 

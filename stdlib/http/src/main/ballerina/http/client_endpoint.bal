@@ -54,7 +54,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(@sensitive string path, OutboundRequestEntity message) returns Response|error {
+    public remote function post(@sensitive string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->post(path, req);
     }
@@ -65,7 +65,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(@sensitive string path, OutboundRequestEntity message = ()) returns Response|error {
+    public remote function head(@sensitive string path, RequestMessage message = ()) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->head(path, message = req);
     }
@@ -76,7 +76,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function put(@sensitive string path, OutboundRequestEntity message) returns Response|error {
+    public remote function put(@sensitive string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->put(path, req);
     }
@@ -88,7 +88,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(@sensitive string httpVerb, @sensitive string path, OutboundRequestEntity message) returns Response|error {
+    public remote function execute(@sensitive string httpVerb, @sensitive string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->execute(httpVerb, path, req);
     }
@@ -99,7 +99,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function patch(@sensitive string path, OutboundRequestEntity message) returns Response|error {
+    public remote function patch(@sensitive string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->patch(path, req);
     }
@@ -110,7 +110,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function delete(@sensitive string path, OutboundRequestEntity message) returns Response|error {
+    public remote function delete(@sensitive string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->delete(path, req);
     }
@@ -121,7 +121,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(@sensitive string path, OutboundRequestEntity message = ()) returns Response|error {
+    public remote function get(@sensitive string path, RequestMessage message = ()) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->get(path, message = req);
     }
@@ -132,7 +132,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function options(@sensitive string path, OutboundRequestEntity message = ()) returns Response|error {
+    public remote function options(@sensitive string path, RequestMessage message = ()) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->options(path, message = req);
     }
@@ -156,7 +156,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(@sensitive string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {
+    public remote function submit(@sensitive string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
         Request req = buildRequest(message);
         return self.httpClient->submit(httpVerb, path, req);
 

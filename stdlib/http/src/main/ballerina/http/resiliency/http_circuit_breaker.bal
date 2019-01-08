@@ -159,7 +159,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function post(string path, OutboundRequestEntity message) returns Response|error;
+    public function post(string path, RequestMessage message) returns Response|error;
 
     # The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
     # HTTP remote functions provider.
@@ -167,7 +167,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function head(string path, OutboundRequestEntity message = ()) returns Response|error;
+    public function head(string path, RequestMessage message = ()) returns Response|error;
 
     # The PUT remote function implementation of the Circuit Breaker. This wraps the `put()` function of the underlying
     # HTTP remote functions provider.
@@ -175,7 +175,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function put(string path, OutboundRequestEntity message) returns Response|error;
+    public function put(string path, RequestMessage message) returns Response|error;
 
     # This wraps the `post()` function of the underlying HTTP remote functions provider. The `execute()` function can be used
     # to invoke an HTTP call with the given HTTP verb.
@@ -184,7 +184,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error;
+    public function execute(string httpVerb, string path, RequestMessage message) returns Response|error;
 
     # The PATCH remote function implementation of the Circuit Breaker. This wraps the `patch()` function of the underlying
     # HTTP remote functions provider.
@@ -192,7 +192,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function patch(string path, OutboundRequestEntity message) returns Response|error;
+    public function patch(string path, RequestMessage message) returns Response|error;
 
     # The DELETE remote function implementation of the Circuit Breaker. This wraps the `delete()` function of the underlying
     # HTTP remote functions provider.
@@ -200,7 +200,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function delete(string path, OutboundRequestEntity message) returns Response|error;
+    public function delete(string path, RequestMessage message) returns Response|error;
 
     # The GET remote function implementation of the Circuit Breaker. This wraps the `get()` function of the underlying
     # HTTP remote functions provider.
@@ -209,7 +209,7 @@ public type CircuitBreakerClient object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function get(string path, OutboundRequestEntity message = ()) returns Response|error;
+    public function get(string path, RequestMessage message = ()) returns Response|error;
 
     # The OPTIONS remote function implementation of the Circuit Breaker. This wraps the `options()` function of the underlying
     # HTTP remote functions provider.
@@ -218,7 +218,7 @@ public type CircuitBreakerClient object {
     # + message - An optional HTTP Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function options(string path, OutboundRequestEntity message = ()) returns Response|error;
+    public function options(string path, RequestMessage message = ()) returns Response|error;
 
     # This wraps the `forward()` function of the underlying HTTP remote functions provider. The Forward remote function can be used to
     # forward an incoming request to an upstream service as it is.
@@ -235,7 +235,7 @@ public type CircuitBreakerClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public function submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error;
+    public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error;
 
     # Circuit breaking not supported. Defaults to the `getResponse()` function of the underlying HTTP
     # remote functions provider.
@@ -284,7 +284,7 @@ public type CircuitBreakerClient object {
     public function getCurrentState() returns CircuitState;
 };
 
-function CircuitBreakerClient.post(string path, OutboundRequestEntity message) returns Response|error {
+function CircuitBreakerClient.post(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -297,7 +297,7 @@ function CircuitBreakerClient.post(string path, OutboundRequestEntity message) r
     }
 }
 
-function CircuitBreakerClient.head(string path, OutboundRequestEntity message = ()) returns Response|error {
+function CircuitBreakerClient.head(string path, RequestMessage message = ()) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -310,7 +310,7 @@ function CircuitBreakerClient.head(string path, OutboundRequestEntity message = 
     }
 }
 
-function CircuitBreakerClient.put(string path, OutboundRequestEntity message) returns Response|error {
+function CircuitBreakerClient.put(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -323,7 +323,7 @@ function CircuitBreakerClient.put(string path, OutboundRequestEntity message) re
     }
 }
 
-function CircuitBreakerClient.execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {
+function CircuitBreakerClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -336,7 +336,7 @@ function CircuitBreakerClient.execute(string httpVerb, string path, OutboundRequ
     }
 }
 
-function CircuitBreakerClient.patch(string path, OutboundRequestEntity message) returns Response|error {
+function CircuitBreakerClient.patch(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -349,7 +349,7 @@ function CircuitBreakerClient.patch(string path, OutboundRequestEntity message) 
     }
 }
 
-function CircuitBreakerClient.delete(string path, OutboundRequestEntity message) returns Response|error {
+function CircuitBreakerClient.delete(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -362,7 +362,7 @@ function CircuitBreakerClient.delete(string path, OutboundRequestEntity message)
     }
 }
 
-function CircuitBreakerClient.get(string path, OutboundRequestEntity message = ()) returns Response|error {
+function CircuitBreakerClient.get(string path, RequestMessage message = ()) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -375,7 +375,7 @@ function CircuitBreakerClient.get(string path, OutboundRequestEntity message = (
     }
 }
 
-function CircuitBreakerClient.options(string path, OutboundRequestEntity message = ()) returns Response|error {
+function CircuitBreakerClient.options(string path, RequestMessage message = ()) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -401,7 +401,7 @@ function CircuitBreakerClient.forward(string path, Request request) returns Resp
     }
 }
 
-function CircuitBreakerClient.submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {
+function CircuitBreakerClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     return self.httpClient->submit(httpVerb, path, <Request>message);
 }
 

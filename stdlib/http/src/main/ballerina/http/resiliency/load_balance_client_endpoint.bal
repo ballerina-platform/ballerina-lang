@@ -54,7 +54,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function post(string path, OutboundRequestEntity message) returns Response|error;
+    public remote function post(string path, RequestMessage message) returns Response|error;
 
     # The HEAD remote function implementation of the LoadBalancer Connector.
     #
@@ -62,7 +62,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function head(string path, OutboundRequestEntity message = ()) returns Response|error;
+    public remote function head(string path, RequestMessage message = ()) returns Response|error;
 
     # The PATCH remote function implementation of the LoadBalancer Connector.
     #
@@ -70,7 +70,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function patch(string path, OutboundRequestEntity message) returns Response|error;
+    public remote function patch(string path, RequestMessage message) returns Response|error;
 
     # The PUT remote function implementation of the Load Balance Connector.
     #
@@ -78,7 +78,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function put(string path, OutboundRequestEntity message) returns Response|error;
+    public remote function put(string path, RequestMessage message) returns Response|error;
 
     # The OPTIONS remote function implementation of the LoadBalancer Connector.
     #
@@ -86,7 +86,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function options(string path, OutboundRequestEntity message = ()) returns Response|error;
+    public remote function options(string path, RequestMessage message = ()) returns Response|error;
 
     # The FORWARD remote function implementation of the LoadBalancer Connector.
     #
@@ -103,7 +103,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error;
+    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error;
 
     # The DELETE remote function implementation of the LoadBalancer Connector.
     #
@@ -111,7 +111,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function delete(string path, OutboundRequestEntity message) returns Response|error;
+    public remote function delete(string path, RequestMessage message) returns Response|error;
 
     # The GET remote function implementation of the LoadBalancer Connector.
 
@@ -119,7 +119,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function get(string path, OutboundRequestEntity message = ()) returns Response|error;
+    public remote function get(string path, RequestMessage message = ()) returns Response|error;
 
     # The submit implementation of the LoadBalancer Connector.
     #
@@ -128,7 +128,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error;
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error;
 
     # The getResponse implementation of the LoadBalancer Connector.
     #
@@ -174,27 +174,27 @@ public type LoadBalanceActionErrorData record {
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
 
-remote function LoadBalanceClient.post(string path, OutboundRequestEntity message) returns Response|error {
+remote function LoadBalanceClient.post(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
-remote function LoadBalanceClient.head(string path, OutboundRequestEntity message = ()) returns Response|error {
+remote function LoadBalanceClient.head(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
-remote function LoadBalanceClient.patch(string path, OutboundRequestEntity message) returns Response|error {
+remote function LoadBalanceClient.patch(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
-remote function LoadBalanceClient.put(string path, OutboundRequestEntity message) returns Response|error {
+remote function LoadBalanceClient.put(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
-remote function LoadBalanceClient.options(string path, OutboundRequestEntity message = ()) returns Response|error {
+remote function LoadBalanceClient.options(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
@@ -204,22 +204,22 @@ remote function LoadBalanceClient.forward(string path, Request request) returns 
     return performLoadBalanceAction(self, path, req, HTTP_FORWARD);
 }
 
-remote function LoadBalanceClient.execute(string httpVerb, string path, OutboundRequestEntity message) returns Response|error {
+remote function LoadBalanceClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
 
-remote function LoadBalanceClient.delete(string path, OutboundRequestEntity message) returns Response|error {
+remote function LoadBalanceClient.delete(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-remote function LoadBalanceClient.get(string path, OutboundRequestEntity message = ()) returns Response|error {
+remote function LoadBalanceClient.get(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-remote function LoadBalanceClient.submit(string httpVerb, string path, OutboundRequestEntity message) returns HttpFuture|error {
+remote function LoadBalanceClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }

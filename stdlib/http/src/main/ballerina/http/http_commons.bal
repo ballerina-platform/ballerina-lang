@@ -99,10 +99,10 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 public const COMPRESSION_NEVER = "NEVER";
 
 # The types of messages that are accepted by HTTP `client` when sending out the outbound request.
-public type OutboundRequestEntity Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
+public type RequestMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
 
 # The types of messages that are accepted by HTTP `listener` when sending out the outbound response.
-public type OutboundResponseEntity Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
+public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
 
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
 #
@@ -196,7 +196,7 @@ type HTTPError record {
 //TODO: Make the error nillable
 public extern function parseHeader (string headerValue) returns (string, map<any>)|error;
 
-function buildRequest(OutboundRequestEntity message) returns Request {
+function buildRequest(RequestMessage message) returns Request {
     Request request = new;
     if (message is ()) {
         request.nonEntityBody = true;
@@ -220,7 +220,7 @@ function buildRequest(OutboundRequestEntity message) returns Request {
     return request;
 }
 
-function buildResponse(OutboundResponseEntity message) returns Response {
+function buildResponse(ResponseMessage message) returns Response {
     Response response = new;
     if (message is ()) {
         return response;
