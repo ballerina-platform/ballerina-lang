@@ -264,7 +264,7 @@
                     <!-- Since balo is needed by tests, here it is copied to target/lib where other balos
                     are copied to -->
                     <execution>
-                        <id>copy-file-balo</id>
+                        <id>copy-config-api-balo</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>copy-resources</goal>
