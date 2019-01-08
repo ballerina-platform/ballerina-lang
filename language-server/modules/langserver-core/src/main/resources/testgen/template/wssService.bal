@@ -10,20 +10,20 @@ function ${testServiceFunctionName} () {
                     password: "ballerina"
                 }
             },
-            readyOnConnect: false
+            readyOnConnect: true
     });
-    //Send a message
-    _ = ${endpointName}->pushText("hey");
-    //Wait some time for a reply
-    runtime:sleep(1000);
+    // Send a message
+    _ = wsClient->pushText("hey");
+    // Receive message via channel
+    string wsReply = <- ${wsReplyChannel};
     // Test reply
-    //test:assertEquals(${callbackServiceName}.text, "hey", msg = "Received message should be equal to the expected message");
+    test:assertEquals(wsReply, "hey", msg = "Received message should be equal to the expected message");
 }
 
 service ${callbackServiceName} = @http:WebSocketServiceConfig {} service {
     string wsReply = "";
     resource function onText(http:WebSocketClient ${callbackServiceName}Ep, string text) {
-        //Test received message
-        self.wsReply = untaint text;
+        // Send message via channel
+        text -> ${wsReplyChannel};
     }
 };
