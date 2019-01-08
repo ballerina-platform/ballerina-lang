@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.test.task;
+package org.ballerinalang.stdlib.task;
 
 /*
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
@@ -46,11 +46,11 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
+
 import static org.awaitility.Awaitility.await;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-
-import java.util.Arrays;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 

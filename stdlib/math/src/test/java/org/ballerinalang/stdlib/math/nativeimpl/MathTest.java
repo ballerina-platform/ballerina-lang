@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.nativeimpl.functions;
+package org.ballerinalang.stdlib.math.nativeimpl;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -39,7 +39,7 @@ public class MathTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/math.bal");
+        compileResult = BCompileUtil.compile("test-src/math/math.bal");
     }
 
     @Test(description = "Test 'exp' function in ballerina.lang.math package")

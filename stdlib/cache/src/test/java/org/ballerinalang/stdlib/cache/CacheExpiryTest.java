@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.test.cache;
+package org.ballerinalang.stdlib.cache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

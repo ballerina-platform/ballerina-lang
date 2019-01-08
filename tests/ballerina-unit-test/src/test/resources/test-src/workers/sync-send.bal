@@ -436,3 +436,28 @@ function errorResultWithMultipleWorkers() returns error? {
     error? eor = wait w2 | w1;
     return eor;
 }
+
+public type Rec record {
+    int k = 0;
+};
+
+public function testComplexType() returns Rec {
+    worker w1 {
+      Rec rec = {};
+      rec.k = 10;
+      //int i = 40;
+      () sendRet = rec ->> w2;
+      rec.k = 50;
+      sendRet = 5 ->> w2;
+    }
+
+    worker w2 returns Rec {
+      int l = 25;
+      Rec j = {};
+      j = <- w1;
+      l = <- w1;
+      return j;
+    }
+
+    return wait w2;
+}
