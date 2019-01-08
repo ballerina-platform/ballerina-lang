@@ -43,7 +43,8 @@ public type SubscriberServiceConfiguration record {
     string secret = "";
     string callback = "";
     http:ClientEndpointConfig subscriptionClientConfig?;
-    !...;};
+    !...;
+};
 
 # WebSub Subscriber Configuration for the service, indicating subscription related parameters.
 public annotation<service> SubscriberServiceConfig SubscriberServiceConfiguration;

@@ -429,7 +429,8 @@ public type SubscriptionChangeRequest record {
     string callback = "";
     int leaseSeconds = 0;
     string secret = "";
-    !...;};
+    !...;
+};
 
 # Record representing subscription/unsubscription details if a subscription/unsubscription request is successful.
 #
@@ -440,7 +441,8 @@ public type SubscriptionChangeResponse record {
     string hub = "";
     string topic = "";
     http:Response response;
-    !...;};
+    !...;
+};
 
 /////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Commons /////////////////////
@@ -462,7 +464,8 @@ public type HubConfiguration record {
     boolean topicRegistrationRequired = true;
     string publicUrl?;
     http:ClientEndpointConfig clientConfig?;
-    !...;};
+    !...;
+};
 
 # Record representing remote publishing allowance.
 #
@@ -473,7 +476,8 @@ public type HubConfiguration record {
 public type RemotePublishConfig record {
     boolean enabled = false;
     RemotePublishMode mode = PUBLISH_MODE_DIRECT;
-    !...;};
+    !...;
+};
 
 # Starts up the Ballerina Hub.
 #
