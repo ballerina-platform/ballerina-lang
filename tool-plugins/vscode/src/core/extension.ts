@@ -21,7 +21,7 @@
 import {
     workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction,
+    Extension, ExtensionContext, IndentAction, OutputChannel,
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
@@ -30,10 +30,10 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn } from "vscode-languageclient";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { log } from '../utils/index';
+import { log, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
 import * as compareVersions from 'compare-versions';
 export class BallerinaExtension {
@@ -50,7 +50,8 @@ export class BallerinaExtension {
         this.extention = extensions.getExtension('ballerina.ballerina')!;
         this.clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'ballerina' }],
-            // TODO set debug channel 
+            outputChannel: getOutputChannel(),
+            revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
     }
 
@@ -350,7 +351,6 @@ export class BallerinaExtension {
         }
         return false;
     }
-
 }
 
 export const ballerinaExtInstance = new BallerinaExtension();
