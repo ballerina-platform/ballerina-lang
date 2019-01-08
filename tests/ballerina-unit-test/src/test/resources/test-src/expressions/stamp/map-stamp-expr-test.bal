@@ -243,7 +243,7 @@ type EmployeeClosedRecord record {
     string name;
     string status;
     string batch;
-    !...
+    !...;
 };
 
 function stampMapToRecordNegative() returns EmployeeClosedRecord|error {

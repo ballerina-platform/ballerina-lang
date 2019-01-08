@@ -98,12 +98,12 @@ fieldDefinition
     ;
 
 recordRestFieldDefinition
-    :   typeName restDescriptorPredicate ELLIPSIS
+    :   typeName restDescriptorPredicate ELLIPSIS SEMICOLON
     |   sealedLiteral
     ;
 
 sealedLiteral
-    :   NOT restDescriptorPredicate ELLIPSIS
+    :   NOT restDescriptorPredicate ELLIPSIS SEMICOLON
     ;
 
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;

@@ -219,6 +219,6 @@ public type HttpTimeoutError record {
     string message = "";
     error? cause = ();
     int statusCode = 0;
-    !...
+    !...;
 };
 

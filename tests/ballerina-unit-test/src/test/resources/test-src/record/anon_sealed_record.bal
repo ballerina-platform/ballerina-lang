@@ -34,14 +34,14 @@ type employee record {
              string city;
              string state;
              string zipcode;
-             !...
+             !...;
     } address;
 
     record {
         string month = "JAN";
         string day = "01";
         string year = "1970";
-        !...
+        !...;
     } dateOfBirth;
 };
 

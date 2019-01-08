@@ -429,8 +429,7 @@ public type SubscriptionChangeRequest record {
     string callback = "";
     int leaseSeconds = 0;
     string secret = "";
-    !...
-};
+    !...;};
 
 # Record representing subscription/unsubscription details if a subscription/unsubscription request is successful.
 #
@@ -441,8 +440,7 @@ public type SubscriptionChangeResponse record {
     string hub = "";
     string topic = "";
     http:Response response;
-    !...
-};
+    !...;};
 
 /////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Commons /////////////////////
@@ -464,8 +462,7 @@ public type HubConfiguration record {
     boolean topicRegistrationRequired = true;
     string publicUrl?;
     http:ClientEndpointConfig clientConfig?;
-    !...
-};
+    !...;};
 
 # Record representing remote publishing allowance.
 #
@@ -476,8 +473,7 @@ public type HubConfiguration record {
 public type RemotePublishConfig record {
     boolean enabled = false;
     RemotePublishMode mode = PUBLISH_MODE_DIRECT;
-    !...
-};
+    !...;};
 
 # Starts up the Ballerina Hub.
 #
@@ -641,7 +637,7 @@ type SubscriptionDetails record {
     string secret = "";
     int leaseSeconds = 0;
     int createdAt = 0;
-    !...
+    !...;
 };
 
 function retrieveSubscriberServiceAnnotations(service serviceType) returns SubscriberServiceConfiguration? {
@@ -666,7 +662,7 @@ function retrieveSubscriberServiceAnnotations(service serviceType) returns Subsc
 type WebSubContent record {
     string|xml|json|byte[]|io:ReadableByteChannel payload = "";
     string contentType = "";
-    !...
+    !...;
 };
 
 function isSuccessStatusCode(int statusCode) returns boolean {
@@ -682,7 +678,7 @@ public type HubStartedUpError record {
     string message = "";
     error? cause = ();
     WebSubHub startedUpHub;
-    !...
+    !...;
 };
 
 # Record to represent Subscriber Details.
@@ -694,7 +690,7 @@ public type SubscriberDetails record {
     string callback = "";
     int leaseSeconds = 0;
     int createdAt = 0;
-    !...
+    !...;
 };
 
 type WebSubError record {

@@ -32,7 +32,7 @@ type ClosedValType record {
     string crs;
     boolean crb?;
     byte cry?;
-    !...
+    !...;
 };
 
 type Foo1 record {
@@ -41,7 +41,7 @@ type Foo1 record {
     *ValType;
     string s;
     *ClosedValType;
-    !...
+    !...;
 };
 
 function testValRefType() returns Foo1 {
@@ -67,7 +67,7 @@ type Employee record {
     int id;
     string name;
     float salary;
-    !...
+    !...;
 };
 
 type Address record {
@@ -87,7 +87,7 @@ type ClosedRefType record {
     xml crx;
     Person crp;
     Address cra?;
-    !...
+    !...;
 };
 
 type Foo2 record {
@@ -95,7 +95,7 @@ type Foo2 record {
     *RefType;
     int i;
     *ClosedRefType;
-    !...
+    !...;
 };
 
 function testRefTypes() returns Foo2 {
@@ -116,13 +116,13 @@ function testRefTypes() returns Foo2 {
 type Foo3 record {
     *OrderTest;
     string s;
-    !...
+    !...;
 };
 
 type OrderTest record {
     int ri;
     string rs;
-    !...
+    !...;
 };
 
 function testOrdering() returns Foo3 {
@@ -137,19 +137,19 @@ type AB record {
 type CD record {
     *EF;
     AB cdr;
-    !...
+    !...;
 };
 
 type EF record {
     *AB;
     string efs;
-    !...
+    !...;
 };
 
 type Foo4 record {
     string s;
     *CD;
-    !...
+    !...;
 };
 
 function testReferenceChains() returns Foo4 {
@@ -169,19 +169,19 @@ type PersonRec record {
     string name = "John Doe";
     int age = 25;
     Address adr = {city: "Colombo", country: "Sri Lanka"};
-    !...
+    !...;
 };
 
 type EmployeeRec record {
     *PersonRec;
     string company = "WSO2";
-    !...
+    !...;
 };
 
 type ManagerRec record {
     string dept = "";
     *EmployeeRec;
-    !...
+    !...;
 };
 
 function testDefaultValueInit() returns ManagerRec {

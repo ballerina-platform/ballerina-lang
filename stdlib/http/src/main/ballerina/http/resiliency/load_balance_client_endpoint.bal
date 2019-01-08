@@ -178,7 +178,7 @@ public type LoadBalanceActionErrorData record {
     string message = "";
     int statusCode = 0;
     error[] httpActionErr = [];
-    !...
+    !...;
 };
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
@@ -368,7 +368,7 @@ public type LoadBalanceClientEndpointConfiguration record {
     AuthConfig? auth = ();
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
-    !...
+    !...;
 };
 
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,

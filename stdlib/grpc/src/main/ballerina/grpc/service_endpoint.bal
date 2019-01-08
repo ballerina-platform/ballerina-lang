@@ -76,7 +76,7 @@ public type ServiceEndpointConfiguration record {
     string host = "0.0.0.0";
     ServiceSecureSocket? secureSocket = ();
     int timeoutMillis = 120000; //2 mins
-    !...
+    !...;
 };
 
 # SecureSocket struct represents SSL/TLS options to be used for gRPC service.
@@ -107,5 +107,5 @@ public type ServiceSecureSocket record {
     string sslVerifyClient = "";
     boolean shareSession = true;
     ServiceOcspStapling? ocspStapling = ();
-    !...
+    !...;
 };

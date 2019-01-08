@@ -38,7 +38,7 @@ public type HttpServiceConfig record {
     CorsConfig cors = {};
     Versioning versioning = {};
     ListenerAuthConfig? authConfig = {};
-    !...
+    !...;
 };
 
 # Configurations for CORS support.
@@ -56,7 +56,7 @@ public type CorsConfig record {
     string[] exposeHeaders = [];
     boolean allowCredentials = false;
     int maxAge= -1;
-    !...
+    !...;
 };
 
 
@@ -69,7 +69,7 @@ public type Versioning record {
     string pattern = "v{major}.{minor}";
     boolean allowNoVersion = false;
     boolean matchMajorVersion = false;
-    !...
+    !...;
 };
 
 # Configurations for a WebSocket service.
@@ -87,7 +87,7 @@ public type WSServiceConfig record {
     string[] subProtocols = [];
     int idleTimeoutInSeconds = 0;
     int maxFrameSize = 0;
-    !...
+    !...;
 };
 
 // TODO: Enable this when Ballerina supports service life time
@@ -123,7 +123,7 @@ public type HttpResourceConfig record {
     boolean transactionInfectable = true;
     WebSocketUpgradeConfig? webSocketUpgrade = ();
     ListenerAuthConfig? authConfig = ();
-    !...
+    !...;
 };
 
 # Configures the HTTP to WebSocket upgrade.
@@ -133,7 +133,7 @@ public type HttpResourceConfig record {
 public type WebSocketUpgradeConfig record {
     string upgradePath = "";
     service upgradeService?;
-    !...
+    !...;
 };
 
 # Configures the authentication scheme for a service or a resource.
@@ -145,7 +145,7 @@ public type ListenerAuthConfig record {
     Authentication? authentication = ();
     string[]? authProviders = ();
     string[]? scopes = ();
-    !...
+    !...;
 };
 
 # Can be used for enabling/disabling authentication in an HTTP service.
@@ -153,7 +153,7 @@ public type ListenerAuthConfig record {
 # + enabled - Specifies whether authentication is enabled
 public type Authentication record {
     boolean enabled = false;
-    !...
+    !...;
 };
 
 # The annotation which is used to configure an HTTP resource.

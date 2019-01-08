@@ -306,7 +306,7 @@ function waitTest27() returns map<anydata> {
 type sealedRec record {
     int id = 0;
     string name = "default";
-    !...
+    !...;
 };
 
 type openRec record {
@@ -317,13 +317,13 @@ type openRec record {
 type restRec1 record {
     int id = 0;
     string name = "default";
-    int...
+    int...;
 };
 
 type restRec2 record {
     int id = 0;
     string name = "default";
-    string...
+    string...;
 };
 
 type firstRec record {

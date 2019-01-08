@@ -622,7 +622,7 @@ returns error? {
 # + topic - The topic for which notification would happen
 type TopicRegistration record {
     string topic = "";
-    !...
+    !...;
 };
 
 # Object to represent a pending subscription/unsubscription request.

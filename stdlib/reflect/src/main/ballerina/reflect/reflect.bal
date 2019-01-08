@@ -15,14 +15,14 @@
 // under the License.
 
 public type anyStruct record {
-    any...
+    any...;
 };
 
 public type annotationData record {
     string name;
     string moduleName;
     string moduleVersion;
-    record { any... } value;
+    record { any...; } value;
 };
 
 public extern function getServiceAnnotations(service serviceType) returns (annotationData[]);

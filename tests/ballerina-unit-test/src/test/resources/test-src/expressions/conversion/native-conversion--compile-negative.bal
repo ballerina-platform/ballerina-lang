@@ -30,20 +30,20 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children?;
-    !...
+    !...;
 };
 
 type Person2 record {
     string name = "";
     int age = 0;
-    !...
+    !...;
 };
 
 type Person3 record {
     string name = "";
     int age = 0;
     string gender = "";
-    !...
+    !...;
 };
 
 function testFloatToIntWithMultipleArguments() returns int {

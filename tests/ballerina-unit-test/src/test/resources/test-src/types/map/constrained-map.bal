@@ -262,7 +262,7 @@ type Person record {
     string name;
     int age;
     string address = "";
-    !...
+    !...;
 };
 
 type Employee record {
@@ -359,7 +359,7 @@ function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
 type Student record {
     int index;
     int age;
-    !...
+    !...;
 };
 
 function testMapToStructConversion () returns ((int, int)|error) {
@@ -421,7 +421,7 @@ type PersonComplex record {
     anydata a = ();
     float score = 0.0;
     boolean alive = false;
-    !...
+    !...;
 };
 
 function testJsonToStructConversionStructWithConstrainedMap () returns (string, string) {
@@ -465,7 +465,7 @@ type PersonComplexTwo record {
     anydata a = ();
     float score = 0.0;
     boolean alive = false;
-    !...
+    !...;
 };
 
 function testJsonToStructConversionStructWithConstrainedMapNegative () returns (PersonComplexTwo|error) {
@@ -544,7 +544,7 @@ type Transaction record {
 type Participant record {
     string participantId;
     Protocol[] participantProtocols;
-    !...
+    !...;
 };
 
 type Protocol record {
@@ -554,7 +554,7 @@ type Protocol record {
     (function (string transactionId,
                int transactionBlockId,
                string protocolAction) returns boolean)|() protocolFn;
-    !...
+    !...;
 };
 
 type TwoPhaseCommitTransaction record {
@@ -563,7 +563,7 @@ type TwoPhaseCommitTransaction record {
     map<Participant> participants?;
     Protocol[] coordinatorProtocols?;
     boolean possibleMixedOutcome?;
-    !...
+    !...;
 };
 
 function testRuntimeStructEquivalencyWithNestedConstrainedMaps () returns (string?) {

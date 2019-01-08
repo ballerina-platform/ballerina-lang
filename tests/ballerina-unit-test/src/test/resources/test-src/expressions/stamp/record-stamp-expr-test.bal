@@ -19,7 +19,7 @@ type Student record {
     string status;
     string batch;
     string school;
-    !...
+    !...;
 };
 
 type Employee record {
@@ -33,7 +33,7 @@ type Person record {
     string status;
     string batch;
     string school;
-    !...
+    !...;
 };
 
 type Teacher record {
@@ -49,14 +49,14 @@ type NonAcademicStaff record {
     int age;
     string status;
     string batch;
-    string...
+    string...;
 };
 
 type AcademicStaff record {
     string name;
     string status;
     string batch;
-    int...
+    int...;
 };
 
 type ExtendedEmployee record {
@@ -97,7 +97,7 @@ type ExtendedEmployeeWithUnionRest record {
     string name;
     string status;
     string batch;
-    map<anydata>|string...
+    map<anydata>|string...;
 };
 
 //-----------------------Record Stamp -------------------------------------------------------------------
@@ -277,7 +277,7 @@ type TeacherWithAnyRestType record {
     string status;
     string batch;
     string school;
-    any...
+    any...;
 };
 
 function stampAnyRecordToRecord() returns OpenEmployee|error {
@@ -358,7 +358,7 @@ type ComplexPerson record {
     float score = 0.0;
     boolean alive = false;
     ComplexPerson[]? children?;
-    !...
+    !...;
 };
 
 function stampComplexRecordToJSON() returns map<anydata>|error {

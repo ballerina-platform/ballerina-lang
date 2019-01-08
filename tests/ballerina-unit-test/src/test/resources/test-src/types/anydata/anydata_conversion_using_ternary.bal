@@ -21,14 +21,14 @@ type Foo record {
 
 type ClosedFoo record {
     int ca;
-    !...
+    !...;
 };
 
 type Employee record {
     int id;
     string name;
     float salary;
-    !...
+    !...;
 };
 
 type ValueType int|float|string|boolean|byte;
