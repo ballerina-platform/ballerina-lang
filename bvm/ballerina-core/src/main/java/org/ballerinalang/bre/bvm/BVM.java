@@ -3090,8 +3090,7 @@ public class BVM {
             return false;
         }
 
-        int opcode = ctx.currentFrame.code[ctx.currentFrame.ip].getOpcode();
-        if (isIgnorableInstruction(opcode)) {
+        if (isIgnorableInstruction(ctx)) {
             return false;
         }
         
@@ -3137,7 +3136,8 @@ public class BVM {
         return false;
     }
 
-    private static boolean isIgnorableInstruction(int opcode) {
+    private static boolean isIgnorableInstruction(Strand ctx) {
+        int opcode = ctx.currentFrame.code[ctx.currentFrame.ip].getOpcode();
         return opcode == InstructionCodes.GOTO;
     }
 
