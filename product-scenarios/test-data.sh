@@ -85,7 +85,7 @@ IFS='=' read -r -a array <<< "$(head -n 1 $INPUT_DIR/deployment.properties)"
 EXTERNAL_IP=${array[1]};
 unset IFS
 
-cat $INPUT_DIR/deployment.properties
+#cat $INPUT_DIR/deployment.properties
 
 curl http://$EXTERNAL_IP/hello/sayHello -v
 
