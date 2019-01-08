@@ -965,6 +965,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
+            case TypeTags.NIL:
                 return true;
         }
         return false;
