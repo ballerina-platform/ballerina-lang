@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.h2;
+package org.ballerinalang.stdlib.database.h2;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.stdlib.utils.SQLDBUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -127,7 +127,8 @@ public class H2ClientActionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error in sql connector configuration:Failed to initialize pool: "
+          expectedExceptionsMessageRegExp =
+                  ".*error in sql connector configuration:Exception during pool initialization:"
                   + "Unsupported connection setting \"INVALID_PARAM\".*", groups = H2_TEST_GROUP)
     public void testInitWithInvalidDbOptions() {
         BRunUtil.invoke(result, "testInitWithInvalidDbOptions");

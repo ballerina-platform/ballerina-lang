@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.jdbc;
+package org.ballerinalang.stdlib.database.sql;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -24,10 +24,10 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.utils.SQLDBUtils;
-import org.ballerinalang.test.utils.SQLDBUtils.DBType;
-import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
-import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.stdlib.utils.SQLDBUtils;
+import org.ballerinalang.stdlib.utils.SQLDBUtils.DBType;
+import org.ballerinalang.stdlib.utils.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinalang.stdlib.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -52,8 +52,8 @@ public class SQLActionsTest {
         testDatabase = new FileBasedTestDatabase(DBType.H2, "datafiles/sql/SQLTest_H2_Data.sql",
                 SQLDBUtils.DB_DIRECTORY, DB_NAME_H2);
 
-        result = BCompileUtil.compile("test-src/jdbc/sql_actions_test.bal");
-        resultNegative = BCompileUtil.compile("test-src/jdbc/sql_actions_negative_test.bal");
+        result = BCompileUtil.compile("test-src/sql/sql_actions_test.bal");
+        resultNegative = BCompileUtil.compile("test-src/sql/sql_actions_negative_test.bal");
     }
 
     @Test(groups = CONNECTOR_TEST)

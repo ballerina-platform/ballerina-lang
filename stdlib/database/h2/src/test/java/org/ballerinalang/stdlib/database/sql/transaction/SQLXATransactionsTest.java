@@ -15,16 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.jdbc.transaction;
+package org.ballerinalang.stdlib.database.sql.transaction;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.SQLDBUtils;
-import org.ballerinalang.test.utils.SQLDBUtils.DBType;
-import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.stdlib.utils.SQLDBUtils;
+import org.ballerinalang.stdlib.utils.SQLDBUtils.DBType;
+import org.ballerinalang.stdlib.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ public class SQLXATransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/jdbc/transaction/sql_xa_transaction_test.bal");
+        result = BCompileUtil.compile("test-src/sql/transaction/sql_xa_transaction_test.bal");
         testDatabase1 = new SQLDBUtils.FileBasedTestDatabase(DBType.H2,
                 "datafiles/sql/SQLH2CustomerTableCreate.sql", SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1);
         testDatabase2 = new SQLDBUtils.FileBasedTestDatabase(DBType.H2,
