@@ -112,7 +112,7 @@ wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47
 tar -xvzf mysql-connector-java-5.1.47.tar.gz --directory ./
 
 sed -i "s/__DATABASE_HOST__/${DATABASE_HOST}/" product-scenarios/scenarios/1/data-service.bal
-sed -i "s/__DATABASE_PORT__/${DATABASE_PORT}/" product-scenarios/scenarios/1/data-service.bal
+sed -i "s/\"__DATABASE_PORT__\"/${DATABASE_PORT}/" product-scenarios/scenarios/1/data-service.bal
 sed -i "s/__DATABASE_NAME__/${DATABASE_NAME}/" product-scenarios/scenarios/1/data-service.bal
 sed -i "s/__DATABASE_USERNAME__/${DATABASE_USERNAME}/" product-scenarios/scenarios/1/data-service.bal
 sed -i "s/__DATABASE_PASSWORD__/${DATABASE_PASSWORD}/" product-scenarios/scenarios/1/data-service.bal
