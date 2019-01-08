@@ -9,13 +9,13 @@ function testAnonStructFunc(int i, record {int k = 10; string s;} anonSt) return
 
 
 function testAnonStructAsLocalVar() returns (int) {
-    record {int k = 11; string s; !...} anonSt = {};
+    record {int k = 11; string s; !...;} anonSt = {};
 
     return anonSt.k;
 }
 
 
-record {string fname; string lname; int age; !...} person;
+record {string fname; string lname; int age; !...;} person;
 
 function testAnonStructAsPkgVar() returns (string) {
 
