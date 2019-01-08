@@ -38,10 +38,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public BVarSymbol restParam;
     public BType retType;
     public Map<Integer, TaintRecord> taintTable;
-    // This invokable depends on global variables in this list.
-    public List<BSymbol> dependsOnFunc;
-    // Global variables in this list depend on this invokable.
-    public List<BSymbol> dependents;
 
     // This field is only applicable for functions at the moment.
     public BVarSymbol receiverSymbol;
@@ -57,8 +53,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         this.tag = tag;
         this.params = new ArrayList<>();
         this.defaultableParams = new ArrayList<>();
-        this.dependsOnFunc = new ArrayList<>();
-        this.dependents = new ArrayList<>();
     }
 
     @Override

@@ -24,12 +24,11 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.TarjanSccSolverAdjacencyList;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -186,8 +185,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -286,153 +283,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeGlobalVariableReferencePatterns(BLangPackage pkgNode) {
-        int functionCount = (int) pkgNode.topLevelNodes.stream().filter(n -> n.getKind() == NodeKind.FUNCTION).count();
-        int nodeCount = pkgNode.globalVars.size() + functionCount;
-
-        TarjanSccSolverAdjacencyList graph = TarjanSccSolverAdjacencyList.createGraph(nodeCount);
-        Map<BSymbol, NodeIdPair> graphIndices = new HashMap<>();
-
-        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
-            BSymbol symbol = globalVar.symbol;
-            DefPosition defPosition = globalVarSymbolDefPositions.get(symbol);
-            graphIndices.put(symbol, new NodeIdPair(defPosition.refId, globalVar));
-            List<RefPosition> accessedSequence = globalVarSymbolRefPositions.get(symbol);
-
-            for (RefPosition refPosition : accessedSequence) {
-                DefPosition dependentDefPosition = globalVarSymbolDefPositions.get(refPosition.dependentSymbol);
-                graph.addEdge(defPosition.refId, dependentDefPosition.refId);
-            }
-        }
-        int nodeId = pkgNode.globalVars.size(); // we have node id's till globalVars size at this point
-
-        for (TopLevelNode node : pkgNode.topLevelNodes) {
-            if (node.getKind() == NodeKind.FUNCTION) {
-                BLangFunction func = (BLangFunction) node;
-                BInvokableSymbol symbol = func.symbol;
-
-                if (!graphIndices.containsKey(symbol)) {
-                    graphIndices.put(symbol, new NodeIdPair(nodeId++, func));
-                }
-                int topLevelNodeIndex = graphIndices.get(symbol).nodeId;
-
-                List<BSymbol> providers = funcDependsOnGlobalVars.getOrDefault(symbol, new ArrayList<>());
-                for (BSymbol provider : providers) {
-                    if (!graphIndices.containsKey(provider)) {
-                        graphIndices.put(provider, new NodeIdPair(nodeId++, func));
-                    }
-
-                    graph.addEdge(graphIndices.get(provider).nodeId, topLevelNodeIndex);
-                }
-
-                List<BSymbol> dependentGlobalVars = funcToDependentGlobalVar.getOrDefault(symbol, new ArrayList<>());
-                for (BSymbol dependent : dependentGlobalVars) {
-                    if (!graphIndices.containsKey(dependent)) {
-                        graphIndices.put(dependent, new NodeIdPair(nodeId++, func));
-                    }
-
-                    graph.addEdge(topLevelNodeIndex, graphIndices.get(dependent).nodeId);
-                }
-
-                // func a = b() + c(), here b, c are producers and 'a' depends on them.
-                List<BSymbol> producers = funcDependsOnFunc.getOrDefault(symbol, new ArrayList<>());
-                for (BSymbol producer : producers) {
-                    if (!graphIndices.containsKey(producer)) {
-                        graphIndices.put(producer, new NodeIdPair(nodeId++, func));
-                    }
-
-                    graph.addEdge(graphIndices.get(producer).nodeId, topLevelNodeIndex);
-                }
-            }
-        }
-
-        Map<Integer, List<Integer>> multimap = graph.getSCCs();
-
-        Map<Integer, BSymbol> nodeIdToNodeSymbol = graphIndices.entrySet().stream()
-                .collect(Collectors.toMap(v -> v.getValue().nodeId, v -> v.getKey()));
-
-        // If cyclic references are found, we can't reorder, exit with error.
-        if (findCyclicDependencies(multimap, pkgNode, nodeIdToNodeSymbol)) {
-            return;
-        }
-
-        // Sort global variable definitions.
-        // Tarjan's algorithm as a by product topologically sorts the graph.
-        List<BLangSimpleVariable> sorted = new ArrayList<>(pkgNode.globalVars);
-
-        List<Integer> dependencyOrderFiltered = graph.getDependencyOrderFiltered();
-        List<Integer> globalVarPositions = dependencyOrderFiltered
-                .stream()
-                .filter(i -> pkgNode.globalVars.contains(getNodeFromGraphIndex(graphIndices, nodeIdToNodeSymbol, i)))
-                .collect(Collectors.toList());
-
-        List<Integer> sortedPos = new ArrayList<>(globalVarPositions);
-        Collections.sort(sortedPos);
-
-        for (int i = 0; i < globalVarPositions.size(); i++) {
-            Integer index = globalVarPositions.get(i);
-            Integer destinationPos = sortedPos.get(i);
-            BLangNode bLangNode = getNodeFromGraphIndex(graphIndices, nodeIdToNodeSymbol, index);
-            sorted.set(destinationPos, (BLangSimpleVariable) bLangNode);
-        }
-        pkgNode.globalVars.clear();
-        pkgNode.globalVars.addAll(sorted);
-
-        // Swap global variable nodes in 'topLevelNodes' list to reflect sorted global variables.
-        List<Integer> topLevelPositions = new ArrayList<>();
-        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
-            topLevelPositions.add(pkgNode.topLevelNodes.indexOf(globalVar));
-        }
-        topLevelPositions.sort(Comparator.comparingInt(i -> i));
-        for (int i = 0; i < topLevelPositions.size(); i++) {
-            pkgNode.topLevelNodes.set(topLevelPositions.get(i), pkgNode.globalVars.get(i));
-        }
+        GlobalVariableRefAnalyzer globalVariableRefAnalyzer = new GlobalVariableRefAnalyzer(pkgNode,
+                globalVarSymbolDefPositions, globalVarSymbolRefPositions, funcDependsOnGlobalVars, funcDependsOnFunc,
+                funcToDependentGlobalVar, dlog);
+        globalVariableRefAnalyzer.analyzeAndReOrder();
     }
-
-    private BLangNode getNodeFromGraphIndex(Map<BSymbol, NodeIdPair> graphIndices,
-                                            Map<Integer, BSymbol> nodeIdToNodeSymbol, Integer index) {
-        return graphIndices.get(nodeIdToNodeSymbol.get(index)).node;
-    }
-
-    private boolean findCyclicDependencies(Map<Integer, List<Integer>> multimap, BLangPackage bLangPackage,
-                                           Map<Integer, BSymbol> graphIndices) {
-
-        Map<BSymbol, IdentifierPositionPair> symbolToIdentifier = new HashMap<>();
-        bLangPackage.topLevelNodes.stream()
-                .filter(n -> n.getKind() == NodeKind.FUNCTION)
-                .map(n -> (BLangFunction) n)
-                .forEach(f -> symbolToIdentifier.put(f.symbol,
-                        new IdentifierPositionPair(f.getName(), f.getPosition())));
-
-        bLangPackage.topLevelNodes.stream()
-                .filter(n -> n.getKind() == NodeKind.VARIABLE)
-                .map(n -> (BLangSimpleVariable) n)
-                .forEach(f -> symbolToIdentifier.put(f.symbol,
-                        new IdentifierPositionPair(f.getName(), f.getPosition())));
-
-        boolean cyclicDepFound = false;
-        for (List<Integer> cyclicNodes : multimap.values()) {
-            if (cyclicNodes.size() <= 1) {
-                continue;
-            }
-            cyclicDepFound = true;
-            ArrayList<Integer> depCycle = new ArrayList<>(cyclicNodes);
-            // Reverse the dependency cycle's direction to print user friendly error message.
-            Collections.reverse(depCycle);
-            List<BLangIdentifier> cycle = depCycle.stream()
-                    .map(index -> graphIndices.get(index))
-                    .map(symbol -> symbolToIdentifier.get(symbol).identifier)
-                    .collect(Collectors.toList());
-
-            Integer firstOccurrence = cyclicNodes.get(0);
-            BSymbol firstOccurrenceSymbol = graphIndices.get(firstOccurrence);
-            DiagnosticPos position = symbolToIdentifier.get(firstOccurrenceSymbol).position;
-
-            dlog.error(position, DiagnosticCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, cycle);
-        }
-
-        return cyclicDepFound;
-    }
-
 
     private void populateGlobalVarRefPositionMap(List<BLangSimpleVariable> globalVars) {
         for (TopLevelNode node : globalVars) {
@@ -1300,7 +1155,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkVarRef(BSymbol symbol, DiagnosticPos pos) {
-        observeGlobalVariableReference((BVarSymbol) symbol, pos);
+        observeGlobalVariableReference(symbol, pos);
 
         InitStatus initStatus = this.uninitializedVars.get(symbol);
         if (initStatus == null) {
@@ -1315,7 +1170,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.dlog.error(pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, symbol.name);
     }
 
-    private void observeGlobalVariableReference(BVarSymbol symbol, DiagnosticPos pos) {
+    private void observeGlobalVariableReference(BSymbol symbol, DiagnosticPos pos) {
         BSymbol ownerSymbol = this.env.scope.owner;
         boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
         // Restrict to observations made in pkg level.
@@ -1393,9 +1248,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private static class RefPosition {
-        final DiagnosticPos position;
-        final BSymbol dependentSymbol;
+    /**
+     * Data holder for variable referenced position.
+     */
+    public static class RefPosition {
+        public final DiagnosticPos position;
+        public final BSymbol dependentSymbol;
 
         private RefPosition(DiagnosticPos position, BSymbol dependentSymbol) {
             this.position = position;
@@ -1407,9 +1265,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private static class DefPosition {
-        final int refId;
-        final DiagnosticPos position;
+    /**
+     * Data holder for variable defined position.
+     */
+    public static class DefPosition {
+        public final int refId;
+        public final DiagnosticPos position;
 
         private DefPosition(int refId, DiagnosticPos position) {
             this.refId = refId;
@@ -1418,26 +1279,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         static DefPosition newDef(int sequenceNo, DiagnosticPos position) {
             return new DefPosition(sequenceNo, position);
-        }
-    }
-
-    private static class NodeIdPair {
-        final Integer nodeId;
-        final BLangNode node;
-
-        public NodeIdPair(Integer nodeId, BLangNode node) {
-            this.nodeId = nodeId;
-            this.node = node;
-        }
-    }
-
-    private static class IdentifierPositionPair {
-        final BLangIdentifier identifier;
-        final DiagnosticPos position;
-
-        public IdentifierPositionPair(BLangIdentifier identifier, DiagnosticPos position) {
-            this.identifier = identifier;
-            this.position = position;
         }
     }
 }

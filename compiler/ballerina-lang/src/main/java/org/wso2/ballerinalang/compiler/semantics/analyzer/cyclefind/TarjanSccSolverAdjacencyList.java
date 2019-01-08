@@ -55,7 +55,7 @@ public class TarjanSccSolverAdjacencyList {
      * This doesn't return nodes that are independent in the graph.
      * @return sorted node id list
      */
-    public List<Integer> getDependencyOrderFiltered() {
+    List<Integer> getDependencyOrderFiltered() {
         Set<Integer> applicableItems = new HashSet<>();
         for (int i = 0; i < adjacencyList.size(); i++) {
             if (!adjacencyList.get(i).isEmpty()) {
