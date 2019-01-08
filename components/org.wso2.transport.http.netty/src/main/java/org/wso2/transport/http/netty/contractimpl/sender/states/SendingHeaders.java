@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
@@ -38,7 +37,8 @@ import static org.wso2.transport.http.netty.contract.Constants
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contract.Constants
         .REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
-import static org.wso2.transport.http.netty.contractimpl.common.Util.isEntityBodyAllowed;
+import static org.wso2.transport.http.netty.contractimpl.common.Util
+        .checkContentLengthAndTransferEncodingHeaderAllowance;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupChunkedRequest;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupContentLengthRequest;
@@ -71,7 +71,7 @@ public class SendingHeaders implements SenderState {
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         if (isLastHttpContent(httpContent)) {
-            if (isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
+            if (checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest)) {
                 if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
                     setupChunkedRequest(httpOutboundRequest);
                 } else {
@@ -123,14 +123,6 @@ public class SendingHeaders implements SenderState {
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
         LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
-    }
-
-    private String getHttpMethod(HttpCarbonMessage httpOutboundRequest) {
-        String httpMethod = (String) httpOutboundRequest.getProperty(Constants.HTTP_METHOD);
-        if (httpMethod == null) {
-            throw new IllegalArgumentException("Couldn't get the HTTP method from the outbound request");
-        }
-        return httpMethod;
     }
 
     private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten) {
