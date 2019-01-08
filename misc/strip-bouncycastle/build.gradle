@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/java.gradle"
+apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'

@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/java.gradle"
+apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.22'

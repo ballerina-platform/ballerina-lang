@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/java.gradle"
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
@@ -7,7 +7,6 @@ dependencies {
     implementation project(':lib-creator')
     implementation project(':stdlib:ballerina-builtin')
 
-    implementation 'org.slf4j:slf4j-api:1.7.22'
 }
 
 description = 'Ballerina - Log API'

@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/java.gradle"
+apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser:2.0.0-rc3'
