@@ -121,12 +121,27 @@ ballerina build product-scenarios/scenarios/1/data-service.bal
 
 kubectl apply -f kubernetes/
 
+READY_REPLICAS=0
+START_TIME=$SECONDS
+DURATION=1 #Just an initialization value
+while [ "$READY_REPLICAS" != 1 ] && [ $DURATION > 0 ]
+do
+   READY_REPLICAS=$(kubectl get deployment ballerina-employee-database-service -o jsonpath='{.status.readyReplicas}')
+   echo $READY_REPLICAS
+   sleep 20s
+   DURATION=$SECONDS-$START_TIME
+done
+
+if [ "$READY_REPLICAS" != 1 ]; then
+	exit 1
+fi
+
 kubectl get svc
 
 kubectl get pods
 
 kubectl get svc ballerina-data-service -o=json
 
-external_ip='kubectl get svc ballerina-data-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}''
+EXTERNAL_IP=$(kubectl get svc ballerina-data-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
-echo "ExternalIP=$external_ip" >> $OUTPUT_DIR/deployment.properties
+echo "ExternalIP=$EXTERNAL_IP" >> $OUTPUT_DIR/deployment.properties
