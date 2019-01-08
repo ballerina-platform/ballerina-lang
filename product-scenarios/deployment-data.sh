@@ -129,4 +129,4 @@ kubectl get svc ballerina-data-service -o=json
 
 external_ip='kubectl get svc ballerina-data-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}''
 
-echo "ExternalIP=$external_ip" >> $output_dir/deployment.properties
+echo "ExternalIP=$external_ip" >> $OUTPUT_DIR/deployment.properties
