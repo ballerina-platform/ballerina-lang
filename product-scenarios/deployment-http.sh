@@ -101,7 +101,7 @@ cd product-scenarios/scenarios/
 
 ballerina init
 
-ballerina build 3/
+ballerina build 2/
 
 whoami
 echo $HOME
@@ -113,8 +113,10 @@ kubectl config get-contexts
 echo "view kubectl configurations"
 kubectl config view
 
-kubectl apply -f target/kubernetes/3
+kubectl apply -f target/kubernetes/2
 
-external_ip=kubectl get svc ballerina-circuit-breaker-service -o jsonpath='{.spec.externalIP}'
+lb_ingress_host=kubectl get svc circuit-breaker-frontend-service -o jsonpath='{.status.loadBalancer.ingress[*].hostname}'
 
-echo "ExternalIP=$external_ip" >> $output_dir/deployment.properties
+cat $output_dir/deployment.properties
+
+#echo "LBIngressHost=ingress_host" >> $output_dir/deployment.properties

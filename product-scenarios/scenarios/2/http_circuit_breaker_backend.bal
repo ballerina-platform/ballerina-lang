@@ -10,8 +10,7 @@ import ballerinax/kubernetes;
 }
 
 @kubernetes:Service {
-    serviceType:"LoadBalancer",
-    port:80,
+    serviceType:"NodePort",
     name: "ballerina-circuit-breaker-backend-service"
 }
 
