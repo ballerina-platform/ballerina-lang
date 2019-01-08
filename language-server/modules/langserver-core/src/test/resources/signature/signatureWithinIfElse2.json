@@ -4,26 +4,32 @@
     "character": 28
   },
   "expected": {
-    "result":{
-      "signatures":[
+    "result": {
+      "signatures": [
         {
-          "label":"contains(string substring)",
-          "documentation":{
-            "left":"Returns a Boolean value indicating whether a string contains the specified substring."
+          "label": "contains(string substring)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "Returns a Boolean value indicating whether a string contains the specified substring."
+            }
           },
-          "parameters":[
+          "parameters": [
             {
-              "label":"substring",
-              "documentation":{
-                "left":"The substring to be compared"
+              "label": "substring",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "The substring to be compared"
+                }
               }
             }
           ]
         }
       ],
-      "activeSignature":0,
-      "activeParameter":0
+      "activeSignature": 0,
+      "activeParameter": 0
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

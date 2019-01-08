@@ -4,26 +4,32 @@
     "character": 21
   },
   "expected": {
-    "result":{
-      "signatures":[
+    "result": {
+      "signatures": [
         {
-          "label":"parseHeader(string headerValue)",
-          "documentation":{
-            "left":"Parses the given header value to extract its value and parameter map."
+          "label": "parseHeader(string headerValue)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "Parses the given header value to extract its value and parameter map."
+            }
           },
-          "parameters":[
+          "parameters": [
             {
-              "label":"headerValue",
-              "documentation":{
-                "left":"The header value"
+              "label": "headerValue",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "The header value"
+                }
               }
             }
           ]
         }
       ],
-      "activeSignature":0,
-      "activeParameter":0
+      "activeSignature": 0,
+      "activeParameter": 0
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }
