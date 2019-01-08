@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.test.nativeimpl.functions;
+package org.ballerinalang.internal.file;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -41,7 +41,7 @@ public class InternalFileTest {
     
     @BeforeClass
     public void setup() throws IOException {
-        fileOperationProgramFile = BCompileUtil.compile("test-src/internal/file-test.bal");
+        fileOperationProgramFile = BCompileUtil.compile("test-src/file/file-test.bal");
         workingDirPath = Files.createTempDirectory("internal-package-file-test-");
         File workingDir = new File(workingDirPath.toString());
         FileUtils.deleteQuietly(workingDir);

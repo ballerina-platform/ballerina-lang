@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.test.jwt.crypto;
+package org.ballerinalang.internal.jwt.crypto;
 
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
+import org.ballerinalang.stdlib.internal.jwt.crypto.JWSVerifier;
+import org.ballerinalang.stdlib.internal.jwt.crypto.RSAVerifier;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -27,14 +27,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
-import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.interfaces.RSAPublicKey;
 
 /**
- * Test native functions used to sign JWT token.
+ * Test native functions used to verify signed JWT token.
  */
-public class JWTSignerTest {
+public class JWTVerifierTest {
 
-    @Test(description = "Test RSASigner with SHA-256 hashing ")
+    @Test(description = "Test RSAVerifier with SHA-256 hashing ")
     public void testRSA256Verifier() throws Exception {
         String data = "ewogICJhbGciOiAiUlMyNTYiLAogICJ0eXAiOiAiSldUIgp9.ewogICJzdWIiOiAiMTIzNjU0IiwKICAibmFtZSI6ICJK" +
                 "b2huIiwKICAiaXNzIjogIndzbzIiLAogICJhdWQiOiAiYmFsbGVyaW5hIiwKICAiZXhwIjogMTUxOTk5NDU2NDI0OQp9";
@@ -43,19 +44,19 @@ public class JWTSignerTest {
                 "Z3gpCyfwCVe_JXtBwDbyCQGO_g2tKUSwHvvNDu3THgCcB2ALIS_JznaK9iPf55YmeNwB_KRGkaY-VLvQ5iUILWp2" +
                 "J5SF3QavfXMNhv8GoEDBe2ZfbQgH5E-TpakoL51Ix8vELiznVl7sbtAqlD97440hW3wXoq68kboCVQ==";
         String algorithm = "RS256";
-        PrivateKey privateKey = getPrivateKey();
-        JWSSigner signer = new RSASigner(privateKey);
-        Assert.assertEquals(signature, signer.sign(data, algorithm));
+        RSAPublicKey publicKey = getRSAPublicKey();
+
+        JWSVerifier verifier = new RSAVerifier(publicKey);
+        Assert.assertTrue(verifier.verify(data, signature, algorithm));
     }
 
-    private PrivateKey getPrivateKey() throws Exception {
-        KeyStore keyStore;
+    private RSAPublicKey getRSAPublicKey() throws Exception {
+        KeyStore trustStore;
         InputStream file = new FileInputStream(new File(getClass().getClassLoader().getResource(
-                "datafiles/security/keyStore/ballerinaKeystore.p12").getPath()));
-        keyStore = java.security.KeyStore.getInstance("pkcs12");
-        keyStore.load(file, "ballerina".toCharArray());
-        KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ballerina", new KeyStore
-                .PasswordProtection("ballerina".toCharArray()));
-        return pkEntry.getPrivateKey();
+                "datafiles/keyStore/ballerinaTruststore.p12").getPath()));
+        trustStore = java.security.KeyStore.getInstance("pkcs12");
+        trustStore.load(file, "ballerina".toCharArray());
+        Certificate publicCertificate = trustStore.getCertificate("ballerina");
+        return (RSAPublicKey) publicCertificate.getPublicKey();
     }
 }
