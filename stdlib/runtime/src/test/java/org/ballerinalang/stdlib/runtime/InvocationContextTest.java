@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.runtime;
+package org.ballerinalang.stdlib.runtime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -37,7 +37,7 @@ public class InvocationContextTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/runtime/invocation-context.bal");
+        compileResult = BCompileUtil.compile("test-src/invocation-context.bal");
     }
 
     @Test(description = "Test case for accessing invocationId from invocation context")
