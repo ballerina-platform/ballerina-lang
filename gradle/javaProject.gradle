@@ -22,18 +22,6 @@ checkstyle {
     configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
 }
 
-compileJava {
-    def generatedSources = "$buildDir/generated-from-annot"
-    def generatedOutputDir = file("$generatedSources")
-    def pkgName = project.name.replace("ballerina-", "")
-    options.compilerArgs += ["-AnativeEntityProviderClass=StandardNativeElementProvider", 
-                             "-AnativeEntityProviderPackage=org.ballerinalang.${pkgName}.generated.providers",
-                             "-s", "$generatedSources"]
-    doFirst {
-        generatedOutputDir.exists() || generatedOutputDir.mkdirs()
-    }
-}
-
 // startsWith had to be used https://github.com/spotbugs/spotbugs-gradle-plugin/issues/32
 tasks.findAll { it.name.startsWith('spotbugs') }.each {
     it.effort "max"

@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/java.gradle"
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     implementation project(':lib-creator')

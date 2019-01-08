@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/java.gradle"
+apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
 //    compile project(':ballerina')

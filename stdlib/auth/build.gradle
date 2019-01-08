@@ -1,5 +1,4 @@
-apply from: "$rootDir/gradle/java.gradle"
-
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
 //    compile project(':stdlib:ballerina-builtin')
@@ -11,13 +10,12 @@ dependencies {
 //    compile project(':ballerina-internal')
 //    compile project(':ballerina-system')
 //    compile project(':ballerina-time')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation 'org.apache.commons:commons-lang3:3.5'
-    implementation 'org.slf4j:slf4j-api:1.7.22'
     implementation 'commons-logging:commons-logging:1.1.1'
 
-    compileOnly project(':ballerina-lang')
-    annotationProcessor project(':ballerina-lang')
+    baloImplementation project(path: ':stdlib:ballerina-builtin', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Auth'
