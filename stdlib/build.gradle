@@ -1,3 +1,5 @@
+apply plugin: 'base'
+
 subprojects {
     apply from: "$rootDir/gradle/java.gradle"
 

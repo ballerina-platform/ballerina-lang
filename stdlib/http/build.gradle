@@ -5,7 +5,7 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-mime')
-    implementation project(':ballerina-auth')
+    implementation project(':stdlib:ballerina-auth')
     implementation project(':ballerina-file')
     implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')

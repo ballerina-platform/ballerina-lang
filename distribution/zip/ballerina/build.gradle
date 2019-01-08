@@ -34,7 +34,7 @@ dependencies {
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.53'
     dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
 
-    dist project(':ballerina-auth')
+    dist project(':stdlib:ballerina-auth')
     dist project(':stdlib:ballerina-builtin')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-config')
