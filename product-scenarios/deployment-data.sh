@@ -97,10 +97,12 @@ unset IFS
 #export DATABASE_PASSWORD=${CONFIG[DBPassword]}
 DATABASE_HOST=${CONFIG[DatabaseHost]}
 DATABASE_PORT=${CONFIG[DatabasePort]}
-DATABASE_NAME=${CONFIG[DatabaseName]}
+DATABASE_NAME=test
 DATABASE_USERNAME=${CONFIG[DBUsername]}
 DATABASE_PASSWORD=${CONFIG[DBPassword]}
 ClusterName=${CONFIG[ClusterName]};
+
+bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
 wget https://product-dist.ballerina.io/downloads/0.990.2/ballerina-linux-installer-x64-0.990.2.deb
 sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb
