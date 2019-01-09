@@ -152,6 +152,10 @@ fi
 echo "All pods ready!"
 
 # Temporary sleep to check whether app eventually becomes ready..
+# Ideally there should have been a kubernetes readiness probe
+# which would make sure the "Ready" status would actually mean
+# the pod is ready to accept requests (app is ready) so the above
+# readiness script would suffice
 sleep 120s
 
 kubectl get svc
@@ -162,4 +166,5 @@ kubectl get svc ballerina-data-service -o=json
 
 EXTERNAL_IP=$(kubectl get svc ballerina-data-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
-echo "ExternalIP=$EXTERNAL_IP" >> $OUTPUT_DIR/deployment.properties
+echo "ExternalIP=$EXTERNAL_IP" >> ${OUTPUT_DIR}/deployment.properties
+echo "ServicesToBeDeleted=ballerina-data-service" >> ${OUTPUT_DIR}/infrastructure-cleanup.properties
