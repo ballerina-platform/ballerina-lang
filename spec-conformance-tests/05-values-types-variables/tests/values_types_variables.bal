@@ -150,6 +150,66 @@ function testIfValueIsOne(any value) {
     }
 }
 
+// Most types, including all simple basic types, have an implicit initial value, which is used to
+// initialize structure members.
+@test:Config {}
+function testImplicitInitialValues() {
+    ()[] nilArray = [];
+    nilArray[1] = ();
+    test:assertEquals(nilArray[0], (), msg = "expected implicit initial value of nil to be ()");
+
+    boolean[] booleanArray = [];
+    booleanArray[1] = true;
+    test:assertEquals(booleanArray[0], false, msg = "expected implicit initial value of boolean to be false");
+
+    int[] intArray = [];
+    intArray[1] = 100;
+    test:assertEquals(intArray[0], 0, msg = "expected implicit initial value of int to be 0");
+
+    float[] floatArray = [];
+    floatArray[1] = 50.9;
+    test:assertEquals(floatArray[0], 0.0, msg = "expected implicit initial value of float to be 0.0");
+
+    string[] stringArray = [];
+    stringArray[1] = "test string";
+    test:assertEquals(stringArray[0], "", msg = "expected implicit initial value of string to be an empty string");
+
+    int[][] twoDIntArray = [];
+    twoDIntArray[1] = [1, 2, 3, 4];
+    int[] expectedIntArray = [];
+    test:assertEquals(twoDIntArray[0], expectedIntArray, msg = "expected implicit initial value of int[] to be []");
+
+    float[][4] twoDFloatArrayWithLength = [];
+    twoDFloatArrayWithLength[1] = [1.1, 2.2, 3.3, 4.4];
+    float[] expectedFloatArray = [0.0, 0.0, 0.0, 0.0];
+    test:assertEquals(twoDFloatArrayWithLength[0], expectedFloatArray,
+        msg = "expected implicit initial value of float[4] to be [0.0, 0.0, 0.0, 0.0]");
+
+    xml[] xmlArray = [];
+    xmlArray[1] = xml`<t></t>`;
+    test:assertTrue(xmlArray[0].isEmpty(), msg = "expected implicit initial value of xml to be an empty sequence");
+
+    (int|string|())[] unionArray1 = [];
+    unionArray1[1] = 500;
+    test:assertEquals(unionArray1[0], (), msg = "expected implicit initial value of a union with () to be ()");
+
+    any[] anyArray = [];
+    anyArray[1] = 500;
+    test:assertEquals(anyArray[0], (), msg = "expected implicit initial value of any type to be ()");
+
+    anydata[] anydataArray = [];
+    anydataArray[1] = 500;
+    test:assertEquals(anydataArray[0], (), msg = "expected implicit initial value of anydata type to be ()");
+
+    byte[] byteArray = [];
+    byteArray[1] = 3;
+    test:assertEquals(byteArray[0], 0, msg = "expected implicit initial value of byte type to be 0");
+
+    json[] jsonArray = [];
+    jsonArray[1] = 3;
+    test:assertEquals(jsonArray[0], (), msg = "expected implicit initial value of json type to be ()");
+}
+
 // Most basic types of structured values (along with one basic type of simple value) are
 // iterable, meaning that a value of the type can be accessed as a sequence of simpler values.
 @test:Config {}
