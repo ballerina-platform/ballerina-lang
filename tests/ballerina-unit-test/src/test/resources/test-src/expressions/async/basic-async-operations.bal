@@ -86,7 +86,7 @@ function testAsyncNonNativeBasic10() returns any {
 }
 
 function testAsyncNonNativeBasic11() returns any {
-  future<int> f1 = start addNum(5, 2);
+  future<int> f1 = start subtract(7, 2);
   future<int> f2 = start subtract(5, 2);
   boolean cancelled_f1 = f1.cancel();
   boolean cancelled_f2 = f2.cancel();
