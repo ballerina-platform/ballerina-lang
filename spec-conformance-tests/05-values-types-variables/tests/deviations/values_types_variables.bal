@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
+import utils;
 
 // However, for other types of value, what is stored in the variable or member is a 
 // reference to the value; the value itself has its own separate storage.
@@ -71,16 +72,62 @@ function testDistinctStructureMembersReferringToSameValueBroken() {
     groups: ["broken"]
 }
 function testIterableTypesBroken() {
-//    (int, string, boolean) iterableTuple = (100, "test string", true);
-//    int count = 0;
-//    foreach var variable in iterableTuple {
-//        count += 1;
-//    }
-//    test:assertEquals(count, 3, msg = "expected int array to iterate 3 loops");
-//
-//    string iterableString = "Hello Ballerina";
-//    string result = "";
-//    foreach var char in iterableTuple {
-//        // TODO
-//    }
+    //    (int, string, boolean) iterableTuple = (100, "test string", true);
+    //    int count = 0;
+    //    foreach var variable in iterableTuple {
+    //        count += 1;
+    //    }
+    //    test:assertEquals(count, 3, msg = "expected int array to iterate 3 loops");
+    //
+    //    string iterableString = "Hello Ballerina";
+    //    string result = "";
+    //    foreach var char in iterableTuple {
+    //        // TODO
+    //    }
+}
+
+type Union 0|1|2;
+
+// Most types, including all simple basic types, have an implicit initial value, which is used to
+// initialize structure members.
+// TODO: Fix decimal, tuple, map, record, table, typedesc, singleton and union type implicit initial values
+@test:Config {
+    groups: ["broken"]
+}
+function testImplicitInitialValuesBroken() {
+    decimal[] decimalArray = [];
+    decimalArray[1] = 50.9;
+    test:assertEquals(decimalArray[0], <decimal>0, msg = "expected implicit initial value of decimal to be 0.0");
+
+    (int, boolean, string)[] tupleArray = [];
+    tupleArray[1] = (200, true, "test string");
+    test:assertEquals(tupleArray[0], (),
+        msg = "expected implicit initial value of (int, boolean, string) to be (0, false, \"\")");
+
+    map<any>[] mapArray = [];
+    mapArray[1] = { fieldOne: "valueOne" };
+    map<any> expectedMap = {};
+    test:assertEquals(mapArray[0], (), msg = "expected implicit initial value of map to be {}");
+
+    utils:FooRecord[] fooRecordArray = [];
+    fooRecordArray[1] = { fooFieldOne: "valueOne" };
+    test:assertEquals(fooRecordArray[0], (),
+        msg = "expected implicit initial value of FooRecord to { fooFieldOne: \"\" }");
+
+    table<utils:BarRecord>[] tableArray = [];
+    tableArray[1] = table{};
+    test:assertEquals(tableArray[0], (), msg = "expected implicit initial value of string to be an empty string");
+
+    //typedesc[] typedescArray = [];
+    //typedescArray[1] = int;
+    //test:assertTrue(typedescArray[0], (), msg = "expected implicit initial value of typedesc to be ()");
+
+    One[] singletonArray = [];
+    singletonArray[1] = 1;
+    test:assertEquals(singletonArray[0], (),
+        msg = "expected implicit initial value of a singleton to be the singleton value");
+
+    Union[] unionArray2 = [];
+    unionArray2[1] = 2;
+    test:assertEquals(unionArray2[0], (), msg = "expected implicit initial value of this union should be 0");
 }
