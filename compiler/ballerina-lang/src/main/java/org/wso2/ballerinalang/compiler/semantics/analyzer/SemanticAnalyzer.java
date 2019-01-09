@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -509,6 +510,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BLangExpression varRefExpr = variable.expr;
         BType rhsType = typeChecker.checkExpr(varRefExpr, this.env, symTable.noType);
+
+        if (varRefExpr.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation iterableInv = (BLangInvocation) varRefExpr;
+            if (iterableInv.iterableOperationInvocation &&
+                    iterableInv.iContext.getLastOperation().resultType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
+                dlog.error(variable.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH,
+                           iterableInv.iContext.getLastOperation().kind);
+                return;
+            }
+        }
 
         if (NodeKind.VARIABLE == variable.getKind()) {
 
