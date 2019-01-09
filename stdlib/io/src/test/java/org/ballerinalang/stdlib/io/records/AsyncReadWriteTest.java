@@ -16,9 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.test.nativeimpl.functions.io.records;
+package org.ballerinalang.stdlib.io.records;
 
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.stdlib.io.MockByteChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
@@ -27,9 +28,8 @@ import org.ballerinalang.stdlib.io.events.EventManager;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
 import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
+import org.ballerinalang.stdlib.io.util.TestUtil;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.nativeimpl.functions;
+package org.ballerinalang.stdlib.io;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -41,7 +41,7 @@ import java.io.PrintStream;
 /**
  * Test Native functions in ballerina/io.
  */
-public class IOTest {
+public class IOPrintTest {
 
     private CompileResult compileResult;
     private final String printFuncName = "testPrintAndPrintln";
@@ -51,7 +51,7 @@ public class IOTest {
     @BeforeClass(alwaysRun = true)
     public void setup() {
         original = System.out;
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/io-test.bal");
+        compileResult = BCompileUtil.compile("test-src/io/io-test.bal");
     }
 
     @AfterClass(alwaysRun = true)

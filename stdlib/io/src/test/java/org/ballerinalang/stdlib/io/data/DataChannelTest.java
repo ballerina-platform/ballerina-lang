@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.test.nativeimpl.functions.io.data;
+package org.ballerinalang.stdlib.io.data;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;

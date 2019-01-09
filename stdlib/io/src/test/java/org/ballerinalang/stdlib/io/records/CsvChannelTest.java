@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.nativeimpl.functions.io.records;
+package org.ballerinalang.stdlib.io.records;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;

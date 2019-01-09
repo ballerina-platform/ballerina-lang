@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.nativeimpl.functions.io.bytes;
+package org.ballerinalang.stdlib.io.bytes;
 
 /**
  * Read byte result.

@@ -66,7 +66,6 @@ function close() {
     _ = wch.close();
 }
 
-
 function hasNextRecord() returns boolean? {
     return rch.hasNext();
 }

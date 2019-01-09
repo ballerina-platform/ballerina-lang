@@ -17,16 +17,16 @@
  *
  */
 
-package org.ballerinalang.test.nativeimpl.functions.io.data;
+package org.ballerinalang.stdlib.io.data;
 
 import org.apache.commons.codec.CharEncoding;
+import org.ballerinalang.stdlib.io.MockByteChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.stdlib.io.channels.base.data.LongResult;
+import org.ballerinalang.stdlib.io.util.TestUtil;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
