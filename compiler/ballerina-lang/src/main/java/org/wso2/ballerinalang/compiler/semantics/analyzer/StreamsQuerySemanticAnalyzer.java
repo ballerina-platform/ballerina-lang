@@ -633,6 +633,13 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                 BType variableType = resolveSelectFieldType(expressionNode);
                 selectClauseAttributeMap.put(variableName, variableType);
             }
+        } else {
+            List<BField> inputStructFieldList = ((BRecordType) ((BStreamType) ((BLangSimpleVarRef) (
+                    ((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput())
+                    .getStreamReference()).type).constraint).fields;
+            for (BField field : inputStructFieldList) {
+                selectClauseAttributeMap.put(field.name.value, field.type);
+            }
         }
 
         BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)

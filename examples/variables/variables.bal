@@ -10,7 +10,7 @@ public int count = 0;
 const string OK = "ok";
 
 // Declare a public final variable that behaves as a constant for other modules.
-// Value of the final variable is frozen. Once a value is assigned to a final
+// Value of the `final` variable is frozen. Once a value is assigned to a final
 // variable it becomes immutable. All parameters of a function call are
 // implicitly final.
 public final int status = 1;

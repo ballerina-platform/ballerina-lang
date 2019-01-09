@@ -36,17 +36,18 @@ import org.testng.annotations.Test;
  */
 public class BallerinaStreamsV2SelectorTest {
 
-    private CompileResult result, resultWithComplexExpressions;
+    private CompileResult result, resultForSelectAll, resultWithComplexExpressions;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streamingv2-select-test.bal");
+        resultForSelectAll = BCompileUtil.compile("test-src/streamingv2-select-all-test.bal");
         resultWithComplexExpressions = BCompileUtil.compile(
                 "test-src/streamingv2-select-with-mathematical-and-logical-operators-test.bal");
 
     }
 
-    @Test(description = "Test filter streaming query")
+    @Test(description = "Test streaming selector query")
     public void testSelectQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
         Assert.assertNotNull(outputEmployeeEvents);
@@ -62,6 +63,25 @@ public class BallerinaStreamsV2SelectorTest {
         Assert.assertEquals(employee1.get("teacherName").stringValue(), "Mohan");
         Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 45);
         Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 50);
+    }
+
+    @Test(description = "Test select all streaming query")
+    public void testSelectAllQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForSelectAll, "startSelectQuery");
+
+        Assert.assertNotNull(outputEmployeeEvents);
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 25);
+        Assert.assertEquals(employee1.get("name").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 45);
+        Assert.assertEquals(employee2.get("name").stringValue(), "Shareek");
         Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 50);
     }
 
