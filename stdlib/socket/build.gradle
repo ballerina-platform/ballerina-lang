@@ -1,10 +1,11 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':stdlib:ballerina-builtin')
-    implementation project(':lib-creator')
+    implementation project(':ballerina-builtin')
 }
 
 description = 'Ballerina - Socket'

@@ -2,7 +2,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-llvm')
     implementation project(':ballerina-io')
     implementation project(':ballerina-internal')

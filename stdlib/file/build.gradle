@@ -3,9 +3,9 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':stdlib:ballerina-builtin')
-    implementation project(':lib-creator')
+
     implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.53'
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - File'

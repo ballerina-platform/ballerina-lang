@@ -1,10 +1,12 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-mime')
-    implementation project(':stdlib:ballerina-auth')
+    implementation project(':ballerina-auth')
     implementation project(':ballerina-file')
     implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')
@@ -14,9 +16,29 @@ dependencies {
     implementation project(':ballerina-cache')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-logging')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-config')
+
+    baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+
+    // transitive
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+
+
     implementation 'io.netty:netty-codec-http:4.1.19.Final'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
     implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'

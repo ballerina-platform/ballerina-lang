@@ -3,8 +3,8 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':lib-creator')
-    implementation project(':stdlib:ballerina-builtin')
+
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - System'

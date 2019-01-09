@@ -8,6 +8,9 @@ configurations {
     dist {
       transitive false
     }
+    distBal {
+        transitive false
+    }
 }
 
 dependencies {
@@ -34,8 +37,70 @@ dependencies {
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.53'
     dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
 
-    dist project(':stdlib:ballerina-auth')
-    dist project(':stdlib:ballerina-builtin')
+    dist 'info.picocli:picocli:3.3.0'
+    dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    dist 'org.apache.james:apache-mime4j-core:0.7.2'
+    dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
+    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.11-wso2v11'
+    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.20'
+    dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.20'
+    dist 'io.ballerina.messaging:broker-auth:0.970.0'
+    dist 'io.ballerina.messaging:broker-common:0.970.0'
+    dist 'io.ballerina.messaging:broker-coordination:0.970.0'
+    dist 'io.ballerina.messaging:broker-core:0.970.0'
+    dist 'io.ballerina.messaging:broker-rest-runner:0.970.0'
+    dist 'org.apache.geronimo.specs:geronimo-activation_1.1_spec:1.1'
+    dist 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
+    dist 'com.google.code.gson:gson:2.7'
+    dist 'com.google.guava:guava:19.0'
+    dist 'com.github.jknack:handlebars:4.0.6'
+    dist 'jaxen:jaxen:1.1.6'
+    dist 'io.netty:netty-buffer:4.1.19.Final'
+    dist 'io.netty:netty-codec-http2:4.1.19.Final'
+    dist 'io.netty:netty-codec-http:4.1.19.Final'
+    dist 'io.netty:netty-codec:4.1.19.Final'
+    dist 'io.netty:netty-common:4.1.19.Final'
+    dist 'io.netty:netty-handler-proxy:4.1.19.Final'
+    dist 'io.netty:netty-handler:4.1.19.Final'
+    dist 'io.netty:netty-resolver:4.1.19.Final'
+    dist 'io.netty:netty-tcnative-boringssl-static:2.0.7.Final'
+    dist 'io.netty:netty-transport:4.1.19.Final'
+    dist 'org.apache.commons:commons-lang3:3.5'
+    dist 'commons-logging:commons-logging:1.1.1'
+    dist 'commons-pool.wso2:commons-pool:1.5.6.wso2v1'
+
+
+    distBal project(path: ':ballerina-auth', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-file', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-grpc', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-h2', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-io', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-jms', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-math', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-mime', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-mysql', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-observability', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-socket', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-sql', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-streams', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-swagger', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-system', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-task', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-time', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-transactions', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-websub', configuration: 'baloImplementation')
+
+    dist project(':ballerina-auth')
+    dist project(':ballerina-builtin')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-config')
     dist project(':ballerina-config-api')
@@ -78,22 +143,32 @@ dependencies {
 
 }
 
-task zip(type: Zip) {
+def basePath = '/' + project.name + '-' + project.version + '/'
 
-    def basePath = '/' + project.name + '-' + project.version + '/'
+CopySpec copyJarSpec = copySpec {
+    from configurations.dist
+    into(basePath + 'bre/lib')
+}
 
-    from configurations.dist {
-        into(basePath + 'bvm/lib')
-    }
+CopySpec copyBaloSpec = copySpec {
+    from configurations.distBal
+    into(basePath + 'lib')
+}
 
-    from ('bin'){
-        into(basePath + 'bin')
-    }
+CopySpec copyBinSpec = copySpec {
+    from ('bin')
+    filter { line -> line.replace('${project.version}', "$project.version") }
+    into(basePath + 'bin')
+}
 
+task createZip(type: Zip) {
+    with copyJarSpec
+    with copyBaloSpec
+    with copyBinSpec
 }
 
 build {
-    dependsOn zip
+    dependsOn createZip
 }
 
 // This section makes sure that checkstyle/spotbug runs when dist is build.

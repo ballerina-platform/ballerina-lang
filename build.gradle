@@ -7,6 +7,12 @@ plugins {
 allprojects {
     group = 'org.ballerinalang'
     version = '0.990.3-SNAPSHOT'
+
+    task printPath {
+        doLast{
+            println projectDir
+        }
+    }
 }
 
 subprojects {

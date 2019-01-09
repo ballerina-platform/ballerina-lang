@@ -1,10 +1,12 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':stdlib:ballerina-builtin')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-config')
 
     implementation 'io.opentracing:opentracing-api:0.31.0'
