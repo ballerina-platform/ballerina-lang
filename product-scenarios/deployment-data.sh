@@ -140,6 +140,17 @@ if [ "$READY_REPLICAS" != 1 ]; then
 	exit 1;
 fi
 
+INTERVAL=20
+bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
+
+READY_STATUS=$?
+
+echo "Ready Staus: ${READY_STATUS}"
+if [ ${READY_STATUS} -ne 0 ]; then
+    exit 1;
+fi
+echo "All pods ready!"
+
 kubectl get svc
 
 kubectl get pods
