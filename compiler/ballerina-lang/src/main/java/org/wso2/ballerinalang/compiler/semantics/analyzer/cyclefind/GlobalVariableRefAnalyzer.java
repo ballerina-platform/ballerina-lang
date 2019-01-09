@@ -94,7 +94,6 @@ public class GlobalVariableRefAnalyzer {
             }
         }
 
-        Map<Integer, List<Integer>> multimap = graph.getSCCs();
 
         Map<Integer, BSymbol> nodeIdToNodeSymbol = nodeIndexes.entrySet().stream()
                 .collect(Collectors.toMap(v -> v.getValue().nodeId, v -> v.getKey()));
@@ -102,8 +101,9 @@ public class GlobalVariableRefAnalyzer {
         Map<Integer, BLangNode> nodeIdToNode = nodeIndexes.values().stream()
                 .collect(Collectors.toMap(v -> v.nodeId, v -> v.node));
 
+        Map<Integer, List<Integer>> cyclesInGraph = graph.getSCCs();
         // If cyclic references are found, we can't reorder, exit with error.
-        if (findCyclicDependencies(multimap, pkgNode, nodeIdToNodeSymbol, nodeIdToNode)) {
+        if (findCyclicDependencies(cyclesInGraph, pkgNode, nodeIdToNodeSymbol, nodeIdToNode)) {
             return;
         }
 

@@ -1355,6 +1355,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+        // todo: set correct tainted status of the service by checking variables within service constructor.
+        this.taintedStatus = TaintedStatus.UNTAINTED;
     }
 
     @Override
