@@ -29,6 +29,15 @@ public type BazRecord record {
     float bazFieldOne;
 };
 
+public type BazRecordTwo record {
+    float bazFieldOne;
+    string bazFieldTwo;
+};
+
+public type BazRecordThree record {
+    string|float bazFieldOne;
+};
+
 public type FooObject object {
     public string fooFieldOne;
 
@@ -56,6 +65,7 @@ public type BarObject object {
 public type BazObject object {
     public BarObject bazFieldOne;
     public BarObject? bazFieldTwo = ();
+    public BazObject? bazFieldThree = ();
 
     public function __init(BarObject bazFieldOne) {
         self.bazFieldOne = bazFieldOne;

@@ -80,6 +80,7 @@ function testNonSimpleValuesStoredInStructures() {
     utils:FooRecord f6 = <utils:FooRecord> b1.fooRecField;
     test:assertEquals(f6.fooFieldOne, S, msg = "expected record member to have been updated");
 
+    // TODO: validate
     utils:BarObject b2 = new(100);
     utils:BazObject b3 = new(b2);
     b2.barFieldOne = I;
@@ -107,10 +108,120 @@ function testDistinctStructureMembersReferringToSameValue() {
     utils:BazRecord b1 = { fooRecFieldOne: f4, bazFieldOne: 1.0, fooRecFieldTwo: f4 };
     test:assertTrue(b1.fooRecFieldOne === b1.fooRecFieldTwo, msg = "expected values to be at the same location");
 
+    // TODO: validate
     utils:BarObject b2 = new(100);
     utils:BazObject b3 = new(b2);
     b3.bazFieldTwo = b2;
     test:assertTrue(b3.bazFieldOne === b3.bazFieldTwo, msg = "expected values to be at the same location");
+}
+
+// All basic types of structural values, with the exception of the XML, are mutable,
+// meaning the value referred to by a particular reference can be changed.
+// Non-XML types are already tested.
+@test:Config {}
+function testXmlImmutability() {
+    xml x1 = xml `<book/>`;
+    xml x2 = x1;
+    xml x3 = xml `<name>Book1</name>`;
+    x1 = x1 + x3;
+    test:assertTrue(x1 !== x2, msg = "expected mutated xml to be a new value");
+}
+
+// Whether a behavioural value is mutable depends on its basic type: some of the behavioural basic types
+// allow mutation, and some do not. Mutation cannot change the basic type of a value.
+@test:Config {}
+function testBehaviouralbasicTypeMutation() {
+    // TODO
+}
+
+// Mutation makes it possible for the graphs of references between values to have cycles.
+@test:Config {}
+function testCyclicReferenceViaMutation() {
+    any[] a = [1, "test string 1", 3.0];
+    a[3] = a;
+    test:assertTrue(a === a[3], msg = "expected values to be at the same location");
+
+    (int, anydata, float) b = (1, 2, 3.0);
+    b[1] = b;
+    test:assertTrue(b === b[1], msg = "expected values to be at the same location");
+
+    map<any> c = { one: 1, two: 2.0 };
+    c.three = c;
+    test:assertTrue(c === c.three, msg = "expected values to be at the same location");
+
+    utils:BazRecord d = { bazFieldOne: 1.2 };
+    d.bazRecord = d;
+    test:assertTrue(d === d.bazRecord, msg = "expected values to be at the same location");
+
+    utils:BarObject e = new(1);
+    utils:BazObject f = new(e);
+    f.bazFieldThree = f;
+    test:assertTrue(f === f.bazFieldThree, msg = "expected values to be at the same location");
+}
+
+// A value looks like a type at a particular point in the execution of a program if its shape
+// at that point is a member of the type
+@test:Config {}
+function testLooksLike() {
+    (int|boolean)[] a = [true, false, false];
+    var result1 = boolean[].stamp(a);
+    test:assertTrue(result1 is boolean[], msg = "expected stamping to be successful");
+
+    (int|boolean, string|float, decimal) c = (false, 1.0, <decimal> 5.2);
+    var result2 = (boolean, float, decimal).stamp(c);
+    test:assertTrue(result2 is (boolean, float, decimal), msg = "expected stamping to be successful");
+
+    map<string|int> m = { zero: "map with strings only", one: "test string 1"  };
+    var result3 = map<string>.stamp(m);
+    test:assertTrue(result3 is map<string>, msg = "expected stamping to be successful");
+    
+    anydata b = <utils:BazRecordTwo> { bazFieldOne: 1.0, bazFieldTwo: "test string 1" };
+    var result4 = utils:BazRecord.stamp(b);
+    test:assertTrue(result4 is utils:BazRecord, msg = "expected stamping to be successful");
+}
+
+// a value belongs to a type if it looks like the type, and it will necessarily continue to
+// look like the type no matter how the value is mutated
+@test:Config {}
+function testBelongsTo() {
+    (int|boolean)[] a1 = [true, false, false];
+    any a2 = a1;
+    if !(a2 is (int|boolean)[]) || !(a2 is anydata[]) {
+        test:assertFail(msg = "expected value to belong to type");
+    }
+
+    if (a2 is boolean[]) {
+        test:assertFail(msg = "expected value to not belong to type");
+    }
+
+    (int|boolean, string|float, decimal) a3 = (false, 1.0, <decimal> 5.2);
+    anydata a4 = a3;
+    if !(a4 is (int|boolean, string|float, decimal)) || !(a4 is (anydata, anydata, decimal)) {
+        test:assertFail(msg = "expected value to belong to type");
+    }
+
+    if (a4 is (boolean, float, decimal)) {
+        test:assertFail(msg = "expected value to not belong to type");
+    }
+
+    map<string|int> a5 = { zero: "map with strings only", one: "test string 1"  };
+    any a6 = a5;
+    if !(a6 is map<string|int>) || !(a6 is map<anydata>) {
+        test:assertFail(msg = "expected value to belong to type");
+    }
+
+    if (a6 is map<string>) {
+        test:assertFail(msg = "expected value to not belong to type");
+    }
+
+    anydata a7 = <utils:BazRecordThree> { bazFieldOne: 1.0 };
+    if !(a7 is utils:BazRecordThree) || !(a7 is record {}) {
+        test:assertFail(msg = "expected value to belong to type");
+    }
+
+    if (a7 is utils:BazRecord) {
+        test:assertFail(msg = "expected value to not belong to type");
+    }
 }
 
 // For an immutable value, looking like a type and belonging to a type are the same thing.
