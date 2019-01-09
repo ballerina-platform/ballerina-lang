@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/test;
+import utils;
 
 // A list value is a container that keeps its members in an ordered list.
 @test:Config {}
@@ -35,11 +36,11 @@ function testTupleMemberOrder() {
     test:assertEquals(tuple[1], a2, msg = "expected value not found at index 1");
     test:assertEquals(tuple[2], a3, msg = "expected value not found at index 2");
 
-    FooRecord a5 = { fooFieldOne: "valueOne" };
-    BarRecord a6 = { barFieldOne: 100 };
-    FooRecord a7 = { fooFieldOne: "valueTwo" };
+    utils:FooRecord a5 = { fooFieldOne: "valueOne" };
+    utils:BarRecord a6 = { barFieldOne: 100 };
+    utils:FooRecord a7 = { fooFieldOne: "valueTwo" };
 
-    (FooRecord, BarRecord) tuple2 = (a5, a6);
+    (utils:FooRecord, utils:BarRecord) tuple2 = (a5, a6);
 
     test:assertEquals(tuple2[0], a5, msg = "expected value not found at index 0");
     test:assertEquals(tuple2[1], a6, msg = "expected value not found at index 1");
@@ -47,11 +48,11 @@ function testTupleMemberOrder() {
     tuple2[0] = a7;
     test:assertEquals(tuple2[0], a7, msg = "expected value not found at index 0");
 
-    FooObject a8 = new("valueOne");
-    BarObject a9 = new(200);
-    FooObject a10 = new("valueTwo");
+    utils:FooObject a8 = new("valueOne");
+    utils:BarObject a9 = new(200);
+    utils:FooObject a10 = new("valueTwo");
 
-    (FooObject, BarObject) tuple3 = (a8, a9);
+    (utils:FooObject, utils:BarObject) tuple3 = (a8, a9);
 
     test:assertEquals(tuple3[0], a8, msg = "expected value not found at index 0");
     test:assertEquals(tuple3[1], a9, msg = "expected value not found at index 1");
@@ -88,33 +89,33 @@ function testTupleMemberReferenceByValidIntegerIndex() {
     int b6 = tuple[2];
     test:assertEquals(b6, a6, msg = "expected value not found at index 2");
 
-    FooRecord a7 = { fooFieldOne: "valueOne" };
-    BarRecord a8 = { barFieldOne: 100 };
-    FooRecord a9 = { fooFieldOne: "valueTwo" };
-    BarRecord a10 = { barFieldOne: 50 };
-    (FooRecord, BarRecord, FooRecord, BarRecord) tuple2 = (a7, a8, a9, a10);
+    utils:FooRecord a7 = { fooFieldOne: "valueOne" };
+    utils:BarRecord a8 = { barFieldOne: 100 };
+    utils:FooRecord a9 = { fooFieldOne: "valueTwo" };
+    utils:BarRecord a10 = { barFieldOne: 50 };
+    (utils:FooRecord, utils:BarRecord, utils:FooRecord, utils:BarRecord) tuple2 = (a7, a8, a9, a10);
 
-    FooRecord b7 = tuple2[0];
-    BarRecord b8 = tuple2[1];
-    FooRecord b9 = tuple2[2];
-    BarRecord b10 = tuple2[3];
+    utils:FooRecord b7 = tuple2[0];
+    utils:BarRecord b8 = tuple2[1];
+    utils:FooRecord b9 = tuple2[2];
+    utils:BarRecord b10 = tuple2[3];
 
     test:assertEquals(b7, a7, msg = "expected value not found at index 0");
     test:assertEquals(b8, a8, msg = "expected value not found at index 1");
     test:assertEquals(b9, a9, msg = "expected value not found at index 2");
     test:assertEquals(b10, a10, msg = "expected value not found at index 3");
 
-    FooObject a11 = new("valueOne");
-    BarObject a12 = new(200);
-    FooObject a13 = new("valueTwo");
-    BarObject a14 = new(180);
+    utils:FooObject a11 = new("valueOne");
+    utils:BarObject a12 = new(200);
+    utils:FooObject a13 = new("valueTwo");
+    utils:BarObject a14 = new(180);
 
-    (FooObject, BarObject, FooObject, BarObject) tuple3 = (a11, a12, a13, a14);
+    (utils:FooObject, utils:BarObject, utils:FooObject, utils:BarObject) tuple3 = (a11, a12, a13, a14);
 
-    FooObject b11 = tuple3[0];
-    BarObject b12 = tuple3[1];
-    FooObject b13 = tuple3[2];
-    BarObject b14 = tuple3[3];
+    utils:FooObject b11 = tuple3[0];
+    utils:BarObject b12 = tuple3[1];
+    utils:FooObject b13 = tuple3[2];
+    utils:BarObject b14 = tuple3[3];
 
     test:assertEquals(b11, a11, msg = "expected value not found at index 0");
     test:assertEquals(b12, a12, msg = "expected value not found at index 1");
@@ -136,7 +137,7 @@ function testTupleShape() {
 function testTupleInherentTypeViolation() {
     (int, int) tuple = (1, 2);
     (any, any) tupleWithAnyTypedMembers = tuple;
-    assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, "not an int"),
+    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, "not an int"),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
@@ -156,19 +157,19 @@ function testTupleInherentTypeViolation() {
         one: "test string 1",
         two: "test string 2"
     };
-    assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, stringOrIntMap),
+    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, stringOrIntMap),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
-    FooRecord a1 = { fooFieldOne: "valueOne" };
-    FooRecord a2 = { fooFieldOne: "valueTwo" };
-    (FooRecord, FooRecord) tuple2 = (a1, a2);
+    utils:FooRecord a1 = { fooFieldOne: "valueOne" };
+    utils:FooRecord a2 = { fooFieldOne: "valueTwo" };
+    (utils:FooRecord, utils:FooRecord) tuple2 = (a1, a2);
     tupleWithAnyTypedMembers = tuple2;
-    assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
+    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
-    (map<FooRecord>, map<FooRecord>) fooRecordMapTuple = (
+    (map<utils:FooRecord>, map<utils:FooRecord>) fooRecordMapTuple = (
     {
         one: { fooFieldOne: "valueOne" },
         two: { fooFieldOne: "valueTwo" }
@@ -180,23 +181,23 @@ function testTupleInherentTypeViolation() {
     tupleWithAnyTypedMembers = fooRecordMapTuple;
 
     // `map<FooRecord|BarRecord>` looks like `map<FooRecord>`
-    map<FooRecord|BarRecord> FooRecordOrBarRecordMap = {
+    map<utils:FooRecord|utils:BarRecord> FooRecordOrBarRecordMap = {
         one: { fooFieldOne: "valueOne" },
         two: { fooFieldOne: "valueTwo" }
     };
-    assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, FooRecordOrBarRecordMap),
+    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, FooRecordOrBarRecordMap),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
-    FooObject a3 = new("valueOne");
-    FooObject a4 = new("valueTwo");
-    (FooObject, FooObject) tuple3 = (a3, a4);
+    utils:FooObject a3 = new("valueOne");
+    utils:FooObject a4 = new("valueTwo");
+    (utils:FooObject, utils:FooObject) tuple3 = (a3, a4);
     tupleWithAnyTypedMembers = tuple3;
-    assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
+    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
-    (map<FooObject>, map<FooObject>) fooObjectMapTuple = (
+    (map<utils:FooObject>, map<utils:FooObject>) fooObjectMapTuple = (
         {
             one: new("valueOne"),
             two: new("valueTwo")
@@ -207,15 +208,15 @@ function testTupleInherentTypeViolation() {
     );
     tupleWithAnyTypedMembers = fooObjectMapTuple;
 
-    FooObject f1 = new("valueOne");
-    FooObject f2 = new("valueTwo");
+    utils:FooObject f1 = new("valueOne");
+    utils:FooObject f2 = new("valueTwo");
 
-    // `map<FooObject|BarObject>` looks like `map<FooObject>`
-    map<FooObject|BarObject> FooObjectOrBarObjectMap = {
+    // `map<utils:FooObject|utils:BarObject>` looks like `map<utils:FooObject>`
+    map<utils:FooObject|utils:BarObject> FooObjectOrBarObjectMap = {
         one: f1,
         two: f2
     };
-    assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, FooObjectOrBarObjectMap),
+    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, FooObjectOrBarObjectMap),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 }

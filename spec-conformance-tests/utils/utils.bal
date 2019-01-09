@@ -13,23 +13,24 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/test;
 
-type FooRecord record {
+public type FooRecord record {
     string fooFieldOne;
     !...
 };
 
-type BarRecord record {
+public type BarRecord record {
     int barFieldOne;
     !...
 };
 
-type BazRecord record {
+public type BazRecord record {
     float bazFieldOne;
 };
 
-type FooObject object {
-    string fooFieldOne;
+public type FooObject object {
+    public string fooFieldOne;
 
     public function __init(string fooFieldOne) {
         self.fooFieldOne = fooFieldOne;
@@ -40,8 +41,8 @@ type FooObject object {
     }
 };
 
-type BarObject object {
-    int barFieldOne;
+public type BarObject object {
+    public int barFieldOne;
 
     public function __init(int barFieldOne) {
         self.barFieldOne = barFieldOne;
@@ -52,6 +53,19 @@ type BarObject object {
     }
 };
 
+public type BazObject object {
+    public BarObject bazFieldOne;
+    public BarObject? bazFieldTwo = ();
+
+    public function __init(BarObject bazFieldOne) {
+        self.bazFieldOne = bazFieldOne;
+    }
+
+    public function getBazFieldOne() returns BarObject {
+        return self.bazFieldOne;
+    }
+};
+
 # Util method expected to be used with the result of a trapped expression. 
 # Validates that `result` is of type `error` and that the error has the reason specified as `expectedReason`,
 # and fails with the `invalidReasonFailureMessage` string if the reasons mismatch.
@@ -59,7 +73,7 @@ type BarObject object {
 # + result - the result of the trapped expression
 # + expectedReason - the reason the error is expected to have
 # + invalidReasonFailureMessage - the failure message on reason mismatch
-function assertErrorReason(any|error result, string expectedReason, string invalidReasonFailureMessage) {
+public function assertErrorReason(any|error result, string expectedReason, string invalidReasonFailureMessage) {
     if (result is error) {
         test:assertEquals(result.reason(), expectedReason, msg = invalidReasonFailureMessage);
     } else {
