@@ -31,15 +31,13 @@ then
 fi
 
 # List of BBEs excluded from building
-exclude=("date-time"
-        "proto-to-ballerina"
+exclude=("proto-to-ballerina"
         "swagger-to-ballerina"
         "taint-checking"
         "websub-hub-client-sample"
         "websub-remote-hub-sample"
         "counter-metrics"
         "config-api"
-        "log-api"
         "secured-service-with-basic-auth"
         "testerina-function-mocks"
         "jms-queue-message-receiver-with-client-acknowledgment"
@@ -50,9 +48,7 @@ exclude=("date-time"
         "streaming-big-dataset"
         "docker-deployment"
         "kubernetes-deployment"
-        "xml-attributes"
         "error-handling"
-        "hello-world-parallel"
         "error-lifting"
         "http-failover"
         )
