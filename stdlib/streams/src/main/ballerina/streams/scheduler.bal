@@ -45,16 +45,12 @@ public type Scheduler object {
                     int timeDiff = timestamp - time:currentTime().time;
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
-                    if (self.timer is ()) {
-                        self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                            function (error e) {io:println("Error occured", e.reason());}, timeDiff, delay = timeDelay);
-                        _ = self.timer.start();
-                    } else {
+                    if (self.timer is task:Timer) {
                         _ = self.timer.stop();
-                        self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                            function (error e) {io:println("Error occured", e.reason());}, timeDiff, delay = timeDelay);
-                        _ = self.timer.start();
                     }
+                    self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
+                        function (error e) {io:println("Error occured", e.reason());}, timeDiff, delay = timeDelay);
+                    _ = self.timer.start();
                 }
             }
         }
