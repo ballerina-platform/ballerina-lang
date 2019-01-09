@@ -113,6 +113,7 @@ public class FormattingTest {
                 {"expectedAsyncExpr.bal", "asyncExpr.bal"},
                 {"expectedBindingPatterns.bal", "bindingPatterns.bal"},
                 {"expectedDocumentation.bal", "documentation.bal"},
+                {"expectedWorkerInteractions.bal", "workerInteractions.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }

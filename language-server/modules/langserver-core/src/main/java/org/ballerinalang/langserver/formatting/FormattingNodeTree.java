@@ -594,6 +594,8 @@ public class FormattingNodeTree {
                             FormattingConstants.SPACE_TAB)
                             : this.getWhiteSpaces(formatConfig.get(FormattingConstants.START_COLUMN).getAsInt()));
 
+            this.preserveHeight(ws, indentation);
+
             // Update opening parentheses whitespace.
             JsonObject openingParenthesesWS = ws.get(0).getAsJsonObject();
             if (this.noHeightAvailable(openingParenthesesWS.get(FormattingConstants.WS).getAsString())) {
@@ -4262,8 +4264,39 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatWorkerReceiveNode(JsonObject node) {
-        // TODO: fix formatting for Worker receiver node.
-        this.skipFormatting(node, true);
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+
+            String indentationFromParent = (formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean()
+                    ? (this.getWhiteSpaces(formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt())
+                    + FormattingConstants.SPACE_TAB)
+                    : this.getWhiteSpaces(formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt()));
+
+            this.preserveHeight(ws, indentationFromParent);
+
+            // Iterate through ws accordingly.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals("<-")) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                    } else if (text.equals(",")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    }
+                }
+            }
+
+            if (node.has("keyExpression")) {
+                node.getAsJsonObject("keyExpression").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(indentationFromParent)));
+            }
+        }
     }
 
     /**
@@ -4272,8 +4305,42 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatWorkerSendNode(JsonObject node) {
-        // TODO: fix formatting for worker send node.
-        this.skipFormatting(node, true);
+        if (node.has(FormattingConstants.FORMATTING_CONFIG) && node.has(FormattingConstants.WS)) {
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+
+            String indentation = (formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean()
+                    ? (this.getWhiteSpaces(formatConfig.get(FormattingConstants.START_COLUMN).getAsInt())
+                    + FormattingConstants.SPACE_TAB)
+                    : this.getWhiteSpaces(formatConfig.get(FormattingConstants.START_COLUMN).getAsInt()));
+
+            this.preserveHeight(ws, indentation);
+
+            // Iterate through ws and update accordingly.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals("->")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    } else if (text.equals(";") || text.equals(",")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    }
+                }
+            }
+
+            if (node.has("keyExpression")) {
+                node.getAsJsonObject("keyExpression").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(indentation)));
+            }
+
+            if (node.has("expression")) {
+                node.getAsJsonObject("expression").add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+            }
+        }
     }
 
     // --------- Util functions for the modifying node tree --------
