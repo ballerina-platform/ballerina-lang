@@ -85,6 +85,15 @@ function testAsyncNonNativeBasic10() returns any {
   return result;
 }
 
+function testAsyncNonNativeBasic11() returns any {
+  future<int> f1 = start addNum(5, 2);
+  future<int> f2 = start subtract(5, 2);
+  boolean cancelled_f1 = f1.cancel();
+  boolean cancelled_f2 = f2.cancel();
+  any result = wait {f1,f2};
+  return result;
+}
+
 function addNum(int i, int j) returns int {
   int l = 0;
   while (l < 10000) {
