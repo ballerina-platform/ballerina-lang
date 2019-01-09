@@ -71,6 +71,28 @@ public type Scheduler object {
             first = self.toNotifyQueue.getFirst();
             currentTime = time:currentTime().time;
         }
+
+        _ = self.timer.stop();
+        self.timer = ();
+
+        first = self.toNotifyQueue.getFirst();
+        currentTime = time:currentTime().time;
+
+        if (first != ()) {
+            self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
+                function (error e) {io:println("Error occured", e.reason());}, <int>first - currentTime);
+            _ = self.timer.start();
+        } else {
+            lock {
+                self.running = false;
+                if (self.toNotifyQueue.getFirst() != ()) {
+                    self.running = true;
+                    self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
+                        function (error e) {io:println("Error occured", e.reason());}, 0);
+                    _ = self.timer.start();
+                }
+            }
+        }
         return ();
     }
 };
