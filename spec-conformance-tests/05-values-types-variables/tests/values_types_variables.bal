@@ -15,29 +15,41 @@
 // under the License.
 import ballerina/test;
 
+const decimal D = 1.23;
 const int I = 1;
 const string S = "test string const";
 const float F = 1.0;
+const boolean B = true;
 
 // Values can be stored in variables or as members of structures.
 
 // A simple value is stored directly in the variable or structure.
 @test:Config {}
 function testSimpleValuesStoredInStructures() {
-    int i = I;
-    int[] s1 = [12, 13, i, 14];
-    i = I + 10;
-    test:assertEquals(s1[2], I, msg = "expected array member to not have changed");
+    decimal d = D;
+    decimal[] s1 = [1.2, 1.3, d, 1.4];
+    d = D + 10;
+    test:assertEquals(s1[2], D, msg = "expected array member to not have changed");
 
-    string s = S;
-    (int, string) s2 = (12, s);
-    s = "test string 2";
-    test:assertEquals(s2[1], S, msg = "expected tuple member to not have changed");
+    boolean b = B;
+    (int, boolean) s2 = (12, b);
+    b = false;
+    test:assertEquals(s2[1], B, msg = "expected tuple member to not have changed");
 
     float f = F;
     map<float> s3 = { one: f, two: 2.00 };
     f = 3.0;
     test:assertEquals(s3.one, F, msg = "expected map member to not have changed");
+
+    string s = S;
+    FooRecord s4 = { fooFieldOne: s };
+    s = "test string 1";
+    test:assertEquals(s4.fooFieldOne, S, msg = "expected record member to not have changed");
+
+    int i = I;
+    BarObject s5 = new(i);
+    i = 25;
+    test:assertEquals(s5.barFieldOne, I, msg = "expected object member to not have changed");
 }
 
 // However, for other types of value, what is stored in the variable or member is a 
@@ -59,7 +71,18 @@ function testNonSimpleValuesStoredInStructures() {
     FooObject f4 = new("test string 4");
     map<FooObject> s4 = { one: f3, two: f4 };
     f3.fooFieldOne = S;
-    test:assertEquals(s4.one.fooFieldOne, S, msg = "expected map member to not have been updated");
+    test:assertEquals(s4.one.fooFieldOne, S, msg = "expected map member to have been updated");
+
+    FooRecord f5 = { fooFieldOne: "test string 5" };
+    BazRecord b1 = { bazFieldOne: 1.0, fooRecField: f5 };
+    f5.fooFieldOne = S;
+    FooRecord f6 = <FooRecord> b1.fooRecField;
+    test:assertEquals(f6.fooFieldOne, S, msg = "expected record member to have been updated");
+
+    BarObject b2 = new(100);
+    BazObject b3 = new(b2);
+    b2.barFieldOne = I;
+    test:assertEquals(b3.bazFieldOne.barFieldOne, I, msg = "expected object member to have been updated");
 }
 
 // References make it possible for distinct members of a structure to refer to values that are
@@ -78,6 +101,15 @@ function testDistinctStructureMembersReferringToSameValue() {
     FooObject f3 = new("test string 3");
     map<FooObject> s4 = { one: f2, two: f3, three: f2 };
     test:assertTrue(s4.one === s4.three, msg = "expected values to be at the same location");
+
+    FooRecord f4 = { fooFieldOne: "test string 4" };
+    BazRecord b1 = { fooRecFieldOne: f4, bazFieldOne: 1.0, fooRecFieldTwo: f4 };
+    test:assertTrue(b1.fooRecFieldOne === b1.fooRecFieldTwo, msg = "expected values to be at the same location");
+
+    BarObject b2 = new(100);
+    BazObject b3 = new(b2);
+    b3.bazFieldTwo = b2;
+    test:assertTrue(b3.bazFieldOne === b3.bazFieldTwo, msg = "expected values to be at the same location");
 }
 
 // For an immutable value, looking like a type and belonging to a type are the same thing.

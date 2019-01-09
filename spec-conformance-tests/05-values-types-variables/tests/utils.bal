@@ -40,7 +40,7 @@ type FooObject object {
     }
 };
 
-type BarObject object {
+public type BarObject object {
     int barFieldOne;
 
     public function __init(int barFieldOne) {
@@ -49,6 +49,19 @@ type BarObject object {
 
     public function getBarFieldOne() returns int {
         return self.barFieldOne;
+    }
+};
+
+type BazObject object {
+    BarObject bazFieldOne;
+    BarObject? bazFieldTwo = ();
+
+    public function __init(BarObject bazFieldOne) {
+        self.bazFieldOne = bazFieldOne;
+    }
+
+    public function getBazFieldOne() returns BarObject {
+        return self.bazFieldOne;
     }
 };
 
