@@ -371,7 +371,7 @@ public class CommandExecutionTest {
 
     private List argsToJson(List<Object> args) {
         List<JsonObject> jsonArgs = new ArrayList<>();
-        for(Object arg: args) {
+        for (Object arg: args) {
             jsonArgs.add((JsonObject) gson.toJsonTree(arg));
         }
         return jsonArgs;
