@@ -111,7 +111,7 @@ public class GenerateBalo {
 
         BinaryFileWriter writer = BinaryFileWriter.getInstance(context);
         BPackageSymbol symbol = symbolTable.builtInPackageSymbol;
-        if (symbol.compiledPackage != null) {
+        if (symbol != null && symbol.compiledPackage != null) {
             writer.writeLibraryPackage(symbol, Names.BUILTIN_PACKAGE.getValue());
         }
     }
