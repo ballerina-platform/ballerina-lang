@@ -24,6 +24,10 @@ type BarRecord record {
     !...
 };
 
+type BazRecord record {
+    float bazFieldOne;
+};
+
 type FooObject object {
     string fooFieldOne;
 

@@ -96,18 +96,18 @@ function testLooksLikeAndBelongsToOfImmutableValues() {
     }
 }
 
-// Values can look like and belong to arbitrarily many types, even though they look like
-// or belong to exactly one basic type
 type One 1;
 
+// Values can look like and belong to arbitrarily many types, even though they look like
+// or belong to exactly one basic type
 @test:Config {}
 function testValueBelongingToMultipleTypes() {
-    int varWithvalueOne = 1;
-    int|string varWithvalueTwo = 1;
-    One varWithvalueThree = 1;
-    testIfValueIsOne(varWithvalueOne);
-    testIfValueIsOne(varWithvalueTwo);
-    testIfValueIsOne(varWithvalueThree);
+    int varWithValueOne = 1;
+    int|string varWithValueTwo = 1;
+    One varWithValueThree = 1;
+    testIfValueIsOne(varWithValueOne);
+    testIfValueIsOne(varWithValueTwo);
+    testIfValueIsOne(varWithValueThree);
 }
 
 function testIfValueIsOne(any value) {
@@ -115,4 +115,66 @@ function testIfValueIsOne(any value) {
         1 => test:assertTrue(true);
         _ => test:assertFail(msg = "expected value to be 1");
     }
+}
+
+// Most basic types of structured values (along with one basic type of simple value) are
+// iterable, meaning that a value of the type can be accessed as a sequence of simpler values.
+@test:Config {}
+function testIterableTypes() {
+    int[] iterableArray = [1, 2, 3];
+    int count = 0;
+    foreach int value in iterableArray {
+        count += value;
+    }
+    test:assertEquals(count, 6, msg = "expected int array to iterate over its members");
+
+    map<string> iterableMap = { fieldOne: "valueOne", fieldTwo: "valueTwo", fieldThree: "valueThree" };
+    string result = "";
+    foreach (string, string) (key, value) in iterableMap {
+        result += value;
+    }
+    test:assertEquals(result, "valueOnevalueTwovalueThree", msg = "expected map to iterate over its members");
+
+    BazRecord iterableRecord = { bazFieldOne: 2.2, bazFieldTwo: true, bazFieldThree: "valueThree" };
+    result = "";
+    foreach (string, any) (key, value) in iterableRecord {
+        result += <string>value;
+    }
+    test:assertEquals(result, "2.2truevalueThree", msg = "expected record type to iterate over its fields");
+
+    BarRecord barRecord1 = { barFieldOne: 1 };
+    BarRecord barRecord2 = { barFieldOne: 2 };
+    BarRecord barRecord3 = { barFieldOne: 3 };
+    table<BarRecord> iterableTable = table{};
+    _ = iterableTable.add(barRecord1);
+    _ = iterableTable.add(barRecord2);
+    _ = iterableTable.add(barRecord3);
+
+    count = 0;
+    foreach BarRecord barRecord in iterableTable {
+        count += barRecord.barFieldOne;
+    }
+    test:assertEquals(count, 6, msg = "expected table type to iterate over its entries");
+
+    xml bookstore = xml `<bookstore>
+                            <book category="cooking">
+                                <title lang="en">Title1</title>
+                                <author>Giada De Laurentiis</author>
+                            </book>
+                            <book category="children">
+                                <title lang="en">Title2</title>
+                                <author>J. K. Rowling</author>
+                            </book>
+                            <book category="web" cover="paperback">
+                                <title lang="en">Title3</title>
+                                <author>Erik T. Ray</author>
+                            </book>
+                        </bookstore>`;
+    result = "";
+    foreach var x in bookstore["book"] {
+        if x is xml {
+            result += x["title"].getTextValue();
+        }
+    }
+    test:assertEquals(result, "Title1Title2Title3", msg = "expected xml to iterate over its elements");
 }
