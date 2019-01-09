@@ -17,32 +17,22 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.ConstrainedType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * @since 0.94
  */
-public class BJSONType extends BBuiltInRefType implements ConstrainedType {
+public class BJSONType extends BBuiltInRefType {
 
-    public BType constraint;
     private boolean nullable = true;
 
-    public BJSONType(int tag, BType constraint, BTypeSymbol tsymbol) {
+    public BJSONType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
-        this.constraint = constraint;
     }
 
-    public BJSONType(int tag, BType constraint, BTypeSymbol tsymbol, boolean nullable) {
-        this(tag, constraint, tsymbol);
+    public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable) {
+        this(tag, tsymbol);
         this.nullable = nullable;
-    }
-
-    @Override
-    public BType getConstraint() {
-        return constraint;
     }
 
     @Override
@@ -52,11 +42,7 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
 
     @Override
     public String toString() {
-        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.SEMANTIC_ERROR) {
-            return super.toString();
-        }
-
-        return super.toString() + "<" + constraint + ">";
+        return super.toString();
     }
 
     public boolean isNullable() {
@@ -65,14 +51,5 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
 
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
-    }
-
-    @Override
-    public String getDesc() {
-        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.SEMANTIC_ERROR) {
-            return TypeDescriptor.SIG_JSON + ";";
-        }
-
-        return TypeDescriptor.SIG_JSON + constraint.getQualifiedTypeName() + ";";
     }
 }

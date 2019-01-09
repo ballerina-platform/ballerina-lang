@@ -990,7 +990,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
                 return;
             }
-            resultType = new BJSONType(TypeTags.JSON, constraintType, type.tsymbol);
+            resultType = new BJSONType(TypeTags.JSON, type.tsymbol);
         }
     }
 

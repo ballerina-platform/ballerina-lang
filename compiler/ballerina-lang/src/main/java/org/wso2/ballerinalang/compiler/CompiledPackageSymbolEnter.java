@@ -1185,7 +1185,7 @@ public class CompiledPackageSymbolEnter {
                     if (constraint == null) {
                         return symTable.jsonType;
                     }
-                    return new BJSONType(TypeTags.JSON, constraint, symTable.jsonType.tsymbol);
+                    return new BJSONType(TypeTags.JSON, symTable.jsonType.tsymbol);
                 case 'D':
                     if (constraint == null) {
                         return symTable.tableType;

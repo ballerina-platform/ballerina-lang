@@ -2325,7 +2325,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 // If the field is again a struct, treat that literal expression as another constraint JSON.
                 if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
-                    fieldType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
+                    fieldType = new BJSONType(TypeTags.JSON, symTable.jsonType.tsymbol);
                 }
 
                 // First visit the expression having field type, as the expected type.
@@ -2381,9 +2381,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BJSONType type = (BJSONType) recordType;
 
         // If the JSON is constrained with a struct, get the field type from the struct
-        if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.SEMANTIC_ERROR) {
-            return checkStructLiteralKeyExpr(key, type.constraint);
-        }
+//        if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.SEMANTIC_ERROR) {
+//            return checkStructLiteralKeyExpr(key, type.constraint);
+//        }
 
         if (checkRecLiteralKeyExpr(key.expr).tag != TypeTags.STRING) {
             return symTable.semanticError;
@@ -2699,16 +2699,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.JSON:
-                BType constraintType = ((BJSONType) varRefType).constraint;
-                if (constraintType.tag == TypeTags.OBJECT || constraintType.tag == TypeTags.RECORD) {
-                    BType fieldType = checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
-
-                    // If the type of the field is struct, treat it as constraint JSON type.
-                    if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
-                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
-                        break;
-                    }
-                }
                 // TODO: 11/30/18 FIX ME!!! https://github.com/ballerina-platform/ballerina-lang/issues/9386
                 actualType = symTable.jsonType;
                 break;
@@ -2758,28 +2748,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.JSON:
-                BType constraintType = ((BJSONType) varRefType).constraint;
-                if (constraintType.tag == TypeTags.OBJECT || constraintType.tag == TypeTags.RECORD) {
-                    indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
-                    if (indexExprType.tag != TypeTags.STRING) {
-                        break;
-                    }
-                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    BType fieldType =
-                            checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
-
-                    // If the type of the field is struct, treat it as constraint JSON type.
-                    if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
-                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
-                        break;
-                    }
-                } else {
-                    indexExprType = checkExpr(indexExpr, this.env, symTable.noType);
-                    if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType,
-                                indexExprType);
-                        break;
-                    }
+                indexExprType = checkExpr(indexExpr, this.env, symTable.noType);
+                if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
+                    dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, indexExprType);
+                    break;
                 }
                 actualType = symTable.jsonType;
                 break;
