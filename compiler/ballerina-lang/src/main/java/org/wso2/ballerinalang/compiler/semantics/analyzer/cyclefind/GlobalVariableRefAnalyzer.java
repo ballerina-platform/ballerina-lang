@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -78,22 +77,22 @@ public class GlobalVariableRefAnalyzer {
 
         int currNode = addGlobalVariableDependsOnGlobalVariable(graph, nodeIndexes);
 
-        for (TopLevelNode node : pkgNode.topLevelNodes) {
-            if (node.getKind() == NodeKind.FUNCTION) {
-                BLangFunction func = (BLangFunction) node;
-                BInvokableSymbol funcSymbol = func.symbol;
+        List<BLangFunction> functionNodes = pkgNode.topLevelNodes.stream()
+                .filter(n -> n.getKind() == NodeKind.FUNCTION)
+                .map(n -> (BLangFunction) n).collect(Collectors.toList());
 
-                if (!nodeIndexes.containsKey(funcSymbol)) {
-                    nodeIndexes.put(funcSymbol, new NodeIdPair(currNode++, func));
-                }
-                int funcNodeIndex = nodeIndexes.get(funcSymbol).nodeId;
+        for (BLangFunction function : functionNodes) {
+            BInvokableSymbol funcSymbol = function.symbol;
 
-                currNode = addFunctionsDependOnGlobalVar(graph, nodeIndexes, currNode, func, funcSymbol, funcNodeIndex);
-                currNode = addGlobalVarDependOnFunction(graph, nodeIndexes, currNode, func, funcSymbol, funcNodeIndex);
-                currNode = addFunctionDependOnFunctions(graph, nodeIndexes, currNode, func, funcSymbol, funcNodeIndex);
+            if (!nodeIndexes.containsKey(funcSymbol)) {
+                nodeIndexes.put(funcSymbol, new NodeIdPair(currNode++, function));
             }
-        }
+            int funcNodeIndex = nodeIndexes.get(funcSymbol).nodeId;
 
+            currNode = addFunctionsDependOnGlobalVar(graph, nodeIndexes, currNode, function, funcSymbol, funcNodeIndex);
+            currNode = addGlobalVarDependsOnFunction(graph, nodeIndexes, currNode, function, funcSymbol, funcNodeIndex);
+            currNode = addFunctionDependsOnFunctions(graph, nodeIndexes, currNode, function, funcSymbol, funcNodeIndex);
+        }
 
         Map<Integer, BSymbol> nodeIdToNodeSymbol = nodeIndexes.entrySet().stream()
                 .collect(Collectors.toMap(v -> v.getValue().nodeId, v -> v.getKey()));
@@ -146,9 +145,9 @@ public class GlobalVariableRefAnalyzer {
         }
     }
 
-    private int addFunctionDependOnFunctions(TarjanSccSolverAdjacencyList graph, Map<BSymbol, NodeIdPair> graphIndices,
-                                             int curNodeId, BLangFunction func, BInvokableSymbol funcSymbol,
-                                             int topLevelNodeIndex) {
+    private int addFunctionDependsOnFunctions(TarjanSccSolverAdjacencyList graph, Map<BSymbol, NodeIdPair> graphIndices,
+                                              int curNodeId, BLangFunction func, BInvokableSymbol funcSymbol,
+                                              int topLevelNodeIndex) {
         // func a = b() + c(), here b, c are producers and 'a' depends on them.
         List<BSymbol> producers = funcDependsOnFunc.getOrDefault(funcSymbol, new ArrayList<>());
         for (BSymbol producer : producers) {
@@ -161,9 +160,9 @@ public class GlobalVariableRefAnalyzer {
         return curNodeId;
     }
 
-    private int addGlobalVarDependOnFunction(TarjanSccSolverAdjacencyList graph, Map<BSymbol, NodeIdPair> graphIndices,
-                                             int curNodeId, BLangFunction func, BInvokableSymbol symbol,
-                                             int topLevelNodeIndex) {
+    private int addGlobalVarDependsOnFunction(TarjanSccSolverAdjacencyList graph, Map<BSymbol, NodeIdPair> graphIndices,
+                                              int curNodeId, BLangFunction func, BInvokableSymbol symbol,
+                                              int topLevelNodeIndex) {
         // int globalVar = theFunc(), globalVar depends on 'theFunc'.
         List<BSymbol> dependentGlobalVars = funcToDependentGlobalVar.getOrDefault(symbol, new ArrayList<>());
         for (BSymbol dependent : dependentGlobalVars) {
@@ -214,9 +213,41 @@ public class GlobalVariableRefAnalyzer {
         return pkgNode.globalVars.size() + functionCount;
     }
 
-    private boolean findCyclicDependencies(Map<Integer, List<Integer>> multimap, BLangPackage bLangPackage,
+    private boolean findCyclicDependencies(Map<Integer, List<Integer>> cycles, BLangPackage bLangPackage,
                                            Map<Integer, BSymbol> graphIndices, Map<Integer, BLangNode> nodeIdToNode) {
 
+        Map<BSymbol, IdentifierPositionPair> symbolToIdentifier = mapSymbolToNamePositionPair(bLangPackage);
+        boolean cyclicDepFound = false;
+        for (List<Integer> cyclicNodes : cycles.values()) {
+            // Ignore cycles formed by mutually recursive function calls.
+            boolean noGlobalVarNodeInCycle =
+                    cyclicNodes.stream().map(n -> nodeIdToNode.get(n)).noneMatch(n -> pkgNode.globalVars.contains(n));
+            if (cyclicNodes.size() <= 1 || noGlobalVarNodeInCycle) {
+                continue;
+            }
+
+            cyclicDepFound = true;
+            emitCyclicError(graphIndices, symbolToIdentifier, cyclicNodes);
+        }
+
+        return cyclicDepFound;
+    }
+
+    private void emitCyclicError(Map<Integer, BSymbol> graphIndices,
+                                 Map<BSymbol, IdentifierPositionPair> symbolToIdentifier, List<Integer> cyclicNodes) {
+        List<BLangIdentifier> cycle = cyclicNodes.stream()
+                .map(index -> graphIndices.get(index))
+                .map(symbol -> symbolToIdentifier.get(symbol).identifier)
+                .collect(Collectors.toList());
+
+        Integer firstOccurrence = cyclicNodes.get(0);
+        BSymbol firstOccurrenceSymbol = graphIndices.get(firstOccurrence);
+        DiagnosticPos position = symbolToIdentifier.get(firstOccurrenceSymbol).position;
+
+        dlog.error(position, DiagnosticCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, cycle);
+    }
+
+    private Map<BSymbol, IdentifierPositionPair> mapSymbolToNamePositionPair(BLangPackage bLangPackage) {
         // Map symbols to functions and variables from topLevelNodes list.
         Map<BSymbol, IdentifierPositionPair> symbolToIdentifier = new HashMap<>();
         bLangPackage.topLevelNodes.stream()
@@ -230,40 +261,13 @@ public class GlobalVariableRefAnalyzer {
                 .map(n -> (BLangSimpleVariable) n)
                 .forEach(f -> symbolToIdentifier.put(f.symbol,
                         new IdentifierPositionPair(f.getName(), f.getPosition())));
-
-
-
-        boolean cyclicDepFound = false;
-        for (List<Integer> cyclicNodes : multimap.values()) {
-            boolean atLeastOneNodeIsGlobalVar = cyclicNodes
-                    .stream()
-                    .map(n -> nodeIdToNode.get(n))
-                    .noneMatch(n -> pkgNode.globalVars.contains(n));
-            if (cyclicNodes.size() <= 1 || atLeastOneNodeIsGlobalVar) {
-                continue;
-            }
-
-            cyclicDepFound = true;
-            List<BLangIdentifier> cycle = cyclicNodes.stream()
-                    .map(index -> graphIndices.get(index))
-                    .map(symbol -> symbolToIdentifier.get(symbol).identifier)
-                    .collect(Collectors.toList());
-
-            Integer firstOccurrence = cyclicNodes.get(0);
-            BSymbol firstOccurrenceSymbol = graphIndices.get(firstOccurrence);
-            DiagnosticPos position = symbolToIdentifier.get(firstOccurrenceSymbol).position;
-
-            dlog.error(position, DiagnosticCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, cycle);
-        }
-
-        return cyclicDepFound;
+        return symbolToIdentifier;
     }
 
     private BLangNode getNodeFromGraphIndex(Map<BSymbol, NodeIdPair> graphIndices,
                                             Map<Integer, BSymbol> nodeIdToNodeSymbol, Integer index) {
         return graphIndices.get(nodeIdToNodeSymbol.get(index)).node;
     }
-
 
     private static class NodeIdPair {
         final Integer nodeId;
