@@ -64,7 +64,6 @@ public enum DiagnosticCode {
     ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
     PRIVATE_OBJECT_CONSTRUCTOR("private.object.constructor"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
-    GLOBAL_VARIABLE_FORWARD_REFERENCE("global.variable.forward.reference"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),

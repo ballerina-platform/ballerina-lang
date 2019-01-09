@@ -39,3 +39,11 @@ Person person = {
     age: 30
 };
 
+function mutRecA() returns int {
+    return mutRecB();
+}
+
+function mutRecB() returns int {
+    return mutRecA();
+}
+

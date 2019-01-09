@@ -51,6 +51,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     }
 
     @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")
+    @SuppressWarnings("unchecked")
     public void globalDefinitionsReOrdering() {
         CompileResult resultReOrdered = BCompileUtil.compile(this, "test-src/statements/variabledef",
                 "multiFileReference");
@@ -63,6 +64,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     }
 
     @Test(description = "Test global variable reference in function")
+    @SuppressWarnings("unchecked")
     public void inFunctionGlobalReference() {
         CompileResult resultReOrdered = BCompileUtil.compile(this, "test-src/statements/variabledef",
                 "inFunctionGlobalRef");
@@ -83,8 +85,7 @@ public class ForwardReferencingGlobalDefinitionTest {
 
     @Test(description = "Test global variable reference cycle via function")
     public void inFunctionGlobalReferenceCauseCycle() {
-        CompileResult cycle = BCompileUtil.compile(this, "test-src/statements/variabledef/globalcycle",
-                "viafunc");
+        CompileResult cycle = BCompileUtil.compile(this, "test-src/statements/variabledef/globalcycle", "viafunc");
 
         Assert.assertTrue(cycle.getDiagnostics().length > 0);
         BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFuncA, fromFunc, getPersonOuter, " +
