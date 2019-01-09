@@ -4,7 +4,7 @@ dependencies {
     implementation project(':ballerina-core')
     implementation 'io.opentracing:opentracing-mock:0.31.0'
     implementation project(':lib-creator')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
 }
 
 description = 'Ballerina - Observability - Tracing Test Utils'

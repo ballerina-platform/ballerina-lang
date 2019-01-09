@@ -1,13 +1,17 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
+    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-io')
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
     implementation 'org.jvnet.mimepull:mimepull:1.9.7'
-    implementation project(':lib-creator')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-file')
     implementation project(':ballerina-io')
 }

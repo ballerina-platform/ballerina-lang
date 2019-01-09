@@ -1,11 +1,12 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
     implementation 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':lib-creator')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
 }
 
 description = 'Ballerina - LLVM Binding'

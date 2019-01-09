@@ -1,11 +1,21 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    implementation project(':ballerina-lang')
-    implementation project(':stdlib:ballerina-builtin')
-    implementation project(':ballerina-llvm')
-    implementation project(':ballerina-io')
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
+    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+
+    // transive
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-internal')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-llvm')
+
 }
 
 description = 'Ballerina - BIR Model'

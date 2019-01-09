@@ -5,10 +5,10 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':language-server:language-server-compiler')
     implementation project(':ballerina-lang')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-launcher')
     implementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.0-rc3'
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
     testCompile 'org.testng:testng:6.13.1'
 }
 

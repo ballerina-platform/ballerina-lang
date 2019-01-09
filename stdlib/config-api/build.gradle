@@ -4,9 +4,9 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-config')
-    implementation project(':lib-creator')
-    implementation project(':stdlib:ballerina-builtin')
-    implementation project(':ballerina-system')
+
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Config API'

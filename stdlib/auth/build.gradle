@@ -1,21 +1,24 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-//    compile project(':stdlib:ballerina-builtin')
-//    compile project(':ballerina-config-api')
-//    compile project(':ballerina-crypto')
-//    compile project(':ballerina-cache')
-//    compile project(':ballerina-log-api')
-//    compile project(':ballerina-runtime')
-//    compile project(':ballerina-internal')
-//    compile project(':ballerina-system')
-//    compile project(':ballerina-time')
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-core')
-    implementation 'org.apache.commons:commons-lang3:3.5'
-    implementation 'commons-logging:commons-logging:1.1.1'
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 
-    baloImplementation project(path: ':stdlib:ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+
+    // tansitive
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+
+    implementation 'commons-logging:commons-logging:1.1.1'
+    implementation 'org.apache.commons:commons-lang3:3.5'
+
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
 }
 
 description = 'Ballerina - Auth'

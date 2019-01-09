@@ -8,7 +8,7 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.5.1'
     implementation project(':ballerina-grpc')
     implementation project(':ballerina-core')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-lang')
     testCompile 'org.testng:testng:6.13.1'
     compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'

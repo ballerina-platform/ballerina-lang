@@ -3,8 +3,8 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':stdlib:ballerina-auth')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-auth')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-h2')
@@ -32,8 +32,8 @@ dependencies {
     implementation 'info.picocli:picocli:3.3.0'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     implementation 'org.testng:testng:6.13.1'
-    implementation project(':stdlib:ballerina-auth')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-auth')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')

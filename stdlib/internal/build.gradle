@@ -5,12 +5,13 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-time')
     implementation project(':ballerina-io')
-    implementation project(':lib-creator')
-    implementation project(':stdlib:ballerina-builtin')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-file')
-    implementation project(':ballerina-time')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-log-api')
+
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 
     implementation 'commons-io:commons-io:2.6'
 }

@@ -1,11 +1,12 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    implementation project(':lib-creator')
-    implementation project(':stdlib:ballerina-builtin')
-    implementation project(':ballerina-system')
-    implementation project(':ballerina-task')
-    implementation project(':ballerina-time')
+    implementation project(':ballerina-builtin')
+
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Cache'
