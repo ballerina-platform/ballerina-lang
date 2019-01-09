@@ -210,23 +210,6 @@ public type TimeWindow object {
         }
     }
 
-    public function invokeProcess() returns error? {
-        map<anydata> data = {};
-        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
-        self.process(timerEventWrapper);
-        if (!self.timerQueue.isEmpty()) {
-            task:Timer timer = <task:Timer>self.timerQueue.getFirst();
-            _ = timer.stop();
-        }
-        return ();
-    }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
-    }
-
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
