@@ -18,20 +18,8 @@ import ballerina/grpc;
 import ballerina/io;
 
 OneofFieldServiceBlockingClient blockingEp = new("http://localhost:9105");
+const string ERROR_MESSAGE = "Expected response value type not received";
 
-public function main() {
-    io:println(testDoubleFieldValue());
-    io:println(testFloatFieldValue());
-    io:println(testInt64FieldValue());
-    io:println(testUInt64FieldValue());
-    io:println(testInt32FieldValue());
-    io:println(testFixed64FieldValue());
-    io:println(testFixed32FieldValue());
-    io:println(testBolFieldValue());
-    io:println(testStringFieldValue());
-    io:println(testMessageFieldValue());
-    io:println(testBytesFieldValue());
-}
 public function testOneofFieldValue() returns string {
     Request1_FirstName first = {first_name:"Sam"};
     Request1_Age age = {age:31};
@@ -59,7 +47,7 @@ public function testDoubleFieldValue() returns string {
         if (val is ZZZ_OneA) {
             return <string>val.one_a;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -76,7 +64,7 @@ public function testFloatFieldValue() returns string {
         if (val is ZZZ_OneB) {
             return <string>val.one_b;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -93,7 +81,7 @@ public function testInt64FieldValue() returns string {
         if (val is ZZZ_OneC) {
             return <string>val.one_c;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -110,7 +98,7 @@ public function testUInt64FieldValue() returns string {
         if (val is ZZZ_OneD) {
             return <string>val.one_d;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -127,7 +115,7 @@ public function testInt32FieldValue() returns string {
         if (val is ZZZ_OneE) {
             return <string>val.one_e;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -144,7 +132,7 @@ public function testFixed64FieldValue() returns string {
         if (val is ZZZ_OneF) {
             return <string>val.one_f;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -161,7 +149,7 @@ public function testFixed32FieldValue() returns string {
         if (val is ZZZ_OneG) {
             return <string>val.one_g;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -178,7 +166,7 @@ public function testBolFieldValue() returns string {
         if (val is ZZZ_OneH) {
             return <string>val.one_h;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -195,7 +183,7 @@ public function testStringFieldValue() returns string {
         if (val is ZZZ_OneI) {
             return <string>val.one_i;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -213,7 +201,7 @@ public function testMessageFieldValue() returns string {
         if (val is ZZZ_OneJ) {
             return val.one_j.aaa;
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 
@@ -232,7 +220,7 @@ public function testBytesFieldValue() returns string {
         if (val is ZZZ_OneK) {
             return <string>(val.one_k == bytes);
         }
-        return "Expected response value type is not received";
+        return ERROR_MESSAGE;
     }
 }
 

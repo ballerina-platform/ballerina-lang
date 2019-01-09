@@ -73,7 +73,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of float field value using blocking client")
+    @Test(description = "Testing one of int64 field value using blocking client")
     public void testInt64FieldValueClient() {
         final String serverMsg = "-9223372036854775808";
         BValue[] responses = BRunUtil.invoke(result, "testInt64FieldValue");
@@ -82,7 +82,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of float field value using blocking client")
+    @Test(description = "Testing one of uint64 field value using blocking client")
     public void testUInt64FieldValueClient() {
         final String serverMsg = "9223372036854775807";
         BValue[] responses = BRunUtil.invoke(result, "testUInt64FieldValue");
@@ -91,7 +91,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of float field value using blocking client")
+    @Test(description = "Testing one of int32 field value using blocking client")
     public void testInt32FieldValueClient() {
         final String serverMsg = "-2147483648";
         BValue[] responses = BRunUtil.invoke(result, "testInt32FieldValue");
@@ -100,7 +100,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of float field value using blocking client")
+    @Test(description = "Testing one of fixed64 field value using blocking client")
     public void testFixed64FieldValueClient() {
         final String serverMsg = "9223372036854775807";
         BValue[] responses = BRunUtil.invoke(result, "testFixed64FieldValue");
@@ -109,7 +109,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of float field value using blocking client")
+    @Test(description = "Testing one of fixed32 field value using blocking client")
     public void testFixed32FieldValueClient() {
         final String serverMsg = "2147483647";
         BValue[] responses = BRunUtil.invoke(result, "testFixed32FieldValue");
@@ -118,7 +118,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of float field value using blocking client")
+    @Test(description = "Testing one of boolean field value using blocking client")
     public void testBolFieldValueClient() {
         final String serverMsg = "true";
         BValue[] responses = BRunUtil.invoke(result, "testBolFieldValue");
@@ -127,7 +127,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of float field value using blocking client")
+    @Test(description = "Testing one of string field value using blocking client")
     public void testStringFieldValueClient() {
         final String serverMsg = "Testing";
         BValue[] responses = BRunUtil.invoke(result, "testStringFieldValue");
@@ -136,7 +136,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of float field value using blocking client")
+    @Test(description = "Testing one of message field value using blocking client")
     public void testMessageFieldValueClient() {
         final String serverMsg = "Testing";
         BValue[] responses = BRunUtil.invoke(result, "testMessageFieldValue");
@@ -145,7 +145,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of float field value using blocking client")
+    @Test(description = "Testing one of byte field value using blocking client")
     public void testBytesFieldValueClient() {
         final String serverMsg = "true";
         BValue[] responses = BRunUtil.invoke(result, "testBytesFieldValue");
