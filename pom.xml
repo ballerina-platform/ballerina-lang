@@ -1676,7 +1676,6 @@
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
@@ -1686,6 +1685,7 @@
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1760,7 +1760,6 @@
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
@@ -1770,6 +1769,7 @@
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1840,7 +1840,6 @@
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
@@ -1850,6 +1849,7 @@
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>

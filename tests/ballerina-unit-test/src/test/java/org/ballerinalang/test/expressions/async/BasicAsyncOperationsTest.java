@@ -99,7 +99,7 @@ public class BasicAsyncOperationsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*", enabled = false)
     public void testAsyncNonNativeBasic10() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic10", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

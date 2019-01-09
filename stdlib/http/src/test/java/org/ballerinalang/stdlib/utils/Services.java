@@ -45,7 +45,7 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
 /**
  * This contains test utils related to Ballerina service invocations.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class Services {
 

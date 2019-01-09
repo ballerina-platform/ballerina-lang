@@ -66,7 +66,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 /**
  * Contains utility functions used by mime test cases.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);

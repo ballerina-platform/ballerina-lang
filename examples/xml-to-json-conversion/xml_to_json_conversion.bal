@@ -8,11 +8,11 @@ public function main() {
                      <h:city>94</h:city></h:address>
                      <h:code><h:item>4</h:item><h:item>8</h:item></h:code>
                      </h:Store>`;
-    // This converts the XML to JSON with namespaces and the default 'attributePrefix'.
+    // This converts the XML to JSON with namespaces and the default `attributePrefix`.
     json j1 = x.toJSON({});
     io:println(j1);
 
-    // This converts the XML to JSON without namespaces and with a custom 'attributePrefix'.
+    // This converts the XML to JSON without namespaces and with a custom `attributePrefix`.
     json j2 = x.toJSON({ attributePrefix: "#", preserveNamespaces: false });
     io:println(j2);
 }
