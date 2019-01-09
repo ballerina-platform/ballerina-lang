@@ -63,9 +63,7 @@ public class TarjanSccSolverAdjacencyList {
                 applicableItems.addAll(adjacencyList.get(i));
             }
         }
-        List<Integer> order = dependencyOrder.stream().filter(applicableItems::contains).collect(Collectors.toList());
-        Collections.reverse(order);
-        return order;
+        return dependencyOrder.stream().filter(applicableItems::contains).collect(Collectors.toList());
     }
 
 
@@ -166,7 +164,10 @@ public class TarjanSccSolverAdjacencyList {
      * @param to to node
      */
     public void addEdge(int from, int to) {
-        this.adjacencyList.get(from).add(to);
+        List<Integer> toList = this.adjacencyList.get(from);
+        if (!toList.contains(to)) {
+            toList.add(to);
+        }
     }
 
     /**

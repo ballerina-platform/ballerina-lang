@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -45,8 +46,8 @@ public class ForwardReferencingGlobalDefinitionTest {
                 "test-src/statements/variabledef/globalcycle", "simple");
         Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
-        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[person, employee]'", 19, 1);
-        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep2, dep1]'", 38, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 19, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 38, 1);
     }
 
     @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")
@@ -73,6 +74,11 @@ public class ForwardReferencingGlobalDefinitionTest {
         BValue[] employee2 = BRunUtil.invoke(resultReOrdered, "getfromFuncA");
         String employee2Name = ((BMap) employee2[0]).get("name").stringValue();
         Assert.assertEquals(employee2Name, "Sumedha");
+
+        BValue[] valI = BRunUtil.invoke(resultReOrdered, "getIJK");
+        Assert.assertEquals(((BInteger) valI[0]).intValue(), 2);
+        Assert.assertEquals(((BInteger) valI[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) valI[2]).intValue(), 2);
     }
 
     @Test(description = "Test global variable reference cycle via function")
@@ -81,8 +87,8 @@ public class ForwardReferencingGlobalDefinitionTest {
                 "viafunc");
 
         Assert.assertTrue(cycle.getDiagnostics().length > 0);
-        BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFunc, getPersonOuter, getPersonInner, " +
-                "getfromFuncA, fromFuncA]'", 22, 1);
+        BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFuncA, fromFunc, getPersonOuter, " +
+                "getPersonInner, getfromFuncA]'", 22, 1);
     }
 
     @Test(description = "Test algorithms on graph with cycles")

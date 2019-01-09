@@ -156,7 +156,7 @@ public class GlobalVariableRefAnalyzer {
                 graphIndices.put(producer, new NodeIdPair(curNodeId++, func));
             }
 
-            graph.addEdge(graphIndices.get(producer).nodeId, topLevelNodeIndex);
+            graph.addEdge(topLevelNodeIndex, graphIndices.get(producer).nodeId);
         }
         return curNodeId;
     }
@@ -171,7 +171,7 @@ public class GlobalVariableRefAnalyzer {
                 graphIndices.put(dependent, new NodeIdPair(curNodeId++, func));
             }
 
-            graph.addEdge(topLevelNodeIndex, graphIndices.get(dependent).nodeId);
+            graph.addEdge(graphIndices.get(dependent).nodeId, topLevelNodeIndex);
         }
         return curNodeId;
     }
@@ -186,7 +186,7 @@ public class GlobalVariableRefAnalyzer {
                 graphIndices.put(provider, new NodeIdPair(nodeId++, func));
             }
 
-            graph.addEdge(graphIndices.get(provider).nodeId, topLevelNodeIndex);
+            graph.addEdge(topLevelNodeIndex, graphIndices.get(provider).nodeId);
         }
         return nodeId;
     }
@@ -203,7 +203,7 @@ public class GlobalVariableRefAnalyzer {
             for (DataflowAnalyzer.RefPosition refPosition : accessedSequence) {
                 DataflowAnalyzer.DefPosition dependentDefPosition =
                         globalVarSymbolDefPositions.get(refPosition.dependentSymbol);
-                graph.addEdge(defPosition.refId, dependentDefPosition.refId);
+                graph.addEdge(dependentDefPosition.refId, defPosition.refId);
             }
         }
         return pkgNode.globalVars.size();
@@ -244,10 +244,7 @@ public class GlobalVariableRefAnalyzer {
             }
 
             cyclicDepFound = true;
-            ArrayList<Integer> depCycle = new ArrayList<>(cyclicNodes);
-            // Reverse the dependency cycle's direction to print user friendly error message.
-            Collections.reverse(depCycle);
-            List<BLangIdentifier> cycle = depCycle.stream()
+            List<BLangIdentifier> cycle = cyclicNodes.stream()
                     .map(index -> graphIndices.get(index))
                     .map(symbol -> symbolToIdentifier.get(symbol).identifier)
                     .collect(Collectors.toList());

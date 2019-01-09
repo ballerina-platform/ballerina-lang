@@ -342,7 +342,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable variable) {
-        this.currDependentSymbol.push(variable.symbol);
+        boolean validVariable = variable.symbol != null;
+        if (validVariable) {
+            this.currDependentSymbol.push(variable.symbol);
+        }
         try {
             observeGlobalVariableDefinition(variable.symbol, variable.pos);
             if (variable.expr != null) {
@@ -359,7 +362,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             addUninitializedVar(variable);
         } finally {
-            this.currDependentSymbol.pop();
+            if (validVariable) {
+                this.currDependentSymbol.pop();
+            }
         }
     }
 
