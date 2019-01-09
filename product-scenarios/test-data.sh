@@ -91,6 +91,19 @@ curl http://$EXTERNAL_IP/hello/sayHello -v
 
 curl http://$EXTERNAL_IP/hello/select -v
 
+if [ -z ${JMETER_HOME} ]
+then
+  echo 'JMETER_HOME env variable not found. Setting up jmeter manually.'
+  wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-4.0.tgz
+  tar -xzf apache-jmeter-4.0.tgz
+  export JMETER_HOME=$(pwd)/apache-jmeter-4.0
+  JMETER_HOME=$(pwd)/apache-jmeter-4.0
+else
+  echo JMETER_HOME env variable found at: ${JMETER_HOME}
+fi
+
+echo Final Jmeter home: $JMETER_HOME
+
 mkdir ${OUTPUT_DIR}/scenario1
 bash ${JMETER_HOME}/bin/jmeter -t product-scenarios/scenarios/1/ballerina-SELECT.jmx -n  -l ${OUTPUT_DIR}/scenario1/ballerina-SELECT.jtl -Jhost=${EXTERNAL_IP}
 
