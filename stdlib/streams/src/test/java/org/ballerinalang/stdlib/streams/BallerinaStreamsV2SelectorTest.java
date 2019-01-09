@@ -36,14 +36,15 @@ import org.testng.annotations.Test;
  */
 public class BallerinaStreamsV2SelectorTest {
 
-    private CompileResult result, resultWithComplexExpressions;
+    private CompileResult result, resultWithComplexExpressions, resultWithLibraryFunction;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streamingv2-select-test.bal");
         resultWithComplexExpressions = BCompileUtil.compile(
                 "test-src/streamingv2-select-with-mathematical-and-logical-operators-test.bal");
-
+        resultWithLibraryFunction = BCompileUtil.compile(
+                "test-src/streamingv2-select-with-library-function-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
@@ -98,4 +99,21 @@ public class BallerinaStreamsV2SelectorTest {
         Assert.assertEquals(employee2.get("companyName").stringValue(), "microsoft");
 
     }
+
+    @Test(description = "Test filter streaming query with library functions")
+    public void testSelectQueryWithLibraryFunctions() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithLibraryFunction, "startSelectQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("upperCaseName").stringValue(), "RAJA");
+        Assert.assertEquals(employee1.get("upperCaseName").stringValue(), "MOHAN");
+        Assert.assertEquals(employee2.get("upperCaseName").stringValue(), "SHAREEK");
+    }
+
 }
