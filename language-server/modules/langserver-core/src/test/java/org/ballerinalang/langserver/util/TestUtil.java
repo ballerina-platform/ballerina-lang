@@ -38,6 +38,8 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.SignatureHelpCapabilities;
+import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
@@ -52,6 +54,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -282,8 +285,16 @@ public class TestUtil {
         ClientCapabilities capabilities = new ClientCapabilities();
         TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
         CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+        SignatureHelpCapabilities signatureHelpCapabilities = new SignatureHelpCapabilities();
+        SignatureInformationCapabilities sigInfoCapabilities =
+                new SignatureInformationCapabilities(Arrays.asList("markdown", "plaintext"));
+
+        signatureHelpCapabilities.setSignatureInformation(sigInfoCapabilities);
         completionCapabilities.setCompletionItem(new CompletionItemCapabilities(true));
+
         textDocumentClientCapabilities.setCompletion(completionCapabilities);
+        textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+
         capabilities.setTextDocument(textDocumentClientCapabilities);
         params.setCapabilities(capabilities);
         endpoint.request("initialize", params);

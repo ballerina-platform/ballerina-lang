@@ -143,6 +143,10 @@ public class CommonUtil {
 
     public static final String BALLERINA_HOME;
 
+    public static final String PLAIN_TEXT_MARKUP_KIND = "plaintext";
+
+    public static final String MARKDOWN_MARKUP_KIND = "markdown";
+
     static {
         String debugLogStr = System.getProperty("ballerina.debugLog");
         LS_DEBUG_ENABLED = debugLogStr != null && Boolean.parseBoolean(debugLogStr);
