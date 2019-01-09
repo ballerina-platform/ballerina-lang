@@ -53,6 +53,10 @@ public class AbstractObjectTest {
                 "private", 73, 5);
         BAssertUtil.validateError(negativeResult, index++, "abstract object method: 'getName' can not be declared as "
                 + "private", 76, 5);
+        BAssertUtil.validateError(negativeResult, index++, "abstract object method: 'getName' can not be declared as " +
+                "private", 80, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot find function signature for function 'getName' in " +
+                "object 'Bar'", 87, 1);
     }
 
     @Test

@@ -24,7 +24,7 @@ type Person2 abstract object {
 
     int year = 50;
     string month = "february";
-    
+
     function __init () {
     }
 };
@@ -75,3 +75,15 @@ type Person6 abstract object {
 
     private function getName() returns string;
 };
+
+type Foo abstract object {
+    private function getName() returns string;
+};
+
+type Bar object {
+    *Foo;
+};
+
+function Bar.getName() returns string {
+    return "bar";
+}
