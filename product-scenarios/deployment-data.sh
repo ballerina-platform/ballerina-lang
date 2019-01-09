@@ -151,6 +151,9 @@ if [ ${READY_STATUS} -ne 0 ]; then
 fi
 echo "All pods ready!"
 
+# Temporary sleep to check whether app eventually becomes ready..
+sleep 120s
+
 kubectl get svc
 
 kubectl get pods
