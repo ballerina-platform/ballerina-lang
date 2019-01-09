@@ -104,8 +104,12 @@ fi
 
 echo Final Jmeter home: $JMETER_HOME
 
-mkdir ${OUTPUT_DIR}/scenario1
-bash ${JMETER_HOME}/bin/jmeter -t product-scenarios/scenarios/1/ballerina-SELECT.jmx -n  -l ${OUTPUT_DIR}/scenario1/ballerina-SELECT.jtl -Jhost=${EXTERNAL_IP}
+mkdir scenario1
+bash ${JMETER_HOME}/bin/jmeter -t scenarios/1/ballerina-SELECT.jmx -n  -l ./scenario1/ballerina-SELECT.jtl -Jhost=${EXTERNAL_IP}
+
+cat ./scenario1/ballerina-SELECT.jtl
+
+cp -r scenario1 ${OUTPUT_DIR}
 
 ls ${OUTPUT_DIR}/*
 
