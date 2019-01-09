@@ -13,23 +13,24 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/test;
 
-type FooRecord record {
+public type FooRecord record {
     string fooFieldOne;
     !...
 };
 
-type BarRecord record {
+public type BarRecord record {
     int barFieldOne;
     !...
 };
 
-type BazRecord record {
+public type BazRecord record {
     float bazFieldOne;
 };
 
-type FooObject object {
-    string fooFieldOne;
+public type FooObject object {
+    public string fooFieldOne;
 
     public function __init(string fooFieldOne) {
         self.fooFieldOne = fooFieldOne;
@@ -41,7 +42,7 @@ type FooObject object {
 };
 
 public type BarObject object {
-    int barFieldOne;
+    public int barFieldOne;
 
     public function __init(int barFieldOne) {
         self.barFieldOne = barFieldOne;
@@ -52,9 +53,9 @@ public type BarObject object {
     }
 };
 
-type BazObject object {
-    BarObject bazFieldOne;
-    BarObject? bazFieldTwo = ();
+public type BazObject object {
+    public BarObject bazFieldOne;
+    public BarObject? bazFieldTwo = ();
 
     public function __init(BarObject bazFieldOne) {
         self.bazFieldOne = bazFieldOne;
@@ -72,7 +73,7 @@ type BazObject object {
 # + result - the result of the trapped expression
 # + expectedReason - the reason the error is expected to have
 # + invalidReasonFailureMessage - the failure message on reason mismatch
-function assertErrorReason(any|error result, string expectedReason, string invalidReasonFailureMessage) {
+public function assertErrorReason(any|error result, string expectedReason, string invalidReasonFailureMessage) {
     if (result is error) {
         test:assertEquals(result.reason(), expectedReason, msg = invalidReasonFailureMessage);
     } else {

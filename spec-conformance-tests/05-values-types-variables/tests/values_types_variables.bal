@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
+import utils;
 
 const decimal D = 1.23;
 const int I = 1;
@@ -42,12 +43,12 @@ function testSimpleValuesStoredInStructures() {
     test:assertEquals(s3.one, F, msg = "expected map member to not have changed");
 
     string s = S;
-    FooRecord s4 = { fooFieldOne: s };
+    utils:FooRecord s4 = { fooFieldOne: s };
     s = "test string 1";
     test:assertEquals(s4.fooFieldOne, S, msg = "expected record member to not have changed");
 
     int i = I;
-    BarObject s5 = new(i);
+    utils:BarObject s5 = new(i);
     i = 25;
     test:assertEquals(s5.barFieldOne, I, msg = "expected object member to not have changed");
 }
@@ -61,26 +62,26 @@ function testNonSimpleValuesStoredInStructures() {
     s1[0] = I;
     test:assertEquals(s2[0][0], I, msg = "expected array member to have been updated");
 
-    FooRecord f1 = { fooFieldOne: "test string 1" };
-    (int, FooRecord) s3 = (1, f1);
+    utils:FooRecord f1 = { fooFieldOne: "test string 1" };
+    (int, utils:FooRecord) s3 = (1, f1);
     f1.fooFieldOne = S;
-    FooRecord f2 = s3[1];
+    utils:FooRecord f2 = s3[1];
     test:assertEquals(f2.fooFieldOne, S, msg = "expected tuple member to have been updated");
 
-    FooObject f3 = new("test string 3");
-    FooObject f4 = new("test string 4");
-    map<FooObject> s4 = { one: f3, two: f4 };
+    utils:FooObject f3 = new("test string 3");
+    utils:FooObject f4 = new("test string 4");
+    map<utils:FooObject> s4 = { one: f3, two: f4 };
     f3.fooFieldOne = S;
     test:assertEquals(s4.one.fooFieldOne, S, msg = "expected map member to have been updated");
 
-    FooRecord f5 = { fooFieldOne: "test string 5" };
-    BazRecord b1 = { bazFieldOne: 1.0, fooRecField: f5 };
+    utils:FooRecord f5 = { fooFieldOne: "test string 5" };
+    utils:BazRecord b1 = { bazFieldOne: 1.0, fooRecField: f5 };
     f5.fooFieldOne = S;
-    FooRecord f6 = <FooRecord> b1.fooRecField;
+    utils:FooRecord f6 = <utils:FooRecord> b1.fooRecField;
     test:assertEquals(f6.fooFieldOne, S, msg = "expected record member to have been updated");
 
-    BarObject b2 = new(100);
-    BazObject b3 = new(b2);
+    utils:BarObject b2 = new(100);
+    utils:BazObject b3 = new(b2);
     b2.barFieldOne = I;
     test:assertEquals(b3.bazFieldOne.barFieldOne, I, msg = "expected object member to have been updated");
 }
@@ -93,21 +94,21 @@ function testDistinctStructureMembersReferringToSameValue() {
     int[4][4] s2 = [s1, [1, 2, 3, 4], s1, [21, 22, 23, 24]];
     test:assertTrue(s2[0] === s2[2], msg = "expected values to be at the same location");
 
-    FooRecord f1 = { fooFieldOne: "test string 1" };
-    (int, FooRecord, FooRecord) s3 = (1, f1, f1);
+    utils:FooRecord f1 = { fooFieldOne: "test string 1" };
+    (int, utils:FooRecord, utils:FooRecord) s3 = (1, f1, f1);
     test:assertTrue(s3[1] === s3[2], msg = "expected values to be at the same location");
 
-    FooObject f2 = new("test string 2");
-    FooObject f3 = new("test string 3");
-    map<FooObject> s4 = { one: f2, two: f3, three: f2 };
+    utils:FooObject f2 = new("test string 2");
+    utils:FooObject f3 = new("test string 3");
+    map<utils:FooObject> s4 = { one: f2, two: f3, three: f2 };
     test:assertTrue(s4.one === s4.three, msg = "expected values to be at the same location");
 
-    FooRecord f4 = { fooFieldOne: "test string 4" };
-    BazRecord b1 = { fooRecFieldOne: f4, bazFieldOne: 1.0, fooRecFieldTwo: f4 };
+    utils:FooRecord f4 = { fooFieldOne: "test string 4" };
+    utils:BazRecord b1 = { fooRecFieldOne: f4, bazFieldOne: 1.0, fooRecFieldTwo: f4 };
     test:assertTrue(b1.fooRecFieldOne === b1.fooRecFieldTwo, msg = "expected values to be at the same location");
 
-    BarObject b2 = new(100);
-    BazObject b3 = new(b2);
+    utils:BarObject b2 = new(100);
+    utils:BazObject b3 = new(b2);
     b3.bazFieldTwo = b2;
     test:assertTrue(b3.bazFieldOne === b3.bazFieldTwo, msg = "expected values to be at the same location");
 }
@@ -167,23 +168,23 @@ function testIterableTypes() {
     }
     test:assertEquals(result, "valueOnevalueTwovalueThree", msg = "expected map to iterate over its members");
 
-    BazRecord iterableRecord = { bazFieldOne: 2.2, bazFieldTwo: true, bazFieldThree: "valueThree" };
+    utils:BazRecord iterableRecord = { bazFieldOne: 2.2, bazFieldTwo: true, bazFieldThree: "valueThree" };
     result = "";
     foreach (string, any) (key, value) in iterableRecord {
         result += <string>value;
     }
     test:assertEquals(result, "2.2truevalueThree", msg = "expected record type to iterate over its fields");
 
-    BarRecord barRecord1 = { barFieldOne: 1 };
-    BarRecord barRecord2 = { barFieldOne: 2 };
-    BarRecord barRecord3 = { barFieldOne: 3 };
-    table<BarRecord> iterableTable = table{};
+    utils:BarRecord barRecord1 = { barFieldOne: 1 };
+    utils:BarRecord barRecord2 = { barFieldOne: 2 };
+    utils:BarRecord barRecord3 = { barFieldOne: 3 };
+    table<utils:BarRecord> iterableTable = table{};
     _ = iterableTable.add(barRecord1);
     _ = iterableTable.add(barRecord2);
     _ = iterableTable.add(barRecord3);
 
     count = 0;
-    foreach BarRecord barRecord in iterableTable {
+    foreach utils:BarRecord barRecord in iterableTable {
         count += barRecord.barFieldOne;
     }
     test:assertEquals(count, 6, msg = "expected table type to iterate over its entries");
