@@ -107,6 +107,8 @@ echo Final Jmeter home: $JMETER_HOME
 mkdir ${OUTPUT_DIR}/scenario1
 bash ${JMETER_HOME}/bin/jmeter -t product-scenarios/scenarios/1/ballerina-SELECT.jmx -n  -l ${OUTPUT_DIR}/scenario1/ballerina-SELECT.jtl -Jhost=${EXTERNAL_IP}
 
+ls ${OUTPUT_DIR}/*
+
 #=============== Copy Surefire Reports ===========================================
 # SUREFIRE REPORTS MUST NEED TO BE COPIED TO OUTPUT_DIR.
 # You need to preserve the folder structure in order to identify executed scenarios.
