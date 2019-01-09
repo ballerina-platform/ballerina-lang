@@ -133,6 +133,8 @@ import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
+    public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
+
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
     public static final String FILE_SEPARATOR = File.separator;

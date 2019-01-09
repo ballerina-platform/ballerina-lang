@@ -136,7 +136,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         workspaceService.setExperimentalClientCapabilities(experimentalClientCapabilities);
 
         // Set AST provider and examples provider capabilities
-        HashMap<String, Object> experimentalServerCapabilities = new HashMap<String, Object>();
+        HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();
         experimentalServerCapabilities.put("astProvider", true);
         experimentalServerCapabilities.put("examplesProvider", true);
         experimentalServerCapabilities.put("apiEditorProvider", true);
