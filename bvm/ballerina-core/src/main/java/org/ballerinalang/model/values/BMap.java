@@ -34,12 +34,15 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -355,14 +358,22 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List unresolvedValues) {
+        
+        BVM.TypeValuePair typeValuePair = new BVM.TypeValuePair(this, type);
+        if (unresolvedValues.contains(typeValuePair)) {
+            throw new BallerinaException(BallerinaErrorReasons.CYCLIC_VALUE_REFERENCE_ERROR,
+                                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, 
+                                                                              this.type));
+        }
+        unresolvedValues.add(typeValuePair);
         if (type.getTag() == TypeTags.JSON_TAG) {
             type = BVM.resolveMatchingTypeForUnion(this, type);
             this.stamp(type);
         } else if (type.getTag() == TypeTags.MAP_TAG) {
             for (Object value : this.values()) {
                 if (value != null) {
-                    ((BValue) value).stamp(((BMapType) type).getConstrainedType());
+                    ((BValue) value).stamp(((BMapType) type).getConstrainedType(), unresolvedValues);
                 }
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -376,23 +387,26 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             for (Map.Entry valueEntry : this.getMap().entrySet()) {
                 String fieldName = valueEntry.getKey().toString();
                 if ((valueEntry.getValue()) != null) {
-                    ((BValue) valueEntry.getValue()).stamp(targetTypeField.getOrDefault(fieldName, restFieldType));
+                    BValue value = (BValue) valueEntry.getValue();
+                    BType bType = targetTypeField.getOrDefault(fieldName, restFieldType);
+                    value.stamp(bType, unresolvedValues);
                 }
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (BVM.checkIsLikeType(this, memberType)) {
-                    this.stamp(memberType);
+                if (BVM.checkIsLikeType(this, memberType, new ArrayList())) {
+                    this.stamp(memberType, unresolvedValues);
                     type = memberType;
                     break;
                 }
             }
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
             type = BVM.resolveMatchingTypeForUnion(this, type);
-            this.stamp(type);
+            this.stamp(type, unresolvedValues);
         }
 
         this.type = type;
+        unresolvedValues.remove(typeValuePair);
     }
 
     @Override
