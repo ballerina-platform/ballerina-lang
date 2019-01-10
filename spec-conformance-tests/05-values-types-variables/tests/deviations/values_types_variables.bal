@@ -90,15 +90,11 @@ type Union 0|1|2;
 
 // Most types, including all simple basic types, have an implicit initial value, which is used to
 // initialize structure members.
-// TODO: Fix decimal, tuple, map, record, table, typedesc, singleton and union type implicit initial values
+// TODO: Fix tuple, map, record, table, typedesc, singleton and union type implicit initial values
 @test:Config {
     groups: ["broken"]
 }
 function testImplicitInitialValuesBroken() {
-    decimal[] decimalArray = [];
-    decimalArray[1] = 50.9;
-    test:assertEquals(decimalArray[0], <decimal>0, msg = "expected implicit initial value of decimal to be 0.0");
-
     (int, boolean, string)[] tupleArray = [];
     tupleArray[1] = (200, true, "test string");
     test:assertEquals(tupleArray[0], (),
