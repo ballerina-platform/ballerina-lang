@@ -11,7 +11,7 @@ import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.listeners.RefactoringElementListener
@@ -86,7 +86,7 @@ object WorkspaceEditHandler {
         def manageUnopenedEditor(edits: Iterable[TextEdit], uri: String, version: Int = Int.MaxValue): Runnable = {
           val projects = ProjectManager.getInstance().getOpenProjects
           val project = projects //Infer the project from the uri
-            .map(p => (FileUtils.VFSToURI(p.getBaseDir), p))
+            .map(p => (FileUtils.VFSToURI(ProjectUtil.guessProjectDir(p)), p))
             .filter(p => uri.startsWith(p._1))
             .sortBy(s => s._1.length).reverse
             .map(p => p._2)
@@ -112,15 +112,24 @@ object WorkspaceEditHandler {
         val toApply: scala.collection.mutable.ListBuffer[Runnable] = scala.collection.mutable.ListBuffer()
         if (dChanges != null) {
           dChanges.foreach(edit => {
-            val doc = edit.getTextDocument
-            val version = doc.getVersion
-            val uri = FileUtils.sanitizeURI(doc.getUri)
-            toApply += (EditorEventManager.forUri(uri) match {
-              case Some(manager) =>
-                curProject = manager.editor.getProject
-                manager.getEditsRunnable(version, edit.getEdits.asScala.toList, name)
-              case None => manageUnopenedEditor(edit.getEdits.asScala, uri, version)
-            })
+            if (edit.isLeft) {
+              val textEdit = edit.getLeft
+              val doc = textEdit.getTextDocument
+              val version = doc.getVersion
+              val uri = FileUtils.sanitizeURI(doc.getUri)
+              toApply += (EditorEventManager.forUri(uri) match {
+                case Some(manager) =>
+                  curProject = manager.editor.getProject
+                  manager.getEditsRunnable(version, textEdit.getEdits.asScala.toList, name)
+                case None => manageUnopenedEditor(textEdit.getEdits.asScala, uri, version)
+              })
+            } else if (edit.isRight) {
+              val resourceOp = edit.getRight
+              //TODO
+            } else {
+              LOG.warn("Null edit")
+            }
+
           })
         } else if (changes != null) {
           changes.foreach(edit => {

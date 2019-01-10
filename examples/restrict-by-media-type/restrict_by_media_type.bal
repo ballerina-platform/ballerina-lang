@@ -17,7 +17,7 @@ service infoService on new http:Listener(9092) {
         http:Response res = new;
         var msg = req.getJsonPayload();
         if (msg is json) {
-            // Get the string value that is relevant to the key "name".
+            // Get the `string` value that is relevant to the key "name".
             string nameString = <string>msg["name"];
             if (validateString(nameString)) {
                 // Create XML payload and send back a response.

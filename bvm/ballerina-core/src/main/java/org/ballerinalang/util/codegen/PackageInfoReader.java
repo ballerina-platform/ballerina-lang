@@ -623,11 +623,15 @@ public class PackageInfoReader {
         // Read and ignore flags
         dataInStream.readInt();
 
+        // Read memory index
         int globalMemIndex = dataInStream.readInt();
+
+        // Read identifier kind flag
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
 
         BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, globalMemIndex, type);
+                sigCPIndex, globalMemIndex, type, isIdentifierLiteral);
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
@@ -1071,11 +1075,13 @@ public class PackageInfoReader {
         int scopeStartLineNumber = dataInStream.readInt();
         int scopeEndLineNumber = dataInStream.readInt();
 
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
+
         UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
 
         BType type = getBTypeFromDescriptor(packageInfo, typeSigCPEntry.getValue());
         LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
-                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber);
+                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber, isIdentifierLiteral);
         int attchmntIndexesLength = dataInStream.readShort();
         int[] attachmentIndexes = new int[attchmntIndexesLength];
         for (int i = 0; i < attchmntIndexesLength; i++) {

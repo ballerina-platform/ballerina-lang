@@ -25,7 +25,7 @@ public function main() {
         log:printError("Error when calling the backend", err = response);
     }
 
-    // Set a string payload to the message to be sent to the endpoint.
+    // Set a `string` payload to the message to be sent to the endpoint.
     req.setPayload("POST: Hello World");
 
     // Send a `POST` request to the specified endpoint.

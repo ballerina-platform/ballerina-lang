@@ -29,7 +29,7 @@ public function main() {
     if (r is int) {
         io:println(r);
     } else {
-        // `error` type has 3 functions `reason()`, `detail()` and 'stacktarce()'. Only `reason()` can be set from construtor.
+        // `error` type has 3 functions `reason()`, `detail()` and `stacktarce()`. Only `reason()` can be set from construtor.
         io:println("Error occurred: ", r.reason(), ", accountID: ",
                         r.detail().accountID);
     }

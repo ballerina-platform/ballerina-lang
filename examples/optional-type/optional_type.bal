@@ -1,10 +1,10 @@
 import ballerina/io;
 
-//This function optionally returns a string value.
+//This function optionally returns a `string` value.
 function getValue(string key) returns string|() {
     // In Ballerina, the `nil` type that is provided as `()` contains a single value named `nil`. This is used
     // to represent the absence of any other value.
-    // The nil value is written as `()` or `null`.
+    // The `nil` value is written as `()`.
     // `null` is syntactic sugar for `nil` that is to be used with JSON values because JSON uses `null`.
     // The implicit initial value for the `nil` type is `()`.
     return ();
