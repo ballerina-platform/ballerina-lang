@@ -558,13 +558,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             // i.e 'foo' is a function pointer pointing to a function referring a global variable G1, then we pass
             // that pointer into 'bar', now 'bar' may have a dependency on G1.
 
+            //todo: test lambdas and function arguments
+
             BSymbol dependsOnFunctionSym = symResolver.lookupSymbol(this.env, name, SymTag.FUNCTION);
             if (symTable.notFoundSymbol != dependsOnFunctionSym) {
                 addDependency(invokableOwnerSymbol, dependsOnFunctionSym);
             }
-        }
-
-        if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
+        } else if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) invocationExpr.symbol;
             BSymbol curDependent = this.currDependentSymbol.peek();
             if (curDependent != null && isGlobalVar(curDependent)) {
@@ -1158,7 +1158,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkVarRef(BSymbol symbol, DiagnosticPos pos) {
-        observeGlobalVariableReference(symbol, pos);
+        observeGlobalVariableReference(symbol);
 
         InitStatus initStatus = this.uninitializedVars.get(symbol);
         if (initStatus == null) {
@@ -1173,7 +1173,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.dlog.error(pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, symbol.name);
     }
 
-    private void observeGlobalVariableReference(BSymbol symbol, DiagnosticPos pos) {
+    private void observeGlobalVariableReference(BSymbol symbol) {
         BSymbol ownerSymbol = this.env.scope.owner;
         boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
         // Restrict to observations made in pkg level.

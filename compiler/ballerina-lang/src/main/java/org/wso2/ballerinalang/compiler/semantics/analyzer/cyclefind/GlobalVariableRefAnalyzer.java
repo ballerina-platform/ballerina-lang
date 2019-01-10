@@ -51,8 +51,8 @@ public class GlobalVariableRefAnalyzer {
                                      BLangDiagnosticLog dlog,
                                      Map<BSymbol, List<BSymbol>> globalNodeDependsOn) {
         this.pkgNode = pkgNode;
-        this.globalNodeDependsOn = globalNodeDependsOn;
         this.dlog = dlog;
+        this.globalNodeDependsOn = globalNodeDependsOn;
     }
 
     /**
@@ -124,9 +124,8 @@ public class GlobalVariableRefAnalyzer {
         // Sort global variable definitions.
         // Tarjan's algorithm as a by product topologically sorts the graph.
         List<Integer> dependencyOrderFiltered = graph.getDependencyOrderFiltered();
-        List<Integer> sortedNodeIdList = dependencyOrderFiltered
-                .stream()
-                .filter(i -> pkgNode.globalVars.contains(getNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, i)))
+        List<Integer> sortedNodeIdList = dependencyOrderFiltered.stream()
+                .filter(i -> pkgNode.globalVars.contains(getVarNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, i)))
                 .collect(Collectors.toList());
 
         List<Integer> sortableGlobalVarPositions = new ArrayList<>(sortedNodeIdList);
@@ -135,12 +134,12 @@ public class GlobalVariableRefAnalyzer {
         List<BLangSimpleVariable> sorted = new ArrayList<>(pkgNode.globalVars);
         for (int i = 0; i < sortedNodeIdList.size(); i++) {
             Integer targetIndex = sortableGlobalVarPositions.get(i);
-            BLangNode targetNode = getNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, targetIndex);
+            BLangNode targetNode = getVarNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, targetIndex);
             int destinationIndex = pkgNode.globalVars.indexOf(targetNode);
 
             Integer index = sortedNodeIdList.get(i);
-            BLangNode bLangNode = getNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, index);
-            sorted.set(destinationIndex, (BLangSimpleVariable) bLangNode);
+            BLangSimpleVariable varNode = getVarNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, index);
+            sorted.set(destinationIndex, varNode);
         }
         pkgNode.globalVars.clear();
         pkgNode.globalVars.addAll(sorted);
@@ -164,8 +163,11 @@ public class GlobalVariableRefAnalyzer {
         boolean cyclicDepFound = false;
         for (List<Integer> cyclicNodes : cycles.values()) {
             // Ignore cycles formed by mutually recursive function calls.
-            boolean noGlobalVarNodeInCycle =
-                    cyclicNodes.stream().map(n -> nodeIdToNode.get(n)).noneMatch(n -> pkgNode.globalVars.contains(n));
+            boolean noGlobalVarNodeInCycle = cyclicNodes.stream()
+                            .map(nodeIdToNode::get)
+                            .filter(n -> n.getKind() == NodeKind.VARIABLE)
+                            .map(n -> (BLangSimpleVariable) n)
+                            .noneMatch(n -> pkgNode.globalVars.contains(n));
             if (cyclicNodes.size() <= 1 || noGlobalVarNodeInCycle) {
                 continue;
             }
@@ -180,7 +182,7 @@ public class GlobalVariableRefAnalyzer {
     private void emitCyclicError(Map<Integer, BSymbol> graphIndices,
                                  Map<BSymbol, IdentifierPositionPair> symbolToIdentifier, List<Integer> cyclicNodes) {
         List<BLangIdentifier> cycle = cyclicNodes.stream()
-                .map(index -> graphIndices.get(index))
+                .map(graphIndices::get)
                 .map(symbol -> symbolToIdentifier.get(symbol).identifier)
                 .collect(Collectors.toList());
 
@@ -208,9 +210,14 @@ public class GlobalVariableRefAnalyzer {
         return symbolToIdentifier;
     }
 
-    private BLangNode getNodeFromGraphIndex(Map<BSymbol, NodeIdPair> graphIndices,
-                                            Map<Integer, BSymbol> nodeIdToNodeSymbol, Integer index) {
-        return graphIndices.get(nodeIdToNodeSymbol.get(index)).node;
+    private BLangSimpleVariable getVarNodeFromGraphIndex(Map<BSymbol, NodeIdPair> graphIndices,
+                                               Map<Integer, BSymbol> nodeIdToNodeSymbol, Integer index) {
+
+        BLangNode node = graphIndices.get(nodeIdToNodeSymbol.get(index)).node;
+        if (node.getKind() != NodeKind.VARIABLE) {
+            return null;
+        }
+        return (BLangSimpleVariable) node;
     }
 
     private static class NodeIdPair {
