@@ -210,14 +210,14 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing nested IfCondition.")
     public void testNestedIf() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test_nested_if.bal", 2);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test_nested_if.bal", 18);
         String file = "test_nested_if.bal";
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", file, 2, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 4, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 5, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 13, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 18, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 20, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 21, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 29, RESUME, 1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 4, 0, new ArrayList<>(), false);
 
