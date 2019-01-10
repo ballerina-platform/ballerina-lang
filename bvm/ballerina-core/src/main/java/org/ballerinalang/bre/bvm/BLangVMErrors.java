@@ -149,9 +149,6 @@ public class BLangVMErrors {
             Optional.ofNullable(getStackFrame(typeInfo, currentFrame)).ifPresent(sf -> error.callStack.add(sf));
             currentFrame = currentFrame.prevFrame;
         }
-//        for (StackFrame frame : strand.getStack()) {
-//            Optional.ofNullable(getStackFrame(typeInfo, frame)).ifPresent(sf -> error.callStack.add(0, sf));
-//        }
     }
 
     public static BValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
@@ -181,12 +178,6 @@ public class BLangVMErrors {
             }
             currentFrame = currentFrame.prevFrame;
         }
-//        for (StackFrame frame : strand.getStack()) {
-//            BMap<String, BValue> sf = getStackFrame(typeInfo, frame);
-//            if (sf != null) {
-//                sfList.add(0, sf);
-//            }
-//        }
 
         BValueArray callStack = new BValueArray(typeInfo.getType());
         for (int i = 0; i < sfList.size(); i++) {

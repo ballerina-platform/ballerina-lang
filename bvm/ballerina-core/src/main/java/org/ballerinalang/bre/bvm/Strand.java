@@ -89,8 +89,8 @@ public class Strand {
     }
 
     public StackFrame pushFrame(StackFrame frame) {
-        if (this.fp >= 2000) {
-            //TODO fail
+        if (this.fp >= DEFAULT_CONTROL_STACK_SIZE) {
+            throw new ArrayIndexOutOfBoundsException();
         }
         frame.prevFrame = this.currentFrame;
         this.currentFrame = frame;
