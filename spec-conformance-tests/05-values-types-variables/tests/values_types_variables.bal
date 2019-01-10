@@ -79,12 +79,6 @@ function testNonSimpleValuesStoredInStructures() {
     f5.fooFieldOne = S;
     utils:FooRecord f6 = <utils:FooRecord> b1.fooRecField;
     test:assertEquals(f6.fooFieldOne, S, msg = "expected record member to have been updated");
-
-    // TODO: validate
-    utils:BarObject b2 = new(100);
-    utils:BazObject b3 = new(b2);
-    b2.barFieldOne = I;
-    test:assertEquals(b3.bazFieldOne.barFieldOne, I, msg = "expected object member to have been updated");
 }
 
 // References make it possible for distinct members of a structure to refer to values that are
@@ -107,12 +101,6 @@ function testDistinctStructureMembersReferringToSameValue() {
     utils:FooRecord f4 = { fooFieldOne: "test string 4" };
     utils:BazRecord b1 = { fooRecFieldOne: f4, bazFieldOne: 1.0, fooRecFieldTwo: f4 };
     test:assertTrue(b1.fooRecFieldOne === b1.fooRecFieldTwo, msg = "expected values to be at the same location");
-
-    // TODO: validate
-    utils:BarObject b2 = new(100);
-    utils:BazObject b3 = new(b2);
-    b3.bazFieldTwo = b2;
-    test:assertTrue(b3.bazFieldOne === b3.bazFieldTwo, msg = "expected values to be at the same location");
 }
 
 // All basic types of structural values, with the exception of the XML, are mutable,
@@ -129,9 +117,18 @@ function testXmlImmutability() {
 
 // Whether a behavioural value is mutable depends on its basic type: some of the behavioural basic types
 // allow mutation, and some do not. Mutation cannot change the basic type of a value.
+// TODO: add tests for other mutable behavioural basic types
 @test:Config {}
 function testBehaviouralBasicTypeMutation() {
-    // TODO
+    utils:BarObject b1 = new(100);
+    utils:BazObject b2 = new(b1);
+    b1.barFieldOne = I;
+    test:assertEquals(b2.bazFieldOne.barFieldOne, I, msg = "expected object member to have been updated");
+
+    utils:BarObject b3 = new(100);
+    utils:BazObject b4 = new(b3);
+    b4.bazFieldTwo = b3;
+    test:assertTrue(b4.bazFieldOne === b4.bazFieldTwo, msg = "expected values to be at the same location");
 }
 
 // Mutation makes it possible for the graphs of references between values to have cycles.
