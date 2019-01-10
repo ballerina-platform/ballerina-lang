@@ -106,7 +106,7 @@ public abstract class BValueType implements BValue {
     public abstract void setType(BType type);
 
     @Override
-    public void stamp(BType type, List unresolvedValues) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
         if (type.getTag() == TypeTags.ANYDATA_TAG || type.getTag() == TypeTags.JSON_TAG) {
             return;
         }

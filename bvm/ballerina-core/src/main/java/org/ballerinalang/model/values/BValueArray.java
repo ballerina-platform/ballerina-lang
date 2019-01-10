@@ -254,7 +254,7 @@ public class BValueArray extends BNewArray implements Serializable {
     }
 
     @Override
-    public void stamp(BType type, List unresolvedValues) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
         if (type.getTag() == TypeTags.TUPLE_TAG) {
 
             if (elementType != null && isBasicType(elementType)) {

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.JSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
@@ -192,7 +193,7 @@ public class BStreamingJSON extends BValueArray {
         }
 
         @Override
-        public void stamp(BType type, List unresolvedValues) {
+        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
         }
     }

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
 
@@ -50,7 +51,7 @@ public interface BFuture extends BRefType<Strand> {
     boolean isCancelled();
 
     @Override
-    default void stamp(BType type, List unresolvedValues) {
+    default void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
     }
 }

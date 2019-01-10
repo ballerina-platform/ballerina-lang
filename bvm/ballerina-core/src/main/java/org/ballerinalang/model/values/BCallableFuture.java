@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BVMScheduler;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.Strand;
@@ -53,7 +54,7 @@ public class BCallableFuture implements BFuture {
     }
 
     @Override
-    public void stamp(BType type, List unresolvedValues) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
     }
 

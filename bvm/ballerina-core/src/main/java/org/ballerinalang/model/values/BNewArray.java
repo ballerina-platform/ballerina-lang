@@ -61,7 +61,7 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     @Override
-    public void stamp(BType type, List unresolvedValues) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
     }
 
@@ -165,7 +165,7 @@ public abstract class BNewArray implements BRefType, BCollection {
         }
 
         @Override
-        public void stamp(BType type, List unresolvedValues) {
+        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
         }
     }

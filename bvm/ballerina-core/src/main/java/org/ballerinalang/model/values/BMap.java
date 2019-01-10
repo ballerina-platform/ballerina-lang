@@ -358,7 +358,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     }
 
     @Override
-    public void stamp(BType type, List unresolvedValues) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
         
         BVM.TypeValuePair typeValuePair = new BVM.TypeValuePair(this, type);
         if (unresolvedValues.contains(typeValuePair)) {
