@@ -1979,7 +1979,7 @@ public class PackageInfoReader {
                     if (constraint == null) {
                         return BTypes.typeJSON;
                     }
-                    return new BJSONType(constraint);
+                    return new BJSONType();
                 case 'D':
                     if (constraint == null) {
                         return BTypes.typeTable;
