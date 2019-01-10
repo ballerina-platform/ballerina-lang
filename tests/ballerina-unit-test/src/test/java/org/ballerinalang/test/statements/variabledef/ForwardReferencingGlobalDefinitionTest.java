@@ -84,9 +84,9 @@ public class ForwardReferencingGlobalDefinitionTest {
         CompileResult resultReOrdered = BCompileUtil.compile("test-src/statements/variabledef/global-var-order.bal");
 
         BValue[] valI = BRunUtil.invoke(resultReOrdered, "getIJK");
-        Assert.assertEquals(((BInteger) valI[0]).intValue(), 2);
-        Assert.assertEquals(((BInteger) valI[1]).intValue(), 1);
-        Assert.assertEquals(((BInteger) valI[2]).intValue(), 2);
+        Assert.assertEquals(((BInteger) valI[0]).intValue(), 2); // i = 2
+        Assert.assertEquals(((BInteger) valI[1]).intValue(), 1); // j = 1
+        Assert.assertEquals(((BInteger) valI[2]).intValue(), 2); // k = 2
     }
 
     @Test(description = "Test global variable reference cycle via function")

@@ -123,23 +123,22 @@ public class GlobalVariableRefAnalyzer {
                                Map<Integer, BSymbol> nodeIdToNodeSymbol) {
         // Sort global variable definitions.
         // Tarjan's algorithm as a by product topologically sorts the graph.
-
         List<Integer> dependencyOrderFiltered = graph.getDependencyOrderFiltered();
-        List<Integer> globalVarPositions = dependencyOrderFiltered
+        List<Integer> sortedNodeIdList = dependencyOrderFiltered
                 .stream()
                 .filter(i -> pkgNode.globalVars.contains(getNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, i)))
                 .collect(Collectors.toList());
 
-        List<Integer> sortedPos = new ArrayList<>(globalVarPositions);
-        Collections.sort(sortedPos);
+        List<Integer> sortableGlobalVarPositions = new ArrayList<>(sortedNodeIdList);
+        Collections.sort(sortableGlobalVarPositions);
 
         List<BLangSimpleVariable> sorted = new ArrayList<>(pkgNode.globalVars);
-        for (int i = 0; i < globalVarPositions.size(); i++) {
-            Integer targetIndex = sortedPos.get(i);
+        for (int i = 0; i < sortedNodeIdList.size(); i++) {
+            Integer targetIndex = sortableGlobalVarPositions.get(i);
             BLangNode targetNode = getNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, targetIndex);
             int destinationIndex = pkgNode.globalVars.indexOf(targetNode);
 
-            Integer index = globalVarPositions.get(i);
+            Integer index = sortedNodeIdList.get(i);
             BLangNode bLangNode = getNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, index);
             sorted.set(destinationIndex, (BLangSimpleVariable) bLangNode);
         }
