@@ -281,6 +281,10 @@ function testImplicitInitialValues() {
     floatArray[1] = 50.9;
     test:assertEquals(floatArray[0], 0.0, msg = "expected implicit initial value of float to be 0.0");
 
+    decimal[] decimalArray = [];
+    decimalArray[1] = 50.9;
+    test:assertEquals(decimalArray[0], <decimal>0.0, msg = "expected implicit initial value of decimal to be 0.0");
+
     string[] stringArray = [];
     stringArray[1] = "test string";
     test:assertEquals(stringArray[0], "", msg = "expected implicit initial value of string to be an empty string");
