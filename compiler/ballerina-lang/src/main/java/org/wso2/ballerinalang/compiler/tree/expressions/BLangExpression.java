@@ -18,8 +18,12 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
+
+import java.util.Map;
 
 /**
  * {@code BLangExpression} represents an expression node in Ballerina AST.
@@ -27,6 +31,8 @@ import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
  * @since 0.94
  */
 public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+
+    public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
 
     /**
      * Implicit cast expression. If the type of this expression is assignable

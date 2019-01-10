@@ -2061,7 +2061,7 @@ public class Types {
         return getRemainingType(originalType, removeTypes);
     }
 
-    private BType getRemainingType(BType originalType, List<BType> removeTypes) {
+    public BType getRemainingType(BType originalType, List<BType> removeTypes) {
         List<BType> remainingTypes = getAllTypes(originalType);
         removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isAssignable(type, removeType)));
 
@@ -2105,7 +2105,7 @@ public class Types {
         return errorLiftedType;
     }
 
-    private List<BType> getAllTypes(BType type) {
+    public List<BType> getAllTypes(BType type) {
         if (type.tag != TypeTags.UNION) {
             return Lists.of(type);
         }

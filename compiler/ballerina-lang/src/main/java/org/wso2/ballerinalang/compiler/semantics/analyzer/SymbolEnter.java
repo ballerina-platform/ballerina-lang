@@ -622,10 +622,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void createDummyFunctionSymbol(BLangFunction funcNode) {
         // This is only to keep the flow running so that at the end there will be proper semantic errors
+        BInvokableType type = new BInvokableType(new ArrayList<>(), symTable.noType, null);
         funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
+                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, type, env.scope.owner, true);
         funcNode.symbol.scope = new Scope(funcNode.symbol);
-        funcNode.symbol.type = new BInvokableType(new ArrayList<>(), symTable.noType, null);
     }
 
     private void visitObjectAttachedFunction(BLangFunction funcNode) {
@@ -1221,7 +1221,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             invokableSymbol.restParam = invokableNode.restParam.symbol;
             paramTypes.add(invokableSymbol.restParam.type);
         }
-        invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
+        invokableSymbol.originalType =
+                invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {

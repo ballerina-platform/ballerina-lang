@@ -203,8 +203,6 @@ public class BLangMatch extends BLangStatement implements MatchNode {
         // type guard expression
         public BLangExpression typeGuardExpr;
 
-        public Map<BVarSymbol, BVarSymbol> typeGuards = new HashMap<>();
-
         @Override
         public NodeKind getKind() {
             return NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE;

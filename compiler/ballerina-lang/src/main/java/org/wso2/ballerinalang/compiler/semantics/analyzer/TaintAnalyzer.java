@@ -613,12 +613,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         overridingAnalysis = false;
-
-        // Copy the taint information from the original symbol to the newly created type guarded symbol
-        ifNode.ifTypeGuards.forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
-        ifNode.elseTypeGuards
-                .forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
-
         ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
             ifNode.elseStmt.accept(this);
@@ -969,7 +963,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 || invocationExpr.symbol.name.value.startsWith(Constants.WORKER_LAMBDA_VAR_PREFIX))) {
             //TODO: Remove "WORKER_LAMBDA_VAR_PREFIX" check after worker interaction analysis is in place.
             analyzeBuiltInMethodInvocation(invocationExpr);
-        } else {
+        } else if (invocationExpr.symbol != null) {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
                 if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {

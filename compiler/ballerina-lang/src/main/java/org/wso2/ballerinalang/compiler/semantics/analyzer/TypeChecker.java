@@ -142,10 +142,10 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -170,6 +170,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private SymbolEnv env;
     private boolean isTypeChecked;
+    private TypeNarrower typeNarrower;
 
     /**
      * Expected types or inherited types.
@@ -178,6 +179,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
+
 
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
@@ -198,6 +200,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.typeNarrower = TypeNarrower.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -1222,19 +1225,14 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTernaryExpr ternaryExpr) {
         BType condExprType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
 
-        SymbolEnv thenEnv = SymbolEnv.createExpressionEnv(ternaryExpr.thenExpr, env);
-        SymbolEnv elseEnv = SymbolEnv.createExpressionEnv(ternaryExpr.elseExpr, env);
-        Map<BVarSymbol, BType> thenTypeGuards = getTypeGuards(ternaryExpr.expr);
-        if (!thenTypeGuards.isEmpty()) {
-            defineThenTypeGuards(ternaryExpr, thenEnv, thenTypeGuards);
-            defineElseTypeGuards(thenTypeGuards, ternaryExpr, elseEnv);
-        }
+        typeNarrower.evaluateTruth(ternaryExpr.expr, env);
+        BType thenType = checkExpr(ternaryExpr.thenExpr, env, expType);
 
-        BType thenType = checkExpr(ternaryExpr.thenExpr, thenEnv, expType);
-        BType elseType = checkExpr(ternaryExpr.elseExpr, elseEnv, expType);
+        typeNarrower.evaluateFalsity(ternaryExpr.expr, env);
+        BType elseType = checkExpr(ternaryExpr.elseExpr, env, expType);
 
-        if (condExprType == symTable.semanticError || thenType == symTable.semanticError
-                || elseType == symTable.semanticError) {
+        if (condExprType == symTable.semanticError || thenType == symTable.semanticError ||
+                elseType == symTable.semanticError) {
             resultType = symTable.semanticError;
         } else if (expType == symTable.noType) {
             if (thenType == elseType) {
@@ -1246,6 +1244,9 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             resultType = expType;
         }
+
+        // Reset the type narrowing when exiting from the ternary expr
+        typeNarrower.reset(ternaryExpr.expr, env);
     }
 
     public void visit(BLangWaitExpr waitExpr) {
@@ -1338,8 +1339,16 @@ public class TypeChecker extends BLangNodeVisitor {
             }, false);
             return;
         }
+
         BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
+        if (binaryExpr.opKind == OperatorKind.AND) {
+            typeNarrower.evaluateTruth(binaryExpr.lhsExpr, env);
+        } else if (binaryExpr.opKind == OperatorKind.OR) {
+            typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, env);
+        }
+
         BType rhsType = checkExpr(binaryExpr.rhsExpr, env);
+        typeNarrower.reset(binaryExpr.lhsExpr, env);
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -3027,31 +3036,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
                 InstructionCodes.IS_FROZEN);
-    }
-
-    private void defineThenTypeGuards(BLangTernaryExpr ternaryExpr, SymbolEnv thenEnv,
-                                      Map<BVarSymbol, BType> thenTypeGuards) {
-        for (Entry<BVarSymbol, BType> entry : thenTypeGuards.entrySet()) {
-            BVarSymbol originalVarSymbol = entry.getKey();
-            BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, entry.getValue(), originalVarSymbol.name, this.env);
-            symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
-
-            // Cache the type guards, to be reused at the desugar.
-            ternaryExpr.ifTypeGuards.put(originalVarSymbol, varSymbol);
-        }
-    }
-
-    private void defineElseTypeGuards(Map<BVarSymbol, BType> typeGuardsSet, BLangTernaryExpr ternaryExpr,
-                                      SymbolEnv elseEnv) {
-        for (Entry<BVarSymbol, BType> entry : typeGuardsSet.entrySet()) {
-            BVarSymbol originalVarSymbol = entry.getKey();
-            BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
-            BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, remainingType, originalVarSymbol.name, this.env);
-            symbolEnter.defineShadowedSymbol(ternaryExpr.expr.pos, varSymbol, elseEnv);
-
-            // Cache the type guards, to be reused at the desugar.
-            ternaryExpr.elseTypeGuards.put(originalVarSymbol, varSymbol);
-        }
     }
 
     private boolean isSafeNavigable(BLangAccessExpression fieldAccessExpr, BType varRefType) {

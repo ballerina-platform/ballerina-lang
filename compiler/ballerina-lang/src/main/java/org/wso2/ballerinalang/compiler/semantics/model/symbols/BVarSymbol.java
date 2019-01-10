@@ -33,8 +33,8 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
 
     public DefaultValueLiteral defaultValue;
 
-    // Only used in type-guards. Cache of the original symbol.
-    public BVarSymbol originalSymbol;
+    // Only used for type-narrowing. Cache of the original type.
+    public BType originalType;
 
     /**
      * Represent the index of the variable in a memory block of the VM.
@@ -43,6 +43,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
 
     public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(VARIABLE, flags, name, pkgID, type, owner);
+        this.originalType = type;
     }
 
     @Override

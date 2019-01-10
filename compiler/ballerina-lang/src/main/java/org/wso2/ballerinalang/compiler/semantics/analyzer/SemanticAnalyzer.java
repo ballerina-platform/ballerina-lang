@@ -162,12 +162,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private Types types;
     private StreamsQuerySemanticAnalyzer streamsQuerySemanticAnalyzer;
     private BLangDiagnosticLog dlog;
+    private TypeNarrower typeNarrower;
 
     private SymbolEnv env;
     private BType expType;
     private DiagnosticCode diagCode;
     private BType resType;
-    private Map<BVarSymbol, LinkedHashSet<BType>> typeGuards;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -189,6 +189,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.streamsQuerySemanticAnalyzer = StreamsQuerySemanticAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.typeNarrower = TypeNarrower.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -537,7 +538,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
             // symbol enter. If the variable is a local variable, the symbol will be created above.
-            simpleVariable.symbol.type = rhsType;
+            simpleVariable.symbol.originalType = simpleVariable.symbol.type = rhsType;
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
             if (TypeTags.TUPLE != rhsType.tag) {
                 dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
@@ -1280,6 +1281,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         // Creates a new environment here.
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
@@ -1290,48 +1292,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangIf ifNode) {
         typeChecker.checkExpr(ifNode.expr, env, symTable.booleanType);
-
-        Map<BVarSymbol, BType> typeGuards = typeChecker.getTypeGuards(ifNode.expr);
-        if (!typeGuards.isEmpty()) {
-            SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(ifNode.body, env);
-            for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
-                BVarSymbol originalVarSymbol = entry.getKey();
-                BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, entry.getValue(), originalVarSymbol.name,
-                                                                   this.env);
-                varSymbol.originalSymbol = getOriginalVarSymbol(originalVarSymbol);
-                symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
-
-                // Cache the type guards, to be reused at the desugar.
-                ifNode.ifTypeGuards.put(originalVarSymbol, varSymbol);
-            }
-        }
-
         BType actualType = ifNode.expr.type;
         if (TypeTags.TUPLE == actualType.tag) {
             dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
         }
 
-        // Add the type guards of 'if' to the current type guards map.
-        addTypeGuards(typeGuards);
-        // Reset the current type guards before visiting the body.
-        Map<BVarSymbol, LinkedHashSet<BType>> preTypeGuards = this.typeGuards;
-        resetTypeGards();
+        typeNarrower.evaluateTruth(ifNode.expr, env);
         analyzeStmt(ifNode.body, env);
-        // Restore the type guards after visiting the body
-        this.typeGuards = preTypeGuards;
 
         if (ifNode.elseStmt != null) {
-            // if this is the last 'else', add all the remaining type guards to the else.
-            if (ifNode.elseStmt.getKind() == NodeKind.BLOCK) {
-                addElseTypeGuards(ifNode);
-            }
+            typeNarrower.evaluateFalsity(ifNode.expr, env);
             analyzeStmt(ifNode.elseStmt, env);
         }
 
-        // Reset the type guards when exiting from the if-else node
-        resetTypeGards();
+        // Reset the type narrowing when exiting from the if-else node
+        typeNarrower.reset(ifNode.expr, env);
     }
 
     @Override
@@ -1352,6 +1330,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         matchNode.exprTypes = exprTypes;
     }
 
+    @Override
     public void visit(BLangMatchStaticBindingPatternClause patternClause) {
         checkStaticMatchPatternLiteralType(patternClause.literal);
         analyzeStmt(patternClause.body, this.env);
@@ -1433,40 +1412,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangMatchStructuredBindingPatternClause patternClause) {
-
         patternClause.bindingPatternVariable.type = patternClause.matchExpr.type;
         patternClause.bindingPatternVariable.expr = patternClause.matchExpr;
-
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
 
         if (patternClause.typeGuardExpr != null) {
-            BLangExpression typeGuardExpr = patternClause.typeGuardExpr;
-            SymbolEnv typeGuardEnv = SymbolEnv.createExpressionEnv(typeGuardExpr, env);
-            analyzeDef(patternClause.bindingPatternVariable, typeGuardEnv);
-            blockEnv = SymbolEnv.createBlockEnv(patternClause.body, typeGuardEnv);
-            typeChecker.checkExpr(patternClause.typeGuardExpr, typeGuardEnv);
+            analyzeDef(patternClause.bindingPatternVariable, blockEnv);
+            typeChecker.checkExpr(patternClause.typeGuardExpr, blockEnv);
 
-            Map<BVarSymbol, BType> typeGuards = typeChecker.getTypeGuards(patternClause.typeGuardExpr);
-            if (!typeGuards.isEmpty()) {
-                SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(patternClause.body, blockEnv);
-                for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
-                    BVarSymbol originalVarSymbol = entry.getKey();
-                    BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, ifBodyEnv.scope.owner.pkgID,
-                            entry.getValue(), this.env.scope.owner);
-                    symbolEnter.defineShadowedSymbol(patternClause.typeGuardExpr.pos, varSymbol, ifBodyEnv);
-
-                    // Cache the type guards, to be reused at the desugar.
-                    patternClause.typeGuards.put(originalVarSymbol, varSymbol);
-                }
-            }
+            typeNarrower.evaluateTruth(patternClause.typeGuardExpr, blockEnv);
         } else {
             analyzeDef(patternClause.bindingPatternVariable, blockEnv);
         }
 
         analyzeStmt(patternClause.body, blockEnv);
+        typeNarrower.reset(patternClause.typeGuardExpr, env);
     }
 
+    @Override
     public void visit(BLangForeach foreach) {
         // Check the collection's type.
         typeChecker.checkExpr(foreach.collection, env);
@@ -1480,6 +1445,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(foreach.body, blockEnv);
     }
 
+    @Override
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, symTable.booleanType);
 
@@ -1496,6 +1462,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(lockNode.body, env);
     }
 
+    @Override
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
@@ -1537,13 +1504,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangResource resourceNode) {
     }
 
+    @Override
     public void visit(BLangTryCatchFinally tryCatchFinally) {
         dlog.error(tryCatchFinally.pos, DiagnosticCode.TRY_STMT_NOT_SUPPORTED);
     }
 
+    @Override
     public void visit(BLangCatch bLangCatch) {
         SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, env);
         analyzeNode(bLangCatch.param, catchBlockEnv);
@@ -1662,10 +1632,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return analyzeNode(node, env, symTable.noType, null);
     }
 
+    @Override
     public void visit(BLangContinue continueNode) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangBreak breakNode) {
         /* ignore */
     }
@@ -1700,6 +1672,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return resType;
     }
 
+    @Override
     public void visit(BLangForever foreverStatement) {
         streamsQuerySemanticAnalyzer.analyze(foreverStatement, env);
     }
@@ -1939,59 +1912,5 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
                     func.symbol.receiverSymbol.type);
         }
-    }
-
-    private void addElseTypeGuards(BLangIf ifNode) {
-        SymbolEnv elseEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) ifNode.elseStmt, env);
-        for (Entry<BVarSymbol, LinkedHashSet<BType>> entry : this.typeGuards.entrySet()) {
-            BVarSymbol originalVarSymbol = entry.getKey();
-            BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
-            BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, remainingType, originalVarSymbol.name, this.env);
-            varSymbol.originalSymbol = getOriginalVarSymbol(originalVarSymbol);
-            symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, elseEnv);
-
-            // Cache the type guards, to be reused at the desugar.
-            ifNode.elseTypeGuards.put(originalVarSymbol, varSymbol);
-        }
-    }
-
-    private void addTypeGuards(Map<BVarSymbol, BType> typeGuards) {
-        if (this.typeGuards == null) {
-            this.typeGuards = new HashMap<>();
-            this.typeGuards = typeGuards.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new LinkedHashSet<BType>() {
-                        {
-                            add(e.getValue());
-                        }
-                    }));
-            return;
-        }
-
-        for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
-            Optional<LinkedHashSet<BType>> matchingGuards = this.typeGuards.entrySet().stream()
-                    .filter(typeGuard -> typeGuard.getKey().name.equals(entry.getKey().name))
-                    .map(Entry::getValue).findFirst();
-            LinkedHashSet<BType> typGuardsForSymbol;
-            if (matchingGuards.isPresent()) {
-                typGuardsForSymbol = matchingGuards.get();
-            } else {
-                typGuardsForSymbol = new LinkedHashSet<>();
-                this.typeGuards.put(entry.getKey(), typGuardsForSymbol);
-            }
-
-            typGuardsForSymbol.add(entry.getValue());
-        }
-    }
-
-    private void resetTypeGards() {
-        this.typeGuards = null;
-    }
-
-    private BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {
-        if (varSymbol.originalSymbol == null) {
-            return varSymbol;
-        }
-
-        return getOriginalVarSymbol(varSymbol.originalSymbol);
     }
 }

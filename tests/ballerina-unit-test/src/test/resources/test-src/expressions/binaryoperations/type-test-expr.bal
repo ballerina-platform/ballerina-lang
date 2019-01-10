@@ -42,15 +42,13 @@ function testNestedTypeCheck() returns (any, any, any) {
 function bar (string | int | boolean i)  returns string {
     if (i is int){
         return "int";
-    } else if (i is string | boolean) {
+    } else {
         if (i is string) {
             return "string";
-        } else if (i is boolean) {
+        } else {
             return "boolean";
         }
     }
-
-    return "n/a";
 }
 
 function testTypeInAny() returns (string) {

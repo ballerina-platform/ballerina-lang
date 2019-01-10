@@ -112,4 +112,24 @@ public class BType implements ValueType {
     protected String getQualifiedTypeName() {
         return tsymbol.pkgID.toString() + ":" + tsymbol.name;
     }
+
+    /**
+     * A data holder to hold the type associated with an expression.
+     */
+    public static class NarrowedTypes {
+        public BType trueType;
+        public BType falseType;
+        public BType prevType;
+
+        public NarrowedTypes(BType trueType, BType falseType, BType prevType) {
+            this.trueType = trueType;
+            this.falseType = falseType;
+            this.prevType = prevType;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + prevType + ", " + trueType + ", " + falseType + ")";
+        }
+    }
 }

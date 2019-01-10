@@ -598,12 +598,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             finalPattern.isLastPattern = true;
         }
 
+        BLangMatchStructuredBindingPatternClause currentBindingPattern;
         for (int i = 0; i < clauses.size(); i++) {
+            if (clauses.get(i).typeGuardExpr != null) {
+                analyzeExpr(clauses.get(i).typeGuardExpr);
+            }
+
             for (int j = i + 1; j < clauses.size(); j++) {
+                currentBindingPattern = clauses.get(j);
                 BLangVariable precedingVar = clauses.get(i).bindingPatternVariable;
-                BLangVariable currentVar = clauses.get(j).bindingPatternVariable;
+                BLangVariable currentVar = currentBindingPattern.bindingPatternVariable;
+
                 if (checkStructuredPatternSimilarity(precedingVar, currentVar) &&
-                        checkTypeGuardSimilarity(clauses.get(i).typeGuardExpr, clauses.get(j).typeGuardExpr)) {
+                        checkTypeGuardSimilarity(clauses.get(i).typeGuardExpr, currentBindingPattern.typeGuardExpr)) {
                     dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
                     clauses.remove(j--);
                 }
@@ -1816,7 +1823,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         analyzeNode(typeTestExpr.expr, env);
-        if (typeTestExpr.typeNode.type == symTable.semanticError) {
+        if (typeTestExpr.typeNode.type == symTable.semanticError || typeTestExpr.expr.type == symTable.semanticError) {
             return;
         }
 

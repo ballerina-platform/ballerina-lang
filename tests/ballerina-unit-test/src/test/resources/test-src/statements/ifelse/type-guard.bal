@@ -118,8 +118,6 @@ function testTypeGuardInElse_3() returns string {
         } else {
             return "x is int|string";
         }
-    } else if (x is string) {
-        return "string: " + x;
     } else if (x is float) {
         float f = x;
         return "float: " + <string> f;
@@ -152,8 +150,6 @@ function testTypeGuardInElse_4() returns string {
         } else {
             val += "x is int|string";
         }
-    } else if (x is string) {
-        val += "string: " + x;
     } else if (x is float) {
         float f = x;
         val += "float: " + <string> f;
@@ -182,8 +178,6 @@ function testTypeGuardInElse_4() returns string {
         } else {
             val += "x is int|string";
         }
-    } else if (x is string) {
-        val += "string: " + x;
     } else if (x is float) {
         float f = x;
         val += "float: " + <string> f;
@@ -210,14 +204,10 @@ function testTypeGuardInElse_5() returns string {
     if (x is int|string) {
         if (x is string) {
             return "x is string: " + x;
-        } else if (x is int) {
+        } else {
             int i = x;
             return "x is int: " + <string> i;
-        } else {
-            return "x is int|string";
         }
-    } else if (x is string) {
-        return "string: " + x;
     } else if (x is float) {
         float f = x;
         return "float: " + <string> f;
@@ -242,7 +232,6 @@ function testTypeGuardInElse_6() returns string {
         }
     }
 }
-
 
 function testTypeGuardInElse_7() returns string {
     int|string|table<A> x = 5;
@@ -334,5 +323,105 @@ function testFuncPtrTypeInferenceInElseGuard() returns (boolean, int) {
         return (false, fPtrFlag);
     } else {
         return (f.call(), fPtrFlag);
+    }
+}
+
+function testTypeGuardNegation(int|string|boolean x) returns string {
+    if!(x is int) {
+        if !(x is string) {
+            boolean y = x;
+            return "boolean: " + y;
+        } else {
+            string y = x;
+            return "string: " + y;
+        }
+    } else {
+        int y = x;
+        return "int: " + x;
+    }
+}
+
+function testTypeGuardsWithBinaryOps(int|string|boolean|float x) returns string {
+    if ((x is int|string && x is int) || (x is boolean)) {
+        if (x is boolean) {
+            boolean y = x;
+            return "boolean: " + y;
+        } else {
+            int y = x;
+            return "int: " + y;
+        }
+    } else {
+        if (x is float) {
+            float y = x;
+            return "float: " + y;
+        } else {
+            string y = x;
+            return "string: " + y;
+        }
+    }
+}
+
+type Person record {
+    string name;
+    int age;
+};
+
+type Student record {
+    *Person;
+    float gpa;
+};
+
+function testTypeGuardsWithRecords_1() returns string {
+    Student s = {name:"John", age:20, gpa:3.5};
+    Person|Student|string x = s;
+
+    if (x is Person) {
+        Person y = x;
+        return y.name;
+    } else {
+        string y = x;
+        return y;
+    }
+}
+
+function testTypeGuardsWithRecords_2() returns string {
+    Student s = {name:"John", age:20, gpa:3.5};
+    Person|Student|string x = s;
+
+    if (x is Student) {
+        Student y = x;
+        return "student: " + y.name;
+    } else if (x is Person) {
+        Person y = x;
+        return "person: " + y.name;
+    } else {
+        string y = x;
+        return y;
+    }
+}
+
+public type CustomError error<string, record { int status = 500; }>;
+
+function testTypeGuardsWithError() returns string {
+    CustomError err = error("some error", {});
+    any|error e = err;
+    if (e is error) {
+        if (e is CustomError) {
+            CustomError ce = e;
+            return "status: " + ce.detail().status;
+        } else {
+            return "not a custom error";
+        }
+    } else {
+        return "not an error";
+    }
+}
+
+function testTypeGuardsWithErrorInmatch() returns string {
+    error e = error("some error");
+    any|error x = e;
+    match x {
+        var p if p is error => return string `{{p.reason()}}`;
+        var p => return "Internal server error";
     }
 }
