@@ -2378,18 +2378,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkJSONLiteralKeyExpr(BLangRecordKey key, BType recordType) {
-        BJSONType type = (BJSONType) recordType;
-
-        // If the JSON is constrained with a struct, get the field type from the struct
-//        if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.SEMANTIC_ERROR) {
-//            return checkStructLiteralKeyExpr(key, type.constraint);
-//        }
-
         if (checkRecLiteralKeyExpr(key.expr).tag != TypeTags.STRING) {
             return symTable.semanticError;
         }
 
-        // If the JSON is not constrained, field type is always JSON.
         return symTable.jsonType;
     }
 
