@@ -80,16 +80,3 @@ function getPersonOuter() returns Person {
 function getfromFuncA() returns Person {
     return fromFuncA;
 }
-
-int j = incI();
-int k = incI();
-int i = 0;
-
-function getIJK() returns (int, int, int) {
-    return (i, j, k);
-}
-
-function incI() returns int {
-    i = i + 1;
-    return i;
-}

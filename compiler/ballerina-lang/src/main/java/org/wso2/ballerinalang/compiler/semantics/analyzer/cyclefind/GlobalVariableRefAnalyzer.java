@@ -17,16 +17,17 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind;
 
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -44,25 +45,13 @@ import java.util.stream.Collectors;
 public class GlobalVariableRefAnalyzer {
     private final BLangDiagnosticLog dlog;
     private final BLangPackage pkgNode;
-    private final Map<BSymbol, DataflowAnalyzer.DefPosition> globalVarSymbolDefPositions;
-    private final Map<BSymbol, List<DataflowAnalyzer.RefPosition>> globalVarSymbolRefPositions;
-    private final Map<BSymbol, List<BSymbol>> funcDependsOnGlobalVars;
-    private final Map<BSymbol, List<BSymbol>> funcDependsOnFunc;
-    private final Map<BSymbol, List<BSymbol>> funcToDependentGlobalVar;
+    private final Map<BSymbol, List<BSymbol>> globalNodeDependsOn;
 
     public GlobalVariableRefAnalyzer(BLangPackage pkgNode,
-                                     Map<BSymbol, DataflowAnalyzer.DefPosition> globalVarSymbolDefPositions,
-                                     Map<BSymbol, List<DataflowAnalyzer.RefPosition>> globalVarSymbolRefPositions,
-                                     Map<BSymbol, List<BSymbol>> funcDependsOnGlobalVars,
-                                     Map<BSymbol, List<BSymbol>> funcDependsOnFunc,
-                                     Map<BSymbol, List<BSymbol>> funcToDependentGlobalVar,
-                                     BLangDiagnosticLog dlog) {
+                                     BLangDiagnosticLog dlog,
+                                     Map<BSymbol, List<BSymbol>> globalNodeDependsOn) {
         this.pkgNode = pkgNode;
-        this.globalVarSymbolDefPositions = globalVarSymbolDefPositions;
-        this.globalVarSymbolRefPositions = globalVarSymbolRefPositions;
-        this.funcDependsOnGlobalVars = funcDependsOnGlobalVars;
-        this.funcDependsOnFunc = funcDependsOnFunc;
-        this.funcToDependentGlobalVar = funcToDependentGlobalVar;
+        this.globalNodeDependsOn = globalNodeDependsOn;
         this.dlog = dlog;
     }
 
@@ -70,29 +59,8 @@ public class GlobalVariableRefAnalyzer {
      * Analyze the global variable references and reorder them or emit error if they contain cyclic references.
      */
     public void analyzeAndReOrder() {
-        int nodeCount = getNodeCount();
-
-        TarjanSccSolverAdjacencyList graph = TarjanSccSolverAdjacencyList.createGraph(nodeCount);
         Map<BSymbol, NodeIdPair> nodeIndexes = new HashMap<>();
-
-        int currNode = addGlobalVariableDependsOnGlobalVariable(graph, nodeIndexes);
-
-        List<BLangFunction> functionNodes = pkgNode.topLevelNodes.stream()
-                .filter(n -> n.getKind() == NodeKind.FUNCTION)
-                .map(n -> (BLangFunction) n).collect(Collectors.toList());
-
-        for (BLangFunction function : functionNodes) {
-            BInvokableSymbol funcSymbol = function.symbol;
-
-            if (!nodeIndexes.containsKey(funcSymbol)) {
-                nodeIndexes.put(funcSymbol, new NodeIdPair(currNode++, function));
-            }
-            int funcNodeIndex = nodeIndexes.get(funcSymbol).nodeId;
-
-            currNode = addFunctionsDependOnGlobalVar(graph, nodeIndexes, currNode, function, funcSymbol, funcNodeIndex);
-            currNode = addGlobalVarDependsOnFunction(graph, nodeIndexes, currNode, function, funcSymbol, funcNodeIndex);
-            currNode = addFunctionDependsOnFunctions(graph, nodeIndexes, currNode, function, funcSymbol, funcNodeIndex);
-        }
+        TarjanSccSolverAdjacencyList graph = populateGraph(this.globalNodeDependsOn, nodeIndexes);
 
         Map<Integer, BSymbol> nodeIdToNodeSymbol = nodeIndexes.entrySet().stream()
                 .collect(Collectors.toMap(v -> v.getValue().nodeId, v -> v.getKey()));
@@ -107,6 +75,47 @@ public class GlobalVariableRefAnalyzer {
         }
 
         sortNodeLists(graph, nodeIndexes, nodeIdToNodeSymbol);
+    }
+
+    private TarjanSccSolverAdjacencyList populateGraph(Map<BSymbol, List<BSymbol>> globalNodeDependsOn,
+                                                       Map<BSymbol, NodeIdPair> nodeIndexes) {
+        List<BLangNode> topLevelFuncsAndVars = pkgNode.topLevelNodes.stream()
+                .filter(n -> n.getKind() == NodeKind.FUNCTION || n.getKind() == NodeKind.VARIABLE)
+                .map(n -> (BLangNode) n).collect(Collectors.toList());
+
+        int currNode = 0;
+        for (BLangNode node : topLevelFuncsAndVars) {
+            BSymbol symbol = getSymbol(node);
+            if (!nodeIndexes.containsKey(symbol)) {
+                nodeIndexes.put(symbol, new NodeIdPair(currNode++, node));
+            }
+        }
+
+        TarjanSccSolverAdjacencyList graph = TarjanSccSolverAdjacencyList.createGraph(nodeIndexes.size());
+        for (BLangNode node : topLevelFuncsAndVars) {
+            BSymbol symbol = getSymbol(node);
+
+            int dependentNodeIndex = nodeIndexes.get(symbol).nodeId;
+
+            List<BSymbol> providers = globalNodeDependsOn.get(symbol);
+            if (providers == null) {
+                continue;
+            }
+            for (BSymbol providerSymbol : providers) {
+                Integer providerNodeIndex = nodeIndexes.get(providerSymbol).nodeId;
+                graph.addEdge(dependentNodeIndex, providerNodeIndex);
+            }
+        }
+
+        return graph;
+    }
+
+    private BSymbol getSymbol(Node node) {
+        if (node.getKind() == NodeKind.VARIABLE) {
+            return ((BLangVariable) node).symbol;
+        } else {
+            return ((BLangInvokableNode) node).symbol;
+        }
     }
 
     private void sortNodeLists(TarjanSccSolverAdjacencyList graph,
@@ -126,10 +135,13 @@ public class GlobalVariableRefAnalyzer {
 
         List<BLangSimpleVariable> sorted = new ArrayList<>(pkgNode.globalVars);
         for (int i = 0; i < globalVarPositions.size(); i++) {
+            Integer targetIndex = sortedPos.get(i);
+            BLangNode targetNode = getNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, targetIndex);
+            int destinationIndex = pkgNode.globalVars.indexOf(targetNode);
+
             Integer index = globalVarPositions.get(i);
-            Integer destinationPos = sortedPos.get(i);
             BLangNode bLangNode = getNodeFromGraphIndex(nodeIndexes, nodeIdToNodeSymbol, index);
-            sorted.set(destinationPos, (BLangSimpleVariable) bLangNode);
+            sorted.set(destinationIndex, (BLangSimpleVariable) bLangNode);
         }
         pkgNode.globalVars.clear();
         pkgNode.globalVars.addAll(sorted);
@@ -141,76 +153,9 @@ public class GlobalVariableRefAnalyzer {
         }
         topLevelPositions.sort(Comparator.comparingInt(i -> i));
         for (int i = 0; i < topLevelPositions.size(); i++) {
-            pkgNode.topLevelNodes.set(topLevelPositions.get(i), pkgNode.globalVars.get(i));
+            Integer targetIndex = topLevelPositions.get(i);
+            pkgNode.topLevelNodes.set(targetIndex, pkgNode.globalVars.get(i));
         }
-    }
-
-    private int addFunctionDependsOnFunctions(TarjanSccSolverAdjacencyList graph, Map<BSymbol, NodeIdPair> graphIndices,
-                                              int curNodeId, BLangFunction func, BInvokableSymbol funcSymbol,
-                                              int topLevelNodeIndex) {
-        // func a = b() + c(), here b, c are producers and 'a' depends on them.
-        List<BSymbol> producers = funcDependsOnFunc.getOrDefault(funcSymbol, new ArrayList<>());
-        for (BSymbol producer : producers) {
-            if (!graphIndices.containsKey(producer)) {
-                graphIndices.put(producer, new NodeIdPair(curNodeId++, func));
-            }
-
-            graph.addEdge(topLevelNodeIndex, graphIndices.get(producer).nodeId);
-        }
-        return curNodeId;
-    }
-
-    private int addGlobalVarDependsOnFunction(TarjanSccSolverAdjacencyList graph, Map<BSymbol, NodeIdPair> graphIndices,
-                                              int curNodeId, BLangFunction func, BInvokableSymbol symbol,
-                                              int topLevelNodeIndex) {
-        // int globalVar = theFunc(), globalVar depends on 'theFunc'.
-        List<BSymbol> dependentGlobalVars = funcToDependentGlobalVar.getOrDefault(symbol, new ArrayList<>());
-        for (BSymbol dependent : dependentGlobalVars) {
-            if (!graphIndices.containsKey(dependent)) {
-                graphIndices.put(dependent, new NodeIdPair(curNodeId++, func));
-            }
-
-            graph.addEdge(graphIndices.get(dependent).nodeId, topLevelNodeIndex);
-        }
-        return curNodeId;
-    }
-
-    private int addFunctionsDependOnGlobalVar(TarjanSccSolverAdjacencyList graph, Map<BSymbol, NodeIdPair> graphIndices,
-                                              int nodeId, BLangFunction func, BInvokableSymbol symbol,
-                                              int topLevelNodeIndex) {
-        // func foo contain global variable, hence foo depends on global variable.
-        List<BSymbol> providers = funcDependsOnGlobalVars.getOrDefault(symbol, new ArrayList<>());
-        for (BSymbol provider : providers) {
-            if (!graphIndices.containsKey(provider)) {
-                graphIndices.put(provider, new NodeIdPair(nodeId++, func));
-            }
-
-            graph.addEdge(topLevelNodeIndex, graphIndices.get(provider).nodeId);
-        }
-        return nodeId;
-    }
-
-    private int addGlobalVariableDependsOnGlobalVariable(TarjanSccSolverAdjacencyList graph,
-                                                         Map<BSymbol, NodeIdPair> graphIndices) {
-        // int foo = bar, global variable foo depends on global variable bar.
-        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
-            BSymbol symbol = globalVar.symbol;
-            DataflowAnalyzer.DefPosition defPosition = globalVarSymbolDefPositions.get(symbol);
-            graphIndices.put(symbol, new NodeIdPair(defPosition.refId, globalVar));
-            List<DataflowAnalyzer.RefPosition> accessedSequence = globalVarSymbolRefPositions.get(symbol);
-
-            for (DataflowAnalyzer.RefPosition refPosition : accessedSequence) {
-                DataflowAnalyzer.DefPosition dependentDefPosition =
-                        globalVarSymbolDefPositions.get(refPosition.dependentSymbol);
-                graph.addEdge(dependentDefPosition.refId, defPosition.refId);
-            }
-        }
-        return pkgNode.globalVars.size();
-    }
-
-    private int getNodeCount() {
-        int functionCount = (int) pkgNode.topLevelNodes.stream().filter(n -> n.getKind() == NodeKind.FUNCTION).count();
-        return pkgNode.globalVars.size() + functionCount;
     }
 
     private boolean findCyclicDependencies(Map<Integer, List<Integer>> cycles, BLangPackage bLangPackage,

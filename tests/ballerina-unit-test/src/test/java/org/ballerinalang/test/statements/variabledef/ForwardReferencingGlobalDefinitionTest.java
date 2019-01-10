@@ -76,6 +76,12 @@ public class ForwardReferencingGlobalDefinitionTest {
         BValue[] employee2 = BRunUtil.invoke(resultReOrdered, "getfromFuncA");
         String employee2Name = ((BMap) employee2[0]).get("name").stringValue();
         Assert.assertEquals(employee2Name, "Sumedha");
+    }
+
+    @Test(description = "Test conservative global variable re-ordering")
+    @SuppressWarnings("unchecked")
+    public void doNotPerformUnwantedReOrderings() {
+        CompileResult resultReOrdered = BCompileUtil.compile("test-src/statements/variabledef/global-var-order.bal");
 
         BValue[] valI = BRunUtil.invoke(resultReOrdered, "getIJK");
         Assert.assertEquals(((BInteger) valI[0]).intValue(), 2);

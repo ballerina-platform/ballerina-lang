@@ -187,9 +187,11 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -212,17 +214,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
     private Map<BSymbol, InitStatus> uninitializedVars;
-    // Track the sequence of access to global variables to analyze reference patterns.
-    private Map<BSymbol, List<RefPosition>> globalVarSymbolRefPositions;
-    private Map<BSymbol, List<BSymbol>> funcDependsOnFunc;
-    private Map<BSymbol, List<BSymbol>> funcDependsOnGlobalVars; // func -> [global var list]
-    private Map<BSymbol, List<BSymbol>> funcToDependentGlobalVar;
-    private Map<BSymbol, DefPosition> globalVarSymbolDefPositions;
+    private Map<BSymbol, List<BSymbol>> globalNodeDependsOn;
+    private Set<BSymbol> globalVarSymbols;
     private boolean flowTerminated = false;
     private BLangAnonymousModelHelper anonymousModelHelper;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
-    private int globalVarRefCounter;
     private Deque<BSymbol> currDependentSymbol;
 
     private DataflowAnalyzer(CompilerContext context) {
@@ -251,12 +248,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      */
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.uninitializedVars = new HashMap<>();
-        this.globalVarSymbolRefPositions = new HashMap<>();
-        this.globalVarSymbolDefPositions = new HashMap<>();
-        this.funcDependsOnFunc = new HashMap<>();
-        this.funcDependsOnGlobalVars = new HashMap<>();
-        this.funcToDependentGlobalVar = new HashMap<>();
-        this.globalVarRefCounter = 0;
+        this.globalNodeDependsOn = new HashMap<>();
+        this.globalVarSymbols = new HashSet<>();
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
         return pkgNode;
@@ -275,7 +268,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 sortedListOfNodes.add(topLevelNode);
             }
         });
-        populateGlobalVarRefPositionMap(pkgNode.globalVars);
+        globalVarSymbols.addAll(pkgNode.globalVars.stream().map(v -> v.symbol).collect(Collectors.toSet()));
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         analyzeGlobalVariableReferencePatterns(pkgNode);
@@ -283,17 +276,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeGlobalVariableReferencePatterns(BLangPackage pkgNode) {
-        GlobalVariableRefAnalyzer globalVariableRefAnalyzer = new GlobalVariableRefAnalyzer(pkgNode,
-                globalVarSymbolDefPositions, globalVarSymbolRefPositions, funcDependsOnGlobalVars, funcDependsOnFunc,
-                funcToDependentGlobalVar, dlog);
+        GlobalVariableRefAnalyzer globalVariableRefAnalyzer = new GlobalVariableRefAnalyzer(pkgNode, dlog,
+                globalNodeDependsOn);
         globalVariableRefAnalyzer.analyzeAndReOrder();
-    }
-
-    private void populateGlobalVarRefPositionMap(List<BLangSimpleVariable> globalVars) {
-        for (TopLevelNode node : globalVars) {
-            BLangSimpleVariable globalVar = (BLangSimpleVariable) node;
-            globalVarSymbolRefPositions.put(globalVar.symbol, new ArrayList<>());
-        }
     }
 
     @Override
@@ -347,7 +332,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.currDependentSymbol.push(variable.symbol);
         }
         try {
-            observeGlobalVariableDefinition(variable.symbol, variable.pos);
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
                 this.uninitializedVars.remove(variable.symbol);
@@ -570,29 +554,44 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (owner.kind == SymbolKind.FUNCTION) {
             BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) owner;
             Name name = names.fromIdNode(invocationExpr.name);
-            // todo:
-            // we need to handle lambda functions, i.e. lambda function assigned into a variable (var a = getLambda();)
-            // where getLambda returns a lambda function that refers a global variable g1
-            // and then pass that into a another function f2
-            // now f2 has dependency on g1
-            // BSymbol dependsOnFunctionSym = symResolver.lookupSymbol(this.env, name, SymTag.VARIABLE); is lambda as a
-            // variable
+            // Todo: we need to handle function pointer referring global variable, passed into a function.
+            // i.e 'foo' is a function pointer pointing to a function referring a global variable G1, then we pass
+            // that pointer into 'bar', now 'bar' may have a dependency on G1.
 
             BSymbol dependsOnFunctionSym = symResolver.lookupSymbol(this.env, name, SymTag.FUNCTION);
             if (symTable.notFoundSymbol != dependsOnFunctionSym) {
-                //invokableOwnerSymbol.dependsOnFunc.add(dependsOnFunctionSym);
-                funcDependsOnFunc.computeIfAbsent(invokableOwnerSymbol, s -> new ArrayList<>())
-                        .add(dependsOnFunctionSym);
+                addDependency(invokableOwnerSymbol, dependsOnFunctionSym);
             }
         }
 
         if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
-            BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
+            BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) invocationExpr.symbol;
             BSymbol curDependent = this.currDependentSymbol.peek();
-            if (curDependent != null && globalVarSymbolDefPositions.containsKey(curDependent)) {
-                //invokableSymbol.dependents.add(curDependent);
-                funcToDependentGlobalVar.computeIfAbsent(invokableSymbol, s -> new ArrayList<>()).add(curDependent);
+            if (curDependent != null && isGlobalVar(curDependent)) {
+                addDependency(curDependent, invokableProviderSymbol);
             }
+        }
+    }
+
+    private boolean isGlobalVar(BSymbol symbol) {
+        return globalVarSymbols.contains(symbol);
+    }
+
+    /**
+     * Register dependent symbol to the provider symbol.
+     * Let global int a = b, a depend on b.
+     * Let func foo() { returns b + 1; }, where b is a global var, then foo depends on b.
+     *
+     * @param dependent dependent.
+     * @param provider object which provides a value.
+     */
+    private void addDependency(BSymbol dependent, BSymbol provider) {
+        if (dependent.pkgID != provider.pkgID) {
+            return;
+        }
+        List<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new ArrayList<>());
+        if (!providers.contains(provider)) {
+            providers.add(provider);
         }
     }
 
@@ -1178,23 +1177,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BSymbol ownerSymbol = this.env.scope.owner;
         boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
         // Restrict to observations made in pkg level.
-        if (isInPkgLevel && globalVarSymbolRefPositions.containsKey(symbol)) {
-            //symbol.dependents.add(this.currDependentSymbol.peek());
-            globalVarSymbolRefPositions.get(symbol).add(
-                    RefPosition.newRef(pos, this.currDependentSymbol.peek()));
-        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && globalVarSymbolRefPositions.containsKey(symbol)) {
-            // global variable ref from non package level
+        if (isInPkgLevel && isGlobalVar(symbol)) {
+            BSymbol dependent = this.currDependentSymbol.peek();
+            addDependency(dependent, symbol);
+        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && isGlobalVar(symbol)) {
+            // Global variable ref from non package level.
             BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) ownerSymbol;
-            //invokableOwnerSymbol.dependsOnFunc.add(symbol);
-            funcDependsOnGlobalVars.computeIfAbsent(invokableOwnerSymbol, s -> new ArrayList<>()).add(symbol);
-        }
-    }
-
-    private void observeGlobalVariableDefinition(BSymbol symbol, DiagnosticPos pos) {
-        if (globalVarSymbolRefPositions.containsKey(symbol)) {
-            // Use sequenceNo to find the order we observe this variable def.
-            int sequenceNo = globalVarRefCounter++;
-            globalVarSymbolDefPositions.put(symbol, DefPosition.newDef(sequenceNo, pos));
+            addDependency(invokableOwnerSymbol, symbol);
         }
     }
 
@@ -1249,40 +1238,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BranchResult(Map<BSymbol, InitStatus> uninitializedVars, boolean flowTerminated) {
             this.uninitializedVars = uninitializedVars;
             this.flowTerminated = flowTerminated;
-        }
-    }
-
-    /**
-     * Data holder for variable referenced position.
-     */
-    public static class RefPosition {
-        public final DiagnosticPos position;
-        public final BSymbol dependentSymbol;
-
-        private RefPosition(DiagnosticPos position, BSymbol dependentSymbol) {
-            this.position = position;
-            this.dependentSymbol = dependentSymbol;
-        }
-
-        static RefPosition newRef(DiagnosticPos position, BSymbol dependentSymbol) {
-            return new RefPosition(position, dependentSymbol);
-        }
-    }
-
-    /**
-     * Data holder for variable defined position.
-     */
-    public static class DefPosition {
-        public final int refId;
-        public final DiagnosticPos position;
-
-        private DefPosition(int refId, DiagnosticPos position) {
-            this.refId = refId;
-            this.position = position;
-        }
-
-        static DefPosition newDef(int sequenceNo, DiagnosticPos position) {
-            return new DefPosition(sequenceNo, position);
         }
     }
 }
