@@ -54,6 +54,7 @@ public class FormattingTest {
         Path inputFilePath = formattingDirectory.resolve(testFile);
 
         String expected = new String(Files.readAllBytes(expectedFilePath));
+        expected = expected.replaceAll("\\r\\n", "\n");
         DocumentFormattingParams documentFormattingParams = new DocumentFormattingParams();
 
         TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
@@ -72,6 +73,7 @@ public class FormattingTest {
         Gson gson = new Gson();
         ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
         String actual = (String) ((LinkedTreeMap) ((List) responseMessage.getResult()).get(0)).get("newText");
+        actual = actual.replaceAll("\\r\\n", "\n");
         TestUtil.closeDocument(this.serviceEndpoint, inputFilePath);
         Assert.assertEquals(actual, expected, "Did not match: " + expectedFile);
     }
