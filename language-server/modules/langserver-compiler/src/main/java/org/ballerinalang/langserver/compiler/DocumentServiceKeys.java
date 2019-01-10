@@ -18,8 +18,10 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -42,7 +44,7 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<SymbolTable> SYMBOL_TABLE_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<List<SymbolInformation>> SYMBOL_LIST_KEY
+    public static final LSContext.Key<List<Either<SymbolInformation, DocumentSymbol>>> SYMBOL_LIST_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<String> CURRENT_PACKAGE_NAME_KEY
             = new LSContext.Key<>();

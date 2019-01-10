@@ -64,7 +64,7 @@ public class DocumentSymbolTest {
         JsonArray result = jsonResponse.getAsJsonArray("result");
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         for (JsonElement element : result) {
-            element.getAsJsonObject().get("location").getAsJsonObject().remove("uri");
+            element.getAsJsonObject().get("left").getAsJsonObject().get("location").getAsJsonObject().remove("uri");
         }
 
         JsonArray expectedJsonArr = expected.getAsJsonArray("result");
