@@ -20,16 +20,23 @@ package org.ballerinalang.stdlib.multipart;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
+import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.MultipartUtils;
 import org.ballerinalang.stdlib.utils.Services;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
@@ -67,7 +74,7 @@ import static org.ballerinalang.stdlib.utils.MultipartUtils.createNestedPartRequ
 public class MultipartEncoderTest {
     private static final Logger log = LoggerFactory.getLogger(MultipartEncoderTest.class);
 
-    private CompileResult result, serviceResult;
+    private CompileResult result, serviceResult, channelResult;
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
@@ -77,6 +84,7 @@ public class MultipartEncoderTest {
         result = BCompileUtil.compile(sourceFilePath);
         String sourceFilePathForServices = "test-src/multipart/multipart-response.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePathForServices);
+        channelResult = BCompileUtil.compileAndSetup("test-src/multipart/bytechannel-base64.bal");
     }
 
     @Test(description = "Test whether the body parts get correctly encoded for multipart/mixed")
@@ -211,5 +219,21 @@ public class MultipartEncoderTest {
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
         }
+    }
+
+    @Test
+    public void testBase64EncodeByteChannel() {
+        String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
+        BMap<String, BValue> byteChannelStruct = MultipartUtils.getByteChannelStruct(channelResult);
+        InputStream inputStream = new ByteArrayInputStream("Hello Ballerina".getBytes());
+        Base64ByteChannel base64ByteChannel = new Base64ByteChannel(inputStream);
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
+        BValue[] args = new BValue[]{byteChannelStruct};
+        BValue[] returnValues = BRunUtil.invoke(channelResult, "testBase64EncodeByteChannel", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
+        Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
     }
 }

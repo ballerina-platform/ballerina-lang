@@ -4,7 +4,6 @@
   "expected": {
     "result": {
       "edit": {
-        "changes": {},
         "documentChanges": [
           {
             "edits": [

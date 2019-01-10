@@ -186,7 +186,7 @@ public type TimeWindow object {
                     self.expiredEventQueue.addLast(clonedEvent);
 
                     if (self.lastTimestamp < clonedEvent.timestamp) {
-                        self.scheduler.schedule(clonedEvent.timestamp);
+                        self.scheduler.notifyAt(clonedEvent.timestamp + self.timeInMillis);
                         self.lastTimestamp = clonedEvent.timestamp;
                     }
                 } else {
@@ -208,23 +208,6 @@ public type TimeWindow object {
                 nextProcessFuncPointer.call(events);
             }
         }
-    }
-
-    public function invokeProcess() returns error? {
-        map<anydata> data = {};
-        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
-        self.process(timerEventWrapper);
-        if (!self.timerQueue.isEmpty()) {
-            task:Timer timer = <task:Timer>self.timerQueue.getFirst();
-            _ = timer.stop();
-        }
-        return ();
-    }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
     }
 
     public function getCandidateEvents(
@@ -1090,16 +1073,18 @@ public type TimeLengthWindow object {
     public int count = 0;
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
-    public task:Timer? timer;
+    public Scheduler scheduler;
 
     public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
         self.length = 0;
-        self.timer = ();
         self.expiredEventChunk = new;
         self.initParameters(windowParameters);
+        self.scheduler = new(function (StreamEvent[] events) {
+                self.process(events);
+            });
     }
 
     public function initParameters(any[] parameters) {
@@ -1171,9 +1156,7 @@ public type TimeLengthWindow object {
                             self.expiredEventChunk.addLast(clonedEvent);
                         }
                     }
-                    self.timer = new
-                    task:Timer(function () returns error? {return self.invokeProcess();},
-                        function (error e) {self.handleError(e);}, self.timeInMilliSeconds);
+                    self.scheduler.notifyAt(clonedEvent.timestamp + self.timeInMilliSeconds);
                 } else {
                     streamEventChunk.removeCurrent();
                 }
@@ -1193,16 +1176,6 @@ public type TimeLengthWindow object {
                 nextProcessFuncPointer.call(events);
             }
         }
-    }
-
-    public function invokeProcess() returns error? {
-        map<anydata> data = {};
-        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
-        self.process(timerEventWrapper);
-        _ = self.timer.stop();
-        return ();
     }
 
     public function getCandidateEvents(
@@ -1230,11 +1203,6 @@ public type TimeLengthWindow object {
         }
         return events;
     }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
-    }
-
 };
 
 public function timeLength(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
