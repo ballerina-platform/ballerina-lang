@@ -482,11 +482,11 @@ function testAnonymousObjectEquivalency() returns (string, string, string) {
         s1 = "values: " + x.p + ", " + x.q + ", " + x.r;
     }
 
-    if(x is object {  public int p;  public string q;  public float r;  public boolean s;}) {
+    if(x is object {  public int p = 0;  public string q = "";  public float r = 0;  public boolean s = false;}) {
         s2 = "values: " + x.p + ", " + x.q + ", " + x.r + ", " + x.s;
     }
 
-    if(x is object { public int p;  public boolean q;  public float r;}) {  // shouldn't match
+    if(x is object { public int p = 0;  public boolean q = false;  public float r = 0.0;}) {  // shouldn't match
         s3 = "values: " + x.p + ", " + x.q + ", " + x.r;
     }
 

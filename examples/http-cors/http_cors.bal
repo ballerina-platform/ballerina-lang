@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-//Service-level CORS headers apply globally to each resource.
+//Service-level CORS headers apply globally to each `resource`.
 @http:ServiceConfig {
     cors: {
         allowOrigins: ["http://www.m3.com", "http://www.hello.com"],

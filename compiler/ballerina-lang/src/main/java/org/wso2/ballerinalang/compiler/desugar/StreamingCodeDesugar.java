@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -251,6 +252,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         }
 
         BLangSelectClause selectClause = (BLangSelectClause) queryStmt.getSelectClause();
+        resolveSelectExpressions(selectClause, queryStmt.getStreamingInput());
         selectClause.accept(this);
 
         BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) queryStmt.getJoiningInput();
@@ -270,6 +272,26 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         streamingInput.accept(this);
     }
 
+    private void resolveSelectExpressions(BLangSelectClause selectClause, StreamingInput streamingInput) {
+        if (selectClause.isSelectAll()) {
+            List<SelectExpressionNode> selectExprList = new ArrayList<>();
+            BLangSimpleVarRef input = (BLangSimpleVarRef) streamingInput.getStreamReference();
+            List<BField> inputStructFieldList = ((BRecordType) ((BStreamType) input.type).constraint).fields;
+            for (BField field : inputStructFieldList) {
+                BLangSelectExpression selectExpr = (BLangSelectExpression) TreeBuilder.createSelectExpressionNode();
+                BLangFieldBasedAccess expr = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+                expr.expr = ASTBuilderUtil.createVariableRef(selectClause.pos, input.symbol);
+                expr.symbol = field.symbol;
+                expr.type = field.symbol.type;
+                expr.pos = selectClause.pos;
+                expr.field = ASTBuilderUtil.createIdentifier(selectClause.pos, field.name.value);
+                selectExpr.setExpression(expr);
+                selectExprList.add(selectExpr);
+            }
+            selectClause.setSelectExpressions(selectExprList);
+        }
+    }
+
     private void resolveJoinProperties(ExpressionNode lhsStreamReference, ExpressionNode rhsStreamReference) {
         if (isTableReference(lhsStreamReference)) {
             lhsStream = (BLangVariableReference) rhsStreamReference;
@@ -287,6 +309,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             isTableJoin = false;
         }
     }
+
     private boolean isTableReference(ExpressionNode streamReference) {
         if (streamReference.getKind() == NodeKind.INVOCATION) {
             return ((BLangInvocation) streamReference).type.tsymbol.type == symTable.tableType;
@@ -685,7 +708,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<SelectExpressionNode> selectExpressions = selectClause.getSelectExpressions();
         for (SelectExpressionNode select : selectExpressions) {
             ExpressionNode selectExpr = select.getExpression();
-            if (selectExpr.getKind() == NodeKind.INVOCATION) {
+            if (selectExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) selectExpr).expr == null) {
                 BLangInvocation invocation = (BLangInvocation) selectExpr;
                 BInvokableSymbol aggregatorInvokableSymbol =
                         getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
@@ -1680,6 +1703,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                                                        BLangGroupBy groupBy) {
         // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
         BLangInvocation invocation = (BLangInvocation) selectExpr.getExpression();
+
+        // If the function is a library function
+        if (invocation.expr != null) {
+            invocation.expr = (BLangExpression) preSelectDesuagr.rewrite(invocation.expr,
+                    new BSymbol[]{createEventDataFieldAccessExpr(invocation.expr.pos, streamEventSymbol).symbol},
+                    streamAliasMap, rhsStream, outputEventType);
+            invocation.expr = desugar.addConversionExprIfRequired(invocation.expr, invocation.type);
+            return desugar.addConversionExprIfRequired(invocation, symTable.anydataType);
+        }
 
         BInvokableSymbol symbol = getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
         if (symbol != null) {

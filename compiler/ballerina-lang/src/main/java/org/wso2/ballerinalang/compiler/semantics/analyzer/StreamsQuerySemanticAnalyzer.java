@@ -124,6 +124,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     private BType expType;
     private DiagnosticCode diagCode;
     private boolean isSiddhiRuntimeEnabled;
+    private List<BField> outputStreamFieldList;
 
     private StreamsQuerySemanticAnalyzer(CompilerContext context) {
         context.put(SYMBOL_ANALYZER_KEY, this);
@@ -197,7 +198,8 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        defineSelectorAttributes(this.env, streamingQueryStatement);
+        //Keep output stream fields to be later declared in the env
+        retainOutputStreamFields(streamingQueryStatement.getStreamingAction());
 
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
@@ -478,16 +480,19 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             ((BLangGroupBy) groupByNode).accept(this);
         }
 
-        HavingNode havingNode = selectClause.getHaving();
-        if (havingNode != null) {
-            ((BLangHaving) havingNode).accept(this);
-        }
-
         List<? extends SelectExpressionNode> selectExpressionsList = selectClause.getSelectExpressions();
         if (selectExpressionsList != null) {
             for (SelectExpressionNode selectExpressionNode : selectExpressionsList) {
                 ((BLangSelectExpression) selectExpressionNode).accept(this);
             }
+        }
+
+        //Having requires output stream fields to be available in the env.
+        defineOutputStreamFields(this.env);
+
+        HavingNode havingNode = selectClause.getHaving();
+        if (havingNode != null) {
+            ((BLangHaving) havingNode).accept(this);
         }
     }
 
@@ -632,6 +637,13 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
                 BType variableType = resolveSelectFieldType(expressionNode);
                 selectClauseAttributeMap.put(variableName, variableType);
+            }
+        } else {
+            List<BField> inputStructFieldList = ((BRecordType) ((BStreamType) ((BLangSimpleVarRef) (
+                    ((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput())
+                    .getStreamReference()).type).constraint).fields;
+            for (BField field : inputStructFieldList) {
+                selectClauseAttributeMap.put(field.name.value, field.type);
             }
         }
 
@@ -850,24 +862,28 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void defineSelectorAttributes(SymbolEnv stmtEnv, StreamingQueryStatementNode node) {
-        if (node.getStreamingAction() == null) {
+    private void retainOutputStreamFields(StreamActionNode streamAction) {
+        if (streamAction == null) {
             return;
         }
-        BType streamActionArgumentType = ((BLangLambdaFunction) node.getStreamingAction()
+        BType streamActionArgumentType = ((BLangLambdaFunction) streamAction
                 .getInvokableBody()).function.requiredParams.get(0).type;
         if (streamActionArgumentType.tag != TypeTags.ARRAY) {
             return;
         }
         BType structType = (((BArrayType) streamActionArgumentType).eType);
         if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
-            List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
-            for (BField field : outputStreamFieldList) {
+            this.outputStreamFieldList = ((BStructureType) structType).fields;
+        }
+    }
+
+    private void defineOutputStreamFields(SymbolEnv stmtEnv) {
+        if (this.outputStreamFieldList != null) {
+            for (BField field : this.outputStreamFieldList) {
                 stmtEnv.scope.define(field.name, field.symbol);
             }
         }
     }
-
 
     private boolean checkInvocationExpr(BLangInvocation invocationExpr, BSymbol aggregatorTypeSymbol,
                                         BSymbol windowTypeSymbol, Name name) {
