@@ -130,7 +130,7 @@ function testXmlImmutability() {
 // Whether a behavioural value is mutable depends on its basic type: some of the behavioural basic types
 // allow mutation, and some do not. Mutation cannot change the basic type of a value.
 @test:Config {}
-function testBehaviouralbasicTypeMutation() {
+function testBehaviouralBasicTypeMutation() {
     // TODO
 }
 
