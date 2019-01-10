@@ -67,7 +67,7 @@ Darwin*) darwin=true
 		   if [ -z "$JAVA_VERSION" ] ; then
 			 JAVA_HOME=$(/usr/libexec/java_home)
            else
-             echo "Using Java version: $JAVA_VERSION"
+             >&2 echo "Using Java version: $JAVA_VERSION"
 			 JAVA_HOME=$(/usr/libexec/java_home -v $JAVA_VERSION)
 		   fi
 	    fi
@@ -125,13 +125,13 @@ if [ -z "$JAVACMD" ] ; then
 fi
 
 if [ ! -x "$JAVACMD" ] ; then
-  echo "Error: JAVA_HOME is not defined correctly."
+  >&2 echo "Error: JAVA_HOME is not defined correctly."
   exit 1
 fi
 
 # if JAVA_HOME is not set we're not happy
 if [ -z "$JAVA_HOME" ]; then
-  echo "You must set the JAVA_HOME variable before running Ballerina."
+  >&2 echo "You must set the JAVA_HOME variable before running Ballerina."
   exit 1
 fi
 
@@ -143,7 +143,7 @@ fi
 
 JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8."`
 if [ "$JDK_18" = "" ]; then
-    echo "Error: Ballerina is supported only on JDK 1.8"
+    >&2 echo "Error: Ballerina is supported only on JDK 1.8"
     exit 1
 fi
 

@@ -28,6 +28,7 @@ object Utils {
     arr.mkString(sep)
   }
 
+
   /**
     * Concatenate multiple arrays
     *
@@ -41,6 +42,55 @@ object Utils {
   def stringToList(str: String, sep: String = lineSeparator): util.List[String] = {
     import scala.collection.JavaConverters._
     str.split(sep).toIndexedSeq.asJava
+  }
+
+  def parseArgs(strArr: Array[String]): Array[String] = {
+    val mutableBuffer: scala.collection.mutable.Buffer[String] = scala.collection.mutable.Buffer()
+    var isSingleQuote = false
+    var isDoubleQuote = false
+    var wasEscaped = false
+    val curStr = StringBuilder.newBuilder
+    strArr.foreach(str => {
+      for (i <- Range(0, str.length)) {
+        str(i) match {
+          case '\'' =>
+            if (!wasEscaped) {
+              isSingleQuote = !isSingleQuote
+            }
+            wasEscaped = false
+            curStr.append('\'')
+          case '\"' =>
+            if (!wasEscaped) {
+              isDoubleQuote = !isDoubleQuote
+            }
+            wasEscaped = false
+            curStr.append('\"')
+          case ' ' =>
+            if (isSingleQuote || isDoubleQuote) {
+              curStr.append(" ")
+            } else {
+              mutableBuffer.append(curStr.toString())
+              curStr.clear()
+            }
+            wasEscaped = false
+          case '\\' =>
+            if (wasEscaped) {
+              wasEscaped = false
+            } else {
+              wasEscaped = true
+            }
+            curStr.append('\\')
+          case c =>
+            curStr.append(c)
+            wasEscaped = false
+        }
+      }
+      if (curStr.nonEmpty) {
+        mutableBuffer.append(curStr.toString())
+        curStr.clear()
+      }
+    })
+    mutableBuffer.toArray
   }
 
 
