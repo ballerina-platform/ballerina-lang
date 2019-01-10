@@ -27,6 +27,6 @@ scenarioConfigs:
 - testType: TESTNG
   remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
   remoteBranch: "ballerina-scenarios"
-  name: "ballerina-scenarios"
+  name: "ballerinaScenarios"
   description: "ballerina-scenarios"
   file: product-scenarios/test-http.sh

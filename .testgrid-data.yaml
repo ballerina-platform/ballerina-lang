@@ -27,7 +27,7 @@ scenarioConfigs:
 - testType: JMETER
   remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
   remoteBranch: "ballerina-scenarios"
-  name: "ballerina-scenarios"
+  name: "ballerinaScenarios"
   description: "ballerina-scenarios"
   file: product-scenarios/test-data.sh
 deploymentConfig:
