@@ -378,20 +378,6 @@ function stampComplexRecordToJSON() returns map<anydata>|error {
     return m;
 }
 
-function stampRecordToConstraintJSON() returns json<Student>|error {
-    Student student = { name: "John", status: "Single", batch: "LK2014", school: "Hindu College" };
-    json<Student>|error returnValue = json<Student>.stamp(student);
-
-    return returnValue;
-}
-
-function stampRecordToConstraintJSONV2() returns json<Person>|error {
-    Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    json<Person>|error mapValue = json<Person>.stamp(employee);
-
-    return mapValue;
-}
-
 //------------------------------- Optional field related scenarios ----------------------------------------------
 
 type TeacherWithOptionalField record {
@@ -439,11 +425,4 @@ function stampOpenRecordWithInvalidValues() returns Teacher|error {
     Teacher|error t = Teacher.stamp(e1);
 
     return t;
-}
-
-function stampRecordToConstraintJSONNegative() returns json<Person>|error {
-    Employee employee = { name: "John", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    json<Person>|error mapValue = json<Person>.stamp(employee);
-
-    return mapValue;
 }

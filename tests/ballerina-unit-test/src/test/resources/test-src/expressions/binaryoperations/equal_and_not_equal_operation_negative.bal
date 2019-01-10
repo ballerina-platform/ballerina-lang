@@ -79,7 +79,7 @@ function checkEqualityWithJsonForIncompatibleType() returns boolean {
 }
 
 function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
-    json<EmployeeWithOptionalId> a = { name: "Em" };
+    json a = { name: "Em" };
     map<boolean> b = {};
     boolean equals = a == b && !(b != a);
 

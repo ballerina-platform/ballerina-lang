@@ -59,18 +59,6 @@ function testConstrainedMapConstrainedWithConstrainedMap () returns ((string, st
     return (name_r, sname_r);
 }
 
-function testConstrainedMapConstrainedWithConstrainedJson () returns ((string, int)) {
-    map<json<Person>> testMap = {};
-    json<Person> jP = {};
-    jP.name = "Jack";
-    jP.age = 25;
-    testMap.item = jP;
-    json<Person> rJP = testMap.item;
-    string j_name = < string > rJP.name;
-    int j_age = < int > rJP.age;
-    return (j_name, j_age);
-}
-
 function testConstrainedMapConstrainedWithValueTypeArray () returns ((int, int)) {
     map<int[]> testMap = {};
     int[] intArr = [25, 30];
