@@ -112,8 +112,12 @@ public class BallerinaStreamsV2SelectorTest {
         BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
 
         Assert.assertEquals(employee0.get("upperCaseName").stringValue(), "RAJA");
+        Assert.assertEquals(((BInteger) employee0.get("absoluteAge")).intValue(), 25);
         Assert.assertEquals(employee1.get("upperCaseName").stringValue(), "MOHAN");
+        Assert.assertEquals(((BInteger) employee1.get("absoluteAge")).intValue(), 45);
         Assert.assertEquals(employee2.get("upperCaseName").stringValue(), "SHAREEK");
+        Assert.assertEquals(((BInteger) employee2.get("absoluteAge")).intValue(), 50);
+
     }
 
 }

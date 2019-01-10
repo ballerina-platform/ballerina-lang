@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/math;
 import ballerina/runtime;
 
 type Teacher record {
@@ -26,6 +27,7 @@ type Teacher record {
 
 type TeacherOutput record{
     string upperCaseName;
+    int absoluteAge;
 };
 
 int index = 0;
@@ -38,7 +40,7 @@ function startSelectQuery() returns (TeacherOutput[]) {
     Teacher[] teachers = [];
     Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Ananda College" };
     Teacher t2 = { name: "Mohan", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher t3 = { name: "Shareek", age: 50, status: "single", batch: "LK2014", school: "Zahira College" };
+    Teacher t3 = { name: "Shareek", age: -50, status: "single", batch: "LK2014", school: "Zahira College" };
     teachers[0] = t1;
     teachers[1] = t2;
     teachers[2] = t3;
@@ -65,7 +67,7 @@ function testSelectQuery() {
 
     forever {
         from inputStream
-        select inputStream.name.toUpper() as upperCaseName
+        select inputStream.name.toUpper() as upperCaseName, math:absInt(inputStream.age) as absoluteAge
         => (TeacherOutput[] teachers) {
             foreach var t in teachers {
                 outputStream.publish(t);
