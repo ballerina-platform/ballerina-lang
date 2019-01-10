@@ -708,7 +708,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<SelectExpressionNode> selectExpressions = selectClause.getSelectExpressions();
         for (SelectExpressionNode select : selectExpressions) {
             ExpressionNode selectExpr = select.getExpression();
-            if (selectExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation)selectExpr).expr == null) {
+            if (selectExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) selectExpr).expr == null) {
                 BLangInvocation invocation = (BLangInvocation) selectExpr;
                 BInvokableSymbol aggregatorInvokableSymbol =
                         getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
@@ -1705,7 +1705,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangInvocation invocation = (BLangInvocation) selectExpr.getExpression();
 
         // If the function is a library function
-        if(invocation.expr != null) {
+        if (invocation.expr != null) {
             invocation.expr = (BLangExpression) preSelectDesuagr.rewrite(invocation.expr,
                     new BSymbol[]{createEventDataFieldAccessExpr(invocation.expr.pos, streamEventSymbol).symbol},
                     streamAliasMap, rhsStream, outputEventType);
