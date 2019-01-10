@@ -534,4 +534,37 @@ public class MapStampInbuiltFunctionTest {
                             "incompatible stamp operation: 'map<string>' value cannot be stamped as " +
                                     "'EmployeeClosedRecord'");
     }
+
+    @Test(description = "Test stamping runtime value which has cyclic reference to its own value. This will be "
+            + "handled in isLikeType method")
+    public void testStampRecordToRecordWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToRecordWithCyclicValueReferences");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Person' value has cyclic value reference");
+    }
+
+    @Test(description = "Test stamping to map when value has cyclic reference. This will be handled when stamping "
+            + "the value.")
+    public void testStampRecordToMapWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToMapWithCyclicValueReferences");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Person' value has cyclic value reference");
+    }
+
+    @Test(description = "Test stamping to json when value has cyclic reference. This will be handled in isLikeType "
+            + "method")
+    public void testStampRecordToJsonWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToJsonWithCyclicValueReferences");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Person' value has cyclic value reference");
+    }
 }
