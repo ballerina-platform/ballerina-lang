@@ -100,6 +100,13 @@ trait LanguageServerWrapper {
   /**
     * Disconnects an editor from the LanguageServer
     *
+    * @param editor The editor
+    */
+  def disconnect(editor: Editor): Unit
+
+  /**
+    * Disconnects an editor from the LanguageServer
+    *
     * @param path The uri of the editor
     */
   def disconnect(path: String): Unit

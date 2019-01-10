@@ -75,7 +75,7 @@ public class CodeActionTest {
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         int numberOfCommands = expected.get("size").getAsInt();
         JsonObject documentThis = expected.getAsJsonObject("actions").getAsJsonObject("documentThis");
-        CodeActionContext codeActionContext = new CodeActionContext();
+        CodeActionContext codeActionContext = new CodeActionContext(new ArrayList<>());
         Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
 
         String response = TestUtil.getCodeActionResponse(this.serviceEndpoint, sourcePath.toString(), range,
@@ -84,12 +84,13 @@ public class CodeActionTest {
 
         Assert.assertEquals(numberOfCommands, result.size());
         result.forEach(element -> {
-            String title = element.getAsJsonObject().get("title").getAsString();
-            String command = element.getAsJsonObject().get("command").getAsString();
+            JsonObject left = element.getAsJsonObject().get("left").getAsJsonObject();
+            String title = left.get("title").getAsString();
+            String command = left.get("command").getAsString();
             switch (command) {
                 case CommandConstants.CMD_ADD_DOCUMENTATION:
                     Assert.assertEquals(title, "Document This");
-                    JsonArray args = element.getAsJsonObject().get("arguments").getAsJsonArray();
+                    JsonArray args = left.get("arguments").getAsJsonArray();
                     JsonArray documentThisArr = documentThis.getAsJsonArray("arguments");
                     Assert.assertTrue(TestUtil.isArgumentsSubArray(args, documentThisArr));
                     break;
@@ -130,10 +131,9 @@ public class CodeActionTest {
         boolean codeActionFound = false;
         JsonObject responseJson = this.getResponseJson(res);
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
-            if (jsonElement.getAsJsonObject().get("title").toString().equals(title)
-                    && jsonElement.getAsJsonObject().get("command").toString().equals(command)
-                    && TestUtil.isArgumentsSubArray(jsonElement.getAsJsonObject().get("arguments").getAsJsonArray(),
-                                                    args)) {
+            JsonObject leftItem = jsonElement.getAsJsonObject().get("left").getAsJsonObject();
+            if (leftItem.get("title").toString().equals(title) && leftItem.get("command").toString().equals(command)
+                    && TestUtil.isArgumentsSubArray(leftItem.get("arguments").getAsJsonArray(), args)) {
                 codeActionFound = true;
                 break;
             }

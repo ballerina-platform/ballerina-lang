@@ -369,13 +369,17 @@ public class CommandExecutionTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    private List argsToTreeMap(List<Object> args) {
-        return gson.fromJson(gson.toJsonTree(args).getAsJsonArray().toString(), List.class);
+    private List argsToJson(List<Object> args) {
+        List<JsonObject> jsonArgs = new ArrayList<>();
+        for (Object arg: args) {
+            jsonArgs.add((JsonObject) gson.toJsonTree(arg));
+        }
+        return jsonArgs;
     }
 
     private JsonObject getCommandResponse(List<Object> args, String command) {
-        List treeMapList = argsToTreeMap(args);
-        ExecuteCommandParams params  = new ExecuteCommandParams(command, treeMapList);
+        List argsList = argsToJson(args);
+        ExecuteCommandParams params  = new ExecuteCommandParams(command, argsList);
         String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint).replace("\\r\\n", "\\n");
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
         responseJson.remove("id");
