@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,7 +53,7 @@ public class BClosure implements BValue {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List unresolvedValues) {
 
     }
 

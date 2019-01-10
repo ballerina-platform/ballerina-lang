@@ -17,7 +17,10 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
+
+import java.util.List;
 
 /**
  * The {@code BRefType} represents a reference type value in Ballerina.
@@ -30,7 +33,7 @@ public interface BRefType<T> extends BValue {
     T value();
 
     @Override
-    default void stamp(BType type) {
+    default void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
     }
 }

@@ -80,7 +80,7 @@ public class BFunctionPointer implements BRefType<FunctionInfo> {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List unresolvedValues) {
 
     }
 

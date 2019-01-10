@@ -156,7 +156,7 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List unresolvedValues) {
 
     }
 
@@ -435,7 +435,7 @@ public class BTable implements BRefType<Object>, BCollection {
         }
 
         @Override
-        public void stamp(BType type) {
+        public void stamp(BType type, List unresolvedValues) {
 
         }
     }

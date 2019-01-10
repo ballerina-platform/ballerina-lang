@@ -25,6 +25,7 @@ import org.ballerinalang.bre.bvm.StrandCallback.CallbackStatus;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,7 +53,7 @@ public class BCallableFuture implements BFuture {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List unresolvedValues) {
 
     }
 

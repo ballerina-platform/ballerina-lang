@@ -20,6 +20,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
 
+import java.util.List;
+
 /**
  * Ballerina base value for the "future" type.
  */
@@ -48,7 +50,7 @@ public interface BFuture extends BRefType<Strand> {
     boolean isCancelled();
 
     @Override
-    default void stamp(BType type) {
+    default void stamp(BType type, List unresolvedValues) {
 
     }
 }

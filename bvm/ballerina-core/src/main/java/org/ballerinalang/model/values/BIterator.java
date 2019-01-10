@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,7 +57,7 @@ public interface BIterator extends BRefType {
     }
 
     @Override
-    default void stamp(BType type) {
+    default void stamp(BType type, List unresolvedValues) {
 
     }
 
