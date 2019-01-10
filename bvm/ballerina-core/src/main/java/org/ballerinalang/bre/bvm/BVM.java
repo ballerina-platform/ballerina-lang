@@ -873,7 +873,7 @@ public class BVM {
             return;
         }
 
-        if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
+        if (!checkIsLikeType(refRegVal, BTypes.typeAnydata, new ArrayList<>())) {
             sf.refRegs[j] =
                     BLangVMErrors.createError(ctx, BallerinaErrorReasons.CLONE_ERROR,
                                               BLangExceptionHelper.getErrorMessage(
@@ -1107,7 +1107,7 @@ public class BVM {
             targetType = stampType;
         }
 
-        if (!checkIsLikeType(valueToBeStamped, targetType)) {
+        if (!checkIsLikeType(valueToBeStamped, targetType, new ArrayList<>())) {
             BError error;
             if (valueToBeStamped != null) {
                 error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
@@ -1120,16 +1120,13 @@ public class BVM {
             sf.refRegs[k] = error;
             return;
         }
-
         try {
             if (valueToBeStamped != null) {
-                valueToBeStamped.stamp(targetType);
+                valueToBeStamped.stamp(targetType, new ArrayList<>());
             }
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
-            BError error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                            valueToBeStamped.getType(), targetType));
+            BError error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR, e.getDetail());
             sf.refRegs[k] = error;
         }
     }
@@ -2313,7 +2310,7 @@ public class BVM {
                 j = operands[1];
                 k = operands[2];
                 typeRefCPEntry = (TypeRefCPEntry) sf.constPool[j];
-                sf.intRegs[k] = checkIsLikeType(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
+                sf.intRegs[k] = checkIsLikeType(sf.refRegs[i], typeRefCPEntry.getType(), new ArrayList<>()) ? 1 : 0;
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -4767,37 +4764,37 @@ public class BVM {
             return value.getType();
         }
 
-        if (checkIsLikeType(value, BTypes.typeInt)) {
+        if (checkIsLikeType(value, BTypes.typeInt, new ArrayList<>())) {
             return BTypes.typeInt;
         }
 
-        if (checkIsLikeType(value, BTypes.typeFloat)) {
+        if (checkIsLikeType(value, BTypes.typeFloat, new ArrayList<>())) {
             return BTypes.typeFloat;
         }
 
-        if (checkIsLikeType(value, BTypes.typeString)) {
+        if (checkIsLikeType(value, BTypes.typeString, new ArrayList<>())) {
             return BTypes.typeString;
         }
 
-        if (checkIsLikeType(value, BTypes.typeBoolean)) {
+        if (checkIsLikeType(value, BTypes.typeBoolean, new ArrayList<>())) {
             return BTypes.typeBoolean;
         }
 
-        if (checkIsLikeType(value, BTypes.typeByte)) {
+        if (checkIsLikeType(value, BTypes.typeByte, new ArrayList<>())) {
             return BTypes.typeByte;
         }
 
         BType anydataArrayType = new BArrayType(type);
-        if (checkIsLikeType(value, anydataArrayType)) {
+        if (checkIsLikeType(value, anydataArrayType, new ArrayList<>())) {
             return anydataArrayType;
         }
 
-        if (checkIsLikeType(value, BTypes.typeXML)) {
+        if (checkIsLikeType(value, BTypes.typeXML, new ArrayList<>())) {
             return BTypes.typeXML;
         }
 
         BType anydataMapType = new BMapType(type);
-        if (checkIsLikeType(value, anydataMapType)) {
+        if (checkIsLikeType(value, anydataMapType, new ArrayList<>())) {
             return anydataMapType;
         }
 
@@ -4805,7 +4802,7 @@ public class BVM {
         return null;
     }
 
-    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -4813,34 +4810,35 @@ public class BVM {
 
         switch (targetType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
-                return checkIsLikeRecordType(sourceValue, (BRecordType) targetType);
+                return checkIsLikeRecordType(sourceValue, (BRecordType) targetType, unresolvedValues);
             case TypeTags.JSON_TAG:
-                return checkIsLikeJSONType(sourceValue, (BJSONType) targetType);
+                return checkIsLikeJSONType(sourceValue, (BJSONType) targetType, unresolvedValues);
             case TypeTags.MAP_TAG:
-                return checkIsLikeMapType(sourceValue, (BMapType) targetType);
+                return checkIsLikeMapType(sourceValue, (BMapType) targetType, unresolvedValues);
             case TypeTags.ARRAY_TAG:
-                return checkIsLikeArrayType(sourceValue, (BArrayType) targetType);
+                return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues);
             case TypeTags.TUPLE_TAG:
-                return checkIsLikeTupleType(sourceValue, (BTupleType) targetType);
+                return checkIsLikeTupleType(sourceValue, (BTupleType) targetType, unresolvedValues);
             case TypeTags.ANYDATA_TAG:
-                return checkIsLikeAnydataType(sourceValue, targetType);
+                return checkIsLikeAnydataType(sourceValue, targetType, unresolvedValues);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type, unresolvedValues));
             default:
                 return false;
         }
     }
 
-    private static boolean checkIsLikeAnydataType(BValue sourceValue, BType targetType) {
+    private static boolean checkIsLikeAnydataType(BValue sourceValue, BType targetType,
+                                                  List<TypeValuePair> unresolvedValues) {
         switch (sourceValue.getType().getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
                 return ((BMap) sourceValue).getMap().values().stream()
-                        .allMatch(value -> checkIsLikeType((BValue) value, targetType));
+                        .allMatch(value -> checkIsLikeType((BValue) value, targetType, unresolvedValues));
             case TypeTags.ARRAY_TAG:
                 BNewArray arr = (BNewArray) sourceValue;
                 switch (arr.getType().getTag()) {
@@ -4853,22 +4851,23 @@ public class BVM {
                         return true;
                     default:
                         return Arrays.stream(((BValueArray) sourceValue).getValues())
-                                .allMatch(value -> checkIsLikeType(value, targetType));
+                                .allMatch(value -> checkIsLikeType(value, targetType, unresolvedValues));
                 }
             case TypeTags.TUPLE_TAG:
                 return Arrays.stream(((BValueArray) sourceValue).getValues())
-                        .allMatch(value -> checkIsLikeType(value, targetType));
+                        .allMatch(value -> checkIsLikeType(value, targetType, unresolvedValues));
             case TypeTags.ANYDATA_TAG:
                 return true;
             case TypeTags.FINITE_TYPE_TAG:
             case TypeTags.UNION_TAG:
-                return checkIsLikeType(sourceValue, targetType);
+                return checkIsLikeType(sourceValue, targetType, unresolvedValues);
             default:
                 return false;
         }
     }
 
-    private static boolean checkIsLikeTupleType(BValue sourceValue, BTupleType targetType) {
+    private static boolean checkIsLikeTupleType(BValue sourceValue, BTupleType targetType,
+                                                List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
@@ -4890,14 +4889,15 @@ public class BVM {
 
         int bound = (int) source.size();
         for (int i = 0; i < bound; i++) {
-            if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i))) {
+            if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i), unresolvedValues)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {
+    private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType, 
+                                                List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
@@ -4910,28 +4910,37 @@ public class BVM {
         BType arrayElementType = targetType.getElementType();
         BRefType<?>[] arrayValues = source.getValues();
         for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
-            if (!checkIsLikeType(arrayValues[i], arrayElementType)) {
+            if (!checkIsLikeType(arrayValues[i], arrayElementType, unresolvedValues)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static boolean checkIsLikeMapType(BValue sourceValue, BMapType targetType) {
+    private static boolean checkIsLikeMapType(BValue sourceValue, BMapType targetType,
+                                              List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof BMap)) {
             return false;
         }
 
         for (Object mapEntry : ((BMap) sourceValue).values()) {
-            if (!checkIsLikeType((BValue) mapEntry, targetType.getConstrainedType())) {
+            if (!checkIsLikeType((BValue) mapEntry, targetType.getConstrainedType(), unresolvedValues)) {
                 return false;
             }
         }
         return true;
     }
 
+<<<<<<< 1fe089211845ab5baf720a3c793bb9105d53e875
     private static boolean checkIsLikeJSONType(BValue sourceValue, BJSONType targetType) {
         if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
+=======
+    private static boolean checkIsLikeJSONType(BValue sourceValue, BJSONType targetType,
+                                               List<TypeValuePair> unresolvedValues) {
+        if (targetType.getConstrainedType() != null) {
+            return checkIsLikeType(sourceValue, targetType.getConstrainedType(), unresolvedValues);
+        } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
+>>>>>>> Handle cyclic values with stamping in BVM
             BValueArray source = (BValueArray) sourceValue;
             if (BTypes.isValueType(source.elementType)) {
                 return checkIsType(source.elementType, targetType, new ArrayList<>());
@@ -4939,19 +4948,24 @@ public class BVM {
 
             BRefType<?>[] arrayValues = source.getValues();
             for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
-                if (!checkIsLikeType(arrayValues[i], targetType)) {
+                if (!checkIsLikeType(arrayValues[i], targetType, unresolvedValues)) {
                     return false;
                 }
             }
         } else if (sourceValue.getType().getTag() == TypeTags.MAP_TAG) {
             for (BValue value : ((BMap) sourceValue).values()) {
-                if (!checkIsLikeType(value, targetType)) {
+                if (!checkIsLikeType(value, targetType, unresolvedValues)) {
                     return false;
                 }
             }
         } else if (sourceValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+            TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+            if (unresolvedValues.contains(typeValuePair)) {
+                return true;
+            }
+            unresolvedValues.add(typeValuePair);
             for (Object object : ((BMap) sourceValue).getMap().values()) {
-                if (!checkIsLikeType((BValue) object, targetType)) {
+                if (!checkIsLikeType((BValue) object, targetType, unresolvedValues)) {
                     return false;
                 }
             }
@@ -4959,10 +4973,17 @@ public class BVM {
         return true;
     }
 
-    private static boolean checkIsLikeRecordType(BValue sourceValue, BRecordType targetType) {
+    private static boolean checkIsLikeRecordType(BValue sourceValue, BRecordType targetType,
+                                                 List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof BMap)) {
             return false;
         }
+
+        TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+        if (unresolvedValues.contains(typeValuePair)) {
+            return true;
+        }
+        unresolvedValues.add(typeValuePair);
 
         Map<String, BType> targetTypeField = new HashMap<>();
         BType restFieldType = targetType.restFieldType;
@@ -4985,12 +5006,13 @@ public class BVM {
             String fieldName = valueEntry.getKey().toString();
 
             if (targetTypeField.containsKey(fieldName)) {
-                if (!checkIsLikeType(((BValue) valueEntry.getValue()), targetTypeField.get(fieldName))) {
+                if (!checkIsLikeType(((BValue) valueEntry.getValue()), targetTypeField.get(fieldName),
+                                     unresolvedValues)) {
                     return false;
                 }
             } else {
                 if (!targetType.sealed) {
-                    if (!checkIsLikeType(((BValue) valueEntry.getValue()), restFieldType)) {
+                    if (!checkIsLikeType(((BValue) valueEntry.getValue()), restFieldType, unresolvedValues)) {
                         return false;
                     }
                 } else {
@@ -5007,7 +5029,7 @@ public class BVM {
             return checkIsType(sourceType, targetType, new ArrayList<>());
         }
 
-        return checkIsLikeType(sourceVal, targetType);
+        return checkIsLikeType(sourceVal, targetType, new ArrayList<>());
     }
 
     private static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
@@ -5497,6 +5519,31 @@ public class BVM {
 
             return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
                     valueList.containsAll(((ValuePair) otherPair).valueList);
+        }
+    }
+
+    /**
+     * Type vector of size two, to hold the source value and the target types.
+     *
+     * @since 0.991.0
+     */
+    public static class TypeValuePair {
+        BValue sourceValue;
+        BType targetType;
+
+        public TypeValuePair(BValue sourceValue, BType targetType) {
+            this.sourceValue = sourceValue;
+            this.targetType = targetType;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof TypeValuePair)) {
+                return false;
+            }
+
+            TypeValuePair other = (TypeValuePair) obj;
+            return this.sourceValue.equals(other.sourceValue) && this.targetType.equals(other.targetType);
         }
     }
 }
