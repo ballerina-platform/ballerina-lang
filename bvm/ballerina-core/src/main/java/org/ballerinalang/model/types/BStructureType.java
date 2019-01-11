@@ -43,6 +43,7 @@ public abstract class BStructureType extends BType {
      * @param pkgPath  package of the struct
      * @param flags of the structure type
      * @param valueClass of the structure type
+     * @param tag tag value of the type
      */
     protected BStructureType(String typeName, String pkgPath, int flags, Class<? extends BValue> valueClass, int tag) {
         super(typeName, pkgPath, valueClass, tag);
