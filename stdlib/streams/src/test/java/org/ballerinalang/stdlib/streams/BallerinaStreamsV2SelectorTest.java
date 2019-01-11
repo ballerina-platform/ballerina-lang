@@ -51,7 +51,6 @@ public class BallerinaStreamsV2SelectorTest {
                 "test-src/streamingv2-select-with-library-function-test.bal");
         resultWithObjectReferences = BCompileUtil.compile(
                 "test-src/streamingv2-select-with-object-reference-test.bal");
-
     }
 
     @Test(description = "Test streaming selector query")
@@ -125,7 +124,6 @@ public class BallerinaStreamsV2SelectorTest {
         Assert.assertEquals(((BBoolean) employee2.get("isString")).booleanValue(), true);
         Assert.assertEquals(employee2.get("companyName").stringValue(), "microsoft");
         Assert.assertEquals(employee2.get("concat").stringValue(), "Shareek 50");
-
     }
 
     @Test(description = "Test filter streaming query with library functions")
@@ -145,7 +143,6 @@ public class BallerinaStreamsV2SelectorTest {
         Assert.assertEquals(((BInteger) employee1.get("absoluteAge")).intValue(), 45);
         Assert.assertEquals(employee2.get("upperCaseName").stringValue(), "SHAREEK");
         Assert.assertEquals(((BInteger) employee2.get("absoluteAge")).intValue(), 50);
-
     }
 
     @Test(description = "Test filter streaming query with object references")
@@ -179,6 +176,5 @@ public class BallerinaStreamsV2SelectorTest {
         Assert.assertEquals(((BInteger) employee2.get("marksOfStudent")).intValue(), 45);
         long eventTime2  = ((BInteger) employee2.get("currTime")).intValue();
         Assert.assertEquals(lowerBound < eventTime2 && eventTime2 < upperBound, true);
-
     }
 }
