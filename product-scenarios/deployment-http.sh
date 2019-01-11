@@ -115,8 +115,47 @@ kubectl config view
 
 kubectl apply -f target/kubernetes/2
 
-lb_ingress_host='kubectl get svc circuit-breaker-frontend-service -o jsonpath='{.status.loadBalancer.ingress[*].hostname}''
+READY_REPLICAS=0
+START_TIME=$SECONDS
+TIMEOUT=300
+DURATION=0 #Just an initialization value
+while [ "$READY_REPLICAS" != 1 ] && [ $TIMEOUT -gt $DURATION ]
+do
+   READY_REPLICAS=$(kubectl get deployment circuit-breaker-frontend-service -o jsonpath='{.status.readyReplicas}')
+   echo $READY_REPLICAS
+   sleep 20s
+   DURATION=`expr $SECONDS - $START_TIME`
+   echo $DURATION
+done
 
-cat $OUTPUT_DIR/deployment.properties
+if [ "$READY_REPLICAS" != 1 ]; then
+	exit 1;
+fi
+
+INTERVAL=20
+bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
+
+READY_STATUS=$?
+
+echo "Ready Staus: ${READY_STATUS}"
+if [ ${READY_STATUS} -ne 0 ]; then
+    exit 1;
+fi
+echo "All pods ready!"
+
+# Temporary sleep to check whether app eventually becomes ready..
+# Ideally there should have been a kubernetes readiness probe
+# which would make sure the "Ready" status would actually mean
+# the pod is ready to accept requests (app is ready) so the above
+# readiness script would suffice
+sleep 120s
+
+kubectl get svc
+
+kubectl get pods
+
+kubectl get svc circuit-breaker-frontend-service -o=json
+
+lb_ingress_host=$(kubectl get svc circuit-breaker-frontend-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
 echo "LB_INGRESS_HOST=$lb_ingress_host" >> $OUTPUT_DIR/deployment.properties
