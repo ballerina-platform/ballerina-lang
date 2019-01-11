@@ -137,7 +137,7 @@ function testTupleShape() {
 function testTupleInherentTypeViolation() {
     (int, int) tuple = (1, 2);
     (any, any) tupleWithAnyTypedMembers = tuple;
-    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, "not an int"),
+    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, "not an int"),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
@@ -157,7 +157,7 @@ function testTupleInherentTypeViolation() {
         one: "test string 1",
         two: "test string 2"
     };
-    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, stringOrIntMap),
+    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, stringOrIntMap),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
@@ -165,7 +165,7 @@ function testTupleInherentTypeViolation() {
     utils:FooRecord a2 = { fooFieldOne: "valueTwo" };
     (utils:FooRecord, utils:FooRecord) tuple2 = (a1, a2);
     tupleWithAnyTypedMembers = tuple2;
-    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
+    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
@@ -185,7 +185,7 @@ function testTupleInherentTypeViolation() {
         one: { fooFieldOne: "valueOne" },
         two: { fooFieldOne: "valueTwo" }
     };
-    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, FooRecordOrBarRecordMap),
+    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, FooRecordOrBarRecordMap),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
@@ -193,7 +193,7 @@ function testTupleInherentTypeViolation() {
     utils:FooObject a4 = new("valueTwo");
     (utils:FooObject, utils:FooObject) tuple3 = (a3, a4);
     tupleWithAnyTypedMembers = tuple3;
-    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
+    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
 
@@ -216,11 +216,7 @@ function testTupleInherentTypeViolation() {
         one: f1,
         two: f2
     };
-    utils:assertErrorReason(trap insertElementToTuple(tupleWithAnyTypedMembers, FooObjectOrBarObjectMap),
+    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, FooObjectOrBarObjectMap),
         "{ballerina}InherentTypeViolation",
         "invalid reason on inherent type violating tuple insertion");
-}
-
-function insertElementToTuple((any, any) tuple, any element) {
-    tuple[0] = element;
 }

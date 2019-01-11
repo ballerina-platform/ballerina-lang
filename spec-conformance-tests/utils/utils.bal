@@ -30,12 +30,13 @@ public type BazRecord record {
 };
 
 public type BazRecordTwo record {
-    float bazFieldOne;
+    float|string bazFieldOne;
     string bazFieldTwo;
 };
 
 public type BazRecordThree record {
     string|float bazFieldOne;
+    BazRecord bazFieldTwo?;
 };
 
 public type FooObject object {
@@ -76,7 +77,7 @@ public type BazObject object {
     }
 };
 
-# Util method expected to be used with the result of a trapped expression. 
+# Util function expected to be used with the result of a trapped expression. 
 # Validates that `result` is of type `error` and that the error has the reason specified as `expectedReason`,
 # and fails with the `invalidReasonFailureMessage` string if the reasons mismatch.
 # 
@@ -88,5 +89,55 @@ public function assertErrorReason(any|error result, string expectedReason, strin
         test:assertEquals(result.reason(), expectedReason, msg = invalidReasonFailureMessage);
     } else {
         test:assertFail(msg = "expected expression to panic");
+    }
+}
+
+# Util function to add a member to an array at a specified index.
+# 
+# + array - the array to which the member should be added
+# + index - the index at which the member should be added
+# + member - the member to be added
+public function insertMemberToArray(any[] array, int index, any member) {
+    array[index] = member;
+}
+
+# Util function to add a member to a tuple at the 0th index.
+# 
+# + tuple - the tuple to which the member should be added
+# + member - the member to be added
+public function insertMemberToTuple((any, any) tuple, any member) {
+    tuple[0] = member;
+}
+
+# Util function to add a member to a map with a specified key.
+# 
+# + mapVal - the map to which the member should be added
+# + index - the key with which the member should be added
+# + member - the member to be added
+public function insertMemberToMap(map<any> mapVal, string index, any member) {
+    mapVal[index] = member;
+}
+
+# Util function to update a `FooRecord`'s `fooFieldOne` field.
+# 
+# + fooRecord - the `FooRecord` to update
+# + newFooFieldOne - the new value for `fooFieldOne`
+public function updateFooRecord(FooRecord fooRecord, any newFooFieldOne) {
+    if (newFooFieldOne is string) {
+        fooRecord.fooFieldOne = newFooFieldOne;
+    } else {
+        panic error("expected a `string` field for `fooFieldOne`");
+    }
+}
+
+# Util function to update a `BazRecordThree`'s `bazFieldTwo` field.
+# 
+# + bazRecordThree - the `BazRecordThree` to update
+# + newBazFieldTwo - the new value for `bazRecordTwo`
+public function updateBazRecordThree(BazRecordThree bazRecordThree, any newBazFieldTwo) {
+    if (newBazFieldTwo is BazRecord) {
+        bazRecordThree.bazFieldTwo = newBazFieldTwo;
+    } else {
+        panic error("expected a `BazRecord` field for `bazFieldTwo`");
     }
 }
