@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/io;
 
 http:Client stockqEP = new("http://localhost:9107");
 
@@ -22,7 +21,7 @@ service headerService on new http:Listener(9106) {
 
     resource function id(http:Caller caller, http:Request req) {
         http:Response clntResponse = new;
-        var clientResponse = stockqEP->forward("/sample/customers", untaint req);
+        var clientResponse = stockqEP->forward("/sample/customers", req);
         if (clientResponse is http:Response) {
             json payload = {};
             if (clientResponse.hasHeader("person")) {
@@ -71,7 +70,7 @@ service headerService on new http:Listener(9106) {
     }
 
     resource function entityForward(http:Caller caller, http:Request req) {
-        var result = stockqEP->forward("/sample/entitySizeChecker", untaint req);
+        var result = stockqEP->forward("/sample/entitySizeChecker", req);
         if (result is http:Response) {
             _ = caller->respond(result);
         } else if (result is error) {
@@ -90,6 +89,15 @@ service headerService on new http:Listener(9106) {
 
     resource function noEntityExecute(http:Caller caller, http:Request req) {
         var result = stockqEP->execute("GET", "/sample/entitySizeChecker", ());
+        if (result is http:Response) {
+            _ = caller->respond(result);
+        } else if (result is error) {
+            _ = caller->respond(result.reason());
+        }
+    }
+
+    resource function passthruGet(http:Caller caller, http:Request req) {
+        var result = stockqEP->get("/sample/entitySizeChecker", message = untaint req);
         if (result is http:Response) {
             _ = caller->respond(result);
         } else if (result is error) {

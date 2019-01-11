@@ -199,11 +199,11 @@ public extern function parseHeader (string headerValue) returns (string, map<any
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
     if (message is ()) {
-        request.nonEntityBody = true;
+        request.noEntityBody = true;
         return request;
     } else if (message is Request) {
         request = message;
-        request.nonEntityBody = !request.checkEntityBodyAvailability();
+        request.noEntityBody = !request.checkEntityBodyAvailability();
     } else if (message is string) {
         request.setTextPayload(message);
     } else if (message is xml) {

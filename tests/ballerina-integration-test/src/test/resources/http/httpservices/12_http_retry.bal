@@ -45,7 +45,7 @@ service retryDemoService on serviceEndpoint1 {
     // Parameters include a reference to the caller endpoint and an object of
     // the request data.
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
-        var backendResponse = backendClientEP->forward("/hello", untaint request);
+        var backendResponse = backendClientEP->forward("/hello", request);
         if (backendResponse is http:Response) {
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {

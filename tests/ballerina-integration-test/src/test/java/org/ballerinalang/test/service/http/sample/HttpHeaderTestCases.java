@@ -105,4 +105,12 @@ public class HttpHeaderTestCases extends HttpBaseTest {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "No Content size related header present");
     }
+
+    @Test(description = "Test converting Post payload to GET outbound call in passthrough")
+    public void testPassthruWithBody() throws IOException {
+        HttpResponse response = HttpClientRequest.doPost(
+                serverInstance.getServiceURLHttp(servicePort, "product/passthruGet"), "HelloWorld", new HashMap<>());
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Content-length header available");
+    }
 }

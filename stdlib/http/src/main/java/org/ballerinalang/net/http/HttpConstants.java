@@ -223,7 +223,7 @@ public class HttpConstants {
     public static final String REQUEST_EXTRA_PATH_INFO_FIELD = "extraPathInfo";
     public static final String REQUEST_CACHE_CONTROL_FIELD = "cacheControl";
     public static final String REQUEST_REUSE_STATUS_FIELD = "dirtyRequest";
-    public static final String REQUEST_NON_ENTITY_BODY_FIELD = "nonEntityBody";
+    public static final String REQUEST_NO_ENTITY_BODY_FIELD = "noEntityBody";
 
     //Response struct field names
     public static final String RESPONSE_STATUS_CODE_FIELD = "statusCode";
@@ -398,7 +398,7 @@ public class HttpConstants {
 
     public static final int REQUEST_STRUCT_INDEX = 1;
     public static final boolean DIRTY_REQUEST = true;
-    public static final String NON_ENTITY_BODY_REQUEST = "NON_ENTITY_BODY_REQUEST";
+    public static final String NO_ENTITY_BODY = "NO_ENTITY_BODY";
 
     public static final String MOCK_LISTENER_ENDPOINT = "MockListener";
     public static final String HTTP_LISTENER_ENDPOINT = "Listener";

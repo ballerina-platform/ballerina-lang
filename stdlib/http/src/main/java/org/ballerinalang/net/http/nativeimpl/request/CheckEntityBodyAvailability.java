@@ -26,10 +26,13 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
+import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAvailability;
 
 /**
  * Check whether the entity body is present. Entity body can either be a byte channel, fully constructed
@@ -51,6 +54,15 @@ public class CheckEntityBodyAvailability extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> requestStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
         BMap<String, BValue> entity = (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD);
-        context.setReturnValues(new BBoolean(checkEntityBodyAvailability(entity)));
+        context.setReturnValues(
+                new BBoolean(lengthHeaderCheck(requestStruct) || checkEntityBodyAvailability(entity)));
+    }
+
+    private boolean lengthHeaderCheck(BMap<String, BValue> requestStruct) {
+        Object outboundMsg = requestStruct.getNativeData(TRANSPORT_MESSAGE);
+        if (outboundMsg == null) {
+            return false;
+        }
+        return checkRequestBodySizeHeadersAvailability((HttpCarbonMessage) outboundMsg);
     }
 }

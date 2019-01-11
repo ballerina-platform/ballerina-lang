@@ -111,11 +111,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         HttpCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        Boolean nonEntityBodyReq = isNonEntityBodyRequest(requestStruct);
-
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
-        prepareOutboundRequest(context, path, requestMsg, nonEntityBodyReq);
+        prepareOutboundRequest(context, path, requestMsg, isNoEntityBodyRequest(requestStruct));
         handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(bConnector));
         return requestMsg;
     }
@@ -185,7 +183,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         outboundRequest.setProperty(HttpConstants.TO, outboundReqPath);
 
         outboundRequest.setProperty(HttpConstants.PROTOCOL, url.getProtocol());
-        outboundRequest.setProperty(HttpConstants.NON_ENTITY_BODY_REQUEST, nonEntityBodyReq);
+        outboundRequest.setProperty(HttpConstants.NO_ENTITY_BODY, nonEntityBodyReq);
     }
 
     private void setHostHeader(String host, int port, HttpHeaders headers) {
@@ -291,9 +289,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
-    static boolean isNonEntityBodyRequest(BMap<String, BValue> requestStruct) {
-        BValue nonEntityBodyReq = requestStruct.get(HttpConstants.REQUEST_NON_ENTITY_BODY_FIELD);
-        return ((BBoolean) nonEntityBodyReq).booleanValue();
+    static boolean isNoEntityBodyRequest(BMap<String, BValue> requestStruct) {
+        BValue noEntityBodyReq = requestStruct.get(HttpConstants.REQUEST_NO_ENTITY_BODY_FIELD);
+        return ((BBoolean) noEntityBodyReq).booleanValue();
     }
 
     private boolean dirty(BMap<String, BValue> requestStruct) {

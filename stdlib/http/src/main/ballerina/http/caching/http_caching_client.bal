@@ -251,7 +251,7 @@ remote function HttpCachingClient.post(string path, RequestMessage message) retu
 remote function HttpCachingClient.head(string path, RequestMessage message = ()) returns Response|error {
     Request req = <Request>message;
     setRequestCacheControlHeader(req);
-    return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared);
+    return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared, false);
 }
 
 remote function HttpCachingClient.put(string path, RequestMessage message) returns Response|error {
@@ -270,7 +270,8 @@ remote function HttpCachingClient.execute(string httpMethod, string path, Reques
     setRequestCacheControlHeader(request);
 
     if (httpMethod == GET || httpMethod == HEAD) {
-        return getCachedResponse(self.cache, self.httpClient, request, httpMethod, path, self.cacheConfig.isShared);
+        return getCachedResponse(self.cache, self.httpClient, request, httpMethod, path,
+                                 self.cacheConfig.isShared, false);
     }
 
     var inboundResponse = self.httpClient->execute(httpMethod, path, request);
@@ -305,7 +306,7 @@ remote function HttpCachingClient.delete(string path, RequestMessage message) re
 remote function HttpCachingClient.get(string path, RequestMessage message = ()) returns Response|error {
     Request req = <Request>message;
     setRequestCacheControlHeader(req);
-    return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
+    return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);
 }
 
 remote function HttpCachingClient.options(string path, RequestMessage message = ()) returns Response|error {
@@ -321,7 +322,8 @@ remote function HttpCachingClient.options(string path, RequestMessage message = 
 
 remote function HttpCachingClient.forward(string path, Request request) returns Response|error {
     if (request.method == GET || request.method == HEAD) {
-        return getCachedResponse(self.cache, self.httpClient, request, request.method, path, self.cacheConfig.isShared);
+        return getCachedResponse(self.cache, self.httpClient, request, request.method, path,
+                                 self.cacheConfig.isShared, true);
     }
 
     var inboundResponse = self.httpClient->forward(path, request);
@@ -356,7 +358,7 @@ remote function HttpCachingClient.rejectPromise(PushPromise promise) {
 }
 
 function getCachedResponse(HttpCache cache, Client httpClient, Request req, string httpMethod, string path,
-                           boolean isShared) returns Response|error {
+                           boolean isShared, boolean forwardRequest) returns Response|error {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
 
@@ -416,7 +418,7 @@ function getCachedResponse(HttpCache cache, Client httpClient, Request req, stri
     log:printDebug(function() returns string {
         return "Sending new request to: " + path;
     });
-    var response = sendNewRequest(httpClient, req, path, httpMethod);
+    var response = sendNewRequest(httpClient, req, path, httpMethod, forwardRequest);
     if (response is Response) {
         if (cache.isAllowedToCache(response)) {
             response.requestTime = currentT.time;
@@ -630,8 +632,11 @@ function sendValidationRequest(Client httpClient, string path, Response cachedRe
     return httpClient->get(path, message = validationRequest);
 }
 
-function sendNewRequest(Client httpClient, Request request, string path, string httpMethod)
+function sendNewRequest(Client httpClient, Request request, string path, string httpMethod, boolean forwardRequest)
                                                                                 returns Response|error {
+    if (forwardRequest) {
+        return httpClient->forward(path, request);
+    }
     if (httpMethod == GET) {
         return httpClient->get(path, message = request);
     } else if (httpMethod == HEAD) {
