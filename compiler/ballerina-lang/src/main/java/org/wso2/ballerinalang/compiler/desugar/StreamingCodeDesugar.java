@@ -708,7 +708,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<SelectExpressionNode> selectExpressions = selectClause.getSelectExpressions();
         for (SelectExpressionNode select : selectExpressions) {
             ExpressionNode selectExpr = select.getExpression();
-            if (selectExpr.getKind() == NodeKind.INVOCATION) {
+            if (selectExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) selectExpr).expr == null) {
                 BLangInvocation invocation = (BLangInvocation) selectExpr;
                 BInvokableSymbol aggregatorInvokableSymbol =
                         getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
@@ -1703,6 +1703,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                                                        BLangGroupBy groupBy) {
         // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
         BLangInvocation invocation = (BLangInvocation) selectExpr.getExpression();
+
+        // If the function is a library function
+        if (invocation.expr != null) {
+            invocation.expr = (BLangExpression) preSelectDesuagr.rewrite(invocation.expr,
+                    new BSymbol[]{createEventDataFieldAccessExpr(invocation.expr.pos, streamEventSymbol).symbol},
+                    streamAliasMap, rhsStream, outputEventType);
+            invocation.expr = desugar.addConversionExprIfRequired(invocation.expr, invocation.type);
+            return desugar.addConversionExprIfRequired(invocation, symTable.anydataType);
+        }
 
         BInvokableSymbol symbol = getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
         if (symbol != null) {

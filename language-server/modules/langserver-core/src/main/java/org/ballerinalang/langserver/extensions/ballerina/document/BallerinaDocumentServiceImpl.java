@@ -52,6 +52,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -189,11 +190,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
                 // create text edit
                 TextEdit textEdit = new TextEdit(range, textEditContent);
-                WorkspaceEdit workspaceEdit = new WorkspaceEdit();
                 ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
                 TextDocumentEdit textDocumentEdit = new TextDocumentEdit(params.getDocumentIdentifier(),
                         Collections.singletonList(textEdit));
-                workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+                WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections
+                        .singletonList(Either.forLeft(textDocumentEdit)));
                 applyWorkspaceEditParams.setEdit(workspaceEdit);
 
                 ballerinaLanguageServer.getClient().applyEdit(applyWorkspaceEditParams);
@@ -297,11 +298,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             // create text edit
             TextEdit textEdit = new TextEdit(range, textEditContent);
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
             ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
-            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
+            TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
                     Collections.singletonList(textEdit));
-            workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+
+            WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
             applyWorkspaceEditParams.setEdit(workspaceEdit);
 
             // update the document
