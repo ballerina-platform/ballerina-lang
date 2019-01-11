@@ -1124,7 +1124,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangWindow windowClauseNode = (BLangWindow) streamingInput.getWindowClause();
         if (windowClauseNode != null) {
             windowClauseNode.accept(this);
-        } else if (isJoin && !isTableJoin) {
+        } else if (isJoin && !isTableReference(streamingInput.getStreamReference())) {
             windowClauseNode = createDefaultLengthWindow(streamingInput);
             streamingInput.setWindowClause(windowClauseNode);
             windowClauseNode.accept(this);
