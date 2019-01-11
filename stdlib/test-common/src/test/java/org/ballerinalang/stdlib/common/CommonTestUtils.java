@@ -18,9 +18,6 @@
 
 package org.ballerinalang.stdlib.common;
 
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;

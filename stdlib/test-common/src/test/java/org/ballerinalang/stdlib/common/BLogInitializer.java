@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.file;
+package org.ballerinalang.stdlib.common;
 
 import org.ballerinalang.logging.BLogManager;
 import org.slf4j.Logger;
