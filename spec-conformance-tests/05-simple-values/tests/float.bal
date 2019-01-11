@@ -52,7 +52,7 @@ function floatValueDataProvider() returns (float[][]) {
         [100e+12, 100E+12, 100e12, 100E12],
         [100e-2, 100E-2, 1000e-3, 10E-1],
         [0e2, 0E2, 0e-2, 0e-2],
-        [0.0, .0, 0.0, 0.00], // TODO: Calrify if 0. is valid
+        [0.0, .0, 0.0, 0.00],
         [22.2, 22.2e0, 22.2E0, 2.22E1],
         [.0e+12, .00E+12, 0.0e12, 0.00E12],
         [1.0e-12, 1.00E-12, 1.0e-12, 1.00E-12],
@@ -63,7 +63,7 @@ function floatValueDataProvider() returns (float[][]) {
         [0X500p-1, 0X500P-1, 0X500p-1, 0X500P-1],
         [0x500p-1, 0x500P-1, 0x500p-1, 0x500P-1],
         [0xaap+12, 0xAAP+12, 0xaAp12, 0xAaP12],
-        [0x0.a, 0x.a, 0x0.A, 0x0.A0], // TODO: Calrify if 0. is valid
+        [0x0.a, 0x.a, 0x0.A, 0x0.A0],
         [0X22.F, 0X22.F, 0X22.f, 0X22.f0],
         [0x0.ap0, 0x.ap0, 0x0.Ap0, 0x0.A0p0],
         [0X22.FP0, 0X22.FP0, 0X22.fP0, 0X22.f0P0]
@@ -76,7 +76,7 @@ function decimalValueDataProvider() returns (decimal[][]) {
         [<decimal>100e+12, <decimal>100E+12, <decimal>100e12, <decimal>100E12],
         [<decimal>100e-2, <decimal>100E-2, <decimal>1000e-3, <decimal>10E-1],
         [<decimal>0e2, <decimal>0E2, <decimal>0e-2, <decimal>0e-2],
-        [<decimal>0.0, <decimal>.0, <decimal>0.0, <decimal>0.00], // TODO: Calrify if 0. is valid
+        [<decimal>0.0, <decimal>.0, <decimal>0.0, <decimal>0.00],
         [<decimal>22.2, <decimal>22.2e0, <decimal>22.2E0, <decimal>2.22E1],
         [<decimal>.0e+12, <decimal>.00E+12, <decimal>0.0e12, <decimal>0.00E12],
         [<decimal>1.0e-12, <decimal>1.00E-12, <decimal>1.0e-12, <decimal>1.00E-12],
@@ -87,7 +87,7 @@ function decimalValueDataProvider() returns (decimal[][]) {
         [<decimal>0X500p-1, <decimal>0X500P-1, <decimal>0X500p-1, <decimal>0X500P-1],
         [<decimal>0x500p-1, <decimal>0x500P-1, <decimal>0x500p-1, <decimal>0x500P-1],
         [<decimal>0xaap+12, <decimal>0xAAP+12, <decimal>0xaAp12, <decimal>0xAaP12],
-        [<decimal>0x0.a, <decimal>0x.a, <decimal>0x0.A, <decimal>0x0.A0], // TODO: Calrify if 0. is valid
+        [<decimal>0x0.a, <decimal>0x.a, <decimal>0x0.A, <decimal>0x0.A0],
         [<decimal>0X22.F, <decimal>0X22.F, <decimal>0X22.f, <decimal>0X22.f0],
         [<decimal>0x0.ap0, <decimal>0x.ap0, <decimal>0x0.Ap0, <decimal>0x0.A0p0],
         [<decimal>0X22.FP0, <decimal>0X22.FP0, <decimal>0X22.fP0, <decimal>0X22.f0P0]
