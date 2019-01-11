@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -163,6 +164,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String SET_JOIN_PROPERTIES_METHOD_NAME = "setJoinProperties";
     private static final String SET_RHS_METHOD_NAME = "setRHS";
     private static final String SET_LHS_METHOD_NAME = "setLHS";
+    private static final String LENGTH_WINDOW_METHOD_NAME = "length";
     private static final String EVENT_DATA_VARIABLE_NAME = "data";
     private static final String EVENT_TYPE_VARIABLE_NAME = "eventType";
     private static final String BUILD_STREAM_EVENT_METHOD_NAME = "buildStreamEvent";
@@ -195,6 +197,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BType outputEventType;
     private Stack<BVarSymbol> nextProcessVarSymbolStack = new Stack<>();
     private Stack<BVarSymbol> joinProcessorStack = new Stack<>();
+    private boolean isJoin = false;
     private boolean isInJoin = false;
     private boolean isTableJoin = false;
     // Contains the StreamEvent.data variable args in conditional lambda functions like where and join on condition
@@ -257,6 +260,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) queryStmt.getJoiningInput();
         if (joinStreamingInput != null) {
+            isJoin = true;
             isInJoin = true;
             BLangStreamingInput streamingInput = (BLangStreamingInput) joinStreamingInput.getStreamingInput();
             createStreamAliasMap(streamingInput);
@@ -1120,6 +1124,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangWindow windowClauseNode = (BLangWindow) streamingInput.getWindowClause();
         if (windowClauseNode != null) {
             windowClauseNode.accept(this);
+        } else if (isJoin && !isTableReference(streamingInput.getStreamReference())) {
+            windowClauseNode = createDefaultLengthWindow(streamingInput);
+            streamingInput.setWindowClause(windowClauseNode);
+            windowClauseNode.accept(this);
         }
 
         BLangWhere beforeWhereNode = (BLangWhere) streamingInput.getBeforeStreamingCondition();
@@ -1236,6 +1244,27 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             //Add stream subscriber function to stmts
             stmts.add(inputStreamSubscribeStatement);
         }
+    }
+
+    private BLangWindow createDefaultLengthWindow(BLangStreamingInput streamingInput) {
+        List<BLangExpression> args = new ArrayList<>();
+        args.add(ASTBuilderUtil.createLiteral(streamingInput.pos, symTable.intType, 1L));
+
+        BLangIdentifier lengthIdentifier = ASTBuilderUtil.createIdentifier(streamingInput.pos,
+                LENGTH_WINDOW_METHOD_NAME);
+        BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(streamingInput.pos, Names
+                .STREAMS_MODULE.value);
+        BLangInvocation lengthInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        lengthInvocation.pos = streamingInput.pos;
+        lengthInvocation.name = lengthIdentifier;
+        lengthInvocation.builtinMethodInvocation = false;
+        lengthInvocation.argExprs = args;
+        lengthInvocation.pkgAlias = pkgAlias;
+
+        BLangWindow window = (BLangWindow) TreeBuilder.createWindowClauseNode();
+        window.pos = streamingInput.pos;
+        window.setFunctionInvocation(lengthInvocation);
+        return window;
     }
 
     /*
