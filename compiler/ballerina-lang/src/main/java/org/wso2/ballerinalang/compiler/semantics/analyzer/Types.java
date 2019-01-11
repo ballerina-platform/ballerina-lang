@@ -313,7 +313,6 @@ public class Types {
     }
 
     private boolean checkTypeEquivalencyForStamping(BType source, BType target) {
-
         if (target.tag == TypeTags.RECORD) {
             if (source.tag == TypeTags.RECORD) {
                 TypePair pair = new TypePair(source, target);
@@ -897,38 +896,6 @@ public class Types {
         return getElementType(((BArrayType) type).getElementType());
     }
 
-    /**
-     * Check whether a given struct can be used to constraint a JSON.
-     *
-     * @param type struct type
-     * @return flag indicating possibility of constraining
-     */
-    public boolean checkStructToJSONCompatibility(BType type) {
-        return checkStructToJSONCompatibility(type, new ArrayList<>());
-    }
-
-    private boolean checkStructToJSONCompatibility(BType type, List<TypePair> unresolvedTypes) {
-        if (type.tag != TypeTags.OBJECT && type.tag != TypeTags.RECORD) {
-            return false;
-        }
-
-        List<BField> fields = ((BStructureType) type).fields;
-        for (int i = 0; i < fields.size(); i++) {
-            BType fieldType = fields.get(i).type;
-            if (checkStructFieldToJSONCompatibility(type, fieldType, unresolvedTypes)) {
-                continue;
-            } else {
-                return false;
-            }
-        }
-
-        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
-            return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType, unresolvedTypes);
-        }
-
-        return true;
-    }
-
     public boolean checkListenerCompatibility(SymbolEnv env, BType type) {
         if (type.tag != TypeTags.OBJECT) {
             return false;
@@ -1047,80 +1014,8 @@ public class Types {
         return symTable.notFoundSymbol;
     }
 
-    private boolean checkStructFieldToJSONCompatibility(BType structType, BType fieldType,
-                                                        List<TypePair> unresolvedTypes) {
-        // If the struct field type is the struct
-        if (structType == fieldType) {
-            return true;
-        }
-
-        if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
-            return checkStructToJSONCompatibility(fieldType, unresolvedTypes);
-        }
-
-        if (isAssignable(fieldType, symTable.jsonType, unresolvedTypes)) {
-            return true;
-        }
-
-        if (fieldType.tag == TypeTags.ARRAY) {
-            return checkStructFieldToJSONCompatibility(structType, getElementType(fieldType), unresolvedTypes);
-        }
-
-        return false;
-    }
-
-    /**
-     * Check whether a given struct can be converted into a JSON.
-     *
-     * @param type struct type
-     * @return flag indicating possibility of conversion
-     */
-    private boolean checkStructToJSONConvertibility(BType type, List<TypePair> unresolvedTypes) {
-        if (type.tag != TypeTags.OBJECT && type.tag != TypeTags.RECORD) {
-            return false;
-        }
-
-        List<BField> fields = ((BStructureType) type).fields;
-        for (int i = 0; i < fields.size(); i++) {
-            BType fieldType = fields.get(i).type;
-            if (checkStructFieldToJSONConvertibility(type, fieldType, unresolvedTypes)) {
-                continue;
-            } else {
-                return false;
-            }
-        }
-
-        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
-            return checkStructFieldToJSONConvertibility(type, ((BRecordType) type).restFieldType, unresolvedTypes);
-        }
-
-        return true;
-    }
-
     private boolean isNullable(BType fieldType) {
         return fieldType.isNullable();
-    }
-
-    private boolean checkStructFieldToJSONConvertibility(BType structType, BType fieldType,
-                                                         List<TypePair> unresolvedTypes) {
-        // If the struct field type is the struct
-        if (structType == fieldType) {
-            return true;
-        }
-
-        if (fieldType.tag == TypeTags.MAP || fieldType.tag == TypeTags.ANY) {
-            return true;
-        }
-
-        if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
-            return checkStructToJSONConvertibility(fieldType, unresolvedTypes);
-        }
-
-        if (fieldType.tag == TypeTags.ARRAY) {
-            return checkStructFieldToJSONConvertibility(structType, getElementType(fieldType), unresolvedTypes);
-        }
-
-        return isAssignable(fieldType, symTable.jsonType, unresolvedTypes);
     }
 
     private boolean checkUnionTypeToJSONConvertibility(BUnionType type, BJSONType target) {
@@ -1211,7 +1106,6 @@ public class Types {
 
         @Override
         public BSymbol visit(BJSONType t, BType s) {
-            // Handle constrained JSON
             if (isSameType(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             } else if (s.tag == TypeTags.OBJECT) {

@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -2321,12 +2320,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType);
                 break;
             case TypeTags.JSON:
-                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType);
-
-                // If the field is again a struct, treat that literal expression as another constraint JSON.
-                if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
-                    fieldType = new BJSONType(TypeTags.JSON, symTable.jsonType.tsymbol);
-                }
+                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key);
 
                 // First visit the expression having field type, as the expected type.
                 checkExpr(valueExpr, this.env, fieldType);
@@ -2377,7 +2371,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return fieldSymbol.type;
     }
 
-    private BType checkJSONLiteralKeyExpr(BLangRecordKey key, BType recordType) {
+    private BType checkJSONLiteralKeyExpr(BLangRecordKey key) {
         if (checkRecLiteralKeyExpr(key.expr).tag != TypeTags.STRING) {
             return symTable.semanticError;
         }
@@ -2691,7 +2685,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.JSON:
-                // TODO: 11/30/18 FIX ME!!! https://github.com/ballerina-platform/ballerina-lang/issues/9386
                 actualType = symTable.jsonType;
                 break;
             case TypeTags.XML:

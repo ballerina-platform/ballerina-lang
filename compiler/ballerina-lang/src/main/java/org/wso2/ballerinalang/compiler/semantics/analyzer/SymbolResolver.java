@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -984,13 +983,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return;
             }
             resultType = new BChannelType(TypeTags.CHANNEL, constraintType, type.tsymbol);
-        } else {
-            if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.semanticError) {
-                dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
-                resultType = symTable.semanticError;
-                return;
-            }
-            resultType = new BJSONType(TypeTags.JSON, type.tsymbol);
         }
     }
 

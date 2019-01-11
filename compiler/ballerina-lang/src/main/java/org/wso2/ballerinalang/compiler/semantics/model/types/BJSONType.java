@@ -40,11 +40,6 @@ public class BJSONType extends BBuiltInRefType {
         return visitor.visit(this, t);
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
     public boolean isNullable() {
         return nullable;
     }
