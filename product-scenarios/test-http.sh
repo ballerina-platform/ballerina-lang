@@ -96,6 +96,22 @@ cat $INPUT_DIR/deployment.properties
 
 curl http://$LB_INGRESS_HOST/cb -v
 
+
+if [ -z ${JMETER_HOME} ]
+then
+  echo 'JMETER_HOME env variable not found. Setting up jmeter manually.'
+  wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-4.0.tgz
+  tar -xzf apache-jmeter-4.0.tgz
+  export JMETER_HOME=$(pwd)/apache-jmeter-4.0
+  JMETER_HOME=$(pwd)/apache-jmeter-4.0
+else
+  echo JMETER_HOME env variable found at: ${JMETER_HOME}
+fi
+
+echo Final Jmeter home: $JMETER_HOME
+
+mkdir scenario2
+
 #=============== Copy Surefire Reports ===========================================
 # SUREFIRE REPORTS MUST NEED TO BE COPIED TO OUTPUT_DIR.
 # You need to preserve the folder structure in order to identify executed scenarios.
