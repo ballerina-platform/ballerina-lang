@@ -20,7 +20,7 @@ import utils;
 // TODO: Decimal does not support division by zero
 // TODO: == and === not working for float NAN values
 @test:Config {}
-function testFloatingPointNANValuesBroken() {
+function testFloatingPointNaNValuesBroken() {
     float f1 = +0.0/0.0;
     float f2 = -0.0/0.0;
     //test:assertTrue(f1 == f2, msg = "expected +0.0 and -0.0 to be of same value");
