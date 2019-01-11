@@ -333,10 +333,11 @@ public class CloneOperationTest {
 
     @Test
     public void testCloneNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
         BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 19, 13);
-        BAssertUtil.validateError(negativeResult, 1, "function invocation on type '()' is not supported", 29, 12);
-        BAssertUtil.validateError(negativeResult, 2, "function invocation on type 'error' is not supported", 35, 15);
+        BAssertUtil.validateError(negativeResult, 1, "function invocation on type 'typedesc' is not supported", 24, 18);
+        BAssertUtil.validateError(negativeResult, 2, "function invocation on type '()' is not supported", 29, 12);
+        BAssertUtil.validateError(negativeResult, 3, "function invocation on type 'error' is not supported", 35, 15);
 
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
         BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to sensitive parameter 'intArg'", 12, 22);

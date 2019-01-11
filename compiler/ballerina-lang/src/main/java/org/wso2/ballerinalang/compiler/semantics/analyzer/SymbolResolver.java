@@ -456,7 +456,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                    DiagnosticPos pos) {
         if (!isStampSupportedForTargetType(targetType)) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
 
         BSymbol stampSymbol = generateStampSymbol(name, variableSourceType, targetType);
