@@ -230,8 +230,14 @@
             <artifactId>ballerina-auth</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-stdlib-test-common</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -409,7 +415,7 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <properties>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>

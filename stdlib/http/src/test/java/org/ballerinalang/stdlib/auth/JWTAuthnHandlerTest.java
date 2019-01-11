@@ -25,24 +25,18 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
+import org.ballerinalang.stdlib.common.CommonTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,7 +107,8 @@ public class JWTAuthnHandlerTest {
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), ballerinaConfPath.toString(), null);
 
-        jwtToken = generateJWT();
+        CommonTestUtils testUtils = new CommonTestUtils();
+        jwtToken = testUtils.generateJWT();
     }
 
     @Test(description = "Test case for JWT auth interceptor canHandle method, without the bearer header")
@@ -149,49 +144,6 @@ public class JWTAuthnHandlerTest {
     public void tearDown() throws IOException {
         Files.deleteIfExists(ballerinaKeyStoreCopyPath);
         Files.deleteIfExists(ballerinaTrustStoreCopyPath);
-    }
-
-    private String generateJWT() throws Exception {
-        String header = buildHeader();
-        String jwtHeader = new String(Base64.getUrlEncoder().encode(header.getBytes()));
-        String body = buildBody();
-        String jwtBody = new String(Base64.getUrlEncoder().encode(body.getBytes()));
-        String assertion = jwtHeader + "." + jwtBody;
-        String algorithm = "RS256";
-        PrivateKey privateKey = getPrivateKey();
-        JWSSigner signer = new RSASigner(privateKey);
-        String signature = signer.sign(assertion, algorithm);
-        return assertion + "." + signature;
-    }
-
-    private PrivateKey getPrivateKey() throws Exception {
-        KeyStore keyStore;
-        InputStream file = new FileInputStream(new File(getClass().getClassLoader().getResource(
-                "datafiles/keystore/ballerinaKeystore.p12").getPath()));
-        keyStore = KeyStore.getInstance("pkcs12");
-        keyStore.load(file, "ballerina".toCharArray());
-        KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ballerina",
-                new KeyStore.PasswordProtection("ballerina".toCharArray()));
-        return pkEntry.getPrivateKey();
-    }
-
-    private String buildHeader() {
-        return "{\n" +
-                "  \"alg\": \"RS256\",\n" +
-                "  \"typ\": \"JWT\"\n" +
-                "}";
-    }
-
-    private String buildBody() {
-        long time = System.currentTimeMillis() + 10000000;
-        return "{\n" +
-                "  \"sub\": \"John\",\n" +
-                "  \"iss\": \"wso2\",\n" +
-                "  \"aud\": \"ballerina\",\n" +
-                "  \"scope\": \"John test Doe\",\n" +
-                "  \"roles\": [\"admin\",\"admin2\"],\n" +
-                "  \"exp\": " + time + "\n" +
-                "}";
     }
 
     private Map<String, String> getRuntimeProperties() {
