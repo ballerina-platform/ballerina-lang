@@ -21,10 +21,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
-import org.ballerinalang.util.codegen.Instruction;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.HashMap;

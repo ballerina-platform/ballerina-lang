@@ -144,7 +144,7 @@ public class BVMExecutor {
         copyArgValues(args, idf, resourceInfo.paramTypes);
         strand.pushFrame(idf);
         // Start observation after pushing the stack frame
-        if (ObserveUtils.enabled) {
+        if (ObserveUtils.ENABLED) {
             ObserveUtils.startResourceObservation(strand, observerContext);
         }
 

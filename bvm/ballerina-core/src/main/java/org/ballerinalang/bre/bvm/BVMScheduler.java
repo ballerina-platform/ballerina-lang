@@ -217,7 +217,7 @@ public class BVMScheduler {
                 this.nativeCallable.execute(this.nativeCtx, callback);
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
-                    if (ObserveUtils.enabled) {
+                    if (ObserveUtils.ENABLED) {
                         ObserveUtils.stopCallableObservation(strand);
                     }
                     // Maybe we can omit this since natives cannot have worker interactions
@@ -245,7 +245,7 @@ public class BVMScheduler {
             }
             strand.setError(error);
             // Stop the observation context before popping the stack frame
-            if (ObserveUtils.enabled) {
+            if (ObserveUtils.ENABLED) {
                 ObserveUtils.stopCallableObservation(strand);
             }
             if (strand.fp > 0) {

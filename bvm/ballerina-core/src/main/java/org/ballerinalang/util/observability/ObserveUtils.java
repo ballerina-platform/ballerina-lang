@@ -52,14 +52,14 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_SPAN_KIND_SERVER;
  */
 public class ObserveUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
-    public static final boolean enabled;
+    public static final boolean ENABLED;
     private static final boolean tracingEnabled;
     private static final String PACKAGE_SEPARATOR = ".";
 
     static {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         tracingEnabled = configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED);
-        enabled = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED) || tracingEnabled;
+        ENABLED = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED) || tracingEnabled;
     }
 
     /**
@@ -272,7 +272,7 @@ public class ObserveUtils {
      * @return true if observability is enabled else false
      */
     public static boolean isObservabilityEnabled() {
-        return enabled;
+        return ENABLED;
     }
 
     /**
@@ -282,7 +282,7 @@ public class ObserveUtils {
      * @return observer context of the current frame
      */
     public static Optional<ObserverContext> getObserverContextOfCurrentFrame(Context context) {
-        if (!enabled || context.getStrand().currentFrame.observerContext == null) {
+        if (!ENABLED || context.getStrand().currentFrame.observerContext == null) {
             return Optional.empty();
         }
         return Optional.of(context.getStrand().currentFrame.observerContext);
@@ -295,7 +295,7 @@ public class ObserveUtils {
      * @param observerContext observer context to be set
      */
     public static void setObserverContextToCurrentFrame(Strand strand, ObserverContext observerContext) {
-        if (!enabled) {
+        if (!ENABLED) {
             return;
         }
         strand.currentFrame.observerContext = observerContext;

@@ -69,7 +69,7 @@ public abstract class StrandCallback {
             this.status =  CallbackStatus.VALUE_RETURNED;
         }
         // Stop observation
-        if (ObserveUtils.enabled) {
+        if (ObserveUtils.ENABLED) {
             ObserveUtils.stopObservation(observerContext);
         }
         BVMScheduler.strandCountDown();

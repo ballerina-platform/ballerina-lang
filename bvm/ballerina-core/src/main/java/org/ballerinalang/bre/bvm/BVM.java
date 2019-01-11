@@ -402,7 +402,7 @@ public class BVM {
                 case InstructionCodes.HALT:
                     if (strand.fp > 0) {
                         // Stop the observation context before popping the stack frame
-                        if (ObserveUtils.enabled) {
+                        if (ObserveUtils.ENABLED) {
                             ObserveUtils.stopCallableObservation(strand);
                         }
                         strand.popFrame();
@@ -780,7 +780,7 @@ public class BVM {
                     case InstructionCodes.RET:
                         if (strand.fp > 0) {
                             // Stop the observation context before popping the stack frame
-                            if (ObserveUtils.enabled) {
+                            if (ObserveUtils.ENABLED) {
                                 ObserveUtils.stopCallableObservation(strand);
                             }
                             if (sf.errorRetReg > -1) {
@@ -871,7 +871,7 @@ public class BVM {
         // Stop observation
         ObserveUtils.stopObservation(poppedFrame.observerContext);
         // Panic channels in the current frame
-        poppedFrame.handleChannelPanic(strand.getError(), poppedFrame.wdChannels);
+        poppedFrame.handleChannelPanic(strand.getError(), poppedFrame.getWDChannels());
         // Signal transactions for errors
         signalTransactionError(strand, poppedFrame.trxParticipant);
         panicStackFrame(strand);
@@ -924,7 +924,7 @@ public class BVM {
                 return strand;
             }
             // Start observation after pushing the stack frame
-            if (ObserveUtils.enabled) {
+            if (ObserveUtils.ENABLED) {
                 ObserveUtils.startCallableObservation(strand, df.invocationFlags);
             }
             if (callableUnitInfo.isNative) {
@@ -940,7 +940,7 @@ public class BVM {
                 strand.globalProps, strandCallback);
         calleeStrand.pushFrame(df);
         // Start observation after pushing the stack frame
-        if (ObserveUtils.enabled) {
+        if (ObserveUtils.ENABLED) {
             ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
         }
         if (callableUnitInfo.isNative) {
@@ -972,7 +972,7 @@ public class BVM {
 
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
-                    if (ObserveUtils.enabled) {
+                    if (ObserveUtils.ENABLED) {
                         ObserveUtils.stopCallableObservation(strand);
                     }
                     if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
@@ -1002,7 +1002,7 @@ public class BVM {
             strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
         }
         // Stop the observation context before popping the stack frame
-        if (ObserveUtils.enabled) {
+        if (ObserveUtils.ENABLED) {
             ObserveUtils.stopCallableObservation(strand);
         }
         if (strand.fp > 0) {
@@ -4520,7 +4520,7 @@ public class BVM {
             strand.setError(null);
         } else if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
-            if (ObserveUtils.enabled) {
+            if (ObserveUtils.ENABLED) {
                 ObserveUtils.stopCallableObservation(strand);
             }
             StackFrame popedFrame = strand.popFrame();
