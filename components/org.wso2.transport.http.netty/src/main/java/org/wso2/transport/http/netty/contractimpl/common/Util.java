@@ -269,10 +269,10 @@ public class Util {
 
     public static boolean checkContentLengthAndTransferEncodingHeaderAllowance(HttpCarbonMessage httpOutboundRequest) {
         HttpMethod method = getHttpMethod(httpOutboundRequest);
-        if (httpOutboundRequest.getProperty(Constants.NON_ENTITY_BODY_REQUEST) == null) {
+        if (httpOutboundRequest.getProperty(Constants.NO_ENTITY_BODY) == null) {
             return true;
         }
-        boolean nonEntityBodyRequest = (boolean) httpOutboundRequest.getProperty(Constants.NON_ENTITY_BODY_REQUEST);
+        boolean nonEntityBodyRequest = (boolean) httpOutboundRequest.getProperty(Constants.NO_ENTITY_BODY);
         if (nonEntityBodyRequest && (HttpMethod.GET.equals(method)
                 || HttpMethod.HEAD.equals(method) || HttpMethod.OPTIONS.equals(method))) {
             removeContentLengthAndTransferEncodingHeaders(httpOutboundRequest);

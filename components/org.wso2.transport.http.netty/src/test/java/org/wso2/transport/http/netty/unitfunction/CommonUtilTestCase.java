@@ -80,7 +80,7 @@ public class CommonUtilTestCase {
         HttpCarbonMessage httpOutboundRequest = new HttpCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/get", headers));
         httpOutboundRequest.setProperty(Constants.HTTP_METHOD, HttpMethod.GET.toString());
-        httpOutboundRequest.setProperty(Constants.NON_ENTITY_BODY_REQUEST, true);
+        httpOutboundRequest.setProperty(Constants.NO_ENTITY_BODY, true);
         boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest);
 
         Assert.assertEquals(allow, false, "Content length header should not be updated");
@@ -95,7 +95,7 @@ public class CommonUtilTestCase {
         HttpCarbonMessage httpOutboundRequest = new HttpCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/get", headers));
         httpOutboundRequest.setProperty(Constants.HTTP_METHOD, HttpMethod.GET.toString());
-        httpOutboundRequest.setProperty(Constants.NON_ENTITY_BODY_REQUEST, false);
+        httpOutboundRequest.setProperty(Constants.NO_ENTITY_BODY, false);
         boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest);
 
         Assert.assertEquals(allow, true, "Content length header should be updated");
