@@ -736,8 +736,8 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                         if ((isSiddhiRuntimeEnabled && expressionNode.getExpression().getKind() ==
                                                        NodeKind.FIELD_BASED_ACCESS_EXPR) ||
                             (expressionNode.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                            ((BLangFieldBasedAccess) expressionNode.getExpression()).expr.type.tag == TypeTags.STREAM))
-                        {
+                            ((BLangFieldBasedAccess) expressionNode.getExpression()).expr.type.tag ==
+                                    TypeTags.STREAM)) {
                             String attributeName =
                                     ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
                             String streamIdentifier = ((BLangSimpleVarRef) ((BLangFieldBasedAccess) expressionNode.
