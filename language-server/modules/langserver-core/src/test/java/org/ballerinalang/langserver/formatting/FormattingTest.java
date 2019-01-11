@@ -48,12 +48,13 @@ public class FormattingTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "test formatting functionality on functions", dataProvider = "fileProvider", enabled = false)
+    @Test(description = "test formatting functionality on functions", dataProvider = "fileProvider")
     public void formatTestSuit(String expectedFile, String testFile) throws IOException {
         Path expectedFilePath = formattingDirectory.resolve("expected").resolve(expectedFile);
         Path inputFilePath = formattingDirectory.resolve(testFile);
 
         String expected = new String(Files.readAllBytes(expectedFilePath));
+        expected = expected.replaceAll("\\r\\n", "\n");
         DocumentFormattingParams documentFormattingParams = new DocumentFormattingParams();
 
         TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
@@ -72,6 +73,7 @@ public class FormattingTest {
         Gson gson = new Gson();
         ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
         String actual = (String) ((LinkedTreeMap) ((List) responseMessage.getResult()).get(0)).get("newText");
+        actual = actual.replaceAll("\\r\\n", "\n");
         TestUtil.closeDocument(this.serviceEndpoint, inputFilePath);
         Assert.assertEquals(actual, expected, "Did not match: " + expectedFile);
     }
@@ -96,14 +98,12 @@ public class FormattingTest {
                 {"expectedFunctionType.bal", "functionType.bal"},
                 {"expectedWhile.bal", "while.bal"},
                 {"expectedIf.bal", "if.bal"},
-                {"expectedTryCatch.bal", "tryCatch.bal"},
                 {"expectedBinaryExpr.bal", "binaryExpr.bal"},
                 {"expectedArrayLiteralExpr.bal", "arrayLiteralExpr.bal"},
                 {"expectedForeach.bal", "foreach.bal"},
                 {"expectedConstrainedType.bal", "constrainedType.bal"},
                 {"expectedBreak.bal", "break.bal"},
                 {"expectedMatchStmt.bal", "matchStmt.bal"},
-                {"expectedMatchExpr.bal", "matchExpr.bal"},
                 {"expectedAbort.bal", "abort.bal"},
                 {"expectedTransaction.bal", "transaction.bal"},
                 {"expectedContinue.bal", "continue.bal"},
@@ -112,6 +112,11 @@ public class FormattingTest {
                 {"expectedCompilationUnitMultiEOF.bal", "compilationUnitMultiEOF.bal"},
                 {"expectedAnnotation.bal", "annotation.bal"},
                 {"expectedArrowExpr.bal", "arrowExpr.bal"},
+                {"expectedAsyncExpr.bal", "asyncExpr.bal"},
+                {"expectedBindingPatterns.bal", "bindingPatterns.bal"},
+                {"expectedDocumentation.bal", "documentation.bal"},
+                {"expectedWorkerInteractions.bal", "workerInteractions.bal"},
+//                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
 

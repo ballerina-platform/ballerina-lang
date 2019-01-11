@@ -33,17 +33,17 @@ import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -138,9 +138,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
     protected void prepareOutboundRequest(Context context, String path, HttpCarbonMessage outboundRequest) {
         if (context.isInTransaction()) {
-            LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, localTransactionInfo.getGlobalTransactionId());
-            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
+            TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
+            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
         }
         try {
             String uri = getServiceUri(context) + path;
@@ -328,7 +328,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         HttpUtil.checkAndObserveHttpRequest(dataContext.context, outboundRequestMsg);
 
-        final HTTPClientConnectorListener httpClientConnectorLister = ObservabilityUtils.isObservabilityEnabled() ?
+        final HTTPClientConnectorListener httpClientConnectorLister = ObserveUtils.isObservabilityEnabled() ?
                 new ObservableHttpClientConnectorListener(dataContext) :
                 new HTTPClientConnectorListener(dataContext);
         final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
@@ -396,7 +396,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      */
     private void serializeMultiparts(BMap<String, BValue> entityStruct, OutputStream messageOutputStream,
                                      String boundaryString) throws IOException {
-        BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
+        BValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
         if (bodyParts != null && bodyParts.size() > 0) {
             serializeMultipartDataSource(messageOutputStream, boundaryString, entityStruct);
         } else { //If the content is in a byte channel
@@ -501,13 +501,19 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             if (throwable instanceof ClientConnectorException) {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
                 addHttpStatusCode(clientConnectorException.getHttpStatusCode());
+                Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+                observerContext.ifPresent(ctx -> {
+                    ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
+                    ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, throwable.getMessage());
+                });
+
             }
         }
 
         private void addHttpStatusCode(int statusCode) {
-            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+            Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
             observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
-                    String.valueOf(statusCode)));
+                                                        String.valueOf(statusCode)));
         }
     }
 }

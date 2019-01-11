@@ -97,6 +97,7 @@ public type SecurityRequirement record {
 #
 # + inInfo - Where the parameter is located. Ex: query
 # + name - Parameter name
+# + paramType - Parameter type
 # + description - Description of the parameter
 # + required - Is this parameter MUST be present in the request
 # + discontinued - Is this parameter deprecated
@@ -105,6 +106,7 @@ public type SecurityRequirement record {
 public type ParameterInformation record {
     string inInfo = "";
     string name = "";
+    string paramType = "";
     string description = "";
     boolean required = false;
     boolean discontinued = false;
@@ -234,7 +236,7 @@ public type MultiResourceInformation record {
 };
 
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
-public annotation <client> ClientEndpoint;
+public annotation <listener> ClientEndpoint;
 
 # Annotation to configure client code generation.
 public annotation <service> ClientConfig ClientInformation;

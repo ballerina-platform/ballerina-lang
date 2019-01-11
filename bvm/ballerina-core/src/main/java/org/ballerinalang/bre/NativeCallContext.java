@@ -19,19 +19,16 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.Strand;
-import org.ballerinalang.bre.old.WorkerData;
-import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.Map;
 
@@ -56,11 +53,6 @@ public class NativeCallContext implements Context {
     }
 
     @Override
-    public WorkerExecutionContext getParentWorkerExecutionContext() {
-        return null;
-    }
-
-    @Override
     public Strand getStrand() {
         return strand;
     }
@@ -70,25 +62,9 @@ public class NativeCallContext implements Context {
         return callableUnitInfo;
     }
 
-    public WorkerData getLocalWorkerData() {
-        return null;
-    }
-
     @Override
     public StackFrame getDataFrame() {
         return sf;
-    }
-
-    @Override
-    public DebugContext getDebugContext() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public void setDebugContext(DebugContext debugContext) {
-        // TODO
-
     }
 
     @Override
@@ -118,8 +94,7 @@ public class NativeCallContext implements Context {
 
     @Override
     public boolean isInTransaction() {
-//        return this.parentCtx.isInTransaction();//TODO fix - rajith
-        return false;
+        return this.strand.isInTransaction();
     }
 
     @Override
@@ -219,17 +194,11 @@ public class NativeCallContext implements Context {
 
     @Override
     public BValue getReturnValue() {
-//        if (this.returnValue == null) {
-//            if (this.callableUnitInfo.hasReturnType()) {
-//                this.returnValue = new BValue[] { null };
-//            }
-//        }
         return this.returnValue;
     }
 
-    public LocalTransactionInfo getLocalTransactionInfo() {
-//        return this.parentCtx.getLocalTransactionInfo();//TODO fix - rajith
-        return null;
+    public TransactionLocalContext getLocalTransactionInfo() {
+        return this.strand.getLocalTransactionContext();
     }
 
 }

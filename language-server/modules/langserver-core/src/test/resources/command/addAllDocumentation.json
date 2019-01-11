@@ -1,96 +1,80 @@
 {
   "expected": {
-    "result":{
-      "edit":{
-        "changes":{
-
-        },
-        "documentChanges":[
+    "result": {
+      "edit": {
+        "documentChanges": [
           {
-            "edits":[
+            "edits": [
               {
-                "range":{
-                  "start":{
-                    "line":3,
-                    "character":0
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 0
                   },
-                  "end":{
-                    "line":3,
-                    "character":0
+                  "end": {
+                    "line": 3,
+                    "character": 0
                   }
                 },
-                "newText":"# Description\n"
+                "newText": "# Description\n"
               },
               {
-                "range":{
-                  "start":{
-                    "line":7,
-                    "character":0
+                "range": {
+                  "start": {
+                    "line": 7,
+                    "character": 0
                   },
-                  "end":{
-                    "line":7,
-                    "character":0
+                  "end": {
+                    "line": 7,
+                    "character": 0
                   }
                 },
-                "newText":"# Description\n"
+                "newText": "# Description\n"
               },
               {
-                "range":{
-                  "start":{
-                    "line":11,
-                    "character":0
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 4
                   },
-                  "end":{
-                    "line":11,
-                    "character":0
+                  "end": {
+                    "line": 8,
+                    "character": 4
                   }
                 },
-                "newText":"# Description\n"
+                "newText": "# Description\n    #\n    # + caller - caller Parameter Description \n    # + request - request Parameter Description\n    "
               },
               {
-                "range":{
-                  "start":{
-                    "line":12,
-                    "character":4
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 0
                   },
-                  "end":{
-                    "line":12,
-                    "character":4
+                  "end": {
+                    "line": 14,
+                    "character": 0
                   }
                 },
-                "newText":"# Description\n    #\n    # + caller - caller Parameter Description \n    # + request - request Parameter Description\n    "
+                "newText": "# Description\n#\n# + field1 - field1 Parameter Description \n# + field2 - field2 Parameter Description\n"
               },
               {
-                "range":{
-                  "start":{
-                    "line":18,
-                    "character":0
+                "range": {
+                  "start": {
+                    "line": 19,
+                    "character": 0
                   },
-                  "end":{
-                    "line":18,
-                    "character":0
+                  "end": {
+                    "line": 19,
+                    "character": 0
                   }
                 },
-                "newText":"# Description\n#\n# + field1 - field1 Parameter Description \n# + field2 - field2 Parameter Description\n"
-              },
-              {
-                "range":{
-                  "start":{
-                    "line":23,
-                    "character":0
-                  },
-                  "end":{
-                    "line":23,
-                    "character":0
-                  }
-                },
-                "newText":"# Description\n#\n# + testField - testField Parameter Description \n# + testPrivate - testPrivate Parameter Description \n# + testString - testString Parameter Description\n"
+                "newText": "# Description\n#\n# + testField - testField Parameter Description \n# + testPrivate - testPrivate Parameter Description \n# + testString - testString Parameter Description\n"
               }
             ]
           }
         ]
       }
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

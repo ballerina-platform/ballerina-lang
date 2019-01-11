@@ -3,12 +3,12 @@ import ballerina/grpc;
 listener grpc:Listener ep = new (9000);
 {{#if bidiStreaming}}
 @grpc:ServiceConfig { {{#streamingFunction}}
-    name: {{methodName}},{{/streamingFunction}}
+    name: "{{methodName}}",{{/streamingFunction}}
     clientStreaming: true,
     serverStreaming: true
 }{{/if}}{{#if clientStreaming}}
 @grpc:ServiceConfig { {{#streamingFunction}}
-    name: {{methodName}},{{/streamingFunction}}
+    name: "{{methodName}}",{{/streamingFunction}}
     clientStreaming: true
 }
 {{/if}}

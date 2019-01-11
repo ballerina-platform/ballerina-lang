@@ -18,6 +18,7 @@
  */
 
 import * as React from "react";
+import ReactMarkdown from "react-markdown";
 import { Form, Icon, Input } from "semantic-ui-react";
 
 export interface InlineEditProps {
@@ -28,6 +29,8 @@ export interface InlineEditProps {
     isParagraph?: boolean;
     changeModel: any;
     changeAttribute: AttributeObject;
+    isMarkdown?: boolean;
+    characterLimit?: number;
     onInlineValueChange: (openApiJson: any) => void;
 }
 
@@ -38,7 +41,8 @@ export interface URL {
 
 export interface AttributeObject {
     key: string;
-    value: string;
+    path?: string;
+    changeValue: string;
 }
 
 export interface InlineEditState {
@@ -93,42 +97,42 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
 
     public render() {
         const { stateText, isEditing, urlString } = this.state;
-        const { isParagraph, isURL, classDefinition, placeholderString } = this.props;
+        const { isParagraph, isURL, classDefinition, placeholderString, isMarkdown } = this.props;
 
         if (isEditing) {
             if (isURL) {
                 return (
                     <div className={`inline-editor editing  ${classDefinition}}`}>
                         <Form>
-                            <Form.Group widths="5" inline>
+                            <Form.Group>
                                 <Form.Input
-                                    transparent
-                                    fluid
                                     id="url-link"
+                                    compact
+                                    size="mini"
                                     placeholder={placeholderString}
                                     value={stateText}
                                     onChange={this.handleOnTextChange}
                                 />
                                 <Form.Input
-                                    transparent
-                                    fluid
                                     id="url-text"
+                                    compact
+                                    size="mini"
                                     placeholder="Add a meaningful link text"
                                     value={urlString}
                                     onChange={this.handleOnTextChange}
                                 />
                                 <Form.Button
-                                    width={1}
                                     inverted
                                     color="black"
                                     icon="check"
+                                    size="mini"
                                     onClick={this.handleDoneEditing}
                                 />
                                 <Form.Button
-                                    width={1}
                                     inverted
                                     color="black"
                                     icon="close"
+                                    size="mini"
                                     onClick={this.handleCancelEdit}
                                 />
                             </Form.Group>
@@ -178,9 +182,11 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
             } else if (stateText && stateText !== "") {
                 return (
                     <div className={"inline-editor with-text " + classDefinition} onClick={this.enableEditing}>
-                        <span>
-                            {stateText}
-                        </span>
+                        {isMarkdown ? <ReactMarkdown source={stateText} /> :
+                            <span>
+                                {stateText}
+                            </span>
+                        }
                     </div>
                 );
             } else {
@@ -196,7 +202,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
     }
 
     private handleOnTextChange(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-        const { isURL } = this.props;
+        const { isURL, isParagraph, characterLimit } = this.props;
 
         if (isURL) {
             switch (e.target.id) {
@@ -212,9 +218,17 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                     break;
             }
         } else {
-            this.setState({
-                stateText: e.target.value
-            });
+            if (characterLimit) {
+                if (!isParagraph && e.target.value.length <= characterLimit) {
+                    this.setState({
+                        stateText: e.target.value
+                    });
+                }
+            } else {
+                this.setState({
+                    stateText: e.target.value
+                });
+            }
         }
 
     }
@@ -233,7 +247,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
 
         switch (attribute.key) {
             case "info.description":
-                model.info.descrption = stateText;
+                model.info.description = stateText;
                 break;
             case "info.termsOfService":
                 model.info.termsOfService = stateText;
@@ -252,9 +266,20 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                 break;
             case "resource.name":
                 if (stateText !== "" && model.paths) {
-                    model.paths[stateText] = model.paths[attribute.value];
-                    delete model.paths[attribute.value];
+                    model.paths[stateText] = model.paths[attribute.changeValue];
+                    delete model.paths[attribute.changeValue];
                 }
+                break;
+            case "operation.description":
+                if (stateText !== "" && model.paths && attribute.path) {
+                    model.paths[attribute.path][attribute.changeValue].description = stateText;
+                }
+                break;
+            case "operation.summary":
+                if (stateText !== "" && model.paths && attribute.path) {
+                    model.paths[attribute.path][attribute.changeValue].summary = stateText;
+                }
+                break;
             default:
                 break;
         }

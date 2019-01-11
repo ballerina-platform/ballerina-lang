@@ -275,10 +275,9 @@ public class TaintedStatusPropagationTest {
     public void testIterableWitinIterableNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/iterable-within-iterable-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'comp'", 5, 13);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 7, 40);
-        BAssertUtil.validateError(result, 2, "tainted value passed to global variable 'globalVar'", 10, 34);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 32);
+        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalVar'", 12, 38);
     }
 
     @Test
@@ -492,19 +491,6 @@ public class TaintedStatusPropagationTest {
                 "simple-worker-interaction-with-tuple-assignment-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 13, 24);
-    }
-
-    @Test
-    public void testForkJoin() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/fork-join.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test (enabled = false)
-    public void testForkJoinNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/fork-join-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 10, 24);
     }
 
     @Test

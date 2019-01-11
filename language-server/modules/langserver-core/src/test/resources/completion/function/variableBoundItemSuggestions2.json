@@ -10,7 +10,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"foreach((string v) \u003d\u003e {\n\t${1}\n});",
+      "insertText":"foreach(function(string value) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -18,7 +18,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"map((string v) \u003d\u003e (any) {\n\t${1}\n});",
+      "insertText":"map(function(string value) returns (any) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -26,7 +26,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"filter((string v) \u003d\u003e (boolean) {\n\t${1}\n});",
+      "insertText":"filter(function(string value) returns (boolean) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -35,6 +35,54 @@
       "detail":"Function",
       "sortText":"121",
       "insertText":"count();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"length()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"length();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"freeze()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"freeze();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"isFrozen()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"isFrozen();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"stamp(anydata a)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"stamp(${1});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"clone()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"clone();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"convert(anydata a)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"convert(${1});",
       "insertTextFormat":"Snippet"
     }
   ]

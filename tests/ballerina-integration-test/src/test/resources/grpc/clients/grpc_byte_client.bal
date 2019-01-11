@@ -17,6 +17,11 @@
 import ballerina/io;
 import ballerina/grpc;
 
+public function main() {
+    string response = testByteArray();
+    io:println(response);
+}
+
 function testByteArray() returns (string) {
     byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
     string statement = "Lion in Town.";
@@ -32,6 +37,30 @@ function testByteArray() returns (string) {
     }
 }
 
+function testLargeByteArray(string filePath) returns (string) {
+    byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
+    io:ReadableByteChannel rch = untaint io:openReadableFile(filePath);
+    var resultBytes = rch.read(10000);
+    byte[] bytes = [];
+    if (resultBytes is (byte[], int)) {
+        (bytes, _) = resultBytes;
+    } else {
+        return io:sprintf("File read error: %s - %s", resultBytes.reason(), <string>resultBytes.detail().message);
+    }
+    var addResponse = blockingEp->checkBytes(bytes);
+    if (addResponse is error) {
+        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
+    } else {
+        byte[] result = [];
+        (result, _) = addResponse;
+        if(result == bytes) {
+            return "30KB file content transmitted successfully";
+        } else {
+            return "Error while transmitting file content";
+        }
+    }
+}
+
 public type byteServiceBlockingClient client object {
     private grpc:Client grpcClient = new;
     private grpc:ClientEndpointConfig config = {};
@@ -43,7 +72,7 @@ public type byteServiceBlockingClient client object {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
+        error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -56,7 +85,7 @@ public type byteServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
-        var value = byte[].create(result);
+        var value = byte[].convert(result);
         if (value is byte[]) {
             return (value, resHeaders);
         } else if (value is error) {
@@ -79,7 +108,7 @@ public type byteServiceClient client object {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -92,8 +121,8 @@ public type byteServiceClient client object {
     }
 };
 
-const string DESCRIPTOR_KEY = "byteService.proto";
-function getDescriptorMap() returns map<any> {
+const string ROOT_DESCRIPTOR = "0A1162797465536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32550A0B627974655365727669636512460A0A636865636B4279746573121B2E676F6F676C652E70726F746F6275662E427974657356616C75651A1B2E676F6F676C652E70726F746F6275662E427974657356616C7565620670726F746F33";
+function getDescriptorMap() returns map<string> {
     return {
         "byteService.proto":
         "0A1162797465536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32550A0B627974655365727669636512460A0A636865636B4279746573121B2E676F6F676C652E70726F746F6275662E427974657356616C75651A1B2E676F6F676C652E70726F746F6275662E427974657356616C7565620670726F746F33"

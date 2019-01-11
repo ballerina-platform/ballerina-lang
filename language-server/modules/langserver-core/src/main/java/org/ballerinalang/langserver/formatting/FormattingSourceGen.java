@@ -88,24 +88,7 @@ public class FormattingSourceGen {
      * @return {@link List} list of white spaces
      */
     public static List<JsonObject> extractWS(JsonObject node) {
-        List<JsonObject> wsCollection = new ArrayList<>();
-        List<JsonObject> mergedWS = new ArrayList<>();
-        collectWSFromNode(node, wsCollection);
-
-        wsCollection.sort(Comparator.comparingInt(a -> a.get("i").getAsInt()));
-
-        JsonObject prevWS = null;
-        for (JsonObject wsItem : wsCollection) {
-            if (prevWS == null) {
-                prevWS = wsItem;
-                mergedWS.add(prevWS);
-            } else if (prevWS.get("i").getAsInt() != wsItem.get("i").getAsInt()) {
-                mergedWS.add(wsItem);
-                prevWS = wsItem;
-            }
-        }
-
-        return mergedWS;
+        return unify(getSortedWSList(node));
     }
 
     /**
@@ -119,7 +102,7 @@ public class FormattingSourceGen {
     public static void reconcileWS(JsonObject node, JsonArray attachPoint, JsonObject tree, int startIndex) {
         List<JsonObject> attachWS;
         List<JsonObject> nodeWS = extractWS(node);
-        List<JsonObject> astWS = extractWS(tree);
+        List<JsonObject> astWS = getSortedWSList(tree);
 
         if (startIndex == -1) {
             if (attachPoint.size() > 0) {
@@ -185,72 +168,88 @@ public class FormattingSourceGen {
                 }
                 break;
             case "Service":
-            case "Resource":
+            case "Function":
                 JsonArray nodeWS = node.getAsJsonArray(FormattingConstants.WS);
+                if (node.has("resource")
+                        && node.get("resource").getAsBoolean() || kind.equals("Service")) {
 
-                JsonArray annotationAttachments = node.has("annotationAttachments")
-                        ? node.getAsJsonArray("annotationAttachments")
-                        : node.getAsJsonArray("annAttachments");
-                if ((node.has("annAttachments") || node.has("annotationAttachments"))
-                        && attachPoint.equals("annAttachments")) {
-                    startPosition = getCollectionStartPosition(annotationAttachments,
-                            nodeWS.get(0).getAsJsonObject().get("i").getAsInt() - 1, insertBefore);
-                }
-
-                // TODO: handle calculation for the param start position.
-                prevPosition = findOpeningBrace(nodeWS);
-
-                if (node.has("endpointNodes")) {
-                    // If attachment point endpointNodes, calculate the position to add the new node in to endpoint
-                    // Else calculate the position of the last whitespace token.
-                    if (attachPoint.equals("endpointNodes")) {
-                        startPosition = getCollectionStartPosition(node.getAsJsonArray("endpointNodes"),
-                                prevPosition, insertBefore);
-                    } else if (node.getAsJsonArray("endpointNodes").size() > 0) {
-                        List<JsonObject> endpointWS = extractWS(node.getAsJsonArray("endpointNodes")
-                                .get(node.getAsJsonArray("endpointNodes").size() - 1).getAsJsonObject());
-                        prevPosition = endpointWS.get(endpointWS.size() - 1).get("i").getAsInt();
-                    }
-                }
-
-                if (kind.equals("Service")) {
-                    if (node.has("vars")) {
-                        JsonArray vars = node.getAsJsonArray("vars");
-                        if (attachPoint.equals("vars")) {
-                            startPosition = getCollectionStartPosition(vars, prevPosition, insertBefore);
-                        } else if (vars.size() > 0) {
-                            List<JsonObject> varWS = extractWS(vars.get(vars.size() - 1).getAsJsonObject());
-                            prevPosition = varWS.get(varWS.size() - 1).get("i").getAsInt();
-                        }
+                    JsonArray annotationAttachments = node.has("annotationAttachments")
+                            ? node.getAsJsonArray("annotationAttachments")
+                            : node.getAsJsonArray("annAttachments");
+                    if ((node.has("annAttachments") || node.has("annotationAttachments"))
+                            && attachPoint.equals("annAttachments")) {
+                        startPosition = getCollectionStartPosition(annotationAttachments,
+                                nodeWS.get(0).getAsJsonObject().get("i").getAsInt() - 1, insertBefore);
                     }
 
-                    if (node.has("resources")) {
-                        JsonArray resources = node.getAsJsonArray("resources");
-                        if (attachPoint.equals("resources")) {
-                            startPosition = getCollectionStartPosition(resources, prevPosition, insertBefore);
-                        } else if (resources.size() > 0) {
-                            List<JsonObject> resourceWS = extractWS(resources.get(resources.size() - 1)
-                                    .getAsJsonObject());
-                            prevPosition = resourceWS.get(resourceWS.size() - 1).get("i").getAsInt();
-                        }
-                    }
-                }
+                    // TODO: handle calculation for the param start position.
 
-                if (kind.equals("Resource")) {
-                    if (node.has("workers")) {
-                        if (attachPoint.equals("workers")) {
-                            startPosition = getCollectionStartPosition(node.getAsJsonArray("workers"),
+                    JsonObject typeDefinition = kind.equals("Service") && node.has("typeDefinition")
+                            && node.getAsJsonObject("typeDefinition").get("service").getAsBoolean()
+                            ? node.getAsJsonObject("typeDefinition") : null;
+
+                    if (typeDefinition != null && typeDefinition.has("typeNode")
+                            && typeDefinition.getAsJsonObject("typeNode").has(FormattingConstants.WS)) {
+                        JsonArray typeDefinitionWS = typeDefinition.getAsJsonObject("typeNode")
+                                .getAsJsonArray(FormattingConstants.WS);
+                        prevPosition = findOpeningBrace(typeDefinitionWS);
+                    } else {
+                        prevPosition = findOpeningBrace(nodeWS);
+                    }
+
+                    if (node.has("endpointNodes")) {
+                        // If attachment point endpointNodes, calculate the position to add the new node in to endpoint
+                        // Else calculate the position of the last whitespace token.
+                        if (attachPoint.equals("endpointNodes")) {
+                            startPosition = getCollectionStartPosition(node.getAsJsonArray("endpointNodes"),
                                     prevPosition, insertBefore);
-                        } else if (node.getAsJsonArray("workers").size() > 0) {
-                            List<JsonObject> workerWS = extractWS(node.getAsJsonArray("workers")
-                                    .get(node.getAsJsonArray("workers").size() - 1).getAsJsonObject());
-                            prevPosition = workerWS.get(workerWS.size() - 1).get("i").getAsInt();
+                        } else if (node.getAsJsonArray("endpointNodes").size() > 0) {
+                            List<JsonObject> endpointWS = extractWS(node.getAsJsonArray("endpointNodes")
+                                    .get(node.getAsJsonArray("endpointNodes").size() - 1).getAsJsonObject());
+                            prevPosition = endpointWS.get(endpointWS.size() - 1).get("i").getAsInt();
                         }
                     }
 
-                    if (node.has(FormattingConstants.BODY) && attachPoint.equals("statements")) {
-                        startPosition = getCollectionStartPosition(node.getAsJsonObject(FormattingConstants.BODY)
-                                .getAsJsonArray(attachPoint), prevPosition, insertBefore);
+                    if (kind.equals("Service")) {
+                        if (node.has("vars")) {
+                            JsonArray vars = node.getAsJsonArray("vars");
+                            if (attachPoint.equals("vars")) {
+                                startPosition = getCollectionStartPosition(vars, prevPosition, insertBefore);
+                            } else if (vars.size() > 0) {
+                                List<JsonObject> varWS = extractWS(vars.get(vars.size() - 1).getAsJsonObject());
+                                prevPosition = varWS.get(varWS.size() - 1).get("i").getAsInt();
+                            }
+                        }
+
+                        if (node.has("resources")) {
+                            JsonArray resources = node.getAsJsonArray("resources");
+                            if (attachPoint.equals("resources")) {
+                                startPosition = getCollectionStartPosition(resources, prevPosition, insertBefore);
+                            } else if (resources.size() > 0) {
+                                List<JsonObject> resourceWS = extractWS(resources.get(resources.size() - 1)
+                                        .getAsJsonObject());
+                                prevPosition = resourceWS.get(resourceWS.size() - 1).get("i").getAsInt();
+                            }
+                        }
+                    }
+
+                    if (kind.equals("Function") && node.has("resource")
+                            && node.get("resource").getAsBoolean()) {
+                        if (node.has("workers")) {
+                            if (attachPoint.equals("workers")) {
+                                startPosition = getCollectionStartPosition(node.getAsJsonArray("workers"),
+                                        prevPosition, insertBefore);
+                            } else if (node.getAsJsonArray("workers").size() > 0) {
+                                List<JsonObject> workerWS = extractWS(node.getAsJsonArray("workers")
+                                        .get(node.getAsJsonArray("workers").size() - 1).getAsJsonObject());
+                                prevPosition = workerWS.get(workerWS.size() - 1).get("i").getAsInt();
+                            }
+                        }
+
+                        if (node.has(FormattingConstants.BODY) && attachPoint.equals("statements")) {
+                            startPosition = getCollectionStartPosition(node.getAsJsonObject(FormattingConstants.BODY)
+                                    .getAsJsonArray(attachPoint), prevPosition, insertBefore);
+                        }
                     }
                 }
                 break;
@@ -261,6 +260,30 @@ public class FormattingSourceGen {
                 break;
         }
         return startPosition;
+    }
+
+    private static List<JsonObject> getSortedWSList(JsonObject node) {
+        List<JsonObject> wsCollection = new ArrayList<>();
+        collectWSFromNode(node, wsCollection);
+        wsCollection.sort(Comparator.comparingInt(a -> a.get("i").getAsInt()));
+        return wsCollection;
+    }
+
+    private static List<JsonObject> unify(List<JsonObject> toBeUnified) {
+        List<JsonObject> unified = new ArrayList<>();
+        JsonObject prevWS = null;
+        for (JsonObject wsItem : toBeUnified) {
+            if (prevWS == null) {
+                prevWS = wsItem;
+                unified.add(prevWS);
+            } else if (prevWS.get("i").getAsInt() != wsItem.get("i").getAsInt()
+                    && !prevWS.equals(wsItem)) {
+                unified.add(wsItem);
+                prevWS = wsItem;
+            }
+        }
+
+        return unified;
     }
 
     private static int getCollectionStartPosition(JsonArray collection, int entryPoint, int insertBefore) {
@@ -300,20 +323,22 @@ public class FormattingSourceGen {
     }
 
     private static void collectWSFromNode(JsonObject node, List<JsonObject> wsCollection) {
-        for (Map.Entry<String, JsonElement> child : node.entrySet()) {
-            String childName = child.getKey();
-            if (!"position".equals(childName) && !"parent".equals(childName)) {
-                if (child.getValue().isJsonObject() && child.getValue().getAsJsonObject().has("kind")) {
-                    collectWSFromNode(child.getValue().getAsJsonObject(), wsCollection);
-                } else if (child.getValue().isJsonArray()) {
-                    if ("ws".equals(childName)) {
-                        for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
-                            wsCollection.add(wsElement.getAsJsonObject());
-                        }
-                    } else {
-                        for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
-                            if (wsElement.isJsonObject() && wsElement.getAsJsonObject().has("kind")) {
-                                collectWSFromNode(wsElement.getAsJsonObject(), wsCollection);
+        if (!node.has("skip")) {
+            for (Map.Entry<String, JsonElement> child : node.entrySet()) {
+                String childName = child.getKey();
+                if (!"position".equals(childName) && !"parent".equals(childName)) {
+                    if (child.getValue().isJsonObject() && child.getValue().getAsJsonObject().has("kind")) {
+                        collectWSFromNode(child.getValue().getAsJsonObject(), wsCollection);
+                    } else if (child.getValue().isJsonArray()) {
+                        if ("ws".equals(childName)) {
+                            for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
+                                wsCollection.add(wsElement.getAsJsonObject());
+                            }
+                        } else {
+                            for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
+                                if (wsElement.isJsonObject() && wsElement.getAsJsonObject().has("kind")) {
+                                    collectWSFromNode(wsElement.getAsJsonObject(), wsCollection);
+                                }
                             }
                         }
                     }
@@ -450,13 +475,28 @@ public class FormattingSourceGen {
             node.addProperty("global", true);
         }
 
-        if ("VariableDef".equals(kind)
-                && node.getAsJsonObject("variable") != null
-                && node.getAsJsonObject("variable").getAsJsonObject("typeNode") != null
-                && node.getAsJsonObject("variable").getAsJsonObject("typeNode")
-                .get("kind").getAsString().equals("EndpointType")) {
-            node.getAsJsonObject("variable").addProperty("endpoint", true);
-            node.addProperty("endpoint", true);
+        if ("VariableDef".equals(kind)) {
+            // TODO: refactor variable def whitespace.
+            // Temporary remove variable def ws and add it to variable whitespaces.
+            if (node.has("variable") && node.has(FormattingConstants.WS)
+                    && node.getAsJsonObject("variable").has(FormattingConstants.WS)
+                    && !(node.getAsJsonObject("variable").get("kind").getAsString().equals("TupleVariable")
+                    || (node.getAsJsonObject("variable").has("symbolType")
+                    && node.getAsJsonObject("variable").getAsJsonArray("symbolType").size() > 0
+                    && node.getAsJsonObject("variable").getAsJsonArray("symbolType").get(0)
+                    .getAsString().equals("service")))) {
+                node.getAsJsonObject("variable").getAsJsonArray(FormattingConstants.WS)
+                        .addAll(node.getAsJsonArray(FormattingConstants.WS));
+                node.remove(FormattingConstants.WS);
+            }
+
+            if (node.getAsJsonObject("variable") != null
+                    && node.getAsJsonObject("variable").getAsJsonObject("typeNode") != null
+                    && node.getAsJsonObject("variable").getAsJsonObject("typeNode")
+                    .get("kind").getAsString().equals("EndpointType")) {
+                node.getAsJsonObject("variable").addProperty("endpoint", true);
+                node.addProperty("endpoint", true);
+            }
         }
 
         if ("Variable".equals(kind)) {
@@ -521,11 +561,41 @@ public class FormattingSourceGen {
                     }
                 }
             }
+
+            if (node.has("service")
+                    && node.get("service").getAsBoolean()
+                    && node.has("noVisibleName")
+                    && node.get("noVisibleName").getAsBoolean()) {
+                node.addProperty("skip", true);
+            }
+
+            if (node.has("name")
+                    && node.getAsJsonObject("name").get("value").getAsString().startsWith("0")) {
+                node.addProperty("worker", true);
+            }
         }
 
         if ("Service".equals(kind)) {
             if (!node.has("serviceTypeStruct")) {
                 node.addProperty("isServiceTypeUnavailable", true);
+            }
+
+            if (node.has("resources")) {
+                if (node.has("typeDefinition")) {
+                    JsonObject typeDefinition = node.getAsJsonObject("typeDefinition");
+                    JsonObject typeNode = typeDefinition.getAsJsonObject("typeNode");
+                    if (typeNode.has("symbolType")
+                            && typeNode.getAsJsonArray("symbolType").get(0)
+                            .getAsString().equals("service")) {
+                        JsonArray functions = typeNode.getAsJsonArray("functions");
+                        for (JsonElement func : functions) {
+                            JsonObject function = func.getAsJsonObject();
+                            if (function.has("resource") && function.get("resource").getAsBoolean()) {
+                                function.addProperty("skip", true);
+                            }
+                        }
+                    }
+                }
             }
 
             if (!node.has("anonymousEndpointBind")
@@ -542,6 +612,11 @@ public class FormattingSourceGen {
                 if (!bindAvailable) {
                     node.addProperty("bindNotAvailable", true);
                 }
+            }
+
+            if (node.has("userDefinedTypeNode")
+                    && node.getAsJsonObject("userDefinedTypeNode").has(FormattingConstants.WS)) {
+                node.getAsJsonObject("userDefinedTypeNode").remove(FormattingConstants.WS);
             }
         }
 
@@ -580,11 +655,35 @@ public class FormattingSourceGen {
             }
         }
 
+        if ("Match".equals(kind)) {
+            if (node.has("structuredPatternClauses")) {
+                JsonArray structuredPatternClauses = node.getAsJsonArray("structuredPatternClauses");
+                for (JsonElement pattern : structuredPatternClauses) {
+                    pattern.getAsJsonObject().addProperty("skip", true);
+                }
+            }
+
+            if (node.has("staticPatternClauses")) {
+                JsonArray staticPatternClauses = node.getAsJsonArray("staticPatternClauses");
+                for (JsonElement pattern : staticPatternClauses) {
+                    pattern.getAsJsonObject().addProperty("skip", true);
+                }
+            }
+        }
+
         // Check if sorrounded by curlies
-        if (("MatchPatternClause".equals(kind) || "MatchExpressionPatternClause".equals(kind))
-                && node.has("ws")
-                && node.getAsJsonArray("ws").size() > 2) {
-            node.addProperty("withCurlies", true);
+        if (("MatchStructuredPatternClause".equals(kind) || "MatchStaticPatternClause".equals(kind)
+                || "MatchTypedPatternClause".equals(kind))
+                && node.has("ws")) {
+
+            for (JsonElement wsItem : node.getAsJsonArray(FormattingConstants.WS)) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                if (text.equals("{")) {
+                    node.addProperty("withCurlies", true);
+                    break;
+                }
+            }
         }
 
         // Check if sorrounded by parantheses
@@ -648,33 +747,43 @@ public class FormattingSourceGen {
                 JsonArray defaultableParameters = node.getAsJsonArray("defaultableParameters");
                 for (int i = 0; i < defaultableParameters.size(); i++) {
                     defaultableParameters.get(i).getAsJsonObject().addProperty("defaultable", true);
+                    defaultableParameters.get(i).getAsJsonObject().addProperty("param", true);
                     defaultableParameters.get(i).getAsJsonObject().getAsJsonObject("variable")
                             .addProperty("defaultable", true);
                 }
             }
 
-            // Sort and add all the parameters.
-            JsonArray allParamsTemp = node.getAsJsonArray("parameters");
-            allParamsTemp.addAll(node.getAsJsonArray("defaultableParameters"));
-            List<JsonElement> allParamElements = new ArrayList<>();
-            allParamsTemp.forEach(allParamElements::add);
+            if (node.has("parameters")) {
+                JsonArray parameters = node.getAsJsonArray("parameters");
+                for (int i = 0; i < parameters.size(); i++) {
+                    parameters.get(i).getAsJsonObject().addProperty("param", true);
+                }
+            }
 
-            allParamElements.sort((a, b) -> {
-                int comparator = 0;
-                comparator = (((a.getAsJsonObject().getAsJsonObject("position").get("endColumn").getAsInt() >
-                        b.getAsJsonObject().getAsJsonObject("position").get("startColumn").getAsInt())
-                        && (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() ==
-                        b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt())) ||
-                        (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() >
-                                b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt())) ? 1 : -1;
-                return comparator;
-            });
+            if (!(node.has("resource")
+                    && node.get("resource").getAsBoolean())) {
+                // Sort and add all the parameters.
+                JsonArray allParamsTemp = node.getAsJsonArray("parameters");
+                allParamsTemp.addAll(node.getAsJsonArray("defaultableParameters"));
+                List<JsonElement> allParamElements = new ArrayList<>();
+                allParamsTemp.forEach(allParamElements::add);
 
-            JsonArray allParams = new JsonArray();
+                allParamElements.sort((a, b) -> {
+                    int comparator = 0;
+                    comparator = (((a.getAsJsonObject().getAsJsonObject("position").get("endColumn").getAsInt() >
+                            b.getAsJsonObject().getAsJsonObject("position").get("startColumn").getAsInt())
+                            && (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() ==
+                            b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt())) ||
+                            (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() >
+                                    b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt()))
+                            ? 1 : -1;
+                    return comparator;
+                });
 
-            allParamElements.forEach(allParams::add);
-
-            node.add("allParams", allParams);
+                JsonArray allParams = new JsonArray();
+                allParamElements.forEach(allParams::add);
+                node.add("allParams", allParams);
+            }
 
             if (node.has("receiver")
                     && !node.getAsJsonObject("receiver").has("ws")) {
@@ -707,10 +816,12 @@ public class FormattingSourceGen {
                 node.addProperty("hasRestParams", true);
             }
 
-            if (node.has("restParameters")
-                    && node.getAsJsonObject("restParameters").has("typeNode")) {
-                node.getAsJsonObject("restParameters").getAsJsonObject("typeNode")
-                        .addProperty("isRestParam", true);
+            if (node.has("restParameters")) {
+                node.getAsJsonObject("restParameters").addProperty("param", true);
+                if (node.getAsJsonObject("restParameters").has("typeNode")) {
+                    node.getAsJsonObject("restParameters").getAsJsonObject("typeNode")
+                            .addProperty("isRestParam", true);
+                }
             }
         }
 
@@ -747,6 +858,11 @@ public class FormattingSourceGen {
                         }
                     }
                 }
+            }
+
+            if (node.has("service") && node.get("service").getAsBoolean()
+                    && parentKind.equals("CompilationUnit")) {
+                node.addProperty("skip", true);
             }
         }
 

@@ -1,25 +1,17 @@
 import React, { StatelessComponent } from "react";
-import { Button } from "semantic-ui-react";
-import { DiagramContext } from "../diagram-context";
+import { Button, Menu } from "semantic-ui-react";
 import { ZoomFitButton } from "./zoom-fit-button";
 import { ZoomInButton } from "./zoom-in-button";
 import { ZoomOutButton } from "./zoom-out-button";
 
-export const ZoomControllers: StatelessComponent<{}> = (
-            { children }
-        ) => {
-    return  (
-        <DiagramContext.Consumer>
-            {(diagContext) => {
-                return (!diagContext.editingEnabled &&
-                    <Button.Group className="zoom-controllers">
-                        <ZoomInButton />
-                        <ZoomOutButton />
-                        <ZoomFitButton />
-                        {children}
-                    </Button.Group>
-                );
-            }}
-        </DiagramContext.Consumer>
+export const ZoomControllers: StatelessComponent<{}> = () => {
+    return (
+        <Menu.Item>
+            <Button.Group className="zoom-controllers" size="tiny">
+                <ZoomInButton />
+                <ZoomOutButton />
+                <ZoomFitButton />
+            </Button.Group>
+        </Menu.Item>
     );
 };

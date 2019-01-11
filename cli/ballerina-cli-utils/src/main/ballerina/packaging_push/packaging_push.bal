@@ -93,15 +93,16 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 # This function will invoke the method to push the module.
 # + args - Arguments passed
 public function main (string... args) {
-    http:Client httpEndpoint = new ("");
+    http:Client httpEndpoint;
     string host = args[13];
     string strPort = args[14];
     if (host != "" && strPort != "") {
-        var port = int.create(strPort);
+        var port = int.convert(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
             if (result is http:Client) {
                 httpEndpoint = result;
+                pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);
             } else if (result is error) {
                 io:println("failed to resolve host : " + host + " with port " + port);
                 return;
@@ -114,8 +115,8 @@ public function main (string... args) {
         return;   
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[9]);
-    }        
-    pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);    
+        pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);
+    }
 }
 
 # This function defines an endpoint with proxy configurations.

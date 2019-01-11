@@ -91,7 +91,7 @@ service frontendHttpService on frontendEP {
         io:println("Response : " + responseStringPayload);
 
         // Fetch required promised responses
-        foreach promise in promises {
+        foreach var promise in promises {
             http:Response promisedResponse = new;
             var promisedResponseResult = backendClientEP->getPromisedResponse(promise);
             if (promisedResponseResult is http:Response) {

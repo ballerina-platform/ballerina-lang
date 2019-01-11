@@ -125,7 +125,7 @@ public type Cache object {
         // Get the above number of least recently used cache entry keys from the cache
         string[] cacheKeys = self.getLRUCacheKeys(numberOfKeysToEvict);
         // Iterate through the map and remove entries.
-        foreach c in cacheKeys {
+        foreach var c in cacheKeys {
             // These cache values are ignred. So it is not needed to check the return value for the remove function.
             _ = self.entries.remove(c);
         }
@@ -187,7 +187,7 @@ public type Cache object {
         int[] timestamps = [];
         string[] keys = self.entries.keys();
         // Iterate through the keys.
-        foreach key in keys {
+        foreach var key in keys {
             CacheEntry? cacheEntry = self.entries[key];
             if (cacheEntry is CacheEntry) {
                 // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
@@ -211,45 +211,67 @@ function runCacheExpiry() returns error? {
     string[] emptyCacheKeys = [];
 
     // Iterate through all caches.
-    foreach currentCacheKey, currentCache in cacheMap {
+    int keyIndex = 0;
+    string[] currentCacheKeys = cacheMap.keys();
+    int cacheKeysLength = currentCacheKeys.length();
+    while (keyIndex < cacheKeysLength) {
 
-        // Get the expiry time of the current cache
-        int currentCacheExpiryTime = currentCache.expiryTimeMillis;
+        string currentCacheKey = currentCacheKeys[keyIndex];
+        keyIndex += 1;
+        Cache? currentCache = cacheMap[currentCacheKey];
+        if (currentCache is ()) {
+            continue;
+        } else {
+            // Get the expiry time of the current cache
+            int currentCacheExpiryTime = currentCache.expiryTimeMillis;
 
-        // Create a new array to store keys of cache entries which needs to be removed.
-        string[] cachesToBeRemoved = [];
+            // Create a new array to store keys of cache entries which needs to be removed.
+            string[] cachesToBeRemoved = [];
 
-        int cachesToBeRemovedIndex = 0;
-        // Iterate through all keys.
-        foreach key, entry in currentCache.entries {
+            int cachesToBeRemovedIndex = 0;
+            // Iterate through all keys.
+            int entrykeyIndex = 0;
+            string[] entryKeys = currentCache.entries.keys();
+            int entryKeysLength = entryKeys.length();
+            while (entrykeyIndex < entryKeysLength) {
 
-            // Get the current system time.
-            int currentSystemTime = time:currentTime().time;
+                var key = entryKeys[entrykeyIndex];
+                entrykeyIndex += 1;
+                CacheEntry? entry = currentCache.entries[key];
+                if (entry is ()) {
+                    continue;
+                } else {
+                    // Get the current system time.
+                    int currentSystemTime = time:currentTime().time;
 
-            // Check whether the cache entry needs to be removed.
-            if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
-                cachesToBeRemoved[cachesToBeRemovedIndex] = key;
-                cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
+                    // Check whether the cache entry needs to be removed.
+                    if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
+                        cachesToBeRemoved[cachesToBeRemovedIndex] = key;
+                        cachesToBeRemovedIndex += 1;
+                    }
+                }
             }
-        }
 
-        // Iterate through the key list which needs to be removed.
-        foreach currentKeyIndex in 0..<cachesToBeRemovedIndex {
-            string key = cachesToBeRemoved[currentKeyIndex];
-            // Remove the cache entry.
-            _ = currentCache.entries.remove(key);
-        }
+            // Iterate through the key list which needs to be removed.
+            int currentKeyIndex = 0;
+            while(currentKeyIndex < cachesToBeRemovedIndex) {
+                string key = cachesToBeRemoved[currentKeyIndex];
+                // Remove the cache entry.
+                _ = currentCache.entries.remove(key);
+                currentKeyIndex += 1;
+            }
 
-        // If there are no entries, we add that cache key to the `emptyCacheKeys`.
-        int size = currentCache.entries.length();
-        if (size == 0) {
-            emptyCacheKeys[emptyCacheCount] = currentCacheKey;
-            emptyCacheCount += 1;
+            // If there are no entries, we add that cache key to the `emptyCacheKeys`.
+            int size = currentCache.entries.length();
+            if (size == 0) {
+                emptyCacheKeys[emptyCacheCount] = currentCacheKey;
+                emptyCacheCount += 1;
+            }
         }
     }
 
     // We iterate though all empty cache keys and remove them from the `cacheMap`.
-    foreach emptyCacheKey in emptyCacheKeys {
+    foreach var emptyCacheKey in emptyCacheKeys {
         _ = cacheMap.remove(emptyCacheKey);
     }
     return ();
@@ -262,7 +284,7 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
 
     // Iterate while we count all values from 0 to numberOfKeysToEvict exclusive of numberOfKeysToEvict since the
     // array size should be numberOfKeysToEvict.
-    foreach index in 0..<numberOfKeysToEvict {
+    foreach var index in 0..<numberOfKeysToEvict {
         // If we have encountered the end of the array, that means we can add the new values to the end of the
         // array since we haven’t reached the numberOfKeysToEvict limit.
         if (cacheKeys.length() == index) {

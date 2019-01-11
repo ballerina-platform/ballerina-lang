@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.983.1-SNAPSHOT</version>
+        <version>0.990.3-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -212,7 +212,7 @@
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-prometheus-extension/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/protobuf-ballerina/target/classes" />
-                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/target/classes" />
+                                                        <!--<fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/target/classes" />-->
                                                         <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-to-swagger/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/swagger-to-ballerina-generator/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/target/classes" />
@@ -256,7 +256,7 @@
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-prometheus-extension/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/protobuf-ballerina/src/main/java" />
-                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/src/main/java" />
+                                                        <!--<fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/src/main/java" />-->
                                                         <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-to-swagger/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/swagger-to-ballerina-generator/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/src/main/java" />

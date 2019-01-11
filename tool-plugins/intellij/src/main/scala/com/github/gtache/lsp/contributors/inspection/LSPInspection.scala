@@ -1,7 +1,7 @@
 package com.github.gtache.lsp.contributors.inspection
 
 import com.github.gtache.lsp.PluginMain
-import com.github.gtache.lsp.contributors.LSPQuickFix
+import com.github.gtache.lsp.contributors.fixes.{LSPCodeActionFix, LSPCommandFix}
 import com.github.gtache.lsp.contributors.psi.LSPPsiElement
 import com.github.gtache.lsp.editor.{DiagnosticRangeHighlighter, EditorEventManager}
 import com.github.gtache.lsp.utils.FileUtils
@@ -47,9 +47,14 @@ class LSPInspection extends LocalInspectionTool {
               case _ => null
             }
             val element = LSPPsiElement(name, m.editor.getProject, start, end, file)
-            val commands = m.codeAction(element)
-            manager.createProblemDescriptor(element, null.asInstanceOf[TextRange], diagnostic.getMessage, severity, isOnTheFly,
-              (if (commands != null) commands.map(c => new LSPQuickFix(uri, c)).toArray else null): _*)
+            val codeActionResult = m.codeAction(element)
+            if (codeActionResult != null) {
+              val (commandsE, codeActionsE) = codeActionResult.filter(e => e != null && (e.isLeft || e.isRight)).partition(e => e.isLeft)
+              val commands = commandsE.map(e => e.getLeft).map(c => new LSPCommandFix(uri, c))
+              val codeActions = codeActionsE.map(e => e.getRight).map(c => new LSPCodeActionFix(uri, c))
+              manager.createProblemDescriptor(element, null.asInstanceOf[TextRange], diagnostic.getMessage, severity, isOnTheFly,
+                (commands ++ codeActions).toArray: _*)
+            } else null
           } else null
         }.toArray.filter(d => d != null)
       }

@@ -1,12 +1,12 @@
 import ballerina/http;
 
-service<http:Service> hello bind {port:9090} {
+service serviceName on new http:Listener(8080) {
    @http:ResourceConfig {
        path: "/",
        methods: ["POST"]
        
    }
-   sayHello (endpoint caller, http:Request request) {
+   resource function newResource(http:Caller caller, http:Request request) {
        http:Response res = new;
        h
        _ = caller->respond(res);

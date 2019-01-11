@@ -172,32 +172,32 @@ function tar3(anydata f) returns string {
     return "Value is 'Default'";
 }
 
-//type Finite "A" | true | 15.2 | "B" | "C";
+type Finite "A" | true | 15.2 | "B" | "C";
 
-//function testFiniteType() returns string {
-//    Finite a = 15.2;
-//    match a {
-//        "A" => return "Value is 'A'";
-//        true => return "Value is 'true'";
-//        15.2 => return "Value is '15.2'";
-//        "B" => return "Value is 'B'";
-//        "C" => return "Value is 'C'";
-//    }
-//    return "Value is 'Default'";
-//}
+function testFiniteType() returns string {
+    Finite a = 15.2;
+    match a {
+        "A" => return "Value is 'A'";
+        true => return "Value is 'true'";
+        15.2 => return "Value is '15.2'";
+        "B" => return "Value is 'B'";
+        "C" => return "Value is 'C'";
+    }
+    return "Value is 'Default'";
+}
 
-//function testFiniteType2() returns string {
-//    Finite a = true;
-//    anydata ad = a;
-//    match ad {
-//        "A" => return "Value is 'A'";
-//        true => return "Value is 'true'";
-//        15.2 => return "Value is '15.2'";
-//        "B" => return "Value is 'B'";
-//        "C" => return "Value is 'C'";
-//    }
-//    return "Value is 'Default'";
-//}
+function testFiniteType2() returns string {
+    Finite a = true;
+    anydata ad = a;
+    match ad {
+        "A" => return "Value is 'A'";
+        true => return "Value is 'true'";
+        15.2 => return "Value is '15.2'";
+        "B" => return "Value is 'B'";
+        "C" => return "Value is 'C'";
+    }
+    return "Value is 'Default'";
+}
 
 type Obj object {
     int var1;
@@ -362,4 +362,14 @@ function caz3(any f) returns string {
     }
 
     return "Value is Default pattern - " + io:sprintf("%s", f);
+}
+
+function testBracedUnionType() returns string {
+    any a = 12;
+    match a {
+        (1 | 2) => return "1|2";
+        3 | 4 => return "3|4";
+        (11 | 12) => return "11|12";
+        _ => return "Default";
+    }
 }

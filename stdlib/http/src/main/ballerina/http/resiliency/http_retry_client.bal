@@ -35,14 +35,14 @@ public type RetryInferredConfig record {
     !...
 };
 
-# Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
+# Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
 # to provide retrying over HTTP requests.
 #
 # + url - Target service url
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
 # + retryInferredConfig - Derived set of configurations associated with retry
-# + httpClient - HTTP client for outbound HTTP requests
-# + httpCaller - HTTP client for outbound HTTP requests
+# + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
+#                HTTP service in resilient manner.
 public type RetryClient client object {
 
     public string url;
@@ -50,7 +50,7 @@ public type RetryClient client object {
     public RetryInferredConfig retryInferredConfig;
     public Client httpClient;
 
-    # Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
+    # Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
     # to provide retrying over HTTP requests.
     #
     # + url - Target service url
@@ -65,7 +65,7 @@ public type RetryClient client object {
         self.httpClient = httpClient;
     }
 
-    # The `post()` function wraps the underlying HTTP actions in a way to provide
+    # The `post()` function wraps the underlying HTTP remote functions in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -75,7 +75,7 @@ public type RetryClient client object {
     public remote function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    # The `head()` function wraps the underlying HTTP actions in a way to provide
+    # The `head()` function wraps the underlying HTTP remote functions in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -85,7 +85,7 @@ public type RetryClient client object {
     public remote function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    # The `put()` function wraps the underlying HTTP actions in a way to provide
+    # The `put()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -95,7 +95,7 @@ public type RetryClient client object {
     public remote function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    # The `forward()` function wraps the underlying HTTP actions in a way to provide retrying functionality
+    # The `forward()` function wraps the underlying HTTP remote function in a way to provide retrying functionality
     # for a given endpoint with inbound request's HTTP verb to recover from network level failures.
     #
     # + path - Resource path
@@ -104,7 +104,7 @@ public type RetryClient client object {
     public remote function forward(string path, Request request) returns Response|error;
 
     # The `execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps the
-    # underlying HTTP actions in a way to provide retrying functionality for a given endpoint to recover
+    # underlying HTTP remote function in a way to provide retrying functionality for a given endpoint to recover
     # from network level failures.
     #
     # + path - Resource path
@@ -114,7 +114,7 @@ public type RetryClient client object {
     public remote function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error;
 
-    # The `patch()` function wraps the undeline underlying HTTP actions in a way to provide
+    # The `patch()` function wraps the undeline underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -124,7 +124,7 @@ public type RetryClient client object {
     public remote function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    # The `delete()` function wraps the underlying HTTP actions in a way to provide
+    # The `delete()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -134,7 +134,7 @@ public type RetryClient client object {
     public remote function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
-    # The `get()` function wraps the underlying HTTP actions in a way to provide
+    # The `get()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -144,7 +144,7 @@ public type RetryClient client object {
     public remote function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    # The `options()` function wraps the underlying HTTP actions in a way to provide
+    # The `options()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -275,7 +275,7 @@ remote function RetryClient.rejectPromise(PushPromise promise) {
     return self.httpClient->rejectPromise(promise);
 }
 
-// Performs execute action of the retry client. extract the corresponding http integer value representation
+// Performs execute remote function of the retry client. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
 function performRetryClientExecuteAction(@sensitive string path, Request request, @sensitive string httpVerb,
                                          RetryClient retryClient) returns Response|error {

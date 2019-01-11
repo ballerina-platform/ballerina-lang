@@ -22,9 +22,9 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
@@ -110,14 +110,8 @@ public class XMLLiteralTest {
     @Test
     public void testCombinedExpressionsAsElementName() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xml-invalid-syntax-1.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
         BAssertUtil.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
-        BAssertUtil.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
-        BAssertUtil.validateError(negativeResult, 0, "mismatched input '}}'. expecting {'[', '?', '|', Identifier}", 3,
-                28);
-        BAssertUtil.validateError(negativeResult, 0, "mismatched input '}}'. expecting ';'", 3, 46);
-        BAssertUtil.validateError(negativeResult, 0, "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 4,
-                14);
     }
 
     @Test
@@ -235,7 +229,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(seq.stringValue(), "hello aaa<bbb good morning <fname>John</fname> <lname>Doe</lname>. "
                 + "Have a nice day!<foo>123</foo><bar></bar>");
 
-        BRefValueArray items = seq.value();
+        BValueArray items = seq.value();
         Assert.assertEquals(items.size(), 7);
     }
 
@@ -257,7 +251,7 @@ public class XMLLiteralTest {
                         + "<bar xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/a\" "
                         + "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar>");
 
-        BRefValueArray items = seq.value();
+        BValueArray items = seq.value();
         Assert.assertEquals(items.size(), 2);
     }
 
@@ -313,7 +307,8 @@ public class XMLLiteralTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: start and end tag names mismatch: 'foo' and 'bar'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLCreationError \\{\"message\":\"start and end " +
+                  "tag names mismatch: 'foo' and 'bar'\"\\}.*")
     public void testMismatchTagNameVar() {
         BRunUtil.invoke(result, "testMismatchTagNameVar");
     }
@@ -398,14 +393,15 @@ public class XMLLiteralTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: invalid xml qualified name: unsupported characters in '11'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLCreationError \\{\"message\":\"invalid xml " +
+                  "qualified name: unsupported characters in '11'\"\\}.*")
     public void testInvalidElementName_1() {
         BRunUtil.invoke(result, "testInvalidElementName_1");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: invalid xml qualified name: unsupported characters in 'foo&gt;" +
-                  "bar'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLCreationError \\{\"message\":\"invalid xml " +
+                  "qualified name: unsupported characters in 'foo&gt;bar'\"\\}.*")
     public void testInvalidElementName_2() {
         BRunUtil.invoke(result, "testInvalidElementName_2");
     }
@@ -438,6 +434,14 @@ public class XMLLiteralTest {
 
         BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(xml.stringValue(), "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" " +
-                "xmlns:ns1=\"http://ballerina.com/b\" xmlns:ns0=\"http://ballerina.com/a\">hello</p:person>");
+                "xmlns:ns0=\"http://ballerina.com/a\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
+    }
+
+    @Test
+    public void testObjectLevelXML() {
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
     }
 }

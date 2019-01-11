@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.completions;
 
+import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -42,7 +43,10 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -57,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -95,7 +100,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -161,11 +165,13 @@ public class TreeVisitor extends LSNodeVisitor {
             acceptNode(bLangImportPackage, pkgEnv);
         });
 
-        topLevelNodes.forEach(topLevelNode -> {
-            cursorPositionResolver = TopLevelNodeScopeResolver.class;
-            this.blockOwnerStack.push(evalPkg);
-            acceptNode((BLangNode) topLevelNode, pkgEnv);
-        });
+        topLevelNodes.stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(topLevelNode -> {
+                    cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                    this.blockOwnerStack.push(evalPkg);
+                    acceptNode((BLangNode) topLevelNode, pkgEnv);
+                });
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
         if (this.lsContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
@@ -233,6 +239,15 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstant constant) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        if (cpr.isCursorBeforeNode(constant.getPosition(), this, this.lsContext, constant, constant.symbol)) {
+            return;
+        }
+        this.acceptNode(constant.typeNode, symbolEnv);
+    }
+
+    @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         BSymbol recordSymbol = recordTypeNode.symbol;
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
@@ -283,6 +298,7 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable varNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        varNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, symbolEnv));
         if (cpr.isCursorBeforeNode(varNode.getPosition(), this, this.lsContext, varNode, varNode.symbol)
                 || varNode.expr == null) {
             return;
@@ -333,7 +349,8 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
-        boolean isFuture = varDefNode.getVariable().expr.type instanceof BFutureType;
+        boolean isFuture = varDefNode.getVariable().expr != null
+                && varDefNode.getVariable().expr.type instanceof BFutureType;
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (isFuture || cpr.isCursorBeforeNode(varDefNode.getPosition(), this, this.lsContext, varDefNode,
                 varDefNode.getVariable().symbol)) {
@@ -436,7 +453,7 @@ public class TreeVisitor extends LSNodeVisitor {
         serviceContent.addAll(serviceFields);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
 
-//        serviceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, serviceEnv));
+        serviceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, serviceEnv));
         // Reset the previous node
         this.setPreviousNode(null);
         boolean cursorWithinBlock = serviceFunctions.isEmpty()
@@ -741,10 +758,15 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     public void setNextNode(BSymbol symbol) {
-        if (symbol == null) {
-            return;
+        if (symbol instanceof BServiceSymbol) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.SERVICE);
+        } else if (symbol instanceof BInvokableSymbol && (symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.RESOURCE);
+        } else if (symbol instanceof BInvokableSymbol) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.FUNCTION);
+        } else if (symbol instanceof BVarSymbol && (symbol.flags & Flags.LISTENER) == Flags.LISTENER) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.LISTENER);
         }
-        lsContext.put(CompletionKeys.NEXT_NODE_KEY, symbol.flags);
     }
 
     /**
@@ -765,7 +787,7 @@ public class TreeVisitor extends LSNodeVisitor {
     /////     Private Methods     /////
     ///////////////////////////////////
     private void acceptNode(BLangNode node, SymbolEnv env) {
-        if (this.terminateVisitor) {
+        if (this.terminateVisitor || node == null) {
             return;
         }
 

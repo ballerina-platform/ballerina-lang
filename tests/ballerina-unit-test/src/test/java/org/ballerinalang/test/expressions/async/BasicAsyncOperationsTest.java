@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -77,12 +78,46 @@ public class BasicAsyncOperationsTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+    public void testAsyncNonNativeBasic7() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic7", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+    public void testAsyncNonNativeBasic8() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic8", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testAsyncNonNativeBasic9() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic9", new BValue[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+    public void testAsyncNonNativeBasic10() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic10", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+    public void testAsyncNonNativeBasic11() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic11", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test (description = "Test negative issues with future")
     public void testAsyncNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/expressions/async/async-operations-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'future', found 'int'", 3, 18);
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'future', found 'int'", 9, 18);
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'future', found 'any'", 15, 18);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'future<int>', found 'int'", 3, 23);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'future<int>', found 'int'", 9, 23);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'future<int>', found 'any'", 15, 23);
     }
 }

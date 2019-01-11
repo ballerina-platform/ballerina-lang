@@ -3,29 +3,25 @@ import ballerina/io;
 
 public function main() {
     // Client endpoint configuration with SSL configurations.
-    endpoint HelloWorldBlockingClient helloWorldBlockingEp {
-        url: "https://localhost:9090",
-        secureSocket: {
-            trustStore: {
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
+    HelloWorldBlockingClient helloWorldBlockingEp = new("https://localhost:9090",
+        config = {
+            secureSocket: {
+                trustStore: {
+                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    password: "ballerina"
+                }
             }
-        }
-    };
+    });
 
     // Executes unary blocking secured call.
     var unionResp = helloWorldBlockingEp->hello("WSO2");
-
-    match unionResp {
-        (string, grpc:Headers) payload => {
-            string result;
-            (result, _) = payload;
-            io:println("Client Got Response : ");
-            io:println(result);
-        }
-        error err => {
-            io:println("Error from Connector: " + err.message);
-        }
+    if (unionResp is error) {
+        io:println("Error from Connector: " + unionResp.reason() + " - "
+                                         + <string>unionResp.detail().message);
+    } else {
+        string result;
+        (result, _) = unionResp;
+        io:println("Client Got Response : ");
+        io:println(result);
     }
 }
-

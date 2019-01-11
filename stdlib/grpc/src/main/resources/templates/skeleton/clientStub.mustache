@@ -12,7 +12,7 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("{{stubType}}", DESCRIPTOR_KEY, getDescriptorMap());
+        error? result = c.initStub("{{stubType}}", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -27,13 +27,13 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         grpc:Headers resHeaders = new;
         {{#if outputType}}any result = ();
         (result, resHeaders) = payload;
-        {{#not_equal outputType "string"}}var value = {{outputType}}.create(result);
+        {{#not_equal outputType "string"}}var value = {{outputType}}.convert(result);
         if (value is {{outputType}}) {
             return (value, resHeaders);
         } else {
             error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
             return err;
-        }{{/not_equal}}{{#equals outputType "string"}}return ({{outputType}}.create(result), resHeaders);{{/equals}}{{else}}(_, resHeaders) = payload;
+        }{{/not_equal}}{{#equals outputType "string"}}return ({{outputType}}.convert(result), resHeaders);{{/equals}}{{else}}(_, resHeaders) = payload;
         return resHeaders;{{/if}}
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}
@@ -49,14 +49,15 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 {{/stubList}}{{#messageList}}
 type {{messageName}} record {
     {{#fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
-    {{/fieldList}}{{#each oneofFieldMap as |value key|}}{{camelcase @key}} {{@key}};{{/each}}
+    {{/fieldList}}{{#each oneofFieldMap as |value key|}}{{camelcase @key}} {{@key}};
+    {{/each}}!...
 };
 {{#each oneofFieldMap}}
 public type {{camelcase @key}} {{#each this}}{{this.messageName}}{{#unless @last}}|{{/unless}}{{/each}};
 {{#each this}}
 type {{this.messageName}} record {
     {{#this.fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
-    {{/this.fieldList}}
+    {{/this.fieldList}}!...
 };
 {{/each}}{{/each}}
 {{#enumList}}public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};
@@ -65,9 +66,9 @@ type {{this.messageName}} record {
 {{/enumList}}{{/messageList}}
 {{#enumList}}public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};
 {{#fieldList}}public final {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
-{{/fieldList}}{{/enumList}}{{#if rootDescriptorKey}}
-const string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
-function getDescriptorMap() returns map<any> {
+{{/fieldList}}{{/enumList}}{{#if rootDescriptor}}
+const string ROOT_DESCRIPTOR = "{{rootDescriptor}}";
+function getDescriptorMap() returns map<string> {
     return {
         {{#each descriptors}}"{{descriptorKey}}":"{{descriptorData}}"{{#unless @last}},{{/unless}}
         {{/each}}

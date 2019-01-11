@@ -21,14 +21,21 @@ public function main() {
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         var result = response.getPayloadAsString();
-        log:printInfo((result is error) ? "Failed to retrieve payload." : result);
+        log:printInfo((result is error) ? "Failed to retrieve payload."
+                                        : result);
     } else {
         log:printError("Failed to call the endpoint.", err = response);
     }
 }
 
 // Create a basic authentication provider with the relevant configurations.
+http:AuthProvider basicAuthProvider = {
+    scheme: "basic",
+    authStoreProvider: "config"
+};
+
 listener http:Listener ep  = new(9090, config = {
+    authProviders: [basicAuthProvider],
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

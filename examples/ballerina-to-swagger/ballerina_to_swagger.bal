@@ -1,13 +1,11 @@
 import ballerina/http;
 import ballerina/log;
 
-endpoint http:Listener helloEp {
-    port: 9090
-};
+listener http:Listener helloEp = new(9090);
 
-service hello bind helloEp {
-    hi(endpoint caller, http:Request request) {
-        http:Response res;
+service hello on helloEp {
+    resource function hi(http:Caller caller, http:Request request) {
+        http:Response res = new;
         res.setPayload("Hello World!");
 
         var result = caller->respond(res);

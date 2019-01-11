@@ -490,7 +490,9 @@ public class CompiledPackageSymbolEnter {
         type.sealed = dataInStream.readBoolean();
         if (!type.sealed) {
             String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
-            type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
+            UnresolvedType restFieldType = new UnresolvedType(restFieldTypeDesc,
+                                                              restType -> type.restFieldType = restType);
+            this.env.unresolvedTypes.add(restFieldType);
         } else {
             type.restFieldType = symTable.noType;
         }
@@ -563,7 +565,7 @@ public class CompiledPackageSymbolEnter {
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-                litExpr.value = floatCPEntry.getValue();
+                litExpr.value = Double.toString(floatCPEntry.getValue());
                 litExpr.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_DECIMAL:
@@ -619,8 +621,6 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {
-        dataInStream.readInt();
-        dataInStream.readInt();
         dataInStream.readInt();
         dataInStream.readInt();
         dataInStream.readInt();
@@ -717,6 +717,9 @@ public class CompiledPackageSymbolEnter {
         String typeSig = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
         int memIndex = dataInStream.readInt();
+
+        // Read and ignore identifier kind flag
+        dataInStream.readBoolean();
 
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
@@ -946,6 +949,8 @@ public class CompiledPackageSymbolEnter {
         dataInStream.readInt();
         dataInStream.readInt();
         dataInStream.readInt();
+        // Read and ignore identifier kind flag
+        dataInStream.readBoolean();
 
         int attchmntIndexesLength = dataInStream.readShort();
         for (int i = 0; i < attchmntIndexesLength; i++) {
@@ -1234,8 +1239,10 @@ public class CompiledPackageSymbolEnter {
             if (retType == null) {
                 retType = symTable.nilType;
             }
-            //TODO need to consider a symbol for lambda functions for type definitions.
-            return new BInvokableType(funcParams, retType, null);
+            BTypeSymbol tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                                                           Names.EMPTY, env.pkgSymbol.pkgID, null,
+                                                           env.pkgSymbol.owner);
+            return new BInvokableType(funcParams, retType, tsymbol);
         }
 
         @Override

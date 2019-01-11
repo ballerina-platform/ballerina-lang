@@ -135,7 +135,7 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
 
     string[] keys = jwtHeaderJson.getKeys();
 
-    foreach key in keys {
+    foreach var key in keys {
         if (key == ALG) {
             jwtHeader.alg = jwtHeaderJson[key].toString();
         } else if (key == TYP) {
@@ -161,7 +161,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     JwtPayload jwtPayload = { iss: "", sub: "", aud: aud, exp: 0 };
     map<any> customClaims = {};
     string[] keys = jwtPayloadJson.getKeys();
-    foreach key in keys {
+    foreach var key in keys {
         if (key == ISS) {
             jwtPayload.iss = jwtPayloadJson[key].toString();
         } else if (key == SUB) {
@@ -172,7 +172,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
             string exp = jwtPayloadJson[key].toString();
-            var value = int.create(exp);
+            var value = int.convert(exp);
             if (value is int) {
                 jwtPayload.exp = value;
             } else {
@@ -180,7 +180,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             }
         } else if (key == NBF) {
             string nbf = jwtPayloadJson[key].toString();
-            var value = int.create(nbf);
+            var value = int.convert(nbf);
             if (value is int) {
                 jwtPayload.nbf = value;
             } else {
@@ -188,7 +188,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             }
         } else if (key == IAT) {
             string iat = jwtPayloadJson[key].toString();
-            var value = int.create(iat);
+            var value = int.convert(iat);
             if (value is int) {
                 jwtPayload.iat = value;
             } else {
@@ -277,7 +277,7 @@ function validateIssuer(JwtPayload jwtPayload, JWTValidatorConfig config) return
 }
 
 function validateAudience(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
-    foreach audience in jwtPayload.aud {
+    foreach var audience in jwtPayload.aud {
         if (audience == config.audience) {
             return true;
         }

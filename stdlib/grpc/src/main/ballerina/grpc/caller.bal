@@ -13,22 +13,20 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/system;
 
-# Provides the gRPC actions for interacting with caller.
+# Provides the gRPC remote functions for interacting with caller.
+#
+# + instanceId - The connection id
+# + remoteDetails - The remote details
+# + local - The local details
 public type Caller client object {
 
     public Remote remoteDetails = {};
     public Local local = {};
-    public string protocol = "";
 
-    private string instanceId;
+    private int instanceId = -1;
 
-    public function __init() {
-        self.instanceId = system:uuid();
-    }
-
-    public function getInstanceId() returns string {
+    public function getId() returns int {
         return self.instanceId;
     }
 

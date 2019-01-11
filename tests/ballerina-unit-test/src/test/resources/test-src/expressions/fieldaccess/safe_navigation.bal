@@ -260,17 +260,6 @@ function testFunctionInvocOnJsonNonExistingField (json inputJson) returns (json,
     return (j, s, keys);
 }
 
-function testCountOnJSON (json inputJson) returns int {
-    json j = {names: ["John", "Doe"]};
-    int count = j.names.count();
-    return count;
-}
-
-function testCountOnNullJSON (json inputJson) {
-    json j = {name:"John"};
-    int count = j.foo.bar.count();
-}
-
 type Student object {
     public string name = "";
     public int marks = 60;
@@ -347,4 +336,17 @@ function testUpdatingNullableObjectField_2() returns any {
     PersonObject|() p = new PersonObject(());
     p.info2.address2.city = "Kandy";
     return p;
+}
+
+function getJsonValue() returns json|error {
+    return 10;
+}
+
+function testSafeNavigationOnFieldAccess() returns json|error {
+    return getJsonValue()!foo;
+}
+
+function testSafeNavigationOnIndexBasedAccess() returns json|error {
+    (json|error)[] data = [getJsonValue()];
+    return data[0]!foo;
 }

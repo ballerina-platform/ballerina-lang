@@ -40,7 +40,7 @@ definition
     ;
 
 serviceDefinition
-    :   SERVICE Identifier? ON expression serviceBody
+    :   SERVICE Identifier? ON expressionList serviceBody
     ;
 
 serviceBody
@@ -53,9 +53,8 @@ serviceBodyMember
     ;
 
 callableUnitBody
-    :   LEFT_BRACE (statement* | workerDeclaration+) RIGHT_BRACE
+    : LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
-
 
 functionDefinition
     :   (PUBLIC)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
@@ -114,7 +113,7 @@ objectFunctionDefinition
     ;
 
 annotationDefinition
-    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
+    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
     ;
 
 constantDefinition
@@ -124,7 +123,7 @@ constantDefinition
 globalVariableDefinition
     :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
     |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
-    |   channelType Identifier SEMICOLON
+    |   channelType Identifier ASSIGN expression SEMICOLON
     ;
 
 channelType
@@ -149,7 +148,7 @@ workerDeclaration
     ;
 
 workerDefinition
-    :   WORKER Identifier
+    :   WORKER Identifier returnParameter?
     ;
 
 finiteType
@@ -205,12 +204,12 @@ valueTypeName
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MAP (LT typeName GT)?
-    |   TYPE_FUTURE (LT typeName GT)?
+    :   TYPE_MAP (LT typeName GT)
+    |   TYPE_FUTURE (LT typeName GT)
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
-    |   TYPE_TABLE (LT nameReference GT)?
-    |   TYPE_STREAM (LT typeName GT)?
+    |   TYPE_TABLE (LT typeName GT)
+    |   TYPE_STREAM (LT typeName GT)
     |   SERVICE
     |   errorTypeName
     |   functionTypeName
@@ -240,7 +239,8 @@ annotationAttachment
 // STATEMENTS / BLOCKS
 
 statement
-    :   variableDefinitionStatement
+    :   errorDestructuringStatement
+    |   variableDefinitionStatement
     |   assignmentStatement
     |   tupleDestructuringStatement
     |   recordDestructuringStatement
@@ -256,7 +256,7 @@ statement
     |   throwStatement
     |   panicStatement
     |   returnStatement
-    |   workerInteractionStatement
+    |   workerSendAsyncStatement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
@@ -265,9 +265,6 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
-    |   doneStatement
-    |   scopeStatement
-    |   compensateStatement
     ;
 
 variableDefinitionStatement
@@ -277,6 +274,18 @@ variableDefinitionStatement
 
 recordLiteral
     :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
+    ;
+
+staticMatchLiterals
+    :   simpleLiteral                                                       # staticMatchSimpleLiteral
+    |   recordLiteral                                                       # staticMatchRecordLiteral
+    |   tupleLiteral                                                        # staticMatchTupleLiteral
+    |   Identifier                                                          # staticMatchIdentifierLiteral
+    |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
+    ;
+
+ tupleLiteral
+    :   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS
     ;
 
 recordKeyValue
@@ -326,7 +335,11 @@ tupleDestructuringStatement
     ;
 
 recordDestructuringStatement
-    :   VAR? recordRefBindingPattern ASSIGN expression SEMICOLON
+    :   recordRefBindingPattern ASSIGN expression SEMICOLON
+    ;
+
+ errorDestructuringStatement
+    :   errorRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -371,9 +384,7 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
@@ -385,6 +396,11 @@ bindingPattern
 structuredBindingPattern
     :   tupleBindingPattern
     |   recordBindingPattern
+    |   errorBindingPattern
+    ;
+
+errorBindingPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
     ;
 
 tupleBindingPattern
@@ -412,6 +428,7 @@ restBindingPattern
 bindingRefPattern
     :   variableReference
     |   structuredRefBindingPattern
+    |   errorRefBindingPattern
     ;
 
 structuredRefBindingPattern
@@ -425,6 +442,10 @@ tupleRefBindingPattern
 
 recordRefBindingPattern
     :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+errorRefBindingPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS variableReference (COMMA (variableReference | recordRefBindingPattern))? RIGHT_PARENTHESIS
     ;
 
 entryRefBindingPattern
@@ -442,7 +463,7 @@ restRefBindingPattern
     ;
 
 foreachStatement
-    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN expression RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
+    :   FOREACH LEFT_PARENTHESIS? (typeName | VAR) bindingPattern IN expression RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 intRangeExpression
@@ -461,40 +482,9 @@ breakStatement
     :   BREAK SEMICOLON
     ;
 
-scopeStatement
-    :   scopeClause compensationClause
-    ;
-
-scopeClause
-    :   SCOPE Identifier LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-compensationClause
-    :   COMPENSATION callableUnitBody
-    ;
-
-compensateStatement
-    :   COMPENSATE Identifier SEMICOLON
-    ;
-
 // typeName is only message
 forkJoinStatement
-    :   FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
-    ;
-
-// below typeName is only 'message[]'
-joinClause
-    :   JOIN (LEFT_PARENTHESIS joinConditions RIGHT_PARENTHESIS)? LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-joinConditions
-    :   SOME integerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
-    |   ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
-    ;
-
-// below typeName is only 'message[]'
-timeoutClause
-    :   TIMEOUT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS  LEFT_BRACE statement* RIGHT_BRACE
+    :   FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE
     ;
 
 // Depricated since 0.983.0, use trap expressoin. TODO : Remove this.
@@ -531,20 +521,21 @@ returnStatement
     :   RETURN expression? SEMICOLON
     ;
 
-workerInteractionStatement
-    :   triggerWorker
-    |   workerReply
+workerSendAsyncStatement
+    :   expression RARROW Identifier (COMMA expression)? SEMICOLON
     ;
 
-// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER or CHANNEL
-triggerWorker
-    :   expression RARROW Identifier (COMMA expression)? SEMICOLON        #invokeWorker
-    |   expression RARROW FORK SEMICOLON              #invokeFork
+flushWorker
+    :   FLUSH Identifier?
     ;
 
-// below left Identifier is of type WORKER or CHANNEL and the right Identifier is of type message
-workerReply
-    :   expression LARROW Identifier (COMMA expression)? SEMICOLON
+waitForCollection
+    :   LEFT_BRACE waitKeyValue (COMMA waitKeyValue)* RIGHT_BRACE
+    ;
+
+waitKeyValue
+    :   Identifier
+    |   Identifier COLON expression
     ;
 
 variableReference
@@ -600,7 +591,11 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause onretryClause?
+    :   transactionClause onretryClause? committedAbortedClauses
+    ;
+
+committedAbortedClauses
+    :  ((committedClause? abortedClause?) | (abortedClause? committedClause?))
     ;
 
 transactionClause
@@ -609,8 +604,6 @@ transactionClause
 
 transactionPropertyInitStatement
     :   retriesStatement
-    |   oncommitStatement
-    |   onabortStatement
     ;
 
 transactionPropertyInitStatementList
@@ -624,6 +617,15 @@ lockStatement
 onretryClause
     :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
     ;
+
+committedClause
+    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+abortedClause
+    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 abortStatement
     :   ABORT SEMICOLON
     ;
@@ -634,14 +636,6 @@ retryStatement
 
 retriesStatement
     :   RETRIES ASSIGN expression
-    ;
-
-oncommitStatement
-    :   ONCOMMIT ASSIGN expression
-    ;
-
-onabortStatement
-    :   ONABORT ASSIGN expression
     ;
 
 namespaceDeclarationStatement
@@ -669,7 +663,7 @@ expression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
-    |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
+    |   tupleLiteral                                                        # bracedOrTupleExpression
     |	CHECK expression										            # checkedExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
@@ -683,10 +677,12 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   awaitExpression                                                     # awaitExprExpression
+    |   expression SYNCRARROW Identifier                                    # workerSendSyncExpression
+    |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
-    |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
+    |   LARROW Identifier (COMMA expression)?                               # workerReceiveExpression
+    |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     ;
 
@@ -711,10 +707,6 @@ trapExpr
     :   TRAP expression
     ;
 
-awaitExpression
-    :   AWAIT expression                                                    # awaitExpr
-    ;
-
 shiftExpression
     :   GT shiftExprPredicate GT
     |   LT shiftExprPredicate LT
@@ -722,14 +714,6 @@ shiftExpression
     ;
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
-
-matchExpression
-    :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
-    	;
-
-matchExpressionPatternClause
-    :   typeName Identifier? EQUAL_GT expression
-    ;
 
 //reusable productions
 
@@ -922,10 +906,6 @@ tableQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
-    ;
-
-doneStatement
-    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement

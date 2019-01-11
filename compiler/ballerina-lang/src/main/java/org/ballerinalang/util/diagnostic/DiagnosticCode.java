@@ -42,6 +42,8 @@ public enum DiagnosticCode {
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
+    TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
+    STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UNINITIALIZED_FIELD("object.uninitialized.field"),
     CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
@@ -60,6 +62,10 @@ public enum DiagnosticCode {
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
     CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT("cannot.attach.functions.to.abstract.object"),
     ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
+    PRIVATE_OBJECT_CONSTRUCTOR("private.object.constructor"),
+    PRIVATE_FIELD_ABSTRACT_OBJECT("private.field.abstract.object"),
+    PRIVATE_FUNC_ABSTRACT_OBJECT("private.function.abstract.object"),
+    OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -75,7 +81,9 @@ public enum DiagnosticCode {
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
-    WORKER_AFTER_RETURN("worker.after.return"),
+    WORKER_SEND_AFTER_RETURN("worker.send.after.return"),
+    WORKER_RECEIVE_AFTER_RETURN("worker.receive.after.return"),
+    EXPLICIT_WORKER_CANNOT_BE_DEFAULT("explicit.worker.cannot.be.default"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
@@ -100,7 +108,7 @@ public enum DiagnosticCode {
 
     //Transaction related error codes
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
-    FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("fail.cannot.be.outside.transaction.block"),
+    RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("retry.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("continue.statement.cannot.be.used.to.exit.from.a.transaction"),
     RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION("return.statement.cannot.be.used.to.exit.from.a.transaction"),
@@ -110,6 +118,7 @@ public enum DiagnosticCode {
     INVALID_TRANSACTION_HANDLER_SIGNATURE("invalid.transaction.handler.signature"),
     LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER("lambda.required.for.transaction.handler"),
     TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER("transaction.cannot.be.used.within.handler"),
+    NESTED_TRANSACTIONS_ARE_INVALID("nested.transactions.are.invalid"),
     INVALID_FUNCTION_POINTER_ASSIGNMENT_FOR_HANDLER("invalid.function.pointer.assignment.for.handler"),
 
     // Service, endpoint related errors codes
@@ -131,6 +140,7 @@ public enum DiagnosticCode {
     REMOTE_REQUIRED_ON_REMOTE_FUNCTION("remote.required.on.remote.function"),
     INVALID_ENDPOINT_DECLARATION("invalid.endpoint.declaration"),
     INVALID_LISTENER_VARIABLE("invalid.listener.var"),
+    INVALID_LISTENER_ATTACHMENT("invalid.listener.attachment"),
 
     ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
@@ -231,6 +241,9 @@ public enum DiagnosticCode {
     NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF("not.enough.patterns.to.match.record.ref"),
     INVALID_CLOSED_RECORD_BINDING_PATTERN("invalid.closed.record.binding.pattern"),
     NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS("not.enough.fields.to.match.closed.record"),
+    INVALID_TYPE_DEFINITION_FOR_RECORD_VAR("invalid.type.definition.for.record.var"),
+
+    ERROR_BINDING_PATTERN_NOT_SUPPORTED("error.binding.pattern.not.supported"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -283,6 +296,8 @@ public enum DiagnosticCode {
     MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN("match.stmt.cannot.guarantee.a.matching.pattern"),
     MATCH_STMT_UNREACHABLE_PATTERN("match.stmt.unreachable.pattern"),
     MATCH_STMT_UNMATCHED_PATTERN("match.stmt.unmatched.pattern"),
+    MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
+    MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
 
     // error type related errors
     REQUIRE_ERROR_MAPPING_VALUE("require.error.mapping.value"),
@@ -318,12 +333,19 @@ public enum DiagnosticCode {
     // Streaming related codes
     UNDEFINED_STREAM_REFERENCE("undefined.stream.reference"),
     UNDEFINED_STREAM_ATTRIBUTE("undefined.stream.attribute"),
+    UNDEFINED_OUTPUT_STREAM_ATTRIBUTE("undefined.output.stream.attribute"),
+    UNDEFINED_SELECT_EXPR_ALIAS("alias.not.defined"),
+    SELECT_EXPR_ALIAS_NOT_FOUND("alias.not.found"),
+    OUTPUT_FIELD_VISIBLE_IN_HAVING_ORDER_BY("output.fields.allowed.in.having.and.orderby.only"),
+    STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY("stream.attributes.not.allowed.in.having.and.orderby"),
+    INCOMPATIBLE_FIELDS_IN_SELECT_CLAUSE("incompatible.fields.in.select.clause"),
     INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
     INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
     INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
     INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
     STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
     UNDEFINED_INVOCATION_ALIAS("undefined.invocation.alias"),
+    INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
@@ -362,7 +384,10 @@ public enum DiagnosticCode {
 
     // Worker receive and send related error codes
     INVALID_TYPE_FOR_RECEIVE("invalid.type.for.receive"),
-    INVALID_TYPE_FOR_SEND("invalid.type.for.send");
+    INVALID_TYPE_FOR_SEND("invalid.type.for.send"),
+
+    INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression"),
+    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature");
 
     private String value;
 

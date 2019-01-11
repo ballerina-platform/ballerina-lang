@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.983.1-SNAPSHOT</version>
+    <version>0.990.3-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -193,6 +193,11 @@
             </dependency>
 
             <!-- ballerina-cache -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-cache</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-cache</artifactId>
@@ -787,6 +792,11 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-privacy</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-privacy</artifactId>
+                <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
@@ -804,6 +814,7 @@
                 <artifactId>ballerina-config</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
@@ -1554,6 +1565,16 @@
                 </exclusions>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1649,14 +1670,12 @@
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
-                <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
@@ -1665,6 +1684,8 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1709,12 +1730,11 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
-                <module>tests/composer-integration-tests</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
+                <module>tests/ballerina-examples-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
-                <module>tool-plugins/theia</module>
 
                 <module>benchmarks</module>
             </modules>
@@ -1734,14 +1754,12 @@
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
-                <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
@@ -1750,6 +1768,8 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1791,7 +1811,6 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
-                <module>tests/composer-integration-tests</module>
             </modules>
         </profile>
         <profile>
@@ -1815,14 +1834,12 @@
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
-                <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
@@ -1831,6 +1848,8 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1877,9 +1896,8 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
-                <module>tests/composer-integration-tests</module>
                 <module>tests/ballerina-tools-integration-test</module>
-
+                <module>tests/ballerina-examples-test</module>
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>
@@ -2209,7 +2227,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.983.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.990.3-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -2232,7 +2250,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.243</transport.http.version>
+        <transport.http.version>6.0.250</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2366,6 +2384,7 @@
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>1.5.5</apache.directory.server.version>
+        <bouncycastle.version>1.60</bouncycastle.version>
     </properties>
 
 </project>

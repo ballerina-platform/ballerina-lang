@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -157,7 +157,7 @@ public class ASTBuilderUtil {
         return castExpr;
     }
 
-    private static BConversionOperatorSymbol createUnboxValueOpSymbolToAnyType(BType sourceType, SymbolTable symTable) {
+    private static BCastOperatorSymbol createUnboxValueOpSymbolToAnyType(BType sourceType, SymbolTable symTable) {
         int opcode;
         switch (sourceType.tag) {
             case TypeTags.INT:
@@ -182,7 +182,7 @@ public class ASTBuilderUtil {
 
         List<BType> paramTypes = Lists.of(sourceType, symTable.anyType);
         BInvokableType opType = new BInvokableType(paramTypes, symTable.anyType, null);
-        return new BConversionOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
+        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
     }
 
     static BLangFunction createFunction(DiagnosticPos pos, String name) {
@@ -232,16 +232,12 @@ public class ASTBuilderUtil {
 
     static BLangForeach createForeach(DiagnosticPos pos,
                                       BLangBlockStmt target,
-                                      BLangSimpleVarRef collectionVarRef,
-                                      List<BLangSimpleVarRef> varRefs,
-                                      List<BType> inputTypes) {
+                                      BLangSimpleVarRef collectionVarRef) {
         final BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.pos = pos;
         target.addStatement(foreach);
         foreach.body = ASTBuilderUtil.createBlockStmt(pos);
         foreach.collection = collectionVarRef;
-        foreach.varRefs.addAll(varRefs);
-        foreach.varTypes = inputTypes;
         return foreach;
     }
 
@@ -263,6 +259,10 @@ public class ASTBuilderUtil {
         assignment.pos = pos;
         target.addStatement(assignment);
         return assignment;
+    }
+
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef, BLangExpression rhsExpr) {
+        return createAssignmentStmt(pos, varRef, rhsExpr, false);
     }
 
     static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef,
@@ -384,8 +384,7 @@ public class ASTBuilderUtil {
         conversion.expr = varRef;
         conversion.type = target;
         conversion.targetType = target;
-        conversion.conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(varRef.type,
-                target);
+        conversion.conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(varRef.type, target);
         return conversion;
     }
 
@@ -418,7 +417,7 @@ public class ASTBuilderUtil {
         return argsExpr;
     }
 
-    static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+    public static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangSimpleVariable> requiredArgs, SymbolResolver symResolver) {
         return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
                 symResolver);
@@ -598,7 +597,7 @@ public class ASTBuilderUtil {
     }
 
     static BLangTypeInit createEmptyTypeInit(DiagnosticPos pos, BType type) {
-        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
+        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         objectInitNode.pos = pos;
         objectInitNode.type = type;
 
@@ -614,7 +613,7 @@ public class ASTBuilderUtil {
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 
-        objectInitNode.objectInitInvocation = invocationNode;
+        objectInitNode.initInvocation = invocationNode;
         return objectInitNode;
     }
 

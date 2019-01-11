@@ -39,7 +39,7 @@ type InitiatorClientEP client object {
         self.httpClient = httpEP;
     }
 
-    remote function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
+    remote function register(string transactionId, string transactionBlockId, RemoteProtocol[] participantProtocols)
                  returns RegistrationResponse|error {
         http:Client httpClient = self.httpClient;
         string participantId = getParticipantId(transactionBlockId);
@@ -47,17 +47,18 @@ type InitiatorClientEP client object {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols
         };
 
-        json reqPayload = check json.create(regReq);
+        json reqPayload = check json.convert(regReq);
         http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient->post("", req);
         http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode != http:OK_200) {
-            error err = error("Registration for transaction: " + transactionId + " failed");
+            error err = error("Registration for transaction: " + transactionId + " failed response code: "
+                + statusCode);
             return err;
         }
         json resPayload = check res.getJsonPayload();
-        return RegistrationResponse.create(resPayload);
+        return RegistrationResponse.convert(resPayload);
     }
 };

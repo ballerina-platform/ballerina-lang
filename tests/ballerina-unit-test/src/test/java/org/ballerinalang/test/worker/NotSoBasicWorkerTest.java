@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 /**
  * Advanced worker related tests.
  */
-@Test
 public class NotSoBasicWorkerTest {
 
     private CompileResult result;
@@ -39,28 +38,28 @@ public class NotSoBasicWorkerTest {
         this.result = BCompileUtil.compile("test-src/workers/not-so-basic-worker-actions.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
-    
-    @Test(enabled = false)
-    public void forkJoinWithTimeoutTest1() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithTimeoutTest1", new BValue[0]);
+
+    @Test
+    public void forkWithTimeoutTest1() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithTimeoutTest1", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
         Assert.assertEquals(map.get("x").intValue(), 15);
     }
 
-    @Test(enabled = false)
-    public void forkJoinWithTimeoutTest2() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithTimeoutTest2", new BValue[0]);
+    @Test
+    public void forkWithTimeoutTest2() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithTimeoutTest2", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
         Assert.assertEquals(map.get("x").intValue(), 25);
     }
 
-    @Test(enabled = false)
-    public void forkJoinWithMessagePassingTimeoutNotTriggered() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithMessagePassingTimeoutNotTriggered", new BValue[0]);
+    @Test
+    public void forkWithMessagePassing() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithMessagePassing", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -76,93 +75,77 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(map.get("x").intValue(), 12);
     }
 
-    @Test(enabled = false)
-    public void forkJoinWithSomeSelectedJoin1() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin1", new BValue[0]);
+    @Test
+    public void forkWithWaitOnSomeSelectedWorkers1() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers1", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger xy = (BInteger) vals[0];
         Assert.assertEquals(xy.intValue(), 75);
     }
 
-    @Test(enabled = false)
-    public void forkJoinWithSomeSelectedJoin2() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin2", new BValue[0]);
+    @Test
+    public void forkWithWaitOnSomeSelectedWorkers2() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers2", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
         Assert.assertEquals(map.get("x").intValue(), 320);
     }
 
-    @Test(enabled = false)
-    public void forkJoinWithSomeSelectedJoin3() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin3", new BValue[0]);
+    @Test
+    public void forkWithWaitOnSomeSelectedWorkers3() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers3", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
         Assert.assertEquals(map.get("x").intValue(), 160);
     }
 
-    @Test(enabled = false)
-    public void forkJoinWithSomeSelectedJoin4() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin4", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger x = (BInteger) vals[0];
-        Assert.assertEquals(x.intValue(), 10);
-    }
-
-    @Test(enabled = false)
-    public void forkJoinWithSomeSelectedJoin5() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin5", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger x = (BInteger) vals[0];
-        Assert.assertEquals(x.intValue(), 555);
-    }
-
-    @Test(enabled = false)
-    public void forkJoinWithAllSelectedJoin1() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithAllSelectedJoin1", new BValue[0]);
+    @Test
+    public void forkWithWaitOnAllSelectedWorkers1() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers1", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
         Assert.assertEquals(map.get("x").intValue(), 33);
     }
 
-    @Test(enabled = false)
-    public void forkJoinWithAllSelectedJoin2() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithAllSelectedJoin2", new BValue[0]);
+    @Test
+    public void forkWithWaitOnAllSelectedWorkers2() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers2", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger result = (BInteger) vals[0];
         Assert.assertEquals(result.intValue(), 777);
     }
 
-    @Test(enabled = false)
-    public void forkJoinInWorkers() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinInWorkers", new BValue[0]);
+    @Test
+    public void forkWithinWorkers() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithinWorkers", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger ret = (BInteger) vals[0];
         Assert.assertEquals(ret.intValue(), 30);
     }
 
-    @Test(enabled = false)
-    public void largeForkJoinCreationTest() {
-        BValue[] vals = BRunUtil.invoke(result, "largeForkJoinCreationTest", new BValue[0]);
+    @Test
+    public void largeForkCreationTest() {
+        BValue[] vals = BRunUtil.invoke(result, "largeForkCreationTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger ret = (BInteger) vals[0];
         Assert.assertEquals(ret.intValue(), 65000);
     }
 
-    @Test(enabled = false)
-    public void forkJoinWithStructTest() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithStruct", new BValue[0]);
+    @Test
+    public void forkWithStructTest() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithStruct", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "[join-block] sW1: w1[join-block] fW2: 10.344");
+        Assert.assertEquals(vals[0].stringValue(), "[block] sW1: w1[block] fW2: 10.344");
     }
 
-    @Test(enabled = false)
-    public void forkJoinWithSameWorkerContent() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSameWorkerContent", new BValue[0]);
+    @Test
+    public void forkWithSameWorkerContent() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithSameWorkerContent", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "W1: data1, W2: data2");
+        Assert.assertEquals(vals[0].stringValue(), "W3: data1, W4: data2");
     }
 
     @Test(enabled = false)
@@ -181,6 +164,6 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 10);
         int pkgIndex = result.getProgFile().getEntryPackage().pkgIndex;
-        Assert.assertEquals(result.getProgFile().globalMemArea.getIntField(pkgIndex, 0), 10);
+        Assert.assertEquals(result.getProgFile().globalMemArea.getIntField(pkgIndex, 0), 5);
     }
 }

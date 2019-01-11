@@ -366,15 +366,8 @@ function testMapToStructConversion () returns ((int, int)|error) {
     map<int> testMap = {};
     testMap["index"] = 100;
     testMap["age"] = 63;
-    Student k = check Student.create(testMap);
+    Student k = check Student.convert(testMap);
     return (k.index, k.age);
-}
-
-function testMapToStructConversionNegative () returns (Student|error) {
-    map<string> testMap = {};
-    testMap["index"] = "100";
-    testMap["age"] = "63";
-    return check Student.create(testMap);
 }
 
 function testMapFunctionsOnConstrainedMaps () returns (string[]) {
@@ -390,8 +383,8 @@ function testForEachOnConstrainedMaps () returns ((string, string)) {
     testMap["sname"] = "Coleman";
     string[] arr = [];
     int index = 0;
-    foreach v in testMap {
-        arr[index] = v;
+    foreach var v in testMap {
+        arr[index] = v[1];
         index = index + 1;
     }
     return (arr[0], arr[1]);
@@ -419,15 +412,15 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
 }
 
 type PersonComplex record {
-    string name;
-    int age;
-    PersonComplex? parent;
-    json info;
-    map<string> address;
-    int[] marks;
-    anydata a;
-    float score;
-    boolean alive;
+    string name = "";
+    int age = 0;
+    PersonComplex? parent = ();
+    json info = ();
+    map<string> address = {};
+    int[] marks = [];
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
     !...
 };
 
@@ -437,7 +430,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
                  parent:{
                             name:"Parent",
                             age:50,
-                            parent:{},
+                            parent:(),
                             address:{},
                             info:{},
                             marks:[],
@@ -453,7 +446,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
                  alive:true
              };
 
-    var result = PersonComplex.create(j);
+    var result = PersonComplex.convert(j);
     if (result is PersonComplex) {
         map<string> ms = result.address;
         return (ms.city, ms.country);
@@ -463,15 +456,15 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
 }
 
 type PersonComplexTwo record {
-    string name;
-    int age;
-    PersonComplexTwo? parent;
-    json info;
-    map<int> address;
-    int[] marks;
-    anydata a;
-    float score;
-    boolean alive;
+    string name = "";
+    int age = 0;
+    PersonComplexTwo? parent = ();
+    json info = ();
+    map<int> address = {};
+    int[] marks = [];
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
     !...
 };
 
@@ -481,7 +474,7 @@ function testJsonToStructConversionStructWithConstrainedMapNegative () returns (
                  parent:{
                             name:"Parent",
                             age:50,
-                            parent:{},
+                            parent:(),
                             address:{},
                             info:{},
                             marks:[],
@@ -496,7 +489,7 @@ function testJsonToStructConversionStructWithConstrainedMapNegative () returns (
                  score:5.67,
                  alive:true
              };
-    return check PersonComplexTwo.create(j);
+    return check PersonComplexTwo.convert(j);
 }
 
 function testConstrainedUnionRetrieveString () returns (string) {

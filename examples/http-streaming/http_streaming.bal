@@ -13,7 +13,8 @@ service HTTPStreamingService on new http:Listener(9090) {
         methods: ["GET"],
         path: "/fileupload"
     }
-    resource function handleOutputStream(http:Caller caller, http:Request clientRequest) {
+    resource function handleOutputStream(http:Caller caller,
+                                         http:Request clientRequest) {
         http:Request request = new;
 
         //Sets the file as request payload.
@@ -28,10 +29,10 @@ service HTTPStreamingService on new http:Listener(9090) {
             var payload = clientResponse.getTextPayload();
             if (payload is string) {
                 res.setPayload(untaint payload);
-            } else if (payload is error) {
+            } else {
                 setError(res, payload);
             }
-        } else if (clientResponse is error) {
+        } else {
             log:printError("Error occurred while sending data to the client ",
                             err = clientResponse);
             setError(res, clientResponse);
@@ -47,7 +48,8 @@ service HTTPStreamingService on new http:Listener(9090) {
         methods: ["POST"],
         path: "/receiver"
     }
-    resource function handleInputStream(http:Caller caller, http:Request clientRequest) {
+    resource function handleInputStream(http:Caller caller,
+                                        http:Request clientRequest) {
         http:Response res = new;
         var payload = clientRequest.getByteChannel();
         if (payload is io:ReadableByteChannel) {
@@ -58,18 +60,20 @@ service HTTPStreamingService on new http:Listener(9090) {
                 io:openWritableFile("./files/ReceivedFile.pdf");
             var result = copy(payload, destinationChannel);
             if (result is error) {
-                log:printError("error occurred while performing copy ", err = result);
+                log:printError("error occurred while performing copy ",
+                                err = result);
             }
             close(payload);
             close(destinationChannel);
 
             res.setPayload("File Received!");
-        } else if (payload is error) {
+        } else {
             setError(res, payload);
         }
         var result = caller->respond(res);
         if (result is error) {
-           log:printError("Error occurred while sending response", err = result);
+           log:printError("Error occurred while sending response",
+                           err = result);
         }
     }
 }
@@ -77,18 +81,19 @@ service HTTPStreamingService on new http:Listener(9090) {
 //Sets the error to the response.
 function setError(http:Response res, error err) {
     res.statusCode = 500;
-    res.setPayload(untaint string.create(err.detail().message));
+    res.setPayload(untaint string.convert(err.detail().message));
 }
 
 // Copies the content from the source channel to the destination channel.
-function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) returns error? {
+function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
+             returns error? {
     int readCount = 1;
     byte[] readContent;
     while (readCount > 0) {
-        //Operation attempts to read a maximum of 1000 bytes
+        //Operation attempts to read a maximum of 1000 bytes.
         (byte[], int) result = check src.read(1000);
         (readContent, readCount) = result;
-        //Writes the given content into the channel
+        //Writes the given content into the channel.
         var writeResult = check dst.write(readContent, 0);
     }
     return;

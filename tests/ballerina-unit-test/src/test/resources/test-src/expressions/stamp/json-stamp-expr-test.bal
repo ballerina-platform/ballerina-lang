@@ -177,6 +177,29 @@ function stampJSONArrayWithNullToAnydataArray() returns anydata []|error{
     return anydataArray;
 }
 
+type Foo record{
+    string [] a;
+    !...
+};
+
+function stampJSONToRecordWithArray() returns Foo|error {
+    json j1 = {a:["a", "b"]};
+    Foo|error returnValue = Foo.stamp(j1);
+
+    return returnValue;
+}
+
+function stampConstraintJSONToRecord() returns Student|error {
+    json<Student> student = { name: "John" };
+    student.status = "Single";
+    student.batch = "LK2014";
+    student.school = "Hindu College";
+
+    Student|error recordValue = Student.stamp(student);
+
+    return recordValue;
+}
+
 //----------------------------- Negative Test cases ---------------------------------------------------------------
 
 function stampJSONToRecordNegative() returns Student|error {

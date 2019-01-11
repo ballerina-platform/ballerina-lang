@@ -1,33 +1,30 @@
 {
   "nodeType": "service",
-  "nodeLine": "11",
+  "nodeLine": "7",
   "expected": {
-    "result":{
-      "edit":{
-        "changes":{
-
-        },
-        "documentChanges":[
+    "result": {
+      "edit": {
+        "documentChanges": [
           {
-            "edits":[
+            "edits": [
               {
-                "range":{
-                  "start":{
-                    "line":11,
-                    "character":0
+                "range": {
+                  "start": {
+                    "line": 7,
+                    "character": 0
                   },
-                  "end":{
-                    "line":11,
-                    "character":0
+                  "end": {
+                    "line": 7,
+                    "character": 0
                   }
                 },
-                "newText":"# Description\n"
+                "newText": "# Description\n"
               }
             ]
           }
         ]
       }
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

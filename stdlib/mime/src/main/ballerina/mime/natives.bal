@@ -13,8 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-import ballerina/file;
 import ballerina/io;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
@@ -183,7 +181,7 @@ public type Entity object {
     # + contentLength - Content length that needs to be set to entity
     public function setContentLength(@sensitive int contentLength) {
         self.cLength = contentLength;
-        var contentLengthStr = string.create(contentLength);
+        var contentLengthStr = string.convert(contentLength);
         self.setHeader(CONTENT_LENGTH, contentLengthStr);
     }
 
@@ -198,7 +196,7 @@ public type Entity object {
         if (contentLength == "") {
             return -1;
         } else {
-            return int.create(contentLength);
+            return int.convert(contentLength);
         }
     }
 

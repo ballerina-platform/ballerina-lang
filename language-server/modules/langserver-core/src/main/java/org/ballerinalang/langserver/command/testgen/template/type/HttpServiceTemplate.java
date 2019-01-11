@@ -20,20 +20,18 @@ import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
 import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
 import org.ballerinalang.langserver.command.testgen.template.AbstractTestTemplate;
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
-import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.isRecordValueExists;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -51,35 +49,16 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
     private final List<BLangFunction> resources;
 
     public HttpServiceTemplate(BLangPackage builtTestFile, BLangService service,
-                               List<? extends EndpointNode> globalEndpoints,
+                               BLangTypeInit init,
                                BiConsumer<Integer, Integer> focusLineAcceptor) {
         super(builtTestFile, focusLineAcceptor);
         String serviceName = service.name.value;
-        boolean isSecureTemp = false;
         String serviceUriTemp = HTTP + DEFAULT_IP + ":" + DEFAULT_PORT;
 
-        // If Anonymous Endpoint bounded, get `port` and `isSecure` from it
-        BLangRecordLiteral anonEndpointBind = service.anonymousEndpointBind;
-        if (anonEndpointBind != null) {
-            Optional<String> optionalPort = searchStringField(HttpConstants.ANN_CONFIG_ATTR_PORT, anonEndpointBind);
-            isSecureTemp = isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET, anonEndpointBind);
-            String protocol = ((isSecureTemp) ? HTTPS : HTTP);
-            serviceUriTemp = optionalPort.map(port -> protocol + DEFAULT_IP + ":" + port).orElse(serviceUriTemp);
-        }
-
-        // Check for the bounded endpoint to get `port` and `isSecure` from it
-        List<? extends SimpleVariableReferenceNode> boundEndpoints = service.boundEndpoints;
-        EndpointNode endpoint = (boundEndpoints.size() > 0) ? globalEndpoints.stream()
-                .filter(ep -> service.boundEndpoints.get(0).getVariableName().getValue()
-                        .equals(ep.getName().getValue()))
-                .findFirst().orElse(null) : null;
-        if (endpoint != null && endpoint.getConfigurationExpression() instanceof BLangRecordLiteral) {
-            BLangRecordLiteral configs = (BLangRecordLiteral) endpoint.getConfigurationExpression();
-            Optional<String> optionalPort = searchStringField(HttpConstants.ANN_CONFIG_ATTR_PORT, configs);
-            isSecureTemp = isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET, configs);
-            String protocol = ((isSecureTemp) ? HTTPS : HTTP);
-            serviceUriTemp = optionalPort.map(port -> protocol + DEFAULT_IP + ":" + port).orElse(serviceUriTemp);
-        }
+        boolean isSecureTemp = isSecureService(init);
+        String protocol = ((isSecureTemp) ? HTTPS : HTTP);
+        Optional<String> optionalPort = findServicePort(init);
+        serviceUriTemp = optionalPort.map(port -> protocol + DEFAULT_IP + ":" + port).orElse(serviceUriTemp);
 
         this.isSecure = isSecureTemp;
         this.serviceUri = serviceUriTemp;
@@ -95,8 +74,8 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
                 tempServiceBasePath = basePath.orElse(tempServiceBasePath);
             }
         }
-        this.serviceUriStrName = getSafeGlobalVariableName(lowerCaseFirstLetter(serviceName) + "Uri");
-        this.testServiceFunctionName = getSafeFunctionName("test" + upperCaseFirstLetter(serviceName));
+        this.serviceUriStrName = getSafeName(lowerCaseFirstLetter(serviceName) + "Uri");
+        this.testServiceFunctionName = getSafeName("test" + upperCaseFirstLetter(serviceName));
         this.serviceBasePath = tempServiceBasePath;
         this.resources = service.getResources();
     }
@@ -109,13 +88,16 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
      */
     public void render(RendererOutput rendererOutput) throws TestGeneratorException {
         String filename = (isSecure) ? "httpsService.bal" : "httpService.bal";
+        String httpEndpoint = getSafeName("httpEndpoint");
         RendererOutput serviceOutput = new TemplateBasedRendererOutput(filename);
         serviceOutput.put(PlaceHolder.OTHER.get("testServiceFunctionName"), testServiceFunctionName);
         serviceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
+        serviceOutput.put(PlaceHolder.OTHER.get("endpointName"), httpEndpoint);
 
         // Iterate through resources
         for (BLangFunction resource : resources) {
-            HttpResourceTemplate resTemplate = new HttpResourceTemplate(serviceUriStrName, serviceBasePath, resource);
+            HttpResourceTemplate resTemplate = new HttpResourceTemplate(serviceUriStrName, serviceBasePath, resource,
+                                                                        httpEndpoint);
             resTemplate.render(serviceOutput);
         }
 

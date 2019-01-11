@@ -1,25 +1,35 @@
 {
   "position": {
-    "line": 5,
+    "line": 7,
     "character": 28
   },
   "expected": {
-    "result":{
-      "signatures":[
+    "result": {
+      "signatures": [
         {
-          "label":"contains(string substring)",
-          "documentation":"Returns a Boolean value indicating whether a string contains the specified substring.",
-          "parameters":[
+          "label": "contains(string substring)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "Returns a Boolean value indicating whether a string contains the specified substring."
+            }
+          },
+          "parameters": [
             {
-              "label":"substring",
-              "documentation":"The substring to be compared"
+              "label": "substring",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "The substring to be compared"
+                }
+              }
             }
           ]
         }
       ],
-      "activeSignature":0,
-      "activeParameter":0
+      "activeSignature": 0,
+      "activeParameter": 0
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

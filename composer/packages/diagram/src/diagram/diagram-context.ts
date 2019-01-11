@@ -7,16 +7,21 @@ export enum DiagramMode { ACTION, DEFAULT }
 
 export interface IDiagramContext {
     ast: ASTNode | undefined;
+    hasSyntaxErrors: boolean;
     changeMode: (newMode: DiagramMode) => void;
     editingEnabled: boolean;
     mode: DiagramMode;
     toggleEditing: () => void;
     diagramHeight: number;
     diagramWidth: number;
+    zoomLevel: number;
     zoomIn: () => void;
     zoomOut: () => void;
     zoomFit: () => void;
     langClient?: IBallerinaLangClient;
+    overlayGroupRef?: React.RefObject<SVGGElement>;
+    containerRef?: React.RefObject<HTMLDivElement>;
+    docUri?: string;
 }
 
 const defaultDiagramContext: IDiagramContext = {
@@ -27,6 +32,7 @@ const defaultDiagramContext: IDiagramContext = {
     diagramHeight: DefaultConfig.canvas.height,
     diagramWidth: DefaultConfig.canvas.width,
     editingEnabled: false,
+    hasSyntaxErrors: false,
     mode: DiagramMode.ACTION,
     toggleEditing: () => {
         // do nothing
@@ -37,6 +43,7 @@ const defaultDiagramContext: IDiagramContext = {
     zoomIn: () => {
         // do nothing
     },
+    zoomLevel: 1,
     zoomOut: () => {
         // do nothing
     },

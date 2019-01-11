@@ -4,16 +4,16 @@ import ballerina/io;
 int total = 99;
 
 // Declare a public module-level variable.
-public int count;
+public int count = 0;
 
-// Declare a public constant.
-@final
-public string OK = "ok";
+// Declare a constant.
+const string OK = "ok";
 
-// Declare a public variable that behaves as a constant for other modules.
-// The code in the current module can update the value.
-@readonly
-public int status = 1;
+// Declare a public final variable that behaves as a constant for other modules.
+// Value of the `final` variable is frozen. Once a value is assigned to a final
+// variable it becomes immutable. All parameters of a function call are
+// implicitly final.
+public final int status = 1;
 
 public function main() {
 

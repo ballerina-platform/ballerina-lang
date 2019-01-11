@@ -6,146 +6,166 @@
   "source": "object/source/objectTest1.bal",
   "items": [
     {
-      "label": "channel",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "channel"
+      "label":"channel",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"channel"
     },
     {
-      "label": "xml",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "xml"
+      "label":"xml",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"xml"
     },
     {
-      "label": "TableConfig",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": "TableConfig represents properties used during table initialization.\n",
-      "insertText": "TableConfig"
+      "label":"TableConfig",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation": {
+        "left": "TableConfig represents properties used during table initialization.\n"
+      },
+      "insertText":"TableConfig"
     },
     {
-      "label": "byte",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "byte"
+      "label":"byte",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"byte"
     },
     {
-      "label": "stream",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "stream"
+      "label":"stream",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"stream"
     },
     {
-      "label": "testObject",
-      "kind": "Class",
-      "detail": "BType",
-      "insertText": "testObject"
+      "label":"testObject",
+      "kind":"Class",
+      "detail":"BType",
+      "insertText":"testObject"
     },
     {
-      "label": "map",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "map"
+      "label":"AbstractListener",
+      "kind":"Class",
+      "detail":"BType",
+      "insertText":"AbstractListener"
     },
     {
-      "label": "table",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "table"
+      "label":"map",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"map"
     },
     {
-      "label": "future",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "future"
+      "label":"table",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"table"
     },
     {
-      "label": "typedesc",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "typedesc"
+      "label":"anydata",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"anydata"
     },
     {
-      "label": "float",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "float"
+      "label":"future",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"future"
     },
     {
-      "label": "testEmptyObject",
-      "kind": "Class",
-      "detail": "BType",
-      "insertText": "testEmptyObject"
+      "label":"typedesc",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"typedesc"
     },
     {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "null"
+      "label":"float",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"float"
     },
     {
-      "label": "string",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "string"
+      "label":"testEmptyObject",
+      "kind":"Class",
+      "detail":"BType",
+      "insertText":"testEmptyObject"
     },
     {
-      "label": "error",
-      "kind": "Class",
-      "detail": "BType",
-      "insertText": "error"
+      "label":"null",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"null"
     },
     {
-      "label": "json",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "json"
+      "label":"decimal",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"decimal"
     },
     {
-      "label": "any",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "any"
+      "label":"string",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"string"
     },
     {
-      "label": "int",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "int"
+      "label":"error",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"error"
     },
     {
-      "label": "docData",
-      "kind": "Class",
-      "detail": "BType",
-      "insertText": "docData"
+      "label":"json",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"json"
     },
     {
-      "label": "boolean",
-      "kind": "Keyword",
-      "detail": "BType",
-      "insertText": "boolean"
+      "label":"any",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"any"
     },
     {
-      "label": "new object constructor",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "public new(${1:args}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
+      "label":"int",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"int"
     },
     {
-      "label": "function signature",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "function ${1:name}(${2});",
-      "insertTextFormat": "Snippet"
+      "label":"boolean",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"boolean"
     },
     {
-      "label": "function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
+      "label":"service",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"service"
+    },
+    {
+      "label":"new object initializer",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"public function __init(${1:any arg}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function signature",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
     }
   ]
 }

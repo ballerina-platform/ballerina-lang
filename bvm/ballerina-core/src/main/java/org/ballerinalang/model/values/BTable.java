@@ -29,6 +29,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;
@@ -51,8 +52,8 @@ public class BTable implements BRefType<Object>, BCollection {
     private TableProvider tableProvider;
     private String tableName;
     protected BStructureType constraintType;
-    private BStringArray primaryKeys;
-    private BStringArray indices;
+    private BValueArray primaryKeys;
+    private BValueArray indices;
     private boolean tableClosed;
     private volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
     private BType type;
@@ -76,14 +77,16 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public BTable(String query, BTable fromTable, BTable joinTable,
-                  BStructureType constraintType, BRefValueArray params) {
+                  BStructureType constraintType, BValueArray params) {
         this.tableProvider = TableProvider.getInstance();
         if (!fromTable.isInMemoryTable()) {
-            throw new BallerinaException("Table query over a cursor table not supported");
+            throw new BallerinaException(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                                         "Table query over a cursor table not supported");
         }
         if (joinTable != null) {
             if (!joinTable.isInMemoryTable()) {
-                throw new BallerinaException("Table query over a cursor table not supported");
+                throw new BallerinaException(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                                             "Table query over a cursor table not supported");
             }
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
                     constraintType, params);
@@ -94,7 +97,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.type = new BTableType(constraintType);
     }
 
-    public BTable(BType type, BStringArray indexColumns, BStringArray keyColumns, BRefValueArray dataRows) {
+    public BTable(BType type, BValueArray indexColumns, BValueArray keyColumns, BValueArray dataRows) {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
         this.tableProvider = TableProvider.getInstance();
@@ -127,7 +130,7 @@ public class BTable implements BRefType<Object>, BCollection {
         return tableWrapper.toString();
     }
 
-    private String createStringValueEntry(String key, BStringArray contents) {
+    private String createStringValueEntry(String key, BValueArray contents) {
         String stringValue = "[]";
         if (contents != null) {
             stringValue = contents.stringValue();
@@ -176,7 +179,8 @@ public class BTable implements BRefType<Object>, BCollection {
 
     public void moveToNext() {
         if (tableClosed) {
-            throw new BallerinaException("Trying to perform an operation over a closed table");
+            throw new BallerinaException(BallerinaErrorReasons.TABLE_CLOSED_ERROR,
+                                         "Trying to perform an operation over a closed table");
         }
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
@@ -286,15 +290,15 @@ public class BTable implements BRefType<Object>, BCollection {
         return iterator.getString(columnIndex);
     }
 
-    public long getInt(int columnIndex) {
+    public Long getInt(int columnIndex) {
         return iterator.getInt(columnIndex);
     }
 
-    public double getFloat(int columnIndex) {
+    public Double getFloat(int columnIndex) {
         return iterator.getFloat(columnIndex);
     }
 
-    public boolean getBoolean(int columnIndex) {
+    public Boolean getBoolean(int columnIndex) {
         return iterator.getBoolean(columnIndex);
     }
 
@@ -333,7 +337,7 @@ public class BTable implements BRefType<Object>, BCollection {
         }
 
         TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
-        BRefValueArray data = new BRefValueArray();
+        BValueArray data = new BValueArray();
         int cursor = 0;
         try {
             while (cloneIterator.next()) {
@@ -374,10 +378,10 @@ public class BTable implements BRefType<Object>, BCollection {
         tableProvider.dropTable(this.tableName);
     }
 
-    private void insertInitialData(BRefValueArray data) {
+    private void insertInitialData(BValueArray data) {
         int count = (int) data.size();
         for (int i = 0; i < count; i++) {
-            addData((BMap<String, BValue>) data.get(i));
+            addData((BMap<String, BValue>) data.getRefValue(i));
         }
     }
 
@@ -412,19 +416,17 @@ public class BTable implements BRefType<Object>, BCollection {
     private static class BTableIterator<K, V extends BValue> implements BIterator {
 
         private BTable table;
-        private int cursor = 0;
 
         BTableIterator(BTable value) {
             table = value;
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            if (arity == 1) {
-                return new BValue[]{table.getNext()};
+        public BValue getNext() {
+            if (hasNext()) {
+                return table.getNext();
             }
-            int cursor = this.cursor++;
-            return new BValue[]{new BInteger(cursor), table.getNext()};
+            return null;
         }
 
         @Override

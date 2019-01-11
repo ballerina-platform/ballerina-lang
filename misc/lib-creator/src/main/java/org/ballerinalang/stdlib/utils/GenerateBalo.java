@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
@@ -95,6 +96,7 @@ public class GenerateBalo {
         options.put(OFFLINE, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(SKIP_TESTS, Boolean.TRUE.toString());
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
 

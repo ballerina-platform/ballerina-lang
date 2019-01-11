@@ -34,6 +34,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -103,9 +104,9 @@ public class SelectorManager {
     /**
      * Unregister the given client channel from the selector instance.
      *
-     * @param channel {@link SocketChannel} that about to unregister.
+     * @param channel {@link AbstractSelectableChannel} that about to unregister.
      */
-    public void unRegisterChannel(SocketChannel channel) {
+    public void unRegisterChannel(AbstractSelectableChannel channel) {
         final SelectionKey selectionKey = channel.keyFor(selector);
         if (selectionKey != null) {
             selectionKey.cancel();
@@ -157,6 +158,7 @@ public class SelectorManager {
                         .register(selector, channelRegisterCallback.getInitialInterest(), socketService);
             } catch (ClosedChannelException e) {
                 channelRegisterCallback.notifyFailure("Socket already closed");
+                continue;
             }
             channelRegisterCallback
                     .notifyRegister(channelRegisterCallback.getInitialInterest() == SelectionKey.OP_READ);
@@ -175,23 +177,30 @@ public class SelectorManager {
 
     private void onAccept(SelectionKey key) {
         SocketService socketService = (SocketService) key.attachment();
+        ServerSocketChannel server = (ServerSocketChannel) socketService.getSocketChannel();
         try {
-            ServerSocketChannel server = (ServerSocketChannel) socketService.getSocketChannel();
             SocketChannel client = server.accept();
             client.configureBlocking(false);
+            // Creating a new SocketService instance with the newly accepted client.
+            // We don't need the ServerSocketChannel in here since we have all the necessary resources.
+            SocketService clientSocketService = new SocketService(client, socketService.getResources());
             // Registering the channel against the selector directly without going through the queue,
             // since we are in same thread.
-            client.register(selector, OP_READ, new SocketService(client, socketService.getResources()));
-            SelectorDispatcher.invokeOnAccept(socketService, client);
+            client.register(selector, OP_READ, clientSocketService);
+            SelectorDispatcher.invokeOnAccept(clientSocketService);
         } catch (ClosedByInterruptException e) {
-            SelectorDispatcher.invokeOnError(socketService, "Client accept interrupt by another process");
+            SelectorDispatcher.invokeOnError(new SocketService(socketService.getResources()),
+                    "Client accept interrupt by another process");
         } catch (AsynchronousCloseException e) {
-            SelectorDispatcher.invokeOnError(socketService, "Client closed by another process");
+            SelectorDispatcher
+                    .invokeOnError(new SocketService(socketService.getResources()), "Client closed by another process");
         } catch (ClosedChannelException e) {
-            SelectorDispatcher.invokeOnError(socketService, "Client is already closed");
+            SelectorDispatcher
+                    .invokeOnError(new SocketService(socketService.getResources()), "Client is already closed");
         } catch (IOException e) {
             log.error("An error occurred while accepting new client", e);
-            SelectorDispatcher.invokeOnError(socketService, "Unable to accept a new client");
+            SelectorDispatcher
+                    .invokeOnError(new SocketService(socketService.getResources()), "Unable to accept a new client");
         }
     }
 
@@ -224,6 +233,7 @@ public class SelectorManager {
                 if (log.isDebugEnabled()) {
                     log.debug("Stopping the selector loop.");
                 }
+                selector.wakeup();
                 executing = false;
                 running = false;
                 selector.close();

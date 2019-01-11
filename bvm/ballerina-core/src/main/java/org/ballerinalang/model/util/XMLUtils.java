@@ -42,10 +42,10 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLQName;
@@ -153,7 +153,7 @@ public class XMLUtils {
      */
     @SuppressWarnings("unchecked")
     public static BXML<?> parse(InputStream xmlStream) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream).getDocument();
@@ -179,7 +179,7 @@ public class XMLUtils {
      */
     @SuppressWarnings("unchecked")
     public static BXML<?> parse(InputStream xmlStream, String charset) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream, charset).getDocument();
@@ -204,7 +204,7 @@ public class XMLUtils {
      */
     @SuppressWarnings("unchecked")
     public static BXML<?> parse(Reader reader) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, reader).getDocument();
@@ -229,7 +229,7 @@ public class XMLUtils {
      * @return Concatenated XML sequence
      */
     public static BXML<?> concatenate(BXML<?> firstSeq, BXML<?> secondSeq) {
-        BRefValueArray concatSeq = new BRefValueArray();
+        BValueArray concatSeq = new BValueArray();
         int j = 0;
 
         //Load the content fully before concat the two
@@ -238,9 +238,9 @@ public class XMLUtils {
 
         // Add all the items in the first sequence
         if (firstSeq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BRefValueArray seq = ((BXMLSequence) firstSeq).value();
+            BValueArray seq = ((BXMLSequence) firstSeq).value();
             for (int i = 0; i < seq.size(); i++) {
-                concatSeq.add(j++, seq.get(i));
+                concatSeq.add(j++, seq.getRefValue(i));
             }
         } else {
             concatSeq.add(j++, firstSeq);
@@ -248,9 +248,9 @@ public class XMLUtils {
 
         // Add all the items in the second sequence
         if (secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BRefValueArray seq = ((BXMLSequence) secondSeq).value();
+            BValueArray seq = ((BXMLSequence) secondSeq).value();
             for (int i = 0; i < seq.size(); i++) {
-                concatSeq.add(j++, seq.get(i));
+                concatSeq.add(j++, seq.getRefValue(i));
             }
         } else {
             concatSeq.add(j++, secondSeq);
@@ -380,7 +380,7 @@ public class XMLUtils {
             //Process xml sequence
             BXMLSequence xmlSequence = (BXMLSequence) xml;
             if (xmlSequence.isEmpty().booleanValue()) {
-                return new BRefValueArray(new BArrayType(BTypes.typeJSON));
+                return new BValueArray(new BArrayType(BTypes.typeJSON));
             }
             json = traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
 
@@ -410,13 +410,11 @@ public class XMLUtils {
                 return isXmlItemEqual((BXMLItem) xmlOne, (BXMLItem) xmlTwo);
             } else {
                 if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlOne.isSingleton().booleanValue()) {
-                    return Arrays.equals(canonicalize((BXMLItem) ((BXMLSequence) xmlOne).getItem(0)),
-                                         canonicalize((BXMLItem) xmlTwo));
+                    return isXmlSingletonSequenceItemEqual((BXMLSequence) xmlOne, (BXMLItem) xmlTwo);
                 }
 
                 if (xmlTwoNodeType == XMLNodeType.SEQUENCE && xmlTwo.isSingleton().booleanValue()) {
-                    return Arrays.equals(canonicalize((BXMLItem) xmlOne),
-                                         canonicalize((BXMLItem) ((BXMLSequence) xmlTwo).getItem(0)));
+                    return isXmlSingletonSequenceItemEqual((BXMLSequence) xmlTwo, (BXMLItem) xmlOne);
                 }
             }
         } catch (Exception e) {
@@ -431,7 +429,8 @@ public class XMLUtils {
         }
 
         for (int i = 0; i < xmlSequenceOne.length(); i++) {
-            if (!isEqual((BXML<?>) xmlSequenceOne.value().get(i), (BXML<?>) xmlSequenceTwo.value().get(i))) {
+            if (!isEqual((BXML<?>) xmlSequenceOne.value().getRefValue(i), (BXML<?>) xmlSequenceTwo.value().
+                    getRefValue(i))) {
                 return false;
             }
         }
@@ -444,6 +443,17 @@ public class XMLUtils {
                 return Arrays.equals(canonicalize(xmlItemOne), canonicalize(xmlItemTwo));
             default:
                 return xmlItemOne.stringValue().equals(xmlItemTwo.stringValue());
+        }
+    }
+
+    private static boolean isXmlSingletonSequenceItemEqual(BXMLSequence singletonXmlSequence, BXMLItem xmlItem)
+            throws CanonicalizationException {
+        switch (xmlItem.getNodeType()) {
+            case ELEMENT:
+                return Arrays.equals(canonicalize((BXMLItem) ((BXMLSequence) singletonXmlSequence).getItem(0)),
+                                     canonicalize(xmlItem));
+            default:
+                return ((BXMLSequence) singletonXmlSequence).getItem(0).stringValue().equals(xmlItem.stringValue());
         }
     }
 
@@ -528,12 +538,12 @@ public class XMLUtils {
      */
     private static BValue traverseXMLSequence(BXMLSequence xmlSequence, String attributePrefix,
             boolean preserveNamespaces) {
-        BRefValueArray sequence = xmlSequence.value();
+        BValueArray sequence = xmlSequence.value();
         long count = sequence.size();
         ArrayList<OMElement> childArray = new ArrayList<>();
         ArrayList<OMText> textArray = new ArrayList<>();
         for (long i = 0; i < count; ++i) {
-            BXMLItem xmlItem = (BXMLItem) sequence.get(i);
+            BXMLItem xmlItem = (BXMLItem) sequence.getRefValue(i);
             OMNode omNode = xmlItem.value();
             if (OMNode.ELEMENT_NODE ==  omNode.getType()) {
                 childArray.add((OMElement) omNode);
@@ -542,7 +552,7 @@ public class XMLUtils {
             }
         }
 
-        BRefValueArray textArrayNode = null;
+        BValueArray textArrayNode = null;
         if (textArray.size() > 0) { //Text nodes are converted into json array
             textArrayNode = processTextArray(textArray);
         }
@@ -596,7 +606,7 @@ public class XMLUtils {
                     }
                 } else {
                     //Child elements with similar keys are put into an array
-                    BRefValueArray arrayNode = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+                    BValueArray arrayNode = new BValueArray(new BArrayType(BTypes.typeJSON));
                     for (OMElement element : elementList) {
                         arrayNode.append(new BString(element.getText()));
                     }
@@ -622,7 +632,7 @@ public class XMLUtils {
                 root.put(key, elementList.get(0));
             } else {
                 // When there are multiple nodes with the same key they are set into an array
-                BRefValueArray arrayNode = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+                BValueArray arrayNode = new BValueArray(new BArrayType(BTypes.typeJSON));
                 for (BRefType<?> node : elementList) {
                     arrayNode.append(node);
                 }
@@ -700,9 +710,9 @@ public class XMLUtils {
      * @param childArray List of XML text elements
      * @return ArrayNode Json array node corresponding to the given text elements
      */
-    private static BRefValueArray processTextArray(ArrayList<OMText> childArray) {
+    private static BValueArray processTextArray(ArrayList<OMText> childArray) {
         //Create array based on xml text elements
-        BRefValueArray arrayNode = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+        BValueArray arrayNode = new BValueArray(new BArrayType(BTypes.typeJSON));
         for (OMText element : childArray) {
             arrayNode.append(new BString(element.getText()));
         }

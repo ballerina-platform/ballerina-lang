@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -37,6 +38,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -133,10 +138,9 @@ public class TestGenerator {
             throws TestGeneratorException {
 
         BLangNode bLangNode = nodes.getLeft();
-        Object fallBackNode = nodes.getRight();
-        boolean fallback = false;
+        Object otherNode = nodes.getRight();
 
-        if (bLangNode == null && fallBackNode == null) {
+        if (bLangNode == null && otherNode == null) {
             throw new TestGeneratorException("Target test construct not found!");
         }
 
@@ -144,34 +148,80 @@ public class TestGenerator {
             // A function
             return RootTemplate.fromFunction((BLangFunction) bLangNode, builtTestFile, focusLineAcceptor);
 
-        } else if (bLangNode instanceof BLangService || (fallback = fallBackNode instanceof BLangService)) {
+        } else if (bLangNode instanceof BLangService || hasServiceConstructor(bLangNode)) {
             // A Service
-            BLangService service = (!fallback) ? ((BLangService) bLangNode) : (BLangService) fallBackNode;
-//            String owner = (service.serviceTypeStruct.type != null && service.serviceTypeStruct.type.tsymbol != null) 
-//                    ? service.serviceTypeStruct.type.tsymbol.owner.name.value : null;
-            // TODO: Fix with the latest changes
-            String owner = "";
-            String serviceTypeName = ""/*service.serviceTypeStruct.typeName.value*/;
-            if ("http".equals(owner)) {
-                switch (serviceTypeName) {
-                    case "Service": {
-                        return RootTemplate.fromHttpService(service, builtTestFile, focusLineAcceptor);
-                    }
-                    case "WebSocketService": {
-                        return RootTemplate.fromHttpWSService(service, builtTestFile, focusLineAcceptor);
-                    }
-                    case "WebSocketClientService":
-                        return RootTemplate.fromHttpClientWSService(service, builtTestFile, focusLineAcceptor);
-                    default:
-                        break;
-                }
-            } else if ("websub".equals(owner)) {
-                throw new TestGeneratorException("WebSub services are not supported!");
+            BLangService service;
+            if (bLangNode instanceof BLangService) {
+                // is a service eg. service {};
+                service = (BLangService) bLangNode;
+            } else {
+                // is a service variable eg. service a = service {};
+                service = ((BLangServiceConstructorExpr) (((BLangSimpleVariable) bLangNode).expr)).serviceNode;
             }
-            throw new TestGeneratorException(/*service.serviceTypeStruct.toString()*/" is not supported!");
+
+            String owner = (service.listenerType != null) ? service.listenerType.tsymbol.owner.name.value : null;
+            String serviceTypeName = (service.listenerType != null) ? service.listenerType.tsymbol.name.value : null;
+            Optional<BLangTypeInit> optionalServiceInit = getServiceInit(builtTestFile, service);
+            RootTemplate[] t = {null};
+            // Has ServiceInit
+            optionalServiceInit.ifPresent(init -> {
+                if ("http".equals(owner)) {
+                    switch (serviceTypeName) {
+                        case "Listener":
+                            t[0] = RootTemplate.fromHttpService(service, init, builtTestFile, focusLineAcceptor);
+                            break;
+                        case "WebSocketListener":
+                            t[0] = RootTemplate.fromHttpWSService(service, init, builtTestFile, focusLineAcceptor);
+                            break;
+                        default:
+                            // do nothing
+                    }
+                }
+            });
+            // Return service
+            if (t[0] == null) {
+                if (hasServiceConstructor(bLangNode)) {
+                    throw new TestGeneratorException("Services assigned to the variables are not supported!");
+                }
+                throw new TestGeneratorException(owner + ":" + serviceTypeName + " services are not supported!");
+            }
+            return t[0];
         }
         // Whole file
         return new RootTemplate(fileName, builtTestFile, focusLineAcceptor);
+    }
+
+    private static boolean hasServiceConstructor(BLangNode bLangNode) {
+        return (bLangNode instanceof BLangSimpleVariable &&
+                ((BLangSimpleVariable) bLangNode).expr instanceof BLangServiceConstructorExpr);
+    }
+
+    public static Optional<BLangTypeInit> getServiceInit(BLangPackage builtTestFile, BLangService service) {
+        if (service.attachedExprs.isEmpty()) {
+            return Optional.empty();
+        }
+        BLangExpression expr = service.attachedExprs.get(0);
+        if (expr instanceof BLangTypeInit) {
+            // If in-line listener
+            return Optional.of((BLangTypeInit) expr);
+        }
+        String[] variableName = {""};
+        if (expr instanceof BLangSimpleVarRef) {
+            // variable ref listener
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+            variableName[0] = varRef.variableName.value;
+        }
+
+        for (TopLevelNode topLevelNode : builtTestFile.topLevelNodes) {
+            if (topLevelNode instanceof BLangSimpleVariable) {
+                BLangSimpleVariable var = (BLangSimpleVariable) topLevelNode;
+                BLangExpression varExpr = var.expr;
+                if (varExpr instanceof BLangTypeInit && variableName[0].equals(var.name.value)) {
+                    return Optional.of((BLangTypeInit) varExpr);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     /**

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.utils;
 
-import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 
 import java.nio.charset.StandardCharsets;
@@ -42,25 +42,9 @@ public class ByteArrayUtils {
         return data;
     }
 
-    public static String byteArrayToHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(bytes.length * 2);
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
-    }
-
-    public static BByteArray createBByteArray(byte[] bytes) {
-        BByteArray byteArray = new BByteArray();
-        for (int i = 0; i < bytes.length; i++) {
-            byteArray.add(i, bytes[i]);
-        }
-        return byteArray;
-    }
-
-    public static void assertJBytesWithBBytes(byte[] jBytes, BByteArray bBytes) {
+    public static void assertJBytesWithBBytes(byte[] jBytes, BValueArray bBytes) {
         for (int i = 0; i < jBytes.length; i++) {
-            Assert.assertEquals(bBytes.get(i), jBytes[i], "Invalid byte value returned.");
+            Assert.assertEquals(bBytes.getByte(i), jBytes[i], "Invalid byte value returned.");
         }
     }
 

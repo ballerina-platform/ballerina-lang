@@ -1,25 +1,35 @@
 {
   "position": {
-    "line": 7,
-    "character": 22
+    "line": 5,
+    "character": 20
   },
   "expected": {
-    "result":{
-      "signatures":[
+    "result": {
+      "signatures": [
         {
-          "label":"respond(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)",
-          "documentation":"Sends the outbound response to the caller.",
-          "parameters":[
+          "label": "get(string path)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "The `get()` function can be used to send HTTP GET requests to HTTP endpoints."
+            }
+          },
+          "parameters": [
             {
-              "label":"message",
-              "documentation":"The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`"
+              "label": "path",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "Request path"
+                }
+              }
             }
           ]
         }
       ],
-      "activeSignature":0,
-      "activeParameter":0
+      "activeSignature": 0,
+      "activeParameter": 0
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

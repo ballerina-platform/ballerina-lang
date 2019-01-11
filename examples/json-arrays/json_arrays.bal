@@ -26,7 +26,7 @@ public function main() {
 
     // Get the length of the JSON array.
     json family = p.family;
-    int l = lengthof family;
+    int l = family.length();
     io:println("length of array: " + l);
 
     // Loop through the array.

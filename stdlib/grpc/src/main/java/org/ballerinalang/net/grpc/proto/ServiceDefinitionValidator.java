@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
+import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
@@ -49,7 +49,7 @@ public class ServiceDefinitionValidator {
 
     public static final int COMPULSORY_PARAM_COUNT = 1;
 
-    private static final String ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + LISTENER;
+    private static final String ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + CALLER;
 
     /**
      * Validate gRPC service instance.
@@ -129,7 +129,7 @@ public class ServiceDefinitionValidator {
                     default:
                         break;
                 }
-                if (!validateResourceSignature(resourceNode.getParameters(), dlog, resourceNode.pos)) {
+                if (!validateResourceSignature(resourceNode, dlog, resourceNode.pos)) {
                     return false;
                 }
             }
@@ -142,46 +142,18 @@ public class ServiceDefinitionValidator {
                 return false;
             }
         } else {
-            boolean onMessageExists = false;
-            boolean onErrorExists = false;
-            boolean onCompleteExists = false;
-
             for (BLangFunction resourceNode : resources) {
-                switch (resourceNode.getName().getValue()) {
-                    case ON_MESSAGE_RESOURCE:
-                        onMessageExists = true;
-                        break;
-                    case ON_ERROR_RESOURCE:
-                        onErrorExists = true;
-                        break;
-                    case ON_COMPLETE_RESOURCE:
-                        onCompleteExists = true;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            if (onMessageExists && onErrorExists && onCompleteExists) {
-                dlog.logDiagnostic(Diagnostic.Kind.NOTE, serviceNode.getPosition(), "Service : " + serviceNode
-                        .getName().getValue() + " is considered as client message listener.");
-                return false;
-            } else if (onMessageExists || onErrorExists || onCompleteExists) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                        "One or more resources(onMessage/onError/onComplete) is not implemented in " +
-                                "client message listener.");
-            }
-
-            for (BLangFunction resourceNode : resources) {
-                if (!validateResourceSignature(resourceNode.getParameters(), dlog, resourceNode.pos)) {
-                    return validateResourceSignature(resourceNode.getParameters(), dlog, resourceNode.pos);
+                if (!validateResourceSignature(resourceNode, dlog, resourceNode.pos)) {
+                    return false;
                 }
             }
             return true;
         }
     }
 
-    private static boolean validateResourceSignature(List<BLangSimpleVariable> signatureParams, DiagnosticLog dlog,
+    private static boolean validateResourceSignature(BLangFunction resourceNode, DiagnosticLog dlog,
                                                      DiagnosticPos pos) {
+        List<BLangSimpleVariable> signatureParams = resourceNode.getParameters();
         final int nParams = signatureParams.size();
         if (nParams < COMPULSORY_PARAM_COUNT) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "resource signature parameter count should be >= 1");

@@ -49,6 +49,14 @@ public class AbstractObjectTest {
                 "function 'getName' in abstract object 'Person4' cannot have a body", 51, 5);
         BAssertUtil.validateError(negativeResult, index++,
                 "cannot attach function 'getName' to abstract object 'Person5'", 67, 1);
+        BAssertUtil.validateError(negativeResult, index++, "abstract object field: 'age' can not be declared as " +
+                "private", 73, 5);
+        BAssertUtil.validateError(negativeResult, index++, "abstract object method: 'getName' can not be declared as "
+                + "private", 76, 5);
+        BAssertUtil.validateError(negativeResult, index++, "abstract object method: 'getName' can not be declared as " +
+                "private", 80, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot find function signature for function 'getName' in " +
+                "object 'Bar'", 87, 1);
     }
 
     @Test
@@ -57,8 +65,6 @@ public class AbstractObjectTest {
         int index = 0;
         BAssertUtil.validateError(compileResult, index++,
                 "abstract object '$anonType$0' cannot have a constructor method", 2, 54);
-        BAssertUtil.validateError(compileResult, index++, "variable 'p1' is not initialized", 2, 1);
-        BAssertUtil.validateError(compileResult, index++, "variable 'p2' is not initialized", 3, 1);
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$2'", 4, 77);
         BAssertUtil.validateError(compileResult, index++,
                 "abstract object '$anonType$3' cannot have a constructor method", 7, 58);

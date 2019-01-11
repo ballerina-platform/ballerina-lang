@@ -13,6 +13,7 @@ export class DiagramConfig {
     };
 
     public statement = {
+        actionHeight: STATEMENT_HEIGHT * 2,
         height: STATEMENT_HEIGHT,
         margin: {
             bottom: 0,
@@ -24,7 +25,7 @@ export class DiagramConfig {
         minWdith: 100,
         padding: {
             bottom: 5,
-            left: 5,
+            left: 8,
             right: 5,
             top: 5,
         },
@@ -37,20 +38,31 @@ export class DiagramConfig {
             v: 30
         },
         padding: {
-            bottom: 0,
+            bottom: 20,
             left: 0,
-            right: 0,
-            top: 0,
+            right: 200,
+            top: 20,
         },
     };
 
     public panelHeading = {
-        height: 60,
+        height: 30,
         padding: {
             bottom: 0,
             left: 0,
             right: 0,
             top: 0,
+        },
+        title: {
+            margin: {
+                left: 20
+            }
+        }
+    };
+
+    public panelGroup = {
+        header: {
+            height: STATEMENT_HEIGHT * 2,
         },
         title: {
             margin: {
@@ -69,20 +81,61 @@ export class DiagramConfig {
         header: {
             height: 30,
         },
+        leftMargin: 120 / 2,
         line: {
             height: 135,
         },
         width: 120,
     };
 
+    public condition = {
+        caseLabel: {
+            height: 19,
+            margin: {
+                bottom: 5,
+                left: 5,
+                right: 5,
+                top: 5,
+            },
+            padding: {
+                left: 4,
+                right: 4,
+            }
+        }
+    };
+
     public flowCtrl = {
         bottomMargin: STATEMENT_HEIGHT / 2,
-        header: {
-            height: STATEMENT_HEIGHT * 3
+        condition: {
+            bottomMargin: 20,
+            height: STATEMENT_HEIGHT * 3,
+        },
+        foreach: {
+            height: STATEMENT_HEIGHT * 2 + 10,
+            width: STATEMENT_HEIGHT * 3 + 10
         },
         leftMargin: STATEMENT_HEIGHT,
         leftMarginDefault: 60,
+        rightMargin: STATEMENT_HEIGHT,
         whileGap: STATEMENT_HEIGHT,
+    };
+
+    public block = {
+        bottomMargin: STATEMENT_HEIGHT,
+        hoverRect: {
+            leftMargin: 30
+        },
+        menuTriggerMargin: 12
+    };
+
+    public frame = {
+        header: {
+            height: STATEMENT_HEIGHT,
+            width: 70
+        },
+        leftMarginDefault: 60,
+        rightMargin: STATEMENT_HEIGHT,
+        topMargin: 5,
     };
 }
 

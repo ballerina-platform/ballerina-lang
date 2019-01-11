@@ -163,7 +163,7 @@ public class ClosedRecordTest {
     @Test (description = "Negative test to test attaching functions to record literal")
     public void testStructLiteralAttachedFunc() {
         CompileResult result = BCompileUtil.compile(
-                "test-src/record/sealed_record_literal_with_attached_functions.bal");
+                "test-src/record/sealed_record_literal_with_attached_functions_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 8, 1);
         BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 9, 12);
@@ -202,6 +202,15 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[0].stringValue(), "In-memory mode configuration");
         Assert.assertEquals(returns[1].stringValue(), "Server mode configuration");
         Assert.assertEquals(returns[2].stringValue(), "Embedded mode configuration");
+    }
+
+    @Test
+    public void testAmbiguityResolution2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAmbiguityResolution2");
+        Assert.assertEquals(returns[0].stringValue(), "A");
+        Assert.assertEquals(returns[1].stringValue(), "B");
+        Assert.assertEquals(returns[2].stringValue(), "B");
+        Assert.assertEquals(returns[3].stringValue(), "C");
     }
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")

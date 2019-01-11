@@ -71,8 +71,7 @@ public class ConstantTests {
         Assert.assertEquals(returns[0].stringValue(), "A");
     }
 
-    // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11148
-    @Test(enabled = false)
+    @Test
     public void testReturnFiniteType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReturnFiniteType");
         Assert.assertEquals(returns.length, 1);
@@ -252,5 +251,14 @@ public class ConstantTests {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringTypeWithoutType");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
+    }
+
+    @Test
+    public void testFloatAsFiniteType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatAsFiniteType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.0);
     }
 }

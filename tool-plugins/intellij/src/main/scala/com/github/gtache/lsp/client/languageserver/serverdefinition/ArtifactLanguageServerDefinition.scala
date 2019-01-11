@@ -1,6 +1,7 @@
 package com.github.gtache.lsp.client.languageserver.serverdefinition
 
 import com.github.gtache.lsp.client.connection.{ProcessStreamConnectionProvider, StreamConnectionProvider}
+import com.github.gtache.lsp.utils.Utils
 import com.github.gtache.lsp.utils.coursier.CoursierImpl
 import com.intellij.openapi.diagnostic.Logger
 
@@ -44,10 +45,10 @@ object ArtifactLanguageServerDefinition extends UserConfigurableServerDefinition
     if (arr.head == typ) {
       val arrTail = arr.tail
       if (arrTail.length < 3) {
-        LOG.warn("Not enough elements to translate into a ServerDefinition : " + arr)
+        LOG.warn("Not enough elements to translate into a ServerDefinition : " + arr.mkString(" ; "))
         null
       } else {
-        ArtifactLanguageServerDefinition(arrTail.head, arrTail.tail.head, arrTail.tail.tail.head, if (arrTail.length > 3) arrTail.tail.tail.tail else Array())
+        ArtifactLanguageServerDefinition(arrTail.head, arrTail.tail.head, arrTail.tail.tail.head, if (arrTail.length > 3) Utils.parseArgs(arrTail.tail.tail.tail) else Array())
       }
     } else {
       null

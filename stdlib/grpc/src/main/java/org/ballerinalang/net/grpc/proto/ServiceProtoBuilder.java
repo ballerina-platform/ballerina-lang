@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.grpc.proto;
 
-import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -31,20 +30,23 @@ import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.File;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -52,6 +54,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -61,7 +64,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_FIELD_DESCRIPTOR;
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_FIELD_DESC_MAP;
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RECORD_DESCRIPTOR_DATA;
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_SERVICE_DESCRIPTOR;
+import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
 import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP;
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.ROOT_DESCRIPTOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
@@ -69,13 +80,10 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesT
  *
  * @since 1.0
  */
-@SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "grpc",
-                                                                                      name = "LISTENER"),
-                             paramTypes = {
-                                     @SupportedResourceParamTypes.Type(packageName = "grpc",
-                                                                       name = "Caller")
-                             })
-public class ServiceProtoBuilder extends AbstractCompilerPlugin {
+@SupportedResourceParamTypes(
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = PROTOCOL_PACKAGE_GRPC, name = LISTENER),
+        paramTypes = {@SupportedResourceParamTypes.Type(packageName = PROTOCOL_PACKAGE_GRPC, name = CALLER)})
+public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
 
     private DiagnosticLog dlog;
     private static final PrintStream error = System.err;
@@ -86,6 +94,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void setCompilerContext(CompilerContext context) {
+        super.setCompilerContext(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
@@ -100,18 +109,33 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     public void process(ServiceNode service, List<AnnotationAttachmentNode> annotations) {
         try {
             final BLangService serviceNode = (BLangService) service;
-            if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
-                Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) serviceNode
-                        .parent).globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
-                        .equals(DESCRIPTOR_MAP)).findFirst();
-                Optional<BLangVariable> descriptorKey = ((ArrayList) ((BLangPackage) serviceNode
-                        .parent).globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
-                        .equals("DESCRIPTOR_KEY")).findFirst();
+            // Validate service resource return type. expected error|()
+            List<BLangFunction> resources = serviceNode.getResources();
+            boolean validReturnType = true;
+            for (BLangFunction resourceNode : resources) {
+                if (!isResourceReturnsErrorOrNil(resourceNode)) {
+                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.pos,
+                            "Invalid return type: expected error?");
+                    validReturnType = false;
+                }
+            };
 
-                if (descriptorKey.isPresent() && descriptorMapVar.isPresent()) {
-                    String rootDescriptor = ((BLangRecordLiteral) descriptorMapVar.get().getInitialExpression())
-                            .getKeyValuePairs().get(0).getValue().toString();
-                    addDescriptorAnnotation(serviceNode, rootDescriptor);
+            if (validReturnType && ServiceDefinitionValidator.validate(serviceNode, dlog)) {
+                Optional<BLangConstant> rootDescriptor = ((ArrayList) ((BLangPackage) serviceNode.parent)
+                        .constants).stream().filter(var -> ROOT_DESCRIPTOR.equals(((BLangConstant) var).getName()
+                        .getValue())).findFirst();
+                Optional<BLangFunction> descriptorMapFunc = ((ArrayList) ((BLangPackage) serviceNode
+                        .parent).functions).stream().filter(var -> DESCRIPTOR_MAP.equals(((BLangFunction) var)
+                        .getName().getValue())).findFirst();
+
+                for (AnnotationAttachmentNode annonNodes : serviceNode.getAnnotationAttachments()) {
+                    if (ANN_SERVICE_DESCRIPTOR.equals(annonNodes.getAnnotationName().getValue())) {
+                        return;
+                    }
+                }
+                if (rootDescriptor.isPresent() && descriptorMapFunc.isPresent()) {
+                    addDescriptorAnnotation(serviceNode, (String) ((BLangLiteral) rootDescriptor.get().getValue())
+                            .getValue());
                 } else {
                     File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
                     addDescriptorAnnotation(serviceNode,
@@ -139,7 +163,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         if (parentDirPath == null) {
             parentDirPath = filePath;
         }
-        Path targetDirPath = Paths.get(parentDirPath.toString(), "grpc");
+        Path targetDirPath = Paths.get(parentDirPath.toString(), PROTOCOL_PACKAGE_GRPC);
         for (Map.Entry<String, File> entry : definitionMap.entrySet()) {
             try {
                 ServiceProtoUtils.writeServiceFiles(targetDirPath, entry.getKey(), entry.getValue());
@@ -152,20 +176,14 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     }
 
     private void addDescriptorAnnotation(ServiceNode serviceNode, String rootDescriptor) {
-        for (AnnotationAttachmentNode annonNodes : serviceNode.getAnnotationAttachments()) {
-            if ("ServiceDescriptor".equals(annonNodes.getAnnotationName().getValue())) {
-                //serviceNode.getAnnotationAttachments().remove(annonNodes);
-                return;
-            }
-        }
         BLangService service = (BLangService) serviceNode;
         DiagnosticPos pos = service.pos;
         // Create Annotation Attachment.
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         serviceNode.addAnnotationAttachment(annoAttachment);
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(service.symbol.getEnclosingSymbol());
-        BSymbol annSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv,
-                names.fromString("grpc"), names.fromString("ServiceDescriptor"), SymTag.ANNOTATION);
+        BSymbol annSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv, names.fromString
+                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_SERVICE_DESCRIPTOR), SymTag.ANNOTATION);
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -173,18 +191,18 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         if (identifierNode instanceof BLangIdentifier) {
             annoAttachment.annotationName = (BLangIdentifier) identifierNode;
         }
-        annoAttachment.annotationName.value = "ServiceDescriptor";
+        annoAttachment.annotationName.value = ANN_SERVICE_DESCRIPTOR;
         annoAttachment.pos = pos;
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         annoAttachment.expr = literalNode;
         BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        pkgAlias.setValue("grpc");
+        pkgAlias.setValue(PROTOCOL_PACKAGE_GRPC);
         annoAttachment.pkgAlias = pkgAlias;
         annoAttachment.attachPoints.add(AttachPoint.SERVICE);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
-        BSymbol annTypeSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv,
-                names.fromString("grpc"), names.fromString("ServiceDescriptorData"), SymTag.STRUCT);
+        BSymbol annTypeSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv, names.fromString
+                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_RECORD_DESCRIPTOR_DATA), SymTag.STRUCT);
         if (annTypeSymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
             literalNode.type = bStructSymbol.type;
@@ -196,7 +214,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         literalNode.keyValuePairs.add(descriptorKeyValue);
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        keyLiteral.value = "descriptor";
+        keyLiteral.value = ANN_FIELD_DESCRIPTOR;
         keyLiteral.typeTag = TypeTags.STRING;
         keyLiteral.type = symTable.stringType;
 
@@ -213,7 +231,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
         descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
         BSymbol fieldSymbol = symResolver.resolveStructField(service.pos, pkgEnv,
-                names.fromString("descriptor"), bStructSymbol);
+                names.fromString(ANN_FIELD_DESCRIPTOR), bStructSymbol);
         if (fieldSymbol instanceof BVarSymbol) {
             descriptorKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
         }
@@ -222,31 +240,38 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         }
 
         //Add Descriptor Map
-        BSymbol mapVarSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DESCRIPTOR_MAP), SymTag.VARIABLE);
+        BSymbol mapVarSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DESCRIPTOR_MAP), SymTag.FUNCTION);
         if (mapVarSymbol == null || mapVarSymbol.type.tag == TypeTags.NONE) {
             return;
         }
-        BLangSimpleVarRef mapVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        //mapVarRef.varSymbol = (BVarSymbol) mapVarSymbol;
-        mapVarRef.symbol = mapVarSymbol;
-        mapVarRef.type = symTable.mapType;
-        BLangIdentifier descriptorMapNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        descriptorMapNode.setValue(DESCRIPTOR_MAP);
-        mapVarRef.variableName = descriptorMapNode;
-        mapVarRef.pkgSymbol = pkgEnv.scope.owner;
+
+        BLangInvocation functionRef = null;
+        if (mapVarSymbol instanceof BInvokableSymbol) {
+            functionRef = ASTBuilderUtil.createInvocationExpr(pos, (BInvokableSymbol) mapVarSymbol, new
+                    ArrayList<>(), symResolver);
+            functionRef.symbol = mapVarSymbol;
+            functionRef.type = symTable.mapType;
+            BLangIdentifier funcName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            funcName.setValue(DESCRIPTOR_MAP);
+            functionRef.name = funcName;
+            BLangIdentifier funcPkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            funcPkgAlias.setValue("");
+            functionRef.pkgAlias = funcPkgAlias;
+        }
 
         BLangRecordLiteral.BLangRecordKeyValue mapKeyValue = (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder
                 .createRecordKeyValue();
         literalNode.keyValuePairs.add(mapKeyValue);
 
-        BLangLiteral mapKeyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        mapKeyLiteral.value = "descMap";
-        mapKeyLiteral.typeTag = TypeTags.MAP;
+        BLangSimpleVarRef mapKeyLiteral = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        BLangIdentifier keyName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        keyName.setValue(ANN_FIELD_DESC_MAP);
+        mapKeyLiteral.variableName = keyName;
         mapKeyLiteral.type = symTable.mapType;
         mapKeyLiteral.pos = pos;
 
         mapKeyValue.key = new BLangRecordLiteral.BLangRecordKey(mapKeyLiteral);
-        mapKeyValue.valueExpr = mapVarRef;
+        mapKeyValue.valueExpr = functionRef;
         mapKeyValue.pos = pos;
     }
 }

@@ -1,36 +1,38 @@
 import ballerina/io;
 
-// Defines an object called 'Person' with public fields and attached function.
+// Defines an `object` called `Person` with public fields and an attached function.
 public type Person object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 };
 
-// Defines an object called 'Employee' with public fields and attached functions.
+// Defines an `object` called `Employee` with public fields and attached functions.
 public type Employee object {
     public int age;
     public string name;
     public string address;
 
-    public new(age, name, address) {
-
+    public function __init(int age, string name, string address) {
+        self.age = age;
+        self.name = name;
+        self.address = address;
     }
 
     public function getName() returns string {
-        return name + " Doe";
+        return self.name + " Doe";
     }
 
     public function getAge() returns int {
-        return age;
+        return self.age;
     }
 };
 
 public function main() {
-    // Initializing variable of object type Employee and assign that to Person type variable.
+    // Create an object of type `Employee` and assign that to a variable of type `Person`.
     Person p1 = new Employee(50, "John", "street1");
     io:println(p1);
 

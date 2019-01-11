@@ -93,7 +93,7 @@ function createPayload(JwtPayload payload) returns (string|error) {
 
 function addMapToJson(json inJson, map<any> mapToConvert) returns (json) {
     if (mapToConvert.length() != 0) {
-        foreach key in mapToConvert.keys() {
+        foreach var key in mapToConvert.keys() {
             var customClaims = mapToConvert[key];
             if (customClaims is string[]) {
                 inJson[key] = convertStringArrayToJson(customClaims);

@@ -28,7 +28,7 @@ public class SymTag {
     public static final int VARIABLE = 1 << 2 | VARIABLE_NAME;
     public static final int STRUCT = 1 << 3 | TYPE | VARIABLE_NAME;
     public static final int ERROR = 1 << 4 | TYPE | VARIABLE_NAME;
-    public static final int SERVICE = 1 << 5 | TYPE | VARIABLE | VARIABLE_NAME;
+    public static final int SERVICE = 1 << 5;
     public static final int INVOKABLE = 1 << 6;
     public static final int FUNCTION = 1 << 7 | INVOKABLE | VARIABLE;
     public static final int WORKER = 1 << 10 | INVOKABLE;
@@ -49,4 +49,5 @@ public class SymTag {
     public static final int SCOPE = 1 << 26;
     public static final int CHANNEL = 1 << 27;
     public static final int CONSTANT = 1 << 28 | VARIABLE_NAME;
+    public static final int FUNCTION_TYPE = 1 << 29 | TYPE | VARIABLE_NAME;
 }

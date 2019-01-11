@@ -18,7 +18,7 @@
  */
 
 import * as React from "react";
-import { Accordion, AccordionTitleProps, Icon } from "semantic-ui-react";
+import { Accordion, AccordionTitleProps } from "semantic-ui-react";
 
 import InlineEdit from "../../util-components/inline-edit";
 import OpenApiAddParameter from "../parameter/add-parameter";
@@ -95,8 +95,13 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         {(appContext: OpenApiContext) => {
                             return (
                                 <InlineEdit
+                                    characterLimit={50}
                                     changeModel={appContext.openApiJson}
-                                    changeAttribute={{key: "operation.summary", value: operationType}}
+                                    changeAttribute={{
+                                        changeValue: operationType,
+                                        key: "operation.summary",
+                                        path: resourcePath
+                                    }}
                                     classDefinition="op-summary"
                                     inlineEditString={operationObject.summary}
                                     placeholderString="Add a summary"
@@ -105,18 +110,20 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                             );
                         }}
                     </OpenApiContextConsumer>
-                    <Icon
-                        className="delete-op"
-                        name="trash alternate"
-                    />
                 </Accordion.Title>
                 <Accordion.Content active={activeIndex === currIndex}>
                     <OpenApiContextConsumer>
                         {(appContext: OpenApiContext) => {
                             return (
                                 <InlineEdit
+                                    isMarkdown
+                                    isParagraph
                                     changeModel={appContext.openApiJson}
-                                    changeAttribute={{key: "operation.description", value: operationType}}
+                                    changeAttribute={{
+                                        changeValue: operationType,
+                                        key: "operation.description",
+                                        path: resourcePath
+                                    }}
                                     inlineEditString={operationObject.description}
                                     placeholderString="Add a description"
                                     onInlineValueChange={appContext.onInlineEditChange}

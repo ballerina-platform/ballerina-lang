@@ -160,15 +160,17 @@ public class Instruction {
         public int sigCPIndex;
         public BType type;
         public int reg;
+        public boolean channelInSameStrand;
 
         InstructionWRKSendReceive(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
-                                  int sigCPIndex, BType type, int reg) {
+                                  int sigCPIndex, BType type, int reg, boolean channelInSameStrand) {
             super(opcode);
             this.channelRefCPIndex = channelRefCPIndex;
             this.dataChannelInfo = dataChannelInfo;
             this.sigCPIndex = sigCPIndex;
             this.type = type;
             this.reg = reg;
+            this.channelInSameStrand = channelInSameStrand;
         }
 
         @Override
@@ -279,13 +281,16 @@ public class Instruction {
 
         public int iteratorIndex, arity;
         public int[] typeTags, retRegs;
+        public BType constraintType;
 
-        InstructionIteratorNext(int opcode, int iteratorIndex, int arity, int[] typeTags, int[] retRegs) {
+        InstructionIteratorNext(int opcode, int iteratorIndex, int arity, int[] typeTags, int[] retRegs,
+                                BType constraintType) {
             super(opcode);
             this.iteratorIndex = iteratorIndex;
             this.arity = arity;
             this.typeTags = typeTags;
             this.retRegs = retRegs;
+            this.constraintType = constraintType;
         }
     }
 
@@ -390,6 +395,66 @@ public class Instruction {
     }
 
     /**
+     * {@code {@link InstructionWRKSyncSend}} represents synchronous worker send in Ballerina bytecode.
+     */
+    public static class InstructionWRKSyncSend extends Instruction {
+        public int channelRefCPIndex;
+        public WorkerDataChannelInfo dataChannelInfo;
+        public int sigCPIndex;
+        public BType type;
+        public int reg;
+        public int retReg;
+        public boolean isSameStrand;
+
+        InstructionWRKSyncSend(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
+                               int sigCPIndex, BType type, int reg, int retReg, boolean isSameStrand) {
+            super(opcode);
+            this.channelRefCPIndex = channelRefCPIndex;
+            this.dataChannelInfo = dataChannelInfo;
+            this.sigCPIndex = sigCPIndex;
+            this.type = type;
+            this.reg = reg;
+            this.retReg = retReg;
+            this.isSameStrand = isSameStrand;
+        }
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(channelRefCPIndex));
+            sj.add(String.valueOf(sigCPIndex));
+            sj.add(String.valueOf(reg));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code {@link InstructionFlush}} represents worker flush in Ballerina bytecode.
+     */
+    public static class InstructionFlush extends Instruction {
+
+        public int retReg;
+        public String[] channels;
+
+        InstructionFlush(int opcode, int retReg, String[] channels) {
+
+            super(opcode);
+            this.retReg = retReg;
+            this.channels = channels;
+        }
+
+        @Override
+        public String toString() {
+
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(retReg));
+            for (int i = 0; i < channels.length; i++) {
+                sj.add(channels[i]);
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
      * {@code {@link InstructionScopeEnd}} represents end of a SCOPE block in Ballerina bytecode.
      */
     public static class InstructionScopeEnd extends Instruction {
@@ -414,6 +479,108 @@ public class Instruction {
             for (String child : childScopes) {
                 sj.add(child);
             }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code InstructionTrBegin} represents the TR_BEGIN instruction in Ballerina bytecode.
+     * <p>
+     * The TR_BEGIN instruction performs transaction initialisation and transaction participant initialisation.
+     *
+     * @since 0.990.0
+     */
+    public static class InstructionTrBegin extends Instruction {
+        public final int transactionType;
+        public final int blockId;
+        public final int retryCountReg;
+        public final int committedFuncIndex;
+        public final int abortedFuncIndex;
+
+        InstructionTrBegin(int opcode, int transactionType, int blockId, int retryCountReg,
+                           int committedFuncIndex, int abortedFuncIndex) {
+            super(opcode);
+
+            this.transactionType = transactionType;
+            this.blockId = blockId;
+            this.retryCountReg = retryCountReg;
+            this.committedFuncIndex = committedFuncIndex;
+            this.abortedFuncIndex = abortedFuncIndex;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(transactionType));
+            sj.add(String.valueOf(blockId));
+            sj.add(String.valueOf(retryCountReg));
+            sj.add(String.valueOf(committedFuncIndex));
+            sj.add(String.valueOf(abortedFuncIndex));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code InstructionEnd} represents the TR_END instruction in Ballerina bytecode.
+     * <p>
+     * The TR_END instruction performs transaction ending in multiple stages of the transaction.
+     *
+     * @since 0.990.0
+     */
+    public static class InstructionTrEnd extends Instruction {
+        public final int endType;
+        public final int blockId;
+        public final int statusRegIndex;
+        public final int errorRegIndex;
+
+        InstructionTrEnd(int opcode, int blockId, int endType,
+                           int statusRegIndex, int errorRegIndex) {
+            super(opcode);
+
+            this.blockId = blockId;
+            this.endType = endType;
+            this.statusRegIndex = statusRegIndex;
+            this.errorRegIndex = errorRegIndex;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(endType));
+            sj.add(String.valueOf(blockId));
+            sj.add(String.valueOf(statusRegIndex));
+            sj.add(String.valueOf(errorRegIndex));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code InstructionRetry} represents the TR_RETRY instruction in Ballerina bytecode.
+     * <p>
+     * The TR_RETRY instruction performs transaction retry.
+     *
+     * @since 0.990.0
+     */
+    public static class InstructionTrRetry extends Instruction {
+        public final int blockId;
+        public final int abortEndIp;
+        public final int trStatusReg;
+
+        InstructionTrRetry(int opcode, int blockId,
+                           int abortEndIp, int trStatusReg) {
+            super(opcode);
+
+            this.blockId = blockId;
+            this.abortEndIp = abortEndIp;
+            this.trStatusReg = trStatusReg;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(blockId));
+            sj.add(String.valueOf(abortEndIp));
+            sj.add(String.valueOf(trStatusReg));
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
     }

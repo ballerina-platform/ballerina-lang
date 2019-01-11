@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/time;
 
 public function main() {
-    // To create the time object you can use either the 'currentTime', 'createTime', or the 'parse' function.
+    // To create the `time:Time` object you can use either the `currentTime()`, `createTime()`, or the `parse()` function.
     // This fetches the current time.
     time:Time time = time:currentTime();
     int currentTimeMills = time.time;
@@ -17,7 +17,7 @@ public function main() {
     time:Time t1 = time:parse("2017-06-26T09:46:22.444-0500",
                               "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     io:println("Parsed Time: " + t1.toString());
-    // You can retrieve the string representation of the time via the 'toString' or the 'format' function.
+    // You can retrieve the string representation of the time via the `toString()` function or the `format()` function.
     // This fetches the ISO 8601 formatted string of a given time.
     string standardTimeString = time.toString();
     io:println("Current system time in ISO format: " + standardTimeString);
@@ -54,7 +54,8 @@ public function main() {
     io:println("Date: " + year + ":" + month + ":" + day);
     // This fetches the time component using a single function.
     (hour, minute, second, milliSecond) = time.getTime();
-    io:println("Time:" + hour + ":" + minute + ":" + second + ":" + milliSecond);
+    io:println("Time:" + hour + ":" + minute + ":" + second + ":"
+                    + milliSecond);
     // This adds a given duration to a time. In this example, let's add
     // one year, one month, and one second to the current time.
     time:Time tmAdd = time.addDuration(1, 1, 0, 0, 0, 1, 0);
@@ -64,7 +65,8 @@ public function main() {
     time:Time tmSub = time.subtractDuration(1, 1, 0, 0, 0, 1, 0);
     io:println("After subtracting a duration: " + tmSub.toString());
     // This converts the time to a different timezone.
-    time:Time t2 = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
+    time:Time t2 = time:createTime(2017, 3, 28, 23, 42, 45, 554,
+                                    "America/Panama");
     io:println("Before converting the time zone: " + t2.toString());
     time:Time t3 = t2.toTimezone("Asia/Colombo");
     io:println("After converting the time zone:" + t3.toString());

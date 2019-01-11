@@ -3,17 +3,17 @@ string word = "";
 
 function test1(){
     int x = 0;
-    x.foreach(function (int i) { count = count + i;});
+    x.foreach(function (int i) { count = count + i;}); // Iterating on invalid type
     string y = "foo";
-    y.map(function (string s) returns (int) { return s.length();});
+    y.map(function (string s) returns (int) { return s.length();}); // Iterating on invalid type
 }
 
 function test2(){
     string[] y = ["1", "a"];
 
-    y.count();
+    y.count(); // Not assigning the return value.
 
-    y.filter(function (int i, string x) returns (boolean) {
+    y.filter(function (int i, string x) returns boolean { // Too many arguments to lambda.
         return true;})
      .foreach(function (string x) { word = x;}).count();
 }
@@ -21,14 +21,14 @@ function test2(){
 function test3(){
     map<string> z = {a:"1", b:"2"};
     string[] keys = z.map(
-                     function (string s) returns (string, string) {
+                     function (string s) returns (string, string) { // Not enough arguments to lambda.
                          return (s, "value");
     }).keys();
 }
 
 function test4() {
     map<any> z = {a:"1", b:"2"};
-    string[] a = z.map(function (any x) returns (string, string) {
+    map<string> a = z.map(function (any x) returns (string, string) {
                            var s = <string>x;
                            return (s, "value");
                        });
@@ -103,4 +103,42 @@ function test11() {
     any x = z.filter(function (any s) returns boolean {
          return s == null;
     });
+}
+
+function testVarInLHS() {
+    int[] numbers = [-5, -3, 2, 7, 12];
+    var filtered = numbers.filter(function (int i) returns boolean {
+            return i >= 0;
+        });
+    float avg = filtered.average();
+}
+
+function testVarInLHS2() {
+    int[] numbers = [-5, -3, 2, 7, 12];
+    var mapped = numbers.map(function(int value) returns float {
+            return float.convert(value);
+        }).filter(function (float value) returns boolean {
+            return value > 0;
+        }).map(function (float value) returns (string, float) {
+            return (string.convert(value), value);
+        });
+}
+
+function testIndexBasedAccess() {
+    int[] numbers = [-5, -3, 2, 7, 12];
+    var x = numbers.filter(function (int i) returns boolean {
+            return i >= 0;
+        })[0];
+}
+
+int[] globalNumbers = [-5, -3, 2, 7, 12];
+
+function testAnydataInLHS() {
+    anydata mapped = globalNumbers.map(function(int value) returns float {
+               return float.convert(value);
+           }).filter(function (float value) returns boolean {
+               return value > 0;
+           }).map(function (float value) returns (string, float) {
+               return (string.convert(value), value);
+           });
 }

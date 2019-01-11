@@ -4,32 +4,32 @@ import ballerina/io;
 int total = 0;
 public function main() {
     // Client endpoint configuration.
-    endpoint HelloWorldClient helloWorldEp {
-        url: "http://localhost:9090"
-    };
+    HelloWorldClient helloWorldEp = new("http://localhost:9090");
 
-    endpoint grpc:Client ep;
+    grpc:StreamingClient ep;
     // Execute the unary non-blocking call that registers a server message listener.
-    var res = helloWorldEp->lotsOfGreetings
-                                        (HelloWorldMessageListener);
+    var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
 
-    match res {
-        error err => {
-            io:print("error");
-        }
-        grpc:Client con => {
-            ep = con;
-        }
+    if (res is error) {
+        io:println("Error from Connector: " + res.reason() + " - "
+                                            + <string>res.detail().message);
+        return;
+    } else {
+        io:println("Initialized connection sucessfully.");
+        ep = res;
     }
-
-    io:print("Initialized connection sucessfully.");
 
     // Send multiple messages to the server.
     string[] greets = ["Hi", "Hey", "GM"];
     var name = "John";
-    foreach greet in greets {
+    foreach string greet in greets {
         error? connErr = ep->send(greet + " " + name);
-        io:println(connErr.message ?: "send greeting: " + greet + " " + name);
+        if (connErr is error) {
+            io:println("Error from Connector: " + connErr.reason() + " - "
+                                            + <string>connErr.detail().message);
+        } else {
+            io:println("send greeting: " + greet + " " + name);
+        }
     }
 
     // Once all the messages are sent, the server notifies the caller with a `complete` message.
@@ -40,24 +40,23 @@ public function main() {
 }
 
 // Server Message Listener.
-service<grpc:Service> HelloWorldMessageListener {
+service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages.
-    onMessage(string message) {
+    resource function onMessage(string message) {
         total = 1;
         io:println("Response received from server: " + message);
     }
 
     // Resource registered to receive server error messages.
-    onError(error err) {
-        if (err != ()) {
-            io:println("Error reported from server: " + err.message);
-        }
+    resource function onError(error err) {
+        io:println("Error reported from server: " + err.reason() + " - "
+                                                + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed messages.
-    onComplete() {
+    resource function onComplete() {
         total = 1;
         io:println("Server Complete Sending Responses.");
     }
-}
+};

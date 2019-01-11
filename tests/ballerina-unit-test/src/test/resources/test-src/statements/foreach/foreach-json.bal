@@ -8,11 +8,11 @@ function concatIntString (int i, string v) {
     output = output + i + ":" + v + " ";
 }
 
-json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75}, {subject:"English", marks:85}]};
+json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
 
-function testJSONObject () returns (string) {
+function testJSONObject () returns string|error {
     output = "";
-    foreach j in j1 {
+    foreach var (i, j) in check map<json>.convert(j1) {
         concatString(j.toString());
     }
     return output;
@@ -20,52 +20,58 @@ function testJSONObject () returns (string) {
 
 function testJSONArray () returns (string) {
     output = "";
-    foreach j in j1.subjects {
-        concatString(j.toString());
+    json element = j1.subjects;
+    if element is json[] {
+        foreach var j in element {
+            concatString(j.toString());
+        }
     }
     return output;
 }
 
 function testArrayOfJSON () returns string | error {
     output = "";
-    json[] array;
-    match <json[]> j1.subjects {
-        json[] arr1 => array = arr1;
-        error err1 => return err1;
+    json[] array = [];
+    var arr1 = j1.subjects;
+    if arr1 is json[] {
+        array = arr1;
     }
-    foreach i, j in array {
+
+    int i = 0;
+    foreach var j in array {
         concatIntString(i, j.toString());
+        i += 1;
     }
     return output;
 }
 
-function testJSONString () returns (string) {
+function testJSONString () returns string|error {
     output = "";
-    foreach j in j1.name {
+    foreach var (i, j) in check map<json>.convert(j1.name) {
         concatString(j.toString());
     }
     return output;
 }
 
-function testJSONNumber () returns (string) {
+function testJSONNumber () returns string|error {
     output = "";
-    foreach j in j1.age {
+    foreach var (i, j) in check map<json>.convert(j1.age) {
         concatString(j.toString());
     }
     return output;
 }
 
-function testJSONBoolean () returns (string) {
+function testJSONBoolean () returns string|error {
     output = "";
-    foreach j in j1.pass {
+    foreach var (i, j) in check map<json>.convert(j1.pass) {
         concatString(j.toString());
     }
     return output;
 }
 
-function testJSONNull () returns (string) {
+function testJSONNull () returns string|error {
     output = "";
-    foreach j in j1.city {
+    foreach var (i, j) in check map<json>.convert(j1.city) {
         concatString(j.toString());
     }
     return output;
@@ -81,36 +87,32 @@ type Protocol record {
     string url;
 };
 
-function testJSONToStructCast () returns string | error {
+function testJSONToStructCast () returns string|error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    match <Protocols> j {
-        Protocols p => {
-                output = "";
-                foreach protocol in p.plist {
-                    concatString(protocol.name + "-" + protocol.url);
-                }
-                return output;
-        }
-        error err => return err;
+    var result = check Protocols.convert(j);
+    output = "";
+    foreach var protocol in result.plist {
+        concatString(protocol.name + "-" + protocol.url);
     }
+    return output;
 }
 
-function testAddWhileIteration () returns (string) {
+function testAddWhileIteration () returns string|error {
     output = "";
-    foreach j in j1 {
+    foreach var (i, j) in check map<json>.convert(j1) {
         if (j.toString() == "bob") {
             j1["lastname"] = "smith";
         }
     }
-    foreach j in j1 {
+    foreach var (i, j) in check map<json>.convert(j1) {
         concatString(j.toString());
     }
     return output;
 }
 
-function testDeleteWhileIteration () returns (string) {
+function testDeleteWhileIteration () returns string|error {
     output = "";
-    foreach j in j1 {
+    foreach var (i, j) in check map<json>.convert(j1) {
         string str = j.toString();
         if (str == "bob") {
            any x = j1.remove("subjects");
@@ -118,7 +120,7 @@ function testDeleteWhileIteration () returns (string) {
         concatString(str);
     }
 
-    foreach j in j1 {
+    foreach var (i, j) in check map<json>.convert(j1) {
         concatString(j.toString());
     }
     return output;

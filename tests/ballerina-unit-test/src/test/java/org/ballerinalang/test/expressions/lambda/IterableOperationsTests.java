@@ -23,8 +23,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,7 +41,7 @@ import java.util.Locale;
 public class IterableOperationsTests {
 
     private CompileResult basic, negative;
-    private static String[] values = new String[] {"Hello", "World..!", "I", "am", "Ballerina.!!!"};
+    private static String[] values = new String[]{"Hello", "World..!", "I", "am", "Ballerina.!!!"};
 
     @BeforeClass
     public void setup() {
@@ -51,56 +51,63 @@ public class IterableOperationsTests {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 25);
+        Assert.assertEquals(negative.getErrorCount(), 31);
 
         int index = 0;
         BAssertUtil.validateError(negative, index++, "undefined function 'int.foreach'", 6, 5);
         BAssertUtil.validateError(negative, index++, "undefined function 'string.map'", 8, 5);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 14, 5);
-        BAssertUtil.validateError(negative, index++,
-                                  "iterable lambda function required a single param or a tuple param",
-                16, 14);
-        BAssertUtil.validateError(negative, index++, "invalid function 'keys' invocation on type '(string,string) " +
-                "collection'", 23, 21);
-        BAssertUtil.validateError(negative, index++,
-                                  "incompatible types: expected 'string[]', found '(string,string) " +
-                "collection'", 31, 24);
-        BAssertUtil.validateError(negative, index++,
-                                  "incompatible lambda function types: expected 'string', found 'any'", 35, 27);
-        BAssertUtil.validateError(negative, index++,
-                                  "incompatible lambda function types: expected 'string', found 'any'", 38, 22);
+        BAssertUtil.validateError(negative, index++, "iterable lambda function required a single param or a tuple " +
+                "param", 16, 14);
+        BAssertUtil.validateError(negative, index++, "not enough variables are defined for iterable type " +
+                "'map<string>', require at least '2' variables", 24, 22);
+        BAssertUtil.validateError(negative, index++, "not enough variables are defined for iterable type 'map', " +
+                "require at least '2' variables", 31, 27);
+        BAssertUtil.validateError(negative, index++, "not enough variables are defined for iterable type 'map', " +
+                "require at least '2' variables", 35, 27);
+        BAssertUtil.validateError(negative, index++, "not enough variables are defined for iterable type 'map', " +
+                "require at least '2' variables", 38, 22);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int', found '()'", 46, 19);
-
-        BAssertUtil.validateError(negative, index++,
-                "invalid tuple variable; expecting a tuple type but found" +
-                        " '(int,string) collection' in type definition", 48, 18);
+        BAssertUtil.validateError(negative, index++, "too many variables are defined for iterable type 'string[]'",
+                48, 24);
+        BAssertUtil.validateError(negative, index++, "invalid tuple variable; expecting a tuple type but found " +
+                "'other' in type definition", 48, 18);
         BAssertUtil.validateError(negative, index++, "no argument required for operation 'count'", 55, 17);
         BAssertUtil.validateError(negative, index++, "single lambda function required here", 56, 5);
         BAssertUtil.validateError(negative, index++, "single lambda function required here", 58, 15);
         BAssertUtil.validateError(negative, index++, "too many variables are defined for iterable type 'string[]'", 63,
-                                  15);
-        BAssertUtil.validateError(negative, index++,
-                                  "iterable lambda function required a single param or a tuple param",
-                64, 15);
+                15);
+        BAssertUtil.validateError(negative, index++, "iterable lambda function required a single param or a tuple " +
+                "param", 64, 15);
         BAssertUtil.validateError(negative, index++, "too many return arguments are defined for operation 'filter'", 65,
-                                  14);
+                14);
         BAssertUtil.validateError(negative, index++, "not enough return arguments are defined for operation 'filter'",
-                                  66, 14);
+                66, 14);
         BAssertUtil.validateError(negative, index++, "unknown type 'person'", 67, 24);
         BAssertUtil.validateError(negative, index++, "not enough return arguments are defined for operation 'filter'",
-                                  67,
-                14);
+                67, 14);
         BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'",
                 73, 23);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
+        BAssertUtil.validateError(negative, index++, "not enough variables are defined for iterable type 'map', " +
+                "require at least '2' variables", 99, 27);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
+                                  "not enough variables are defined for iterable type 'map', require" +
+                " at least '2' variables", 103, 22);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
+                                  "cannot assign return value of 'filter' operation here, use a reduce operation",
+                                  110, 5);
+        BAssertUtil.validateError(negative, index++, "undefined symbol 'filtered'", 113, 17);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'map', found '(any) collection'", 99, 27);
+                                  "cannot assign return value of 'map' operation here, use a reduce operation",
+                                  118, 5);
         BAssertUtil.validateError(negative, index++,
-                "cannot assign return value of 'filter' operation here, use a reduce operation", 103, 22);
+                                  "invalid operation: type '(int) collection' does not support indexing", 129, 13);
+        BAssertUtil.validateError(negative, index,
+                                  "cannot assign return value of 'map' operation here, use a reduce operation",
+                                  141, 19);
     }
 
     @Test
@@ -176,8 +183,8 @@ public class IterableOperationsTests {
 
     @Test
     public void testBasicArray1() {
-        BStringArray sarray = new BStringArray(values);
-        BValue[] returns = BRunUtil.invoke(basic, "testBasicArray1", new BValue[] {sarray});
+        BValueArray sarray = new BValueArray(values);
+        BValue[] returns = BRunUtil.invoke(basic, "testBasicArray1", new BValue[]{sarray});
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
@@ -189,8 +196,8 @@ public class IterableOperationsTests {
 
     @Test
     public void testBasicArray2() {
-        BStringArray sarray = new BStringArray(values);
-        BValue[] returns = BRunUtil.invoke(basic, "testBasicArray2", new BValue[] {sarray});
+        BValueArray sarray = new BValueArray(values);
+        BValue[] returns = BRunUtil.invoke(basic, "testBasicArray2", new BValue[]{sarray});
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
@@ -217,20 +224,6 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "[\"aA\", \"eE\"]");
-    }
-
-    @Test
-    public void testJSON() {
-        BValue[] returns = BRunUtil.invoke(basic, "jsonTest");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertEquals(returns[0].stringValue(), "bob10true[{\"subject\":\"maths\", \"marks\":75}, " +
-                "{\"subject\":\"English\", \"marks\":85}]");
-        Assert.assertEquals(returns[1].stringValue(), "[\"bob\"]");
-        Assert.assertEquals(returns[2].stringValue(), "4");
-        Assert.assertEquals(returns[3].stringValue(), "4");
-        Assert.assertEquals(returns[4].stringValue(), "[\"0->{\"subject\":\"maths\", \"marks\":75}\", " +
-                "\"1->{\"subject\":\"English\", \"marks\":85}\"]");
     }
 
     @Test

@@ -1,6 +1,6 @@
 ## Module overview
 
-The `ballerina/config` module provides the Config API to read configurations from environment variables, files in the TOML format, and command-line parameters, and build a consolidated set of configurations. 
+The `ballerina/config` module provides the Config API to read configurations from environment variables, TOML files, and command-line parameters, and build a consolidated set of configurations.
 
 The precedence order for configuration lookup is as follows: 
 1. CLI parameters (used with the -e flag)
@@ -19,7 +19,7 @@ The Config API provides the capability to feed sensitive data (e.g., passwords) 
 To explicitly specify a configuration file, the `--config` or `-c` flag can be used. If this flag is not set when running a project, Ballerina looks for a `ballerina.conf` file in project root. When running a single file or a `.balx`, it's picked from the same directory as the `.balx` or source. The path to the configuration file can either be an absolute or a relative path. 
 
 ```sh
-ballerina run my-program.bal --config /path/to/conf/file/custom-config-file-name.conf
+ballerina run --config /path/to/conf/file/custom-config-file-name.conf my-program.bal
 ```
 
 A configuration file should conform to the TOML format. Ballerina only supports the following features of TOML: value types (string, int, float and boolean), tables, and nested tables. 
@@ -41,8 +41,8 @@ The following types can be given through a configuration file: `string`, `int`, 
 The same configs can be set using CLI parameters as follows.
 
 ```bash
-ballerina run my-program.bal -e b7a.http.tracelog.console=true -e b7a.http.tracelog.path=./trace.log 
-  -e b7a.http.accesslog.console=true -e b7a.http.accesslog.path=./access.log
+ballerina run -e b7a.http.tracelog.console=true -e b7a.http.tracelog.path=./trace.log
+  -e b7a.http.accesslog.console=true -e b7a.http.accesslog.path=./access.log my-program.bal
 ```
 
 Configurations in a file can be overridden by environment variables. To override a particular configuration, an environment variable that matches the configuration key must be set. As periods are not allowed in environment variables, periods in a configuration key should be replaced by underscores.
@@ -115,15 +115,17 @@ The configurations for HTTP trace logs can be retrieved as a `map` as follows:
 
 ```ballerina
 // Reads a configuration section as a map.
-map serverAlphaMap  = config:getAsMap("b7a.http.tracelog"); // here, the map’s key-value pairs 
-// represent config key-value pairs
+// Here, the map’s key-value pairs represent config key-value pairs.
+map<any> serverAlphaMap  = config:getAsMap("b7a.http.tracelog");
 ```
 
-In the above configuration file, the `host` is specified as `@env:{TRACE_LOG_READER_HOST}`. When resolving the configurations, Ballerina looks for a variable named `TRACE_LOG_READER_HOST` in the environment variables and maps `b7a.http.tracelog.host` to its value. 
+In the above configuration file, the `host` is specified as `@env:{TRACE_LOG_READER_HOST}`. When resolving the configurations, Ballerina looks for a variable named `TRACE_LOG_READER_HOST` in the environment variables and maps `b7a.http.tracelog.host` to its value.
+
+If the specified environment variable does not exist, it will will treat `@env:{TRACE_LOG_READER_HOST}` as a normal string value.
 
 ### Securing configuration values
 
-Sensitives values can be encrypted using the `encrypt` command as follows:
+Sensitive values can be encrypted using the `encrypt` command as follows:
 
 ```sh
 $ ballerina encrypt

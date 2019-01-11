@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether the errors are received correctly to the onError resource in WebSocket server.
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class OnErrorWebSocketTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;

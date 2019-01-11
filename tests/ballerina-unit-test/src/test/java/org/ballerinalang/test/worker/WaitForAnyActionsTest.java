@@ -19,6 +19,7 @@ package org.ballerinalang.test.worker;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -131,5 +132,82 @@ public class WaitForAnyActionsTest {
         BValue[] vals = BRunUtil.invoke(result, "waitTest13", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals("0", vals[0].stringValue());
+    }
+
+    @Test
+    public void waitTest14() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest14", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(Arrays.asList("150", "7").contains(vals[0].stringValue()));
+    }
+
+    @Test
+    public void waitTest15() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest15", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(Arrays.asList("150", "7", "60", "299").contains(vals[0].stringValue()));
+    }
+
+    @Test
+    public void waitTest16() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest16", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(Arrays.asList("150", "hello foo").contains(vals[0].stringValue()));
+    }
+
+    @Test
+    public void waitTest17() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest17", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(Arrays.asList("10", "20", "30").contains(vals[0].stringValue()));
+    }
+
+    @Test
+    public void waitTest18() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest18", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("65", vals[0].stringValue());
+    }
+
+    @Test
+    public void waitTest19() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest19", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("err returned {}", vals[0].stringValue());
+    }
+
+    @Test
+    public void waitTest20() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest20", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("hello moo", vals[0].stringValue());
+    }
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+    public void waitTest21() {
+        BRunUtil.invoke(result, "waitTest21", new BValue[0]);
+    }
+
+    @Test
+    public void waitTest22() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest22", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("hello foo", vals[0].stringValue());
+    }
+
+    @Test
+    public void waitTest23() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest23", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals(vals[0], null);
+    }
+
+    @Test
+    public void waitTest24() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest24", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(vals[0] instanceof BError);
+        Assert.assertEquals(((BError) vals[0]).reason, "A hazardous error occured!!! Abort immediately!!");
     }
 }

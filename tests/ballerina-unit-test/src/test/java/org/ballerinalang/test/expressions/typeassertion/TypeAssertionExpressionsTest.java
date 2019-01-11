@@ -21,6 +21,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -56,156 +58,158 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected '\\(\\)', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected '\\(\\)', found 'string'.*")
     public void testNilAssertionNegative() {
-        BRunUtil.invoke(result, "testNilAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testNilAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'string', found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'string', found '\\(\\)'.*")
     public void testNilValueAssertionAsSimpleBasicTypeNegative() {
-        BRunUtil.invoke(result, "testNilValueAssertionAsSimpleBasicTypeNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testNilValueAssertionAsSimpleBasicTypeNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'map<string>', found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'map<string>', found '\\(\\)'.*")
     public void testNilValueAssertionAsStructuredTypeNegative() {
-        BRunUtil.invoke(result, "testNilValueAssertionAsStructuredTypeNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testNilValueAssertionAsStructuredTypeNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'string\\[2\\]', found " +
-                    "'string\\|int\\[2\\]'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'string\\[2\\]', found 'string\\|int\\[2\\]'\"\\}.*")
     public void testArrayAssertionNegative() {
-        BRunUtil.invoke(result, "testArrayAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testArrayAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected '\\(string,int,float\\)', found " +
+            expectedExceptionsMessageRegExp = ".*assertion error: expected '\\(string,int,float\\)', found " +
                     "'\\(string,int\\|string,float\\)'.*")
     public void testTupleAssertionNegative() {
-        BRunUtil.invoke(result, "testTupleAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testTupleAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'json', found 'int'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'json', found 'int'.*")
     public void testJsonAssertionNegative() {
-        BRunUtil.invoke(result, "testJsonAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testJsonAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'map<string>', found 'map'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'map<string>', found 'map'.*")
     public void testMapAssertionNegative() {
-        BRunUtil.invoke(result, "testMapAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testMapAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'Lead', found 'Employee'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'Lead', found 'Employee'.*")
     public void testRecordAssertionNegative() {
-        BRunUtil.invoke(result, "testRecordAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testRecordAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'table<TableEmployee>', found " +
-                    "'table'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'table<TableEmployeeTwo>', found " +
+                    "'table<TableEmployee>'.*")
     public void testTableAssertionNegative() {
-        BRunUtil.invoke(result, "testTableAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testTableAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'xml', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'xml', found 'string'.*")
     public void testXmlAssertionNegative() {
-        BRunUtil.invoke(result, "testXmlAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testXmlAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'error', found 'MyError'.*",
             enabled = false)
     public void testErrorAssertionNegative() {
-        BRunUtil.invoke(result, "testErrorAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testErrorAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'function \\(string\\) returns \\" +
+        expectedExceptionsMessageRegExp = ".*assertion error: expected 'function \\(string\\) returns \\" +
                 "(string\\)', found 'function \\(string,int\\) returns \\(string\\)'.*")
     public void testFunctionAssertionNegative() {
-        BRunUtil.invoke(result, "testFunctionAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testFunctionAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'function \\(string\\) returns \\" +
                     "(string\\)', found 'function \\(string,int\\) returns \\(string\\)'.*", enabled = false)
     public void testFutureAssertionNegative() {
-        BRunUtil.invoke(result, "testFutureAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testFutureAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'LeadObject', found " +
-                    "'EmployeeObject'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'LeadObject', found 'EmployeeObject'.*")
     public void testObjectAssertionNegative() {
-        BRunUtil.invoke(result, "testObjectAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testObjectAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'stream<json>', found 'stream<int>'.*",
-            enabled = false)
+        expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion error:" +
+                " expected 'stream<json>', found 'stream<int>'\"\\}.*")
     public void testStreamAssertionNegative() {
-        BRunUtil.invoke(result, "testStreamAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testStreamAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'int', found 'typedesc'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'int', found 'typedesc'.*")
     public void testTypedescAssertionNegative() {
-        BRunUtil.invoke(result, "testTypedescAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testTypedescAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'map<json>', found 'map<string>'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'map<json>', found 'map<string>'.*")
     public void testMapElementAssertionNegative() {
-        BRunUtil.invoke(result, "testMapElementAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testMapElementAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'int', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'int', found 'string'.*")
     public void testListElementAssertionNegative() {
-        BRunUtil.invoke(result, "testListElementAssertionNegative", new BValue[0]);
+        BRunUtil.invoke(result, "testListElementAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'int', found 'string'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'stream<float\\|json>', found 'stream<int\\|float>'\"\\}.*")
+    public void testOutOfOrderUnionConstraintAssertionNegative() {
+        BRunUtil.invoke(result, "testOutOfOrderUnionConstraintAssertionNegative");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'int', found 'string'.*")
     public void testStringAsInvalidBasicType() {
-        BRunUtil.invoke(result, "testStringAsInvalidBasicType", new BValue[0]);
+        BRunUtil.invoke(result, "testStringAsInvalidBasicType");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'PersonObject', found " +
+            expectedExceptionsMessageRegExp = ".*assertion error: expected 'PersonObject', found " +
                     "'EmployeeObject'.*")
     public void testBroaderObjectAssertion() {
-        BRunUtil.invoke(result, "testBroaderObjectAssertion", new BValue[0]);
+        BRunUtil.invoke(result, "testBroaderObjectAssertion");
     }
 
     @Test
     public void testAssertionPanicWithCheckTrap() {
-        BValue[] returns = BRunUtil.invoke(result, "testAssertionPanicWithCheckTrap", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "testAssertionPanicWithCheckTrap");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "assertion error: expected 'PersonObject', found " +
-                "'EmployeeObject'");
+        Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'PersonObject', found 'EmployeeObject'");
     }
 
     @Test
     public void testAssertionNegatives() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be explicitly typed as 'Abc'",
                       19, 15);
         validateError(resultNegative, errIndex++, "incompatible types: 'map<int>' cannot be explicitly typed as 'map'",
                       22, 19);
-        validateError(resultNegative, errIndex++, "type assertion not yet supported for type 'table<Employee>'",
-                      28, 17);
-        validateError(resultNegative, errIndex++, "type assertion not yet supported for type 'stream<int|json>'",
-                      32, 27);
-        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 36, 22);
+        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 28, 22);
     }
 
     @DataProvider
@@ -222,16 +226,17 @@ public class TypeAssertionExpressionsTest {
                 {"testJsonAssertionPositive"},
                 {"testMapAssertionPositive"},
                 {"testRecordAssertionPositive"},
-//                {"testTableAssertionPositive"},
+                {"testTableAssertionPositive"},
                 {"testXmlAssertionPositive"},
 //                {"testErrorAssertionPositive"},
                 {"testFunctionAssertionPositive"},
 //                {"testFutureAssertionPositive"},
                 {"testObjectAssertionPositive"},
-//                {"testStreamAssertionPositive"},
+                {"testStreamAssertionPositive"},
                 {"testTypedescAssertionPositive"},
                 {"testMapElementAssertionPositive"},
-                {"testListElementAssertionPositive"}
+                {"testListElementAssertionPositive"},
+                {"testOutOfOrderUnionConstraintAssertionPositive"}
         };
     }
 }

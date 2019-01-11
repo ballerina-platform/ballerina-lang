@@ -31,29 +31,24 @@ import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.math.BigDecimal;
@@ -99,22 +94,23 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  * @since 0.8.0
  */
 public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
-    
+
     private Calendar utcCalendar;
     private static final BTupleType executeUpdateWithKeysTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, new BArrayType(BTypes.typeString)));
+    private static final String MYSQL = "mysql";
 
     public AbstractSQLAction() {
         utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
     }
 
-    protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters,
+    protected void executeQuery(Context context, SQLDatasource datasource, String query, BValueArray parameters,
             BStructureType structType, boolean loadSQLTableToMemory) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            BRefValueArray generatedParams = constructParameters(context, parameters);
+            BValueArray generatedParams = constructParameters(context, parameters);
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, true);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = getPreparedStatement(conn, datasource, processedQuery, loadSQLTableToMemory);
@@ -138,12 +134,12 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
     }
 
-    protected void executeUpdate(Context context, SQLDatasource datasource, String query, BRefValueArray parameters) {
+    protected void executeUpdate(Context context, SQLDatasource datasource, String query, BValueArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
         boolean isInTransaction = context.isInTransaction();
         try {
-            BRefValueArray generatedParams = constructParameters(context, parameters);
+            BValueArray generatedParams = constructParameters(context, parameters);
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = conn.prepareStatement(processedQuery);
@@ -158,13 +154,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void executeUpdateWithKeys(Context context, SQLDatasource datasource, String query,
-            BStringArray keyColumns, BRefValueArray parameters) {
+                                         BValueArray keyColumns, BValueArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         boolean isInTransaction = context.isInTransaction();
         try {
-            BRefValueArray generatedParams = constructParameters(context, parameters);
+            BValueArray generatedParams = constructParameters(context, parameters);
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             int keyColumnCount = 0;
@@ -174,7 +170,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (keyColumnCount > 0) {
                 String[] columnArray = new String[keyColumnCount];
                 for (int i = 0; i < keyColumnCount; i++) {
-                    columnArray[i] = keyColumns.get(i);
+                    columnArray[i] = keyColumns.getString(i);
                 }
                 stmt = conn.prepareStatement(processedQuery, columnArray);
             } else {
@@ -186,13 +182,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             rs = stmt.getGeneratedKeys();
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
-            BStringArray generatedKeys;
+            BValueArray generatedKeys;
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             } else {
-                generatedKeys = new BStringArray();
+                generatedKeys = new BValueArray(BTypes.typeString);
             }
-            BRefValueArray tuple = new BRefValueArray(executeUpdateWithKeysTupleType);
+            BValueArray tuple = new BValueArray(executeUpdateWithKeysTupleType);
             tuple.add(0, updatedCount);
             tuple.add(1, generatedKeys);
             context.setReturnValues(tuple);
@@ -203,27 +199,32 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
     }
 
-    protected void executeProcedure(Context context, SQLDatasource datasource, String query, BRefValueArray parameters,
-            BRefValueArray structTypes) {
+    protected void executeProcedure(Context context, SQLDatasource datasource, String query, BValueArray parameters,
+            BValueArray structTypes) {
         Connection conn = null;
         CallableStatement stmt = null;
         List<ResultSet> resultSets = null;
         boolean isInTransaction = context.isInTransaction();
         try {
-            BRefValueArray generatedParams = constructParameters(context, parameters);
+            BValueArray generatedParams = constructParameters(context, parameters);
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
-            resultSets = executeStoredProc(stmt);
             boolean refCursorOutParamsPresent = generatedParams != null && isRefCursorOutParamPresent(generatedParams);
-            boolean resultSetsReturned = !resultSets.isEmpty();
+            boolean resultSetsReturned = false;
             TableResourceManager rm = null;
             boolean requiredToReturnTables = structTypes != null && structTypes.size() > 0;
-            if ((resultSetsReturned && requiredToReturnTables) || refCursorOutParamsPresent) {
+            if (requiredToReturnTables) {
+                resultSets = executeStoredProc(stmt, datasource.getDatabaseProductName());
+                resultSetsReturned = !resultSets.isEmpty();
+            } else {
+                stmt.execute();
+            }
+            if (resultSetsReturned || refCursorOutParamsPresent) {
                 rm = new TableResourceManager(conn, stmt, !isInTransaction);
             }
             setOutParameters(context, stmt, parameters, rm);
-            if (resultSetsReturned && requiredToReturnTables) {
+            if (resultSetsReturned) {
                 rm.addAllResultSets(resultSets);
                 // If a result set has been returned from the stored procedure it needs to be pushed in to return
                 // values
@@ -242,24 +243,31 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
     }
 
-    private BRefValueArray constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
-            Context context, BRefValueArray structTypes, String databaseProductName)
+    private BValueArray constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
+                                                     Context context, BValueArray structTypes,
+                                                     String databaseProductName)
             throws SQLException {
-        BRefValueArray bTables = new BRefValueArray(new BArrayType(BTypes.typeTable));
-        if (structTypes == null || resultSets.size() != structTypes.size()) {
+        BValueArray bTables = new BValueArray(new BArrayType(BTypes.typeTable));
+        // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
+        // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
+        if (databaseProductName.contains(MYSQL) && (structTypes != null && structTypes.size() > 1)) {
+            throw new BallerinaException(
+                    "Retrieving result sets from stored procedures returning more than one result set, is not "
+                            + "supported");
+        } else if (structTypes == null || resultSets.size() != structTypes.size()) {
             throw new BallerinaException(
                     "Mismatching record type count: " + (structTypes == null ? 0 : structTypes.size()) + " and "
                             + "returned result set count: " + resultSets.size() + " from the stored procedure");
         }
         for (int i = 0; i < resultSets.size(); i++) {
-            bTables.add(i, constructTable(rm, context, resultSets.get(i), (BStructureType) structTypes.get(i).value(),
-                    databaseProductName));
+            bTables.add(i, constructTable(rm, context, resultSets.get(i),
+                    (BStructureType) structTypes.getRefValue(i).value(), databaseProductName));
         }
         return bTables;
     }
 
     protected void executeBatchUpdate(Context context, SQLDatasource datasource, String query,
-            BRefValueArray parameters) throws SQLException {
+            BValueArray parameters) throws SQLException {
         Connection conn = null;
         PreparedStatement stmt = null;
         int[] updatedCount;
@@ -275,8 +283,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                     stmt.addBatch();
                 }
                 for (int index = 0; index < paramArrayCount; index++) {
-                    BRefValueArray params = (BRefValueArray) parameters.get(index);
-                    BRefValueArray generatedParams = constructParameters(context, params);
+                    BValueArray params = (BValueArray) parameters.getRefValue(index);
+                    BValueArray generatedParams = constructParameters(context, params);
                     createProcessedStatement(conn, stmt, generatedParams);
                     stmt.addBatch();
                 }
@@ -303,7 +311,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         // processing after a failure, the array returned by the method will have -3 (EXECUTE_FAILED) for those updates.
         long[] returnedCount = new long[paramArrayCount];
         Arrays.fill(returnedCount, Statement.EXECUTE_FAILED);
-        BIntArray countArray = new BIntArray(returnedCount);
+        BValueArray countArray = new BValueArray(returnedCount);
         if (updatedCount != null) {
             int iSize = updatedCount.length;
             for (int i = 0; i < iSize; ++i) {
@@ -323,7 +331,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void checkAndObserveSQLAction(Context context, SQLDatasource datasource, String query) {
-        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
             ctx.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
             ctx.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
@@ -333,7 +341,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void checkAndObserveSQLError(Context context, String message) {
-        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
             ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
             ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, message);
@@ -345,11 +353,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
     }
 
-    private BRefValueArray constructParameters(Context context, BRefValueArray parameters) {
-        BRefValueArray parametersNew = new BRefValueArray();
+    private BValueArray constructParameters(Context context, BValueArray parameters) {
+        BValueArray parametersNew = new BValueArray();
         int paramCount = (int) parameters.size();
         for (int i = 0; i < paramCount; ++i) {
-            BRefType typeValue = parameters.get(i);
+            BRefType typeValue = parameters.getRefValue(i);
             BMap<String, BValue> paramStruct;
             if (typeValue.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
                     || typeValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -376,7 +384,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
      * If there are any arrays of parameter for types other than sql array, the given query is expanded by adding "?" s
      * to match with the array size.
      */
-    private String createProcessedQueryString(String query, BRefValueArray parameters) {
+    private String createProcessedQueryString(String query, BValueArray parameters) {
         String currentQuery = query;
         if (parameters != null) {
             int start = 0;
@@ -385,7 +393,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             int paramCount = (int) parameters.size();
             for (int i = 0; i < paramCount; i++) {
                 // types.bal Parameter
-                BMap<String, BValue> paramValue = (BMap<String, BValue>) parameters.get(i);
+                BMap<String, BValue> paramValue = (BMap<String, BValue>) parameters.getRefValue(i);
                 if (paramValue != null) {
                     String sqlType = getSQLType(paramValue);
                     BValue value = paramValue.get(PARAMETER_VALUE_FIELD);
@@ -473,7 +481,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     private CallableStatement getPreparedCall(Connection conn, SQLDatasource datasource, String query,
-            BRefValueArray parameters) throws SQLException {
+            BValueArray parameters) throws SQLException {
         CallableStatement stmt;
         boolean mysql = datasource.getDatabaseProductName().contains("mysql");
         if (mysql) {
@@ -489,8 +497,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return stmt;
     }
 
-    private BStringArray getGeneratedKeys(ResultSet rs) throws SQLException {
-        BStringArray generatedKeys = new BStringArray();
+    private BValueArray getGeneratedKeys(ResultSet rs) throws SQLException {
+        BValueArray generatedKeys = new BValueArray(BTypes.typeString);
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         int columnType;
@@ -535,11 +543,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return generatedKeys;
     }
 
-    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray param) {
+    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BValueArray param) {
         createProcessedStatement(conn, stmt, param, null);
     }
 
-    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray params,
+    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BValueArray params,
             String databaseProductName) {
         if (params == null) {
             return;
@@ -547,7 +555,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         int paramCount = (int) params.size();
         int currentOrdinal = 0;
         for (int index = 0; index < paramCount; index++) {
-            BMap<String, BValue> paramStruct = (BMap<String, BValue>) params.get(index);
+            BMap<String, BValue> paramStruct = (BMap<String, BValue>) params.getRefValue(index);
             if (paramStruct != null) {
                 String sqlType = getSQLType(paramStruct);
                 BValue value = paramStruct.get(PARAMETER_VALUE_FIELD);
@@ -562,25 +570,25 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         BValue paramValue;
                         switch (typeTagOfArrayElement) {
                         case TypeTags.INT_TAG:
-                            paramValue = new BInteger(((BIntArray) value).get(i));
+                            paramValue = new BInteger(((BValueArray) value).getInt(i));
                             break;
                         case TypeTags.BYTE_TAG:
-                            paramValue = new BByte(((BByteArray) value).get(i));
+                            paramValue = new BByte(((BValueArray) value).getByte(i));
                             break;
                         case TypeTags.FLOAT_TAG:
-                            paramValue = new BFloat(((BFloatArray) value).get(i));
+                            paramValue = new BFloat(((BValueArray) value).getFloat(i));
                             break;
                         case TypeTags.STRING_TAG:
-                            paramValue = new BString(((BStringArray) value).get(i));
+                            paramValue = new BString(((BValueArray) value).getString(i));
                             break;
                         case TypeTags.BOOLEAN_TAG:
-                            paramValue = new BBoolean(((BBooleanArray) value).get(i) > 0);
+                            paramValue = new BBoolean(((BValueArray) value).getBoolean(i) > 0);
                             break;
                         // The value parameter of the struct is an array of arrays. Only possibility that should be
                         // supported is, this being an array of byte arrays (blob)
                         // eg: [blob1, blob2, blob3] == [byteArray1, byteArray2, byteArray3]
                         case TypeTags.ARRAY_TAG:
-                            BValue array = ((BRefValueArray) value).get(i);
+                            BValue array = ((BValueArray) value).getRefValue(i);
                             // array cannot be null because the type tag is not union
                             if (((BArrayType) array.getType()).getElementType().getTag() == TypeTags.BYTE_TAG) {
                                 paramValue = array;
@@ -722,11 +730,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
     }
 
-    private boolean isRefCursorOutParamPresent(BRefValueArray params) {
+    private boolean isRefCursorOutParamPresent(BValueArray params) {
         boolean refCursorOutParamPresent = false;
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
-            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.get(index);
+            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.getRefValue(index);
             if (paramValue != null) {
                 String sqlType = getSQLType(paramValue);
                 int direction = getParameterDirection(paramValue);
@@ -740,18 +748,18 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return refCursorOutParamPresent;
     }
 
-    private void setOutParameters(Context context, CallableStatement stmt, BRefValueArray params,
+    private void setOutParameters(Context context, CallableStatement stmt, BValueArray params,
             TableResourceManager rm) {
         if (params == null) {
             return;
         }
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
-            if (params.get(index).getType().getTag() != TypeTags.OBJECT_TYPE_TAG
-                    && params.get(index).getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            if (params.getRefValue(index).getType().getTag() != TypeTags.OBJECT_TYPE_TAG
+                    && params.getRefValue(index).getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
                 continue;
             }
-            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.get(index);
+            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.getRefValue(index);
             if (paramValue != null) {
                 String sqlType = getSQLType(paramValue);
                 int direction = getParameterDirection(paramValue);
@@ -895,10 +903,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
     }
 
-    private boolean hasOutParams(BRefValueArray params) {
+    private boolean hasOutParams(BValueArray params) {
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
-            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.get(index);
+            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.getRefValue(index);
             int direction = getParameterDirection(paramValue);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
                 return true;
@@ -907,7 +915,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return false;
     }
 
-    private List<ResultSet> executeStoredProc(CallableStatement stmt) throws SQLException {
+    private List<ResultSet> executeStoredProc(CallableStatement stmt, String databaseProductName) throws SQLException {
         boolean resultAndNoUpdateCount = stmt.execute();
         List<ResultSet> resultSets = new ArrayList<>();
         ResultSet result;
@@ -923,6 +931,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 // Current result is a ResultSet
                 result = stmt.getResultSet();
                 resultSets.add(result);
+                if (databaseProductName.contains(MYSQL)) {
+                    // TODO: "mysql" equality condition is part of the temporary fix to support returning the result
+                    // set in the case of stored procedures returning only one result set in MySQL. Refer
+                    // ballerina-platform/ballerina-lang#8643
+                    break;
+                }
+
             }
             // This point reaches if current result was an update count. So it is needed to capture any remaining
             // results

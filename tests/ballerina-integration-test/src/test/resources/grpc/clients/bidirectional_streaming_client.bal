@@ -20,46 +20,70 @@ import ballerina/io;
 import ballerina/runtime;
 
 int total = 0;
-public function main(string... args) {
+string[2] msgs = ["", ""];
+const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
-    ChatClient chatEp = new ("http://localhost:9094");
-    const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
-
-    grpc:StreamingClient ep;
+public function testBidiStreaming() returns string {
+    grpc:StreamingClient ep = new;
+    ChatClient chatEp = new ("http://localhost:9095");
+    string response = "";
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, res.reason(), <string>res.detail().message);
         io:println(msg);
     } else {
-        ep = con;
+        ep = res;
     }
-    ChatMessage mes = {};
-    mes.name = "Sam";
-    mes.message = "Hi ";
-    error? connErr = ep->send(mes);
-    io:println(err.message ?: "");
-    //this will hold forever since this is chat application
-    runtime:sleep(6000);
+    ChatMessage mes1 = {name:"Sam", message:"Hi"};
+    error? connErr = ep->send(mes1);
+    if (connErr is error) {
+        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string>connErr.detail().message);
+    }
+    runtime:sleep(3000);
+    ChatMessage mes2 = {name:"Sam", message:"GM"};
+    connErr = ep->send(mes2);
+    if (connErr is error) {
+        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string>connErr.detail().message);
+    }
+
+    int waitCount = 0;
+    while(total < 2) {
+        runtime:sleep(1000);
+        io:println("msg count: ", total);
+        if (waitCount > 10) {
+            break;
+        }
+        waitCount += 1;
+    }
+    io:println(msgs);
+    if (msgs[0] == "Sam: Hi" || msgs[1] == "Sam: GM") {
+        response = "Success: received vaild responses from server";
+    } else {
+        response = "Failed: invaild response from server";
+    }
     _ = ep->complete();
+    return response;
 }
 
 
 service ChatMessageListener = service {
 
     resource function onMessage(string message) {
+        msgs[total] = message;
+        total = total + 1;
         io:println("Response received from server: " + message);
     }
 
     resource function onError(error err) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string>err.detail().message);
         io:println(msg);
     }
 
     resource function onComplete() {
         io:println("Server Complete Sending Responses.");
     }
-}
+};
 
 
 // Non-blocking client endpoint
@@ -75,7 +99,7 @@ public type ChatClient client object {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -93,8 +117,8 @@ type ChatMessage record {
     string message = "";
 };
 
-const string DESCRIPTOR_KEY4 = "Chat.proto";
-function getDescriptorMap() returns map<any> {
+const string ROOT_DESCRIPTOR = "0A0A436861742E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22280A0B436861744D657373616765120A0A046E616D6518012809120D0A076D65737361676518022809323C0A044368617412340A0463686174120B436861744D6573736167651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013001620670726F746F33";
+function getDescriptorMap() returns map<string> {
     return {
         "Chat.proto":
         "0A0A436861742E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22280A0B436861744D657373616765120A0A046E616D6518012809120D0A076D65737361676518022809323C0A044368617412340A0463686174120B436861744D6573736167651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013001620670726F746F33"

@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,7 +49,7 @@ public class H2DatabasePIIStoreTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/privacy/h2_pii_store.bal");
+        result = BCompileUtil.compileAndSetup("test-src/privacy/h2_pii_store.bal");
         SQLDBUtils.deleteFiles(new File(DB_DIRECTORY_H2), DB_NAME);
         SQLDBUtils.initH2Database(DB_DIRECTORY_H2, DB_NAME, "datafiles/privacy/PII_Store_Table_Create.sql");
     }
@@ -56,7 +57,7 @@ public class H2DatabasePIIStoreTest {
     @Test
     public void testPseudonymizeValidPii() {
         BValue[] args = { new BString(SAMPLE_PII_VALUE) };
-        BValue[] returns = BRunUtil.invokeFunction(result, "pseudonymizePii", args);
+        BValue[] returns = BRunUtil.invokeStateful(result, "pseudonymizePii", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertTrue(((BString) returns[0]).value().matches(UUID_REGEX));
@@ -65,13 +66,13 @@ public class H2DatabasePIIStoreTest {
     @Test
     public void testDepseudonymizeValidId() {
         BValue[] args = { new BString(SAMPLE_PII_VALUE) };
-        BValue[] returns = BRunUtil.invokeFunction(result, "pseudonymizePii", args);
+        BValue[] returns = BRunUtil.invokeStateful(result, "pseudonymizePii", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertTrue(((BString) returns[0]).value().matches(UUID_REGEX));
 
         BValue[] depseudonymizeArgs = { returns[0] };
-        BValue[] depseudonymizeReturns = BRunUtil.invokeFunction(result, "depseudonymizePii", depseudonymizeArgs);
+        BValue[] depseudonymizeReturns = BRunUtil.invokeStateful(result, "depseudonymizePii", depseudonymizeArgs);
         Assert.assertEquals(depseudonymizeReturns.length, 1);
         Assert.assertTrue(depseudonymizeReturns[0] instanceof BString);
         Assert.assertTrue(((BString) depseudonymizeReturns[0]).value().equals(SAMPLE_PII_VALUE));
@@ -81,7 +82,7 @@ public class H2DatabasePIIStoreTest {
     public void testDepseudonymizeInvalidId() {
         String invalidId = "12345";
         BValue[] depseudonymizeArgs = { new BString(invalidId) };
-        BValue[] depseudonymizeReturns = BRunUtil.invokeFunction(result, "depseudonymizePii", depseudonymizeArgs);
+        BValue[] depseudonymizeReturns = BRunUtil.invokeStateful(result, "depseudonymizePii", depseudonymizeArgs);
         Assert.assertEquals(depseudonymizeReturns.length, 1);
         Assert.assertTrue(depseudonymizeReturns[0] instanceof BError);
         Assert.assertEquals(((BError) depseudonymizeReturns[0]).getReason(),
@@ -91,16 +92,16 @@ public class H2DatabasePIIStoreTest {
     @Test
     public void testDeleteValidId() {
         BValue[] args = { new BString(SAMPLE_PII_VALUE) };
-        BValue[] returns = BRunUtil.invokeFunction(result, "pseudonymizePii", args);
+        BValue[] returns = BRunUtil.invokeStateful(result, "pseudonymizePii", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertTrue(((BString) returns[0]).value().matches(UUID_REGEX));
 
-        BValue[] deleteReturns = BRunUtil.invokeFunction(result, "deletePii", returns);
+        BValue[] deleteReturns = BRunUtil.invokeStateful(result, "deletePii", returns);
         Assert.assertEquals(deleteReturns.length, 1);
         Assert.assertNull(deleteReturns[0]);
 
-        BValue[] depseudonymizeReturns = BRunUtil.invokeFunction(result, "depseudonymizePii", returns);
+        BValue[] depseudonymizeReturns = BRunUtil.invokeStateful(result, "depseudonymizePii", returns);
         Assert.assertEquals(depseudonymizeReturns.length, 1);
         Assert.assertTrue(depseudonymizeReturns[0] instanceof BError);
         Assert.assertEquals(((BError) depseudonymizeReturns[0]).getReason(),
@@ -111,7 +112,7 @@ public class H2DatabasePIIStoreTest {
     public void testDeleteInvalidId() {
         String invalidId = "12345";
         BValue[] deleteArgs = { new BString(invalidId) };
-        BValue[] deleteReturns = BRunUtil.invokeFunction(result, "deletePii", deleteArgs);
+        BValue[] deleteReturns = BRunUtil.invokeStateful(result, "deletePii", deleteArgs);
         Assert.assertEquals(deleteReturns.length, 1);
         Assert.assertTrue(deleteReturns[0] instanceof BError);
         Assert.assertEquals(((BError) deleteReturns[0]).getReason(),
@@ -121,13 +122,13 @@ public class H2DatabasePIIStoreTest {
     @Test
     public void testPseudonymizeSamePiiTwice() {
         BValue[] args1 = { new BString(SAMPLE_PII_VALUE) };
-        BValue[] returns1 = BRunUtil.invokeFunction(result, "pseudonymizePii", args1);
+        BValue[] returns1 = BRunUtil.invokeStateful(result, "pseudonymizePii", args1);
         Assert.assertEquals(returns1.length, 1);
         Assert.assertTrue(returns1[0] instanceof BString);
         Assert.assertTrue(((BString) returns1[0]).value().matches(UUID_REGEX));
 
         BValue[] args2 = { new BString(SAMPLE_PII_VALUE) };
-        BValue[] returns2 = BRunUtil.invokeFunction(result, "pseudonymizePii", args2);
+        BValue[] returns2 = BRunUtil.invokeStateful(result, "pseudonymizePii", args2);
         Assert.assertEquals(returns2.length, 1);
         Assert.assertTrue(returns2[0] instanceof BString);
         Assert.assertTrue(((BString) returns2[0]).value().matches(UUID_REGEX));
@@ -138,8 +139,13 @@ public class H2DatabasePIIStoreTest {
     @Test (expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: Table name is required.*")
     public void testEmptyTableName() {
-        BRunUtil.invokeFunction(result, "pseudonymizePiiWithEmptyTableName",
+        BRunUtil.invokeStateful(result, "pseudonymizePiiWithEmptyTableName",
                 new BValue[] { new BString(SAMPLE_PII_VALUE) });
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void stopStoreDB() {
+        BRunUtil.invokeStateful(result, "shutdown");
     }
 
     @AfterSuite

@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 type Person record {
     string name;
     int age;
@@ -33,7 +31,7 @@ type Employee record {
 
 function testConvertStampRecordToRecord() returns (Person, Employee) {
     Person p = { name: "John", age:25, status: "single", batch: "Batch9", school: "ABC College" };
-    Employee e = Employee.create(p);
+    Employee e = Employee.convert(p);
     e.name = "Waruna";
     e.age =30;
     p.name = "Watson";
@@ -42,15 +40,15 @@ function testConvertStampRecordToRecord() returns (Person, Employee) {
 
 function testConvertStampRecordToJSON() returns (Employee, json)|error {
     Employee e = { name: "Waruna", status: "married", batch: "Batch9", school: "DEF College" };
-    json j = check json.create(e);
+    json j = check json.convert(e);
     e.name = "John";
     j["school"] = "ABC College";
     return (e, j);
 }
 
-function testConvertStampRecordToMap() returns (Employee, map)|error {
+function testConvertStampRecordToMap() returns (Employee, map<any>)|error {
     Employee e = { name: "John", status: "single", batch: "Batch9", school: "ABC College" };
-    map<anydata> m = check map<anydata>.create(e);
+    map<anydata> m = check map<anydata>.convert(e);
     m["name"] = "Waruna";
     e.name = "Mike";
     return (e, m);
@@ -60,7 +58,7 @@ function testConvertStampTupleToMap() returns ((string, Employee), (string, Empl
     (string, Person) tupleValue = ("Waruna", { name: "John", age: 25, status: "single", batch: "Batch9", school:
     "ABC College" });
 
-    (string, Employee) returnValue = (string, Employee).create(tupleValue);
+    (string, Employee) returnValue = (string, Employee).convert(tupleValue);
     returnValue[0] = "Chathura";
     tupleValue[0] = "Vinod";
     return (tupleValue, returnValue);

@@ -80,7 +80,12 @@ class OpenApiResourceList extends React.Component<OasResourceListProps, OpenApiR
         const openApiResourcesLength = Object.keys(this.props.openApiResources).length;
 
         if (expandAll) {
-            if (!collapseOnExpandAll.includes(Number(data.index))) {
+            if (Number(data.index) === 0 && openApiResourcesLength === 1) {
+                this.setState({
+                    activeIndex: [],
+                    expandAll: false
+                });
+            } else if (!collapseOnExpandAll.includes(Number(data.index))) {
                 this.setState({
                     collapseOnExpandAll: [...this.state.collapseOnExpandAll, Number(data.index)]
                 });
@@ -117,11 +122,12 @@ class OpenApiResourceList extends React.Component<OasResourceListProps, OpenApiR
         return (
             <div className="open-api-resource-list-container">
                 <div className="action-container">
-                    <Button size="mini" icon labelPosition="left" onClick={this.showOpenApiAddResource}>
+                    <Button size="mini" primary icon labelPosition="left" onClick={this.showOpenApiAddResource}>
                         <Icon name="plus" />
                         Add Resource
                     </Button>
-                    <Button size="mini" icon labelPosition="left" floated="right" onClick={this.expandAllResources}>
+                    <Button size="mini" basic icon labelPosition="left" floated="right"
+                        onClick={this.expandAllResources}>
                         <Icon name={expandAll ? "compress" : "expand"} />
                         {expandAll || activeIndex.length === Object.keys(openApiResources).length ?
                             "Collapse All" : "Expand All"

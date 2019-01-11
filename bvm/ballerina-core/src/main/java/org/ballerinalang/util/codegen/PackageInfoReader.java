@@ -47,6 +47,8 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
+import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
@@ -66,6 +68,7 @@ import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
@@ -551,18 +554,8 @@ public class PackageInfoReader {
 
             // Read service and listener type cp index;
             TypeRefCPEntry serviceType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
-            int cpIndex;
-            TypeRefCPEntry listenerTypeCP = null;
-            UTF8CPEntry listenerNameCP = null;
-            if ((cpIndex = dataInStream.readInt()) != -1) {
-                listenerTypeCP = (TypeRefCPEntry) packageInfo.getCPEntry(cpIndex);
-            }
-            if ((cpIndex = dataInStream.readInt()) != -1) {
-                listenerNameCP = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
-            }
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags, serviceType, listenerTypeCP,
-                    listenerNameCP);
+                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags, serviceType);
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
         }
@@ -630,11 +623,15 @@ public class PackageInfoReader {
         // Read and ignore flags
         dataInStream.readInt();
 
+        // Read memory index
         int globalMemIndex = dataInStream.readInt();
+
+        // Read identifier kind flag
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
 
         BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, globalMemIndex, type);
+                sigCPIndex, globalMemIndex, type, isIdentifierLiteral);
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
@@ -705,6 +702,26 @@ public class PackageInfoReader {
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, packageInfo, functionInfo);
+
+        // Set worker send in channels
+        WorkerSendInsAttributeInfo attributeInfo =
+                (WorkerSendInsAttributeInfo) functionInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
+        functionInfo.workerSendInChannels = new ChannelDetails[attributeInfo.sendIns.length];
+        if (functionInfo.workerSendInChannels.length == 0) {
+            return;
+        }
+        String currentWorkerName = functionInfo.defaultWorkerInfo.getWorkerName();
+        for (int i = 0; i < attributeInfo.sendIns.length; i++) {
+            String chnlName = attributeInfo.sendIns[i];
+
+            functionInfo.workerSendInChannels[i] = new ChannelDetails(chnlName, currentWorkerName
+                    .equals(BLangConstants.DEFAULT_WORKER_NAME), isChannelSend(chnlName, currentWorkerName));
+        }
+    }
+
+    //TODO remove below and pass these details from compiler
+    private boolean isChannelSend(String chnlName, String workerName) {
+        return chnlName.startsWith(workerName) && chnlName.split(workerName)[1].startsWith("->");
     }
 
     private void readWorkerData(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
@@ -963,6 +980,15 @@ public class PackageInfoReader {
                     localVarAttrInfo.addLocalVarInfo(localVariableInfo);
                 }
                 return localVarAttrInfo;
+            case WORKER_SEND_INS:
+                WorkerSendInsAttributeInfo workerSendInsAttrInfo = new WorkerSendInsAttributeInfo(attribNameCPIndex);
+                int sendInsCount = dataInStream.readShort();
+                workerSendInsAttrInfo.sendIns = new String[sendInsCount];
+                for (int i = 0; i < sendInsCount; i++) {
+                    UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(dataInStream.readInt());
+                    workerSendInsAttrInfo.sendIns[i] = stringCPEntry.getValue();
+                }
+                return workerSendInsAttrInfo;
             case LINE_NUMBER_TABLE_ATTRIBUTE:
                 LineNumberTableAttributeInfo lnNoTblAttrInfo = new LineNumberTableAttributeInfo(attribNameCPIndex);
                 int lineNoInfoCount = dataInStream.readInt();
@@ -1049,11 +1075,13 @@ public class PackageInfoReader {
         int scopeStartLineNumber = dataInStream.readInt();
         int scopeEndLineNumber = dataInStream.readInt();
 
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
+
         UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
 
         BType type = getBTypeFromDescriptor(packageInfo, typeSigCPEntry.getValue());
         LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
-                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber);
+                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber, isIdentifierLiteral);
         int attchmntIndexesLength = dataInStream.readShort();
         int[] attachmentIndexes = new int[attchmntIndexesLength];
         for (int i = 0; i < attchmntIndexesLength; i++) {
@@ -1146,10 +1174,8 @@ public class PackageInfoReader {
                 case InstructionCodes.RNE_NULL:
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
-                case InstructionCodes.TR_END:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
-                case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
@@ -1298,9 +1324,9 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.STAMP:
+                case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.TYPE_ASSERTION:
@@ -1310,7 +1336,6 @@ public class PackageInfoReader {
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.IS_ASSIGNABLE:
-                case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2JSON:
@@ -1331,9 +1356,14 @@ public class PackageInfoReader {
                     k = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k));
                     break;
+                case InstructionCodes.TR_RETRY:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    packageInfo.addInstruction(new Instruction.InstructionTrRetry(opcode, i, j, k));
+                    break;
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
-                case InstructionCodes.TR_BEGIN:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.ERROR:
                     i = codeStream.readInt();
@@ -1342,6 +1372,22 @@ public class PackageInfoReader {
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
+                case InstructionCodes.TR_END:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    h = codeStream.readInt();
+                    packageInfo.addInstruction(new Instruction.InstructionTrEnd(opcode, i, j, k, h));
+                    break;
+                case InstructionCodes.TR_BEGIN:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    h = codeStream.readInt();
+                    l = codeStream.readInt();
+                    packageInfo.addInstruction(new Instruction.InstructionTrBegin(opcode, i, j, k, h, l));
+                    break;
+
                 case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
@@ -1373,10 +1419,32 @@ public class PackageInfoReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, oprds));
                     break;
                 case InstructionCodes.FLUSH:
-                    // TODO fix - rajith
+                    int retReg = codeStream.readInt();
+                    int workerCount  = codeStream.readInt();
+                    String[] workerList = new String[workerCount];
+                    for (int wrkCount = 0; wrkCount < workerCount; wrkCount++) {
+                        int channelRefCPIndex = codeStream.readInt();
+                        WorkerDataChannelRefCPEntry channelRefCPEntry = (WorkerDataChannelRefCPEntry)
+                                packageInfo.getCPEntry(channelRefCPIndex);
+                        workerList[wrkCount] = channelRefCPEntry.getWorkerDataChannelInfo().getChannelName();
+                    }
+                    packageInfo.addInstruction(new Instruction.InstructionFlush(opcode, retReg, workerList));
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
-                    // TODO fix - rajith
+                    int syncChannelRefCPIndex = codeStream.readInt();
+                    WorkerDataChannelRefCPEntry syncChannelRefCPEntry = (WorkerDataChannelRefCPEntry)
+                            packageInfo.getCPEntry(syncChannelRefCPIndex);
+                    int syncSigCPIndex = codeStream.readInt();
+                    UTF8CPEntry syncSigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(syncSigCPIndex);
+                    BType syncSendType = getParamTypes(packageInfo, syncSigCPEntry.getValue())[0];
+                    int exprIndex = codeStream.readInt();
+                    int syncSendIndex = codeStream.readInt();
+                    WorkerDataChannelInfo syncChannelInfo = syncChannelRefCPEntry.getWorkerDataChannelInfo();
+                    boolean channelSendInSameStrand =
+                            syncChannelInfo.getSource().equals(BLangConstants.DEFAULT_WORKER_NAME);
+                    packageInfo.addInstruction(new Instruction.InstructionWRKSyncSend(opcode, syncChannelRefCPIndex,
+                            syncChannelInfo, syncSigCPIndex, syncSendType, exprIndex
+                            , syncSendIndex, channelSendInSameStrand));
                     break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
@@ -1429,8 +1497,12 @@ public class PackageInfoReader {
                     int sigCPIndex = codeStream.readInt();
                     UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
                     BType bType = getParamTypes(packageInfo, sigCPEntry.getValue())[0];
+                    WorkerDataChannelInfo dataChannelInfo = channelRefCPEntry.getWorkerDataChannelInfo();
+                    boolean channelInSameStrand =  opcode == InstructionCodes.WRKSEND ? dataChannelInfo.getSource()
+                            .equals(BLangConstants.DEFAULT_WORKER_NAME) : dataChannelInfo.getTarget()
+                            .equals(BLangConstants.DEFAULT_WORKER_NAME);
                     packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
-                            channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bType, codeStream.readInt()));
+                            dataChannelInfo, sigCPIndex, bType, codeStream.readInt(), channelInSameStrand));
                     break;
                 case InstructionCodes.CHNRECEIVE:
                     BType keyType = null;
@@ -1469,8 +1541,13 @@ public class PackageInfoReader {
                     int iteratorIndex = codeStream.readInt();
                     int[] typeTags = getArgRegs(codeStream);
                     retRegs = getArgRegs(codeStream);
+
+                    int constraintTypeSigCPIndex = codeStream.readInt();
+                    TypeRefCPEntry constraintTypeRefCPEntry =
+                            (TypeRefCPEntry) packageInfo.getCPEntry(constraintTypeSigCPIndex);
+                    BType constraintType = constraintTypeRefCPEntry.getType();
                     packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
-                            typeTags, retRegs));
+                            typeTags, retRegs, constraintType));
                     break;
                 case InstructionCodes.LOCK:
                     int varCount = codeStream.readInt();

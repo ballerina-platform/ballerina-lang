@@ -111,24 +111,6 @@ function testJSONToConstraintJsonUnsafeCastPositive() returns (json, json, json)
     }
 }
 
-
-//function testConstraintJSONToConstraintJsonCast() returns (json) {
-//    json<Person> j = getStudent();
-//    return j;
-//}
-
-//function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns (json | error) {
-//    json<Person> jp = getStudent();
-//    var js  = <json<Student>> jp;
-//    return js;
-//}
-
-function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json | error) {
-    json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
-    var js = json<Student>.create(je);
-    return js;
-}
-
 function testJSONArrayToConstraintJsonArrayCastPositive() returns (json<Student>[] | error) {
     json j1 = [getStudent()];
     var j2 = json<Student>[].stamp(j1);
@@ -166,7 +148,7 @@ function testCJSONArrayToJsonAssignment() returns (json) {
 function testMixedTypeJSONArrayToCJsonArrayCastNegative() returns (json<Student>[] | error) {
     json[] j1 = [{name:"John Doe", age:30, address:"London", "class":"B"}, [4, 6]];
     json j2 = j1;
-    var j3 = json<Student>[].create(j2);
+    var j3 = json<Student>[].convert(j2);
     return j3;
 }
 

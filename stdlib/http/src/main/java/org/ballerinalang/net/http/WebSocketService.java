@@ -23,7 +23,6 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -41,8 +40,7 @@ public class WebSocketService {
     private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
     private String basePath;
     private HttpResource upgradeResource;
-    private static final int DEFAULT_MAX_FRAME_SIZE = 65536;
-    private int maxFrameSize = DEFAULT_MAX_FRAME_SIZE;
+    private int maxFrameSize = WebSocketConstants.DEFAULT_MAX_FRAME_SIZE;
 
     public WebSocketService() {
         service = null;
@@ -54,16 +52,17 @@ public class WebSocketService {
             resourceMap.put(resource.getName(), resource);
         }
 
+        ParamDetail param = service.getResources()[0].getParamDetails().get(0);
         Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service);
 
-        Struct configAnnotationStruct = null;
-        if (configAnnotation != null && (configAnnotationStruct = configAnnotation.getValue()) != null) {
-            negotiableSubProtocols = findNegotiableSubProtocols(configAnnotationStruct);
-            idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotationStruct);
-            maxFrameSize = findMaxFrameSize(configAnnotationStruct);
-        }
-        ParamDetail param = service.getResources()[0].getParamDetails().get(0);
         if (param != null && WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(param.getVarType().toString())) {
+            Struct configAnnotationStruct = null;
+            if (configAnnotation != null && (configAnnotationStruct = configAnnotation.getValue()) != null) {
+                negotiableSubProtocols = WebSocketUtil.findNegotiableSubProtocols(configAnnotationStruct);
+                idleTimeoutInSeconds = WebSocketUtil.findIdleTimeoutInSeconds(configAnnotationStruct);
+                maxFrameSize = WebSocketUtil.findMaxFrameSize(configAnnotationStruct);
+            }
+
             basePath = findFullWebSocketUpgradePath(configAnnotationStruct);
         }
 
@@ -84,7 +83,11 @@ public class WebSocketService {
     }
 
     public String getName() {
-        return service != null ? service.getName() : null;
+        if (service != null) {
+            String name = service.getName();
+            return !name.startsWith(HttpConstants.DOLLAR) ? name : "";
+        }
+        return null;
     }
 
     public ServiceInfo getServiceInfo() {
@@ -109,33 +112,6 @@ public class WebSocketService {
 
     public int getMaxFrameSize() {
         return maxFrameSize;
-    }
-
-    private String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
-        Value[] subProtocolsInAnnotation = annAttrSubProtocols.getArrayField(
-                WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS);
-
-        if (subProtocolsInAnnotation == null) {
-            return new String[0];
-        }
-
-        String[] subProtoCols = new String[subProtocolsInAnnotation.length];
-        for (int i = 0; i < subProtocolsInAnnotation.length; i++) {
-            subProtoCols[i] = subProtocolsInAnnotation[i].getStringValue();
-        }
-        return subProtoCols;
-    }
-
-    private int findIdleTimeoutInSeconds(Struct annAttrIdleTimeout) {
-        return (int) annAttrIdleTimeout.getIntField(WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT);
-    }
-
-    private int findMaxFrameSize(Struct annotation) {
-        int size = (int) annotation.getIntField(WebSocketConstants.ANNOTATION_ATTR_MAX_FRAME_SIZE);
-        if (size <= 0) {
-            size = DEFAULT_MAX_FRAME_SIZE;
-        }
-        return size;
     }
 
     public String getBasePath() {

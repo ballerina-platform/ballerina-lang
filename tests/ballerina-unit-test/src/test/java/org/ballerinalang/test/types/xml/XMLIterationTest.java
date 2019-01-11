@@ -21,8 +21,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.testng.Assert;
@@ -52,7 +52,8 @@ public class XMLIterationTest {
     public void testNegative() {
         Assert.assertEquals(negative.getErrorCount(), 2);
         int index = 0;
-        BAssertUtil.validateError(negative, index++, "too many variables are defined for iterable type 'xml'", 11, 24);
+        BAssertUtil.validateError(negative, index++, "invalid tuple variable; expecting a tuple type but found " +
+                "'xml|string' in type definition", 11, 17);
         BAssertUtil.validateError(negative, index++, "too many variables are defined for iterable type 'xml'", 16, 19);
     }
 
@@ -63,14 +64,13 @@ public class XMLIterationTest {
         Assert.assertNotNull(returns);
 
         for (int i = 0; i < returns.length; i++) {
-            BRefValueArray tuple = (BRefValueArray) returns[i];
-            Assert.assertEquals(((BInteger) tuple.get(0)).intValue(), i);
-            Assert.assertEquals(tuple.get(1).stringValue(), titles[i]);
+            BValueArray tuple = (BValueArray) returns[i];
+            Assert.assertEquals(((BInteger) tuple.getRefValue(0)).intValue(), i);
+            Assert.assertEquals(tuple.getRefValue(1).stringValue(), titles[i]);
         }
     }
 
-    // Disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/10149
-    @Test(enabled = false)
+    @Test
     public void testXMLForeachOp() {
         String[] titles = new String[]{"Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"};
         BValue[] returns = BRunUtil.invoke(result, "foreachOpTest");
@@ -78,9 +78,9 @@ public class XMLIterationTest {
         Assert.assertNotNull(returns);
 
         for (int i = 0; i < returns.length; i++) {
-            BRefValueArray tuple = (BRefValueArray) returns[i];
-            Assert.assertEquals(((BInteger) tuple.get(0)).intValue(), i);
-            Assert.assertEquals(tuple.get(1).stringValue(), titles[i]);
+            BValueArray tuple = (BValueArray) returns[i];
+            Assert.assertEquals(((BInteger) tuple.getRefValue(0)).intValue(), i);
+            Assert.assertEquals(tuple.getRefValue(1).stringValue(), titles[i]);
         }
     }
 
@@ -91,11 +91,11 @@ public class XMLIterationTest {
         Assert.assertNotNull(returns);
 
         for (int i = 0; i < returns.length; i++) {
-            BRefValueArray retAuthors = ((BXMLSequence) returns[i]).value();
+            BValueArray retAuthors = ((BXMLSequence) returns[i]).value();
             long size = retAuthors.size();
 
             for (int j = 0; j < size; j++) {
-                Assert.assertEquals(((BXMLItem) retAuthors.get(j)).getTextValue().stringValue(), authors[i][j]);
+                Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(j)).getTextValue().stringValue(), authors[i][j]);
             }
         }
     }
@@ -123,10 +123,10 @@ public class XMLIterationTest {
 
         Assert.assertNotNull(returns);
 
-        BRefValueArray retAuthors = ((BXMLSequence) returns[0]).value();
-        Assert.assertEquals(((BXMLItem) retAuthors.get(0)).getTextValue().stringValue(), authors[0][0]);
+        BValueArray retAuthors = ((BXMLSequence) returns[0]).value();
+        Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(0)).getTextValue().stringValue(), authors[0][0]);
 
         retAuthors = ((BXMLSequence) returns[1]).value();
-        Assert.assertEquals(((BXMLItem) retAuthors.get(0)).getTextValue().stringValue(), authors[1][0]);
+        Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(0)).getTextValue().stringValue(), authors[1][0]);
     }
 }

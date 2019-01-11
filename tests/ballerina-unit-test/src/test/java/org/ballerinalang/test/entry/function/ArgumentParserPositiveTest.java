@@ -49,9 +49,9 @@ public class ArgumentParserPositiveTest {
     public void setUp() {
         defaultOut = System.out;
         programFile = LauncherUtils.compile(Paths.get("src/test/resources/test-src/entry.function"),
-                                                        Paths.get(FILE_NAME), false);
+                                                        Paths.get(FILE_NAME), false, true);
         mainWithParamsProgramFile = LauncherUtils.compile(Paths.get("src/test/resources/test-src/entry.function"),
-                                                          Paths.get("test_main_with_params.bal"), false);
+                                                          Paths.get("test_main_with_params.bal"), false, true);
     }
 
     @Test(dataProvider = "mainFunctionParamsAndReturn")
@@ -93,9 +93,9 @@ public class ArgumentParserPositiveTest {
     @Test
     public void testXmlArg() {
         BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(
-                programFile, "xmlEntry", new String[]{"<book status=\"available\" count=\"5\"/>"});
+                programFile, "xmlEntry", new String[]{"<book status=\"available\" count=\"5\"></book>"});
         Assert.assertTrue(entryFuncResult != null && entryFuncResult.length == 1, "return value not available");
-        Assert.assertEquals(entryFuncResult[0].stringValue(), "<book status=\"available\" count=\"5\"/>",
+        Assert.assertEquals(entryFuncResult[0].stringValue(), "<book status=\"available\" count=\"5\"></book>",
                             "invalid XML return value");
     }
 

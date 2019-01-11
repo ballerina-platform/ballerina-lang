@@ -25,11 +25,19 @@ import ballerina/io;
 # using custom HTTP verbs.
 
 # + config - The configurations associated with the client
+# + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
+#                HTTP service in resilient manner
 public type Client client object {
 
     public ClientEndpointConfig config = {};
     public Client httpClient;
 
+    # Gets invoked to initialize the client. During initialization, configurations provided through the `config`
+    # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
+    # security, circuit breaking).
+    #
+    # + url - URL of the target service
+    # + config - The configurations to be used when initializing the client
     public function __init(string url, ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
         var result = initialize(url, self.config);
@@ -205,7 +213,6 @@ public type TargetService record {
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 #
-# + url - URL of the target service
 # + circuitBreaker - Configurations associated with Circuit Breaker behaviour
 # + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + keepAlive - Specifies whether to reuse a connection for multiple requests
@@ -230,7 +237,7 @@ public type ClientEndpointConfig record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = ();
+    ConnectionThrottling? connectionThrottling = {};
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;

@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.JsonObject;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -44,6 +45,7 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -137,8 +139,8 @@ public class CreateTestExecutor implements LSCommandExecutor {
         int column = -1;
 
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-            String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
-            String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
+            String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
+            String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
             switch (argKey) {
                 case CommandConstants.ARG_KEY_DOC_URI:
                     docUri = argVal;
@@ -158,10 +160,16 @@ public class CreateTestExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create test command!");
         }
 
-        // Compile the source file
         WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false).getRight();
+
+        // Compile the source file
+        BLangPackage builtSourceFile = null;
+        try {
+            builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false);
+        } catch (LSCompilerException e) {
+            throw new LSCommandExecutorException("Couldn't compile the source", e);
+        }
 
         // Generate test file and notify Client
         BallerinaLanguageServer ballerinaLanguageServer = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY);
@@ -212,9 +220,8 @@ public class CreateTestExecutor implements LSCommandExecutor {
             // Send edits
             VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
             identifier.setUri(testFile.toPath().toUri().toString());
-            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(identifier, content);
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-            workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+            TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(identifier, content);
+            WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
             ApplyWorkspaceEditParams editParams = new ApplyWorkspaceEditParams();
             editParams.setEdit(workspaceEdit);
             if (client != null) {

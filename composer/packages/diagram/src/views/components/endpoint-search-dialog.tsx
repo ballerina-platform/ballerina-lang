@@ -3,10 +3,11 @@ import React from "react";
 import { Dropdown, DropdownItemProps, Header, Modal, Transition } from "semantic-ui-react";
 import { DiagramContext, IDiagramContext } from "../../diagram/diagram-context";
 
+const getEPLabel = (ep: BallerinaEndpoint) => ep.packageName + ":" + ep.name;
 export class EndpointSearchDialog extends React.Component<{
     show: boolean,
     onClose: () => void,
-    onEndpointSelect?: (endpointDef: any) => void,
+    onEndpointSelect?: (endpointDef: BallerinaEndpoint) => void,
 },
 {
     endpoints: BallerinaEndpoint[]
@@ -18,13 +19,19 @@ export class EndpointSearchDialog extends React.Component<{
         endpoints: []
     };
 
-    private lastUsedEndpoint: string | undefined;
+    private lastUsedEndpoint: BallerinaEndpoint | undefined;
 
     public componentDidMount() {
         const context = this.context as IDiagramContext;
         if (context && context.langClient) {
             context.langClient.getEndpoints()
                 .then((endpoints) => {
+                    if (!this.lastUsedEndpoint) {
+                        // set http client selected by default
+                        const httpClientEP = endpoints.find((ep) => ep.packageName === "http"
+                                        && ep.name === "Client");
+                        this.lastUsedEndpoint = httpClientEP;
+                    }
                     this.setState({
                         endpoints
                     });
@@ -35,9 +42,19 @@ export class EndpointSearchDialog extends React.Component<{
     public render() {
         const { show, onClose, onEndpointSelect } = this.props;
         const options: DropdownItemProps[] = this.state.endpoints.map((ep: BallerinaEndpoint) => ({
-            text: ep.packageName + ":" + ep.name,
-            value: ep.packageName + ":" + ep.name
+            active: ep === this.lastUsedEndpoint,
+            data: ep,
+            onClick: (event: React.MouseEvent<HTMLDivElement>, props: DropdownItemProps) => {
+                if (onEndpointSelect) {
+                    onEndpointSelect(props.data);
+                    this.lastUsedEndpoint = props.data;
+                }
+                onClose();
+            },
+            selected: ep === this.lastUsedEndpoint,
+            text: getEPLabel(ep)
         }));
+        const containerRef = (this.context as IDiagramContext).containerRef;
         return <Transition visible={show} animation="fade" duration={500}>
                 <Modal
                     open={show}
@@ -46,6 +63,7 @@ export class EndpointSearchDialog extends React.Component<{
                     size="small"
                     className="endpoint-search-dialog"
                     dimmer
+                    mountNode={containerRef ? containerRef.current : undefined}
                 >
                     <Header as="h4">Select from available endpoints</Header>
                     <Dropdown
@@ -57,14 +75,6 @@ export class EndpointSearchDialog extends React.Component<{
                         placeholder="Select Endpoint Type"
                         defaultOpen
                         options={options}
-                        onChange={(evt, { value }) => {
-                            if (onEndpointSelect) {
-                                onEndpointSelect(value);
-                                this.lastUsedEndpoint = value as string;
-                            }
-                            onClose();
-                        }}
-                        defaultValue={this.lastUsedEndpoint}
                     />
                 </Modal>
             </Transition>;

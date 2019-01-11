@@ -7,6 +7,7 @@ import ballerina/log;
 }
 service httpService on new http:Listener(9090) {
 
+    // This is an HTTP resource.
     @http:ResourceConfig {
         path: "/world",
         methods: ["POST"]
@@ -20,7 +21,7 @@ service httpService on new http:Listener(9090) {
             resp.statusCode = 500;
         } else if (payload is string) {
             io:println(payload);
-            resp.setPayload(string `HTTP POST received: {{untaint payload}}\n`);
+            resp.setPayload(string `HTTP POST received: {{untaint payload}}`);
         }
 
         var err = caller->respond(resp);
@@ -29,10 +30,12 @@ service httpService on new http:Listener(9090) {
         }
     }
 
+    // This is an HTTP to WebSocket upgrade resource. This is defined using the WebSocket upgrade resource config.
+    // Here you have access to the `http:Request` and to the query and path params where applicable.
     @http:ResourceConfig {
         webSocketUpgrade: {
-            upgradePath: "/ws",
-            upgradeService: wsService
+                upgradePath: "/ws",
+                upgradeService: wsService
         }
     }
     resource function upgrader(http:Caller caller, http:Request req) {
@@ -41,11 +44,11 @@ service httpService on new http:Listener(9090) {
 }
 
 
-// Note: When a WebSocket upgrade path is defined in HTTP resource configuration.
-// - Without service configuration for WebSocketService default values are taken for sub protocols, idle timeout etc...
-// - If  WebSocketServiceConfig is defined without the path, sub protocols, idle timeout etc... can be configured.
-// - If path is defined in the WebSocketServiceConfig it shall be ignored.
-// - This service can also be bound to a different endpoint in which case the path configuration becomes useful.
+// Note: When a WebSocket upgrade path is defined in HTTP resource configuration. <br>
+// - Without service configuration for WebSocketService default values are taken for sub protocols, idle timeout etc.<br>
+// - If  `WebSocketServiceConfig` is defined without the path, sub protocols, idle timeout etc. can be configured.<br>
+// - If path is defined in the `WebSocketServiceConfig` it shall be ignored.<br>
+// - This service can also be bound to a different `Listener` in which case the path configuration becomes useful.
 service wsService = @http:WebSocketServiceConfig {subProtocols: ["xml, json"]
                                          ,idleTimeoutInSeconds: 20} service {
 

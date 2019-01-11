@@ -26,17 +26,14 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -51,7 +48,6 @@ import java.util.Collection;
  * @since 0.970.0
  */
 public class TableUtils {
-    private static final String TABLE_OPERATION_ERROR = "TableError";
     private static final String DEFAULT_ERROR_DETAIL_MESSAGE = "Error occurred during table manipulation";
 
     public static String generateInsertDataStatment(String tableName, BMap<?, ?> constrainedType) {
@@ -113,7 +109,7 @@ public class TableUtils {
                     if (isBlobType) {
                         BValue value = constrainedType.get(fieldName);
                         if (value != null) {
-                            byte[] blobData = ((BByteArray) constrainedType.get(fieldName)).getBytes();
+                            byte[] blobData = ((BValueArray) constrainedType.get(fieldName)).getBytes();
                             stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
                         } else {
                             stmt.setNull(index, Types.BLOB);
@@ -141,31 +137,31 @@ public class TableUtils {
         int arrayLength;
         switch (typeTag) {
         case TypeTags.INT_TAG:
-            arrayLength = (int) ((BIntArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new Long[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BIntArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getInt(i);
             }
             break;
         case TypeTags.FLOAT_TAG:
-            arrayLength = (int) ((BFloatArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new Double[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BFloatArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getFloat(i);
             }
             break;
         case TypeTags.STRING_TAG:
-            arrayLength = (int) ((BStringArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new String[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BStringArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getString(i);
             }
             break;
         case TypeTags.BOOLEAN_TAG:
-            arrayLength = (int) ((BBooleanArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new Boolean[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BBooleanArray) value).get(i) > 0;
+                arrayData[i] = ((BValueArray) value).getBoolean(i) > 0;
             }
             break;
         default:
@@ -185,6 +181,7 @@ public class TableUtils {
         String detail = throwable.getMessage() != null ? throwable.getMessage() : DEFAULT_ERROR_DETAIL_MESSAGE;
         BMap<String, BValue> tableErrorDetail = new BMap<>();
         tableErrorDetail.put("message", new BString(detail));
-        return BLangVMErrors.createError(context, true, BTypes.typeError, TABLE_OPERATION_ERROR, tableErrorDetail);
+        return BLangVMErrors.createError(context, true, BTypes.typeError,
+                                         BallerinaErrorReasons.TABLE_OPERATION_ERROR, tableErrorDetail);
     }
 }

@@ -49,8 +49,8 @@ final Day TUESDAY = "TUESDAY"; // enumerator Tuesday
 service FooService on new http:Listener(9090) {
 
 @http:ResourceConfig{ methods: ["POST"] } // http method post
-    resource function fooResource (string s) {
-        io:println(s);
+    resource function fooResource (http:Caller caller, http:Request req) {
+        io:println(req);
     }
 }
 

@@ -17,12 +17,16 @@
  */
 package org.ballerinalang.bre;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BVMScheduler;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 /**
@@ -51,6 +55,12 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     @Override
     public void notifySuccess() {
         if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
+            if (BVM.checkIsType(this.nativeCallCtx.getReturnValue(), BTypes.typeError)) {
+                strand.currentFrame.handleChannelError((BRefType) this.nativeCallCtx.getReturnValue(),
+                        strand.peekFrame(1).wdChannels);
+            }
             strand.popFrame();
             StackFrame sf = strand.currentFrame;
             BLangVMUtils.populateWorkerDataWithValues(sf, this.retReg,
@@ -58,24 +68,27 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
             BVMScheduler.schedule(strand);
             return;
         }
+        if (BVM.checkIsType(this.nativeCallCtx.getReturnValue(), BTypes.typeError)) {
+            strand.currentFrame.handleChannelError((BRefType) this.nativeCallCtx.getReturnValue(),
+                    strand.respCallback.parentChannels);
+        }
         strand.respCallback.signal();
-//        //TODO fix - rajith
-//        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
     }
 
     @Override
     public void notifyFailure(BError error) {
         if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
+            strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).wdChannels);
             strand.popFrame();
-            StackFrame sf = strand.currentFrame;
             strand.setError(error);
             BVMScheduler.schedule(strand);
             return;
         }
+        strand.currentFrame.handleChannelPanic(error, strand.respCallback.parentChannels);
         strand.respCallback.setError(error);
         strand.respCallback.signal();
-        //TODO fix - rajith
-//        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
     }
 
 }

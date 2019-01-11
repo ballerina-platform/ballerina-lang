@@ -117,7 +117,6 @@ FORK        : 'fork' ;
 JOIN        : 'join' ;
 SOME        : 'some' ;
 ALL         : 'all' ;
-TIMEOUT     : 'timeout' ;
 TRY         : 'try' ;
 CATCH       : 'catch' ;
 FINALLY     : 'finally' ;
@@ -130,23 +129,20 @@ ABORT       : 'abort' ;
 RETRY       : 'retry' ;
 ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
-ONABORT     : 'onabort' ;
-ONCOMMIT    : 'oncommit' ;
+COMMITTED   : 'committed' ;
+ABORTED     : 'aborted' ;
 LENGTHOF    : 'lengthof' ;
 WITH        : 'with' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
 START       : 'start' ;
-AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
-DONE        : 'done' ;
-SCOPE       : 'scope';
-COMPENSATION: 'compensation';
-COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
+FLUSH       : 'flush' ;
+WAIT        : 'wait' ;
 
 // Separators
 
@@ -207,7 +203,7 @@ ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
-
+SYNCRARROW  : '->>' ;
 
 // Compound Assignment operators.
 

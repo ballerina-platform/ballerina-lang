@@ -96,7 +96,7 @@ public class CodeGeneratorTest {
             generator.generate(GenType.CLIENT, definitionPath, projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
-                Assert.assertTrue(result.contains("public function listPets()"));
+                Assert.assertTrue(result.contains("public remote function listPets()"));
             } else {
                 Assert.fail("Client was not generated");
             }
@@ -134,6 +134,7 @@ public class CodeGeneratorTest {
                 {"noOperationId.yaml", "noOperationId.bal"},
                 {"multiMethodResources.yaml", "multiMethodResources.bal"},
                 {"nonEmptyPath.yaml", "nonEmptyPath.bal"},
+                {"petstore.yaml", "petstore.bal"},
         };
     }
 

@@ -49,6 +49,12 @@ public class BallerinaWorkerDefinitionImpl extends BallerinaNamedElementImpl<Bal
 
   @Override
   @Nullable
+  public BallerinaReturnParameter getReturnParameter() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaReturnParameter.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaWorkerBody getWorkerBody() {
     return PsiTreeUtil.getChildOfType(this, BallerinaWorkerBody.class);
   }

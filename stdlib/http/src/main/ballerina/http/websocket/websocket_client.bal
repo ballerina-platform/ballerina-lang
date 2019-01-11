@@ -17,7 +17,7 @@
 # Represents a WebSocket client endpoint.
 #
 # + id - The connection id
-# + negotiatedSubProtocol - The subprotocols negoriated with the server
+# + negotiatedSubProtocol - The subprotocols that are negotiated with the server
 # + isSecure - `true` if the connection is secure
 # + isOpen - `true` if the connection is open
 # + response - Represents the HTTP response
@@ -35,7 +35,7 @@ public type WebSocketClient client object {
     private string url = "";
     private WebSocketClientEndpointConfig config = {};
 
-    # Gets called when the endpoint is being initialize during module init time.
+    # Initializes the client when called.
     #
     # + c - The `WebSocketClientEndpointConfig` of the endpoint
     public function __init(string url, WebSocketClientEndpointConfig? config = ()) {
@@ -50,7 +50,7 @@ public type WebSocketClient client object {
     # Push text to the connection.
     #
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
-    # + finalFrame - True if this is a final frame of a (long) message
+    # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
     public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame = true) returns error? {
         return self.conn.pushText(data, finalFrame);
@@ -59,7 +59,7 @@ public type WebSocketClient client object {
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
-    # + finalFrame - True if this is a final frame of a (long) message
+    # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
     public remote function pushBinary(byte[] data, boolean finalFrame = true) returns error? {
         return self.conn.pushBinary(data, finalFrame);
@@ -85,10 +85,10 @@ public type WebSocketClient client object {
     #
     # + statusCode - Status code for closing the connection
     # + reason - Reason for closing the connection
-    # + timeoutInSecs - Time to waits for the close frame from the remote endpoint before closing the connection.
-    #                   If the timeout exceeds then the connection is terminated even though a close frame
-    #                   is not received from the remote endpoint. If the value < 0 (eg: -1) the connection waits
-    #                   until a close frame is received. If WebSocket frame is received from the remote endpoint
+    # + timeoutInSecs - Time to wait for the close frame to be received from the remote endpoint before closing the
+    #                   connection. If the timeout exceeds, then the connection is terminated even though a close frame
+    #                   is not received from the remote endpoint. If the value < 0 (e.g., -1), then the connection waits
+    #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
     public remote function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60) returns error? {
@@ -104,15 +104,20 @@ public type WebSocketClient client object {
     }
 };
 
-# Configuration struct for WebSocket client endpoint.
+# Configuration for the WebSocket client endpoint.
 #
-# + callbackService - The callback service for the client. Resources in this service gets called on receipt of messages from the server.
+# + callbackService - The callback service for the client. Resources in this service gets called on receipt of messages
+#                     from the server.
 # + subProtocols - Negotiable sub protocols for the client
 # + customHeaders - Custom headers which should be sent to the server
-# + idleTimeoutInSeconds - Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)
-# + readyOnConnect - true if the client is ready to recieve messages as soon as the connection is established. This is true by default. If changed to false the function ready() of the
+# + idleTimeoutInSeconds - Idle timeout of the client. Upon timeout, `onIdleTimeout` resource (if defined) in the client
+#                          service will be triggered.
+# + readyOnConnect - `true` if the client is ready to receive messages as soon as the connection is established.
+#                    This is true by default. If changed to false the function ready() of the
 #                    `WebSocketClient`needs to be called once to start receiving messages.
 # + secureSocket - SSL/TLS related options
+# + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
+#                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
 public type WebSocketClientEndpointConfig record {
     service? callbackService = ();
     string[] subProtocols = [];
@@ -120,5 +125,6 @@ public type WebSocketClientEndpointConfig record {
     int idleTimeoutInSeconds = -1;
     boolean readyOnConnect = true;
     SecureSocket? secureSocket = ();
+    int maxFrameSize = 0;
     !...
 };

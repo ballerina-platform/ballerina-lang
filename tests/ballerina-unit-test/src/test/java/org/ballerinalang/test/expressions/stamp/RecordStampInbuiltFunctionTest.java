@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -29,6 +30,7 @@ import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -124,7 +126,8 @@ public class RecordStampInbuiltFunctionTest {
         BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
 
         Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue0.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJSONType.class);
 
         Assert.assertEquals((mapValue0.getMap()).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("school").toString(), "Hindu College");
@@ -208,7 +211,9 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue0.get("school").getType().getClass(), BStringType.class);
 
         Assert.assertEquals(((BMap) mapValue0.get("emp")).size(), 3);
-        Assert.assertEquals(mapValue0.get("emp").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue0.get("emp").getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue0.get("emp").getType()).getConstrainedType().getClass(),
+                BAnydataType.class);
     }
 
     @Test
@@ -220,7 +225,8 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 5);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test
@@ -233,6 +239,24 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(employee0.get("age").stringValue(), "25");
+
+        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+    }
+
+    @Test
+    public void testStampFunctionReferenceWithArgs() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampFunctionReferenceWithArgs");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(employee0.get("age").stringValue(), "23");
 
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
@@ -275,7 +299,10 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.get("address").getType()).getConstrainedType().getClass(),
+                BAnydataType.class);
+
     }
 
     @Test
@@ -499,6 +526,60 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
     }
 
+    @Test
+    public void testStampComplexRecordToJSON() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampComplexRecordToJSON");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(employee0.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BAnydataType.class);
+
+        Assert.assertEquals((employee0.get("marks").getType().getClass()), BArrayType.class);
+        Assert.assertEquals(((BArrayType) ((BArrayType) (employee0).get("marks").getType()).getElementType()).
+                getElementType().getTag(), TypeTags.INT_TAG);
+
+        Assert.assertEquals(employee0.get("info").getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) employee0.get("info").getType()).getConstrainedType().getClass(),
+                BAnydataType.class);
+    }
+
+    @Test
+    public void testStampRecordToConstraintJSON() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToConstraintJSON");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue0.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getClass(), BRecordType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getName(), "Student");
+
+        Assert.assertEquals((mapValue0.getMap()).size(), 4);
+        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("school").toString(), "Hindu College");
+        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("school")).getType().getClass(),
+                BStringType.class);
+    }
+
+    @Test
+    public void testStampRecordToConstraintJSONV2() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToConstraintJSONV2");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue0.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getClass(), BRecordType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getName(), "Person");
+
+        Assert.assertEquals((mapValue0.getMap()).size(), 4);
+        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("school").toString(), "Hindu College");
+        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("school")).getType().getClass(),
+                BStringType.class);
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test
@@ -507,8 +588,8 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'Teacher' value cannot " +
-                "be stamped as 'map<string>'");
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'Teacher' value cannot be stamped as 'map<string>'");
     }
 
     @Test
@@ -517,8 +598,8 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'Teacher' value cannot " +
-                "be stamped as 'NonAcademicStaff'");
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'Teacher' value cannot be stamped as 'NonAcademicStaff'");
     }
 
     @Test
@@ -527,8 +608,8 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'Employee' value cannot " +
-                "be stamped as 'Teacher'");
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'Employee' value cannot be stamped as 'Teacher'");
     }
 
     @Test
@@ -537,8 +618,18 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'Employee' value cannot " +
-                "be stamped as 'Teacher'");
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'Employee' value cannot be stamped as 'Teacher'");
+    }
+
+    @Test
+    public void testStampRecordToConstraintJSONNegative() {
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToConstraintJSONNegative");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                "incompatible stamp operation: 'Employee' value cannot be stamped as 'json<Person>'");
     }
 }
 

@@ -17,7 +17,7 @@ service infoService on new http:Listener(9092) {
         http:Response res = new;
         var msg = req.getJsonPayload();
         if (msg is json) {
-            // Get the string value that is relevant to the key "name".
+            // Get the `string` value that is relevant to the key "name".
             string nameString = <string>msg["name"];
             if (validateString(nameString)) {
                 // Create XML payload and send back a response.
@@ -27,7 +27,7 @@ service infoService on new http:Listener(9092) {
                 res.statusCode = 400;
                 res.setPayload("Name contains invalid data");
             }
-        } else if (msg is error) {
+        } else {
             res.statusCode = 500;
             res.setPayload(untaint <string>msg.detail().message);
         }

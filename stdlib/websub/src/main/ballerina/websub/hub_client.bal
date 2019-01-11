@@ -20,7 +20,7 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
-# The HTTP based Caller actions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and
+# The HTTP based Caller remote functions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and
 # Notification requests to a Hub.
 #
 # + hubUrl - The URL of the target Hub to which requests need to be sent
@@ -162,7 +162,7 @@ remote function Client.publishUpdate(string topic, string|xml|json|byte[]|io:Rea
     }
 
     if (headers is map<string>) {
-        foreach key, value in headers {
+        foreach var (key, value) in headers {
             request.setHeader(key, value);
         }
     }
@@ -190,7 +190,7 @@ remote function Client.notifyUpdate(string topic, map<string>? headers = ()) ret
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
 
     if (headers is map<string>) {
-        foreach key, value in headers {
+        foreach var (key, value) in headers {
             request.setHeader(key, value);
         }
     }
@@ -310,7 +310,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
     }
 }
 
-# Function to invoke the WebSubSubscriberConnector's actions for subscription/unsubscription on redirection from the
+# Function to invoke the WebSubSubscriberConnector's remote functions for subscription/unsubscription on redirection from the
 # original hub.
 #
 # + hub - The hub to which the subscription/unsubscription request is to be sent

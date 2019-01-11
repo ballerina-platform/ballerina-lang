@@ -18,15 +18,19 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
+import org.ballerinalang.util.observability.ObserveUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 
 /**
- * Default VM callback implementation.
+ * Default VM callback implementation to report back VM related callback events.
  *
  * @since 0.985.0
  */
-public class StrandCallback implements BVMCallback {
+public abstract class StrandCallback {
 
     //Return value holders
     private long longVal;
@@ -35,86 +39,209 @@ public class StrandCallback implements BVMCallback {
     private int intVal;
     private BRefType<?> refVal;
     private BError error;
+    private ObserverContext observerContext;
+    //TODO try to generalize below to normal data channels
+
+    private volatile CallbackStatus status;
+
+    private CallbackStatus valueStatus;
+
+    ChannelDetails[] sendIns;
 
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
-    StrandCallback(BType retType) {
+    public WDChannels parentChannels;
+
+    StrandCallback(BType retType, ChannelDetails[] sendIns, WDChannels parentChannels) {
         this.retType = retType;
+        this.status = CallbackStatus.NOT_RETURNED;
+        this.sendIns = sendIns;
+        this.parentChannels = parentChannels;
+        BVMScheduler.strandCountUp();
     }
 
-    @Override
+    /**
+     * Method to signal the callback once done.
+     */
     public void signal() {
-        //TODO
+        this.status = valueStatus;
+        if (this.status == null) {
+            this.status =  CallbackStatus.VALUE_RETURNED;
+        }
+        // Stop observation
+        ObserveUtils.stopObservation(observerContext);
+        BVMScheduler.strandCountDown();
     }
 
-    @Override
+    public CallbackStatus getStatus() {
+        return this.status;
+    }
+
+    /**
+     * Method to set int return value.
+     *
+     * @param value to be returned
+     */
     public void setIntReturn(long value) {
         this.longVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
-    @Override
+    /**
+     * Method to set float return value.
+     *
+     * @param value to be returned
+     */
     public void setFloatReturn(double value) {
         this.doubleVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
-    @Override
+    /**
+     * Method to set string return value.
+     *
+     * @param value to be returned
+     */
     public void setStringReturn(String value) {
         this.stringVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
-    @Override
+    /**
+     * Method to set boolean return value.
+     *
+     * @param value to be returned
+     */
     public void setBooleanReturn(int value) {
         this.intVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
-    @Override
+    /**
+     * Method to set byte return value.
+     *
+     * @param value to be returned
+     */
     public void setByteReturn(int value) {
         this.intVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
-    @Override
+    /**
+     * Method to set reference type return value.
+     *
+     * @param value to be returned
+     */
     public void setRefReturn(BRefType<?> value) {
         this.refVal = value;
+        if (BVM.checkIsType(this.refVal, BTypes.typeError)) {
+            this.valueStatus = CallbackStatus.ERROR_RETURN;
+        } else {
+            this.valueStatus = CallbackStatus.VALUE_RETURNED;
+        }
     }
 
-    @Override
+    /**
+     * Method to set error return value.
+     *
+     * @param error to be returned
+     */
     public void setError(BError error) {
         this.error = error;
+        this.valueStatus = CallbackStatus.PANIC;
     }
 
-    @Override
+    /**
+     * Method to get int return value.
+     *
+     * @return value
+     */
     public long getIntRetVal() {
         return longVal;
     }
 
-    @Override
+    /**
+     * Method to get float return value.
+     *
+     * @return value
+     */
     public double getFloatRetVal() {
         return doubleVal;
     }
 
-    @Override
+    /**
+     * Method to get string return value.
+     *
+     * @return value
+     */
     public String getStringRetVal() {
         return stringVal;
     }
 
-    @Override
+    /**
+     * Method to get boolean return value.
+     *
+     * @return value
+     */
     public int getBooleanRetVal() {
         return intVal;
     }
 
-    @Override
+    /**
+     * Method to get byte return value.
+     *
+     * @return value
+     */
     public int getByteRetVal() {
         return intVal;
     }
 
-    @Override
+    /**
+     * Method to get reference type return value.
+     *
+     * @return value
+     */
     public BRefType<?> getRefRetVal() {
         return refVal;
     }
 
-    @Override
+    /**
+     * Method to get error return value.
+     *
+     * @return value
+     */
     public BError getErrorVal() {
         return error;
     }
 
+    /**
+     * Method to set the observation context of the callback.
+     *
+     * @param context observer context
+     */
+    public void setObserverContext(ObserverContext context) {
+        this.observerContext = context;
+    }
+
+    /**
+     * Method to get the observation context of the callback.
+     *
+     * @return observer context of the callback
+     */
+    public ObserverContext getObserverContext() {
+        return this.observerContext;
+    }
+
+    /**
+     * Callback statuses.
+     */
+    public static enum CallbackStatus {
+        NOT_RETURNED(false), VALUE_RETURNED(true), ERROR_RETURN(true), PANIC(false);
+
+        public final boolean returned;
+
+        CallbackStatus(boolean returned) {
+            this.returned = returned;
+        }
+    }
 }

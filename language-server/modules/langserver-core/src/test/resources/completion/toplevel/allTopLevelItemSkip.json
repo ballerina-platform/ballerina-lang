@@ -1,13 +1,13 @@
 {
   "position": {
-    "line": 37,
+    "line": 33,
     "character": 4
   },
   "source": "toplevel/source/allTopLevelItemSkip.bal",
   "items": [
     {
       "label":"xmlns",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"xmlns \"${1}\" as ${2:ns};",
@@ -31,23 +31,23 @@
     },
     {
       "label":"foreach",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertText":"foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"fork",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
+      "insertText":"fork {\n\t${1}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"if",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"if (${1:true}) {\n\t${2}\n}",
@@ -55,7 +55,7 @@
     },
     {
       "label":"lock",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"lock {\n\t${1}\n}",
@@ -63,7 +63,7 @@
     },
     {
       "label":"match",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"match ",
@@ -71,7 +71,7 @@
     },
     {
       "label":"panic",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"panic ",
@@ -79,7 +79,7 @@
     },
     {
       "label":"return",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"return;",
@@ -87,46 +87,30 @@
     },
     {
       "label":"transaction",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertText":"transaction with retries ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"while",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"while (${1:true}) {\n\t${2}\n}",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"wrply   Worker Reply Statement",
-      "kind":"Unit",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} \u003c- ${2:w1};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wtrg   Worker Trigger Statement",
-      "kind":"Unit",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} -\u003e ${2:w1};",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"channel",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"channel"
     },
     {
       "label":"xml",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"xml"
@@ -139,33 +123,32 @@
       "insertText":"testBraced"
     },
     {
-      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
+      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":{
+        "left":"Execute the given sql query to fetch the records and return as a new in memory table.\n"
+      },
       "sortText":"120",
       "insertText":"queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"TableConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":{
+        "left":"TableConfig represents properties used during table initialization.\n"
+      },
       "sortText":"170",
       "insertText":"TableConfig"
     },
     {
       "label":"byte",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"byte"
-    },
-    {
-      "label":"intResult",
-      "kind":"Variable",
-      "detail":"int",
-      "sortText":"110",
-      "insertText":"intResult"
     },
     {
       "label":"customTestFunction()",
@@ -176,9 +159,12 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
+      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":{
+        "left":"Execute the given sql query to fetch the records and return as a new in memory table.\n"
+      },
       "sortText":"120",
       "insertText":"queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
       "insertTextFormat":"Snippet"
@@ -187,13 +173,16 @@
       "label":"startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":{
+        "left":"Creates the forever runtime.\n"
+      },
       "sortText":"120",
       "insertText":"startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"stream",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"stream"
@@ -207,24 +196,38 @@
     },
     {
       "label":"customObject",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
       "sortText":"170",
       "insertText":"customObject"
     },
     {
+      "label":"AbstractListener",
+      "kind":"Class",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"AbstractListener"
+    },
+    {
       "label":"map",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"map"
     },
     {
       "label":"table",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"table"
+    },
+    {
+      "label":"anydata",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"anydata"
     },
     {
       "label":"testBinary",
@@ -235,56 +238,63 @@
     },
     {
       "label":"future",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"future"
     },
     {
       "label":"typedesc",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"typedesc"
     },
     {
-      "label":"listener",
-      "kind":"Variable",
-      "detail":"ballerina/http:Listener",
-      "sortText":"110",
-      "insertText":"listener"
-    },
-    {
       "label":"float",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"float"
     },
     {
+      "label":"ep",
+      "kind":"Variable",
+      "detail":"ballerina/http:Listener",
+      "sortText":"110",
+      "insertText":"ep"
+    },
+    {
       "label":"customRecord",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
       "sortText":"170",
       "insertText":"customRecord"
     },
     {
       "label":"null",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"null"
     },
     {
+      "label":"decimal",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"decimal"
+    },
+    {
       "label":"string",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"string"
     },
     {
       "label":"error",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"error"
@@ -306,38 +316,45 @@
     },
     {
       "label":"json",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"json"
     },
     {
+      "label":"strVal",
+      "kind":"Variable",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"strVal"
+    },
+    {
       "label":"any",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"any"
     },
     {
       "label":"int",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"int"
     },
     {
-      "label":"docData",
-      "kind":"Reference",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"docData"
-    },
-    {
       "label":"boolean",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"boolean"
+    },
+    {
+      "label":"service",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"service"
     },
     {
       "label":"ballerina/http",
@@ -356,15 +373,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/transactions;\n"
+          "newText":"import ballerina/transactions;\n"
         }
       ]
     },
@@ -378,15 +395,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/websub;\n"
+          "newText":"import ballerina/websub;\n"
         }
       ]
     },
@@ -400,15 +417,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/grpc;\n"
+          "newText":"import ballerina/grpc;\n"
         }
       ]
     },
@@ -422,15 +439,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/reflect;\n"
+          "newText":"import ballerina/reflect;\n"
         }
       ]
     },
@@ -444,15 +461,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/log;\n"
+          "newText":"import ballerina/log;\n"
         }
       ]
     },
@@ -466,15 +483,37 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/time;\n"
+          "newText":"import ballerina/time;\n"
+        }
+      ]
+    },
+    {
+      "label":"ballerina/test",
+      "kind":"Module",
+      "detail":"Package",
+      "sortText":"140",
+      "insertText":"test",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":1,
+              "character":0
+            },
+            "end":{
+              "line":1,
+              "character":0
+            }
+          },
+          "newText":"import ballerina/test;\n"
         }
       ]
     },
@@ -488,15 +527,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/runtime;\n"
+          "newText":"import ballerina/runtime;\n"
         }
       ]
     },
@@ -510,15 +549,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/swagger;\n"
+          "newText":"import ballerina/swagger;\n"
         }
       ]
     },
@@ -532,15 +571,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/file;\n"
+          "newText":"import ballerina/file;\n"
         }
       ]
     },
@@ -554,15 +593,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/sql;\n"
+          "newText":"import ballerina/sql;\n"
         }
       ]
     },
@@ -576,15 +615,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/internal;\n"
+          "newText":"import ballerina/internal;\n"
         }
       ]
     },
@@ -598,15 +637,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/mysql;\n"
+          "newText":"import ballerina/mysql;\n"
         }
       ]
     },
@@ -620,15 +659,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/mime;\n"
+          "newText":"import ballerina/mime;\n"
         }
       ]
     },
@@ -642,15 +681,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/task;\n"
+          "newText":"import ballerina/task;\n"
         }
       ]
     },
@@ -664,15 +703,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/crypto;\n"
+          "newText":"import ballerina/crypto;\n"
         }
       ]
     },
@@ -686,15 +725,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/io;\n"
+          "newText":"import ballerina/io;\n"
         }
       ]
     },
@@ -708,15 +747,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/cache;\n"
+          "newText":"import ballerina/cache;\n"
         }
       ]
     },
@@ -730,15 +769,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/auth;\n"
+          "newText":"import ballerina/auth;\n"
         }
       ]
     },
@@ -752,15 +791,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/jms;\n"
+          "newText":"import ballerina/jms;\n"
         }
       ]
     },
@@ -774,15 +813,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/system;\n"
+          "newText":"import ballerina/system;\n"
         }
       ]
     },
@@ -796,15 +835,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/h2;\n"
+          "newText":"import ballerina/h2;\n"
         }
       ]
     },
@@ -825,15 +864,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/math;\n"
+          "newText":"import ballerina/math;\n"
         }
       ]
     },
@@ -847,17 +886,25 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":22
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/config;\n"
+          "newText":"import ballerina/config;\n"
         }
       ]
+    },
+    {
+      "label":"worker",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
     }
   ]
 }

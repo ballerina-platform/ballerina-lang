@@ -23,16 +23,8 @@ function testAssertionWithUnassignableTypes() {
 }
 
 function testAssertionForCurrentlyUnsupportedTypes() {
-    table<Employee> t1 = table {{ key name }};
-    any a = t1;
-    anydata b = <table<Employee>> a;
-
-    stream<int|string> s1;
-    a = s1;
-    stream<int|json> s2 = <stream<int|json>> a;
-
     future<int> f1 = start testFutureFunc();
-    a = f1;
+    any a = f1;
     future<int> f2 = <future<int>> a;
 }
 

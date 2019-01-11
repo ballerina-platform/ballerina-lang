@@ -3,7 +3,10 @@ import ballerina/io;
 type TestObject object {
     public int age;
     public string name;
-    new(age, name) {}
+    public function __init(int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 public function main(string... args) {

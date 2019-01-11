@@ -16,14 +16,13 @@
  */
 package org.ballerinalang.net.http.compiler;
 
-import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -36,13 +35,10 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
  *
  * @since 0.965.0
  */
-@SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "http",
-                                                                                      name = "WebSocketListener"),
-                             paramTypes = {
-                                     @SupportedResourceParamTypes.Type(packageName = "http",
-                                                                       name = WEBSOCKET_CALLER)
-                             })
-public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
+@SupportedResourceParamTypes(
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "http", name = "WebSocketListener"),
+        paramTypes = {@SupportedResourceParamTypes.Type(packageName = "http", name = WEBSOCKET_CALLER)})
+public class WebSocketServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -67,8 +63,8 @@ public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
             }
         }
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
-        resources.forEach(res -> WebSocketResourceValidator
-                .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog, false));
+        resources.forEach(
+                res -> WebSocketResourceValidator.validate(res, dlog, isResourceReturnsErrorOrNil(res), false));
     }
 }
 

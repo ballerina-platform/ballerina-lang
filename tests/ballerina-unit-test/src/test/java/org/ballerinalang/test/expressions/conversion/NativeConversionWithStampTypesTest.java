@@ -20,12 +20,11 @@ package org.ballerinalang.test.expressions.conversion;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -72,7 +71,7 @@ public class NativeConversionWithStampTypesTest {
         BMap<String, BValue> json = (BMap<String, BValue>) results[1];
 
         Assert.assertEquals(results.length, 2);
-        Assert.assertEquals(json.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(json.getType().getClass(), BMapType.class);
 
         Assert.assertEquals((employee.getMap()).size(), 4);
         Assert.assertEquals((json.getMap()).size(), 4);
@@ -105,14 +104,14 @@ public class NativeConversionWithStampTypesTest {
     public void testConvertStampTupleToMap() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "testConvertStampTupleToMap");
-        BRefValueArray original = (BRefValueArray) results[0];
-        BRefValueArray converted = (BRefValueArray) results[1];
+        BValueArray original = (BValueArray) results[0];
+        BValueArray converted = (BValueArray) results[1];
 
         Assert.assertEquals(results.length, 2);
         Assert.assertEquals(original.getValues().length, 2);
         Assert.assertEquals(converted.getValues().length, 2);
 
-        ((BMap) ((BRefValueArray) results[0]).getValues()[1]).getMap();
+        ((BMap) ((BValueArray) results[0]).getValues()[1]).getMap();
         Assert.assertEquals(converted.getType().getClass(), BTupleType.class);
 
         Assert.assertEquals(original.getValues()[0].stringValue(), "Vinod");

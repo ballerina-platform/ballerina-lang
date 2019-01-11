@@ -14,13 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
+# Provides the HTTP remote functions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
 # and `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this
-# generic HTTP actions implementation.
+# generic HTTP remote functions implementation.
 #
 # + url - The URL of the remote HTTP endpoint
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
-# + httpClient - HTTP client for outbound HTTP requests
+# + httpCaller - HTTP client for outbound HTTP requests
+# + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
+#                HTTP service in resilient manner.
 public type HttpClient client object {
 
     public string url;

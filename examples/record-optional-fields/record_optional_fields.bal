@@ -3,32 +3,32 @@ import ballerina/io;
 type Gender "male"|"female";
 
 type Person record {
+    // This is a required field without an explicit default value.
+    // The compiler will not assign default values. Therefore a value should be specified
+    // for this field when creating the `record`.
+    string fname;
     // This is a required field with an explicit default value specified.
-    string fname = "default";
-    // This is a required field without an explicit default value. However, `string` has an implicit initial value (empty string).
-    // Therefore, the compiler will not complain if we omit this field when creating the record.
-    string lname;
-    // This is a non-defaultable required field.
+    string lname = "";
     Gender gender;
     // Adding `?` following the identifier marks the field as an optional field.
     int age?;
 };
 
 public function main() {
-    // The `gender` must be provided when creating the record since `Gender` is not a type with an implicit initial value
-    // and an explicit default value is not specified for it in the record descriptor.
-    Person p = {gender: "male"};
+    // The required fields `fname` and `gender` are not given default values in the record type descriptor.
+    // Therefore values must be specified for `fname` and `gender` when creating the `record`.
+    Person john = {fname: "John", gender: "male"};
 
-    // Note that the `age` field is not present in the record since it is an optional field.
-    io:println("Person with non-defaultable required field set: ", p);
+    // Note that the `age` field is not present in the `record` since it is an optional field.
+    io:println("Person with non-defaultable required field set: ", john);
 
-    // Before accessing/using an optional field, it must added to the record.
-    p.age = 25;
-    io:println("Age: ", p.age);
-    io:println("Updated person with optional field set: ", p);
+    // Before accessing/using an optional field, it must be added to the `record`.
+    john.age = 25;
+    io:println("Age: ", john.age);
+    io:println("Updated person with optional field set: ", john);
 
-    p = {fname: "Jane", lname: "Doe", gender: "female"};
+    Person jane = {fname: "Jane", lname: "Doe", gender: "female"};
 
-    // Field values provided when creating a record takes highest precedence.
-    io:println("Person with values assigned to required fields: ", p);
+    // Field values provided when creating a `record` takes highest precedence.
+    io:println("Person with values assigned to required fields: ", jane);
 }

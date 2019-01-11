@@ -21,17 +21,13 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -41,8 +37,8 @@ import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -55,6 +51,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
 /**
  * Class to test functionality of tables.
@@ -62,8 +59,10 @@ import java.util.Calendar;
 public class TableTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
     private CompileResult nillableMappingNegativeResult;
     private CompileResult nillableMappingResult;
+    private CompileResult service;
     private static final String DB_NAME_H2 = "TEST_DATA_TABLE_H2";
     private TestDatabase testDatabase;
     private static final String TABLE_TEST = "TableTest";
@@ -82,9 +81,11 @@ public class TableTest {
                 SQLDBUtils.DB_DIRECTORY, DB_NAME_H2);
 
         result = BCompileUtil.compile("test-src/types/table/table_type.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table_type_negative.bal");
         nillableMappingNegativeResult = BCompileUtil
                 .compile("test-src/types/table/table_nillable_mapping_negative.bal");
         nillableMappingResult = BCompileUtil.compile("test-src/types/table/table_nillable_mapping.bal");
+        service = BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
     }
 
     @Test(groups = TABLE_TEST, description = "Check retrieving primitive types.")
@@ -103,9 +104,28 @@ public class TableTest {
     public void testToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJson");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         String expected = "[{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, "
                 + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}]";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(groups = TABLE_TEST, description = "Check table to JSON conversion.")
+    public void testToJsonComplexTypes() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonComplexTypes");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        String expected = "[{\"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\", \"CLOB_TYPE\":\"very long "
+                + "text\", \"BINARY_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu\"}]";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(groups = TABLE_TEST, description = "Check table to JSON conversion.")
+    public void testToJsonComplexTypesNil() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonComplexTypesNil");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        String expected = "[{\"BLOB_TYPE\":null, \"CLOB_TYPE\":null, \"BINARY_TYPE\":null}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -118,6 +138,33 @@ public class TableTest {
                 + "<FLOAT_TYPE>123.34</FLOAT_TYPE><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
                 + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE></result></results>";
         Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(groups = TABLE_TEST, description = "Check table to XML conversion.")
+    public void testToXmlComplexTypes() {
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlComplexTypes");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        String expected = "<results><result><BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE><CLOB_TYPE"
+                + ">very long text</CLOB_TYPE><BINARY_TYPE>d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu</BINARY_TYPE></result"
+                + "></results>";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(groups = TABLE_TEST, description = "Check table to XML conversion.")
+    public void testToXmlComplexTypesNil() {
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlComplexTypesNil");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        String expected1 = "<results><result><BLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "xsi:nil=\"true\"/><CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "xsi:nil=\"true\"/><BINARY_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "xsi:nil=\"true\"/></result></results>";
+        String expected2 = "<results><result><BLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "xsi:nil=\"true\"></BLOB_TYPE><CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "xsi:nil=\"true\"></CLOB_TYPE><BINARY_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "xsi:nil=\"true\"></BINARY_TYPE></result></results>";
+        Assert.assertTrue(expected1.equals(returns[0].stringValue()) || expected2.equals(returns[0].stringValue()));
     }
 
     @Test(groups = TABLE_TEST, description = "Check xml streaming when result set consumed once.")
@@ -146,13 +193,12 @@ public class TableTest {
     public void testToJsonMultipleConsume() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonMultipleConsume");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         String expected = "[{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, "
                 + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    // Disabling for MySQL as array types are not supported.
     @Test(groups = {TABLE_TEST}, description = "Check xml conversion with complex element.")
     public void testToXmlComplex() {
         BValue[] returns = BRunUtil.invoke(result, "toXmlComplex");
@@ -190,12 +236,11 @@ public class TableTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    // Disabling for MySQL as array types are not supported.
     @Test(groups = {TABLE_TEST}, description = "Check json conversion with complex element.")
     public void testToJsonComplex() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonComplex");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
 
         String expected = "[{\"INT_TYPE\":1, \"INT_ARRAY\":[1, 2, 3], "
                 + "\"LONG_TYPE\":9223372036854774807, \"LONG_ARRAY\":[100000000, 200000000, 300000000], "
@@ -210,7 +255,7 @@ public class TableTest {
     public void testToJsonComplexWithStructDef() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonComplexWithStructDef");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
 
         String expected = "[{\"i\":1, \"iA\":[1, 2, 3], \"l\":9223372036854774807, "
                 + "\"lA\":[100000000, 200000000, 300000000], \"f\":123.34, \"fA\":[245.23, 5559.49, 8796.123], "
@@ -223,9 +268,9 @@ public class TableTest {
     public void testGetComplexTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testGetComplexTypes");
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "wso2 ballerina blob test.");
+        Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "wso2 ballerina blob test.");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
-        Assert.assertEquals(new String(((BByteArray) returns[2]).getBytes()), "wso2 ballerina binary test.");
+        Assert.assertEquals(new String(((BValueArray) returns[2]).getBytes()), "wso2 ballerina binary test.");
     }
 
     @Test(groups = {TABLE_TEST}, description = "Check array data types.")
@@ -280,10 +325,10 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMapNillElementsOnlyArray");
         Assert.assertEquals(returns.length, 5);
         for (BValue bValue : returns) {
-            Assert.assertTrue(bValue instanceof BRefValueArray);
-            BRefValueArray bRefValueArray = (BRefValueArray) bValue;
+            Assert.assertTrue(bValue instanceof BValueArray);
+            BValueArray bRefValueArray = (BValueArray) bValue;
             for (int i = 0; i < bRefValueArray.size(); i++) {
-                Assert.assertNull(bRefValueArray.get(i));
+                Assert.assertNull(bRefValueArray.getRefValue(i));
             }
         }
     }
@@ -393,9 +438,9 @@ public class TableTest {
     public void testJsonWithNull() {
         BValue[] returns = BRunUtil.invokeFunction(result,  "testJsonWithNull");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
-        String expected = "[{\"INT_TYPE\":0, \"LONG_TYPE\":0, \"FLOAT_TYPE\":0.0, \"DOUBLE_TYPE\":0.0, " +
-                "\"BOOLEAN_TYPE\":false, \"STRING_TYPE\":null}]";
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        String expected = "[{\"INT_TYPE\":null, \"LONG_TYPE\":null, \"FLOAT_TYPE\":null, \"DOUBLE_TYPE\":null, " +
+                "\"BOOLEAN_TYPE\":null, \"STRING_TYPE\":null}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -404,12 +449,12 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testXmlWithNull");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
-        String expected1 = "<results><result><INT_TYPE>0</INT_TYPE><LONG_TYPE>0</LONG_TYPE><FLOAT_TYPE>0.0</FLOAT_TYPE>"
-                + "<DOUBLE_TYPE>0.0</DOUBLE_TYPE><BOOLEAN_TYPE>false</BOOLEAN_TYPE>"
+        String expected1 = "<results><result><INT_TYPE>null</INT_TYPE><LONG_TYPE>null</LONG_TYPE>"
+                + "<FLOAT_TYPE>null</FLOAT_TYPE><DOUBLE_TYPE>null</DOUBLE_TYPE><BOOLEAN_TYPE>null</BOOLEAN_TYPE>"
                 + "<STRING_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\">"
                 + "</STRING_TYPE></result></results>";
-        String expected2 = "<results><result><INT_TYPE>0</INT_TYPE><LONG_TYPE>0</LONG_TYPE><FLOAT_TYPE>0.0"
-                + "</FLOAT_TYPE><DOUBLE_TYPE>0.0</DOUBLE_TYPE><BOOLEAN_TYPE>false</BOOLEAN_TYPE><STRING_TYPE "
+        String expected2 = "<results><result><INT_TYPE>null</INT_TYPE><LONG_TYPE>null</LONG_TYPE><FLOAT_TYPE>null"
+                + "</FLOAT_TYPE><DOUBLE_TYPE>null</DOUBLE_TYPE><BOOLEAN_TYPE>null</BOOLEAN_TYPE><STRING_TYPE "
                 + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "xsi:nil=\"true\"/></result></results>";
         Assert.assertTrue(expected1.equals(returns[0].stringValue()) || expected2.equals(returns[0].stringValue()));
@@ -438,7 +483,7 @@ public class TableTest {
     public void testBlobData() {
         BValue[] returns = BRunUtil.invoke(result,  "testBlobData");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "wso2 ballerina blob test.");
+        Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "wso2 ballerina blob test.");
     }
 
     @Test(groups = TABLE_TEST, description = "Check values retrieved with column alias.")
@@ -492,9 +537,8 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    // TODO: Enable once ballerina-platform/ballerina-lang#9048 is fixed
     @Test(dependsOnGroups = TABLE_TEST,
-          description = "Check whether all sql connectors are closed properly.", enabled = false)
+          description = "Check whether all sql connectors are closed properly.", enabled = false) //Issue #9048
     public void testCloseConnectionPool() {
         BValue connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
         BValue[] args = { connectionCountQuery };
@@ -565,14 +609,14 @@ public class TableTest {
                 + "\"INTDATA\":2147483647, \"BIGINTDATA\":9223372036854775807}, "
                 + "{\"ID\":2, \"TINYINTDATA\":-128, \"SMALLINTDATA\":-32768, \"INTDATA\":-2147483648, "
                 + "\"BIGINTDATA\":-9223372036854775808}, "
-                + "{\"ID\":3, \"TINYINTDATA\":0, \"SMALLINTDATA\":0, \"INTDATA\":0, \"BIGINTDATA\":0}]";
+                + "{\"ID\":3, \"TINYINTDATA\":null, \"SMALLINTDATA\":null, \"INTDATA\":null, \"BIGINTDATA\":null}]";
         expectedXML = "<results><result><ID>1</ID><TINYINTDATA>127</TINYINTDATA>"
                 + "<SMALLINTDATA>32767</SMALLINTDATA><INTDATA>2147483647</INTDATA>"
                 + "<BIGINTDATA>9223372036854775807</BIGINTDATA></result>"
                 + "<result><ID>2</ID><TINYINTDATA>-128</TINYINTDATA><SMALLINTDATA>-32768</SMALLINTDATA>"
                 + "<INTDATA>-2147483648</INTDATA><BIGINTDATA>-9223372036854775808</BIGINTDATA></result>"
-                + "<result><ID>3</ID><TINYINTDATA>0</TINYINTDATA><SMALLINTDATA>0</SMALLINTDATA><INTDATA>0</INTDATA>"
-                + "<BIGINTDATA>0</BIGINTDATA></result></results>";
+                + "<result><ID>3</ID><TINYINTDATA>null</TINYINTDATA><SMALLINTDATA>null</SMALLINTDATA>"
+                + "<INTDATA>null</INTDATA><BIGINTDATA>null</BIGINTDATA></result></results>";
         Assert.assertEquals((returns[3]).stringValue(), expectedJson);
         Assert.assertEquals((returns[4]).stringValue(), expectedXML);
         Assert.assertEquals((returns[5]).stringValue(), "1|127|32767|2147483647|9223372036854775807#2|-128|-32768|"
@@ -672,7 +716,7 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "tableGetNextInvalid");
         Assert.assertTrue((returns[0]).stringValue().contains("Trying to perform an operation over a closed table"));
     }
-    
+
     //Nillable mapping tests
     @Test(groups = TABLE_TEST,
           description = "Test mapping to nillable type fields")
@@ -700,7 +744,7 @@ public class TableTest {
         BValue[] returns = BRunUtil
                 .invoke(nillableMappingResult, "testMappingToNillableTypeFieldsBlob");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "wso2 ballerina blob test.");
+        Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "wso2 ballerina blob test.");
     }
 
     @Test(groups = TABLE_TEST,
@@ -1113,73 +1157,72 @@ public class TableTest {
     private void assertNonNullArray(BValue[] returns) {
         Assert.assertEquals(returns.length, 5);
 
-        Assert.assertTrue(returns[0] instanceof BIntArray);
-        BIntArray intArray = (BIntArray) returns[0];
-        Assert.assertEquals(intArray.get(0), 1);
-        Assert.assertEquals(intArray.get(1), 2);
-        Assert.assertEquals(intArray.get(2), 3);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray intArray = (BValueArray) returns[0];
+        Assert.assertEquals(intArray.getInt(0), 1);
+        Assert.assertEquals(intArray.getInt(1), 2);
+        Assert.assertEquals(intArray.getInt(2), 3);
 
-        Assert.assertTrue(returns[1] instanceof BIntArray);
-        BIntArray longArray = (BIntArray) returns[1];
-        Assert.assertEquals(longArray.get(0), 100000000);
-        Assert.assertEquals(longArray.get(1), 200000000);
-        Assert.assertEquals(longArray.get(2), 300000000);
+        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BValueArray longArray = (BValueArray) returns[1];
+        Assert.assertEquals(longArray.getInt(0), 100000000);
+        Assert.assertEquals(longArray.getInt(1), 200000000);
+        Assert.assertEquals(longArray.getInt(2), 300000000);
 
-        Assert.assertTrue(returns[2] instanceof BFloatArray);
-        BFloatArray doubleArray = (BFloatArray) returns[2];
-        Assert.assertEquals(doubleArray.get(0), 245.23, DELTA);
-        Assert.assertEquals(doubleArray.get(1), 5559.49, DELTA);
-        Assert.assertEquals(doubleArray.get(2), 8796.123, DELTA);
+        Assert.assertTrue(returns[2] instanceof BValueArray);
+        BValueArray doubleArray = (BValueArray) returns[2];
+        Assert.assertEquals(doubleArray.getFloat(0), 245.23, DELTA);
+        Assert.assertEquals(doubleArray.getFloat(1), 5559.49, DELTA);
+        Assert.assertEquals(doubleArray.getFloat(2), 8796.123, DELTA);
 
-        Assert.assertTrue(returns[3] instanceof BStringArray);
-        BStringArray stringArray = (BStringArray) returns[3];
-        Assert.assertEquals(stringArray.get(0), "Hello");
-        Assert.assertEquals(stringArray.get(1), "Ballerina");
+        Assert.assertTrue(returns[3] instanceof BValueArray);
+        BValueArray stringArray = (BValueArray) returns[3];
+        Assert.assertEquals(stringArray.getString(0), "Hello");
+        Assert.assertEquals(stringArray.getString(1), "Ballerina");
 
-        Assert.assertTrue(returns[4] instanceof BBooleanArray);
-        BBooleanArray booleanArray = (BBooleanArray) returns[4];
-        Assert.assertEquals(booleanArray.get(0), 1);
-        Assert.assertEquals(booleanArray.get(1), 0);
-        Assert.assertEquals(booleanArray.get(2), 1);
+        Assert.assertTrue(returns[4] instanceof BValueArray);
+        BValueArray booleanArray = (BValueArray) returns[4];
+        Assert.assertEquals(booleanArray.getBoolean(0), 1);
+        Assert.assertEquals(booleanArray.getBoolean(1), 0);
+        Assert.assertEquals(booleanArray.getBoolean(2), 1);
     }
 
     private void assertNilIncludedArray(BValue[] returns) {
         Assert.assertEquals(returns.length, 5);
 
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
-        BRefValueArray intArray = (BRefValueArray) returns[0];
-        Assert.assertEquals(intArray.get(0), null);
-        Assert.assertEquals(((BInteger) intArray.get(1)).intValue(), 2);
-        Assert.assertEquals(((BInteger) intArray.get(2)).intValue(), 3);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray intArray = (BValueArray) returns[0];
+        Assert.assertEquals(intArray.getRefValue(0), null);
+        Assert.assertEquals(((BInteger) intArray.getRefValue(1)).intValue(), 2);
+        Assert.assertEquals(((BInteger) intArray.getRefValue(2)).intValue(), 3);
 
-        Assert.assertTrue(returns[1] instanceof BRefValueArray);
-        BRefValueArray longArray = (BRefValueArray) returns[1];
-        Assert.assertEquals(((BInteger) longArray.get(0)).intValue(), 100000000);
-        Assert.assertEquals(longArray.get(1), null);
-        Assert.assertEquals(((BInteger) longArray.get(2)).intValue(), 300000000);
+        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BValueArray longArray = (BValueArray) returns[1];
+        Assert.assertEquals(((BInteger) longArray.getRefValue(0)).intValue(), 100000000);
+        Assert.assertEquals(longArray.getRefValue(1), null);
+        Assert.assertEquals(((BInteger) longArray.getRefValue(2)).intValue(), 300000000);
 
-        Assert.assertTrue(returns[2] instanceof BRefValueArray);
-        BRefValueArray doubleArray = (BRefValueArray) returns[2];
-        Assert.assertEquals(doubleArray.get(0), null);
-        Assert.assertEquals(((BFloat) doubleArray.get(1)).floatValue(), 5559.49, DELTA);
-        Assert.assertEquals(doubleArray.get(2), null);
+        Assert.assertTrue(returns[2] instanceof BValueArray);
+        BValueArray doubleArray = (BValueArray) returns[2];
+        Assert.assertEquals(doubleArray.getRefValue(0), null);
+        Assert.assertEquals(((BFloat) doubleArray.getRefValue(1)).floatValue(), 5559.49, DELTA);
+        Assert.assertEquals(doubleArray.getRefValue(2), null);
 
-        Assert.assertTrue(returns[3] instanceof BRefValueArray);
-        BRefValueArray stringArray = (BRefValueArray) returns[3];
-        Assert.assertEquals(stringArray.get(0), null);
-        Assert.assertEquals(stringArray.get(1).stringValue(), "Ballerina");
+        Assert.assertTrue(returns[3] instanceof BValueArray);
+        BValueArray stringArray = (BValueArray) returns[3];
+        Assert.assertEquals(stringArray.getRefValue(0), null);
+        Assert.assertEquals(stringArray.getRefValue(1).stringValue(), "Ballerina");
 
-        Assert.assertTrue(returns[4] instanceof BRefValueArray);
-        BRefValueArray booleanArray = (BRefValueArray) returns[4];
-        Assert.assertEquals(booleanArray.get(0), null);
-        Assert.assertEquals(booleanArray.get(1), null);
-        Assert.assertEquals(((BBoolean) booleanArray.get(2)).booleanValue(), true);
+        Assert.assertTrue(returns[4] instanceof BValueArray);
+        BValueArray booleanArray = (BValueArray) returns[4];
+        Assert.assertEquals(booleanArray.getRefValue(0), null);
+        Assert.assertEquals(booleanArray.getRefValue(1), null);
+        Assert.assertEquals(((BBoolean) booleanArray.getRefValue(2)).booleanValue(), true);
     }
 
-    @Test(description = "Check table to JSON conversion and streaming back to client in a service.")
+    @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
+          dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService() {
-        CompileResult service =
-                BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar1", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
 
@@ -1193,11 +1236,11 @@ public class TableTest {
     public void testToJsonAndAccessFromMiddle() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonAndAccessFromMiddle");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         String expected = "[{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
                 "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}, " +
-                "{\"INT_TYPE\":0, \"LONG_TYPE\":0, \"FLOAT_TYPE\":0.0, \"DOUBLE_TYPE\":0.0, " +
-                "\"BOOLEAN_TYPE\":false, \"STRING_TYPE\":null}]";
+                "{\"INT_TYPE\":null, \"LONG_TYPE\":null, \"FLOAT_TYPE\":null, \"DOUBLE_TYPE\":null, " +
+                "\"BOOLEAN_TYPE\":null, \"STRING_TYPE\":null}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
@@ -1206,12 +1249,12 @@ public class TableTest {
     public void testToJsonAndIterate() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonAndIterate");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
 
         String  expected = "[{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
                 "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}, " +
-                "{\"INT_TYPE\":0, \"LONG_TYPE\":0, \"FLOAT_TYPE\":0.0, \"DOUBLE_TYPE\":0.0, " +
-                "\"BOOLEAN_TYPE\":false, \"STRING_TYPE\":null}]";
+                "{\"INT_TYPE\":null, \"LONG_TYPE\":null, \"FLOAT_TYPE\":null, \"DOUBLE_TYPE\":null, " +
+                "\"BOOLEAN_TYPE\":null, \"STRING_TYPE\":null}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
@@ -1224,11 +1267,11 @@ public class TableTest {
         String expected = "{\"status\":\"SUCCESS\", \"resp\":{\"value\":[{\"INT_TYPE\":1, " +
                 "\"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
                 "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}, " +
-                "{\"INT_TYPE\":0, \"LONG_TYPE\":0, \"FLOAT_TYPE\":0.0, \"DOUBLE_TYPE\":0.0, " +
-                "\"BOOLEAN_TYPE\":false, \"STRING_TYPE\":null}]}}";
+                "{\"INT_TYPE\":null, \"LONG_TYPE\":null, \"FLOAT_TYPE\":null, \"DOUBLE_TYPE\":null, " +
+                "\"BOOLEAN_TYPE\":null, \"STRING_TYPE\":null}]}}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
-    
+
     @Test(groups = TABLE_TEST, description = "Check table to JSON conversion.")
     public void testToJsonAndLengthof() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonAndLengthof");
@@ -1239,10 +1282,9 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test(description = "Check table to JSON conversion and streaming back to client in a service.")
+    @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
+          dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService_2() {
-        CompileResult service =
-                BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar2", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
 
@@ -1252,15 +1294,108 @@ public class TableTest {
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), expected);
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*Table query over a cursor table not supported.*")
+    @Test
     public void testSelectQueryWithCursorTable() {
-        BRunUtil.invoke(result, "testSelectQueryWithCursorTable");
+        BValue[] retVal = BRunUtil.invoke(result, "testSelectQueryWithCursorTable");
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(((BError) retVal[0]).getDetails().stringValue()
+                .contains("Table query over a cursor table not supported"));
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*Table query over a cursor table not supported.*")
+    @Test
     public void testJoinQueryWithCursorTable() {
-        BRunUtil.invoke(result, "testJoinQueryWithCursorTable");
+        BValue[] retVal = BRunUtil.invoke(result, "testJoinQueryWithCursorTable");
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(((BError) retVal[0]).getDetails().stringValue()
+                .contains("Table query over a cursor table not supported"));
+    }
+
+    @Test(description = "Wrong order int test")
+    public void testWrongOrderInt() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderInt");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+    }
+
+    @Test(description = "Wrong order string test")
+    public void testWrongOrderString() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderString");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+    }
+
+    @Test(description = "Wrong order boolean test")
+    public void testWrongOrderBoolean() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderBoolean");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+    }
+
+    @Test(description = "Wrong order float test")
+    public void testWrongOrderFloat() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderFloat");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+    }
+
+    @Test(description = "Wrong order double test")
+    public void testWrongOrderDouble() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderDouble");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+    }
+
+    @Test(description = "Wrong order long test")
+    public void testWrongOrderLong() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderLong");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+    }
+
+    @Test(description = "Wrong order blob test")
+    public void testWrongOrderBlob() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderBlobWrongOrder");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+    }
+
+    @Test(description = "Correct order but wrong type blob test")
+    public void testCorrectOrderWrongTypeBlob() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderBlobCorrectOrderWrongType");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+    }
+
+    @Test(description = "Greater number of parameters test")
+    public void testGreaterNoOfParams() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testGreaterNoOfParams");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(
+                ".*Number of fields in the constraint type is greater than column count of the result set.*",
+                retVal[0].stringValue()));
+    }
+
+    @Test(description = "Lower number of parameters test")
+    public void testLowerNoOfParams() {
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testLowerNoOfParams");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(
+                ".*Number of fields in the constraint type is lower than column count of the result set.*",
+                retVal[0].stringValue()));
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void closeConnectionPool() {
+        BRunUtil.invokeStateful(service, "closeConnectionPool");
     }
 }

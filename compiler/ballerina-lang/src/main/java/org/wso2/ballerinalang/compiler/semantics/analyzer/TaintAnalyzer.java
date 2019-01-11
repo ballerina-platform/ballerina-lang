@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -130,6 +131,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -466,6 +469,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        // TODO: Complete
+    }
+
+    @Override
     public void visit(BLangSimpleVariable varNode) {
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
@@ -690,8 +698,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // Propagate the tainted status of collection to foreach variables.
         foreach.collection.accept(this);
         if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-            foreach.varRefs
-                    .forEach(varRef -> setTaintedStatus((BLangVariableReference) varRef, getCurrentAnalysisState().taintedStatus));
+            setTaintedStatus((BLangVariable) foreach.variableDefinitionNode.getVariable(),
+                    getCurrentAnalysisState().taintedStatus);
         }
         analyzeNode(foreach.body, blockEnv);
     }
@@ -713,6 +721,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         overridingAnalysis = false;
         if (transactionNode.onRetryBody != null) {
             transactionNode.onRetryBody.accept(this);
+        }
+        if (transactionNode.committedBody != null) {
+            transactionNode.committedBody.accept(this);
+        }
+        if (transactionNode.abortedBody != null) {
+            transactionNode.abortedBody.accept(this);
         }
         overridingAnalysis = true;
     }
@@ -746,6 +760,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             BLangRecordVarRefKeyValue varRefExpr = stmt.varRef.recordRefFields.get(varIndex);
             visitAssignment(varRefExpr.variableReference, getCurrentAnalysisState().taintedStatus, stmt.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangErrorDestructure stmt) {
+        // TODO: Complete
     }
 
     @Override
@@ -1044,7 +1063,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 invocationExpr.expr.accept(this);
                 break;
             case STAMP:
-            case CREATE:
+            case CONVERT:
             case CALL:
                 invocationExpr.argExprs.forEach(expression -> expression.accept(this));
                 break;
@@ -1069,11 +1088,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        // If this is an object init using the default constructor,
-        // then skip the taint checking.
-        if (typeInit.type.tag != TypeTags.OBJECT ||
-                ((BObjectTypeSymbol) typeInit.type.tsymbol).initializerFunc != null) {
-            typeInit.objectInitInvocation.accept(this);
+        // If this is an object init using the default constructor, or a stream or channel initialization then skip the
+        // taint checking.
+        if (typeInit.type.tag != TypeTags.STREAM && typeInit.type.tag != TypeTags.CHANNEL &&
+                (typeInit.type.tag != TypeTags.OBJECT ||
+                         ((BObjectTypeSymbol) typeInit.type.tsymbol).initializerFunc != null)) {
+            typeInit.initInvocation.accept(this);
         }
 
         getCurrentAnalysisState().taintedStatus = typeTaintedStatus;
@@ -1576,6 +1596,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
         visit(bLangRecordVariableDef.var);
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        visit(bLangErrorVariableDef.errorVariable);
     }
 
     /**

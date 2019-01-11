@@ -23,10 +23,10 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -83,7 +83,7 @@ public class LocksInMainTest {
     }
 
 //    TODO:https://github.com/ballerina-platform/ballerina-lang/issues/11305
-    @Test(description = "Tests throwing and error inside lock", enabled = false)
+    @Test(description = "Tests throwing and error inside lock")
     public void testThrowErrorInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -97,8 +97,8 @@ public class LocksInMainTest {
 
     }
 
-    @Test(description = "Tests throwing an error inside a lock inside try catch block", enabled = false)
-    public void testThrowErrorInsideLockInsideTryFinally() {
+    @Test(description = "Tests throwing an error inside a lock inside try catch block")
+    public void testThrowErrorInsideLockInsideTrap() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
         BValue[] returns = BRunUtil.invoke(compileResult, "throwErrorInsideLockInsideTryFinally");
@@ -110,7 +110,7 @@ public class LocksInMainTest {
         assertEquals(returns[1].stringValue(), "worker 2 sets the string value after try catch finally");
     }
 
-    @Test(description = "Tests throwing an error inside try catch finally block inside a lock", enabled = false)
+    @Test(description = "Tests throwing an error inside try catch finally block inside a lock")
     public void testThrowErrorInsideTryCatchFinallyInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -123,7 +123,7 @@ public class LocksInMainTest {
         assertEquals(returns[1].stringValue(), "worker 2 sets the string after try catch finally inside lock");
     }
 
-    @Test(description = "Tests throwing an error inside try finally block inside a lock", enabled = false)
+    @Test(description = "Tests throwing an error inside try finally block inside a lock")
     public void testThrowErrorInsideTryFinallyInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -136,7 +136,7 @@ public class LocksInMainTest {
         assertEquals(returns[1].stringValue(), "worker 2 sets the string after try finally");
     }
 
-    @Test(description = "Tests throwing an error inside a lock inside try catch block", enabled = false)
+    @Test(description = "Tests throwing an error inside a lock inside try catch block")
     public void testThrowErrorInsideLockInsideTryCatch() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -149,7 +149,7 @@ public class LocksInMainTest {
         assertEquals(returns[1].stringValue(), "worker 2 sets the string value after try catch");
     }
 
-    @Test(description = "Tests throwing an error inside try catch block inside a lock", enabled = false)
+    @Test(description = "Tests throwing an error inside try catch block inside a lock")
     public void testThrowErrorInsideTryCatchInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -183,10 +183,10 @@ public class LocksInMainTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "lockWithinLockInWorkersForBlobAndBoolean");
         assertEquals(returns.length, 2);
         assertSame(returns[0].getClass(), BBoolean.class);
-        assertSame(returns[1].getClass(), BByteArray.class);
+        assertSame(returns[1].getClass(), BValueArray.class);
 
         assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[1]).getBytes(), "sample blob output".getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[1]).getBytes(), "sample blob output".getBytes());
 
     }
 

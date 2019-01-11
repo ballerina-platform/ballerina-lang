@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerDataChannel;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -162,6 +163,21 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
             for (CallableUnitCallback callback : this.responseCallbacks) {
                 callback.notifyFailure(error);
             }
+        }
+    }
+
+    void signalTransactionError(WorkerSignal signal) {
+        TransactionLocalContext transactionLocalContext = signal.getSourceContext().getLocalTransactionInfo();
+        if (transactionLocalContext == null) {
+            return;
+        }
+        transactionLocalContext.notifyLocalParticipantFailure();
+    }
+
+    void signalTransactionParticipantSuccess(WorkerSignal signal) {
+        TransactionLocalContext transactionLocalContext = signal.getSourceContext().getLocalTransactionInfo();
+        if (transactionLocalContext == null) {
+            return;
         }
     }
 }

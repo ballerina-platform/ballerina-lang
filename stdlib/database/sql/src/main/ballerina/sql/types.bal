@@ -127,7 +127,7 @@ public const DIRECTION_IN = "IN";
 public const DIRECTION_OUT = "OUT";
 public const DIRECTION_INOUT = "INOUT";
 
-# Parameter represents a parameter for the SQL actions when a variable parameter needs to be passed to the action.
+# Parameter represents a parameter for the SQL remote functions when a variable parameter needs to be passed to the remote function.
 #
 # + sqlType - The data type of the corresponding SQL parameter
 # + value - Value of paramter passed into the SQL statement

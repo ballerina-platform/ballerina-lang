@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 3,
+    "line": 8,
     "character": 4
   },
   "source": "service/source/serviceBodyCompletion.bal",
@@ -9,158 +9,149 @@
       "label":"channel",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"channel"
     },
     {
       "label":"xml",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"xml"
     },
     {
       "label":"TableConfig",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"TableConfig represents properties used during table initialization.\n",
-      "sortText":"170",
+      "documentation":{
+        "left":"TableConfig represents properties used during table initialization.\n"
+      },
       "insertText":"TableConfig"
     },
     {
       "label":"byte",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"byte"
     },
     {
       "label":"stream",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"stream"
+    },
+    {
+      "label":"AbstractListener",
+      "kind":"Class",
+      "detail":"BType",
+      "insertText":"AbstractListener"
     },
     {
       "label":"map",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"map"
     },
     {
       "label":"table",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"table"
+    },
+    {
+      "label":"anydata",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"anydata"
     },
     {
       "label":"future",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"future"
     },
     {
       "label":"typedesc",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"typedesc"
     },
     {
       "label":"float",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"float"
     },
     {
       "label":"null",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"null"
     },
     {
       "label":"http",
       "kind":"Module",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"http"
+    },
+    {
+      "label":"decimal",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"decimal"
     },
     {
       "label":"string",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"string"
     },
     {
       "label":"error",
-      "kind":"Class",
+      "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"error"
     },
     {
       "label":"json",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"json"
     },
     {
       "label":"any",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"any"
     },
     {
       "label":"int",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"int"
-    },
-    {
-      "label":"docData",
-      "kind":"Class",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"docData"
     },
     {
       "label":"boolean",
       "kind":"Keyword",
       "detail":"BType",
-      "sortText":"170",
       "insertText":"boolean"
     },
     {
-      "label":"endpoint",
-      "kind":"Snippet",
-      "detail":"Snippet",
-      "sortText":"150",
-      "insertText":"endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"xmlns",
-      "kind":"Snippet",
-      "detail":"Snippet",
-      "sortText":"150",
-      "insertText":"xmlns \"${1}\" as ${2:ns};",
-      "insertTextFormat":"Snippet"
+      "label":"service",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"service"
     },
     {
       "label":"Resource",
       "kind":"Snippet",
       "detail":"Snippet",
-      "sortText":"160",
-      "insertText":"${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {\n\t${4}\n}",
+      "insertText":"resource function ${1:newResource}(http:Caller ${2:caller}, ${3:http:Request request}) {\n\t${4}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     }
   ]

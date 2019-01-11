@@ -68,13 +68,11 @@ import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaFutureTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
-import io.ballerina.plugins.idea.psi.BallerinaIndex;
 import io.ballerina.plugins.idea.psi.BallerinaInvocation;
 import io.ballerina.plugins.idea.psi.BallerinaInvocationReference;
 import io.ballerina.plugins.idea.psi.BallerinaJsonTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaMapTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
-import io.ballerina.plugins.idea.psi.BallerinaNamedPattern;
 import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaNullableTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
@@ -676,27 +674,6 @@ public class BallerinaPsiImplUtil {
                                                                             variableReference, int index) {
         return CachedValuesManager.getCachedValue(variableReference, () -> {
             if (variableReference instanceof BallerinaSimpleVariableReference) {
-                if (isVariableReferenceInForEach(variableReference)) {
-                    BallerinaForeachStatement foreachStatement = PsiTreeUtil.getParentOfType(variableReference,
-                            BallerinaForeachStatement.class);
-                    if (foreachStatement != null) {
-                        BallerinaVariableReferenceList variableReferenceList =
-                                foreachStatement.getVariableReferenceList();
-                        if (variableReferenceList != null) {
-                            List<BallerinaVariableReference> referenceList =
-                                    variableReferenceList.getVariableReferenceList();
-                            if (referenceList.size() == 1) {
-                                return CachedValueProvider.Result.create(getType(foreachStatement), variableReference);
-                            } else if (referenceList.size() == 2) {
-                                // This is used to get the type for the lookup element.
-                                if (referenceList.get(1).getText().equals(variableReference.getText())) {
-                                    return CachedValueProvider.Result.create(getType(foreachStatement),
-                                            variableReference);
-                                }
-                            }
-                        }
-                    }
-                }
 
                 BallerinaNameReference ballerinaNameReference =
                         ((BallerinaSimpleVariableReference) variableReference).getNameReference();
@@ -724,47 +701,7 @@ public class BallerinaPsiImplUtil {
                 } else if (parent instanceof BallerinaCatchClause) {
                     return CachedValueProvider.Result.create(
                             ((BallerinaCatchClause) parent).getTypeName(), variableReference);
-                } else if (parent instanceof BallerinaNamedPattern) {
-                    BallerinaNamedPattern ballerinaNamedPattern = (BallerinaNamedPattern) parent;
-                    BallerinaTypeName typeName = ballerinaNamedPattern.getTypeName();
-                    if (typeName instanceof BallerinaArrayTypeName && !(variableReference.getNextSibling()
-                            instanceof BallerinaIndex)) {
-                        return CachedValueProvider.Result.create(null, variableReference);
-                    }
-                    return CachedValueProvider.Result.create(getTypeNameFromNamedPattern(typeName), variableReference);
                 } else if (parent instanceof BallerinaNameReference) {
-                    PsiElement superParent = parent.getParent();
-                    if (superParent instanceof BallerinaVariableReference) {
-                        BallerinaVariableReference ballerinaVariableReference =
-                                (BallerinaVariableReference) superParent;
-                        if (isVariableReferenceInForEach(ballerinaVariableReference)) {
-                            BallerinaForeachStatement foreachStatement =
-                                    PsiTreeUtil.getParentOfType(ballerinaVariableReference,
-                                            BallerinaForeachStatement.class);
-                            if (foreachStatement != null) {
-                                BallerinaVariableReferenceList variableReferenceList =
-                                        foreachStatement.getVariableReferenceList();
-
-                                if (variableReferenceList != null) {
-                                    List<BallerinaVariableReference> referenceList = variableReferenceList
-                                            .getVariableReferenceList();
-                                    // If there is only one element in the list, we resolve the type.
-                                    if (referenceList.size() == 1) {
-                                        return CachedValueProvider.Result.create(getType(foreachStatement),
-                                                variableReference);
-                                    } else if (referenceList.size() == 2) {
-                                        // If there are two items, the first one will be the index. So we only resolve
-                                        // the second element.
-                                        if (variableReference.getText().equals(referenceList.get(1).getText())) {
-                                            return CachedValueProvider.Result.create(getType(foreachStatement),
-                                                    variableReference);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
                     BallerinaAssignmentStatement ballerinaAssignmentStatement = PsiTreeUtil.getParentOfType(parent,
                             BallerinaAssignmentStatement.class);
                     if (ballerinaAssignmentStatement != null) {

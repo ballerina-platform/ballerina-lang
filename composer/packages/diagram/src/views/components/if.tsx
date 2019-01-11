@@ -19,9 +19,10 @@ export const If: React.StatelessComponent<{
 
         const conditionProps = {
             expression: ASTUtil.genSource(model.condition),
-            label: "if",
+            label: "If",
+            width: model.body.viewState.bBox.w,
             x: viewState.bBox.x,
-            y: viewState.bBox.y + (config.flowCtrl.header.height / 2),
+            y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
         };
 
         // Continue Line
@@ -39,7 +40,7 @@ export const If: React.StatelessComponent<{
         p3.x = p2.x;
         p3.y = conditionProps.y;
 
-        p4.x = p1.x - (config.flowCtrl.header.height / 2);
+        p4.x = p1.x - (config.flowCtrl.condition.height / 2);
         p4.y = conditionProps.y;
 
         children.push(DiagramUtils.getComponents(model.body));
@@ -53,7 +54,7 @@ export const If: React.StatelessComponent<{
         const r3 = { x: 0, y: 0 };
         const r4 = { x: 0, y: 0 };
 
-        r1.x = conditionProps.x + (config.flowCtrl.header.height / 2);
+        r1.x = conditionProps.x + (config.flowCtrl.condition.height / 2) - config.flowCtrl.leftMargin;
         r1.y = conditionProps.y;
 
         r2.x = conditionProps.x + model.body.viewState.bBox.w;
@@ -69,12 +70,14 @@ export const If: React.StatelessComponent<{
         r4.y = r3.y;
 
         return (
-            <g className="panel">
-                <Condition {...conditionProps} />
-                <polyline className="condition-line"
-                    points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
-                />
-                <ArrowHead direction={"left"} {...r4} />
-                {children}
+            <g className="worker-block">
+                <g className="condition-block">
+                    <polyline className="condition-line"
+                        points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
+                    />
+                    <ArrowHead direction={"left"} className="condition-arrow-head" {...r4} />
+                    <Condition {...conditionProps} astModel={model} />
+                    {children}
+                </g>
             </g>);
     };

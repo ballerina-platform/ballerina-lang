@@ -26,9 +26,8 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -95,9 +94,9 @@ public class RecordVariableReferenceTest {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefInRecordVarRef");
         Assert.assertEquals(returns.length, 7);
         Assert.assertEquals(returns[0].stringValue(), "Mark");
-        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(0)).intValue(), 1);
-        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(1)).intValue(), 1);
-        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(2)).intValue(), 1990);
+        Assert.assertEquals(((BInteger) ((BValueArray) returns[1]).getRefValue(0)).intValue(), 1);
+        Assert.assertEquals(((BInteger) ((BValueArray) returns[1]).getRefValue(1)).intValue(), 1);
+        Assert.assertEquals(((BInteger) ((BValueArray) returns[1]).getRefValue(2)).intValue(), 1990);
         Assert.assertEquals(((BByte) returns[2]).intValue(), 1);
         Assert.assertEquals(returns[3].stringValue(), "Mark");
         Assert.assertEquals(((BInteger) returns[4]).intValue(), 1);
@@ -109,13 +108,13 @@ public class RecordVariableReferenceTest {
     public void testRecordInsideTupleInsideRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "A");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "B");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "A");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "B");
         Assert.assertEquals(returns[1].stringValue(), "A");
         BMap child = (BMap) ((BMap) returns[2]).get("child");
         Assert.assertEquals(child.get("name").stringValue(), "C");
-        Assert.assertEquals(((BInteger) ((BRefValueArray) child.get("yearAndAge")).get(0)).intValue(), 1996);
-        Assert.assertEquals(((BMap) ((BRefValueArray) child.get("yearAndAge")).get(1)).get("format").stringValue(),
+        Assert.assertEquals(((BInteger) ((BValueArray) child.get("yearAndAge")).getRefValue(0)).intValue(), 1996);
+        Assert.assertEquals(((BMap) ((BValueArray) child.get("yearAndAge")).getRefValue(1)).get("format").stringValue(),
                 "Z");
     }
 
@@ -181,7 +180,7 @@ public class RecordVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 17);
+        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         final String undefinedSymbol = "undefined symbol ";
         final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
@@ -213,5 +212,9 @@ public class RecordVariableReferenceTest {
                 "invalid record binding pattern; unknown field 'unknown2' in record type 'Person'", 122, 5);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 122, 27);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "unknown type 'Data'", 126, 6);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "unknown type 'Data'", 131, 6);
     }
 }

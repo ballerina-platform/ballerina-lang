@@ -41,8 +41,6 @@ public class ItemResolverConstants {
     public static final String ENDPOINT = "endpoint";
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
-    public static final String TRIGGER_WORKER = "wtrg   Worker Trigger Statement";
-    public static final String WORKER_REPLY = "wrply   Worker Reply Statement";
     public static final String FOREACH = "foreach";
     public static final String MATCH = "match";
     public static final String PANIC = "panic";
@@ -51,7 +49,7 @@ public class ItemResolverConstants {
     public static final String FUNCTION = "function";
     public static final String FUNCTION_SIGNATURE = "function signature";
     public static final String MAIN_FUNCTION = "public main function";
-    public static final String SERVICE = "service";
+    public static final String SERVICE = "service/http";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
     public static final String SERVICE_WEBSUB = "service/webSub";
     public static final String ANNOTATION = "annotation";
@@ -89,6 +87,7 @@ public class ItemResolverConstants {
     public static final String CHECK_KEYWORD = "check";
     public static final String WAIT_KEYWORD = "wait";
     public static final String EXTERN_KEYWORD = "extern";
+    public static final String LISTENER_KEYWORD = "listener";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
@@ -100,6 +99,7 @@ public class ItemResolverConstants {
     public static final String ITR_MAP_LABEL = "map(<@lambda:function>)";
     public static final String ITR_FILTER_LABEL = "filter(<@lambda:function>)";
     public static final String ITR_COUNT_LABEL = "count()";
+    public static final String ITR_SELECT_LABEL = "select(functionReference)";
     public static final String ITR_MIN_LABEL = "min()";
     public static final String ITR_MAX_LABEL = "max()";
     public static final String ITR_AVERAGE_LABEL = "average()";
@@ -114,5 +114,7 @@ public class ItemResolverConstants {
     public static final String BUILTIN_FREEZE_LABEL = "freeze()";
     public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
     public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
-    public static final String BUILTIN_CREATE_LABEL = "create(anydata a)";
+    public static final String BUILTIN_CONVERT_LABEL = "convert(anydata a)";
+    public static final String BUILTIN_DETAIL_LABEL = "detail()";
+    public static final String BUILTIN_REASON_LABEL = "reason()";
 }

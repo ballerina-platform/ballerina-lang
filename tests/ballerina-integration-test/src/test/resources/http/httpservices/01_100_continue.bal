@@ -13,12 +13,23 @@ service helloContinue on new http:Listener(9090) {
     }
     resource function hello(http:Caller caller, http:Request request) {
         if (request.expects100Continue()) {
-            log:printInfo("Sending 100-Continue response");
-            var responseError = caller->continue();
-            if (responseError is error) {
-                log:printError("Error sending response", err = responseError);
+            if (request.hasHeader("X-Status")) {
+                log:printInfo("Sending 100-Continue response");
+                var responseError = caller->continue();
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
+                }
+            } else {
+                log:printInfo("Ignore payload by sending 417 response");
+                http:Response res = new;
+                res.statusCode = 417;
+                res.setPayload("Do not send me any payload");
+                var responseError = caller->respond(res);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
+                }
+                return;
             }
-            log:printInfo("100-Continue response sent");
         }
 
         http:Response res = new;

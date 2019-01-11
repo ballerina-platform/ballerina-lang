@@ -2,7 +2,8 @@
     "extends": "../../configs/common.tsconfig.json",
     "compilerOptions": {
       "rootDirs": ["src", "stories"],
-      "outDir": "lib"
+      "outDir": "lib",
+      "allowSyntheticDefaultImports": true
     }
 }
   

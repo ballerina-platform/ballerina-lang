@@ -149,19 +149,8 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarTypeInVariableDefStatement() {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 4);
-        BAssertUtil.validateError(res, 0, "invalid token ';'", 2, 12);
-        BAssertUtil.validateError(res, 1, "extraneous input ';'", 2, 12);
-    }
-
-    @Test(description = "Test var in global variable def.")
-    public void testVarTypeInGlobalVariableDefStatement() {
-        //var type is not not allowed in global variable def statements
-        CompileResult res = BCompileUtil.compile("test-src/types/var/global-variable-def-var-type-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 2);
-        BAssertUtil.validateError(res, 0, "extraneous input 'var'", 1, 1);
-        BAssertUtil.validateError(res, 1,
-                "mismatched input '='. expecting {'[', '?', '|', Identifier}", 1, 15);
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting '='", 2, 12);
     }
 
     @Test
@@ -174,9 +163,8 @@ public class VarDeclaredAssignmentStmtTest {
     @Test
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 6);
-        BAssertUtil.validateError(res, 0, "invalid token '.'", 9, 13);
-        BAssertUtil.validateError(res, 1, "extraneous input 'var'", 9, 4);
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BAssertUtil.validateError(res, 0, "mismatched input '.'. expecting '='", 9, 13);
     }
 
     @Test
@@ -204,9 +192,9 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test
     public void testVarDeclarationWithAllIgnoredSymbols() {
-        CompileResult res = BCompileUtil.compile("test-src/types/var/var-all-ignored-symbols-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "no new variables on left side", 3, 9);
+        CompileResult res = BCompileUtil.compile("test-src/types/var/var-all-ignored-symbols.bal");
+        BValue[] returns = BRunUtil.invoke(res, "testVarDeclarationWithAllIgnoredSymbols");
+        Assert.assertEquals(returns[0].stringValue(), "success");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -217,8 +205,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "incompatible stamp operation: 'json' " +
-                "value cannot be stamped as 'Person'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'json' value cannot be stamped as 'Person'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -229,8 +217,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "incompatible stamp operation: 'json' " +
-                "value cannot be stamped as 'PersonA'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonA'");
     }
 
     @Test(description = "Test compatible struct with force casting.")
@@ -253,7 +241,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'A', found 'B'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'A', found 'B'");
     }
 
     @Test(description = "Test any to string with errors.")
@@ -271,7 +260,8 @@ public class VarDeclaredAssignmentStmtTest {
 
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'string', found '()'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'string', found '()'");
     }
 
     @Test(description = "Test any to boolean with errors.")
@@ -291,7 +281,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'boolean', found '()'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'boolean', found '()'");
     }
 
     @Test(description = "Test any to int with errors.")
@@ -301,7 +292,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'int', found 'string'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'int', found 'string'");
     }
 
     @Test(description = "Test any null to int with errors.")
@@ -311,7 +303,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'int', found '()'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'int', found '()'");
     }
 
     @Test(description = "Test any to float with errors.")
@@ -321,7 +314,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'float', found 'string'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'float', found 'string'");
     }
 
     @Test(description = "Test any null to float with errors.")
@@ -331,7 +325,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'float', found '()'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'float', found '()'");
     }
 
     @Test(description = "Test any to map with errors.")
@@ -341,7 +336,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'map', found 'string'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'map', found 'string'");
     }
 
 }

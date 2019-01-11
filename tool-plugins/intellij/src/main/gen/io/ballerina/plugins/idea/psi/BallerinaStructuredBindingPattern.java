@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaStructuredBindingPattern extends BallerinaCompositeElement {
 
   @Nullable
+  BallerinaErrorBindingPattern getErrorBindingPattern();
+
+  @Nullable
   BallerinaRecordBindingPattern getRecordBindingPattern();
 
   @Nullable

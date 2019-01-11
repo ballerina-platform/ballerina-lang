@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -50,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -64,7 +64,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -74,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -87,8 +85,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * Tree visitor for finding the node at the given position.
@@ -115,7 +115,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         boolean isTestSrc = CommonUtil.isTestSource(this.context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY));
         BLangPackage evalPkg = isTestSrc ? pkgNode.getTestablePkg() : pkgNode;
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, this.context);
-        topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
+        topLevelNodes.stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -146,20 +148,12 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
 
-        if (funcNode.receiver != null) {
-            this.acceptNode(funcNode.receiver);
-        }
-
         if (funcNode.requiredParams != null) {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (funcNode.returnTypeNode != null && !(funcNode.returnTypeNode.type instanceof BNilType)) {
             this.acceptNode(funcNode.returnTypeNode);
-        }
-
-        if (funcNode.endpoints != null) {
-            funcNode.endpoints.forEach(this::acceptNode);
         }
 
         if (funcNode.body != null) {
@@ -221,7 +215,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(varNode);
             if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
                 addPosition(varNode, this.previousNode, varNode.symbol.name.getValue(), varNode.symbol.pkgID,
-                            ContextConstants.ENDPOINT, ContextConstants.ENDPOINT, varNode.symbol.name.getValue(),
+                            ContextConstants.VARIABLE, ContextConstants.VARIABLE, varNode.symbol.name.getValue(),
                             varNode.symbol.owner);
                 setTerminateVisitor(true);
             }
@@ -375,6 +369,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
+        if (serviceNode.attachedExprs != null) {
+            serviceNode.attachedExprs.forEach(this::acceptNode);
+        }
+
         if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(serviceNode), this.position)) {
             addPosition(serviceNode, this.previousNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
                         serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(), serviceNode.name.getValue(),
@@ -382,6 +380,16 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             setTerminateVisitor(true);
             return;
         }
+        List<BLangNode> serviceContent = new ArrayList<>();
+        BLangObjectTypeNode serviceType = (BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode;
+        List<BLangFunction> serviceFunctions = ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode)
+                .getFunctions();
+        List<BLangSimpleVariable> serviceFields = serviceType.getFields().stream()
+                .map(simpleVar -> (BLangSimpleVariable) simpleVar)
+                .collect(Collectors.toList());
+        serviceContent.addAll(serviceFunctions);
+        serviceContent.addAll(serviceFields);
+        serviceContent.sort(new CommonUtil.BLangNodeComparator());
 
         addTopLevelNodeToContext(serviceNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
                                  serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(),
@@ -390,90 +398,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(serviceNode);
         this.addToNodeStack(serviceNode);
 
-// TODO: 11/28/18 Fix with the latest Service Changes 
-//        if (serviceNode.serviceTypeStruct != null) {
-//            this.acceptNode(serviceNode.serviceTypeStruct);
-//        }
-
-        if (serviceNode.vars != null) {
-            serviceNode.vars.forEach(this::acceptNode);
-        }
-
-        if (serviceNode.resources != null) {
-            serviceNode.resources.forEach(this::acceptNode);
-        }
-
-        if (serviceNode.endpoints != null) {
-            serviceNode.endpoints.forEach(this::acceptNode);
-        }
-// TODO: 11/28/18 Fix with the latest Service Changes 
-//        if (serviceNode.boundEndpoints != null) {
-//            serviceNode.boundEndpoints.forEach(this::acceptNode);
-//        }
-//
-//        if (serviceNode.initFunction != null) {
-//            this.acceptNode(serviceNode.initFunction);
-//        }
-    }
-
-    public void visit(BLangResource resourceNode) {
-        if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(resourceNode), this.position)) {
-            addPosition(resourceNode, this.previousNode, resourceNode.name.getValue(), resourceNode.symbol.pkgID,
-                        resourceNode.symbol.kind.name(), resourceNode.symbol.kind.name(), resourceNode.name.getValue(),
-                        resourceNode.symbol.owner);
-            setTerminateVisitor(true);
-            return;
-        }
-        addTopLevelNodeToContext(resourceNode, resourceNode.name.getValue(), resourceNode.symbol.pkgID,
-                                 resourceNode.symbol.kind.name(), resourceNode.symbol.kind.name(),
-                                 resourceNode.symbol.owner);
-
-        setPreviousNode(resourceNode);
-        this.addToNodeStack(resourceNode);
-
-        if (resourceNode.requiredParams != null) {
-            resourceNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (resourceNode.body != null) {
-            this.acceptNode(resourceNode.body);
-        }
-
-        if (resourceNode.endpoints != null) {
-            resourceNode.endpoints.forEach(this::acceptNode);
-        }
-
-        if (resourceNode.workers != null) {
-            resourceNode.workers.forEach(this::acceptNode);
-        }
-    }
-
-    @Override
-    public void visit(BLangTryCatchFinally tryCatchFinally) {
-        setPreviousNode(tryCatchFinally);
-        if (tryCatchFinally.tryBody != null) {
-            acceptNode(tryCatchFinally.tryBody);
-        }
-
-        if (tryCatchFinally.catchBlocks != null) {
-            tryCatchFinally.catchBlocks.forEach(this::acceptNode);
-        }
-
-        if (tryCatchFinally.finallyBody != null) {
-            acceptNode(tryCatchFinally.finallyBody);
-        }
-    }
-
-    @Override
-    public void visit(BLangCatch bLangCatch) {
-        setPreviousNode(bLangCatch);
-        if (bLangCatch.param != null) {
-            acceptNode(bLangCatch.param);
-        }
-
-        if (bLangCatch.body != null) {
-            acceptNode(bLangCatch.body);
-        }
+        serviceContent.forEach(this::acceptNode);
     }
 
     @Override
@@ -592,9 +517,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(foreach.collection);
         }
 
-        if (foreach.varRefs != null) {
-            foreach.varRefs.forEach(this::acceptNode);
-        }
+        acceptNode((BLangNode) foreach.variableDefinitionNode);
 
         if (foreach.body != null) {
             acceptNode(foreach.body);
@@ -838,6 +761,18 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (typeDefinition.typeNode != null) {
             this.acceptNode(typeDefinition.typeNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangConstant constant) {
+        addTopLevelNodeToContext(constant, constant.name.getValue(), constant.symbol.pkgID,
+                                 ContextConstants.VARIABLE, ContextConstants.VARIABLE,
+                                 constant.symbol.owner);
+        setPreviousNode(constant);
+
+        if (constant.typeNode != null) {
+            this.acceptNode(constant.typeNode);
         }
     }
 

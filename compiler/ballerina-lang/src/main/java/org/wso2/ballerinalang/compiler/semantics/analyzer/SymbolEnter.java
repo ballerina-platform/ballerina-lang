@@ -512,6 +512,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
+        if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
+            definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
+                                                           Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
+                                                           env.scope.owner);
+        }
+
         typeDefinition.precedence = this.typePrecedence++;
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
@@ -543,7 +549,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
 
-        BType serviceObjectType = symResolver.resolveTypeNode(serviceNode.serviceUDT, env);
+        BType serviceObjectType = serviceNode.serviceTypeDefinition.symbol.type;
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
         defineSymbol(serviceNode.name.pos, serviceSymbol);
@@ -619,6 +625,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
         funcNode.symbol.scope = new Scope(funcNode.symbol);
+        funcNode.symbol.type = new BInvokableType(new ArrayList<>(), symTable.noType, null);
     }
 
     private void visitObjectAttachedFunction(BLangFunction funcNode) {
@@ -855,8 +862,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             Iterator<BLangLambdaFunction> lambdaFunctions = env.enclPkg.lambdaFunctions.iterator();
             while (lambdaFunctions.hasNext()) {
                 BLangLambdaFunction lambdaFunction = lambdaFunctions.next();
-                //last lambda needs to be skipped to avoid self reference
-                if (lambdaFunctions.hasNext()) {
+                // let's inject future symbol to all the lambdas
+                // last lambda needs to be skipped to avoid self reference
+                // lambda's form others functions also need to be skiped
+                BLangInvokableNode enclInvokable = lambdaFunction.cachedEnv.enclInvokable;
+                if (lambdaFunctions.hasNext() && enclInvokable != null && varSymbol.owner == enclInvokable.symbol) {
                     lambdaFunction.cachedEnv.scope.define(varSymbol.name, varSymbol);
                 }
             }
@@ -1505,6 +1515,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         // This is only to keep the flow running so that at the end there will be proper semantic errors
         typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
                 names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, typeDef.typeNode.type, env.scope.owner);
+        typeDef.symbol.scope = env.scope;
+
+        // Todo - Add more kinds.
+        switch (typeDef.typeNode.type.tag) {
+            case TypeTags.RECORD:
+            case TypeTags.OBJECT:
+                typeDef.symbol.kind = ((BLangStructureTypeNode) typeDef.typeNode).symbol.kind;
+                ((BLangStructureTypeNode) typeDef.typeNode).symbol.scope = env.scope;
+                break;
+        }
+
         defineSymbol(typeDef.pos, typeDef.symbol, env);
     }
 
@@ -1559,6 +1580,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE, function.funcName,
                         typeRef);
             }
+            return;
+        }
+
+        if (Symbols.isPrivate(function.symbol)) {
+            // we should not copy private functions.
             return;
         }
 

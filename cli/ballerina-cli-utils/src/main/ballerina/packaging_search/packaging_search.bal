@@ -59,7 +59,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 
                     int rightMargin = 3;
                     int width;
-                    var intTerminalWidth = int.create(terminalWidth);
+                    var intTerminalWidth = int.convert(terminalWidth);
                     if (intTerminalWidth is int) {
                         width = intTerminalWidth - rightMargin;
                     } else {
@@ -119,7 +119,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                             printInCLI(summary, descColWidth - authorsColWidth);
                             string authors = "";
                             json authorsArr = jsonElement.authors;
-                            foreach authorIndex in 0 ..< authorsArr.length() {
+                            foreach var authorIndex in 0 ..< authorsArr.length() {
                                 if (authorIndex == authorsArr.length() - 1) {
                                     authors = authors + authorsArr[authorIndex].toString();
                                 } else {
@@ -240,7 +240,7 @@ function printTitle(string title) {
 # + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
-    var timeInMillis = int.create(jsonTime);
+    var timeInMillis = int.convert(jsonTime);
     if (timeInMillis is int) {
         time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
         string customTimeString = timeStruct.format("yyyy-MM-dd-E");
@@ -254,15 +254,16 @@ function getDateCreated(json jsonObj) returns string {
 # This function invokes the method to search for modules.
 # + args - Arguments passed
 public function main (string... args) {
-    http:Client httpEndpoint = new("");
+    http:Client httpEndpoint;
     string host = args[2];
     string strPort = args[3];
     if (host != "" && strPort != "") {
-        var port = int.create(strPort);
+        var port = int.convert(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
             if (result is http:Client) {
                 httpEndpoint = result;
+                search(httpEndpoint, args[0], args[1], args[6]);
             } else if (result is error) {
                 io:println("failed to resolve host : " + host + " with port " + port);
                 return;
@@ -275,8 +276,8 @@ public function main (string... args) {
         return;   
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
-    }        
-    search(httpEndpoint, args[0], args[1], args[6]);
+        search(httpEndpoint, args[0], args[1], args[6]);
+    }
 }
 
 # This function sets the proxy configurations for the endpoint.

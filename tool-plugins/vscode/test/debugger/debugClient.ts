@@ -49,6 +49,11 @@ export class DebugClientEx extends DebugClient {
                         assert.equal(frame.column, location.column, 'stopped location: column mismatch');
                     }
                     return response;
+                }).then(()=>{
+                    this.continueRequest({
+                        threadId: event.body.threadId,
+                    });
+                    return Promise.resolve();
                 });
             })
         ]);

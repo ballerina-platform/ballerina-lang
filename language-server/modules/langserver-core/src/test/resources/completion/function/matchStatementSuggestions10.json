@@ -34,7 +34,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertText":"foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -42,7 +42,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
+      "insertText":"fork {\n\t${1}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -90,7 +90,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertText":"transaction with retries ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -99,22 +99,6 @@
       "detail":"Statement",
       "sortText":"200",
       "insertText":"while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wrply   Worker Reply Statement",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} \u003c- ${2:w1};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wtrg   Worker Trigger Statement",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} -\u003e ${2:w1};",
       "insertTextFormat":"Snippet"
     },
     {
@@ -140,10 +124,12 @@
       "insertText":"xml"
     },
     {
-      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
+      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
+      "documentation":{
+        "left":"Execute the given sql query to fetch the records and return as a new in memory table.\n"
+      },
       "sortText":"120",
       "insertText":"queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
       "insertTextFormat":"Snippet"
@@ -152,7 +138,9 @@
       "label":"TableConfig",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"TableConfig represents properties used during table initialization.\n",
+      "documentation":{
+        "left":"TableConfig represents properties used during table initialization.\n"
+      },
       "sortText":"170",
       "insertText":"TableConfig"
     },
@@ -164,10 +152,12 @@
       "insertText":"byte"
     },
     {
-      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
+      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
+      "documentation":{
+        "left":"Execute the given sql query to fetch the records and return as a new in memory table.\n"
+      },
       "sortText":"120",
       "insertText":"queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
       "insertTextFormat":"Snippet"
@@ -183,7 +173,9 @@
       "label":"startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Creates the forever runtime.\n",
+      "documentation":{
+        "left":"Creates the forever runtime.\n"
+      },
       "sortText":"120",
       "insertText":"startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
       "insertTextFormat":"Snippet"
@@ -194,6 +186,13 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"stream"
+    },
+    {
+      "label":"AbstractListener",
+      "kind":"Class",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"AbstractListener"
     },
     {
       "label":"map",
@@ -350,18 +349,18 @@
       "insertText":"int"
     },
     {
-      "label":"docData",
-      "kind":"Class",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"docData"
-    },
-    {
       "label":"boolean",
       "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"boolean"
+    },
+    {
+      "label":"service",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"service"
     },
     {
       "label":"ballerina/http",
@@ -387,15 +386,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/transactions;\n"
+          "newText":"import ballerina/transactions;\n"
         }
       ]
     },
@@ -409,15 +408,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/websub;\n"
+          "newText":"import ballerina/websub;\n"
         }
       ]
     },
@@ -431,15 +430,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/grpc;\n"
+          "newText":"import ballerina/grpc;\n"
         }
       ]
     },
@@ -453,15 +452,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/reflect;\n"
+          "newText":"import ballerina/reflect;\n"
         }
       ]
     },
@@ -475,15 +474,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/log;\n"
+          "newText":"import ballerina/log;\n"
         }
       ]
     },
@@ -497,15 +496,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/time;\n"
+          "newText":"import ballerina/time;\n"
         }
       ]
     },
@@ -519,15 +518,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/test;\n"
+          "newText":"import ballerina/test;\n"
         }
       ]
     },
@@ -541,15 +540,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/runtime;\n"
+          "newText":"import ballerina/runtime;\n"
         }
       ]
     },
@@ -563,15 +562,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/swagger;\n"
+          "newText":"import ballerina/swagger;\n"
         }
       ]
     },
@@ -585,15 +584,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/file;\n"
+          "newText":"import ballerina/file;\n"
         }
       ]
     },
@@ -607,15 +606,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/sql;\n"
+          "newText":"import ballerina/sql;\n"
         }
       ]
     },
@@ -629,15 +628,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/internal;\n"
+          "newText":"import ballerina/internal;\n"
         }
       ]
     },
@@ -651,15 +650,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/mysql;\n"
+          "newText":"import ballerina/mysql;\n"
         }
       ]
     },
@@ -673,15 +672,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/mime;\n"
+          "newText":"import ballerina/mime;\n"
         }
       ]
     },
@@ -695,15 +694,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/task;\n"
+          "newText":"import ballerina/task;\n"
         }
       ]
     },
@@ -717,15 +716,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/crypto;\n"
+          "newText":"import ballerina/crypto;\n"
         }
       ]
     },
@@ -739,15 +738,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/cache;\n"
+          "newText":"import ballerina/cache;\n"
         }
       ]
     },
@@ -761,15 +760,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/auth;\n"
+          "newText":"import ballerina/auth;\n"
         }
       ]
     },
@@ -783,15 +782,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/jms;\n"
+          "newText":"import ballerina/jms;\n"
         }
       ]
     },
@@ -805,15 +804,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/system;\n"
+          "newText":"import ballerina/system;\n"
         }
       ]
     },
@@ -827,15 +826,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/h2;\n"
+          "newText":"import ballerina/h2;\n"
         }
       ]
     },
@@ -856,15 +855,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/math;\n"
+          "newText":"import ballerina/math;\n"
         }
       ]
     },
@@ -878,15 +877,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":20
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/config;\n"
+          "newText":"import ballerina/config;\n"
         }
       ]
     }
