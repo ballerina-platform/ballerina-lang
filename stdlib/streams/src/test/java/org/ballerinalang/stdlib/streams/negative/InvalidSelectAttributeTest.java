@@ -32,19 +32,27 @@ import org.testng.annotations.Test;
  */
 public class InvalidSelectAttributeTest {
 
-    private CompileResult result;
+    private CompileResult resultInvalidAttr, resultUndefinedAttr;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/negative/invalid-attribute-select-test.bal");
+        resultInvalidAttr = BCompileUtil.compile("test-src/negative/invalid-attribute-select-test.bal");
+        resultUndefinedAttr = BCompileUtil.compile("test-src/negative/undefined-attribute-select-test.bal");
     }
 
     @Test(description = "Test if the proper error is thrown if an attribute is invalid in projection ")
     public void testInvalidAttributeInSelectClause() {
-        Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "undefined stream attribute 'batches' found in select clause", 36, 53);
-        BAssertUtil.validateError(result, 1, "fields defined in select clause, incompatible " +
-                "with output fields in type 'Teacher', expected '[name, age, status, batch, school]' but found " +
-                "'[batches, school, name, age, status]'", 37, 9);
+        Assert.assertEquals(resultInvalidAttr.getErrorCount(), 2);
+        BAssertUtil.validateError(resultInvalidAttr, 0, "undefined stream attribute 'batches' " +
+                "found in select clause", 36, 53);
+        BAssertUtil.validateError(resultInvalidAttr, 1, "fields defined in select clause, " +
+                "incompatible with output fields in type 'Teacher', expected '[name, age, status, batch, school]' " +
+                "but found '[batches, school, name, age, status]'", 37, 9);
+    }
+
+    @Test(description = "Test if the proper error is thrown if an attribute is undefined in projection ")
+    public void testUndefinedAttributeInSelectClause() {
+        Assert.assertEquals(resultUndefinedAttr.getErrorCount(), 1);
+        BAssertUtil.validateError(resultUndefinedAttr, 0, "undefined symbol 'age'", 69, 53);
     }
 }

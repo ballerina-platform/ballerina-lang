@@ -143,6 +143,7 @@ public class EncryptedConfigsTest {
     }
 
     private void copySecret(String from, String to) throws IOException {
+        Files.deleteIfExists(Paths.get(resourceRoot, "datafiles", to));
         Files.copy(Paths.get(resourceRoot, "datafiles", from),
                    Paths.get(resourceRoot, "datafiles", to));
     }
