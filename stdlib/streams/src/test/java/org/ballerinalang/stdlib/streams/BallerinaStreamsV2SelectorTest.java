@@ -29,6 +29,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.Date;
+
 /**
  * This contains methods to test select behaviour in Ballerina Streaming V2.
  *
@@ -36,7 +38,8 @@ import org.testng.annotations.Test;
  */
 public class BallerinaStreamsV2SelectorTest {
 
-    private CompileResult result, resultForSelectAll, resultWithComplexExpressions, resultWithLibraryFunction;
+    private CompileResult result, resultForSelectAll, resultWithComplexExpressions, resultWithLibraryFunction,
+            resultWithObjectReferences;
 
     @BeforeClass
     public void setup() {
@@ -46,6 +49,9 @@ public class BallerinaStreamsV2SelectorTest {
                 "test-src/streamingv2-select-with-mathematical-and-logical-operators-test.bal");
         resultWithLibraryFunction = BCompileUtil.compile(
                 "test-src/streamingv2-select-with-library-function-test.bal");
+        resultWithObjectReferences = BCompileUtil.compile(
+                "test-src/streamingv2-select-with-object-reference-test.bal");
+
     }
 
     @Test(description = "Test streaming selector query")
@@ -142,4 +148,37 @@ public class BallerinaStreamsV2SelectorTest {
 
     }
 
+    @Test(description = "Test filter streaming query with object references")
+    public void testSelectQueryWithObjectReferences() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithObjectReferences, "startSelectQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        //timestamp may get varied, hence a delta is introduced
+        Date currTime = new Date();
+        int delta = 10000;
+        long lowerBound = currTime.getTime() - delta;
+        long upperBound = currTime.getTime() + delta;
+
+        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("marksOfStudent")).intValue(), 45);
+        long eventTime0  = ((BInteger) employee0.get("currTime")).intValue();
+        Assert.assertEquals(lowerBound < eventTime0 && eventTime0 < upperBound, true);
+
+        Assert.assertEquals(employee1.get("name").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("marksOfStudent")).intValue(), 45);
+        long eventTime1  = ((BInteger) employee1.get("currTime")).intValue();
+        Assert.assertEquals(lowerBound < eventTime1 && eventTime1 < upperBound, true);
+
+        Assert.assertEquals(employee2.get("name").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("marksOfStudent")).intValue(), 45);
+        long eventTime2  = ((BInteger) employee2.get("currTime")).intValue();
+        Assert.assertEquals(lowerBound < eventTime2 && eventTime2 < upperBound, true);
+
+    }
 }
