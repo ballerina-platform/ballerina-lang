@@ -28,9 +28,8 @@ import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Hover;
-import org.eclipse.lsp4j.MarkedString;
+import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -177,10 +176,7 @@ public class HoverUtil {
                             hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY));
             hover = getHoverInformation(packageSymbol, hoverContext);
         } else {
-            hover = new Hover();
-            List<Either<String, MarkedString>> contents = new ArrayList<>();
-            contents.add(Either.forLeft(""));
-            hover.setContents(contents);
+            hover = getDefaultHoverObject();
         }
         return hover;
     }
@@ -224,7 +220,8 @@ public class HoverUtil {
      * @return {@link Hover}    hover object.
      */
     private static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, LSContext context) {
-        Hover hover = new Hover();
+        MarkupContent hoverMarkupContent = new MarkupContent();
+        hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
         StringBuilder content = new StringBuilder();
         Map<String, List<MarkdownDocAttachment.Parameter>> filterAttributes =
                 filterDocumentationAttributes(docAttachment, context);
@@ -249,11 +246,9 @@ public class HoverUtil {
                     getReturnValueDescription(docAttachment.returnValueDescription)));
         }
 
-        List<Either<String, MarkedString>> contents = new ArrayList<>();
-        contents.add(Either.forLeft(content.toString()));
-        hover.setContents(contents);
+        hoverMarkupContent.setValue(content.toString());
 
-        return hover;
+        return new Hover(hoverMarkupContent);
     }
 
     /**
@@ -298,9 +293,10 @@ public class HoverUtil {
      */
     private static Hover getDefaultHoverObject() {
         Hover hover = new Hover();
-        List<Either<String, MarkedString>> contents = new ArrayList<>();
-        contents.add(Either.forLeft(""));
-        hover.setContents(contents);
+        MarkupContent hoverMarkupContent = new MarkupContent();
+        hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+        hoverMarkupContent.setValue("");
+        hover.setContents(hoverMarkupContent);
 
         return hover;
     }

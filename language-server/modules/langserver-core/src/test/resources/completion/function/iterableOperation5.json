@@ -9,7 +9,9 @@
       "label":"remove(string key)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Removes each element that matches the given key.\n",
+      "documentation":{
+        "left":"Removes each element that matches the given key.\n"
+      },
       "sortText":"121",
       "insertText":"remove(${1:key})",
       "insertTextFormat":"Snippet"
@@ -18,7 +20,9 @@
       "label":"toString()(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Converts a JSON object to a string representation.\n",
+      "documentation":{
+        "left":"Converts a JSON object to a string representation.\n"
+      },
       "sortText":"121",
       "insertText":"toString()",
       "insertTextFormat":"Snippet"
@@ -27,7 +31,9 @@
       "label":"getKeys()(string[])",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns an array of keys contained in the specified JSON.\n",
+      "documentation":{
+        "left":"Returns an array of keys contained in the specified JSON.\n"
+      },
       "sortText":"121",
       "insertText":"getKeys()",
       "insertTextFormat":"Snippet"
@@ -36,7 +42,9 @@
       "label":"toXML($anonType$builtin$0 options)(xml|error)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Converts a JSON object to a XML representation.\n",
+      "documentation":{
+        "left":"Converts a JSON object to a XML representation.\n"
+      },
       "sortText":"121",
       "insertText":"toXML(${1:options})",
       "insertTextFormat":"Snippet"

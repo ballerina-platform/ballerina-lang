@@ -104,3 +104,41 @@ function test11() {
          return s == null;
     });
 }
+
+function testVarInLHS() {
+    int[] numbers = [-5, -3, 2, 7, 12];
+    var filtered = numbers.filter(function (int i) returns boolean {
+            return i >= 0;
+        });
+    float avg = filtered.average();
+}
+
+function testVarInLHS2() {
+    int[] numbers = [-5, -3, 2, 7, 12];
+    var mapped = numbers.map(function(int value) returns float {
+            return float.convert(value);
+        }).filter(function (float value) returns boolean {
+            return value > 0;
+        }).map(function (float value) returns (string, float) {
+            return (string.convert(value), value);
+        });
+}
+
+function testIndexBasedAccess() {
+    int[] numbers = [-5, -3, 2, 7, 12];
+    var x = numbers.filter(function (int i) returns boolean {
+            return i >= 0;
+        })[0];
+}
+
+int[] globalNumbers = [-5, -3, 2, 7, 12];
+
+function testAnydataInLHS() {
+    anydata mapped = globalNumbers.map(function(int value) returns float {
+               return float.convert(value);
+           }).filter(function (float value) returns boolean {
+               return value > 0;
+           }).map(function (float value) returns (string, float) {
+               return (string.convert(value), value);
+           });
+}
