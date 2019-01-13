@@ -6,7 +6,7 @@ listener http:MockListener echoEP  = new(9090);
 @http:ServiceConfig {basePath:"/globalvar"}
 service GlobalVar on echoEP {
 
-    string serviceVarFloat = <string> foo:glbVarFloat;
+    string serviceVarFloat = string.convert(foo:glbVarFloat);
 
     @http:ResourceConfig {
         methods:["GET"],

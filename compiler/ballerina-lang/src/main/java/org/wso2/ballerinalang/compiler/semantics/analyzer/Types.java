@@ -188,7 +188,8 @@ public class Types {
     }
 
     public boolean isExactlyOneBasicNumericType(BType type) {
-        return type.tag == TypeTags.INT || type.tag == TypeTags.FLOAT || type.tag == TypeTags.DECIMAL;
+        return type.tag == TypeTags.INT || type.tag == TypeTags.FLOAT || type.tag == TypeTags.DECIMAL ||
+                type.tag == TypeTags.BYTE;
     }
 
     public boolean isAnydata(BType type) {

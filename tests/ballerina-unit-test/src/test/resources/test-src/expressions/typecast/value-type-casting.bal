@@ -6,13 +6,13 @@ function intToFloat (int value) returns (float) {
 
 function intToString (int value) returns (string) {
     string result;
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 
 function intToBoolean (int value) returns (boolean) {
     boolean result;
-    result = <boolean>value;
+    result = boolean.convert(value);
     return result;
 }
 
@@ -30,13 +30,13 @@ function floatToInt (float value) returns (int) {
 
 function floatToString(float value) returns (string) {
     string result;
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 
 function floatToBoolean (float value) returns (boolean) {
     boolean result;
-    result = <boolean>value;
+    result = boolean.convert(value);
     return result;
 }
 
@@ -72,19 +72,19 @@ function stringToAny(string value) returns (any) {
 
 function booleanToInt(boolean value) returns (int) {
     int result;
-    result = <int>value;
+    result = int.convert(value);
     return result;
 }
 
 function booleanToFloat(boolean value) returns (float) {
     float result;
-    result = <float>value;
+    result = float.convert(value);
     return result;
 }
 
 function booleanToString(boolean value) returns (string) {
     string result;
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 

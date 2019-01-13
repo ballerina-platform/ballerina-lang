@@ -54,15 +54,15 @@ function trim(string s) returns (string) {
 }
 
 function intValueOf(int i) returns (string) {
-    return <string>(i);
+    return string.convert(i);
 }
 
 function floatValueOf(float f) returns (string) {
-    return <string>(f);
+    return string.convert(f);
 }
 
 function booleanValueOf(boolean b) returns (string) {
-    return <string>(b);
+    return string.convert(b);
 }
 
 function stringValueOf(string s) returns (string) {

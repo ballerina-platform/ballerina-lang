@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.expressions.explicitlytyped;
+package org.ballerinalang.test.expressions.typecast;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -45,7 +45,7 @@ import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
  *
  * @since 0.985.0
  */
-public class ExplicitlyTypedExpressionsTest {
+public class NumericConversionTest {
 
     private CompileResult result;
     private CompileResult resultNegative;
@@ -308,8 +308,8 @@ public class ExplicitlyTypedExpressionsTest {
                       47, 17);
         validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be explicitly typed as 'boolean'",
                       48, 18);
-        validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be explicitly typed as 'string'",
-                      50, 17);
+        validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be explicitly typed as " +
+                              "'string'", 50, 17);
         validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be explicitly typed as " +
                               "'boolean'", 51, 18);
         validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be explicitly typed as 'int'",

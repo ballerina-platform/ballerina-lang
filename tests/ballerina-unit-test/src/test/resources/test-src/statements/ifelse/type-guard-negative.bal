@@ -20,7 +20,7 @@ function testValueTypeInUnion() returns string {
     int|string x = 5;
     if (!(x is int)) {
         int y = x;
-        return "int: " + <string> y;
+        return "int: " + string.convert(y);
     } else {
         string s = x;
         return s;
@@ -60,7 +60,7 @@ function testTypeGuardsWithAnd() returns string {
     int|string x = 5;
     if (x is int && x > 4) {
         int y = x;
-        return "x is greater than 4: " + <string> y;
+        return "x is greater than 4: " + string.convert(y);
     } else {
         string s = x;
         return s;
@@ -79,14 +79,14 @@ function testTypeGuardInElse() returns string {
     int|string x = 5;
     if (x is int) {
         int y = x;
-        return "int: " + <string> y;
+        return "int: " + string.convert(y);
     } else {
         if (x is string) {
             return "string: " + x;
         }
 
         if (x is int) {
-            return "string: " + <string> x;
+            return "string: " + string.convert(x);
         }
     }
 

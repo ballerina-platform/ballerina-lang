@@ -20,8 +20,8 @@ function testDecimalToOtherTypesConversion() returns (int, float, string, boolea
 
     int i = <int> d;
     float f = <float> d;
-    string s = <string> d;
-    boolean b = <boolean> d;
+    string s = string.convert(d);
+    boolean b = boolean.convert(d);
     any a = d;
     json j = d;
 
@@ -40,7 +40,7 @@ function testOtherTypesToDecimalConversion() returns (decimal, decimal, decimal,
     decimal d3 = check decimal.convert(s);
 
     boolean b = true;
-    decimal d4 = <decimal> b;
+    decimal d4 = decimal.convert(b);
 
     any a = 12.3;
     decimal d5 = check decimal.convert(a);

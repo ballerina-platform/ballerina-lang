@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.expressions.typeassertion;
+package org.ballerinalang.test.expressions.typecast;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -37,7 +37,7 @@ import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
  *
  * @since 0.985.0
  */
-public class TypeAssertionExpressionsTest {
+public class TypeCastExpressionsTest {
 
     private CompileResult result;
     private CompileResult resultNegative;
