@@ -359,7 +359,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
     @Override
     public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-        
         BVM.TypeValuePair typeValuePair = new BVM.TypeValuePair(this, type);
         if (unresolvedValues.contains(typeValuePair)) {
             throw new BallerinaException(BallerinaErrorReasons.CYCLIC_VALUE_REFERENCE_ERROR,

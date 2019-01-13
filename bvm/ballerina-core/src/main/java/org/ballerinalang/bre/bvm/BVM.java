@@ -4984,7 +4984,6 @@ public class BVM {
             return true;
         }
         unresolvedValues.add(typeValuePair);
-
         Map<String, BType> targetTypeField = new HashMap<>();
         BType restFieldType = targetType.restFieldType;
 
@@ -5523,9 +5522,9 @@ public class BVM {
     }
 
     /**
-     * Type vector of size two, to hold the source value and the target types.
+     * Type vector of size two, to hold the source value and the target type.
      *
-     * @since 0.991.0
+     * @since 0.990.3
      */
     public static class TypeValuePair {
         BValue sourceValue;
@@ -5541,7 +5540,6 @@ public class BVM {
             if (!(obj instanceof TypeValuePair)) {
                 return false;
             }
-
             TypeValuePair other = (TypeValuePair) obj;
             return this.sourceValue.equals(other.sourceValue) && this.targetType.equals(other.targetType);
         }

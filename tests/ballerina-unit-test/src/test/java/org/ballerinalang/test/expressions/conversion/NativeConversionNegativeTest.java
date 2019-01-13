@@ -142,34 +142,28 @@ public class NativeConversionNegativeTest {
         Assert.assertEquals(errorMsg, "'string' cannot be converted to 'int'");
     }
 
-    @Test(description = "Test converting runtime value which has cyclic reference to its own value. This will be "
-            + "handled in isLikeType method")
+    @Test(description = "Test converting record to record which has cyclic reference to its own value.")
     public void testConvertRecordToRecordWithCyclicValueReferences() {
         BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToRecordWithCyclicValueReferences");
         BValue error = results[0];
-
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
                             "'Manager' value has cyclic value reference");
     }
 
-    @Test(description = "Test converting to map when value has cyclic reference. This will be handled when converting "
-            + "the value.")
+    @Test(description = "Test converting record to map having cyclic reference.")
     public void testConvertRecordToMapWithCyclicValueReferences() {
         BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToMapWithCyclicValueReferences");
         BValue error = results[0];
-
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
                             "'Manager' value has cyclic value reference");
     }
 
-    @Test(description = "Test converting to json when value has cyclic reference. This will be handled in isLikeType "
-            + "method")
+    @Test(description = "Test converting record to json having cyclic reference.")
     public void testConvertRecordToJsonWithCyclicValueReferences() {
         BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToJsonWithCyclicValueReferences");
         BValue error = results[0];
-
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
                             "'Manager' value has cyclic value reference");
