@@ -119,8 +119,8 @@ public type MergeSort object {
         int lim = len1 < len2 ? len1 : len2;
         int k = 0;
         while (k < lim) {
-            int c1 = <int>v1[k];
-            int c2 = <int>v2[k];
+            int c1 = int.convert(v1[k]);
+            int c2 = int.convert(v2[k]);
             if (c1 != c2) {
                 return c1 - c2;
             }

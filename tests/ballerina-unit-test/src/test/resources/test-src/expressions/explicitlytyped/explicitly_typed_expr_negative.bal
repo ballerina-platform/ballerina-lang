@@ -34,6 +34,49 @@ function testInvalidExplicitTypeFromString() {
     boolean bl2 = <boolean> s2;
 }
 
+function testInvalidCastFromBasicTypeToBasicType() {
+    int i = 1;
+    string s = "test string";
+    float f = 1.0;
+    boolean b = true;
+    decimal d = 10.0;
+
+    string s1 = <string> i;
+    boolean b1 = <boolean> i;
+
+    string s2 = <string> f;
+    boolean b2 = <boolean> f;
+
+    string s3 = <string> d;
+    boolean b3 = <boolean> d;
+
+    int ci1 = <int> b;
+    string cs1 = <string> b;
+    float cf1 = <float> b;
+    decimal cd1 = <decimal> b;
+
+    int ci2 = <int> s;
+    boolean cb1 = <boolean> s;
+    float cf2 = <float> s;
+    decimal cd2 = <decimal> s;
+}
+
+function testInvalidCastToUnionWithBasicType() {
+    float f = 1.0;
+    int|decimal cid1 = <int|decimal> f;
+
+    int i = 2;
+    string|decimal csd1 = <string|decimal> i;
+}
+
+function testInvalidCastFromUnionWithBasicType() {
+    int|boolean u1 = 1;
+    float f1 = <float> u1;
+
+    float|decimal|string u2 = <float> 1.0;
+    int i1 = <int> u2;
+}
+
 function getString(string s) returns string {
     return s;
 }

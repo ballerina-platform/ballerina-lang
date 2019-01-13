@@ -560,17 +560,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(Names.ASSERTION_OP, null, opType, null, InstructionCodes.TYPE_ASSERTION);
     }
 
-    BSymbol getExplicitlyTypedExpressionSymbol(BType sourceType, BType targetType) {
+    BSymbol getNumericConversionOrCastSymbol(BType sourceType, BType targetType) {
         int sourceTypeTag = sourceType.tag;
-        if (types.isValueType(sourceType)) {
+        if (types.isExactlyOneBasicNumericType(sourceType)) {
             if (sourceType == targetType) {
                 return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType, false, true, 
                                                         InstructionCodes.NOP, null, null);
             }
-
-            if (!(sourceTypeTag == TypeTags.STRING && targetType.tag != TypeTags.STRING)) {
-                return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
-            }
+            return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         } else {
             switch (sourceTypeTag) {
                 case TypeTags.ANY:
@@ -579,8 +576,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return createTypeAssertionSymbol(sourceType, targetType);
                 case TypeTags.UNION:
                     if (((BUnionType) sourceType).memberTypes.stream()
-                            .anyMatch(memType -> getExplicitlyTypedExpressionSymbol(
-                                    memType, targetType) != symTable.notFoundSymbol)) {
+                            .anyMatch(memType -> types.isAssignable(memType, targetType))) {
                         return createTypeAssertionSymbol(sourceType, targetType);
                     }
             }

@@ -187,6 +187,10 @@ public class Types {
         return type.tag < TypeTags.JSON;
     }
 
+    public boolean isExactlyOneBasicNumericType(BType type) {
+        return type.tag == TypeTags.INT || type.tag == TypeTags.FLOAT || type.tag == TypeTags.DECIMAL;
+    }
+
     public boolean isAnydata(BType type) {
         return isAnydata(type, new HashSet<>());
     }
@@ -896,12 +900,13 @@ public class Types {
     }
 
     BSymbol getTypeAssertionOperator(BType sourceType, BType targetType) {
-        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR) {
+        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
+                sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
-        if (isValueType(targetType)) {
-            return symResolver.getExplicitlyTypedExpressionSymbol(sourceType, targetType);
+        if (isExactlyOneBasicNumericType(targetType)) {
+            return symResolver.getNumericConversionOrCastSymbol(sourceType, targetType);
         } else if (isAssignable(targetType, sourceType) || isAssignable(sourceType, targetType)) {
             return symResolver.createTypeAssertionSymbol(sourceType, targetType);
         }

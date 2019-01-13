@@ -65,17 +65,6 @@ public class ExplicitlyTypedExpressionsTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected strings to be the same");
     }
 
-    @Test(dataProvider = "floatAsStringTests")
-    public void testFloatAsString(String functionName, double d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BFloat(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected strings to be the same");
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), (new BFloat(d)).stringValue(), "incorrect string " +
-                "representation as float");
-    }
-
     @Test(dataProvider = "floatAsFloatTests")
     public void testFloatAsFloat(String functionName, double d) {
         BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BFloat(d)});
@@ -110,27 +99,6 @@ public class ExplicitlyTypedExpressionsTest {
                 " float representation as int");
     }
 
-    @Test(dataProvider = "floatAsBooleanTests")
-    public void testFloatAsBoolean(String functionName) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected floats to be represented as true");
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "expected floats to be represented as false");
-    }
-
-    @Test(dataProvider = "decimalAsStringTests")
-    public void testDecimalAsString(String functionName, BigDecimal d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BDecimal(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected strings to be the same");
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), (new BDecimal(d)).stringValue(), "incorrect decimal " +
-                "representation as string");
-    }
-
     @Test(dataProvider = "decimalAsFloatTests")
     public void testDecimalAsFloat(String functionName, BigDecimal d) {
         BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BDecimal(d)});
@@ -163,16 +131,6 @@ public class ExplicitlyTypedExpressionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(),
                             Math.round((new BDecimal(d)).decimalValue().doubleValue()),
                             "incorrect decimal representation as int");
-    }
-
-    @Test(dataProvider = "decimalAsBooleanTests")
-    public void testDecimalAsBoolean(String functionName) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected decimals to be represented as true");
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "expected decimals to be represented as false");
     }
 
     @Test(dataProvider = "intAsStringTests")
@@ -220,30 +178,6 @@ public class ExplicitlyTypedExpressionsTest {
                 "representation as int");
     }
 
-    @Test(dataProvider = "intAsBooleanTests")
-    public void testIntAsBoolean(String functionName) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be represented as true");
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "expected ints to be represented as false");
-    }
-
-    @Test
-    public void testBooleanAsString() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanAsString", new BValue[0]);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "true", "invalid boolean representation as string");
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), "true", "invalid boolean representation as string");
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertEquals(returns[2].stringValue(), "false", "invalid boolean representation as string");
-        Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(returns[3].stringValue(), "false", "invalid boolean representation as string");
-    }
-
     @Test
     public void testBooleanInUnionAsString() {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanInUnionAsString", new BValue[0]);
@@ -252,80 +186,6 @@ public class ExplicitlyTypedExpressionsTest {
         Assert.assertEquals(returns[0].stringValue(), "true", "invalid boolean representation as string");
         Assert.assertSame(returns[1].getClass(), BString.class);
         Assert.assertEquals(returns[1].stringValue(), "false", "invalid boolean representation as string");
-    }
-
-    @Test
-    public void testBooleanAsFloat() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanAsFloat", new BValue[0]);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.0, "invalid boolean representation as float");
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1.0, "invalid boolean representation as float");
-        Assert.assertSame(returns[2].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0, "invalid boolean representation as float");
-        Assert.assertSame(returns[3].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 0.0, "invalid boolean representation as float");
-    }
-
-    @Test
-    public void testBooleanInUnionAsFloat() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanInUnionAsFloat", new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.0, "invalid boolean representation as float");
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 0.0, "invalid boolean representation as float");
-    }
-
-    @Test
-    public void testBooleanAsDecimal() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanAsDecimal", new BValue[0]);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[0]).decimalValue(),
-                            BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN),
-                            "invalid boolean representation as decimal");
-        Assert.assertSame(returns[1].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[1]).decimalValue(),
-                            BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN),
-                            "invalid boolean representation as decimal");
-        Assert.assertSame(returns[2].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[2]).decimalValue(),
-                            BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN),
-                            "invalid boolean representation as decimal");
-        Assert.assertSame(returns[3].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[3]).decimalValue(),
-                            BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN),
-                            "invalid boolean representation as decimal");
-    }
-
-    @Test
-    public void testBooleanInUnionAsDecimal() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanInUnionAsDecimal", new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[0]).decimalValue(),
-                            BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN),
-                            "invalid boolean representation as decimal");
-        Assert.assertSame(returns[1].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[1]).decimalValue(),
-                            BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN),
-                            "invalid boolean representation as decimal");
-    }
-
-    @Test
-    public void testBooleanAsInt() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanAsInt", new BValue[0]);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1, "invalid boolean representation as int");
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1, "invalid boolean representation as int");
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0, "invalid boolean representation as int");
-        Assert.assertSame(returns[3].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 0, "invalid boolean representation as int");
     }
 
     @Test
@@ -414,7 +274,7 @@ public class ExplicitlyTypedExpressionsTest {
 
     @Test
     public void testNegativeExprs() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 28);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
                       21, 16);
@@ -438,8 +298,44 @@ public class ExplicitlyTypedExpressionsTest {
 
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
                               "'boolean'", 33, 19);
-        validateError(resultNegative, errIndex, "incompatible types: 'string' cannot be explicitly typed as 'boolean'",
-                      34, 19);
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+                              "'boolean'", 34, 19);
+        validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be explicitly typed as 'string'",
+                      44, 17);
+        validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be explicitly typed as 'boolean'",
+                      45, 18);
+        validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be explicitly typed as 'string'",
+                      47, 17);
+        validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be explicitly typed as 'boolean'",
+                      48, 18);
+        validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be explicitly typed as 'string'",
+                      50, 17);
+        validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be explicitly typed as " +
+                              "'boolean'", 51, 18);
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be explicitly typed as 'int'",
+                      53, 15);
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be explicitly typed as " +
+                              "'string'", 54, 18);
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be explicitly typed as " +
+                              "'float'", 55, 17);
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be explicitly typed as " +
+                              "'decimal'", 56, 19);
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'int'",
+                      58, 15);
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+                              "'boolean'", 59, 19);
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
+                      60, 17);
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+                              "'decimal'", 61, 19);
+        validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be explicitly typed as " +
+                              "'int|decimal'", 66, 24);
+        validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be explicitly typed as " +
+                              "'string|decimal'", 69, 27);
+        validateError(resultNegative, errIndex++, "incompatible types: 'int|boolean' cannot be explicitly typed as " +
+                              "'float'", 74, 16);
+        validateError(resultNegative, errIndex, "incompatible types: 'float|decimal|string' cannot be explicitly " +
+                              "typed as 'int'", 77, 14);
     }
 
     @DataProvider
@@ -454,12 +350,6 @@ public class ExplicitlyTypedExpressionsTest {
     }
 
     @DataProvider
-    public Object[][] floatAsStringTests() {
-        String[] floatAsTestFunctions = new String[]{"testFloatAsString", "testFloatInUnionAsString"};
-        return getFunctionAndArgArraysForFloat(floatAsTestFunctions);
-    }
-
-    @DataProvider
     public Object[][] floatAsFloatTests() {
         String[] floatAsTestFunctions = new String[]{"testFloatAsFloat", "testFloatInUnionAsFloat"};
         return getFunctionAndArgArraysForFloat(floatAsTestFunctions);
@@ -467,22 +357,14 @@ public class ExplicitlyTypedExpressionsTest {
 
     @DataProvider
     public Object[][] floatAsDecimalTests() {
-        String[] floatAsTestFunctions = new String[]{"testFloatAsDecimal", "testFloatInUnionAsDecimal"};
+        String[] floatAsTestFunctions = new String[]{"testFloatAsDecimal"};
         return getFunctionAndArgArraysForFloat(floatAsTestFunctions);
     }
 
     @DataProvider
     public Object[][] floatAsIntTests() {
-        String[] floatAsTestFunctions = new String[]{"testFloatAsInt", "testFloatInUnionAsInt"};
+        String[] floatAsTestFunctions = new String[]{"testFloatAsInt"};
         return getFunctionAndArgArraysForFloat(floatAsTestFunctions);
-    }
-
-    @DataProvider
-    public Object[][] floatAsBooleanTests() {
-        return new Object[][]{
-                {"testFloatAsBoolean"},
-                {"testFloatInUnionAsBoolean"}
-        };
     }
 
     private Object[][] getFunctionAndArgArraysForFloat(String[] floatAsTestFunctions) {
@@ -499,14 +381,8 @@ public class ExplicitlyTypedExpressionsTest {
     }
 
     @DataProvider
-    public Object[][] decimalAsStringTests() {
-        String[] decimalAsTestFunctions = new String[]{"testDecimalAsString", "testDecimalInUnionAsString"};
-        return getFunctionAndArgArraysForDecimal(decimalAsTestFunctions);
-    }
-
-    @DataProvider
     public Object[][] decimalAsFloatTests() {
-        String[] decimalAsTestFunctions = new String[]{"testDecimalAsFloat", "testDecimalInUnionAsFloat"};
+        String[] decimalAsTestFunctions = new String[]{"testDecimalAsFloat"};
         return getFunctionAndArgArraysForDecimal(decimalAsTestFunctions);
     }
 
@@ -518,16 +394,8 @@ public class ExplicitlyTypedExpressionsTest {
 
     @DataProvider
     public Object[][] decimalAsIntTests() {
-        String[] decimalAsTestFunctions = new String[]{"testDecimalAsInt", "testDecimalInUnionAsInt"};
+        String[] decimalAsTestFunctions = new String[]{"testDecimalAsInt"};
         return getFunctionAndArgArraysForDecimal(decimalAsTestFunctions);
-    }
-
-    @DataProvider
-    public Object[][] decimalAsBooleanTests() {
-        return new Object[][]{
-                {"testDecimalAsBoolean"},
-                {"testDecimalInUnionAsBoolean"}
-        };
     }
 
     private Object[][] getFunctionAndArgArraysForDecimal(String[] decimalAsTestFunctions) {
@@ -549,19 +417,19 @@ public class ExplicitlyTypedExpressionsTest {
 
     @DataProvider
     public Object[][] intAsStringTests() {
-        String[] intAsTestFunctions = new String[]{"testIntAsString", "testIntInUnionAsString"};
+        String[] intAsTestFunctions = new String[]{"testIntInUnionAsString"};
         return getFunctionAndArgArraysForInt(intAsTestFunctions);
     }
 
     @DataProvider
     public Object[][] intAsFloatTests() {
-        String[] intAsTestFunctions = new String[]{"testIntAsFloat", "testIntInUnionAsFloat"};
+        String[] intAsTestFunctions = new String[]{"testIntAsFloat"};
         return getFunctionAndArgArraysForInt(intAsTestFunctions);
     }
 
     @DataProvider
     public Object[][] intAsDecimalTests() {
-        String[] asIntTestFunctions = new String[]{"testIntAsDecimal", "testIntInUnionAsDecimal"};
+        String[] asIntTestFunctions = new String[]{"testIntAsDecimal"};
         return getFunctionAndArgArraysForInt(asIntTestFunctions);
     }
 
@@ -569,14 +437,6 @@ public class ExplicitlyTypedExpressionsTest {
     public Object[][] intAsIntTests() {
         String[] intAsTestFunctions = new String[]{"testIntAsInt", "testIntInUnionAsInt"};
         return getFunctionAndArgArraysForInt(intAsTestFunctions);
-    }
-
-    @DataProvider
-    public Object[][] intAsBooleanTests() {
-        return new Object[][]{
-                {"testIntAsBoolean"},
-                {"testIntInUnionAsBoolean"}
-        };
     }
 
     private Object[][] getFunctionAndArgArraysForInt(String[] intAsTestFunctions) {
@@ -602,8 +462,7 @@ public class ExplicitlyTypedExpressionsTest {
     @DataProvider
     public Object[][] infiniteFloatAsIntTests() {
         return new Object[][]{
-                {"testInfiniteFloatAsInt"},
-                {"testInfiniteInUnionFloatAsInt"}
+                {"testInfiniteFloatAsInt"}
         };
     }
 

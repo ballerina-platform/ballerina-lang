@@ -125,7 +125,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     }
 
     http:Response res = new;
-    string statusCode = <string> httpResponse.statusCode;
+    string statusCode = string.convert(httpResponse.statusCode);
     if (statusCode.hasPrefix("5")) {
         return createError("remote registry failed for url :" + url);
     } else if (statusCode != "200") {

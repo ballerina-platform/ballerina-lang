@@ -523,7 +523,7 @@ function testFunctionAssertionNegativeHelper() returns string|int {
 }
 
 function testFunc(string s, int i) returns string {
-    return <string> i + s;
+    return string.convert(i) + s;
 }
 
 function testFutureFunc() returns int {
