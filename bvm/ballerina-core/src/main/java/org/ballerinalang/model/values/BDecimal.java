@@ -42,8 +42,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
     public static final BDecimal NEGATIVE_INF =
             new BDecimal("-9.999999999999999999999999999999999E6144", DecimalValueKind.NEGATIVE_INFINITY);
 
-    public static final BDecimal NaN =
-            new BDecimal(POSITIVE_INF.add(NEGATIVE_INF).stringValue(), DecimalValueKind.NOT_A_NUMBER);
+    public static final BDecimal NaN = new BDecimal("-1", DecimalValueKind.NOT_A_NUMBER);
 
     // Variable used to track the kind of a decimal value.
     public DecimalValueKind valueKind = DecimalValueKind.OTHER;
@@ -69,9 +68,10 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public long intValue() {
-        if (!BVM.isDecimalWithinIntRange(value)) {
+        if (!BVM.isDecimalWithinIntRange(value) || this.valueKind == DecimalValueKind.NOT_A_NUMBER) {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                         "out of range 'decimal' value '" + value + "' cannot be converted to 'int'");
+                                         "out of range 'decimal' value '" + this.stringValue() +
+                                                 "' cannot be converted to 'int'");
         }
         return Math.round(value.doubleValue());
     }
@@ -83,6 +83,9 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public double floatValue() {
+        if (this.valueKind == DecimalValueKind.NOT_A_NUMBER) {
+            return Double.NaN;
+        }
         return value.doubleValue();
     }
 
@@ -98,6 +101,18 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public String stringValue() {
+        if (this.valueKind == DecimalValueKind.POSITIVE_INFINITY) {
+            return "Infinity";
+        }
+        if (this.valueKind == DecimalValueKind.NEGATIVE_INFINITY) {
+            return "-Infinity";
+        }
+        if (this.valueKind == DecimalValueKind.NOT_A_NUMBER) {
+            return "NaN";
+        }
+        if (this.valueKind == DecimalValueKind.ZERO) {
+            return "0.0";
+        }
         return value.toString();
     }
 
