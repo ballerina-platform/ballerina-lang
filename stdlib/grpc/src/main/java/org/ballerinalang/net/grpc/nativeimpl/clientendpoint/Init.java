@@ -20,35 +20,21 @@ package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.MessageUtils;
-import org.ballerinalang.net.http.HttpConnectionManager;
-import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
-import org.wso2.transport.http.netty.message.HttpConnectorUtil;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_EP_ENDPOINT_TIMEOUT;
-import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET;
 import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_URL;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.http.HttpUtil.getHttpClientConnector;
 
 /**
  * Extern function for initializing gRPC client endpoint.
@@ -65,8 +51,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 )
 public class Init extends BlockingNativeCallableUnit {
 
-    private HttpWsConnectorFactory httpConnectorFactory = MessageUtils.createHttpWsConnectionFactory();
-
     @Override
     public void execute(Context context) {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
@@ -74,54 +58,10 @@ public class Init extends BlockingNativeCallableUnit {
         BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
         String urlString = context.getStringArgument(0);
-        HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
-        URL url;
-        try {
-            url = new URL(urlString);
-        } catch (MalformedURLException e) {
-            throw new BallerinaConnectorException("Malformed URL: " + urlString);
-        }
-
-        String scheme = url.getProtocol();
-        Map<String, Object> properties =
-                HttpConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
-        SenderConfiguration senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
-
-        if (connectionManager.isHTTPTraceLoggerEnabled()) {
-            senderConfiguration.setHttpTraceLogEnabled(true);
-        }
-        senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
-
-        senderConfiguration = populateSenderConfigurationOptions(endpointConfig, scheme);
-        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
-        senderConfiguration.setForceHttp2(true);
-        HttpClientConnector clientConnector = httpConnectorFactory.createHttpClientConnector(properties,
-                senderConfiguration);
+        HttpClientConnector clientConnector = getHttpClientConnector(endpointConfig, urlString);
 
         clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
         clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
 
-    }
-
-    private SenderConfiguration populateSenderConfigurationOptions(Struct clientEndpointConfig, String scheme) {
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setScheme(scheme);
-        Struct secureSocket = clientEndpointConfig.getStructField(ENDPOINT_CONFIG_SECURE_SOCKET);
-        if (secureSocket != null) {
-            HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
-        } else {
-            HttpUtil.setDefaultTrustStore(senderConfiguration);
-        }
-        long timeoutMillis = clientEndpointConfig.getIntField(CLIENT_EP_ENDPOINT_TIMEOUT);
-        if (timeoutMillis < 0 || !isInteger(timeoutMillis)) {
-            throw new BallerinaConnectorException("invalid idle timeout: " + timeoutMillis);
-        }
-        senderConfiguration.setSocketIdleTimeout((int) timeoutMillis);
-        return senderConfiguration;
-    }
-
-    private boolean isInteger(long val) {
-        return (int) val == val;
     }
 }
