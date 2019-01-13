@@ -188,6 +188,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -248,7 +249,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      */
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.uninitializedVars = new HashMap<>();
-        this.globalNodeDependsOn = new HashMap<>();
+        this.globalNodeDependsOn = new LinkedHashMap<>();
         this.globalVarSymbols = new HashSet<>();
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
