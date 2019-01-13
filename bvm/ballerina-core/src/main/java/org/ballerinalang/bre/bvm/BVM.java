@@ -45,6 +45,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.DecimalValueKind;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.ListUtils;
@@ -2770,10 +2771,11 @@ public class BVM {
             case InstructionCodes.D2I:
                 i = operands[0];
                 j = operands[1];
-                if (!isDecimalWithinIntRange(((BDecimal) sf.refRegs[i]).decimalValue())) {
+                BDecimal decimal = (BDecimal) sf.refRegs[i];
+                if (decimal.valueKind == DecimalValueKind.NOT_A_NUMBER ||
+                        !isDecimalWithinIntRange((decimal.decimalValue()))) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                           "out of range 'decimal' value '" + sf.refRegs[i] +
-                                                                   "' cannot be converted to 'int'"));
+                            "out of range 'decimal' value '" + decimal + "' cannot be converted to 'int'"));
                     handleError(ctx);
                     break;
                 }
@@ -2881,8 +2883,8 @@ public class BVM {
     }
 
     public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
-        return decimalValue.compareTo(BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) == -1 &&
-                decimalValue.compareTo(BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) == 1;
+        return decimalValue.compareTo(BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
+                decimalValue.compareTo(BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
     }
 
     private static void execIteratorOperation(Strand ctx, StackFrame sf, Instruction instruction) {

@@ -68,7 +68,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public long intValue() {
-        if (!BVM.isDecimalWithinIntRange(value) || this.valueKind == DecimalValueKind.NOT_A_NUMBER) {
+        if (this.valueKind == DecimalValueKind.NOT_A_NUMBER || !BVM.isDecimalWithinIntRange(value)) {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                                          "out of range 'decimal' value '" + this.stringValue() +
                                                  "' cannot be converted to 'int'");
@@ -339,7 +339,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
         }
 
         BDecimal bDecimal = (BDecimal) obj;
-        return (value.compareTo(bDecimal.value) == 0);
+        return ((value.compareTo(bDecimal.value) == 0) && (this.valueKind == bDecimal.valueKind));
     }
 
     @Override
