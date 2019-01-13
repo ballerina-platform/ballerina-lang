@@ -48,7 +48,7 @@ service failoverDemoService05 on failoverEP05 {
         path: "/index"
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
-        string startIndex = <string>foBackendEP05.succeededEndpointIndex;
+        string startIndex = string.convert(foBackendEP05.succeededEndpointIndex);
         var backendRes = foBackendEP05->forward("/", request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;

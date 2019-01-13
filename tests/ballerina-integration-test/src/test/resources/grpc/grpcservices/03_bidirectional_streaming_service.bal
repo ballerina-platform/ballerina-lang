@@ -61,7 +61,7 @@ service Chat on ep3 {
         grpc:Caller con = new;
         string msg = string `{{caller.getId()}} left the chat`;
         io:println(msg);
-        var v = self.consMap.remove(<string>caller.getId());
+        var v = self.consMap.remove(string.convert(caller.getId()));
         string[] conKeys = self.consMap.keys();
         int len = conKeys.length();
         int i = 0;
