@@ -19,16 +19,16 @@ public function main() {
     ret = testDB->update("CREATE TABLE SALARY (ID INTEGER, MON_SALARY FLOAT)");
     handleUpdate(ret, "Create SALARY table");
 
-    // Here is the transaction block. Any transacted action within the transaction block
+    // Here is the `transaction` block. Any transacted action within the `transaction` block
     // may return errors like backend DB errors, connection pool errors, etc. User can
-    // decide whether to abort or retry based on the error returned. If you do not
-    // explicitly abort or retry on a returned error, transaction will be automatically
+    // decide whether to `abort` or `retry` based on the error returned. If you do not
+    // explicitly `abort` or `retry` on a returned error, transaction will be automatically
     // retried until the retry count is reached and aborted.
     // The retry count that is given with `retries` is the number of times the transaction
     // is retried before aborting it. By default, a transaction is tried three times before
     // aborting. Only integer literals or constants are allowed for `retry count`.
     transaction with retries = 4 {
-    // This is the first remote function participant in the transaction.
+        // This is the first remote function participant in the transaction.
         var count = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
                                      VALUES (1, 'Anne')");
         // This is the second remote function participant in the transaction.

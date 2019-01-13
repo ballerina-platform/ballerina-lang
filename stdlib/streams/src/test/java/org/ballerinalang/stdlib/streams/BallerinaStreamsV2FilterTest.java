@@ -37,12 +37,15 @@ import org.testng.annotations.Test;
 public class BallerinaStreamsV2FilterTest {
 
     private CompileResult result;
+    private CompileResult resultWithComplexExpressions;
     private CompileResult resultWithAlias;
     private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streamingv2-filter-test.bal");
+        resultWithComplexExpressions = BCompileUtil.compile(
+                "test-src/streamingv2-filter-with-complex-expressions-test.bal");
         resultWithAlias = BCompileUtil.compile("test-src/alias/streamingv2-filter-test.bal");
         resultNegative =
                 BCompileUtil.compile("test-src/negative/streamingv2-filter-negative-test.bal");
@@ -62,6 +65,19 @@ public class BallerinaStreamsV2FilterTest {
         Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 45);
         Assert.assertEquals(employee1.get("name").stringValue(), "Shareek");
         Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 50);
+    }
+
+    @Test(description = "Test filter streaming query with complex expressions")
+    public void testFilterWithComplexExpressionsQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithComplexExpressions, "startFilterQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 1, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+
+        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 25);
     }
 
     @Test(description = "Test filter streaming query")

@@ -47,7 +47,7 @@ service multipartDemoService on new http:Listener(9090) {
                         getContentDispositionForFormData("json part"));
         jsonBodyPart.setJson({"name": "wso2"});
 
-        //Create an xml body part as a file upload.
+        //Create an `xml` body part as a file upload.
         mime:Entity xmlFilePart = new;
         xmlFilePart.setContentDisposition(
                        getContentDispositionForFormData("xml file part"));
@@ -64,7 +64,7 @@ service multipartDemoService on new http:Listener(9090) {
         // Set the body parts to the request.
         // Here the content-type is set as multipart form data.
         // This also works with any other multipart media type.
-        // eg:- multipart/mixed, multipart/related etc.
+        // eg:- `multipart/mixed`, `multipart/related` etc.
         // You need to pass the content type that suit your requirement.
         request.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
 
@@ -94,7 +94,7 @@ function handleContent(mime:Entity bodyPart) {
     if (mediaType is mime:MediaType) {
         string baseType = mediaType.getBaseType();
         if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
-            //Extracts xml data from the body part.
+            //Extracts `xml` data from the body part.
             var payload = bodyPart.getXml();
             if (payload is xml) {
                 log:printInfo(string.convert(payload));
@@ -103,7 +103,7 @@ function handleContent(mime:Entity bodyPart) {
             }
 
         } else if (mime:APPLICATION_JSON == baseType) {
-            //Extracts json data from the body part.
+            //Extracts `json` data from the body part.
             var payload = bodyPart.getJson();
             if (payload is json) {
                 log:printInfo(payload.toString());
