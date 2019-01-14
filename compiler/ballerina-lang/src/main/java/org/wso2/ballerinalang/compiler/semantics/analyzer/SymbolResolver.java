@@ -576,7 +576,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return createTypeAssertionSymbol(sourceType, targetType);
                 case TypeTags.UNION:
                     if (((BUnionType) sourceType).memberTypes.stream()
-                            .anyMatch(memType -> types.isAssignable(memType, targetType))) {
+                            .anyMatch(memType -> types.isAssignable(memType, targetType) ||
+                                    types.isAssignable(targetType, memType))) {
                         return createTypeAssertionSymbol(sourceType, targetType);
                     }
             }

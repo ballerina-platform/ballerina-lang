@@ -513,6 +513,22 @@ function testBroaderObjectAssertion() returns boolean {
     return e === p2 && p2.name == name;
 }
 
+function testCastToNumericType() returns boolean {
+    int i = 1;
+    anydata? j = i;
+    int k = <int> j;
+
+    decimal l = 10.0;
+    j = l;
+    decimal m = <decimal> j;
+
+    float n = 10.01;
+    j = n;
+    float o = <float> j;
+
+    return k == i && m == l && n == o;
+}
+
 function testAssertionPanicWithCheckTrap() returns string|int|error {
     return check trap testFunctionAssertionNegativeHelper();
 }

@@ -229,6 +229,7 @@ public class TypeCastExpressionsTest {
                 {"testMapElementAssertionPositive"},
                 {"testListElementAssertionPositive"},
                 {"testOutOfOrderUnionConstraintAssertionPositive"},
+                {"testCastToNumericType"},
                 {"testBroaderObjectAssertion"}
         };
     }
