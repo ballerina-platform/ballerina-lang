@@ -14,19 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
+import utils;
 
-// boolean-type-descriptor := boolean
-// boolean-literal := true | false
-@test:Config {}
-function testBoolean() {
-    boolean b1 = true;
-    boolean b2 = true;
-    boolean b3 = false;
-    boolean b4 = false;
-
-    test:assertTrue(b1, msg = "expected boolean to be true");
-    test:assertFalse(b3, msg = "expected boolean to be false");
-    test:assertEquals(b1, b2, msg = "expected boolean values to be equal");
-    test:assertEquals(b3, b4, msg = "expected boolean values to be equal");
-    test:assertNotEquals(b1, b3, msg = "expected boolean values to not be equal");
+// In a StringNumericEscape, CodePoint must valid Unicode code point; more precisely, it
+// must be a hexadecimal numeral denoting an integer n where 0 <= n < 0xD800 or 0xDFFF <
+// n <= 0x10FFFF.
+// TODO: Need to support string numeric escape
+@test:Config {
+    groups: ["broken"]
+}
+function testStringNumericEscapeBroken() {
+    // string s1 = "\u0";
+    // string s2 = "\uD799";
+    // string s3 = "\uEFFF";
+    // string s4 = "\u10FFFF";
+    // // TODO: add tests
 }

@@ -28,6 +28,10 @@ const string S = "test string const";
 // StringSingleEscape := \t | \n | \r | \\ | \"
 // StringNumericEscape := \u[ CodePoint ]
 // CodePoint := HexDigit+
+//
+// A symbolic-string-literal 'foo is equivalent to a
+// double-quoted-string-literal "foo"; this form of string literal is convenient when
+// strings are used to represent an enumeration.
 @test:Config {}
 function testStringLiterals() {
     string s1 = "a";

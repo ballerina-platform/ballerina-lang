@@ -255,9 +255,9 @@ function testArrayMemberIteration() {
 function testArrayInherentTypeViolation() {
     int[] intArray = [1, 2];
     any[] anyArray = intArray;
-    utils:assertErrorReason(trap insertElementToArray(anyArray, intArray.length() - 1, "not an int"),
-        "{ballerina}InherentTypeViolation",
-        "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, intArray.length() - 1, "not an int"),
+                      "{ballerina}InherentTypeViolation", 
+                      "invalid reason on inherent type violating array insertion");
 
     map<string>[] stringMapArray = [
         {
@@ -275,16 +275,15 @@ function testArrayInherentTypeViolation() {
         one: "test string 1",
         two: "test string 2"
     };
-    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, stringOrIntMap),
-        "{ballerina}InherentTypeViolation",
-        "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, stringOrIntMap),
+                      "{ballerina}InherentTypeViolation", 
+                      "invalid reason on inherent type violating array insertion");
 
     utils:FooRecord[] fooRecordArray = [<utils:FooRecord>{ fooFieldOne: "test string 1" }];
     anyArray = fooRecordArray;
-    utils:assertErrorReason(trap insertElementToArray(anyArray, intArray.length() - 1,
-            <utils:BarRecord>{ barFieldOne: 1 }),
-        "{ballerina}InherentTypeViolation",
-        "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, intArray.length() - 1, <utils:BarRecord> { barFieldOne: 1 }),
+                      "{ballerina}InherentTypeViolation", 
+                      "invalid reason on inherent type violating array insertion");
 
     map<utils:FooRecord>[] fooRecordMapArray = [
         {
@@ -301,9 +300,9 @@ function testArrayInherentTypeViolation() {
     map<utils:FooRecord|utils:BarRecord> fooRecordOrBarRecordMap = {
         one: <utils:FooRecord>{ fooFieldOne: "test string 1" }
     };
-    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, fooRecordOrBarRecordMap),
-        "{ballerina}InherentTypeViolation",
-        "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, fooRecordOrBarRecordMap),
+                      "{ballerina}InherentTypeViolation", 
+                      "invalid reason on inherent type violating array insertion");
 
     utils:FooObject f1 = new("test string 1");
     utils:FooObject f2 = new("test string 2");
@@ -312,9 +311,9 @@ function testArrayInherentTypeViolation() {
     anyArray = fooObjectArray;
 
     utils:BarObject b1 = new(1);
-    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, b1),
-        "{ballerina}InherentTypeViolation",
-        "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, b1),
+                      "{ballerina}InherentTypeViolation", 
+                      "invalid reason on inherent type violating array insertion");
 
     map<utils:FooObject>[] fooObjectMapArray = [
         {
@@ -331,9 +330,9 @@ function testArrayInherentTypeViolation() {
     map<utils:FooObject|utils:BarObject> fooRecordOrBarObjectMap = {
         one: f1
     };
-    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, fooRecordOrBarObjectMap),
-        "{ballerina}InherentTypeViolation",
-        "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, fooRecordOrBarObjectMap),
+                      "{ballerina}InherentTypeViolation", 
+                      "invalid reason on inherent type violating array insertion");
 }
 
 // array-type-descriptor := member-type-descriptor [ [ array-length ] ]
@@ -391,8 +390,4 @@ function testArraySubType() {
     any tempRecordArray = bRecordTwoArray;
     test:assertTrue(tempRecordArray is utils:BazRecord[],
         msg = "expected BazRecordTwo[] to be subtype of BazRecord[]");
-}
-
-function insertElementToArray(any[] array, int index, any element) {
-    array[index] = element;
 }
