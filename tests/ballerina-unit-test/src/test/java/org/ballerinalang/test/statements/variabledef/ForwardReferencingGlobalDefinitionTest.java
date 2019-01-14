@@ -27,11 +27,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.TarjanSccSolverAdjacencyList;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Test forward variable definitions not allowed.
