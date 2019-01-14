@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -105,7 +105,6 @@ public type H2HubPersistenceStore object {
             string errCause = <string> rowCount.detail().message;
             log:printError("Error occurred updating topic registration data: " + errCause);
         }
-
     }
 
     # Function to remove a topic.
@@ -120,7 +119,6 @@ public type H2HubPersistenceStore object {
             string errCause = <string> rowCount.detail().message;
             log:printError("Error occurred updating topic unregistration data: " + errCause);
         }
-
     }
 
     # Function to retrieve all registered topics.
