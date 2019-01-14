@@ -37,7 +37,7 @@ service helloWorld on mockServiceListener {
             counter = counter + 1;
             // Delay the response by 5000 milliseconds to
             // mimic the network level delays.
-            runtime:sleep(5000);
+            runtime:sleep(10000);
 
             var result = caller->respond("Hello World!!!");
             if (result is error) {

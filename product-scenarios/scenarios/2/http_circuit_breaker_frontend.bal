@@ -25,8 +25,8 @@ listener http:Listener httpListener = new(9090);
 http:Client backendClientEP = new("http://ballerina-circuit-breaker-backend-service:8080", config = {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis: 10000,
-                bucketSizeMillis: 2000,
+                timeWindowMillis: 100000,
+                bucketSizeMillis: 20000,
                 requestVolumeThreshold: 0
 
             },
@@ -34,7 +34,7 @@ http:Client backendClientEP = new("http://ballerina-circuit-breaker-backend-serv
             resetTimeMillis: 10000,
             statusCodes: [500, 501, 502, 503]
         },
-        timeoutMillis: 2000
+        timeoutMillis: 8000
     });
 
 // Create an HTTP service bound to the endpoint (circuitBreakerEP).
