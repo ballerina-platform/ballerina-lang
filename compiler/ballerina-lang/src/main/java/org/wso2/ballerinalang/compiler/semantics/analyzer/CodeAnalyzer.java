@@ -149,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -966,6 +967,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
+        if (varNode.type.tag == TypeTags.ARRAY) {
+            BType elementType = ((BArrayType) varNode.type).getElementType();
+            if (!elementType.hasImplicitInitialValue()) {
+                BLangType eType = ((BLangArrayType) varNode.typeNode).elemtype;
+                this.dlog.error(varNode.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+            }
+        }
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {

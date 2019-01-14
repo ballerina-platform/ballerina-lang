@@ -60,6 +60,11 @@ public class BTupleType extends BType implements TupleType {
     }
 
     @Override
+    public boolean hasImplicitInitialValue() {
+        return tupleTypes.stream().allMatch(t -> t.hasImplicitInitialValue());
+    }
+
+    @Override
     public String toString() {
         return "(" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(",")) + ")";
     }

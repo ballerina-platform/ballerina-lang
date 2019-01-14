@@ -75,4 +75,9 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
 
         return TypeDescriptor.SIG_JSON + constraint.getQualifiedTypeName() + ";";
     }
+
+    @Override
+    public boolean hasImplicitInitialValue() {
+        return true;
+    }
 }

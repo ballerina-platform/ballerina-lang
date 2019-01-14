@@ -54,4 +54,9 @@ public class BAnyType extends BBuiltInRefType {
     public TypeKind getKind() {
         return TypeKind.ANY;
     }
+
+    @Override
+    public boolean hasImplicitInitialValue() {
+        return true;
+    }
 }

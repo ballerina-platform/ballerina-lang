@@ -56,4 +56,8 @@ public class BObjectType extends BStructureType implements ObjectType {
         return this.tsymbol.toString();
     }
 
+    @Override
+    public boolean hasImplicitInitialValue() {
+        return false;
+    }
 }

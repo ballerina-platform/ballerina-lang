@@ -112,4 +112,22 @@ public class BType implements ValueType {
     protected String getQualifiedTypeName() {
         return tsymbol.pkgID.toString() + ":" + tsymbol.name;
     }
+
+    public boolean hasImplicitInitialValue() {
+        switch (tag) {
+            case INT:
+            case BYTE:
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case BOOLEAN:
+            case NIL:
+            case TYPEDESC:
+                return true;
+            case ERROR:
+                return false;
+            default:
+                throw new IllegalStateException("hasImplicitInitialValue not specified for " + this);
+        }
+    }
 }

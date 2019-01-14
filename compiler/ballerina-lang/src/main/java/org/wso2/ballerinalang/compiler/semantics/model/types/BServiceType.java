@@ -55,4 +55,9 @@ public class BServiceType extends BObjectType implements ServiceType {
     public String toString() {
         return this.tsymbol.toString();
     }
+
+    @Override
+    public boolean hasImplicitInitialValue() {
+        return false;
+    }
 }

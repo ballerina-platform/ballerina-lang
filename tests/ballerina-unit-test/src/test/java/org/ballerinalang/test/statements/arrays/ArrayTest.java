@@ -37,11 +37,14 @@ public class ArrayTest {
 
     private CompileResult compileResult;
     CompileResult resultNegative;
+    CompileResult arrayImplicitInitialValueNegative;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/array-test.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/arrays/array-negative.bal");
+        arrayImplicitInitialValueNegative =
+                BCompileUtil.compile("test-src/statements/arrays/array-implicit-initial-value-negative.bal");
     }
 
     @Test
@@ -131,5 +134,14 @@ public class ArrayTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegative, 0, "function invocation on type 'int[]' is not supported", 3, 18);
         BAssertUtil.validateError(resultNegative, 1, "function invocation on type 'string[]' is not supported", 8, 21);
+    }
+
+    @Test(description = "Test arrays of types without implicit initial values")
+    public void testArrayImplicitInitialValues() {
+        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0, "array element type 'Obj' must have an " +
+                "implicit initial value, use 'Obj?'", 19, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, "array element type 'RecordWithObj' must " +
+                "have an implicit initial value, use 'RecordWithObj?'", 25, 1);
     }
 }
