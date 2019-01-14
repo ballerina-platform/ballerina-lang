@@ -27,13 +27,15 @@ map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 service hubService =
 @http:ServiceConfig {
-    basePath:BASE_PATH
+    basePath:BASE_PATH,
+    authConfig:hubServiceAuthConfig
 }
 service {
 
     @http:ResourceConfig {
         methods:["GET"],
-        path:HUB_PATH
+        path:HUB_PATH,
+        authConfig:hubResourceAuthConfig
     }
     resource function status(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
