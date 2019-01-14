@@ -1,5 +1,0 @@
-// Explicitly typed expressions specify a static type for an expression explicitly.
-// For simple basic types, explicitly typed expressions result in conversions. Explicitly typed expressions are
-// allowed between all combinations of simple basic types except for when the target type is not `string` for an
-// expression of type `string`.
-// For non-simple basic types, a type assertion would be done when a type is specified explicitly.

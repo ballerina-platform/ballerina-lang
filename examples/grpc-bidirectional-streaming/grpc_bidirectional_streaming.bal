@@ -13,7 +13,7 @@ service Chat on new grpc:Listener(9090) {
     //This `resource` is triggered when a new caller connection is initialized.
     resource function onOpen(grpc:Caller caller) {
         log:printInfo(string `{{caller.getId()}} connected to chat`);
-        self.consMap[<string>caller.getId()] = caller;
+        self.consMap[string.convert(caller.getId())] = caller;
     }
 
     //This `resource` is triggered when the caller sends a request message to the `service`.
@@ -42,7 +42,7 @@ service Chat on new grpc:Listener(9090) {
         grpc:Caller ep;
         string msg = string `{{caller.getId()}} left the chat`;
         log:printInfo(msg);
-        var v = self.consMap.remove(<string>caller.getId());
+        var v = self.consMap.remove(string.convert(caller.getId()));
         foreach var con in self.consMap {
             (_, ep) = con;
             error? err = ep->send(msg);

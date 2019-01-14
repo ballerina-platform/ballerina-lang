@@ -22,10 +22,4 @@ function testFunc() {
     main();
     test:assertEquals(outputs[0], "asserted employee's name: ");
     test:assertEquals(outputs[1], "Speedy Gonzales");
-    any a = outputs[2];
-    if (a is string) {
-        test:assertTrue(a.hasPrefix("assertion error: "));
-    } else {
-        test:assertFail(msg = "expected value to be of type string");
-    }
 }
