@@ -30,7 +30,7 @@ public type BazRecord record {
 };
 
 public type BazRecordTwo record {
-    float|string bazFieldOne;
+    float bazFieldOne;
     string bazFieldTwo;
 };
 

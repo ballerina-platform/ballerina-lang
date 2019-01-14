@@ -59,3 +59,27 @@ function testTupleMemberIteration() {
     //    currentIndex = currentIndex + 1;
     //}
 }
+
+// TODO: Fix implicit initial value for tuple
+@test:Config {
+    groups: ["broken"]
+}
+function testImplicitInitialValuesBroken() {
+    (int, boolean, string)[] tupleArray = [];
+    tupleArray[1] = (200, true, "test string");
+    //test:assertEquals(tupleArray[0], (0, false, ""),
+    //    msg = "expected implicit initial value of (int, boolean, string) to be (0, false, \"\")");
+    test:assertEquals(tupleArray[0], (),
+        msg = "expected implicit initial value of (int, boolean, string) to be ()");
+}
+
+// Note that a tuple type where all the member-type-descriptors are the same is
+// equivalent to a an array-type-descriptor with a length.
+// TODO: Tuple type descriptor should be equal to array type descriptor
+//@test:Config {
+//    groups: ["broken"]
+//}
+//function testTupleAndArrayTypeDescriptorBroken() {
+//    int[3] a = (1, 2, 3);
+//    (int, int, int) b = [1, 2, 3];
+//}

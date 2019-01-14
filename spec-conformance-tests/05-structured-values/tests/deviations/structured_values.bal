@@ -124,7 +124,7 @@ function testFrozenContainerShapeAndTypeBroken() {
                     msg = "expected to not be able to add a frozen value that conforms to shape");
 
     utils:BazRecordThree a8 = { bazFieldOne: "test string 1" };
-    utils:BazRecordTwo a9 = { bazFieldOne: 1.0, bazFieldTwo: "test string 2" };
+    BazRecordFour a9 = { bazFieldOne: 1.0, bazFieldTwo: "test string 2" };
     any a10 = a9;
     result = trap utils:updateBazRecordThree(a8, a10);
     test:assertTrue(result is error, 
@@ -141,3 +141,8 @@ function testFrozenContainerShapeAndTypeBroken() {
     test:assertTrue((result is error), 
                     msg = "expected to not be able to add a frozen value that conforms to shape");
 }
+
+public type BazRecordFour record {
+    float|string bazFieldOne;
+    string bazFieldTwo;
+};
