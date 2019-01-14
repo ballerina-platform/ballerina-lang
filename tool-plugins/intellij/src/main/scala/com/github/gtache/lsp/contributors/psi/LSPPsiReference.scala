@@ -85,7 +85,7 @@ case class LSPPsiReference(var element: PsiElement) extends PsiReference {
     *
     * @return the array of available identifiers.
     */
-  @SuppressWarnings(Array("JavadocReference")) def getVariants: Array[AnyRef] = Array()
+  @SuppressWarnings(Array("JavadocReference")) override def getVariants: Array[AnyRef] = Array()
 
   /**
     * Returns false if the underlying element is guaranteed to be a reference, or true

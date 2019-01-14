@@ -27,7 +27,7 @@ public function main() {
     io:println("Tuple variable : ",
                     d1, " ", d2, " ", d3, " ", d4, " ", d5, " ", d6);
 
-    // Tuple type can also take "var" as the type label, which in that case, the type will be inferred from the RHS.
+    // Tuple type can also take `var` as the type label, which in that case, the type will be inferred from the right hand side.
     var (e1, (e2, e3)) = ("Ballerina", (123, true));
     io:println("Tuple variable : ", e1, " ", e2, " ", e3);
 

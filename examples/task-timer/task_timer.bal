@@ -23,7 +23,7 @@ public function main() {
     // Start the timer.
     timer.start();
 
-    runtime:sleep(30000); // Temp. workaround to stop the process from exiting.
+    runtime:sleep(30000); // Temporary workaround to stop the process from exiting.
 }
 
 function cleanup() returns error? {
@@ -31,8 +31,8 @@ function cleanup() returns error? {
     io:println("Cleaning up...");
     io:println(count);
 
-    // An error is randomly returned to demonstrate how the error is propagated
-    // to the 'onError' function when an error occurs in the 'onTrigger'
+    // An `error` is randomly returned to demonstrate how the error is propagated
+    // to the `onError` function when an error occurs in the `onTrigger`
     // function.
     if (math:randomInRange(0, 10) == 5) {
         error e = error("Cleanup error");
@@ -40,7 +40,7 @@ function cleanup() returns error? {
     }
 
     if (count >= 10) {
-        // This is how you stop a timer.
+        // This is how you `stop` a timer.
         timer.stop();
         io:println("Stopped timer");
     }

@@ -138,6 +138,10 @@
         <!--<liveTemplateContext-->
                 <!--implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Function"/>-->
 
+        <!--folding builder-->
+        <lang.foldingBuilder language="Ballerina"
+                             implementationClass="io.ballerina.plugins.idea.editor.BallerinaFoldingBuilder"/>
+
         <!--formatter-->
         <lang.formatter language="Ballerina"
                         implementationClass="io.ballerina.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>

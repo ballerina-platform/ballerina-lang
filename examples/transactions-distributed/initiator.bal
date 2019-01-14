@@ -17,7 +17,7 @@ service InitiatorService on new http:Listener(8080) {
         http:Response res = new;
         log:printInfo("Initiating transaction...");
 
-        // When the transaction statement starts, a distributed transaction context is created.
+        // When the `transaction` statement starts, a distributed transaction context is created.
         transaction {
 
             // Print the current transaction ID
@@ -34,7 +34,7 @@ service InitiatorService on new http:Listener(8080) {
                 abort;
             }
 
-            // As soon as the transaction block ends, the `2-phase commit
+            // As soon as the `transaction` block ends, the `2-phase commit
             // coordination` protocol will run. All participants are prepared
             // and depending on the joint outcome, either a `notify commit` or
             // `notify abort` will be sent to the participants.
