@@ -19,8 +19,11 @@ import utils;
 // In a StringNumericEscape, CodePoint must valid Unicode code point; more precisely, it
 // must be a hexadecimal numeral denoting an integer n where 0 <= n < 0xD800 or 0xDFFF <
 // n <= 0x10FFFF.
-@test:Config {}
-function testStringNumericEscape() {
+// TODO: Need to support string numeric escape
+@test:Config {
+    groups: ["broken"]
+}
+function testStringNumericEscapeBroken() {
     // string s1 = "\u0";
     // string s2 = "\uD799";
     // string s3 = "\uEFFF";

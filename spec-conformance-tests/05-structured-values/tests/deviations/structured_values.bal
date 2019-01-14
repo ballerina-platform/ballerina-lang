@@ -18,7 +18,10 @@ import utils;
 
 // However, a container value can also be frozen at runtime or compile time, which
 // prevents any change to its members - the test functions called should fail at compile time.
-@test:Config {}
+// TODO: Need to analyze updates of container values known to be frozen
+@test:Config {
+    groups: ["broken"]
+}
 function testFreezeOnContainerBroken() {
     utils:assertErrorReason(trap testFrozenArrayUpdateBroken(), B7A_INVALID_UPDATE_REASON, 
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
@@ -63,8 +66,11 @@ function testFrozenRecordUpdateBroken() {
 // value. Thus after a container value is frozen, its inherent type does not provide additional
 // information that cannot be derived from the value. In other words, freezing a container
 // narrows its inherent type to a type that consists of just its current shape.
-@test:Config {}
-function testFrozenContainerShapeAndType() {
+// TODO: Need to consider the shape of a frozen container to be its type
+@test:Config {
+    groups: ["broken"]
+}
+function testFrozenContainerShapeAndTypeBroken() {
     int[][] a1 = [[1, 2], [1]];
     (int|string)[] a2 = [11, 12];
     var result = trap utils:insertMemberToArray(a1, a1.length() - 1, a2);
