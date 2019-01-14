@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind;
 
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -36,6 +37,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,6 +76,8 @@ public class GlobalVariableRefAnalyzer {
      */
     public void analyzeAndReOrder() {
         List<BSymbol> globalVarsAndDependentFuncs = getGlobalVariablesAndDependentFunctions();
+
+        pruneDependencyRelations(this.globalNodeDependsOn);
 
         Set<BSymbol> sorted = new LinkedHashSet<>();
         LinkedList<BSymbol> dependencies = new LinkedList<>();
@@ -122,6 +126,45 @@ public class GlobalVariableRefAnalyzer {
 
     }
 
+    private void pruneDependencyRelations(Map<BSymbol, List<BSymbol>> globalNodeDependsOn) {
+        List<BSymbol> dependents = new ArrayList<>(globalNodeDependsOn.keySet());
+        Set<BSymbol> visited = new HashSet<>();
+        for (BSymbol dependent : dependents) {
+            // Taking a copy as we need to modify the original list.
+            List<BSymbol> providers = new ArrayList<>(globalNodeDependsOn.get(dependent));
+            for (BSymbol provider : providers) {
+                pruneFunctions(dependent, provider, globalNodeDependsOn, visited);
+            }
+        }
+    }
+
+    private void pruneFunctions(BSymbol dependent, BSymbol provider, Map<BSymbol, List<BSymbol>> globalNodeDependsOn,
+                                Set<BSymbol> visited) {
+        if (visited.contains(provider)) {
+            return;
+        } else {
+            visited.add(provider);
+        }
+
+        // Dependent has a dependency on a global var.
+        if (provider.kind != SymbolKind.FUNCTION) {
+            return;
+        }
+
+        // Provider is a function.
+        // And doesn't have dependency on a global variable. We can prune provider.
+        if (!globalNodeDependsOn.containsKey(provider) || globalNodeDependsOn.get(provider).isEmpty()) {
+            globalNodeDependsOn.get(dependent).remove(provider);
+            return;
+        }
+
+        // Taking a copy as we need to modify the original list.
+        List<BSymbol> providersProviders = new ArrayList<>(globalNodeDependsOn.get(provider));
+        for (BSymbol prov : providersProviders) {
+            pruneFunctions(provider, prov, globalNodeDependsOn, visited);
+        }
+    }
+
     private void addDependenciesDependencies(LinkedList<BSymbol> dependencies, Set<BSymbol> sorted) {
         // For each dependency if they satisfy their dependencies in sorted list, then add them to sorted list.
         ArrayList<BSymbol> depCopy = new ArrayList<>(dependencies);
@@ -166,17 +209,18 @@ public class GlobalVariableRefAnalyzer {
     }
 
     private List<BSymbol> getGlobalVariablesAndDependentFunctions() {
-        List<BSymbol> globalVarsAndDependentFuncs = pkgNode.globalVars.stream()
+        List<BSymbol> globalVars = this.pkgNode.globalVars.stream()
                 .filter(v -> v.symbol != null)
                 .map(v -> v.symbol)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        for (BSymbol symbol : this.globalNodeDependsOn.keySet()) {
-            if (!globalVarsAndDependentFuncs.contains(symbol)) {
-                globalVarsAndDependentFuncs.add(symbol);
-            }
-        }
-        return globalVarsAndDependentFuncs;
+        List<BSymbol> funcs = this.globalNodeDependsOn.keySet().stream()
+                .filter(symbol -> !globalVars.contains(symbol))
+                .collect(Collectors.toList());
+
+        funcs.addAll(globalVars);
+
+        return funcs;
     }
 
     private void moveAndAppendToSortedList(BSymbol symbol, List<BSymbol> moveFrom, Set<BSymbol> sorted) {
@@ -234,16 +278,26 @@ public class GlobalVariableRefAnalyzer {
     }
 
     private void emitError(List<BSymbol> symbolsOfCycle) {
+        Optional<BSymbol> firstGlobalVar = symbolsOfCycle.stream().filter(s -> s.kind != SymbolKind.FUNCTION).findAny();
+        if (!firstGlobalVar.isPresent()) {
+            return;
+        }
 
-        BSymbol firstNodeSymbol = symbolsOfCycle.get(0);
+        BSymbol firstNodeSymbol = firstGlobalVar.get();
         Optional<BLangNode> firstNode = pkgNode.topLevelNodes.stream()
                 .filter(t -> t.getKind() == NodeKind.VARIABLE || t.getKind() == NodeKind.FUNCTION)
                 .map(t -> (BLangNode) t)
                 .filter(n -> getVarOrFuncSymbol(n) == firstNodeSymbol)
                 .findAny();
 
+        int splitFrom = symbolsOfCycle.indexOf(firstNodeSymbol);
+        int len = symbolsOfCycle.size();
+        List<BSymbol> firstSubList = new ArrayList<>(symbolsOfCycle.subList(0, splitFrom));
+        List<BSymbol> secondSubList = new ArrayList<>(symbolsOfCycle.subList(splitFrom, len));
+        secondSubList.addAll(firstSubList);
+
         if (firstNode.isPresent()) {
-            List<BLangIdentifier> names = symbolsOfCycle.stream().map(this::getNodeName).collect(Collectors.toList());
+            List<BLangIdentifier> names = secondSubList.stream().map(this::getNodeName).collect(Collectors.toList());
             dlog.error(firstNode.get().pos, DiagnosticCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
         }
     }
