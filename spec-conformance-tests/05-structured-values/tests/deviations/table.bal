@@ -22,6 +22,7 @@ import ballerina/test;
 // key-specifier := key column-name
 // column-name := identifier
 // TODO: Table type descriptor not implemented
+// https://github.com/ballerina-platform/ballerina-lang/issues/13170
 @test:Config {
     groups: ["broken"]
 }

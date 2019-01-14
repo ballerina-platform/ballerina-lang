@@ -19,6 +19,7 @@ import utils;
 // The nil value can also be written null, for
 // compatibility with JSON; the use of null should be restricted to JSON-related contexts.
 // TODO: Disallow the use of `null` with () type
+// https://github.com/ballerina-platform/ballerina-lang/issues/13169
 @test:Config {
     groups: ["broken"]
 }

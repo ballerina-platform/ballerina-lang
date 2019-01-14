@@ -22,6 +22,7 @@ import ballerina/test;
 // ● a detail, which is a frozen mapping providing additional information about the error
 // ● a stack trace
 // TODO: Non-frozen values are accepted for the detail. Stack trace is not supported.
+// https://github.com/ballerina-platform/ballerina-lang/issues/13171
 @test:Config {
     groups: ["broken"]
 }

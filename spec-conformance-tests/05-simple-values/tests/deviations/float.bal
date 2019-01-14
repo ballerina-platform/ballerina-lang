@@ -29,6 +29,7 @@ import utils;
 // HexExponentIndicator := p | P
 // Sign := + | -
 // TODO: Support 0. syntax for floating point literals
+// https://github.com/ballerina-platform/ballerina-lang/issues/13168
 //@test:Config { }
 //function testFloatBroken() {
 //    float f1 = 0.;
@@ -48,6 +49,7 @@ import utils;
 // The multiple bit patterns that IEEE 754 treats as NaN are considered to be the same value in Ballerina
 // TODO: Decimal does not support division by zero
 // TODO: == and === not working for float NAN values
+// https://github.com/ballerina-platform/ballerina-lang/issues/11913
 @test:Config {}
 function testFloatingPointNaNValuesBroken() {
     float f1 = +0.0/0.0;
@@ -69,6 +71,7 @@ function testFloatingPointNaNValuesBroken() {
 // following IEEE 754, but are defined to have the same shape, so that they will usually be
 // treated as being equal.
 // TODO: Decimal and Float zeros should be distinct values
+// https://github.com/ballerina-platform/ballerina-lang/issues/11913
 @test:Config {
     groups: ["broken"]
 }

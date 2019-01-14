@@ -20,6 +20,7 @@ import ballerina/io;
 // A member of a list can be referenced by an integer index representing its position in the list.
 // For a list of length n, the indices of the members of the list, from first to last, are 0,1,...,n - 1.
 // TODO: Need to support tuple indexing with variable references
+// https://github.com/ballerina-platform/ballerina-lang/issues/13164
 @test:Config {
     groups: ["broken"]
 }
@@ -41,6 +42,7 @@ function testTupleMemberReferenceByInvalidIntegerIndex() {
 
 // A list is iterable as a sequence of its members.
 // TODO: Need to support tuple as an itereable collection
+// https://github.com/ballerina-platform/ballerina-lang/issues/13165
 @test:Config {
     groups: ["broken"]
 }
@@ -61,6 +63,7 @@ function testTupleMemberIteration() {
 }
 
 // TODO: Fix implicit initial value for tuple
+// https://github.com/ballerina-platform/ballerina-lang/issues/13166
 @test:Config {
     groups: ["broken"]
 }
@@ -76,6 +79,7 @@ function testImplicitInitialValuesBroken() {
 // Note that a tuple type where all the member-type-descriptors are the same is
 // equivalent to a an array-type-descriptor with a length.
 // TODO: Tuple type descriptor should be equal to array type descriptor
+// https://github.com/ballerina-platform/ballerina-lang/issues/13167
 //@test:Config {
 //    groups: ["broken"]
 //}

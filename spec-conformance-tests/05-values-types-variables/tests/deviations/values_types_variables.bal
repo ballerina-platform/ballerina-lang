@@ -68,6 +68,8 @@ function testDistinctStructureMembersReferringToSameValueBroken() {
 // Most basic types of structured values (along with one basic type of simple value) are
 // iterable, meaning that a value of the type can be accessed as a sequence of simpler values.
 // TODO: Support iterable for Tuple type and String type
+// https://github.com/ballerina-platform/ballerina-lang/issues/13172
+// https://github.com/ballerina-platform/ballerina-lang/issues/13165
 @test:Config {
     groups: ["broken"]
 }
@@ -91,6 +93,7 @@ type Union 0|1|2;
 // Most types, including all simple basic types, have an implicit initial value, which is used to
 // initialize structure members.
 // TODO: Fix tuple, map, record, table, typedesc, singleton and union type implicit initial values
+// https://github.com/ballerina-platform/ballerina-lang/issues/13166
 @test:Config {
     groups: ["broken"]
 }

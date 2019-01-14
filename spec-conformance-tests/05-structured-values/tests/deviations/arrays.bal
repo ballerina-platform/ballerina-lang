@@ -23,6 +23,7 @@ const int length = 3;
 // array-length := int-literal | constant-reference-expr | implied-array-length
 // implied-array-length := ! ...
 // TODO: Support constant-reference-expr as array-length
+// https://github.com/ballerina-platform/ballerina-lang/issues/13162
 //@test:Config {
 //    groups: ["broken"]
 //}
@@ -40,6 +41,7 @@ const int length = 3;
 // has an implicit initial value. (When T does not have an implicit initial value, an array of T?
 // may be used instead; see Optional Types.)
 // TODO: Array member type can not be a type which has no implicit initial value
+// https://github.com/ballerina-platform/ballerina-lang/issues/13163
 @test:Config {}
 function testArrayMemberTypesBroken() {
     utils:FooObject[] objectArray = []; // This should fail at compile time
