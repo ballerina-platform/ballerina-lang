@@ -351,6 +351,8 @@ function testArrayTypeDescriptor() {
     // is the same as if the length was specified explicitly.
     string[3] array2 = ["a", "b", "c"];
     string[!...] array3 = ["a", "b", "c"];
+    any tempVar = array3;
+    test:assertTrue(tempVar is string[3], msg = "expected fixed length array and implied length array to be equal");
     test:assertEquals(array2, array3, msg = "expected fixed length array and implied length array to be equal");
 }
 
@@ -384,7 +386,6 @@ function testArraySubType() {
     utils:BazRecordTwo bRecordTwo = { bazFieldOne: 12.0, bazFieldTwo: "fieldTwo" };
     any tempRecord = bRecordTwo;
     test:assertTrue(tempRecord is utils:BazRecord, msg = "expected BazRecordTwo to be subtype of BazRecord");
-
 
     utils:BazRecordTwo[] bRecordTwoArray = [bRecordTwo];
     any tempRecordArray = bRecordTwoArray;
