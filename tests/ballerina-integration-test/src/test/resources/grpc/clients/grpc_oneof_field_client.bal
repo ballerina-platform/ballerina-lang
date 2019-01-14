@@ -45,7 +45,7 @@ public function testDoubleFieldValue() returns string {
         (resp, _) = result;
         Value val = resp.value;
         if (val is ZZZ_OneA) {
-            return <string>val.one_a;
+            return string.convert(val.one_a);
         }
         return ERROR_MESSAGE;
     }
@@ -62,7 +62,7 @@ public function testFloatFieldValue() returns string {
         (resp, _) = result;
         Value val = resp.value;
         if (val is ZZZ_OneB) {
-            return <string>val.one_b;
+            return string.convert(val.one_b);
         }
         return ERROR_MESSAGE;
     }
@@ -79,7 +79,7 @@ public function testInt64FieldValue() returns string {
         (resp, _) = result;
         Value val = resp.value;
         if (val is ZZZ_OneC) {
-            return <string>val.one_c;
+            return string.convert(val.one_c);
         }
         return ERROR_MESSAGE;
     }
@@ -96,7 +96,7 @@ public function testUInt64FieldValue() returns string {
         (resp, _) = result;
         Value val = resp.value;
         if (val is ZZZ_OneD) {
-            return <string>val.one_d;
+            return string.convert(val.one_d);
         }
         return ERROR_MESSAGE;
     }
@@ -113,7 +113,7 @@ public function testInt32FieldValue() returns string {
         (resp, _) = result;
         Value val = resp.value;
         if (val is ZZZ_OneE) {
-            return <string>val.one_e;
+            return string.convert(val.one_e);
         }
         return ERROR_MESSAGE;
     }
@@ -130,7 +130,7 @@ public function testFixed64FieldValue() returns string {
         (resp, _) = result;
         Value val = resp.value;
         if (val is ZZZ_OneF) {
-            return <string>val.one_f;
+            return string.convert(val.one_f);
         }
         return ERROR_MESSAGE;
     }
@@ -147,7 +147,7 @@ public function testFixed32FieldValue() returns string {
         (resp, _) = result;
         Value val = resp.value;
         if (val is ZZZ_OneG) {
-            return <string>val.one_g;
+            return string.convert(val.one_g);
         }
         return ERROR_MESSAGE;
     }
@@ -164,7 +164,7 @@ public function testBolFieldValue() returns string {
         (resp, _) = result;
         Value val = resp.value;
         if (val is ZZZ_OneH) {
-            return <string>val.one_h;
+            return string.convert(val.one_h);
         }
         return ERROR_MESSAGE;
     }
@@ -218,7 +218,7 @@ public function testBytesFieldValue() returns string {
         (resp, _) = result;
         Value val = resp.value;
         if (val is ZZZ_OneK) {
-            return <string>(val.one_k == bytes);
+            return string.convert(val.one_k == bytes);
         }
         return ERROR_MESSAGE;
     }
