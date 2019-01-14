@@ -153,48 +153,48 @@ function testArrayMemberReferenceByValidIntegerIndex() {
 
 @test:Config {}
 function testArrayMemberReferenceByInvalidIntegerIndex() {
-    float[] floatArray = [1.1, 0.0, 2.20]; 
+    float[] floatArray = [1.1, 0.0, 2.20];
 
     int index = -1;
-    utils:assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange", 
-                      "invalid reason on access by negative index");
+    utils:assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange",
+        "invalid reason on access by negative index");
 
     index = floatArray.length();
-    utils:assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange", 
-                      "invalid reason on access by index == array length");
+    utils:assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange",
+        "invalid reason on access by index == array length");
 
     index = floatArray.length() + 3;
-    utils:assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange", 
-                      "invalid reason on access by index > array length");
+    utils:assertErrorReason(trap floatArray[index], "{ballerina}IndexOutOfRange",
+        "invalid reason on access by index > array length");
 
-    utils:BarRecord[] barRecordArray = [<utils:BarRecord> { barFieldOne: 1 }, <utils:BarRecord> { barFieldOne: 2 }];
+    utils:BarRecord[] barRecordArray = [<utils:BarRecord>{ barFieldOne: 1 }, <utils:BarRecord>{ barFieldOne: 2 }];
     index = -1;
-    utils:assertErrorReason(trap barRecordArray[index], "{ballerina}IndexOutOfRange", 
-                      "invalid reason on access by negative index");
+    utils:assertErrorReason(trap barRecordArray[index], "{ballerina}IndexOutOfRange",
+        "invalid reason on access by negative index");
 
     index = barRecordArray.length();
-    utils:assertErrorReason(trap barRecordArray[index], "{ballerina}IndexOutOfRange", 
-                      "invalid reason on access by index == array length");
+    utils:assertErrorReason(trap barRecordArray[index], "{ballerina}IndexOutOfRange",
+        "invalid reason on access by index == array length");
 
     index = barRecordArray.length();
-    utils:assertErrorReason(trap barRecordArray[index], "{ballerina}IndexOutOfRange", 
-                      "invalid reason on access by index > array length");
+    utils:assertErrorReason(trap barRecordArray[index], "{ballerina}IndexOutOfRange",
+        "invalid reason on access by index > array length");
 
     utils:BarObject b1 = new(1);
     utils:BarObject b2 = new(2);
     utils:BarObject b3 = new(3);
     utils:BarObject[] barObjectArray = [b1, b2, b3];
     index = -1;
-    utils:assertErrorReason(trap barObjectArray[index], "{ballerina}IndexOutOfRange", 
-                      "invalid reason on access by negative index");
+    utils:assertErrorReason(trap barObjectArray[index], "{ballerina}IndexOutOfRange",
+        "invalid reason on access by negative index");
 
     index = barObjectArray.length();
-    utils:assertErrorReason(trap barObjectArray[index], "{ballerina}IndexOutOfRange", 
-                      "invalid reason on access by index == array length");
+    utils:assertErrorReason(trap barObjectArray[index], "{ballerina}IndexOutOfRange",
+        "invalid reason on access by index == array length");
 
     index = barObjectArray.length();
-    utils:assertErrorReason(trap barObjectArray[index], "{ballerina}IndexOutOfRange", 
-                      "invalid reason on access by index > array length");
+    utils:assertErrorReason(trap barObjectArray[index], "{ballerina}IndexOutOfRange",
+        "invalid reason on access by index > array length");
 }
 
 // The shape of a list value is an ordered list of the shapes of its members.
@@ -216,8 +216,8 @@ function testArrayMemberIteration() {
     int currentIndex = 0;
 
     foreach string|int value in array {
-        test:assertEquals(value, arrayTwo[currentIndex], 
-                          msg = "incorrect member value found on iteration");
+        test:assertEquals(value, arrayTwo[currentIndex],
+            msg = "incorrect member value found on iteration");
         currentIndex = currentIndex + 1;
     }
 
@@ -228,8 +228,8 @@ function testArrayMemberIteration() {
     (utils:FooRecord|utils:BarRecord)[] arrayFour = [e, f];
 
     foreach utils:FooRecord|utils:BarRecord value in arrayThree {
-        test:assertEquals(value, arrayFour[currentIndex], 
-                          msg = "incorrect member value found on iteration");
+        test:assertEquals(value, arrayFour[currentIndex],
+            msg = "incorrect member value found on iteration");
         currentIndex = currentIndex + 1;
     }
 
@@ -241,8 +241,8 @@ function testArrayMemberIteration() {
     (utils:FooObject|utils:BarObject)[] arraySix = [g, h, i];
 
     foreach utils:FooObject|utils:BarObject value in arrayFive {
-        test:assertEquals(value, arraySix[currentIndex], 
-                          msg = "incorrect member value found on iteration");
+        test:assertEquals(value, arraySix[currentIndex],
+            msg = "incorrect member value found on iteration");
         currentIndex = currentIndex + 1;
     }
 }
@@ -255,16 +255,16 @@ function testArrayMemberIteration() {
 function testArrayInherentTypeViolation() {
     int[] intArray = [1, 2];
     any[] anyArray = intArray;
-    utils:assertErrorReason(trap insertElementToArray(anyArray, intArray.length() - 1, "not an int"), 
-                      "{ballerina}InherentTypeViolation", 
-                      "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap insertElementToArray(anyArray, intArray.length() - 1, "not an int"),
+        "{ballerina}InherentTypeViolation",
+        "invalid reason on inherent type violating array insertion");
 
-    map<string>[] stringMapArray = [ 
-        { 
+    map<string>[] stringMapArray = [
+        {
             one: "test string 1",
-            two: "test string 2" 
+            two: "test string 2"
         },
-        { 
+        {
             three: "test string 3"
         }
     ];
@@ -275,34 +275,35 @@ function testArrayInherentTypeViolation() {
         one: "test string 1",
         two: "test string 2"
     };
-    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, stringOrIntMap), 
-                      "{ballerina}InherentTypeViolation", 
-                      "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, stringOrIntMap),
+        "{ballerina}InherentTypeViolation",
+        "invalid reason on inherent type violating array insertion");
 
-    utils:FooRecord[] fooRecordArray = [<utils:FooRecord> { fooFieldOne: "test string 1" }];
+    utils:FooRecord[] fooRecordArray = [<utils:FooRecord>{ fooFieldOne: "test string 1" }];
     anyArray = fooRecordArray;
-    utils:assertErrorReason(trap insertElementToArray(anyArray, intArray.length() - 1, <utils:BarRecord> { barFieldOne: 1 }), 
-                      "{ballerina}InherentTypeViolation", 
-                      "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap insertElementToArray(anyArray, intArray.length() - 1,
+            <utils:BarRecord>{ barFieldOne: 1 }),
+        "{ballerina}InherentTypeViolation",
+        "invalid reason on inherent type violating array insertion");
 
-    map<utils:FooRecord>[] fooRecordMapArray = [ 
-        { 
-            one: <utils:FooRecord> { fooFieldOne: "test string 1" }
+    map<utils:FooRecord>[] fooRecordMapArray = [
+        {
+            one: <utils:FooRecord>{ fooFieldOne: "test string 1" }
         },
-        { 
-            two: <utils:FooRecord> { fooFieldOne: "test string 2" },
-            three: <utils:FooRecord> { fooFieldOne: "test string 3" }
+        {
+            two: <utils:FooRecord>{ fooFieldOne: "test string 2" },
+            three: <utils:FooRecord>{ fooFieldOne: "test string 3" }
         }
     ];
     anyArray = fooRecordMapArray;
 
     // `fooRecordOrBarRecordMap` looks like `map<utils:FooRecord>`
     map<utils:FooRecord|utils:BarRecord> fooRecordOrBarRecordMap = {
-        one: <utils:FooRecord> { fooFieldOne: "test string 1" }
+        one: <utils:FooRecord>{ fooFieldOne: "test string 1" }
     };
-    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, fooRecordOrBarRecordMap), 
-                      "{ballerina}InherentTypeViolation", 
-                      "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, fooRecordOrBarRecordMap),
+        "{ballerina}InherentTypeViolation",
+        "invalid reason on inherent type violating array insertion");
 
     utils:FooObject f1 = new("test string 1");
     utils:FooObject f2 = new("test string 2");
@@ -311,16 +312,16 @@ function testArrayInherentTypeViolation() {
     anyArray = fooObjectArray;
 
     utils:BarObject b1 = new(1);
-    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, b1), 
-                      "{ballerina}InherentTypeViolation", 
-                      "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, b1),
+        "{ballerina}InherentTypeViolation",
+        "invalid reason on inherent type violating array insertion");
 
-    map<utils:FooObject>[] fooObjectMapArray = [ 
-        { 
-            one: f1,
+    map<utils:FooObject>[] fooObjectMapArray = [
+        {
+            one:f1,
             two: f2
         },
-        { 
+        {
             three: f3
         }
     ];
@@ -330,9 +331,66 @@ function testArrayInherentTypeViolation() {
     map<utils:FooObject|utils:BarObject> fooRecordOrBarObjectMap = {
         one: f1
     };
-    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, fooRecordOrBarObjectMap), 
-                      "{ballerina}InherentTypeViolation", 
-                      "invalid reason on inherent type violating array insertion");
+    utils:assertErrorReason(trap insertElementToArray(anyArray, 0, fooRecordOrBarObjectMap),
+        "{ballerina}InherentTypeViolation",
+        "invalid reason on inherent type violating array insertion");
+}
+
+// array-type-descriptor := member-type-descriptor [ [ array-length ] ]
+// member-type-descriptor := type-descriptor
+// array-length := int-literal | constant-reference-expr | implied-array-length
+// implied-array-length := ! ...
+@test:Config {}
+function testArrayTypeDescriptor() {
+    int[] array1 = [];
+    int[] expectedArray = [];
+    test:assertEquals(array1, expectedArray, msg = "expected fixed length array and implied length array to be equal");
+
+    // An array length of !... means that the length of the array is to be implied from the
+    // context; this is allowed in the same contexts where var would be allowed in place of the
+    // type descriptor in which array-length occurs (see “Typed binding patterns”); its meaning
+    // is the same as if the length was specified explicitly.
+    string[3] array2 = ["a", "b", "c"];
+    string[!...] array3 = ["a", "b", "c"];
+    test:assertEquals(array2, array3, msg = "expected fixed length array and implied length array to be equal");
+}
+
+// When array-length is present, the implicit initial value of the array type is a list of the
+// specified length, with each member of the array having its implicit initial value; otherwise, the
+// implicit initial value of an array type is an array of length 0.
+// When a list value has an inherent type that is an array without an array-length, then
+// attempting to write a member of a list at an index i that is greater than or equal to the current
+// length of the list will first increase the length of the list to i + 1, with the newly added
+// members of the array having the implicit initial value of T
+@test:Config {}
+function testInitialImplicitValueOfArrays() {
+    // tested in 05-values-types-variables#testImplicitInitialValues
+}
+
+// An array T[] is iterable as a sequence of values of type T.
+@test:Config {}
+function testArrayIterable() {
+    // tested in 05-values-types-variables#testIterableTypes
+}
+
+// Note also that T[n] is a subtype of T[], and that if S is a subtype of T, then S[] is a
+// subtype of T[]; this is a consequence of the definition of subtyping in terms of subset
+// inclusion of the corresponding sets of shapes.
+@test:Config {}
+function testArraySubType() {
+    int[5] fixedArray = [1, 2, 3, 4, 5];
+    any tempArray = fixedArray;
+    test:assertTrue(tempArray is int[], msg = "expected fixed length array to be subtype of growing array");
+
+    utils:BazRecordTwo bRecordTwo = { bazFieldOne: 12.0, bazFieldTwo: "fieldTwo" };
+    any tempRecord = bRecordTwo;
+    test:assertTrue(tempRecord is utils:BazRecord, msg = "expected BazRecordTwo to be subtype of BazRecord");
+
+
+    utils:BazRecordTwo[] bRecordTwoArray = [bRecordTwo];
+    any tempRecordArray = bRecordTwoArray;
+    test:assertTrue(tempRecordArray is utils:BazRecord[],
+        msg = "expected BazRecordTwo[] to be subtype of BazRecord[]");
 }
 
 function insertElementToArray(any[] array, int index, any element) {
