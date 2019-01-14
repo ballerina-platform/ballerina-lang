@@ -48,6 +48,9 @@ public class RepoUtils {
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
 
+    private static final String BALLERINA_ORG = "ballerina";
+    private static final String BALLERINAX_ORG = "ballerinax";
+
     /**
      * Create and get the home repository path.
      *
@@ -174,6 +177,6 @@ public class RepoUtils {
      * @return True if the org-name is reserved, else false.
      */
     public static boolean isReservedOrgName(String orgName) {
-        return orgName.equals("ballerina") || orgName.equals("ballerinax");
+        return orgName.equals(BALLERINA_ORG) || orgName.equals(BALLERINAX_ORG);
     }
 }
