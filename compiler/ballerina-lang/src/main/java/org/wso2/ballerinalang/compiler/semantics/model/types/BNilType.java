@@ -48,4 +48,9 @@ public class BNilType extends BType implements NullType {
     public String toString() {
         return Names.NIL_VALUE.value;
     }
+
+    @Override
+    public boolean hasImplicitInitialValue() {
+        return true;
+    }
 }

@@ -113,21 +113,21 @@ public class BType implements ValueType {
         return tsymbol.pkgID.toString() + ":" + tsymbol.name;
     }
 
-    /**
-     * A data holder to hold the type associated with an expression.
-     */
-    public static class NarrowedTypes {
-        public BType trueType;
-        public BType falseType;
-
-        public NarrowedTypes(BType trueType, BType falseType) {
-            this.trueType = trueType;
-            this.falseType = falseType;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + trueType + ", " + falseType + ")";
+    public boolean hasImplicitInitialValue() {
+        switch (tag) {
+            case INT:
+            case BYTE:
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case BOOLEAN:
+            case NIL:
+            case TYPEDESC:
+                return true;
+            case ERROR:
+                return false;
+            default:
+                throw new IllegalStateException("hasImplicitInitialValue not specified for " + this);
         }
     }
 }

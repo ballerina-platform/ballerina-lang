@@ -84,4 +84,9 @@ public class BUnionType extends BType implements UnionType {
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
     }
+
+    @Override
+    public boolean hasImplicitInitialValue() {
+        return memberTypes.stream().anyMatch(t -> t.hasImplicitInitialValue());
+    }
 }

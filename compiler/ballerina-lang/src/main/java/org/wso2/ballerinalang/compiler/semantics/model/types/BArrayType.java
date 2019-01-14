@@ -78,6 +78,15 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     @Override
+    public boolean hasImplicitInitialValue() {
+        if (state == BArrayState.UNSEALED) {
+            return true; // Empty array.
+        } else {
+            return eType.hasImplicitInitialValue();
+        }
+    }
+
+    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }
