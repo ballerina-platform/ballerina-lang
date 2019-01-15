@@ -116,6 +116,7 @@ public class FormattingTest {
                 {"expectedBindingPatterns.bal", "bindingPatterns.bal"},
                 {"expectedDocumentation.bal", "documentation.bal"},
                 {"expectedWorkerInteractions.bal", "workerInteractions.bal"},
+                {"expectedWait.bal", "wait.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
