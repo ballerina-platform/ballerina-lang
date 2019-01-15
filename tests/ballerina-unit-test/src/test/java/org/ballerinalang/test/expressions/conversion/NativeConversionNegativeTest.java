@@ -148,7 +148,7 @@ public class NativeConversionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
-                            "'Manager' value has cyclic value reference");
+                            "'Manager' value has cyclic reference");
     }
 
     @Test(description = "Test converting record to map having cyclic reference.")
@@ -157,7 +157,7 @@ public class NativeConversionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
-                            "'Manager' value has cyclic value reference");
+                            "'Manager' value has cyclic reference");
     }
 
     @Test(description = "Test converting record to json having cyclic reference.")
@@ -166,7 +166,7 @@ public class NativeConversionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
-                            "'Manager' value has cyclic value reference");
+                            "'Manager' value has cyclic reference");
     }
 }
 

@@ -541,7 +541,7 @@ public class MapStampInbuiltFunctionTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
-                            "'Person' value has cyclic value reference");
+                            "'Person' value has cyclic reference");
     }
 
     @Test(description = "Test stamping to map when value has cyclic reference.")
@@ -550,7 +550,7 @@ public class MapStampInbuiltFunctionTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
-                            "'Person' value has cyclic value reference");
+                            "'Person' value has cyclic reference");
     }
 
     @Test(description = "Test stamping to json when value has cyclic reference.")
@@ -559,6 +559,6 @@ public class MapStampInbuiltFunctionTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
-                            "'Person' value has cyclic value reference");
+                            "'Person' value has cyclic reference");
     }
 }
