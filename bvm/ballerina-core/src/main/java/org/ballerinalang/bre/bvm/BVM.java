@@ -873,7 +873,7 @@ public class BVM {
             return;
         }
 
-        if (!checkIsLikeType(refRegVal, BTypes.typeAnydata, new ArrayList<>())) {
+        if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
             sf.refRegs[j] =
                     BLangVMErrors.createError(ctx, BallerinaErrorReasons.CLONE_ERROR,
                                               BLangExceptionHelper.getErrorMessage(
@@ -1107,7 +1107,7 @@ public class BVM {
             targetType = stampType;
         }
 
-        if (!checkIsLikeType(valueToBeStamped, targetType, new ArrayList<>())) {
+        if (!checkIsLikeType(valueToBeStamped, targetType)) {
             BError error;
             if (valueToBeStamped != null) {
                 error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
@@ -2310,7 +2310,7 @@ public class BVM {
                 j = operands[1];
                 k = operands[2];
                 typeRefCPEntry = (TypeRefCPEntry) sf.constPool[j];
-                sf.intRegs[k] = checkIsLikeType(sf.refRegs[i], typeRefCPEntry.getType(), new ArrayList<>()) ? 1 : 0;
+                sf.intRegs[k] = checkIsLikeType(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -4764,42 +4764,46 @@ public class BVM {
             return value.getType();
         }
 
-        if (checkIsLikeType(value, BTypes.typeInt, new ArrayList<>())) {
+        if (checkIsLikeType(value, BTypes.typeInt)) {
             return BTypes.typeInt;
         }
 
-        if (checkIsLikeType(value, BTypes.typeFloat, new ArrayList<>())) {
+        if (checkIsLikeType(value, BTypes.typeFloat)) {
             return BTypes.typeFloat;
         }
 
-        if (checkIsLikeType(value, BTypes.typeString, new ArrayList<>())) {
+        if (checkIsLikeType(value, BTypes.typeString)) {
             return BTypes.typeString;
         }
 
-        if (checkIsLikeType(value, BTypes.typeBoolean, new ArrayList<>())) {
+        if (checkIsLikeType(value, BTypes.typeBoolean)) {
             return BTypes.typeBoolean;
         }
 
-        if (checkIsLikeType(value, BTypes.typeByte, new ArrayList<>())) {
+        if (checkIsLikeType(value, BTypes.typeByte)) {
             return BTypes.typeByte;
         }
 
         BType anydataArrayType = new BArrayType(type);
-        if (checkIsLikeType(value, anydataArrayType, new ArrayList<>())) {
+        if (checkIsLikeType(value, anydataArrayType)) {
             return anydataArrayType;
         }
 
-        if (checkIsLikeType(value, BTypes.typeXML, new ArrayList<>())) {
+        if (checkIsLikeType(value, BTypes.typeXML)) {
             return BTypes.typeXML;
         }
 
         BType anydataMapType = new BMapType(type);
-        if (checkIsLikeType(value, anydataMapType, new ArrayList<>())) {
+        if (checkIsLikeType(value, anydataMapType)) {
             return anydataMapType;
         }
 
         //not possible
         return null;
+    }
+
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+        return checkIsLikeType(sourceValue, targetType, new ArrayList<>());
     }
 
     public static boolean checkIsLikeType(BValue sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {

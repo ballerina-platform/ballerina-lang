@@ -42,7 +42,6 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -393,7 +392,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (BVM.checkIsLikeType(this, memberType, new ArrayList())) {
+                if (BVM.checkIsLikeType(this, memberType)) {
                     this.stamp(memberType, unresolvedValues);
                     type = memberType;
                     break;
