@@ -16,7 +16,7 @@ public function main(int i, int j, string s) returns int {
     panic unknownOpError;
 }
 
-// A public function to perform a math operation. The first parameter `op`,
+// A `public` function to perform a math operation. The first parameter `op`,
 // representing the operation, is a defaultable parameter with the default
 // value `add`.
 public function performMathOp(string op = "add", int... values) returns int {

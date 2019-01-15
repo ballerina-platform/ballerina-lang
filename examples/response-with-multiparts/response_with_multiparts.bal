@@ -21,14 +21,15 @@ service multipartResponseEncoder on new http:Listener(9092) {
                                         http:Request request) {
         // Creates an enclosing entity to hold the child parts.
         mime:Entity parentPart = new;
-        // Creates a child part with the json content.
+
+        // Creates a child part with the JSON content.
         mime:Entity childPart1 = new;
         childPart1.setJson({ "name": "wso2" });
         // Creates another child part with a file.
         mime:Entity childPart2 = new;
-        // The file path is relative to the current working directory.
-        // If your file does not reside in the directory tree of the
-        // current working directory, give the absolute file path instead.
+        // This file path is relative to where the Ballerina is running.
+        //If your file is located outside, please give the
+        //absolute file path instead.
         childPart2.setFileAsEntityBody("./files/test.xml",
             contentType = mime:TEXT_XML);
         // Creates an array to hold the child parts.
@@ -165,11 +166,11 @@ function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
     int readCount = 1;
     byte[] readContent;
     while (readCount > 0) {
-        //Operation attempts to read a maximum of 1000 bytes.
-        (byte[], int) result = check src.read(1000);
-        (readContent, readCount) = result;
-        //Writes the given content into the channel.
-        var writeResult = check dst.write(readContent, 0);
+    //Operation attempts to read a maximum of 1000 bytes.
+    (byte[], int) result = check src.read(1000);
+    (readContent, readCount) = result;
+    //Writes the given content into the channel.
+    var writeResult = check dst.write(readContent, 0);
     }
     return;
 }

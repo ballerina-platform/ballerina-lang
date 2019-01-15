@@ -33,7 +33,7 @@ service failoverDemoService on new http:Listener(9090) {
 
         var backendResponse = foBackendEP->get("/", message = request);
 
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
