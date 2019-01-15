@@ -27,18 +27,34 @@ import ballerina/test;
     groups: ["broken"]
 }
 function testErrorTypeDescriptorBroken() {
-    map<anydata> detail = {cause: "Core Error"};
-    error<string, map<any>> error1 = error("Error Three", detail);
+    map<anydata> detail = { cause: "Core Error" };
+    error <string, map<any>> error1 = error("Error Three", detail);
     detail.stacktrace = "xyz";
     test:assertEquals(error1.detail(), detail, msg = "expected detail map in error to be changed");
 }
 
 // An error type does not have an implicit initial value.
-// TODO: Creating and error array should fail at compile time
+// TODO: Creating and error array should fail at compile time.
 @test:Config {
     groups: ["broken"]
 }
 function testErrorImplicitInitialValueBroken() {
     error[] errorArray = [];
     errorArray[1] = error("Error One");
+}
+
+// detail-type-descriptor must be a subtype of record { } (which is equivalent to map<anydata|error>).
+// TODO: The detail type descriptor must be a subtype of map<anydata|error>.
+@test:Config {}
+function testErrorTypeDescriptorsDetailValueBroken() {
+    error <string, map<any>> error1 = error("Error One", { detail: "failed" });
+}
+
+// An error value contains the following information:
+// ● a stack trace
+// TODO: Provide a function to extract the stack trace of an error.
+@test:Config {}
+function testErrorTypeDescriptorsStackTraceBroken() {
+    error <string, map<anydata>> error1 = error("Error One", { detail: "failed" });
+    // test:assertNotEquals(error1.stackTrace(), (), msg = "expected stack trace to be a non-nil value");
 }
