@@ -19,13 +19,13 @@ package org.ballerinalang.internal.compression;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.stdlib.common.CommonTestUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -35,10 +35,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -50,6 +47,7 @@ import java.util.zip.ZipFile;
 public class CompressionTest {
     private CompileResult compileResult;
     private static final String ERROR_MESSAGE_FIELD = "message";
+    private CommonTestUtils commonTestUtils = new CommonTestUtils();
 
     @BeforeClass
     public void setup() {
@@ -58,9 +56,9 @@ public class CompressionTest {
 
     @Test(description = "test unzipping/decompressing a compressed file with src and destination directory path")
     public void testDecompressFile() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
+        String resourceToRead = commonTestUtils.getAbsoluteFilePath("datafiles/compression/hello.zip");
         BString dirPath = new BString(resourceToRead);
-        String destDirPath = getAbsoluteFilePath("datafiles/compression/");
+        String destDirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath);
         BValue[] inputArg = {dirPath, destDir};
         BRunUtil.invoke(compileResult, "decompressFile", inputArg);
@@ -72,7 +70,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a compressed file without src directory path")
     public void testDecompressFileWithoutSrcDirectory() throws IOException, URISyntaxException {
-        String destDirPath = getAbsoluteFilePath("datafiles/compression/");
+        String destDirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath);
         BValue[] inputArg = {new BString(""), destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
@@ -87,7 +85,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a compressed file without destination directory path")
     public void testDecompressFileWithoutDestDirectory() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
+        String resourceToRead = commonTestUtils.getAbsoluteFilePath("datafiles/compression/hello.zip");
         BString dirPath = new BString(resourceToRead);
         BValue[] inputArg = {dirPath, new BString("")};
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
@@ -102,9 +100,9 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a compressed file with incorrect src directory path")
     public void testDecompressFileWithIncorrectSrcDirectory() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/sample.zip");
+        String resourceToRead = commonTestUtils.getAbsoluteFilePath("datafiles/compression/sample.zip");
         BString dirPath = new BString(resourceToRead);
-        String destDirPath = getAbsoluteFilePath("datafiles/compression/");
+        String destDirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath);
         BValue[] inputArg = {dirPath, destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
@@ -119,9 +117,9 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a compressed file with incorrect src directory path")
     public void testDecompressFileWithIncorrectDestDirectory() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
+        String resourceToRead = commonTestUtils.getAbsoluteFilePath("datafiles/compression/hello.zip");
         BString dirPath = new BString(resourceToRead);
-        String destDirPath = getAbsoluteFilePath("datafiles/compression/sample");
+        String destDirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/sample");
         BString destDir = new BString(destDirPath);
         BValue[] inputArg = {dirPath, destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
@@ -135,9 +133,9 @@ public class CompressionTest {
 
     @Test(description = "test zipping/compressing a folder")
     public void testCompressFolder() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
+        String resourceToRead = commonTestUtils.getAbsoluteFilePath("datafiles/compression/my.app");
         BString dirPath = new BString(resourceToRead);
-        String destDirPath = getAbsoluteFilePath("datafiles/compression/");
+        String destDirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath + File.separator + "my.app.zip");
         BValue[] inputArg = {dirPath, destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
@@ -154,9 +152,9 @@ public class CompressionTest {
 
     @Test(description = "test zipping/compressing a single file")
     public void testCompressFile() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app/test/main.bal");
+        String resourceToRead = commonTestUtils.getAbsoluteFilePath("datafiles/compression/my.app/test/main.bal");
         BString dirPath = new BString(resourceToRead);
-        String destDirPath = getAbsoluteFilePath("datafiles/compression/");
+        String destDirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath + File.separator + "main.zip");
         BValue[] inputArg = {dirPath, destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
@@ -174,9 +172,9 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file without providing a name for the zipped file")
     public void testCompressFileWithoutInvalidName() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
+        String resourceToRead = commonTestUtils.getAbsoluteFilePath("datafiles/compression/my.app");
         BString dirPath = new BString(resourceToRead);
-        BString destDir = new BString(getAbsoluteFilePath("datafiles/compression/"));
+        BString destDir = new BString(commonTestUtils.getAbsoluteFilePath("datafiles/compression/"));
         BValue[] inputArg = {dirPath, destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
         Assert.assertNotNull(returns);
@@ -189,7 +187,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file without src directory path")
     public void testCompressFileWithoutSrcDirectory() throws IOException, URISyntaxException {
-        String destDirPath = getAbsoluteFilePath("datafiles/compression/");
+        String destDirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath + File.separator + "compression.zip");
         BValue[] inputArg = {new BString(""), destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
@@ -203,7 +201,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file without destination directory path")
     public void testCompressFileWithoutDestinationDirectory() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
+        String resourceToRead = commonTestUtils.getAbsoluteFilePath("datafiles/compression/my.app");
         BString dirPath = new BString(resourceToRead);
         BValue[] inputArg = {dirPath, new BString("")};
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
@@ -217,7 +215,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file without destination directory path")
     public void testCompressFileWithIncorrectSrcDirectory() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/sample.zip");
+        String resourceToRead = commonTestUtils.getAbsoluteFilePath("datafiles/compression/sample.zip");
         BString dirPath = new BString(resourceToRead);
         BValue[] inputArg = {dirPath, new BString("")};
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
@@ -231,7 +229,7 @@ public class CompressionTest {
 
     @Test(description = "test unzipping/decompressing a byte array")
     public void testDecompressBlob() throws IOException, URISyntaxException {
-        String dirPath = getAbsoluteFilePath("datafiles/compression/");
+        String dirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "test.zip").toPath());
         BString destDir = new BString(dirPath);
@@ -252,7 +250,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a byte array without the content as a blob/byte array")
     public void testDecompressBlobWithoutBytes() throws IOException, URISyntaxException {
-        String dirPath = getAbsoluteFilePath("datafiles/compression/");
+        String dirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(dirPath);
         BValueArray contentAsByteArray = new BValueArray(new byte[0]);
         BValue[] inputArg = {contentAsByteArray, destDir};
@@ -267,7 +265,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a byte array without the destination directory path")
     public void testDecompressBlobWithoutDestDirectory() throws IOException, URISyntaxException {
-        String dirPath = getAbsoluteFilePath("datafiles/compression/");
+        String dirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "test.zip").toPath());
         BValueArray contentAsByteArray = new BValueArray(fileContentAsByteArray);
@@ -283,7 +281,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a byte array with an incorrect destination directory path")
     public void testDecompressBlobWithIncorrectDestDir() throws IOException, URISyntaxException {
-        String dirPath = getAbsoluteFilePath("datafiles/compression/");
+        String dirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "test.zip").toPath());
         BString destDir = new BString(dirPath + File.separator + "sample");
@@ -300,7 +298,7 @@ public class CompressionTest {
     @Test(description = "test zipping/compressing a file to a byte array and decompressing it to check if it was " +
             " properly compressed")
     public void testCompressToBlob() throws IOException, URISyntaxException {
-        String dirPath = getAbsoluteFilePath("datafiles/compression/");
+        String dirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         BString dirPathValue = new BString(dirPath + File.separator + "my.app");
         BValue[] inputArg = {dirPathValue};
         BValue[] returns = BRunUtil.invoke(compileResult, "compressDirToBlob", inputArg);
@@ -331,7 +329,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file to a byte array when an incorrect src directory is given")
     public void testCompressToBlobWithIncorrectSrcDir() throws IOException, URISyntaxException {
-        String dirPath = getAbsoluteFilePath("datafiles/compression/");
+        String dirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         BString dirPathValue = new BString(dirPath + File.separator + "sample");
         BValue[] inputArg = {dirPathValue};
         BValue[] returns = BRunUtil.invoke(compileResult, "compressDirToBlob", inputArg);
@@ -346,7 +344,7 @@ public class CompressionTest {
     @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a file with Zip Slip attack pattern")
     public void testDecompressBlobWithZipSlipAttackPattern() throws IOException, URISyntaxException {
-        String dirPath = getAbsoluteFilePath("datafiles/compression/");
+        String dirPath = commonTestUtils.getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "zip-slip.zip").toPath());
         BString destDir = new BString(dirPath);
@@ -360,22 +358,6 @@ public class CompressionTest {
                 "Arbitrary File Write attack attempted via an " +
                 "archive file. File name: ../../../../../../../../../../../../../../../../../../../../../../../../.." +
                 "/../../../../../../../../../../../../../../../tmp/evil.txt");
-    }
-
-    /**
-     * Will identify the absolute path from the relative.
-     *
-     * @param relativePath the relative file path location.
-     * @return the absolute path.
-     */
-    private String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
-        URL fileResource = BServiceUtil.class.getClassLoader().getResource(relativePath);
-        String pathValue = "";
-        if (null != fileResource) {
-            Path path = Paths.get(fileResource.toURI());
-            pathValue = path.toAbsolutePath().toString();
-        }
-        return pathValue;
     }
 
     /**

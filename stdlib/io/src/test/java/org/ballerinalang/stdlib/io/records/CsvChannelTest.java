@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.io.records;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -29,15 +28,13 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.stdlib.common.CommonTestUtils;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Tests the CSV channel with the specified values.
@@ -45,21 +42,12 @@ import java.nio.file.Paths;
 public class CsvChannelTest {
     private CompileResult csvInputOutputProgramFile;
     private String currentDirectoryPath = "/tmp";
+    private CommonTestUtils commonTestUtils = new CommonTestUtils();
 
     @BeforeClass
     public void setup() {
         csvInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/csv_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
-    }
-
-    private String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
-        URL fileResource = BServiceUtil.class.getClassLoader().getResource(relativePath);
-        String pathValue = "";
-        if (null != fileResource) {
-            Path path = Paths.get(fileResource.toURI());
-            pathValue = path.toAbsolutePath().toString();
-        }
-        return pathValue;
     }
 
     @Test(description = "Test 'readDefaultCSVRecords'")
@@ -70,7 +58,7 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(",")};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
@@ -112,7 +100,7 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(","), new BInteger(0)};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
@@ -154,7 +142,7 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(":"), new BInteger(0)};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
@@ -195,7 +183,7 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(","), new BInteger(1)};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
@@ -225,7 +213,7 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(",")};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
@@ -269,7 +257,7 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString("\t")};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 

@@ -19,7 +19,6 @@ package org.ballerinalang.stdlib.io;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
@@ -30,6 +29,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.stdlib.common.CommonTestUtils;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -37,7 +37,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,6 +52,7 @@ public class IOTest {
     private CompileResult recordsInputOutputProgramFile;
     private CompileResult stringInputOutputProgramFile;
     private String currentDirectoryPath = "/tmp";
+    private CommonTestUtils commonTestUtils = new CommonTestUtils();
 
     @BeforeClass
     public void setup() {
@@ -63,22 +63,6 @@ public class IOTest {
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
-    /**
-     * Will identify the absolute path from the relative.
-     *
-     * @param relativePath the relative file path location.
-     * @return the absolute path.
-     */
-    private String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
-        URL fileResource = BServiceUtil.class.getClassLoader().getResource(relativePath);
-        String pathValue = "";
-        if (null != fileResource) {
-            Path path = Paths.get(fileResource.toURI());
-            pathValue = path.toAbsolutePath().toString();
-        }
-        return pathValue;
-    }
-
     @Test(description = "Test 'readBytes' function in ballerina/io package")
     public void testReadBytes() throws URISyntaxException {
         int numberOfBytesToRead = 3;
@@ -86,7 +70,7 @@ public class IOTest {
         BValueArray readBytes;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead))};
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initReadableChannel", args);
 
         //Reads the 1st three bytes "123"
@@ -120,7 +104,7 @@ public class IOTest {
         BString readCharacters;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         String expectedCharacters = "aaa";
@@ -153,7 +137,7 @@ public class IOTest {
         BString readCharacters;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         int expectedNumberOfCharacters = 2265223;
@@ -171,7 +155,7 @@ public class IOTest {
         BString readCharacters;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         int expectedNumberOfCharacters = 0;
@@ -190,7 +174,7 @@ public class IOTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString("\n"), new BString(",")};
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initReadableChannel", args);
 
@@ -276,7 +260,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/text/web-app.json";
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readJson");
@@ -335,7 +319,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/text/cd_catalog.xml";
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readXml");
@@ -366,7 +350,7 @@ public class IOTest {
     }
 
     private String readFileContent(String filePath) throws URISyntaxException {
-        Path path = Paths.get(getAbsoluteFilePath(filePath));
+        Path path = Paths.get(commonTestUtils.getAbsoluteFilePath(filePath));
         StringBuilder data = new StringBuilder();
         Stream<String> lines;
         try {
