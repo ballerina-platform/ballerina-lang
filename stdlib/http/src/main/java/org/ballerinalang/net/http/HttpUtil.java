@@ -77,14 +77,11 @@ import org.wso2.transport.http.netty.contract.config.SslConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -1219,6 +1216,12 @@ public class HttpUtil {
         return responseStruct;
     }
 
+    /**
+     * Populates Sender configuration instance with client endpoint configuration.
+     *
+     * @param senderConfiguration  sender configuration instance.
+     * @param clientEndpointConfig client endpoint configuration.
+     */
     public static void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration;
@@ -1299,6 +1302,12 @@ public class HttpUtil {
         return (int) val == val;
     }
 
+    /**
+     * Populates SSL configuration instance with secure socket configuration.
+     *
+     * @param sslConfiguration  ssl configuration instance.
+     * @param secureSocket    secure socket configuration.
+     */
     public static void populateSSLConfiguration(SslConfiguration sslConfiguration, Struct secureSocket) {
         Struct trustStore = secureSocket.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
         Struct keyStore = secureSocket.getStructField(ENDPOINT_CONFIG_KEY_STORE);
