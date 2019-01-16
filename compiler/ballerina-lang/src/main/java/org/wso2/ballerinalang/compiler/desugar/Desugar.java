@@ -218,7 +218,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -1402,7 +1401,17 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangCompoundAssignment compoundAssignment) {
         BLangAssignment assignStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignStmt.pos = compoundAssignment.pos;
-        assignStmt.setVariable(rewriteExpr(compoundAssignment.varRef));
+        BLangVariableReference varRef = compoundAssignment.varRef;
+
+        // Create a new varRef if this is a simpleVarRef. Because this can be a
+        // narrowed type var. In that case, lhs and rhs must be visited in two
+        // different manners.
+        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            varRef = ASTBuilderUtil.createVariableRef(compoundAssignment.varRef.pos, varRef.symbol);
+            varRef.lhsVar = true;
+        }
+
+        assignStmt.setVariable(rewriteExpr(varRef));
         assignStmt.expr = rewriteExpr(compoundAssignment.modifiedExpr);
         result = assignStmt;
     }
@@ -1894,7 +1903,9 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.pos = varRefExpr.pos;
 
         // Restore the original type of the symbol
-        genVarRefExpr.varSymbol.type = genVarRefExpr.varSymbol.originalType;
+        if (genVarRefExpr.varSymbol != null) {
+            genVarRefExpr.varSymbol.type = genVarRefExpr.varSymbol.originalType;
+        }
 
         if (varRefExpr.lhsVar || !types.isValueType(genVarRefExpr.type)) {
             result = genVarRefExpr;
@@ -3103,6 +3114,7 @@ public class Desugar extends BLangNodeVisitor {
     private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {
         Name funcPointerName = ((BLangVariableReference) iExpr.expr).symbol.name;
         if (iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            iExpr.symbol = ((BLangVariableReference) iExpr.expr).symbol;
             iExpr.expr = null;
         } else {
             iExpr.expr = ((BLangAccessExpression) iExpr.expr).expr;

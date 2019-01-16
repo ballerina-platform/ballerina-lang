@@ -312,4 +312,10 @@ public class TypeGuardTest {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardsWithErrorInmatch");
         Assert.assertEquals(returns[0].stringValue(), "some error");
     }
+
+    @Test
+    public void testTypeNarrowingWithClosures() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeNarrowingWithClosures");
+        Assert.assertEquals(returns[0].stringValue(), "int: 8");
+    }
 }

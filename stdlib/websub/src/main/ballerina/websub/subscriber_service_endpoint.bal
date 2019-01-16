@@ -130,13 +130,13 @@ function Listener.sendSubscriptionRequests() {
                     var hubDecodeResponse = http:decode(retHub, "UTF-8");
                     if (hubDecodeResponse is string) {
                         retHub = hubDecodeResponse;
-                    } else if (hubDecodeResponse is error) {
+                    } else {
                         panic hubDecodeResponse;
                     }
                     var topicDecodeResponse = http:decode(retTopic, "UTF-8");
                     if (topicDecodeResponse is string) {
                         retTopic = topicDecodeResponse;
-                    } else if (topicDecodeResponse is error) {
+                    } else {
                         panic topicDecodeResponse;
                     }
                     subscriptionDetails["hub"] = retHub;
@@ -144,7 +144,7 @@ function Listener.sendSubscriptionRequests() {
                     subscriptionDetails["topic"] = retTopic;
                     string webSubServiceName = <string>subscriptionDetails.webSubServiceName;
                     self.setTopic(webSubServiceName, retTopic);
-                } else if (discoveredDetails is error) {
+                } else {
                     string errCause = <string> discoveredDetails.detail().message;
                     log:printError("Error sending out subscription request on start up: " + errCause);
                     continue;
@@ -229,10 +229,10 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
             string[] hubs = [];
             (topic, hubs) = topicAndHubs;
             return (hubs[0], topic); // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
-        } else if (topicAndHubs is error) {
+        } else {
             return topicAndHubs;
         }
-    } else if (discoveryResponse is error) {
+    } else {
         string errCause = <string> discoveryResponse.detail().message;
         map<any> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
                                 resourceUrl + "]: " + errCause };
@@ -263,7 +263,7 @@ function invokeClientConnectorForSubscription(string hub, http:ClientEndpointCon
     var convIntLeaseSeconds = int.convert(strLeaseSeconds);
     if (convIntLeaseSeconds is int) {
         leaseSeconds = convIntLeaseSeconds;
-    } else if (convIntLeaseSeconds is error) {
+    } else {
         string errCause = <string> convIntLeaseSeconds.detail().message;
         log:printError("Error retreiving specified lease seconds value: " + errCause);
         return;
@@ -284,7 +284,7 @@ function invokeClientConnectorForSubscription(string hub, http:ClientEndpointCon
     if (subscriptionResponse is SubscriptionChangeResponse) {
         log:printInfo("Subscription Request successful at Hub[" + subscriptionResponse.hub +
                 "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]");
-    } else if (subscriptionResponse is error) {
+    } else {
         string errCause = <string> subscriptionResponse.detail().message;
         log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);
     }

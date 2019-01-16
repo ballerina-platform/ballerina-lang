@@ -55,7 +55,7 @@ function testTypicalScenario() returns (http:Response[], error[]) {
             var serviceResponse = backendClientEP->get("/hello", message = request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
-            } else if (serviceResponse is error) {
+            } else {
                 errs[counter] = serviceResponse;
             }
             counter = counter + 1;
@@ -94,7 +94,7 @@ function testTrialRunFailure() returns (http:Response[], error[]) {
             var serviceResponse = backendClientEP->get("/hello", message = request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
-            } else if (serviceResponse is error) {
+            } else {
                 errs[counter] = serviceResponse;
             }
             counter = counter + 1;
@@ -132,7 +132,7 @@ function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
             var serviceResponse = backendClientEP->get("/hello", message = request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
-            } else if (serviceResponse is error) {
+            } else {
                 errs[counter] = serviceResponse;
             }
             counter = counter + 1;
@@ -169,7 +169,7 @@ function testForceOpenScenario() returns (http:Response[], error[]) {
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             errs[counter] = serviceResponse;
         }
         counter = counter + 1;
@@ -207,7 +207,7 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             errs[counter] = serviceResponse;
         }
         counter = counter + 1;
@@ -242,7 +242,7 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             errs[counter] = serviceResponse;
         }
         counter = counter + 1;
@@ -277,7 +277,7 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             errs[counter] = serviceResponse;
         }
         counter = counter + 1;
@@ -527,7 +527,7 @@ http:Request {
         request.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         request.setBodyParts(message);
     }
     return request;

@@ -58,7 +58,7 @@ function abortTransaction(string transactionId, string transactionBlockId) retur
     var txn = participatedTransactions[participatedTxnId];
     if (txn is TwoPhaseCommitTransaction) {
         return txn.markForAbortion();
-    } else if (txn is ()) {
+    } else {
         var initiatedTxn = initiatedTransactions[transactionId];
         if (initiatedTxn is TwoPhaseCommitTransaction) {
             return initiatedTxn.markForAbortion();
@@ -66,11 +66,6 @@ function abortTransaction(string transactionId, string transactionBlockId) retur
             error err = error("Unknown transaction");
             panic err;
         }
-    } else {
-        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
-        // this `else` block should be removed and the above `else if` block should be replaced with an else.
-        error e = error("Unreachable code");
-        panic e;
     }
 }
 
@@ -95,7 +90,7 @@ function endTransaction(string transactionId, string transactionBlockId) returns
         var initiatedTxn = initiatedTransactions[transactionId];
         if (initiatedTxn is ()) {
             return "";
-        } else if (initiatedTxn is TwoPhaseCommitTransaction) {
+        } else {
             if (initiatedTxn.state == TXN_STATE_ABORTED) {
                 return initiatedTxn.abortInitiatorTransaction();
             } else {
@@ -103,11 +98,6 @@ function endTransaction(string transactionId, string transactionBlockId) returns
                 removeInitiatedTransaction(transactionId);
                 return ret;
             }
-        } else {
-            // TODO: Ideally there shouldn't be an `else if` above but `else`. Once the limitations in type checking are
-            // fixed this `else` block should be removed and the above `else if` block should be replaced with an else.
-            error e = error("Unreachable code");
-            panic e;
         }
     } else {
         return "";  // Nothing to do on endTransaction if you are a participant

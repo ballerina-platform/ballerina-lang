@@ -51,7 +51,7 @@ service echo on echoEP {
         var payload = req.getTextPayload();
         if (payload is error) {
             return;
-        } else if (payload is string) {
+        } else {
             payloadData = payload;
         }
         self.serviceLevelStr = untaint payloadData;
@@ -125,7 +125,7 @@ service echo on echoEP {
             }
             json responseJson = {"Name":name , "Team":team};
             res.setJsonPayload(untaint responseJson);
-        } else if (params is error) {
+        } else {
             string errMsg = <string> params.detail().message;
             res.setPayload(untaint errMsg);
         }

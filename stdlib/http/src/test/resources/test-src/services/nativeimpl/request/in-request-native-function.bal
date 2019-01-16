@@ -167,7 +167,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is json) {
+        } else {
             res.setJsonPayload(untaint returnResult.lang);
         }
         _ = caller->respond(res);
@@ -182,7 +182,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is string) {
+        } else {
             res.setTextPayload(untaint returnResult);
         }
         _ = caller->respond(res);
@@ -197,7 +197,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is xml) {
+        } else {
             var name = returnResult.getTextValue();
             res.setTextPayload(untaint name);
         }
@@ -213,7 +213,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is byte[]) {
+        } else {
             string name = mime:byteArrayToString(returnResult, "UTF-8");
             res.setTextPayload(untaint name);
         }
@@ -229,7 +229,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is io:ReadableByteChannel) {
+        } else {
             res.setByteChannel(returnResult);
         }
         _ = caller->respond(res);
@@ -295,7 +295,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is json) {
+        } else {
             res.setJsonPayload(untaint returnResult);
         }
         _ = caller->respond(res);
@@ -312,7 +312,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is string) {
+        } else {
             res.setJsonPayload({ lang: untaint returnResult });
         }
         _ = caller->respond(res);
@@ -330,7 +330,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is xml) {
+        } else {
             var name = untaint returnResult.getTextValue();
             res.setJsonPayload({ lang: name });
         }
@@ -350,7 +350,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is byte[]) {
+        } else {
             string name = untaint mime:byteArrayToString(returnResult, "UTF-8");
             res.setJsonPayload({ lang: name });
         }

@@ -397,7 +397,7 @@ function testSelect() returns (json) {
     json res = {};
     if (ret is json) {
         res = ret;
-    } else if (ret is error) {
+    } else {
         res = { Error: ret.reason() };
     }
     return res;
@@ -411,7 +411,7 @@ function testSelectCompatibleLambdaInput() returns (json) {
     json res = {};
     if (ret is json) {
         res = ret;
-    } else if (ret is error) {
+    } else {
         res = { Error: ret.reason() };
     }
     return res;
@@ -425,7 +425,7 @@ function testSelectCompatibleLambdaOutput() returns (json) {
     json res = {};
     if (ret is json) {
         res = ret;
-    } else if (ret is error) {
+    } else {
         res = { Error: ret.reason() };
     }
     return res;
@@ -439,7 +439,7 @@ function testSelectCompatibleLambdaInputOutput() returns (json) {
     json res = {};
     if (ret is json) {
         res = ret;
-    } else if (ret is error) {
+    } else {
         res = { Error: ret.reason() };
     }
     return res;

@@ -43,7 +43,7 @@ type Person object {
             self.age = self.age + 10;
             self.name = self.name + " hello";
         }
-        else if inVal is Foo {
+        else {
             self.age = self.age + inVal.count;
             self.name = self.name + inVal.last;
         }

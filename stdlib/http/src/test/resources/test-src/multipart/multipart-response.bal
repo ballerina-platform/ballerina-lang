@@ -49,7 +49,7 @@ service test on mockEP {
 
         if (bodyParts is mime:Entity[]) {
             outResponse.setBodyParts(untaint bodyParts, contentType = contentType);
-        } else if (bodyParts is error) {
+        } else {
             outResponse.setPayload(untaint <string>bodyParts.detail().message);
         }
         _ = caller->respond(outResponse);

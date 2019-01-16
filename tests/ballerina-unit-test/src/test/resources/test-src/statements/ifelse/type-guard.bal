@@ -425,3 +425,20 @@ function testTypeGuardsWithErrorInmatch() returns string {
         var p => return "Internal server error";
     }
 }
+
+
+function testTypeNarrowingWithClosures() returns string {
+    int|string x = 8;
+    if (x is string) {
+        return "string: "+ x;
+    } else {
+        var y = function() returns int {
+                    if (x is int) {
+                        return x;
+                    } else {
+                        return -1;
+                    }
+                };
+        return "int: "+ y.call();
+    }
+}

@@ -185,7 +185,7 @@ service echo on mockEP {
         var payload = request.getJsonPayload();
         if (payload is json) {
             response.setPayload(untaint payload);
-        } else if (payload is error) {
+        } else {
             response.setPayload(untaint <string>payload.detail().message);
         }
         _ = caller->respond(response);

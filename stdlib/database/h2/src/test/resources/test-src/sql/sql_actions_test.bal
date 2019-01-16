@@ -147,7 +147,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         string[] b;
         (a, b) = x;
         returnVal = b[0];
-    } else  if (x is error) {
+    } else {
         returnVal = x.reason();
     }
     testDB.stop();
@@ -173,7 +173,7 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
         string[] b;
         (a, b) = x;
         returnVal = b.length();
-    } else if (x is error) {
+    } else {
         returnVal = x.reason();
     }
     testDB.stop();
@@ -206,7 +206,7 @@ function testGeneratedKeyWithColumn() returns (string) {
         string[] b;
         (a, b) = x;
         returnVal = b[0];
-    } else if (x is error){
+    } else {
         returnVal = x.reason();
     }
     testDB.stop();
@@ -273,9 +273,10 @@ function testCallProcedure() returns (string, string) {
         returnValue = "table";
     } else if (ret is ()) {
         returnValue = "nil";
-    } else if (ret is error) {
+    } else {
         returnValue = "error";
     }
+
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
     string firstName = getTableFirstNameColumn(dt);
     testDB.stop();
@@ -1443,7 +1444,7 @@ function testLoadToMemorySelectAfterTableClose() returns (
 
         if (ret is CustomerFullName[]) {
             fullNameArray3 = ret;
-        } else if (ret is error) {
+        } else {
             e = ret;
         }
     }
@@ -1524,10 +1525,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         var jsonConversionResult = json.convert(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
-        } else if (jsonConversionResult is error) {
+        } else {
             retVal = {"Error" : string.convert(jsonConversionResult.detail().message)};
         }
-    } else if (tableOrError is error) {
+    } else {
         retVal = {"Error" : string.convert(tableOrError.detail().message)};
     }
     return retVal;
@@ -1539,11 +1540,11 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
         var xmlConversionResult = xml.convert(tableOrError);
         if (xmlConversionResult is xml) {
             retVal = xmlConversionResult;
-        } else if (xmlConversionResult is error) {
+        } else {
             string errorXML = string.convert(xmlConversionResult.detail().message);
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
-    } else if (tableOrError is error) {
+    } else {
         string errorXML = string.convert(tableOrError.detail().message);
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }

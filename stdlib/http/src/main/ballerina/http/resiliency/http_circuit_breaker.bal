@@ -492,7 +492,7 @@ function updataCircuitHealthAndRespond(Response|error serviceResponse, CircuitHe
                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns Response|error {
     if (serviceResponse is Response) {
         updateCircuitHealthSuccess(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
-    } else if (serviceResponse is error) {
+    } else {
         updateCircuitHealthFailure(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
     }
     return serviceResponse;

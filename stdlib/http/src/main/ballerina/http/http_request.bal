@@ -352,7 +352,7 @@ function Request.getFormParams() returns map<string>|error {
                 entryIndex = entryIndex + 1;
             }
         }
-    } else if (formData is error) {
+    } else {
         return formData;
     }
     return parameters;
@@ -411,7 +411,7 @@ function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:E
         self.setBinaryPayload(payload);
     } else if (payload is io:ReadableByteChannel) {
         self.setByteChannel(payload);
-    } else if (payload is mime:Entity[]) {
+    } else {
         self.setBodyParts(payload);
     }
 }

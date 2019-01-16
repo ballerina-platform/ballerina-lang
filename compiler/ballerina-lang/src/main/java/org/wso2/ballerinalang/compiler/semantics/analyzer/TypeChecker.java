@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
@@ -2994,13 +2995,24 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
 
-        BSymbol funcSymbol = ((BLangVariableReference) iExpr.expr).symbol;
-        if (funcSymbol == null || getSafeType(funcSymbol.type, iExpr).tag != TypeTags.INVOKABLE) {
+        BSymbol varSymbol = ((BLangVariableReference) iExpr.expr).symbol;
+        if (varSymbol == null) {
             return symTable.notFoundSymbol;
         }
 
-        iExpr.symbol = funcSymbol;
-        return funcSymbol;
+        BType varType = getSafeType(varSymbol.type, iExpr);
+        if (varType.tag != TypeTags.INVOKABLE) {
+            return symTable.notFoundSymbol;
+        }
+
+        if (varSymbol.kind != SymbolKind.FUNCTION) {
+            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, 0, varSymbol.name, env.enclPkg.symbol.pkgID, varType,
+                    env.scope.owner);
+            varSymbol.kind = SymbolKind.FUNCTION;
+        }
+
+        iExpr.symbol = varSymbol;
+        return varSymbol;
     }
 
     private BSymbol getSymbolForAnydataReturningBuiltinMethods(BLangInvocation iExpr) {

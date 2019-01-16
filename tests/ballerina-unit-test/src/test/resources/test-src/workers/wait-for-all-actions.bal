@@ -157,10 +157,8 @@ function waitTest16() returns int {
     var result = trap wait {f1, f2, f3, f4};
     if (result is map<int|string|boolean>) {
         return 9;
-    } else if (result is error) {
-        return 0;
     } else {
-        return 1;
+        return 0;
     }
 }
 

@@ -90,7 +90,7 @@ service echo on testEP {
         var jsonPayload = json.convert(persons);
         if (jsonPayload is json) {
             _ = caller->respond(untaint jsonPayload);
-        } else if (jsonPayload is error) {
+        } else {
             _ = caller->respond(untaint string.convert(jsonPayload.detail().message));
         }
     }

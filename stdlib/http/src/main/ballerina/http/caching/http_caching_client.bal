@@ -444,7 +444,7 @@ function getValidationResponse(Client httpClient, Request req, Response cachedRe
     var response = sendValidationRequest(httpClient, path, cachedResponse);
     if (response is Response) {
         validationResponse = response;
-    } else if (response is error) {
+    } else {
     // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
     // This behaviour is based on the fact that currently error structs are returned only
     // if the connection is refused or the connection times out.

@@ -46,10 +46,10 @@ service MyService on testEP {
             var ret = json.convert(selectRet);
             if (ret is json) {
                 result = ret;
-            } else if (ret is error) {
+            } else {
                 result = { Error: ret.reason() };
             }
-        } else if (selectRet is error) {
+        } else {
             result = { Error: selectRet.reason() };
         }
 
@@ -76,10 +76,10 @@ service MyService on testEP {
             if (ret is json) {
                 result = ret;
                 statusVal = "SUCCESS";
-            } else if (ret is error) {
+            } else {
                 result = { Error: ret.reason() };
             }
-        } else if (selectRet is error) {
+        } else {
             result = { Error: selectRet.reason() };
         }
         json j = { status: statusVal, resp: { value: result } };

@@ -48,7 +48,7 @@ service Participant2pcService on coordinatorListener {
         if (participatedTxn is ()) {
             res.statusCode = http:NOT_FOUND_404;
             prepareRes.message = TRANSACTION_UNKNOWN;
-        } else if (participatedTxn is TwoPhaseCommitTransaction) {
+        } else {
             if (participatedTxn.state == TXN_STATE_ABORTED) {
                 res.statusCode = http:OK_200;
                 prepareRes.message = PREPARE_RESULT_ABORTED_STR;
@@ -70,6 +70,7 @@ service Participant2pcService on coordinatorListener {
                 }
             }
         }
+
         var jsonResponse = json.convert(prepareRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
@@ -78,7 +79,7 @@ service Participant2pcService on coordinatorListener {
                 log:printError("Sending response for prepare request for transaction " +
                 transactionId + " failed", err = resResult);
             }
-        } else if (jsonResponse is error) {
+        } else {
             panic jsonResponse;
         }
     }
@@ -106,7 +107,7 @@ service Participant2pcService on coordinatorListener {
         if (txn is ()) {
             res.statusCode = http:NOT_FOUND_404;
             notifyRes.message = TRANSACTION_UNKNOWN;
-        } else if (txn is TwoPhaseCommitTransaction) {
+        } else {
             if (notifyReq.message == COMMAND_COMMIT) {
                 if (txn.state != TXN_STATE_PREPARED) {
                     res.statusCode = http:BAD_REQUEST_400;
@@ -139,6 +140,7 @@ service Participant2pcService on coordinatorListener {
             }
             removeParticipatedTransaction(participatedTxnId);
         }
+
         var jsonResponse = json.convert(notifyRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
@@ -147,7 +149,7 @@ service Participant2pcService on coordinatorListener {
                 log:printError("Sending response for notify request for transaction " + transactionId +
                         " failed", err = resResult);
             }
-        } else if (jsonResponse is error) {
+        } else {
             panic jsonResponse;
         }
     }

@@ -47,9 +47,10 @@ public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
     var headerValue = trap req.getHeader(AUTH_HEADER);
     if (headerValue is string) {
         return headerValue;
-    } else if (headerValue is error) {
+    } else {
+        string reason = headerValue.reason();
         log:printDebug(function() returns string {
-            return "Error in retrieving header " + AUTH_HEADER + ": " + headerValue.reason();
+            return "Error in retrieving header " + AUTH_HEADER + ": " + reason;
         });
     }
     return ();

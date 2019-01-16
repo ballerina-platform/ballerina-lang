@@ -4,7 +4,7 @@ function test1 () {
     Foo|error k = <Foo> bar;
     if k is Foo {
         string result1 = k + ex;
-    } else if k is error {
+    } else {
         string result2 = k + ex;
     }
 }
@@ -14,7 +14,7 @@ function test2(){
     Float|error k = <Float> foo;
     if k is Float {
         string result1 = k + ex;
-    } else if k is error {
+    } else {
         string result2 = k + ex;
     }
 }
@@ -23,7 +23,7 @@ function test3(){
     string|error k = <string> foo;
     if k is string {
         string result1 = k + ex;
-    } else if k is error {
+    } else {
         string result2 = k + ex;
     }
 }
@@ -32,7 +32,7 @@ function test4 () {
     Foo|error k = <Foo> bar;
     if k is Foo {
         string result1 = k + ex;
-    } else if k is error {
+    } else {
         string result2 = k + ex;
     }
 }
@@ -42,7 +42,7 @@ function test5(){
     Float|error k = <Float> foo;
     if k is Float {
         string result1 = k + ex;
-    } else if k is error {
+    } else {
         string result2 = k + ex;
     }
 }
@@ -51,7 +51,7 @@ function test6(){
     string|error k = <string> foo;
     if k is string {
         string result1 = k + ex;
-    } else if k is error {
+    } else {
         string result2 = k + ex;
     }
 }

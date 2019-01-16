@@ -18,7 +18,7 @@ function testTransactionStmt(int i) returns (string) {
     var result = trap testTransactionStmtHelper2(a, i);
     if (result is string) {
         a = result;
-    } else if (result is error) {
+    } else {
         a = a + <string>result.reason();
     }
     a = a + " rc:" + attemptCount + " end";
@@ -123,7 +123,7 @@ function testTransactionStmtWithFailedAndNonDefaultRetries(int i) returns (strin
     var result = trap testTransactionStmtWithFailedAndNonDefaultRetriesHelper1(i, a);
     if (result is string) {
         a = result;
-    } else if (result is error) {
+    } else {
         a = a + result.reason();
     }
     a = a + " rc:" + attemptCount + " end";
@@ -168,7 +168,7 @@ function testTransactionStmtWithRetryOff(int i) returns (string) {
     var result = trap testTransactionStmtWithRetryOffHelper2(i, a);
     if (result is string) {
         a = result;
-    } else if (result is error) {
+    } else {
         a += <string>result.reason();
     }
     a = a + " end";
@@ -203,7 +203,7 @@ function testTransactionStmtWithConstRetryFailed() returns (string) {
     var result = trap testTransactionStmtWithConstRetryFailedHelper(a);
     if (result is string) {
         a = result;
-    } else if (result is error) {
+    } else {
         a += result.reason();
     }
     a = a + " rc:" + attemptCount + " end";
@@ -231,7 +231,7 @@ function testTransactionStmtWithConstRetryFailed2() returns (string) {
     var result = trap testTransactionStmtWithConstRetryFailed2Helper(a);
     if (result is string) {
         a = result;
-    } else if (result is error) {
+    } else {
         a = a + <string>result.detail().message;
     }
     a = a + " end";
@@ -258,7 +258,7 @@ function testTransactionStmtWithConstRetrySuccess() returns (string) {
     var result = trap testTransactionStmtWithConstRetrySuccessHelper(a);
     if (result is string) {
         a = result;
-    } else if (result is error) {
+    } else {
         a += result.reason();
     }
     a = a + " end";
@@ -280,7 +280,7 @@ function testMultipleTransactionStmtSuccess() returns (string) {
     var result = trap testMultipleTransactionStmtSuccessHelper(a);
     if (result is string) {
         a = result;
-    } else if (result is error) {
+    } else {
         a += result.reason();
     }
     a = a + " end";
@@ -310,7 +310,7 @@ function testMultipleTransactionStmtFailed1() returns (string) {
     var result = trap testMultipleTransactionStmtFailed1Helper(a);
     if (result is string) {
         a = failingTrxLog;
-    } else if (result is error) {
+    } else {
         a = failingTrxLog + result.reason();
     }
     a = a + " end";
@@ -346,7 +346,7 @@ function testMultipleTransactionStmtFailed2() returns (string) {
     var result = trap testMultipleTransactionStmtFailed2Helper(log2);
     if (result is string) {
         log2 = result;
-    } else if (result is error) {
+    } else {
         log2 += result.reason();
     }
     transaction {
