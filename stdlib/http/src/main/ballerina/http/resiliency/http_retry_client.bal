@@ -197,81 +197,81 @@ public type RetryClient client object {
     public remote function rejectPromise(PushPromise promise);
 };
 
-remote function RetryClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function RetryClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_POST, self);
 }
 
-remote function RetryClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function RetryClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_HEAD, self);
 }
 
-remote function RetryClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function RetryClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PUT, self);
 }
 
-remote function RetryClient.forward(string path, Request request) returns Response|error {
+public remote function RetryClient.forward(string path, Request request) returns Response|error {
     return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
-remote function RetryClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
+public remote function RetryClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
                                                                     |mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryClientExecuteAction(path, req, httpVerb, self);
 }
 
-remote function RetryClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function RetryClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PATCH, self);
 }
 
-remote function RetryClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function RetryClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_DELETE, self);
 }
 
-remote function RetryClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function RetryClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_GET, self);
 }
 
-remote function RetryClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function RetryClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 
-remote function RetryClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|
+public remote function RetryClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|
                                                                     mime:Entity[]|() message) returns HttpFuture|error {
     Request req = buildRequest(message);
     return self.httpClient->submit(httpVerb, path, req);
 }
 
-remote function RetryClient.getResponse(HttpFuture httpFuture) returns Response|error {
+public remote function RetryClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient->getResponse(httpFuture);
 }
 
-remote function RetryClient.hasPromise(HttpFuture httpFuture) returns boolean {
+public remote function RetryClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient->hasPromise(httpFuture);
 }
 
-remote function RetryClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public remote function RetryClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient->getNextPromise(httpFuture);
 }
 
-remote function RetryClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public remote function RetryClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient->getPromisedResponse(promise);
 }
 
-remote function RetryClient.rejectPromise(PushPromise promise) {
+public remote function RetryClient.rejectPromise(PushPromise promise) {
     return self.httpClient->rejectPromise(promise);
 }
 

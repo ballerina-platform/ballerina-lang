@@ -293,7 +293,7 @@ public type CircuitBreakerClient object {
     public function getCurrentState() returns CircuitState;
 };
 
-function CircuitBreakerClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public function CircuitBreakerClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request req = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -308,7 +308,7 @@ function CircuitBreakerClient.post(string path, Request|string|xml|json|byte[]|i
     }
 }
 
-function CircuitBreakerClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public function CircuitBreakerClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -323,7 +323,7 @@ function CircuitBreakerClient.head(string path, Request|string|xml|json|byte[]|i
     }
 }
 
-function CircuitBreakerClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public function CircuitBreakerClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -338,7 +338,7 @@ function CircuitBreakerClient.put(string path, Request|string|xml|json|byte[]|io
     }
 }
 
-function CircuitBreakerClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|
+public function CircuitBreakerClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -353,7 +353,7 @@ function CircuitBreakerClient.execute(string httpVerb, string path, Request|stri
     }
 }
 
-function CircuitBreakerClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public function CircuitBreakerClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -368,7 +368,7 @@ function CircuitBreakerClient.patch(string path, Request|string|xml|json|byte[]|
     }
 }
 
-function CircuitBreakerClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public function CircuitBreakerClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -383,7 +383,7 @@ function CircuitBreakerClient.delete(string path, Request|string|xml|json|byte[]
     }
 }
 
-function CircuitBreakerClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public function CircuitBreakerClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -398,7 +398,7 @@ function CircuitBreakerClient.get(string path, Request|string|xml|json|byte[]|io
     }
 }
 
-function CircuitBreakerClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public function CircuitBreakerClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -413,7 +413,7 @@ function CircuitBreakerClient.options(string path, Request|string|xml|json|byte[
     }
 }
 
-function CircuitBreakerClient.forward(string path, Request request) returns Response|error {
+public function CircuitBreakerClient.forward(string path, Request request) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -426,42 +426,42 @@ function CircuitBreakerClient.forward(string path, Request request) returns Resp
     }
 }
 
-function CircuitBreakerClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|
+public function CircuitBreakerClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
     Request request = buildRequest(message);
     return self.httpClient->submit(httpVerb, path, request);
 }
 
-function CircuitBreakerClient.getResponse(HttpFuture httpFuture) returns Response|error {
+public function CircuitBreakerClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient->getResponse(httpFuture);
 }
 
-function CircuitBreakerClient.hasPromise(HttpFuture httpFuture) returns boolean {
+public function CircuitBreakerClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient->hasPromise(httpFuture);
 }
 
-function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient->getNextPromise(httpFuture);
 }
 
-function CircuitBreakerClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public function CircuitBreakerClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient->getPromisedResponse(promise);
 }
 
-function CircuitBreakerClient.rejectPromise(PushPromise promise) {
+public function CircuitBreakerClient.rejectPromise(PushPromise promise) {
     return self.httpClient->rejectPromise(promise);
 }
 
-function CircuitBreakerClient.forceClose() {
+public function CircuitBreakerClient.forceClose() {
     self.currentCircuitState = CB_CLOSED_STATE;
 }
 
-function CircuitBreakerClient.forceOpen() {
+public function CircuitBreakerClient.forceOpen() {
     self.currentCircuitState = CB_OPEN_STATE;
     self.circuitHealth.lastForcedOpenTime = time:currentTime();
 }
 
-function CircuitBreakerClient.getCurrentState() returns CircuitState {
+public function CircuitBreakerClient.getCurrentState() returns CircuitState {
     return self.currentCircuitState;
 }
 

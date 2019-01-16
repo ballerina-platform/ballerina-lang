@@ -141,13 +141,13 @@ public type IntentVerificationRequest object {
 
 };
 
-function IntentVerificationRequest.buildSubscriptionVerificationResponse(string expectedTopic)
+public function IntentVerificationRequest.buildSubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
 }
 
-function IntentVerificationRequest.buildUnsubscriptionVerificationResponse(string expectedTopic)
+public function IntentVerificationRequest.buildUnsubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
@@ -555,13 +555,13 @@ public type WebSubHub object {
     public extern function getSubscribers(string topic) returns SubscriberDetails[];
 };
 
-function WebSubHub.stop() returns boolean {
+public function WebSubHub.stop() returns boolean {
     // TODO: return error
     var stopResult = self.hubHttpListener.__stop();
     return stopHubService(self.hubUrl) && !(stopResult is error);
 }
 
-function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+public function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
         map<any> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
@@ -594,7 +594,7 @@ function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:Readabl
     return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
-function WebSubHub.registerTopic(string topic) returns error? {
+public function WebSubHub.registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
         map<any> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -603,7 +603,7 @@ function WebSubHub.registerTopic(string topic) returns error? {
     return registerTopicAtHub(topic);
 }
 
-function WebSubHub.unregisterTopic(string topic) returns error? {
+public function WebSubHub.unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
         map<any> errorDetail = { message : "Remote topic unregistration not allowed/not required at the Hub" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);

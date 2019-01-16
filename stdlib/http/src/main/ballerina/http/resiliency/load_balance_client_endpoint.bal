@@ -183,84 +183,84 @@ public type LoadBalanceActionErrorData record {
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
 
-remote function LoadBalanceClient.post(string path,
+public remote function LoadBalanceClient.post(string path,
                 Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
-remote function LoadBalanceClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function LoadBalanceClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
-remote function LoadBalanceClient.patch(string path,
+public remote function LoadBalanceClient.patch(string path,
                 Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
-remote function LoadBalanceClient.put(string path,
+public remote function LoadBalanceClient.put(string path,
                 Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
-remote function LoadBalanceClient.options(string path,
+public remote function LoadBalanceClient.options(string path,
             Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
 
-remote function LoadBalanceClient.forward(string path, Request request) returns Response|error {
+public remote function LoadBalanceClient.forward(string path, Request request) returns Response|error {
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-remote function LoadBalanceClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|
+public remote function LoadBalanceClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|
                                             io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
 
-remote function LoadBalanceClient.delete(string path,
+public remote function LoadBalanceClient.delete(string path,
                 Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-remote function LoadBalanceClient.get(string path,
+public remote function LoadBalanceClient.get(string path,
             Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-remote function LoadBalanceClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|
+public remote function LoadBalanceClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-remote function LoadBalanceClient.getResponse(HttpFuture httpFuture) returns Response|error {
+public remote function LoadBalanceClient.getResponse(HttpFuture httpFuture) returns Response|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-remote function LoadBalanceClient.hasPromise(HttpFuture httpFuture) returns (boolean) {
+public remote function LoadBalanceClient.hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-remote function LoadBalanceClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public remote function LoadBalanceClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-remote function LoadBalanceClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public remote function LoadBalanceClient.getPromisedResponse(PushPromise promise) returns Response|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-remote function LoadBalanceClient.rejectPromise(PushPromise promise) {
+public remote function LoadBalanceClient.rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation

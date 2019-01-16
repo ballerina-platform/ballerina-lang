@@ -57,7 +57,7 @@ public type QueueSender client object {
     public remote function sendTo(Destination destination, Message message) returns error?;
 };
 
-remote function QueueSender.sendTo(Destination destination, Message message) returns error? {
+public remote function QueueSender.sendTo(Destination destination, Message message) returns error? {
     var session = self.config.session;
     if (session is Session) {
         validateQueue(destination);

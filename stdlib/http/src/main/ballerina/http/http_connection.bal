@@ -141,13 +141,13 @@ public const REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 # Represents the HTTP redirect status code `308 - Permanent Redirect`.
 public const REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
-remote function Caller.continue() returns error? {
+public remote function Caller.continue() returns error? {
     Response res = new;
     res.statusCode = CONTINUE_100;
     return self->respond(res);
 }
 
-remote function Caller.redirect(Response response, RedirectCode code, string[] locations) returns error? {
+public remote function Caller.redirect(Response response, RedirectCode code, string[] locations) returns error? {
     if (code == REDIRECT_MULTIPLE_CHOICES_300) {
         response.statusCode = MULTIPLE_CHOICES_300;
     } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
@@ -175,13 +175,13 @@ remote function Caller.redirect(Response response, RedirectCode code, string[] l
     return self->respond(response);
 }
 
-remote function Caller.ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
+public remote function Caller.ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
     Response response = buildResponse(message);
     response.statusCode = OK_200;
     return self->respond(response);
 }
 
-remote function Caller.created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+public remote function Caller.created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
     Response response = buildResponse(message);
     response.statusCode = CREATED_201;
@@ -191,7 +191,7 @@ remote function Caller.created(string uri, Response|string|xml|json|byte[]|io:Re
     return self->respond(response);
 }
 
-remote function Caller.accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+public remote function Caller.accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
     Response response = buildResponse(message);
     response.statusCode = ACCEPTED_202;
