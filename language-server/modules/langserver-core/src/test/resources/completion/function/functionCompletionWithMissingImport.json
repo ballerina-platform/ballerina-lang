@@ -9,7 +9,9 @@
       "label":"openReadableFile(string path)(ballerina/io:ReadableByteChannel)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Retrieves a ReadableByteChannel from a given file path.\n",
+      "documentation":{
+        "left":"Retrieves a ReadableByteChannel from a given file path.\n"
+      },
       "sortText":"121",
       "insertText":"openReadableFile(${1:path})",
       "insertTextFormat":"Snippet",
@@ -33,7 +35,9 @@
       "label":"openWritableFile(string path, boolean append \u003d false)(ballerina/io:WritableByteChannel)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Retrieves a WritableByteChannel from a given file path.\n",
+      "documentation":{
+        "left":"Retrieves a WritableByteChannel from a given file path.\n"
+      },
       "sortText":"121",
       "insertText":"openWritableFile(${1:path}, append \u003d ${2:false})",
       "insertTextFormat":"Snippet",
@@ -57,7 +61,9 @@
       "label":"createReadableChannel(byte[] content)(ballerina/io:ReadableByteChannel)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Creates an in-memory channel which will reference stream of bytes.\n",
+      "documentation":{
+        "left":"Creates an in-memory channel which will reference stream of bytes.\n"
+      },
       "sortText":"121",
       "insertText":"createReadableChannel(${1:content})",
       "insertTextFormat":"Snippet",
@@ -81,7 +87,9 @@
       "label":"openReadableCsvFile(string path, ,|\t|: fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina/io:ReadableCSVChannel)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Retrieves a readable CSV channel from a give file path.\n",
+      "documentation":{
+        "left":"Retrieves a readable CSV channel from a give file path.\n"
+      },
       "sortText":"121",
       "insertText":"openReadableCsvFile(${1:path}, fieldSeparator \u003d ${4:,}, charset \u003d ${5:\"UTF-8\"}, skipHeaders \u003d ${6:0})",
       "insertTextFormat":"Snippet",
@@ -105,7 +113,9 @@
       "label":"openWritableCsvFile(string path, ,|\t|: fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina/io:WritableCSVChannel)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Retrieves a writable CSV channel from a give file path.\n",
+      "documentation":{
+        "left":"Retrieves a writable CSV channel from a give file path.\n"
+      },
       "sortText":"121",
       "insertText":"openWritableCsvFile(${1:path}, fieldSeparator \u003d ${4:,}, charset \u003d ${5:\"UTF-8\"}, skipHeaders \u003d ${6:0})",
       "insertTextFormat":"Snippet",
@@ -129,7 +139,9 @@
       "label":"print()",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Prints `any` or `error` value(s) to the STDOUT.",
+      "documentation":{
+        "left":"Prints `any` or `error` value(s) to the STDOUT."
+      },
       "sortText":"121",
       "insertText":"print()",
       "insertTextFormat":"Snippet",
@@ -153,7 +165,9 @@
       "label":"println()",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Prints `any` or `error` value(s) to the STDOUT followed by a new line.",
+      "documentation":{
+        "left":"Prints `any` or `error` value(s) to the STDOUT followed by a new line."
+      },
       "sortText":"121",
       "insertText":"println()",
       "insertTextFormat":"Snippet",
@@ -177,7 +191,9 @@
       "label":"sprintf(string format)(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n",
+      "documentation":{
+        "left":"Returns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n"
+      },
       "sortText":"121",
       "insertText":"sprintf(${1:format})",
       "insertTextFormat":"Snippet",
@@ -201,7 +217,9 @@
       "label":"readln(any a)(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns the input read from STDIN.\n",
+      "documentation":{
+        "left":"Returns the input read from STDIN.\n"
+      },
       "sortText":"121",
       "insertText":"readln(${1:a})",
       "insertTextFormat":"Snippet",
@@ -247,7 +265,9 @@
       "label":"ReadableByteChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes.",
+      "documentation":{
+        "left":"ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes."
+      },
       "sortText":"171",
       "insertText":"ReadableByteChannel",
       "additionalTextEdits":[
@@ -270,7 +290,9 @@
       "label":"ReadableCharacterChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents a channel which could be used to read characters through a given ReadableByteChannel.",
+      "documentation":{
+        "left":"Represents a channel which could be used to read characters through a given ReadableByteChannel."
+      },
       "sortText":"171",
       "insertText":"ReadableCharacterChannel",
       "additionalTextEdits":[
@@ -293,7 +315,9 @@
       "label":"ReadableCSVChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents a ReadableCSVChannel which could be used to read records from CSV file.",
+      "documentation":{
+        "left":"Represents a ReadableCSVChannel which could be used to read records from CSV file."
+      },
       "sortText":"171",
       "insertText":"ReadableCSVChannel",
       "additionalTextEdits":[
@@ -316,7 +340,9 @@
       "label":"ReadableDataChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents a data channel for reading data.",
+      "documentation":{
+        "left":"Represents a data channel for reading data."
+      },
       "sortText":"171",
       "insertText":"ReadableDataChannel",
       "additionalTextEdits":[
@@ -339,7 +365,9 @@
       "label":"ReadableTextRecordChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents a channel which will allow to read",
+      "documentation":{
+        "left":"Represents a channel which will allow to read"
+      },
       "sortText":"171",
       "insertText":"ReadableTextRecordChannel",
       "additionalTextEdits":[
@@ -362,7 +390,9 @@
       "label":"StringReader",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents a reader which will wrap string content as a channel.",
+      "documentation":{
+        "left":"Represents a reader which will wrap string content as a channel."
+      },
       "sortText":"171",
       "insertText":"StringReader",
       "additionalTextEdits":[
@@ -385,7 +415,9 @@
       "label":"WritableByteChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes.",
+      "documentation":{
+        "left":"WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes."
+      },
       "sortText":"171",
       "insertText":"WritableByteChannel",
       "additionalTextEdits":[
@@ -408,7 +440,9 @@
       "label":"WritableCharacterChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents a channel which could be used to write characters through a given WritableCharacterChannel.",
+      "documentation":{
+        "left":"Represents a channel which could be used to write characters through a given WritableCharacterChannel."
+      },
       "sortText":"171",
       "insertText":"WritableCharacterChannel",
       "additionalTextEdits":[
@@ -431,7 +465,9 @@
       "label":"WritableCSVChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents a WritableCSVChannel which could be used to write records from CSV file.",
+      "documentation":{
+        "left":"Represents a WritableCSVChannel which could be used to write records from CSV file."
+      },
       "sortText":"171",
       "insertText":"WritableCSVChannel",
       "additionalTextEdits":[
@@ -454,7 +490,9 @@
       "label":"WritableDataChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents a WritableDataChannel for writing data.",
+      "documentation":{
+        "left":"Represents a WritableDataChannel for writing data."
+      },
       "sortText":"171",
       "insertText":"WritableDataChannel",
       "additionalTextEdits":[
@@ -477,7 +515,9 @@
       "label":"WritableTextRecordChannel",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents a channel which will allow to write records through a given WritableCharacterChannel.",
+      "documentation":{
+        "left":"Represents a channel which will allow to write records through a given WritableCharacterChannel."
+      },
       "sortText":"171",
       "insertText":"WritableTextRecordChannel",
       "additionalTextEdits":[
@@ -500,7 +540,9 @@
       "label":"Format",
       "kind":"Enum",
       "detail":"BType",
-      "documentation":"Format which will be used to represent the CSV.\n\nDEFAULT - Would default to the format specified by CSVChannel. Presidence will be given to field\n          separator and record separator.\n\nCSV - Field separator would be \",\" and the record separator would be new line.\n\nTDF - Field separator will be tab and record separator will be new line.",
+      "documentation":{
+        "left":"Format which will be used to represent the CSV.\n\nDEFAULT - Would default to the format specified by CSVChannel. Presidence will be given to field\n          separator and record separator.\n\nCSV - Field separator would be \",\" and the record separator would be new line.\n\nTDF - Field separator will be tab and record separator will be new line."
+      },
       "sortText":"171",
       "insertText":"Format",
       "additionalTextEdits":[
@@ -523,7 +565,9 @@
       "label":"Separator",
       "kind":"Enum",
       "detail":"BType",
-      "documentation":"Field separators which are supported by DelimitedTextRecordChannel.",
+      "documentation":{
+        "left":"Field separators which are supported by DelimitedTextRecordChannel."
+      },
       "sortText":"171",
       "insertText":"Separator",
       "additionalTextEdits":[
@@ -568,7 +612,9 @@
       "label":"ByteOrder",
       "kind":"Enum",
       "detail":"BType",
-      "documentation":"Represents network byte order.\n\nBIG_ENDIAN - specifies the bytes to be in the order of most significant byte first\n\nLITTLE_ENDIAN - specifies the byte order to be the least significant byte first",
+      "documentation":{
+        "left":"Represents network byte order.\n\nBIG_ENDIAN - specifies the bytes to be in the order of most significant byte first\n\nLITTLE_ENDIAN - specifies the byte order to be the least significant byte first"
+      },
       "sortText":"171",
       "insertText":"ByteOrder",
       "additionalTextEdits":[

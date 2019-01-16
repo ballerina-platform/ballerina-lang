@@ -133,6 +133,8 @@ import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
+    public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
+
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
     public static final String FILE_SEPARATOR = File.separator;
@@ -142,6 +144,10 @@ public class CommonUtil {
     public static final boolean LS_DEBUG_ENABLED;
 
     public static final String BALLERINA_HOME;
+
+    public static final String PLAIN_TEXT_MARKUP_KIND = "plaintext";
+
+    public static final String MARKDOWN_MARKUP_KIND = "markdown";
 
     static {
         String debugLogStr = System.getProperty("ballerina.debugLog");

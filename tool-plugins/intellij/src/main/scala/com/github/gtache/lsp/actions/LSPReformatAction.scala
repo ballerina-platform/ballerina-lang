@@ -2,6 +2,7 @@ package com.github.gtache.lsp.actions
 
 import com.github.gtache.lsp.PluginMain
 import com.github.gtache.lsp.requests.ReformatHandler
+import com.github.gtache.lsp.settings.BallerinaLSPState
 import com.intellij.codeInsight.actions.ReformatCodeAction
 import com.intellij.lang.LanguageFormatting
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
@@ -22,7 +23,9 @@ class LSPReformatAction extends ReformatCodeAction with DumbAware {
     val editor = e.getData(CommonDataKeys.EDITOR)
     if (editor != null) {
       val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-      if (LanguageFormatting.INSTANCE.allForLanguage(file.getLanguage).isEmpty && PluginMain.isExtensionSupported(file.getVirtualFile.getExtension)) {
+      if (BallerinaLSPState.getInstance().alwaysSendRequests ||
+        (LanguageFormatting.INSTANCE.allForLanguage(file.getLanguage).isEmpty
+          && PluginMain.isExtensionSupported(file.getVirtualFile.getExtension))) {
         ReformatHandler.reformatFile(editor)
       } else {
         super.actionPerformed(e)

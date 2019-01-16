@@ -49,6 +49,14 @@ public class AbstractObjectTest {
                 "function 'getName' in abstract object 'Person4' cannot have a body", 51, 5);
         BAssertUtil.validateError(negativeResult, index++,
                 "cannot attach function 'getName' to abstract object 'Person5'", 67, 1);
+        BAssertUtil.validateError(negativeResult, index++, "abstract object field: 'age' can not be declared as " +
+                "private", 73, 5);
+        BAssertUtil.validateError(negativeResult, index++, "abstract object method: 'getName' can not be declared as "
+                + "private", 76, 5);
+        BAssertUtil.validateError(negativeResult, index++, "abstract object method: 'getName' can not be declared as " +
+                "private", 80, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot find function signature for function 'getName' in " +
+                "object 'Bar'", 87, 1);
     }
 
     @Test

@@ -65,7 +65,7 @@ service backend on new http:Listener(9090) {
             log:printInfo("Message received from backend service. "
                     + "Payload: " + stringPayload);
 
-            // A util method that can be used to set string payload.
+            // A util method that can be used to set `string` payload.
             res.setPayload("Message Received.");
 
             // Sends the response back to the client.

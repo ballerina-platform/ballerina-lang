@@ -93,7 +93,7 @@ public class Hub {
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 BValue[] args = { new BString("register"), new BString(topic) };
                 FunctionInfo functionInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
-                        .getFunctionInfo("changeTopicRegistrationInDatabase");
+                        .getFunctionInfo("persistTopicRegistrationChange");
                 BVMExecutor.executeFunction(hubProgramFile, functionInfo, args);
             }
         }
@@ -107,7 +107,7 @@ public class Hub {
             if (hubPersistenceEnabled) {
                 BValue[] args = { new BString("unregister"), new BString(topic) };
                 FunctionInfo functionInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
-                        .getFunctionInfo("changeTopicRegistrationInDatabase");
+                        .getFunctionInfo("persistTopicRegistrationChange");
                 BVMExecutor.executeFunction(hubProgramFile, functionInfo, args);
             }
         }
@@ -262,11 +262,6 @@ public class Hub {
                 setHubUrl(null);
                 setHubProgramFile(null);
                 hubTopicRegistrationRequired = false;
-                if (hubPersistenceEnabled) {
-                    BVMExecutor.executeFunction(context.getProgramFile(),
-                            context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE)
-                                    .getFunctionInfo("clearSubscriptionDataInDb"));
-                }
                 hubPersistenceEnabled = false;
                 topics = new ArrayList<>();
                 for (HubSubscriber subscriber : getSubscribers()) {

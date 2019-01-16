@@ -22,13 +22,13 @@ service multipartResponseEncoder on new http:Listener(9092) {
         // Creates an enclosing entity to hold the child parts.
         mime:Entity parentPart = new;
 
-        // Creates a child part with the json content.
+        // Creates a child part with the JSON content.
         mime:Entity childPart1 = new;
         childPart1.setJson({ "name": "wso2" });
 
         // Creates another child part with a file.
         mime:Entity childPart2 = new;
-        // This file path is relative to where the ballerina is running.
+        // This file path is relative to where the Ballerina is running.
         //If your file is located outside, please give the
         //absolute file path instead.
         childPart2.setFileAsEntityBody("./files/test.xml",
@@ -60,7 +60,7 @@ service multipartResponseDecoder on multipartEP {
         methods: ["GET"],
         path: "/decode_in_response"
     }
-    // This resource accepts multipart responses.
+    // This `resource` accepts multipart responses.
     resource function multipartReceiver(http:Caller caller,
                                         http:Request request) {
         http:Response inResponse = new;
@@ -111,7 +111,7 @@ function handleNestedParts(mime:Entity parentPart) {
 function handleContent(mime:Entity bodyPart) {
     string baseType = getBaseType(bodyPart.getContentType());
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
-        // Extracts xml data from the body part.
+        // Extracts `xml` data from the body part.
         var payload = bodyPart.getXml();
         if (payload is xml) {
             string strValue = io:sprintf("%s", payload);
@@ -121,7 +121,7 @@ function handleContent(mime:Entity bodyPart) {
         }
 
     } else if (mime:APPLICATION_JSON == baseType) {
-        // Extracts json data from the body part.
+        // Extracts `json` data from the body part.
         var payload = bodyPart.getJson();
         if (payload is json) {
             log:printInfo("Json data: " + payload.toString());
@@ -174,10 +174,10 @@ function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
     int readCount = 1;
     byte[] readContent;
     while (readCount > 0) {
-    //Operation attempts to read a maximum of 1000 bytes
+    //Operation attempts to read a maximum of 1000 bytes.
     (byte[], int) result = check src.read(1000);
     (readContent, readCount) = result;
-    //Writes the given content into the channel
+    //Writes the given content into the channel.
     var writeResult = check dst.write(readContent, 0);
     }
     return;

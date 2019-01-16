@@ -22,11 +22,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -39,6 +42,8 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This class is being used to build function type completion item.
@@ -88,8 +93,50 @@ public final class BFunctionCompletionItemBuilder {
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
         if (bSymbol != null && bSymbol.markdownDocumentation != null) {
-            item.setDocumentation(bSymbol.markdownDocumentation.description);
+            item.setDocumentation(getDocumentation(bSymbol));
         }
+    }
+
+    private static Either<String, MarkupContent> getDocumentation(BInvokableSymbol bInvokableSymbol) {
+        String pkgID = bInvokableSymbol.pkgID.toString();
+
+        MarkdownDocAttachment markdownDocAttachment = bInvokableSymbol.getMarkdownDocAttachment();
+        String description = markdownDocAttachment.description;
+        List<MarkdownDocAttachment.Parameter> parameters = markdownDocAttachment.parameters;
+        List<BVarSymbol> defaultParams = bInvokableSymbol.getDefaultableParameters();
+
+        MarkupContent docMarkupContent = new MarkupContent();
+
+        docMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+        String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
+                + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR
+                + CommonUtil.MD_LINE_SEPARATOR + "---  " + CommonUtil.MD_LINE_SEPARATOR + "**Parameters**"
+                + CommonUtil.MD_LINE_SEPARATOR
+                + parameters.stream()
+                .map(parameter -> {
+                    Optional<BVarSymbol> defaultVal = defaultParams.stream()
+                            .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(parameter.getName()))
+                            .findFirst();
+                    String paramDescription = "- _" + parameter.getName() + "_" + CommonUtil.MD_LINE_SEPARATOR
+                            + "    " + parameter.getDescription() + CommonUtil.MD_LINE_SEPARATOR;
+                    if (defaultVal.isPresent() && defaultVal.get().defaultValue != null) {
+                        return paramDescription + "Default Value: " + defaultVal.get().defaultValue.getValue();
+                    }
+
+                    return paramDescription;
+                })
+                .collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR));
+
+        if (!(bInvokableSymbol.retType instanceof BNilType)
+                && bInvokableSymbol.retType != null
+                && bInvokableSymbol.retType.tsymbol != null) {
+            documentation = CommonUtil.MARKDOWN_MARKUP_KIND + documentation + CommonUtil.MD_LINE_SEPARATOR
+                    + CommonUtil.MD_LINE_SEPARATOR + "**Return**" + CommonUtil.MD_LINE_SEPARATOR
+                    + bInvokableSymbol.retType.tsymbol.toString();
+        }
+        docMarkupContent.setValue(documentation);
+
+        return Either.forRight(docMarkupContent);
     }
 
     /**
