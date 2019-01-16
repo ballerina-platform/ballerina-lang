@@ -180,19 +180,19 @@ case class LSPPsiElement(var name: String, project: Project, start: Int, end: In
   override def textMatches(element: PsiElement): Boolean = getText == element.getText
 
   /**
-    * Returns the text of the PSI element.
-    *
-    * @return the element text.
-    */
-  override def getText: String = name
-
-  /**
     * Checks if the text of this element contains the specified character.
     *
     * @param c the character to search for.
     * @return true if the character is found, false otherwise.
     */
   override def textContains(c: Char): Boolean = getText.contains(c)
+
+  /**
+    * Returns the text of the PSI element.
+    *
+    * @return the element text.
+    */
+  override def getText: String = name
 
   /**
     * Passes the element to the specified visitor.
@@ -488,43 +488,13 @@ case class LSPPsiElement(var name: String, project: Project, start: Int, end: In
   import com.intellij.openapi.util.{KeyWithDefaultValue, UserDataHolderBase}
   import com.intellij.util.keyFMap.KeyFMap
 
-  def getCopyableUserData[T](key: Key[T]): T = {
-    val map = getUserData(COPYABLE_USER_MAP_KEY)
-    if (map == null) null.asInstanceOf[T] else map.get(key)
-  }
-
-  def putCopyableUserData[T](key: Key[T], value: T): Unit = {
-    var control = true
-    while (control) {
-      val map = getUserMap
-      var copyableMap = map.get(COPYABLE_USER_MAP_KEY)
-      if (copyableMap == null) copyableMap = KeyFMap.EMPTY_MAP
-      val newCopyableMap = if (value == null) copyableMap.minus(key) else copyableMap.plus(key, value)
-      val newMap = if (newCopyableMap.isEmpty) map.minus(COPYABLE_USER_MAP_KEY) else map.plus(COPYABLE_USER_MAP_KEY, newCopyableMap)
-      if ((newMap eq map) || changeUserMap(map, newMap)) control = false
-    }
-  }
-
   protected def changeUserMap(oldMap: KeyFMap, newMap: KeyFMap): Boolean = updater.compareAndSet(this, oldMap, newMap)
 
   protected def getUserMap: KeyFMap = myUserMap
 
-  def replace[T](key: Key[T], @Nullable oldValue: T, @Nullable newValue: T): Boolean = {
-    while (true) {
-      val map = getUserMap
-      if (map.get(key) != oldValue) {
-        return false
-      }
-      else {
-        val newMap = if (newValue == null) map.minus(key) else map.plus(key, newValue)
-        if ((newMap == map) || changeUserMap(map, newMap)) return true
-      }
-    }
-    false
-  }
-
-  def copyCopyableDataTo(clone: UserDataHolderBase): Unit = {
-    clone.putUserData(COPYABLE_USER_MAP_KEY, getUserData(COPYABLE_USER_MAP_KEY))
+  def getCopyableUserData[T](key: Key[T]): T = {
+    val map = getUserData(COPYABLE_USER_MAP_KEY)
+    if (map == null) null.asInstanceOf[T] else map.get(key)
   }
 
   def getUserData[T](key: Key[T]): T = {
@@ -542,6 +512,36 @@ case class LSPPsiElement(var name: String, project: Project, start: Int, end: In
       if ((newMap eq map) || changeUserMap(map, newMap)) return value
     }
     null.asInstanceOf[T]
+  }
+
+  def putCopyableUserData[T](key: Key[T], value: T): Unit = {
+    var control = true
+    while (control) {
+      val map = getUserMap
+      var copyableMap = map.get(COPYABLE_USER_MAP_KEY)
+      if (copyableMap == null) copyableMap = KeyFMap.EMPTY_MAP
+      val newCopyableMap = if (value == null) copyableMap.minus(key) else copyableMap.plus(key, value)
+      val newMap = if (newCopyableMap.isEmpty) map.minus(COPYABLE_USER_MAP_KEY) else map.plus(COPYABLE_USER_MAP_KEY, newCopyableMap)
+      if ((newMap eq map) || changeUserMap(map, newMap)) control = false
+    }
+  }
+
+  def replace[T](key: Key[T], @Nullable oldValue: T, @Nullable newValue: T): Boolean = {
+    while (true) {
+      val map = getUserMap
+      if (map.get(key) != oldValue) {
+        return false
+      }
+      else {
+        val newMap = if (newValue == null) map.minus(key) else map.plus(key, newValue)
+        if ((newMap == map) || changeUserMap(map, newMap)) return true
+      }
+    }
+    false
+  }
+
+  def copyCopyableDataTo(clone: UserDataHolderBase): Unit = {
+    clone.putUserData(COPYABLE_USER_MAP_KEY, getUserData(COPYABLE_USER_MAP_KEY))
   }
 
   def isUserDataEmpty: Boolean = getUserMap.isEmpty

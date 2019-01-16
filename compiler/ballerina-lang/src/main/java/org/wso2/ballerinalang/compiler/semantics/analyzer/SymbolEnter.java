@@ -1640,6 +1640,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        if (Symbols.isPrivate(function.symbol)) {
+            // we should not copy private functions.
+            return;
+        }
+
         // If not, define the function symbol within the object.
         // Take a copy of the symbol, with the new name, and the package ID same as the object type.
         BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateInvokableSymbol(function.symbol, typeDef.symbol, funcName,

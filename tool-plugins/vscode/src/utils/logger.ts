@@ -35,3 +35,7 @@ export function log(value: string) : void {
         outputChannel.append(value);
     }
 }
+
+export function getOutputChannel() {
+    return outputChannel;
+}
