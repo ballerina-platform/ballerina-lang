@@ -113,7 +113,7 @@ class OpenApiAddResponse extends React.Component<OpenApiAddResponseProps, OpenAp
                     <Header floated="left" as="h3">Add Response</Header>
                     <Icon circular onClick={() => {
                         handleClose(true);
-                    }} name="close" />
+                    }} className="fw fw-delete" />
                 </div>
                 <Form.Field>
                     <Form.Field
