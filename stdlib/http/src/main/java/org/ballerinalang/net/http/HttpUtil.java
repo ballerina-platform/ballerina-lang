@@ -63,7 +63,6 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
@@ -1220,33 +1219,9 @@ public class HttpUtil {
         return responseStruct;
     }
 
-    public static HttpClientConnector getHttpClientConnector(Struct clientEndpointConfig, String urlString) {
-        HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
-        String scheme;
-        URL url;
-        try {
-            url = new URL(urlString);
-        } catch (MalformedURLException e) {
-            throw new BallerinaException("Malformed URL: " + urlString);
-        }
-        scheme = url.getProtocol();
-        Map<String, Object> properties =
-                HttpConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
-        SenderConfiguration senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
-
-        if (connectionManager.isHTTPTraceLoggerEnabled()) {
-            senderConfiguration.setHttpTraceLogEnabled(true);
-        }
-        senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
-
-        populateSenderConfigurationOptions(senderConfiguration, clientEndpointConfig);
-        return createHttpWsConnectionFactory().createHttpClientConnector(properties, senderConfiguration);
-    }
-
-    private static void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
+    public static void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
             clientEndpointConfig) {
-        ProxyServerConfiguration proxyServerConfiguration = null;
+        ProxyServerConfiguration proxyServerConfiguration;
         Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
 
         if (secureSocket != null) {

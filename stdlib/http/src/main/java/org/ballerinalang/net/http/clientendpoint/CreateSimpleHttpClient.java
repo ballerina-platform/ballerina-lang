@@ -27,12 +27,22 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.message.HttpConnectorUtil;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
-import static org.ballerinalang.net.http.HttpUtil.getHttpClientConnector;
+import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurationOptions;
 
 /**
  * Initialization of client endpoint.
@@ -49,13 +59,36 @@ import static org.ballerinalang.net.http.HttpUtil.getHttpClientConnector;
 )
 public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
 
+    private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> configBStruct =
                 (BMap<String, BValue>) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         String urlString = context.getStringArgument(HttpConstants.CLIENT_ENDPOINT_URL_INDEX);
-        HttpClientConnector httpClientConnector = getHttpClientConnector(clientEndpointConfig, urlString);
+        HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
+        String scheme;
+        URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            throw new BallerinaException("Malformed URL: " + urlString);
+        }
+        scheme = url.getProtocol();
+        Map<String, Object> properties =
+                HttpConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
+        SenderConfiguration senderConfiguration =
+                HttpConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
+
+        if (connectionManager.isHTTPTraceLoggerEnabled()) {
+            senderConfiguration.setHttpTraceLogEnabled(true);
+        }
+        senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
+
+        populateSenderConfigurationOptions(senderConfiguration, clientEndpointConfig);
+        HttpClientConnector httpClientConnector = httpConnectorFactory
+                .createHttpClientConnector(properties, senderConfiguration);
         BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
                                                                                       HTTP_PACKAGE_PATH,
                                                                                       HTTP_CLIENT, urlString,
