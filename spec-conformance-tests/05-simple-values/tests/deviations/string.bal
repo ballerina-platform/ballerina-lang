@@ -20,6 +20,7 @@ import utils;
 // must be a hexadecimal numeral denoting an integer n where 0 <= n < 0xD800 or 0xDFFF <
 // n <= 0x10FFFF.
 // TODO: Need to support string numeric escape
+// https://github.com/ballerina-platform/ballerina-lang/issues/13180
 @test:Config {
     groups: ["broken"]
 }

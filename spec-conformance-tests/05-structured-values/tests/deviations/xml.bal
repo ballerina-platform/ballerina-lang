@@ -19,6 +19,7 @@ import ballerina/test;
 // represented by a string with a single code point and other items are represented by a
 // singleton XML value.
 // TODO: fix XML character item iteration, expected to be iterated by single code point
+// https://github.com/ballerina-platform/ballerina-lang/issues/13190
 @test:Config {
     groups: ["broken"]
 }

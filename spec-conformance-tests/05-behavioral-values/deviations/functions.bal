@@ -15,6 +15,22 @@
 // under the License.
 import ballerina/test;
 
+
+// annots type-descriptor param-name [= default-value]
+// default-value := const-expr
+// TODO: allow any const-expr as the default value for a defaultable param
+// https://github.com/ballerina-platform/ballerina-lang/issues/13187
+@test:Config {
+    groups: ["broken"]
+}
+function testFunctionDefaultableParamsBroken() {
+    // TODO: add tests for the different types of const-expr
+    // e.g., `functionWithDefaultableArrayParam`
+}
+
+// function functionWithDefaultableArrayParam(int[] arr = [1, 2]) {
+// }
+
 // A function value declared as returning type T will belong to a
 // function type declared as returning type T’ only if T is a subset of T’.
 // TODO: fix is check failing for function pointers with union type params/return types

@@ -254,7 +254,3 @@ function funcWithUnionReturnType(STRING_OR_INT s) returns string|int {
     }
     return "won't reach here";
 }
-
-// TODO: add tests for const-expr
-// annots type-descriptor param-name [= default-value]
-// default-value := const-expr

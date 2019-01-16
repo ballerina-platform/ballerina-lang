@@ -40,7 +40,9 @@ const int length = 3;
 // has an implicit initial value. (When T does not have an implicit initial value, an array of T?
 // may be used instead; see Optional Types.)
 // TODO: Array member type can not be a type which has no implicit initial value
-@test:Config {}
+@test:Config {
+    groups: ["broken"]
+}
 function testArrayMemberTypesBroken() {
     utils:FooObject[] objectArray = []; // This should fail at compile time
 }
