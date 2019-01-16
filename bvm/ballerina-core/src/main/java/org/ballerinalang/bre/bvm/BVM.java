@@ -1430,8 +1430,8 @@ public class BVM {
         int i;
         int j;
         int k;
-        BigDecimal lhsValue;
-        BigDecimal rhsValue;
+        BDecimal lhsValue;
+        BDecimal rhsValue;
 
         switch (opcode) {
             case InstructionCodes.IGT:
@@ -1450,9 +1450,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) > 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = checkDecimalGreaterThan(lhsValue, rhsValue) ? 1 : 0;
                 break;
 
             case InstructionCodes.IGE:
@@ -1471,9 +1471,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) >= 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = checkDecimalGreaterThanOrEqual(lhsValue, rhsValue) ? 1 : 0;
                 break;
 
             case InstructionCodes.ILT:
@@ -1492,9 +1492,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) < 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = checkDecimalGreaterThan(rhsValue, lhsValue) ? 1 : 0;
                 break;
 
             case InstructionCodes.ILE:
@@ -1513,9 +1513,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) <= 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = checkDecimalGreaterThanOrEqual(rhsValue, lhsValue) ? 1 : 0;
                 break;
 
             case InstructionCodes.REQ_NULL:
@@ -2135,7 +2135,8 @@ public class BVM {
                 k = operands[2];
                 lhsValue = (BDecimal) sf.refRegs[i];
                 rhsValue = (BDecimal) sf.refRegs[j];
-                sf.intRegs[k] = lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0 ? 1 : 0;
+                sf.intRegs[k] = isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
+                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0 ? 1 : 0;
                 break;
             case InstructionCodes.REQ:
                 i = operands[0];
@@ -2194,7 +2195,8 @@ public class BVM {
                 k = operands[2];
                 lhsValue = (BDecimal) sf.refRegs[i];
                 rhsValue = (BDecimal) sf.refRegs[j];
-                sf.intRegs[k] = lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) != 0 ? 1 : 0;
+                sf.intRegs[k] = !isDecimalRealNumber(lhsValue) || !isDecimalRealNumber(rhsValue) ||
+                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) != 0 ? 1 : 0;
                 break;
             case InstructionCodes.RNE:
                 i = operands[0];
@@ -2885,6 +2887,29 @@ public class BVM {
     public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
         return decimalValue.compareTo(BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
                 decimalValue.compareTo(BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
+    }
+
+    private static boolean isDecimalRealNumber(BDecimal decimalValue) {
+        return decimalValue.valueKind == DecimalValueKind.ZERO || decimalValue.valueKind == DecimalValueKind.OTHER;
+    }
+
+    private static boolean checkDecimalGreaterThan(BDecimal lhsValue, BDecimal rhsValue) {
+        switch (lhsValue.valueKind) {
+            case POSITIVE_INFINITY:
+                return isDecimalRealNumber(rhsValue) || rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY;
+            case ZERO:
+            case OTHER:
+                return rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY || (isDecimalRealNumber(rhsValue) &&
+                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean checkDecimalGreaterThanOrEqual(BDecimal lhsValue, BDecimal rhsValue) {
+        return checkDecimalGreaterThan(lhsValue, rhsValue) ||
+                (isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
+                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0);
     }
 
     private static void execIteratorOperation(Strand ctx, StackFrame sf, Instruction instruction) {
