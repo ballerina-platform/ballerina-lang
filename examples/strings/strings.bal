@@ -17,7 +17,7 @@ public function main() {
             statement.equalsIgnoreCase("lion in town. catch the lion");
     io:println("EqualsIgnoreCase: " + isEqual);
 
-    // Create a new string that is a substring of the specified string. You must provide the original string,
+    // Create a new `string` that is a substring of the specified string. You must provide the original `string`,
     //and the starting and ending indexes of the substring.
     string s3 = statement.substring(0, 4);
     io:println("SubString: " + s3);
@@ -47,7 +47,7 @@ public function main() {
     string s7 = statement.replaceAll("[o]+", "0");
     io:println("ReplaceAll: " + s7);
 
-    // Retrieve the length of the string.
+    // Retrieve the length of the `string`.
     int length = statement.length();
     io:println("Length: " + length);
 
@@ -55,11 +55,11 @@ public function main() {
     string s8 = statement.trim();
     io:println("Trim: " + s8);
 
-    // Check whether the given string ends with the suffix "Lion".
+    // Check whether the given `string` ends with the suffix "Lion".
     boolean hasSuffix = statement.hasSuffix("Lion");
     io:println("HasSuffix: " + hasSuffix);
 
-    // Check whether the given string starts with the prefix "Lion".
+    // Check whether the given `string` starts with the prefix "Lion".
     boolean hasPrefix = statement.hasPrefix("Lion");
     io:println("HasPrefix: " + hasPrefix);
 
@@ -67,20 +67,20 @@ public function main() {
     string s9 = statement.unescape();
     io:println("Unescape: " + s9);
 
-    // Split the string based on the given regular expression to produce a string array.
+    // Split the `string` based on the given regular expression to produce a string array.
     string[] array = statement.split(" ");
     io:println("Split: " + array[0]);
     io:println("Split: " + array[1]);
     io:println("Split: " + array[2]);
 
-    // Convert the string to a byte array.
+    // Convert the `string` to a `byte` array.
     byte[] bytes = statement.toByteArray("UTF-8");
 
-    // Convert a byte array to a string.
+    // Convert a `byte` array to a string.
     string s10 = internal:byteArrayToString(bytes, "UTF-8");
     io:println("Bytes: " + s10);
 
-    // Format a string according to the given format arguments.
+    // Format a `string` according to the given format arguments.
     float value = 5.8;
     string s11 = io:sprintf("%s %f", array[0], value);
     io:println("Sprintf: " + s11);

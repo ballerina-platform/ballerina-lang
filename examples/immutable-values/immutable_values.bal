@@ -34,7 +34,7 @@ public function main() {
     // Check if `m1` is frozen.
     io:println("Frozen status of m1: ", m1.isFrozen());
 
-    // Attempt adding an entry to the map, and trap the error if an error occurs.
+    // Attempt adding an entry to the `map`, and `trap` the panic if it results in a panic.
     error? updateResult = trap addEntryToMap(m2, "intValTwo", 10);
     if (updateResult is error) {
         // An error should occur since `m2` is frozen
@@ -45,11 +45,11 @@ public function main() {
     // Create a `Department` record.
     Department d = { name: "finance", id: 1100 };
 
-    // Create a map that may hold `anydata` typed values.
+    // Create a `map` that may hold `anydata` typed values.
     map<any> m3 = { stringVal: "str", intVal: 1, recVal: d };
 
-    // Attempt freezing `m3`. Note how the return type could now be an error, since there is the possibility that a
-    // `map` constrained by type `any` could have `non-anydata` values.
+    // Attempt freezing `m3`. Note how the return type could now be an `error`, since there is the possibility that a
+    // `map` constrained by type `any` could have non-anydata values.
     map<any>|error freezeResult = m3.freeze();
     if (freezeResult is error) {
         io:println("'.freeze()' failed for m3: ",
@@ -61,7 +61,7 @@ public function main() {
     // Create an `Employee` object.
     Employee e = new("Anne");
 
-    // Now, create a map that may hold `anydata` values, and add the `non-anydata` object `Employee` too.
+    // Now, create a `map` that may hold `anydata` values, and add the non-anydata object `Employee` too.
     map<any> m4 = { stringVal: "str", intVal: 1, objVal: e };
 
     // Attempt freezing `m4`.
@@ -72,9 +72,24 @@ public function main() {
     } else {
         io:println("'.freeze()' successful for m4");
     }
+
+    // An `is` check for a frozen value becomes an `is like` check.
+    // In other words, storage type is not considered.
+    // Define a `map` of constraint type `string` or `int`, but with
+    // values of type `string` only.
+    map<string|int> m5 = { valueType: "map", constraint: "string" };
+    // Freeze the `map`. The `.freeze()` attempt will be successful
+    // since the constraint is `anydata`. The frozen `map` only
+    // contains values of type `string`.
+    var frozenVal = m5.freeze();
+    // Checking if the frozen value is of type `map<string>` would
+    // evaluate to `true`.
+    if (frozenVal is map<string>) {
+        io:println("frozenVal is map<string>");
+    }
 }
 
-// Function to add an entry to a map.
+// Function to add an entry to a `map`.
 function addEntryToMap(map<string|int> m, string key, string|int value) {
     m[key] = value;
 }

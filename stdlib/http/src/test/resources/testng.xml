@@ -39,6 +39,7 @@ under the License.
             <package name="org.ballerinalang.stdlib.resiliency.*"/>
             <package name="org.ballerinalang.stdlib.websocket.*"/>
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
+            <package name="org.ballerinalang.stdlib.auth.*"/>
         </packages>
     </test>
 </suite>

@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
-import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.Gson;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
@@ -126,14 +126,17 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
-        Map<String, Boolean> experimentalClientCapabilities =
-                (LinkedTreeMap<String, Boolean>) params.getCapabilities().getExperimental();
+        Map<String, Boolean> experimentalClientCapabilities = null;
+        if (params.getCapabilities().getExperimental() != null) {
+            experimentalClientCapabilities =
+                    new Gson().fromJson(params.getCapabilities().getExperimental().toString(), HashMap.class);
+        }
 
         BallerinaWorkspaceService workspaceService = (BallerinaWorkspaceService) this.workspaceService;
         workspaceService.setExperimentalClientCapabilities(experimentalClientCapabilities);
 
         // Set AST provider and examples provider capabilities
-        HashMap<String, Object> experimentalServerCapabilities = new HashMap<String, Object>();
+        HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();
         experimentalServerCapabilities.put("astProvider", true);
         experimentalServerCapabilities.put("examplesProvider", true);
         experimentalServerCapabilities.put("apiEditorProvider", true);
