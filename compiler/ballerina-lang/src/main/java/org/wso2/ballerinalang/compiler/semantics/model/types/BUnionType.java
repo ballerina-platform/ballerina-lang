@@ -87,6 +87,6 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public boolean hasImplicitInitialValue() {
-        return memberTypes.stream().anyMatch(t -> t.hasImplicitInitialValue());
+        return memberTypes.stream().anyMatch(t -> t.tag == TypeTags.NIL);
     }
 }
