@@ -171,6 +171,14 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-test-common -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-stdlib-test-common</artifactId>
+                <version>${ballerina.version}</version>
+                <type>test-jar</type>
+            </dependency>
+
             <!-- ballerina-builtin -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1665,6 +1673,7 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
+                <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
@@ -1749,6 +1758,7 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
+                <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
@@ -1829,6 +1839,7 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
+                <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
