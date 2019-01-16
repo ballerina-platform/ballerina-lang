@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 9,
+    "col": 21
+  },
+  "expected": {
+    "result": [
+      {
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}
