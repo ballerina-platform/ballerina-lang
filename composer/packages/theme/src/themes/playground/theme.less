@@ -18,7 +18,17 @@
  */
  
 /* Semantic UI import */
-@import "~semantic-ui-less/definitions/globals/reset.less";
-@import "~semantic-ui-less/definitions/globals/site.less";
+& {
+    @import "~semantic-ui-less/themes/default/globals/reset.variables";
+    @import "~semantic-ui-less/definitions/globals/reset.less";
+}
+& {
+    @import "~semantic-ui-less/themes/default/globals/site.variables";
+    @import "~semantic-ui-less/definitions/globals/site.less";
+}
 
-@import "../../definitions/views/diagram.less";
+/* Ballerina playground view import */
+& { 
+    @import "../default/views/diagram.variables";
+    @import "../../definitions/views/diagram.less";
+}

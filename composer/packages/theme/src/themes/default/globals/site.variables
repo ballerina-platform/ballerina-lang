@@ -25,13 +25,6 @@
 @fontName          : -apple-system, BlinkMacSystemFont, Segoe WPC, Segoe UI, HelveticaNeue-Light, Ubuntu, Droid Sans, sans-serif, @iconFont;
 @googleFontName    : 'Lato';
 
-/*-------------------
-      Base Sizes
---------------------*/
-
-@emSize   : 14px;
-@fontSize : 14px;
-
 
 /*-------------------
     Border Radius

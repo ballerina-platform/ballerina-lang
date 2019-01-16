@@ -16,18 +16,24 @@
  * under the License.
  *
  */
- 
-@type    : "global";
-@element : "site";
 
-@import (multiple) 'definitions.config';
-
-/* Views */
-& { @import "./views/diagram.less"; }
-& { @import "./views/documentation.less"; }
-& { @import "./views/examples.less"; }
-& { @import "./views/api-designer.less"; }
-& { @import "./views/network-logs.less"; }
-
-/* Elements */
-& { @import "./elements/svg-button.less"; }
+& { 
+    @import "../themes/default/views/diagram.variables";
+    @import "./views/diagram.less";
+}
+& {
+    @import "../themes/default/views/documentation.variables";
+    @import "./views/documentation.less";
+}
+& {
+    @import "../themes/default/views/examples.variables";
+    @import "./views/examples.less";
+}
+& {
+    @import "../themes/default/views/api-designer.variables";
+    @import "./views/api-designer.less";
+}
+& {
+    @import "../themes/default/views/network-logs.variables";
+    @import "./views/network-logs.less";
+}
