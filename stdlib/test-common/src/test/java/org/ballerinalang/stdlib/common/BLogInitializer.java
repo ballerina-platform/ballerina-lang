@@ -29,7 +29,7 @@ import java.util.logging.LogManager;
 /**
  * A test suit listener for configuring logger, prior to running the tests.
  *
- * @since 0.964.0
+ * @since 0.990.3
  */
 public class BLogInitializer implements ISuiteListener {
 
