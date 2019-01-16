@@ -345,8 +345,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (funcNode.returnTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
             BType elementType = ((BArrayType) funcNode.returnTypeNode.type).getElementType();
             if (!elementType.hasImplicitInitialValue()) {
-//                this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE,
-//                        elementType, elementType);
+                this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE,
+                        elementType, elementType);
             }
         }
         if (isPublicInvokableNode(funcNode)) {
@@ -979,7 +979,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BType elementType = ((BArrayType) varNode.type).getElementType();
             if (!elementType.hasImplicitInitialValue()) {
                 BLangType eType = ((BLangArrayType) varNode.typeNode).elemtype;
-                //this.dlog.error(varNode.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+                this.dlog.error(varNode.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
             }
         }
         analyzeExpr(varNode.expr);

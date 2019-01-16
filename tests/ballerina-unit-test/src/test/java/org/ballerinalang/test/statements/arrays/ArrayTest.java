@@ -138,10 +138,12 @@ public class ArrayTest {
 
     @Test(description = "Test arrays of types without implicit initial values")
     public void testArrayImplicitInitialValues() {
-        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 2);
+        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 3);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0, "array element type 'Obj' must have an " +
                 "implicit initial value, use 'Obj?'", 19, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, "array element type 'RecordWithObj' must " +
                 "have an implicit initial value, use 'RecordWithObj?'", 25, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 2, "array element type 'FT' must have an " +
+                "implicit initial value, use 'FT?'", 36, 1);
     }
 }

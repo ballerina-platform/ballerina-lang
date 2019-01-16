@@ -29,3 +29,10 @@ RR[][] multiArr = [];
 Obj[][] multiObjArr = [];
 
 json[] jArr = [];
+
+type FT 1|2|3;
+type FTN 1|2|3|();
+
+FT[] ar_ft = [1,2];
+FT?[] ar_ft2 = [2,3];
+FTN[] ar_ftn = [];

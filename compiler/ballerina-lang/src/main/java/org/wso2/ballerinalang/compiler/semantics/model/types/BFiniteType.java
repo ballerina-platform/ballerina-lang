@@ -52,7 +52,6 @@ public class BFiniteType extends BType implements FiniteType {
         return TypeKind.FINITE;
     }
 
-
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
@@ -67,7 +66,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public boolean hasImplicitInitialValue() {
-        return this.valueSpace.stream().anyMatch(value -> value.type.hasImplicitInitialValue());
+        return valueSpace.stream().anyMatch(value -> value.type.tag == TypeTags.NIL);
     }
 
     @Override
