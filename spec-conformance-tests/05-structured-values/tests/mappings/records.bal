@@ -19,10 +19,64 @@ import utils;
 string s1 = "test string 1";
 int i1 = 100;
 
+// A mapping value is a container where each member has a key, which is a string, that
+// uniquely identifies within the mapping. We use the term field to mean the member together
+// its key; the name of the field is the key, and the value of the field is that value of the member;
+// no two fields in a mapping value can have the same name.
+@test:Config {}
+function testRecordFieldUniqueName() {
+    float newFloatVal = 2.0;
+    utils:BazRecord b1 = { bazFieldOne: 1.0 };
+    b1.bazFieldOne = newFloatVal;
+    test:assertEquals(b1.length(), 1, msg = "expected the record to have one field");
+    test:assertEquals(b1.bazFieldOne, newFloatVal, msg = "expected the field to have the updated value");
+
+    string stringVal = "test string 1";
+    int intVal = 1;
+
+    b1.bazFieldTwo = stringVal;
+    test:assertEquals(b1.length(), 2, msg = "expected the record to have two fields");
+    test:assertEquals(b1.bazFieldOne, newFloatVal, msg = "expected the field to have the same value");
+    test:assertEquals(b1.bazFieldTwo, stringVal, msg = "expected a field with the newly added value");
+
+    b1.bazFieldTwo = intVal;
+    test:assertEquals(b1.length(), 2, msg = "expected the record to have two fields");
+    test:assertEquals(b1.bazFieldOne, newFloatVal, msg = "expected the field to have the same value");
+    test:assertEquals(b1.bazFieldTwo, intVal, msg = "expected the field to have the updated value");
+}
+
+// The shape of a mapping value is an unordered collection of field shapes one for each field.
+// The field shape for a field f has a name, which is the same as the name of f, and a shape,
+// which is the shape of the value of f.
+@test:Config {}
+function testRecordFieldShape() {
+    DefaultOpenRecord r1 = { bazFieldTwo: "test string 1", bazFieldOne: 1.0 };
+    var conversionResult = utils:BazRecordTwo.convert(r1);
+    test:assertTrue(conversionResult is utils:BazRecordTwo, msg = "expected conversion to succeed");
+
+    // change the value's shape
+    r1.bazFieldTwo = 1.0;
+    conversionResult = utils:BazRecordTwo.convert(r1);
+    test:assertTrue(conversionResult is error, msg = "expected conversion to fail");
+    utils:assertErrorReason(conversionResult, "{ballerina}StampError", 
+                            "invalid reason on conversion failure due to shape mismatch");
+
+    // create a record without a required field,
+    // but with a new field with a different name and matching value shape
+    DefaultOpenRecord r2 = { bazFieldThree: "test string 3", bazFieldOne: 1.0 };
+    conversionResult = utils:BazRecordTwo.convert(r2);
+    test:assertTrue(conversionResult is error, msg = "expected conversion to fail");
+    utils:assertErrorReason(conversionResult, "{ballerina}StampError", 
+                            "invalid reason on conversion failure due to shape mismatch");
+}
+
+public type DefaultOpenRecord record {
+};
+
 // A mapping is iterable as sequence of fields, where each field is represented by a 2-tuple (s,
-// val) where s is a string for the name of a field, and val is its value. The order of the fields
-// in the sequence is implementation-dependent, but implementations are encouraged to
-// preserve and use the order in which the fields were added.
+// val) where s is a string for the name of a field, and val is the value of the field. The order
+// of the fields in the sequence is implementation-dependent, but implementations are
+// encouraged to preserve and use the order in which the fields were added.
 @test:Config {}
 function testRecordIteration() {
     // tested in `testIterableTypes()` in `05-values-types-variables/tests/values_types_variables.bal`
@@ -37,15 +91,14 @@ function testRecordIteration() {
 // record-rest-descriptor := [ record-rest-type ... ; ]
 // record-rest-type := type-descriptor | !
 
-// Each individual-field-descriptor specifies an additional constraint that a mapping
-// value must satisfy for it to belong to the described type. The constraint depends on whether
-// ? is present:
-// ● if ? is not present, then the constraint is that the mapping value must have a field with
-// the specified field-name and with a value belonging to the specified type-descriptor;
+// Each individual-field-descriptor specifies an additional constraint that a mapping value shape must 
+// satisfy for it to be a member of the described type. The constraint depends on whether ? is present:
+// if ? is not present, then the constraint is that the mapping value shape must have a field shape with 
+// the specified field-name and with a value shape that is a member of the specified type-descriptor; 
 // this is called a required field;
-// ● if ? is present, then the constraint is that if the mapping value has a field with the
-// specified field-name, then its value must belong to the specified type-descriptor; this
-// is called an optional field.
+// if ? is present, then the constraint is that if the mapping value shape has a field shape with the 
+// specified field-name, then its value shape must be a member of the specified type-descriptor; 
+// this is called an optional field.
 
 public type FooRecord record {
     string fieldOne;
@@ -105,9 +158,8 @@ function testOptionalFields() {
                       msg = "expected converted record to not have a field with key `fieldOne`");
 }
 
-// The order of the individual-field-descriptors within a
-// record-type-descriptor is not significant. Note that the delimited identifier syntax
-// allows the field name to be any non-empty string.
+// The order of the individual-field-descriptors within a record-type-descriptor is not significant. 
+// Note that the delimited identifier syntax allows the field name to be any non-empty string.
 type BazRecord record {
     string ^"string";
     int ^"int field";
@@ -120,12 +172,12 @@ function testDifferentFieldDescriptorsAndOrder() {
     test:assertEquals(b.^"int field", i1);
 }
 
-// The record-rest-descriptor determines whether a value of the described type may
-// contain extra fields, that is fields other than those named by individual type descriptors, and,
-// if so, the type of the values of the extra fields
+// For a mapping value shape and a record-type-descriptor, let the extra field shapes be the 
+// field shapes of the mapping value shapes whose names are not the same as field-name of any 
+// individual-field-descriptor. The record-rest-descriptor specifies the constraint that the extra 
+// fields shapes must satisfy in order for the mapping value shape to be a member of the described type, as follows:
 
-// ● if the record-rest-descriptor is empty, then the value may contain extra fields
-// belonging to any pure type
+// if the record-rest-descriptor is empty, then the value shape of the extra field shapes must be pure
 type OpenRecord record {
     string fieldOne;
 };
@@ -144,8 +196,24 @@ function testDefaultOpenRecord() {
     test:assertEquals(r1.fieldTwo, i2);
 }
 
-// ● if the record-rest-type is a type descriptor, then the value may contain extra
-// fields, and the type descriptor specifies the type of the values of the extra fields
+// if the record-rest-type is !, then there must not be any extra field shapes
+@test:Config {}
+function testClosedRecord() {
+    ClosedRecordWithOneField r1 = { strField: "test string 1" };
+    utils:assertErrorReason(trap updateClosedRecordWithOneField(r1, 1), "{ballerina}KeyNotFound", 
+                            "invalid reason on inherent type violating record insertion");
+}
+function updateClosedRecordWithOneField(record{} rec, anydata value) {
+    rec.newField = value;
+}
+
+public type ClosedRecordWithOneField record {
+    string strField;
+    !...
+};
+
+// if the record-rest-type is a type descriptor T, then the value shape of 
+// every extra field shape must be a member of T
 public type OpenRecordTwo record {
     string fieldOne;
     int...
@@ -175,6 +243,7 @@ public type ClosedRecord record {
     *OpenRecordTwo;
     !...
 };
+
 @test:Config {}
 function testRecordTypeReference() {
     ClosedRecord r1 = { fieldOne: s1 };
@@ -237,3 +306,29 @@ function testRecordCovariance() {
     r = <ClosedRecordFour>{ fieldOne: false, fieldTwo: s1 };
     test:assertTrue(!(r is ClosedRecordTwo), msg = "expected record to not be identified as a sub-type"); 
 }
+
+// The inherent type of a mapping value must be a mapping-type-descriptor. The
+// inherent type of a mapping value determines a type Tf
+// for the value of the field with name f.
+// The runtime system will enforce a constraint that a value written to field f will belong to type
+// Tf. Note that the constraint is not merely that the value looks like Tf.
+@test:Config {}
+function testRecordInherentTypeViolation() {
+    map<string> m1 = { one: "test string 1", two: "test string 2" };
+    ClosedRecordWithMapField r1 = { mapField: m1 };
+    utils:assertErrorReason(trap updateClosedRecordWithMapField(r1, 1), "{ballerina}InherentTypeViolation", 
+                            "invalid reason on inherent type violating map insertion");
+
+    // `m2` looks like `map<string>`
+    map<string|int> m2 = { one: "test string 1", two: "test string 2" };
+    utils:assertErrorReason(trap updateClosedRecordWithMapField(r1, m2), "{ballerina}InherentTypeViolation", 
+                            "invalid reason on inherent type violating map insertion");
+}
+
+function updateClosedRecordWithMapField(record{} rec, anydata value) {
+    rec.mapField = value;
+}
+
+public type ClosedRecordWithMapField record {
+    map<string> mapField;
+};
