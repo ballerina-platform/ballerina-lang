@@ -2467,10 +2467,19 @@ public class BVM {
                                                                    RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
                                                                    "()")));
                     handleError(ctx);
-                } else if (isSimpleBasicType(expectedType)) {
-                    execExplicitlyTypedExpressionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
+                } else if (isExactlyOneBasicNumericType(expectedType)) {
+                    execNumericConversionOrAssertionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
                 } else if (isAssignable(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
-                    sf.refRegs[j] = bRefTypeValue;
+                    switch (expectedType.getTag()) {
+                        case TypeTags.STRING_TAG:
+                            sf.stringRegs[j] = bRefTypeValue.stringValue();
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            sf.intRegs[j] = ((BBoolean) bRefTypeValue).booleanValue() ? 1 : 0;
+                            break;
+                        default:
+                            sf.refRegs[j] = bRefTypeValue;
+                    }
                 } else {
                     ctx.setError(
                             BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
@@ -2604,12 +2613,11 @@ public class BVM {
         }
     }
 
-    private static void execExplicitlyTypedExpressionOpCode(Strand ctx, StackFrame sf, BType targetType,
-                                                            BRefType bRefTypeValue, int regIndex) {
+    private static void execNumericConversionOrAssertionOpCode(Strand ctx, StackFrame sf, BType targetType,
+                                                               BRefType bRefTypeValue, int regIndex) {
         BType sourceType = bRefTypeValue.getType();
         int targetTag = targetType.getTag();
-        if (!isSimpleBasicType(sourceType) ||
-                (sourceType.getTag() == TypeTags.STRING_TAG && targetTag != TypeTags.STRING_TAG)) {
+        if (!isExactlyOneBasicNumericType(sourceType)) {
             ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
                                                    "assertion error: expected '" + targetType + "', found '" +
                                                            bRefTypeValue.getType() + "'"));
@@ -2619,9 +2627,6 @@ public class BVM {
 
         try {
             switch (targetTag) {
-                case TypeTags.STRING_TAG:
-                    sf.stringRegs[regIndex] = bRefTypeValue.stringValue();
-                    break;
                 case TypeTags.FLOAT_TAG:
                     sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
                     break;
@@ -2631,8 +2636,8 @@ public class BVM {
                 case TypeTags.INT_TAG:
                     sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
                     break;
-                case TypeTags.BOOLEAN_TAG:
-                    sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).booleanValue() ? 1 : 0;
+                case TypeTags.BYTE_TAG:
+                    sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).byteValue();
                     break;
             }
         } catch (BallerinaException e) {
@@ -5518,6 +5523,11 @@ public class BVM {
 
     private static boolean isSimpleBasicType(BType type) {
         return type.getTag() < TypeTags.JSON_TAG;
+    }
+
+    private static boolean isExactlyOneBasicNumericType(BType type) {
+        return type.getTag() == TypeTags.INT_TAG || type.getTag() == TypeTags.FLOAT_TAG ||
+                type.getTag() == TypeTags.DECIMAL_TAG || type.getTag() == TypeTags.BYTE_TAG;
     }
 
     /**

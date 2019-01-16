@@ -249,9 +249,10 @@ public class VarDeclaredAssignmentStmtTest {
     public void testAnyToStringWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToStringWithErrors", new BValue[]{});
 
-        // check whether string is null
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "5");
+
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'string', found 'int'");
     }
 
     @Test(description = "Test any null to string with errors.") //TODO check this
@@ -269,9 +270,10 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToBooleanWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'boolean', found 'int'");
     }
 
     @Test(description = "Test any null to boolean with errors.")

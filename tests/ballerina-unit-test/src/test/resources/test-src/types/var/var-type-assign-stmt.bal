@@ -58,10 +58,10 @@ function testBooleanToVarAssignment() returns (boolean) {
     return isHappy;
 }
 
-function testAnyToStringWithErrors() returns (string) {
+function testAnyToStringWithErrors() returns string|error {
     any a = 5;
 
-    var s = <string> a;
+    var s = trap <string> a;
 
     return s;
 }
@@ -77,7 +77,7 @@ function testAnyNullToStringWithErrors() returns (string | error) {
 function testAnyToBooleanWithErrors() returns (boolean | error) {
     any a = 5;
 
-    var b = check trap <boolean> a;
+    var b = trap <boolean> a;
 
     return b;
 }

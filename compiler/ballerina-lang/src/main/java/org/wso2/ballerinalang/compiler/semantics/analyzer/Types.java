@@ -187,7 +187,7 @@ public class Types {
         return type.tag < TypeTags.JSON;
     }
 
-    public boolean isExactlyOneBasicNumericType(BType type) {
+    boolean isExactlyOneBasicNumericType(BType type) {
         return type.tag == TypeTags.INT || type.tag == TypeTags.FLOAT || type.tag == TypeTags.DECIMAL ||
                 type.tag == TypeTags.BYTE;
     }

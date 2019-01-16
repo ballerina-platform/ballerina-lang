@@ -66,14 +66,6 @@ function booleanappendtostring(boolean value) returns (string) {
     return result;
 }
 
-function anyfloattostring() returns (string) {
-    any value = 5.5;
-    string result;
-    //any to string should be a conversion
-    result = <string>value;
-    return result;
-}
-
 function anyjsontostring() returns (string) {
     json j = {"a":"b"};
     any value = j;

@@ -123,20 +123,6 @@ function testDecimalAsInt(decimal f1) returns (boolean, int) {
 }
 
 //////////////////////// from int ////////////////////////
-function testIntInUnionAsString(int f1) returns (boolean, string) {
-    Employee|string|int f2 = f1;
-    json f3 = f1;
-    anydata f4 = f1;
-    any f5 = f1;
-
-    string s6 = <string> f2;
-    string s7 = <string> f3;
-    string s8 = <string> f4;
-    string s9 = <string> f5;
-
-    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
-}
-
 function testIntAsFloat(int f1) returns (boolean, float) {
     float s3 = <float> f1;
     anydata s4 = <float> getInt(f1);
@@ -173,66 +159,6 @@ function testIntInUnionAsInt(int f1) returns (boolean, int) {
 
 //////////////////////// from boolean ////////////////////////
 
-function testBooleanInUnionAsString() returns (string, string) {
-    boolean f1 = true;
-    Employee|string|int|boolean f2 = f1;
-    json f3 = true;
-    anydata f4 = f1;
-    any f5 = f1;
-
-    string s6 = <string> f2;
-    string s7 = <string> f3;
-    string s8 = <string> f4;
-    string s9 = <string > f5;
-
-    string st1 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : "";
-
-    f1 = false;
-    f2 = f1;
-    f3 = false;
-    f4 = f1;
-    f5 = f1;
-
-    s6 = <string> f2;
-    s7 = <string> f3;
-    s8 = <string> f4;
-    s9 = <string> f5;
-
-    string st2 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : "";
-
-    return(st1, st2);
-}
-
-function testBooleanInUnionAsInt() returns (int, int) {
-    boolean f1 = true;
-    Employee|string|int|boolean f2 = f1;
-    json f3 = true;
-    anydata f4 = f1;
-    any f5 = f1;
-
-    int s6 = <int> f2;
-    int s7 = <int> f3;
-    int s8 = <int> f4;
-    int s9 = <int > f5;
-
-    int ft1 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : 123456;
-
-    f1 = false;
-    f2 = f1;
-    f3 = false;
-    f4 = f1;
-    f5 = f1;
-
-    s6 = <int> f2;
-    s7 = <int> f3;
-    s8 = <int> f4;
-    s9 = <int> f5;
-
-    int ft2 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : 123456;
-
-    return(ft1, ft2);
-}
-
 function testBooleanAsBoolean() returns (boolean, boolean, boolean, boolean) {
     boolean b1 = true;
     boolean s1 = <boolean> b1;
@@ -259,7 +185,7 @@ function testBooleanInUnionAsBoolean() returns (boolean, boolean) {
     boolean s6 = <boolean> f2;
     boolean s7 = <boolean> f3;
     boolean s8 = <boolean> f4;
-    boolean s9 = <boolean > f5;
+    boolean s9 = <boolean> f5;
 
     boolean ft1 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : false;
 

@@ -133,17 +133,6 @@ public class NumericConversionTest {
                             "incorrect decimal representation as int");
     }
 
-    @Test(dataProvider = "intAsStringTests")
-    public void testIntAsString(String functionName, int i) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BInteger(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected strings to be the same");
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), (new BInteger(i)).stringValue(), "incorrect int representation" +
-                " as string");
-    }
-
     @Test(dataProvider = "intAsFloatTests")
     public void testIntAsFloat(String functionName, int i) {
         BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BInteger(i)});
@@ -176,26 +165,6 @@ public class NumericConversionTest {
         Assert.assertSame(returns[1].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), (new BInteger(i)).intValue(), "incorrect int " +
                 "representation as int");
-    }
-
-    @Test
-    public void testBooleanInUnionAsString() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanInUnionAsString", new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "true", "invalid boolean representation as string");
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), "false", "invalid boolean representation as string");
-    }
-
-    @Test
-    public void testBooleanInUnionAsInt() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanInUnionAsInt", new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1, "invalid boolean representation as int");
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "invalid boolean representation as int");
     }
 
     @Test
@@ -413,12 +382,6 @@ public class NumericConversionTest {
                 new BigDecimal("0.0", MathContext.DECIMAL128),
                 new BigDecimal("1.1", MathContext.DECIMAL128)
         };
-    }
-
-    @DataProvider
-    public Object[][] intAsStringTests() {
-        String[] intAsTestFunctions = new String[]{"testIntInUnionAsString"};
-        return getFunctionAndArgArraysForInt(intAsTestFunctions);
     }
 
     @DataProvider
