@@ -567,9 +567,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
         boolean remoteFlagSetOnNode = Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE);
         if (funcNode.attachedOuterFunction) {
-            if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) { //no visibility modifiers allowed
-                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS, funcNode.name);
-            }
             if (funcNode.receiver.type.tsymbol.kind == SymbolKind.RECORD) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_RECORDS, funcNode.name,
                         funcNode.receiver.type.tsymbol.name);
@@ -592,6 +589,23 @@ public class SymbolEnter extends BLangNodeVisitor {
                 visitObjectAttachedFunction(funcNode);
                 return;
             }
+
+            if (Symbols.isPublic(funcSymbol) ^ Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) {
+                dlog.error(funcNode.pos, DiagnosticCode.INVALID_VISIBILITY_ON_INTERFACE_FUNCTION_IMPL, funcNode.name,
+                        funcNode.receiver.type);
+                createDummyFunctionSymbol(funcNode);
+                visitObjectAttachedFunction(funcNode);
+                return;
+            }
+
+            if (Symbols.isPrivate(funcSymbol) ^ Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE)) {
+                dlog.error(funcNode.pos, DiagnosticCode.INVALID_VISIBILITY_ON_INTERFACE_FUNCTION_IMPL, funcNode.name,
+                        funcNode.receiver.type);
+                createDummyFunctionSymbol(funcNode);
+                visitObjectAttachedFunction(funcNode);
+                return;
+            }
+
             funcNode.symbol = (BInvokableSymbol) funcSymbol;
             if (funcNode.symbol.bodyExist) {
                 dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
@@ -606,6 +620,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             visitObjectAttachedFunction(funcNode);
             return;
         }
+
+        if (!funcNode.attachedFunction && Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE)) {
+            dlog.error(funcNode.pos, DiagnosticCode.PRIVATE_FUNCTION_VISIBILITY, funcNode.name);
+        }
+
         if (funcNode.receiver == null && !funcNode.attachedFunction && remoteFlagSetOnNode) {
             dlog.error(funcNode.pos, DiagnosticCode.REMOTE_IN_NON_OBJECT_FUNCTION, funcNode.name.value);
         }
@@ -1580,11 +1599,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE, function.funcName,
                         typeRef);
             }
-            return;
-        }
-
-        if (Symbols.isPrivate(function.symbol)) {
-            // we should not copy private functions.
             return;
         }
 

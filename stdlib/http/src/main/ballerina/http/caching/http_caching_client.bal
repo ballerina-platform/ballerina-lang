@@ -294,7 +294,7 @@ remote function HttpCachingClient.execute(string httpMethod, string path,
     return inboundResponse;
 }
 
-remote function HttpCachingClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function HttpCachingClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -306,7 +306,7 @@ remote function HttpCachingClient.patch(string path, Request|string|xml|json|byt
     return inboundResponse;
 }
 
-remote function HttpCachingClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function HttpCachingClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -318,14 +318,14 @@ remote function HttpCachingClient.delete(string path, Request|string|xml|json|by
     return inboundResponse;
 }
 
-remote function HttpCachingClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function HttpCachingClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
 }
 
-remote function HttpCachingClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public remote function HttpCachingClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -337,7 +337,7 @@ remote function HttpCachingClient.options(string path, Request|string|xml|json|b
     return inboundResponse;
 }
 
-remote function HttpCachingClient.forward(string path, Request request) returns Response|error {
+public remote function HttpCachingClient.forward(string path, Request request) returns Response|error {
     if (request.method == GET || request.method == HEAD) {
         return getCachedResponse(self.cache, self.httpClient, request, request.method, path, self.cacheConfig.isShared);
     }
@@ -349,30 +349,30 @@ remote function HttpCachingClient.forward(string path, Request request) returns 
     return inboundResponse;
 }
 
-remote function HttpCachingClient.submit(string httpVerb, string path,
+public remote function HttpCachingClient.submit(string httpVerb, string path,
                                    Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
                                    returns HttpFuture|error {
     Request req = buildRequest(message);
     return self.httpClient->submit(httpVerb, path, req);
 }
 
-remote function HttpCachingClient.getResponse(HttpFuture httpFuture) returns Response|error {
+public remote function HttpCachingClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient->getResponse(httpFuture);
 }
 
-remote function HttpCachingClient.hasPromise(HttpFuture httpFuture) returns boolean {
+public remote function HttpCachingClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient->hasPromise(httpFuture);
 }
 
-remote function HttpCachingClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public remote function HttpCachingClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient->getNextPromise(httpFuture);
 }
 
-remote function HttpCachingClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public remote function HttpCachingClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient->getPromisedResponse(promise);
 }
 
-remote function HttpCachingClient.rejectPromise(PushPromise promise) {
+public remote function HttpCachingClient.rejectPromise(PushPromise promise) {
     self.httpClient->rejectPromise(promise);
 }
 
