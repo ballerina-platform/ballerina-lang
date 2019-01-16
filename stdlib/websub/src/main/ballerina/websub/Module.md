@@ -251,7 +251,7 @@ where the values specified via the Config API would override values specified as
 Ballerina's WebSub subscriber service listener can be extended to introduce specific Webhooks.
  
 Instead of the single `onNotification` resource, you can introduce multiple resources to accept content delivery requests using specific subscriber services. These resources will correspond to the content delivery requests that will 
- be delivered for a particular topic.
+ be delivered with respect to a particular topic.
  
 For example, assume a scenario in which you receive notifications either when an issue is opened or when an issue is closed by subscribing to a particular topic in an issue tracking system. With a custom subscriber service listener, which extends the 
 generic WebSub subscriber service listener, you can allow two resources to accept content delivery requests (e.g., `onIssueOpened` and `onIssueClosed`) instead of the `onNotification` resource.
