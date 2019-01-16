@@ -36,13 +36,13 @@ import java.util.Map;
  */
 public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
-    public static final BDecimal POSITIVE_INF =
+    private static final BDecimal POSITIVE_INF =
             new BDecimal("9.999999999999999999999999999999999E6144", DecimalValueKind.POSITIVE_INFINITY);
 
-    public static final BDecimal NEGATIVE_INF =
+    private static final BDecimal NEGATIVE_INF =
             new BDecimal("-9.999999999999999999999999999999999E6144", DecimalValueKind.NEGATIVE_INFINITY);
 
-    public static final BDecimal NaN = new BDecimal("-1", DecimalValueKind.NOT_A_NUMBER);
+    private static final BDecimal NaN = new BDecimal("-1", DecimalValueKind.NOT_A_NUMBER);
 
     // Variable used to track the kind of a decimal value.
     public DecimalValueKind valueKind = DecimalValueKind.OTHER;
