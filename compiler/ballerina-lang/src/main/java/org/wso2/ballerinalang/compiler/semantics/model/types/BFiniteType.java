@@ -66,6 +66,11 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     @Override
+    public boolean hasImplicitInitialValue() {
+        return this.valueSpace.stream().anyMatch(value -> value.type.hasImplicitInitialValue());
+    }
+
+    @Override
     public String getDesc() {
         return TypeDescriptor.SIG_FINITE + getQualifiedTypeName() + ";";
     }

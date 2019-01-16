@@ -27,4 +27,9 @@ public class BNoType extends BType implements NoType {
     public BNoType(int tag) {
         super(tag, null);
     }
+
+    @Override
+    public boolean hasImplicitInitialValue() {
+        return true;
+    }
 }
