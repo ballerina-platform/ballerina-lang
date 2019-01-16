@@ -90,10 +90,10 @@ function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
     int readCount = 1;
     byte[] readContent;
     while (readCount > 0) {
-        //Operation attempts to read a maximum of 1000 bytes
+        //Operation attempts to read a maximum of 1000 bytes.
         (byte[], int) result = check src.read(1000);
         (readContent, readCount) = result;
-        //Writes the given content into the channel
+        //Writes the given content into the channel.
         var writeResult = check dst.write(readContent, 0);
     }
     return;

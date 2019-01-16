@@ -592,7 +592,7 @@ public class IterableAnalyzer {
             } else if (expectedType.tag == TypeTags.TUPLE) {
                 context.resultType = symTable.semanticError;
                 return;
-            } else if (expectedType.tag == TypeTags.ANY) {
+            } else if (expectedType.tag == TypeTags.ANY || expectedType.tag == TypeTags.ANYDATA) {
                 context.resultType = symTable.semanticError;
                 dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind);
                 return;

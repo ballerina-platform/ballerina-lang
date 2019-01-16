@@ -1676,7 +1676,6 @@
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
@@ -1686,6 +1685,7 @@
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1760,7 +1760,6 @@
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
@@ -1770,6 +1769,7 @@
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1840,7 +1840,6 @@
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
-                <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
@@ -1850,6 +1849,7 @@
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -2250,7 +2250,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.250</transport.http.version>
+        <transport.http.version>6.0.252</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>

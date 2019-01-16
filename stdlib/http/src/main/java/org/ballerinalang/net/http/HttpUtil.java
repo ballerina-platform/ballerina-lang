@@ -841,6 +841,18 @@ public class HttpUtil {
     }
 
     /**
+     * Check the existence of content-length and transfer-encoding headers.
+     *
+     * @param message transport message
+     * @return true if the headers are available else false.
+     */
+    public static Boolean checkRequestBodySizeHeadersAvailability(HttpCarbonMessage message) {
+        String contentLength = message.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
+        String transferEncoding = message.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
+        return contentLength != null || transferEncoding != null;
+    }
+
+    /**
      * Check the existence of the message entity data source.
      *
      * @param struct  request/response struct.

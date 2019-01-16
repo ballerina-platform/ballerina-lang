@@ -87,7 +87,7 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                 .filter((element) => element.viewState.visible)
                 .map((element: VisibleEndpoint) => {
                     return <LifeLine title={element.name} icon="endpoint"
-                        model={element.viewState.bBox} astModel={!element.caller ? element : undefined} />;
+                        model={element.viewState.bBox} astModel={element.caller ? model.parameters[0] : element } />;
                 })
             }
             <DiagramContext.Consumer>

@@ -18,6 +18,7 @@
     "@ballerina/ballerina-by-examples": "^0.990.3-SNAPSHOT",
     "@ballerina/diagram": "^0.990.3-SNAPSHOT",
     "@ballerina/documentation": "^0.990.3-SNAPSHOT",
+    "@ballerina/font": "^0.990.3-SNAPSHOT",
     "@ballerina/theme": "^0.990.3-SNAPSHOT",
     "@ballerina/tracing": "^0.990.3-SNAPSHOT",
     "@ballerina/api-designer" : "^0.990.3-SNAPSHOT"

@@ -1,6 +1,7 @@
 package com.github.gtache.lsp.actions
 
 import com.github.gtache.lsp.editor.EditorEventManager
+import com.github.gtache.lsp.settings.BallerinaLSPState
 import com.intellij.codeInsight.documentation.actions.ShowQuickDocInfoAction
 import com.intellij.lang.LanguageDocumentation
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
@@ -22,7 +23,9 @@ class LSPQuickDocAction extends ShowQuickDocInfoAction with DumbAware {
     val file = FileDocumentManager.getInstance().getFile(editor.getDocument)
     val language = PsiManager.getInstance(editor.getProject).findFile(file).getLanguage
     //Hack for IntelliJ 2018 TODO proper way
-    if (LanguageDocumentation.INSTANCE.allForLanguage(language).isEmpty || (ApplicationInfo.getInstance().getMajorVersion.toInt > 2017) && PlainTextLanguage.INSTANCE == language) {
+    if (BallerinaLSPState.getInstance().alwaysSendRequests ||
+      LanguageDocumentation.INSTANCE.allForLanguage(language).isEmpty ||
+      (ApplicationInfo.getInstance().getMajorVersion.toInt > 2017) && PlainTextLanguage.INSTANCE == language) {
       EditorEventManager.forEditor(editor) match {
         case Some(manager) => manager.quickDoc(editor)
         case None => super.actionPerformed(e)

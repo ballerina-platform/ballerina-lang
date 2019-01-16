@@ -98,6 +98,12 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 # Never set accept-encoding/content-encoding header in outbound request/response.
 public const COMPRESSION_NEVER = "NEVER";
 
+# The types of messages that are accepted by HTTP `client` when sending out the outbound request.
+public type RequestMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
+
+# The types of messages that are accepted by HTTP `listener` when sending out the outbound response.
+public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
+
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
 #
 # `FORWARD`: Forward the specified payload
@@ -190,12 +196,14 @@ type HTTPError record {
 //TODO: Make the error nillable
 public extern function parseHeader (string headerValue) returns (string, map<any>)|error;
 
-function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Request {
+function buildRequest(RequestMessage message) returns Request {
     Request request = new;
     if (message is ()) {
+        request.noEntityBody = true;
         return request;
     } else if (message is Request) {
         request = message;
+        request.noEntityBody = !request.checkEntityBodyAvailability();
     } else if (message is string) {
         request.setTextPayload(message);
     } else if (message is xml) {
@@ -212,7 +220,7 @@ function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime
     return request;
 }
 
-function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Response {
+function buildResponse(ResponseMessage message) returns Response {
     Response response = new;
     if (message is ()) {
         return response;

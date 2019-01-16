@@ -270,6 +270,43 @@ public class StubGeneratorTestCase {
         Assert.assertTrue(Files.exists(sampleServiceFile));
     }
 
+    @Test(description = "Test case for oneof field record generation")
+    public void testOneofFieldRecordGeneration() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
+        Path sourcePath = Paths.get("grpc", "tool");
+        Path sourceRoot = resourceDir.resolve(sourcePath);
+        Path protoPath = Paths.get("grpc", "tool", "oneof_field_service.proto");
+        Path protoRoot = resourceDir.resolve(protoPath);
+        grpcCmd1.setBalOutPath(sourceRoot.toAbsolutePath().toString());
+        grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
+        grpcCmd1.execute();
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("grpc", "tool", "oneof_field_service_pb.bal"));
+        CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("OneofFieldServiceClient"), "Client stub not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo("Request1"),
+                "Expected record type not found");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo("Request1_Age"),
+                "Expected record type not found");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
+                "Request1_Address"), "Expected record type not found");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
+                "Request1_Married"), "Expected record type not found");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
+                "Request1_FirstName"), "Expected record type not found");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
+                "Request1_LastName"), "Expected record type not found");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo("Address1"),
+                "Expected record type not found");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
+                "Address1_HouseNumber"), "Expected record type not found");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
+                "Address1_StreetNumber"), "Expected record type not found");
+    }
+
     @AfterClass
     public void clean() {
         BalFileGenerationUtils.delete(new File(TMP_DIRECTORY_PATH, protoExeName));
