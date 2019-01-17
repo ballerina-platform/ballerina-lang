@@ -34,7 +34,7 @@ public type Caller client object {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public remote function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
+    public remote function respond(ResponseMessage message) returns error? {
         Response response = buildResponse(message);
         FilterContext? filterContext = self.filterContext;
         if (filterContext is FilterContext) {
@@ -95,7 +95,7 @@ public type Caller client object {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public remote function ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error?;
+    public remote function ok(ResponseMessage message) returns error?;
 
     # Sends the outbound response to the caller with the status 201 Created.
     #
@@ -103,16 +103,14 @@ public type Caller client object {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
-    public remote function created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                            returns error?;
+    public remote function created(string uri, ResponseMessage message = ()) returns error?;
 
     # Sends the outbound response to the caller with the status 202 Accepted.
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
-    public remote function accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                            returns error?;
+    public remote function accepted(ResponseMessage message = ()) returns error?;
 };
 
 extern function nativeRespond(Caller caller, Response response) returns error?;
@@ -175,14 +173,22 @@ public remote function Caller.redirect(Response response, RedirectCode code, str
     return self->respond(response);
 }
 
+<<<<<<< HEAD
 public remote function Caller.ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
+=======
+remote function Caller.ok(ResponseMessage message) returns error? {
+>>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     Response response = buildResponse(message);
     response.statusCode = OK_200;
     return self->respond(response);
 }
 
+<<<<<<< HEAD
 public remote function Caller.created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
+=======
+remote function Caller.created(string uri, ResponseMessage message = ())returns error? {
+>>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     Response response = buildResponse(message);
     response.statusCode = CREATED_201;
     if (uri.length() > 0) {
@@ -191,8 +197,12 @@ public remote function Caller.created(string uri, Response|string|xml|json|byte[
     return self->respond(response);
 }
 
+<<<<<<< HEAD
 public remote function Caller.accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
+=======
+remote function Caller.accepted(ResponseMessage message = ()) returns error? {
+>>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     Response response = buildResponse(message);
     response.statusCode = ACCEPTED_202;
     return self->respond(response);

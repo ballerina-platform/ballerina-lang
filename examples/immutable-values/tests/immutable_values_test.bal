@@ -30,4 +30,5 @@ function testFunc() {
     test:assertEquals(outputs[7], "'.freeze()' failed for m4: ");
     string output8 = <string> outputs[8];
     test:assertTrue(output8.hasPrefix("'freeze()' not allowed on '") && output8.hasSuffix("Employee'"));
+    test:assertEquals(outputs[9], "frozenVal is map<string>");
 }

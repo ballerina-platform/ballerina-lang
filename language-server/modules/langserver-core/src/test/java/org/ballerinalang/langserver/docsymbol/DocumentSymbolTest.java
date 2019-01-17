@@ -21,7 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
@@ -64,7 +64,7 @@ public class DocumentSymbolTest {
         JsonArray result = jsonResponse.getAsJsonArray("result");
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         for (JsonElement element : result) {
-            element.getAsJsonObject().get("location").getAsJsonObject().remove("uri");
+            element.getAsJsonObject().get("left").getAsJsonObject().get("location").getAsJsonObject().remove("uri");
         }
 
         JsonArray expectedJsonArr = expected.getAsJsonArray("result");

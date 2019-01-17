@@ -457,6 +457,7 @@ public type SubscriptionChangeResponse record {
 # + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
 #               `http(s)://localhost:{port}/websub/hub` if unspecified
 # + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
+# + hubPersistenceStore - The `HubPersistenceStore` to use to persist hub data
 public type HubConfiguration record {
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -464,6 +465,7 @@ public type HubConfiguration record {
     boolean topicRegistrationRequired = true;
     string publicUrl?;
     http:ClientEndpointConfig clientConfig?;
+    HubPersistenceStore hubPersistenceStore?;
     !...
 };
 
@@ -499,6 +501,10 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration? hub
     // configs in the native code
     hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
+    hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
+    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+        hubPersistenceEnabled = true;
+    }
 
     startHubService(hubServiceListener);
     return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl, hubServiceListener);
@@ -628,14 +634,14 @@ public function addWebSubLinkHeader(http:Response response, string[] hubs, strin
     response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
 }
 
-# Record to represent Subscription Details retrieved from the database.
+# Record to represent persisted Subscription Details retrieved.
 #
 # + topic - The topic for which the subscription is added
 # + callback - The callback specified for the particular subscription
 # + secret - The secret to be used for authenticated content distribution
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
-type SubscriptionDetails record {
+public type SubscriptionDetails record {
     string topic = "";
     string callback = "";
     string secret = "";
