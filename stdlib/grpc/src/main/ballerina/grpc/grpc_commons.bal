@@ -67,3 +67,49 @@ public type ServiceOcspStapling record {
     int cacheValidityPeriod = 0;
     !...;
 };
+
+# Defines the possible values for the keep-alive configuration in service and client endpoints.
+public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
+
+# Decides to keep the connection alive or not based on the `connection` header of the client request }
+public const KEEPALIVE_AUTO = "AUTO";
+# Keeps the connection alive irrespective of the `connection` header value }
+public const KEEPALIVE_ALWAYS = "ALWAYS";
+# Closes the connection irrespective of the `connection` header value }
+public const KEEPALIVE_NEVER = "NEVER";
+
+# Options to compress using gzip or deflate.
+#
+# `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
+#         outbound request/response accept-encoding/content-encoding option
+# `ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response
+# `NEVER`: Never set accept-encoding/content-encoding header in outbound request/response
+public type Compression COMPRESSION_AUTO|COMPRESSION_ALWAYS|COMPRESSION_NEVER;
+
+# When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
+# outbound request/response accept-encoding/content-encoding option.
+public const COMPRESSION_AUTO = "AUTO";
+
+# Always set accept-encoding/content-encoding in outbound request/response.
+public const COMPRESSION_ALWAYS = "ALWAYS";
+
+# Never set accept-encoding/content-encoding header in outbound request/response.
+public const COMPRESSION_NEVER = "NEVER";
+
+# Defines the possible values for the chunking configuration in HTTP services and clients.
+#
+# `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,
+#         otherwise chunking header is set in the outbound request/response
+# `ALWAYS`: Always set chunking header in the response
+# `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response
+public type Chunking CHUNKING_AUTO|CHUNKING_ALWAYS|CHUNKING_NEVER;
+
+# If the payload is less than 8KB, content-length header is set in the outbound request/response,
+# otherwise chunking header is set in the outbound request/response.
+public const CHUNKING_AUTO = "AUTO";
+
+# Always set chunking header in the response.
+public const CHUNKING_ALWAYS = "ALWAYS";
+
+# Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.
+public const CHUNKING_NEVER = "NEVER";
