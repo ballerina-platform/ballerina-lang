@@ -22,7 +22,7 @@ public function main() {
     addrMap.postalCode = "00301";
     io:println(addrMap);
 
-    // Use the `keys()` method to print the keys of the `map` as an array.
+    // The `keys()` method returns the keys of the map as an array.
     io:println(addrMap.keys());
 
     // Print the number of mappings in the `map`.
