@@ -81,6 +81,8 @@ public class TestUtil {
 
     private static final String FORMATTING = "textDocument/formatting";
 
+    private static final String IMPLEMENTATION = "textDocument/implementation";
+
     private static final String DOCUMENT_SYMBOL = "textDocument/documentSymbol";
 
     private static final String WORKSPACE_SYMBOL_COMMAND = "workspace/symbol";
@@ -239,6 +241,20 @@ public class TestUtil {
     public static String getFormattingResponse(DocumentFormattingParams params, Endpoint serviceEndpoint) {
         CompletableFuture result = serviceEndpoint.request(FORMATTING, params);
         return getResponseString(result);
+    }
+
+    /**
+     * Get the Goto implementation response.
+     *
+     * @param serviceEndpoint   Language Server Service endpoint
+     * @param filePath          File path to evaluate
+     * @param position          Cursor position
+     * @return {@link CompletableFuture}    Response completable future
+     */
+    public static String getGotoImplementationResponse(Endpoint serviceEndpoint, String filePath, Position position) {
+        TextDocumentPositionParams positionParams = getTextDocumentPositionParams(filePath, position);
+        CompletableFuture completableFuture = serviceEndpoint.request(IMPLEMENTATION, positionParams);
+        return getResponseString(completableFuture);
     }
 
     /**

@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completion.util;
+package org.ballerinalang.langserver.util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -56,7 +56,7 @@ public class FileUtils {
     /**
      * Get the file content.
      * @param filePath path to the file
-     * @return {@link JsonObject} file content as a jsonObject
+     * @return {@link String} file content as a String
      */
     public static String fileContent(String filePath) {
         String stringContent = "";

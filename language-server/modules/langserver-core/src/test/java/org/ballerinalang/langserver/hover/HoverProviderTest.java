@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.hover;
 
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.compiler.LSContextManager;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
