@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.common;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
+import org.testng.Assert;
 
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -45,5 +46,11 @@ public class CommonTestUtils {
             pathValue = path.toAbsolutePath().toString();
         }
         return pathValue;
+    }
+
+    public static void assertJBytesWithBBytes(byte[] jBytes, byte[] bBytes) {
+        for (int i = 0; i < jBytes.length; i++) {
+            Assert.assertEquals(bBytes[i], jBytes[i], "Invalid byte value returned.");
+        }
     }
 }
