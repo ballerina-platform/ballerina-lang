@@ -93,7 +93,7 @@ public class GlobalVariableRefAnalyzer {
             // Extract all the dependencies found in last call to analyzeProvidersRecursively
             if (!dependencyOrder.isEmpty()) {
                 List<BSymbol> symbolsProvidersOrdered = dependencyOrder.stream()
-                        .map(n -> n.symbol)
+                        .map(nodeInfo -> nodeInfo.symbol)
                         .collect(Collectors.toList());
                 dependencies.addAll(symbolsProvidersOrdered);
                 dependencyOrder.clear();
@@ -116,14 +116,13 @@ public class GlobalVariableRefAnalyzer {
         }
         sorted.addAll(dependencies);
 
-        if (cycles.stream().anyMatch(c -> c.size() > 1)) {
+        if (cycles.stream().anyMatch(cycle -> cycle.size() > 1)) {
             // Cyclic error found no need to sort.
             return;
         }
 
         projectSortToGlobalVarsList(sorted);
         projectSortToTopLevelNodesList();
-
     }
 
     private void pruneDependencyRelations(Map<BSymbol, List<BSymbol>> globalNodeDependsOn) {
@@ -332,10 +331,10 @@ public class GlobalVariableRefAnalyzer {
 
     private static class NodeInfo {
         final int id;
+        final BSymbol symbol;
         int lowLink;
         boolean visited;
         boolean onStack;
-        BSymbol symbol;
 
         NodeInfo(int id, BSymbol symbol) {
             this.id = id;
