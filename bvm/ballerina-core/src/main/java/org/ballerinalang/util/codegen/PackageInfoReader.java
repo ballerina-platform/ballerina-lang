@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -1975,11 +1974,6 @@ public class PackageInfoReader {
         @Override
         public BType getConstrainedType(char typeChar, BType constraint) {
             switch (typeChar) {
-                case 'J':
-                    if (constraint == null) {
-                        return BTypes.typeJSON;
-                    }
-                    return new BJSONType(constraint);
                 case 'D':
                     if (constraint == null) {
                         return BTypes.typeTable;

@@ -770,9 +770,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos pos = getCurrentPos(ctx);
         checkTypeValidity(typeName, pos);
 
-        if (ctx.nameReference() != null) {
-            this.pkgBuilder.addConstraintType(pos, getWS(ctx), typeName);
-        } else if (ctx.typeName() != null) {
+        if (ctx.typeName() != null) {
             this.pkgBuilder.addConstraintTypeWithTypeName(pos, getWS(ctx), typeName);
         } else {
             this.pkgBuilder.addBuiltInReferenceType(pos, getWS(ctx), typeName);
