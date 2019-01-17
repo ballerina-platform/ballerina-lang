@@ -1,3 +1,18 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 type RR record {
     int i;
@@ -16,23 +31,23 @@ type RecordWithObj record {
     Obj obj;
 };
 
-Obj[] r = [];
+Obj[] objArray = [];
 
-RR[] arr2 = [];
-RR[2] arr3 = [ {i: 0}, {i: 1}];
-RR?[] arr2_ = [];
+RR[] recArray = [];
+RR[2] sealedRecArray = [ {i: 0}, {i: 1}];
+RR?[] optRecArray = [];
 
-RecordWithObj[] rO = [];
-RecordWithObj?[] rOptional = [];
+RecordWithObj[] recArrayN = [];
+RecordWithObj?[] optRecArrayN = [];
 
-RR[][] multiArr = [];
-Obj[][] multiObjArr = [];
+RR[][] multiDimArray = [];
+Obj[][] multiDimObjArray = [];
 
 json[] jArr = [];
 
 type FT 1|2|3;
 type FTN 1|2|3|();
 
-FT[] ar_ft = [1,2];
-FT?[] ar_ft2 = [2,3];
-FTN[] ar_ftn = [];
+FT[] finiteTypeArray = [1,2];
+FT?[] optFiniteTypeArray = [2,3];
+FTN[] finiteTypeIIVArray = [];
