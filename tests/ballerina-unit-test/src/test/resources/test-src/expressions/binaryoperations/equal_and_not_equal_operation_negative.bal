@@ -132,17 +132,17 @@ type Person record {
 
 type ClosedDept record {
     string code;
-    !...
+    !...;
 };
 
 type EmployeeWithOptionalId record {
     string name;
     float id?;
-    !...
+    !...;
 };
 
 type PersonWithOptionalId record {
     string name;
     string id?;
-    !...
+    !...;
 };

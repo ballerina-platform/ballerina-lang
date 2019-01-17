@@ -14,7 +14,7 @@ public type closedPerson record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...
+    !...;
 };
 
 public type employee record {
@@ -33,5 +33,5 @@ public type closedEmployee record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...
+    !...;
 };

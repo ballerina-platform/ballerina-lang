@@ -95,7 +95,7 @@ public type TopicSubscriberEndpointConfiguration record {
     string? topicPattern = ();
     string messageSelector = "";
     string identifier = "";
-    !...
+    !...;
 };
 
 # Remote functions that topic subscriber endpoint could perform

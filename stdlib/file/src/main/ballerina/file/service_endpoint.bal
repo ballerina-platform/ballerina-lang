@@ -59,5 +59,5 @@ public type Listener object {
 public type ListenerConfig record {
     string? path = ();
     boolean recursive = false;
-    !...
+    !...;
 };

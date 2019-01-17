@@ -71,7 +71,7 @@ public type Client client object {
 public type ClientEndpointConfig record {
     SecureSocket? secureSocket = ();
     int timeoutMillis = 60000;
-    !...
+    !...;
 };
 
 # SecureSocket struct represents SSL/TLS options to be used for gRPC client invocation.
@@ -102,5 +102,5 @@ public type SecureSocket record {
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
-    !...
+    !...;
 };

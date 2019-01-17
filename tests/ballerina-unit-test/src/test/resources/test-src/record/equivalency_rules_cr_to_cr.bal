@@ -17,13 +17,13 @@
 type Person1 record {
     string name;
     int age;
-    !...
+    !...;
 };
 
 type AnotherPerson1 record {
     string name;
     int age;
-    !...
+    !...;
 };
 
 function testClosedToClosedAssignment1() returns AnotherPerson1 {
@@ -35,7 +35,7 @@ function testClosedToClosedAssignment1() returns AnotherPerson1 {
 type AnotherPerson2 record {
     string name;
     int|float age;
-    !...
+    !...;
 };
 
 function testClosedToClosedAssignment2() returns AnotherPerson2 {
@@ -48,7 +48,7 @@ type AnotherPerson3 record {
     string name;
     int age;
     float weight?;
-    !...
+    !...;
 };
 
 // Tests assignment when the LHS type has optional fields which don't correspond to any fields in the RHS type.
@@ -72,7 +72,7 @@ function testClosedToClosedAssignment4() {
 type AnotherPerson4 record {
     string name;
     int age?;
-    !...
+    !...;
 };
 
 function testReqFieldToOptField() returns AnotherPerson4 {
@@ -89,7 +89,7 @@ function testReqFieldToOptField() returns AnotherPerson4 {
 type Person2 record {
     string name;
     int age?;
-    !...
+    !...;
 };
 
 function testOptFieldToOptField1() returns AnotherPerson4 {

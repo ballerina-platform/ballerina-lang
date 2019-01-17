@@ -21,7 +21,7 @@
 public type TrustStore record {
     string path = "";
     string password = "";
-    !...
+    !...;
 };
 
 # KeyStore record represents key store related options to be used for HTTP client/service invocation.
@@ -31,7 +31,7 @@ public type TrustStore record {
 public type KeyStore record {
     string path = "";
     string password = "";
-    !...
+    !...;
 };
 
 # Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation.
@@ -41,7 +41,7 @@ public type KeyStore record {
 public type Protocols record {
     string name = "";
     string[] versions = [];
-    !...
+    !...;
 };
 
 # ValidateCert record represents options related to check whether a certificate is revoked or not.
@@ -53,7 +53,7 @@ public type ValidateCert record {
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...
+    !...;
 };
 
 # OcspStapling record represents options related to check whether a certificate is revoked or not.
@@ -65,5 +65,5 @@ public type ServiceOcspStapling record {
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...
+    !...;
 };
