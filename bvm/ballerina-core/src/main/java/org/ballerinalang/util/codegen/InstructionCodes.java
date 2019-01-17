@@ -271,8 +271,6 @@ public interface InstructionCodes {
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
 
-    int CLONE = 206;
-
     int FLUSH = 207;
 
     int LENGTH = 208;

@@ -573,10 +573,6 @@ public class BVM {
                     findAndAddAdditionalVarRegIndexes(sf, operands, fPointer);
                     break;
 
-                case InstructionCodes.CLONE:
-                    createClone(strand, operands, sf);
-                    break;
-
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.BI2ANY:
                 case InstructionCodes.F2ANY:
@@ -862,26 +858,6 @@ public class BVM {
         BRefType val = extractValue(strand.currentFrame, type, reg);
         WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), isSameStrand);
         return dataChannel.syncSendData(val, strand, retReg);
-    }
-
-    private static void createClone(Strand ctx, int[] operands, StackFrame sf) {
-        int i = operands[0];
-        int j = operands[1];
-
-        BRefType<?> refRegVal = sf.refRegs[i];
-
-        if (refRegVal == null) {
-            return;
-        }
-
-        if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
-            sf.refRegs[j] =
-                    BLangVMErrors.createError(ctx, BallerinaErrorReasons.CLONE_ERROR,
-                                              BLangExceptionHelper.getErrorMessage(
-                                                      RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal.getType()));
-            return;
-        }
-        sf.refRegs[j] = (BRefType<?>) refRegVal.copy(new HashMap<>());
     }
 
     private static Strand invokeCallable(Strand strand, CallableUnitInfo callableUnitInfo,
