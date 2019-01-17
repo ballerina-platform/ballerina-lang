@@ -439,7 +439,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         case TUPLE_TYPE_NODE:
                         case CONSTRAINED_TYPE:
                         case BUILT_IN_REF_TYPE:
-                        case ENDPOINT_TYPE:
                         case FINITE_TYPE_NODE:
                         case FUNCTION_TYPE:
                         case VALUE_TYPE:
@@ -521,11 +520,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 break;
             case BUILT_IN_REF_TYPE:
-                // Todo - Remove?
-                break;
-            case ENDPOINT_TYPE:
-                // Todo - Remove?
-                break;
+                // Eg - `xml`. This is not needed to be checked because no types are available in the `xml`.
             case FINITE_TYPE_NODE:
             case FUNCTION_TYPE:
             case VALUE_TYPE:
