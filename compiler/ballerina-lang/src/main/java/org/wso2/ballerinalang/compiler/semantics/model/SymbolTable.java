@@ -82,6 +82,8 @@ public class SymbolTable {
             Names.RUNTIME_PACKAGE,
             Names.EMPTY);
 
+    public static final String CLONE_FUNCTION = "cloneValue";
+
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
 
@@ -548,14 +550,18 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, floatType, booleanType, InstructionCodes.NOP);
 
         //clone related methods
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anydataType, anydataType, InstructionCodes.CLONE);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, intType, intType, InstructionCodes.CLONE);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, floatType, floatType, InstructionCodes.CLONE);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, decimalType, decimalType, InstructionCodes.CLONE);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, booleanType, booleanType, InstructionCodes.CLONE);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, stringType, stringType, InstructionCodes.CLONE);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, byteType, byteType, InstructionCodes.CLONE);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, xmlType, xmlType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anydataType, anydataType);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, intType, intType);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, floatType, floatType);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, decimalType, decimalType);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, booleanType, booleanType);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, stringType, stringType);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, byteType, byteType);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, xmlType, xmlType);
+    }
+
+    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType) {
+        defineBuiltinMethod(method, type, Collections.emptyList(), retType, -1);
     }
 
     private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType, int opcode) {
