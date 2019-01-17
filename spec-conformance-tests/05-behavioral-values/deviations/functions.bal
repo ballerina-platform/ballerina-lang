@@ -15,7 +15,6 @@
 // under the License.
 import ballerina/test;
 
-
 // annots type-descriptor param-name [= default-value]
 // default-value := const-expr
 // TODO: allow any const-expr as the default value for a defaultable param
