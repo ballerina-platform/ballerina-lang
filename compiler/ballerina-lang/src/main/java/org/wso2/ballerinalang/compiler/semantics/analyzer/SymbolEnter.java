@@ -438,8 +438,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         case UNION_TYPE_NODE:
                         case TUPLE_TYPE_NODE:
                         case CONSTRAINED_TYPE:
-                            checkErrors(unresolvedType,  memberTypeNode, visitedNodes, encounteredUnknownTypes);
-                            break;
                         case BUILT_IN_REF_TYPE:
                         case ENDPOINT_TYPE:
                         case FINITE_TYPE_NODE:
@@ -448,7 +446,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         case RECORD_TYPE:
                         case OBJECT_TYPE:
                         case ERROR_TYPE:
-                            // Do nothing.
+                            checkErrors(unresolvedType,  memberTypeNode, visitedNodes, encounteredUnknownTypes);
                             break;
                         default:
                             throw new RuntimeException("unhandled type kind: " + currentTypeNode.getKind());
