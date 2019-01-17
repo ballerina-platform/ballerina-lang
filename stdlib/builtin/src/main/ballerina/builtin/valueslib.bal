@@ -18,4 +18,4 @@
 #
 # + value - Value to be cloned
 # + return - Clone of the given value
-public extern function clone(anydata value) returns anydata;
+public extern function cloneValue(anydata value) returns anydata;
