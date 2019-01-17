@@ -173,22 +173,13 @@ public remote function Caller.redirect(Response response, RedirectCode code, str
     return self->respond(response);
 }
 
-<<<<<<< HEAD
-public remote function Caller.ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
-=======
-remote function Caller.ok(ResponseMessage message) returns error? {
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
+public remote function Caller.ok(ResponseMessage message) returns error? {
     Response response = buildResponse(message);
     response.statusCode = OK_200;
     return self->respond(response);
 }
 
-<<<<<<< HEAD
-public remote function Caller.created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                            returns error? {
-=======
-remote function Caller.created(string uri, ResponseMessage message = ())returns error? {
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
+public remote function Caller.created(string uri, ResponseMessage message = ())returns error? {
     Response response = buildResponse(message);
     response.statusCode = CREATED_201;
     if (uri.length() > 0) {
@@ -197,12 +188,7 @@ remote function Caller.created(string uri, ResponseMessage message = ())returns 
     return self->respond(response);
 }
 
-<<<<<<< HEAD
-public remote function Caller.accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                            returns error? {
-=======
-remote function Caller.accepted(ResponseMessage message = ()) returns error? {
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
+public remote function Caller.accepted(ResponseMessage message = ()) returns error? {
     Response response = buildResponse(message);
     response.statusCode = ACCEPTED_202;
     return self->respond(response);

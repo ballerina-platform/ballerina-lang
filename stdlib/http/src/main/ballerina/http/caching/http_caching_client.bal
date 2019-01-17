@@ -237,14 +237,8 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-<<<<<<< HEAD
-public remote function HttpCachingClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                       message) returns Response|error {
-    Request req = buildRequest(message);
-=======
-remote function HttpCachingClient.post(string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.post(string path, RequestMessage message) returns Response|error {
     Request req = <Request>message;
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient->post(path, req);
@@ -254,26 +248,14 @@ remote function HttpCachingClient.post(string path, RequestMessage message) retu
     return inboundResponse;
 }
 
-<<<<<<< HEAD
-public remote function HttpCachingClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                        message = ()) returns Response|error {
-    Request req = buildRequest(message);
-=======
-remote function HttpCachingClient.head(string path, RequestMessage message = ()) returns Response|error {
+public remote function HttpCachingClient.head(string path, RequestMessage message = ()) returns Response|error {
     Request req = <Request>message;
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared, false);
 }
 
-<<<<<<< HEAD
-public remote function HttpCachingClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                        message) returns Response|error {
-    Request req = buildRequest(message);
-=======
-remote function HttpCachingClient.put(string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.put(string path, RequestMessage message) returns Response|error {
     Request req = <Request>message;
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient->put(path, req);
@@ -283,15 +265,8 @@ remote function HttpCachingClient.put(string path, RequestMessage message) retur
     return inboundResponse;
 }
 
-<<<<<<< HEAD
-public remote function HttpCachingClient.execute(string httpMethod, string path,
-                                    Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                returns Response|error {
-    Request request = buildRequest(message);
-=======
-remote function HttpCachingClient.execute(string httpMethod, string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.execute(string httpMethod, string path, RequestMessage message) returns Response|error {
     Request request = <Request>message;
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     setRequestCacheControlHeader(request);
 
     if (httpMethod == GET || httpMethod == HEAD) {
@@ -306,14 +281,8 @@ remote function HttpCachingClient.execute(string httpMethod, string path, Reques
     return inboundResponse;
 }
 
-<<<<<<< HEAD
-public remote function HttpCachingClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                        message) returns Response|error {
-    Request req = buildRequest(message);
-=======
-remote function HttpCachingClient.patch(string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.patch(string path, RequestMessage message) returns Response|error {
     Request req = <Request>message;
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient->patch(path, req);
@@ -323,14 +292,8 @@ remote function HttpCachingClient.patch(string path, RequestMessage message) ret
     return inboundResponse;
 }
 
-<<<<<<< HEAD
-public remote function HttpCachingClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                        message) returns Response|error {
-    Request req = buildRequest(message);
-=======
-remote function HttpCachingClient.delete(string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.delete(string path, RequestMessage message) returns Response|error {
     Request req = <Request>message;
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient->delete(path, req);
@@ -340,26 +303,14 @@ remote function HttpCachingClient.delete(string path, RequestMessage message) re
     return inboundResponse;
 }
 
-<<<<<<< HEAD
-public remote function HttpCachingClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                        message = ()) returns Response|error {
-    Request req = buildRequest(message);
-=======
-remote function HttpCachingClient.get(string path, RequestMessage message = ()) returns Response|error {
+public remote function HttpCachingClient.get(string path, RequestMessage message = ()) returns Response|error {
     Request req = <Request>message;
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);
 }
 
-<<<<<<< HEAD
-public remote function HttpCachingClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message = ()) returns Response|error {
-    Request req = buildRequest(message);
-=======
-remote function HttpCachingClient.options(string path, RequestMessage message = ()) returns Response|error {
+public remote function HttpCachingClient.options(string path, RequestMessage message = ()) returns Response|error {
     Request req = <Request>message;
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient->options(path, message = req);
@@ -382,16 +333,8 @@ public remote function HttpCachingClient.forward(string path, Request request) r
     return inboundResponse;
 }
 
-<<<<<<< HEAD
-public remote function HttpCachingClient.submit(string httpVerb, string path,
-                                   Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                   returns HttpFuture|error {
-    Request req = buildRequest(message);
-    return self.httpClient->submit(httpVerb, path, req);
-=======
-remote function HttpCachingClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public remote function HttpCachingClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     return self.httpClient->submit(httpVerb, path, <Request>message);
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
 }
 
 public remote function HttpCachingClient.getResponse(HttpFuture httpFuture) returns Response|error {
