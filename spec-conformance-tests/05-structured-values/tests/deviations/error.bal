@@ -35,6 +35,7 @@ function testErrorTypeDescriptorBroken() {
 
 // An error type does not have an implicit initial value.
 // TODO: Creating and error array should fail at compile time.
+// https://github.com/ballerina-platform/ballerina-lang/issues/13166
 @test:Config {
     groups: ["broken"]
 }
@@ -45,6 +46,7 @@ function testErrorImplicitInitialValueBroken() {
 
 // detail-type-descriptor must be a subtype of record { } (which is equivalent to map<anydata|error>).
 // TODO: The detail type descriptor must be a subtype of map<anydata|error>.
+// https://github.com/ballerina-platform/ballerina-lang/issues/13205
 @test:Config {}
 function testErrorTypeDescriptorsDetailValueBroken() {
     error <string, map<any>> error1 = error("Error One", { detail: "failed" });
@@ -53,6 +55,7 @@ function testErrorTypeDescriptorsDetailValueBroken() {
 // An error value contains the following information:
 // ● a stack trace
 // TODO: Provide a function to extract the stack trace of an error.
+// https://github.com/ballerina-platform/ballerina-lang/issues/13206
 @test:Config {}
 function testErrorTypeDescriptorsStackTraceBroken() {
     error <string, map<anydata>> error1 = error("Error One", { detail: "failed" });
