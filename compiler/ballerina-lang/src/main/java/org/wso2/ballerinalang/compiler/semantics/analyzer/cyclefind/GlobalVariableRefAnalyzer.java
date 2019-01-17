@@ -318,7 +318,7 @@ public class GlobalVariableRefAnalyzer {
                 }
             }
         }
-        throw new IllegalArgumentException("Can not find topLevelNode: " + symbol);
+        throw new IllegalArgumentException("Cannot find topLevelNode: " + symbol);
     }
 
     private BSymbol getVarOrFuncSymbol(Node node) {

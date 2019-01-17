@@ -559,7 +559,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             // i.e 'foo' is a function pointer pointing to a function referring a global variable G1, then we pass
             // that pointer into 'bar', now 'bar' may have a dependency on G1.
 
-            //todo: test lambdas and function arguments
+            // Todo: test lambdas and function arguments
 
             BSymbol dependsOnFunctionSym = symResolver.lookupSymbol(this.env, name, SymTag.FUNCTION);
             if (symTable.notFoundSymbol != dependsOnFunctionSym) {
