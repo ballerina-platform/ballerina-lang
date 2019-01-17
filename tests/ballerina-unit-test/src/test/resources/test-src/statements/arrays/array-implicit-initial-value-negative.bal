@@ -26,28 +26,54 @@ type Obj object {
     }
 };
 
+type ObjInitWithParam object {
+    int i;
+
+    function __init(int i) {
+        self.i = i;
+    }
+};
+
+type NoFieldObj object {
+   function foo() {
+       // pass
+   }
+};
+
 type RecordWithObj record {
    *RR;
     Obj obj;
 };
 
+// Obj have an implicit initial value, this is valid
 Obj[] objArray = [];
+Obj[][] multiDimObjArray = [];
 
+// ObjInitWithParam doesn't have an implicit initial value, this is invalid
+ObjInitWithParam[] objWithParamsArray = [];
+
+// ObjInitWithParam? have an implicit initial value, this is valid
+ObjInitWithParam?[] objWithParamsArrayOpt = [];
+
+NoFieldObj[] noFieldObjArray = [];
+
+// Record with all elelements having implicit init value.
 RR[] recArray = [];
 RR[2] sealedRecArray = [ {i: 0}, {i: 1}];
 RR?[] optRecArray = [];
+RR[][] multiDimArray = [];
 
 RecordWithObj[] recArrayN = [];
 RecordWithObj?[] optRecArrayN = [];
 
-RR[][] multiDimArray = [];
-Obj[][] multiDimObjArray = [];
-
+// Json have implicit initial value.
 json[] jArr = [];
 
 type FT 1|2|3;
-type FTN 1|2|3|();
-
+// FT doesn't have an implicit initial value, invalid.
 FT[] finiteTypeArray = [1,2];
 FT?[] optFiniteTypeArray = [2,3];
+
+type FTN 1|2|3|();
+// TFN have an implicit initial value
 FTN[] finiteTypeIIVArray = [];
