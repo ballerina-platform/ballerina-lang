@@ -324,6 +324,11 @@ public class InitCommand implements BLauncherCmd {
      * @return True if valid org-name, else false.
      */
     private boolean validateOrgName(String orgName) {
+        if (RepoUtils.isReservedOrgName(orgName)) {
+            out.println("--Invalid organization name: \'" + orgName + "\'. 'ballerina' and 'ballerinax' are reserved " +
+                    "organization names that are used by Ballerina");
+            return false;
+        }
         boolean matches = RepoUtils.validateOrg(orgName);
         if (!matches) {
             out.println("--Invalid organization name: \'" + orgName + "\'. Organization name can only contain " +

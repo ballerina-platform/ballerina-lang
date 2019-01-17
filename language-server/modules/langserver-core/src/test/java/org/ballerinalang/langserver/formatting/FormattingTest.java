@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.formatting;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.FormattingOptions;
@@ -116,6 +116,7 @@ public class FormattingTest {
                 {"expectedBindingPatterns.bal", "bindingPatterns.bal"},
                 {"expectedDocumentation.bal", "documentation.bal"},
                 {"expectedWorkerInteractions.bal", "workerInteractions.bal"},
+                {"expectedWait.bal", "wait.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
