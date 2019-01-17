@@ -24,6 +24,8 @@ import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,6 +44,7 @@ import java.util.List;
 public class FormattingTest {
     private Path formattingDirectory = FileUtils.RES_DIR.resolve("formatting");
     private Endpoint serviceEndpoint;
+    private static final Logger log = LoggerFactory.getLogger(FormattingTest.class);
 
     @BeforeClass
     public void loadLangServer() {
@@ -80,6 +83,7 @@ public class FormattingTest {
 
     @DataProvider(name = "fileProvider")
     public Object[][] fileProvider() {
+        log.info("Test textDocument/format");
         return new Object[][]{
                 {"expectedFunction.bal", "function.bal"},
                 {"expectedEndpoint.bal", "endpoint.bal"},

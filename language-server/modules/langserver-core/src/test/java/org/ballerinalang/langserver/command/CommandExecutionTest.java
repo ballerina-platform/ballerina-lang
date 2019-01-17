@@ -33,6 +33,8 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -71,6 +73,8 @@ public class CommandExecutionTest {
     private JsonParser parser = new JsonParser();
 
     private Path sourcesPath = new File(getClass().getClassLoader().getResource("command").getFile()).toPath();
+
+    private static final Logger log = LoggerFactory.getLogger(CommandExecutionTest.class);
 
     @BeforeClass
     public void init() throws Exception {
@@ -124,6 +128,7 @@ public class CommandExecutionTest {
 
     @Test(description = "Test Create Initializer for object", enabled = false)
     public void testCreateInitializer() {
+        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_INITIALIZER);
         String configJsonPath = "command" + File.separator + "createInitializer.json";
         Path sourcePath = sourcesPath.resolve("source").resolve("commonDocumentation.bal");
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -298,6 +303,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "package-import-data-provider")
     public Object[][] addImportDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_IMPORT_MODULE);
         return new Object[][] {
                 {"importPackage1.json", "importPackage1.bal"},
                 {"importPackage2.json", "importPackage2.bal"},
@@ -306,6 +312,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "add-doc-data-provider")
     public Object[][] addDocDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_ADD_DOCUMENTATION);
         return new Object[][] {
                 {"addSingleFunctionDocumentation1.json", "addSingleFunctionDocumentation1.bal"},
                 {"addSingleFunctionDocumentation2.json", "commonDocumentation.bal"},
@@ -319,6 +326,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "add-all-doc-data-provider")
     public Object[][] addAllDocDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_ADD_ALL_DOC);
         return new Object[][] {
                 {"addAllDocumentation.json", "commonDocumentation.bal"},
                 {"addAllDocumentationWithAnnotations.json", "addAllDocumentationWithAnnotations.bal"}
@@ -327,6 +335,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "create-function-data-provider")
     public Object[][] createFunctionDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_FUNCTION);
         return new Object[][] {
                 {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
@@ -335,6 +344,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "create-variable-data-provider")
     public Object[][] createVariableDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_VARIABLE);
         return new Object[][] {
                 {"createVariable1.json", "createVariable.bal"},
                 {"createVariable2.json", "createVariable.bal"},
@@ -344,6 +354,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "testgen-data-provider")
     public Object[][] testGenerationDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_TEST);
         return new Object[][]{
                 {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
                 {"testGenerationForServices.json", Paths.get("testgen", "module2", "services.bal")}
@@ -352,6 +363,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "testgen-fail-data-provider")
     public Object[][] testGenerationNegativeDataProvider() {
+        log.info("Test, test generation command failed cases");
         return new Object[][]{
                 {"testGenerationForServicesNegative.json", Paths.get("testgen", "module2", "services.bal")},
         };
