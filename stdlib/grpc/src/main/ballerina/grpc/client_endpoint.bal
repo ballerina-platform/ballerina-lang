@@ -113,7 +113,7 @@ public type ConnectionThrottling record {
     int waitTime = 60000;
     // In order to distribute the workload among multiple connections in HTTP/2 scenario.
     int maxActiveStreamsPerConnection = 20000;
-    !...
+    !...;
 };
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
