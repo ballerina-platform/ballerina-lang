@@ -26,12 +26,12 @@ type OpenPerson record {
 type ClosedEmployee record {
     string name = "";
     int id = 0;
-    !...
+    !...;
 };
 
 type OpenEmployeeTwo record {
     string name;
-    int...
+    int...;
 };
 
 type OpenRecordWithOptionalFieldOne record {
@@ -47,13 +47,13 @@ type OpenRecordWithOptionalFieldTwo record {
 type ClosedRecordWithOptionalFieldOne record {
     string name;
     int one?;
-    !...
+    !...;
 };
 
 type ClosedRecordWithOptionalFieldTwo record {
     string name;
     int two?;
-    !...
+    !...;
 };
 
 function checkBooleanEqualityPositive(boolean a, boolean b) returns boolean {

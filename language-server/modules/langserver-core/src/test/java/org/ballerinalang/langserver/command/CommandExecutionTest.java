@@ -29,7 +29,7 @@ import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -369,13 +369,17 @@ public class CommandExecutionTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    private List argsToTreeMap(List<Object> args) {
-        return gson.fromJson(gson.toJsonTree(args).getAsJsonArray().toString(), List.class);
+    private List argsToJson(List<Object> args) {
+        List<JsonObject> jsonArgs = new ArrayList<>();
+        for (Object arg: args) {
+            jsonArgs.add((JsonObject) gson.toJsonTree(arg));
+        }
+        return jsonArgs;
     }
 
     private JsonObject getCommandResponse(List<Object> args, String command) {
-        List treeMapList = argsToTreeMap(args);
-        ExecuteCommandParams params  = new ExecuteCommandParams(command, treeMapList);
+        List argsList = argsToJson(args);
+        ExecuteCommandParams params  = new ExecuteCommandParams(command, argsList);
         String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint).replace("\\r\\n", "\\n");
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
         responseJson.remove("id");

@@ -37,6 +37,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 /**
@@ -201,6 +202,11 @@ public class BStream implements BRefType<Object> {
         public boolean isReady() {
             return true;
         }
+
+        @Override
+        public Properties getTransportProperties() {
+            return new Properties();
+        }
     }
 
     //Class which handles the subscription internally
@@ -273,6 +279,11 @@ public class BStream implements BRefType<Object> {
         @Override
         public boolean isReady() {
             return true;
+        }
+
+        @Override
+        public Properties getTransportProperties() {
+            return new Properties();
         }
     }
 }

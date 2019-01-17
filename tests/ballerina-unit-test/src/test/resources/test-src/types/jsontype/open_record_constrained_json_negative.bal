@@ -2,7 +2,7 @@ type Person record {
     string name;
     int age;
     string address;
-    string...
+    string...;
 };
 
 type InvalidPerson record {
@@ -16,7 +16,7 @@ type Student record {
     int age;
     string address;
     string class;
-    string...
+    string...;
 };
 
 function testConstrainingUsingRecordWithIncompatibleRestField() {
@@ -40,7 +40,7 @@ type Employee record {
     string last_name;
     int age;
     Address address = {};
-    string...
+    string...;
 };
 
 type Address record {
@@ -48,13 +48,13 @@ type Address record {
     string street = "";
     string city = "";
     PhoneNumber phoneNumber = {};
-    string...
+    string...;
 };
 
 type PhoneNumber record {
     string areaCode = "";
     string number = "";
-    string...
+    string...;
 };
 
 function tesInvalidNestedStructFieldAccess() {

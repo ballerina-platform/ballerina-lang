@@ -95,7 +95,7 @@ function Listener.init(ServiceEndpointConfiguration c) {
 public type Remote record {
     string host = "";
     int port = 0;
-    !...
+    !...;
 };
 
 # Presents a read-only view of the local address.
@@ -105,7 +105,7 @@ public type Remote record {
 public type Local record {
     string host = "";
     int port = 0;
-    !...
+    !...;
 };
 
 # Configures limits for requests. If these limits are violated, the request is rejected.
@@ -120,7 +120,7 @@ public type RequestLimits record {
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
-    !...
+    !...;
 };
 
 # Provides a set of configurations for HTTP service endpoints.
@@ -154,7 +154,7 @@ public type ServiceEndpointConfiguration record {
     AuthProvider[]? authProviders = ();
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
-    !...
+    !...;
 };
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -189,7 +189,7 @@ public type ServiceSecureSocket record {
     string sslVerifyClient = "";
     boolean shareSession = true;
     ServiceOcspStapling? ocspStapling = ();
-    !...
+    !...;
 };
 
 # Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.
@@ -204,7 +204,7 @@ public type AuthCacheConfig record {
     int capacity = 100;
     int expiryTimeMillis = 5 * 1000; // 5 seconds;
     float evictionFactor = 1;
-    !...
+    !...;
 };
 
 # Configuration for authentication providers.
@@ -240,7 +240,7 @@ public type AuthProvider record {
     int expTime = 0;
     string signingAlg = "";
     boolean propagateJwt = false;
-    !...
+    !...;
 };
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.

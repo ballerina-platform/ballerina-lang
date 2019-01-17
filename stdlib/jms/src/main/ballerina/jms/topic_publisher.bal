@@ -75,5 +75,5 @@ remote function TopicPublisher.sendTo(Destination destination, Message message) 
 public type TopicPublisherEndpointConfiguration record {
     Session? session = ();
     string? topicPattern = ();
-    !...
+    !...;
 };

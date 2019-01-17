@@ -145,8 +145,6 @@ class LSPServerStatusWidget(val wrapper: LanguageServerWrapper) extends StatusBa
     }
   }
 
-  override def ID(): String = projectName + "_" + ext
-
   override def dispose(): Unit = {
     val manager = WindowManager.getInstance()
     if (manager != null && project != null && !project.isDisposed) {
@@ -155,6 +153,8 @@ class LSPServerStatusWidget(val wrapper: LanguageServerWrapper) extends StatusBa
       if (statusBar != null) ApplicationUtils.invokeLater(() => statusBar.removeWidget(ID()))
     }
   }
+
+  override def ID(): String = projectName + "_" + ext
 }
 
 

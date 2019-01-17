@@ -33,7 +33,7 @@ public type GrpcServiceConfig record {
     typedesc responseType?;
     boolean clientStreaming = false;
     boolean serverStreaming = false;
-    !...
+    !...;
 };
 
 # Service configuration. Sets only for client and bidirectional streaming service.
@@ -51,7 +51,7 @@ public type GrpcResourceConfig record {
     boolean streaming = false;
     typedesc requestType?;
     typedesc responseType?;
-    !...
+    !...;
 };
 
 # Service resource configuration. Sets only for server streaming service.
@@ -64,7 +64,7 @@ public annotation<resource> ResourceConfig GrpcResourceConfig;
 public type ServiceDescriptorData record {
     string descriptor = "";
     map<any> descMap = {};
-    !...
+    !...;
 };
 
 # Service descriptor data generated at compile time. This is for internal use.

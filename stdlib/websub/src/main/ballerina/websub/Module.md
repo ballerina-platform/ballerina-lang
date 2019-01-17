@@ -245,3 +245,101 @@ where the values specified via the Config API would override values specified as
 | b7a.websub.hub.signaturemethod | "SHA256"      | The signature method to use for authenticated content distribution |
 | b7a.websub.hub.remotepublish   | false         | Whether publishing updates against the topics in the hub could be done by remote publishers via HTTP requests with `hub.mode` set to `publish`  |
 | b7a.websub.hub.topicregistration | true      | Whether a topic needs to be registered at the hub for publishers to publish updates against the topic and for subscribers to send subscription requests for the topic |
+
+## Introducing Specific Subscriber Services (Webhook Callback Services)
+
+Ballerina's WebSub subscriber service listener can be extended to introduce specific Webhooks.
+ 
+Instead of the single `onNotification` resource, you can introduce multiple resources to accept content delivery requests using specific subscriber services. These resources will correspond to the content delivery requests that will 
+ be delivered with respect to a particular topic.
+ 
+For example, assume a scenario in which you receive notifications either when an issue is opened or when an issue is closed by subscribing to a particular topic in an issue tracking system. With a custom subscriber service listener, which extends the 
+generic WebSub subscriber service listener, you can allow two resources to accept content delivery requests (e.g., `onIssueOpened` and `onIssueClosed`) instead of the `onNotification` resource.
+
+These resources will accept two parameters:
+1. The generic `websub:Notification` record as the first parameter
+2. A custom record corresponding to the expected (JSON) payload of the notification (e.g., `IssueCreatedEvent`,
+`IssueClosedEvent`)
+
+You can introduce a specific service as such by extending the generic subscriber service listener, specifying a 
+mapping between the expected notifications and the resources that requests need to be dispatched to.
+
+The mapping can be based on one of the following indicators of a notification request. 
+(Requests will then be dispatched based on the value of the indicator in the request and a pre-defined mapping.)
+
+- A request header 
+- The payload: the value of a particular key in the JSON payload
+- A request header and the payload (combination of the above two)
+
+#### Samples for Resource Mapping
+
+**Based on a request header**
+
+Dispatching will be based on the value of the request header specified as `topicHeader`. 
+
+```ballerina
+websub:ExtensionConfig extensionConfig = {
+    topicIdentifier: websub:TOPIC_ID_HEADER,
+    topicHeader: "<HEADER_TO_CONSIDER>",
+    headerResourceMap: {
+        "issueOpened" : ("onIssueOpened", IssueOpenedEvent),
+        "issueClosed" : ("onIssueClosed", IssueClosedEvent)
+    }
+};
+```
+
+The `"issueOpened" : ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value of the 
+`<HEADER_TO_CONSIDER>` header is `issueOpened`, dispatching should happen to a resource named `onIssueOpened`. 
+
+The first parameter of this resource will be the generic `websub:Notification` record, and the second parameter will 
+be a custom `IssueOpenedEvent` record, mapping the JSON payload received when an issue is created.  
+
+**Based on the payload**
+
+Dispatching will be based on the value in the request payload of one of the map keys specified in the 
+`payloadKeyResourceMap` map.
+
+```ballerina
+websub:ExtensionConfig extensionConfig = {
+    topicIdentifier: websub:TOPIC_ID_PAYLOAD_KEY,
+    payloadKeyResourceMap: {
+        "<PAYLOAD_KEY_TO_CONSIDER>" : {
+            "issueOpened" : ("onIssueOpened", IssueOpenedEvent),
+            "issueClosed" : ("onIssueClosed", IssueClosedEvent)
+        }
+    }
+};
+```
+
+The `"issueOpened" : ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value for the JSON payload
+ key `<PAYLOAD_KEY_TO_CONSIDER>` is `issueOpened`, dispatching should happen to a resource named `onIssueOpened`.
+
+The first parameter of this resource will be the generic `websub:Notification` record, and the second parameter will 
+be a custom `IssueOpenedEvent` record, mapping the JSON payload received when an issue is created.   
+
+**Based on a request header and the payload**
+ 
+Dispatching will be based on both a request header and the payload as specified in the `headerAndPayloadKeyResourceMap`. 
+Also, you can introduce a `headerResourceMap` and/or a `payloadKeyResourceMap` as additional mappings.
+ 
+```ballerina
+websub:ExtensionConfig extensionConfig = {
+    topicIdentifier: websub:TOPIC_ID_HEADER_AND_PAYLOAD,
+    topicHeader: "<HEADER_TO_CONSIDER>",
+    headerAndPayloadKeyResourceMap: {
+        "issue" : {
+            "<PAYLOAD_KEY_TO_CONSIDER>" : {
+                "opened" : ("onIssueOpened", IssueOpenedEvent),
+                "closed" : ("onIssueClosed", IssueClosedEvent)
+            }
+        }
+    }
+};
+```
+The `"opened" : ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value of the 
+`<HEADER_TO_CONSIDER>` header is `issue` and the value of the `<PAYLOAD_KEY_TO_CONSIDER>` JSON payload key is `opened`, 
+dispatching should happen to a resource named `onIssueOpened`.
+
+The first parameter of this resource will be the generic `websub:Notification` record and the second parameter will 
+be a custom `IssueOpenedEvent` record, mapping the JSON payload received when an issue is created.  
+ 

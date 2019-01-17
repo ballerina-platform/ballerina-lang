@@ -75,5 +75,5 @@ remote function QueueSender.sendTo(Destination destination, Message message) ret
 public type QueueSenderEndpointConfiguration record {
     Session? session = ();
     string? queueName = ();
-    !...
+    !...;
 };

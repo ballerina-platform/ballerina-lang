@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
@@ -40,20 +41,25 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStratergy;
+import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
+import org.ballerinalang.langserver.signature.SignatureKeys;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.model.elements.PackageID;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -61,8 +67,7 @@ import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.DocumentHighlight;
-import org.eclipse.lsp4j.DocumentOnTypeFormattingParams;
-import org.eclipse.lsp4j.DocumentRangeFormattingParams;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
@@ -71,9 +76,11 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
@@ -98,6 +105,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
@@ -140,8 +148,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
-    completion(TextDocumentPositionParams position) {
+    public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
         final List<CompletionItem> completions = new ArrayList<>();
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
@@ -228,6 +235,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 SignatureHelpUtil.captureCallableItemInfo(position.getPosition(), fileContent, signatureContext);
                 signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
                 signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+                signatureContext.put(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY,
+                        this.clientCapabilities.getSignatureHelp());
                 SignatureHelp signatureHelp;
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(signatureContext, documentManager, false,
                                                                         LSCustomErrorStrategy.class, false);
@@ -345,13 +354,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
+    public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>>
+    documentSymbol(DocumentSymbolParams params) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = params.getTextDocument().getUri();
             Path docSymbolFilePath = new LSDocument(fileUri).getPath();
             Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
-            List<SymbolInformation> symbols = new ArrayList<>();
+            List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
             try {
                 LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
                 symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
@@ -383,9 +393,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
+    public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            List<Command> commands = new ArrayList<>();
+            List<Either<Command, CodeAction>> commands = new ArrayList<>();
             TextDocumentIdentifier identifier = params.getTextDocument();
             String fileUri = identifier.getUri();
             try {
@@ -404,8 +414,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
                         !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
                         !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
-                    // Test generation suggested only when;
-                    //     - no code diagnosis exists, inside a bal project, inside a module, not inside /tests folder
+                    /*
+                    Test generation suggested only when no code diagnosis exists, inside a bal project,
+                    inside a module, not inside /tests folder
+                     */
                     commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
                                                                          documentManager, lsCompiler));
                 }
@@ -461,22 +473,23 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Build the given ast.
                 JsonObject ast = TextDocumentFormatUtil.getAST(formattingFilePath, lsCompiler, documentManager,
                         formatContext);
-                FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
+                JsonObject model = ast.getAsJsonObject("model");
+                FormattingSourceGen.build(model, "CompilationUnit");
 
                 // Format the given ast.
                 FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-                formattingUtil.accept(ast.getAsJsonObject("model"));
+                formattingUtil.accept(model);
 
                 //Generate source for the ast.
-                textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
+                textEditContent = FormattingSourceGen.getSourceOf(model);
                 Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
                 int totalLines = 0;
                 while (matcher.find()) {
                     totalLines++;
                 }
 
-                int lastNewLineCharIndex = Math.max(textEditContent.lastIndexOf("\n"),
-                        textEditContent.lastIndexOf("\r"));
+                int lastNewLineCharIndex = Math.max(textEditContent.lastIndexOf('\n'),
+                        textEditContent.lastIndexOf('\r'));
                 int lastCharCol = textEditContent.substring(lastNewLineCharIndex + 1).length();
 
                 Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
@@ -492,16 +505,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 lock.ifPresent(Lock::unlock);
             }
         });
-    }
-
-    @Override
-    public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<List<? extends TextEdit>> onTypeFormatting(DocumentOnTypeFormattingParams params) {
-        return null;
     }
 
     @Override
@@ -559,9 +562,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     ReferenceUtil.findReferences(renameContext, bLangPackage);
                 }
 
-                workspaceEdit.setDocumentChanges(RenameUtil.getRenameTextEdits(contents, documentManager,
-                                                                             params.getNewName(),
-                                                                             replaceableSymbolName));
+                List<Either<TextDocumentEdit, ResourceOperation>> docChanges = RenameUtil.getRenameTextEdits(contents,
+                        documentManager, params.getNewName(), replaceableSymbolName)
+                        .stream()
+                        .map(Either::<TextDocumentEdit, ResourceOperation>forLeft)
+                        .collect(Collectors.toList());
+                workspaceEdit.setDocumentChanges(docChanges);
+
                 return workspaceEdit;
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
@@ -572,6 +579,38 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<? extends Location>> implementation(TextDocumentPositionParams position) {
+        return CompletableFuture.supplyAsync(() -> {
+            String fileUri = position.getTextDocument().getUri();
+            List<Location> implementationLocations = new ArrayList<>();
+            LSServiceOperationContext context = new LSServiceOperationContext();
+            LSDocument lsDocument = new LSDocument(fileUri);
+            Path implementationPath = lsDocument.getPath();
+            Path compilationPath = getUntitledFilePath(implementationPath.toString()).orElse(implementationPath);
+            Optional<Lock> lock = documentManager.lockFile(compilationPath);
+
+            context.put(DocumentServiceKeys.POSITION_KEY, position);
+            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+
+            try {
+                BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
+                        GotoImplementationCustomErrorStratergy.class, false);
+                implementationLocations.addAll(GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
+                        position.getPosition(), lsDocument.getSourceRoot()));
+            } catch (LSCompilerException e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while go to implementation" + ((msg != null) ? ": " + msg : ""), e);
+                }
+            } finally {
+                lock.ifPresent(Lock::unlock);
+            }
+
+            return implementationLocations;
         });
     }
 

@@ -4,12 +4,11 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "copy-less": "copyfiles -f src/**/*.less lib/api-designer/components/style/",
     "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run lint",
     "clean": "composer pkg:clean",
     "lint": "composer pkg:lint",
-    "build": "npm run copy-less && composer pkg:build",
+    "build": "composer pkg:build",
     "test": "echo \"No tests specified\"",
     "coverage": "composer pkg:test:coverage",
     "watch": "composer pkg:watch",
