@@ -101,6 +101,7 @@ DATABASE_NAME=test
 DATABASE_USERNAME=${CONFIG[DBUsername]}
 DATABASE_PASSWORD=${CONFIG[DBPassword]}
 ClusterName=${CONFIG[ClusterName]};
+ClusterRegion=${CONFIG[ClusterRegion]};
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
@@ -119,27 +120,18 @@ sed -i "s/__DATABASE_NAME__/${DATABASE_NAME}/" product-scenarios/scenarios/1/dat
 sed -i "s/__DATABASE_USERNAME__/${DATABASE_USERNAME}/" product-scenarios/scenarios/1/data-service.bal
 sed -i "s/__DATABASE_PASSWORD__/${DATABASE_PASSWORD}/" product-scenarios/scenarios/1/data-service.bal
 
+# Write config to a custom location
+eksctl utils write-kubeconfig --name ${ClusterName} --region ${ClusterRegion} --kubeconfig "ballerina-config"
+
 ballerina build product-scenarios/scenarios/1/data-service.bal
+
+kubectl config --kubeconfig="ballerina-config"
+
+kubectl config view
 
 kubectl apply -f kubernetes/
 
-READY_REPLICAS=0
-START_TIME=$SECONDS
 TIMEOUT=300
-DURATION=0 #Just an initialization value
-while [ "$READY_REPLICAS" != 1 ] && [ $TIMEOUT -gt $DURATION ]
-do
-   READY_REPLICAS=$(kubectl get deployment ballerina-employee-database-service -o jsonpath='{.status.readyReplicas}')
-   echo $READY_REPLICAS
-   sleep 20s
-   DURATION=`expr $SECONDS - $START_TIME`
-   echo $DURATION
-done
-
-if [ "$READY_REPLICAS" != 1 ]; then
-	exit 1;
-fi
-
 INTERVAL=20
 bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
 
