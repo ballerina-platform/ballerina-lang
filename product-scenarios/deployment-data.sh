@@ -101,6 +101,7 @@ DATABASE_NAME=test
 DATABASE_USERNAME=${CONFIG[DBUsername]}
 DATABASE_PASSWORD=${CONFIG[DBPassword]}
 ClusterName=${CONFIG[ClusterName]};
+ClusterRegion=${CONFIG[ClusterRegion]};
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
@@ -119,7 +120,14 @@ sed -i "s/__DATABASE_NAME__/${DATABASE_NAME}/" product-scenarios/scenarios/1/dat
 sed -i "s/__DATABASE_USERNAME__/${DATABASE_USERNAME}/" product-scenarios/scenarios/1/data-service.bal
 sed -i "s/__DATABASE_PASSWORD__/${DATABASE_PASSWORD}/" product-scenarios/scenarios/1/data-service.bal
 
+# Write config to a custom location
+eksctl utils write-kubeconfig --name ${ClusterName} --region ${ClusterRegion} --kubeconfig "ballerina-config"
+
 ballerina build product-scenarios/scenarios/1/data-service.bal
+
+kubectl config --kubeconfig="ballerina-config"
+
+kubectl config view
 
 kubectl apply -f kubernetes/
 
