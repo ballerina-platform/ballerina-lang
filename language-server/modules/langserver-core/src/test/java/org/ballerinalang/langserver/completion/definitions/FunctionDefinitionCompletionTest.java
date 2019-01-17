@@ -18,15 +18,21 @@
 package org.ballerinalang.langserver.completion.definitions;
 
 import org.ballerinalang.langserver.completion.CompletionTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
 
 /**
  * Completion item tests for function definition.
  */
-public class FunctionDefinition extends CompletionTest {
+public class FunctionDefinitionCompletionTest extends CompletionTest {
+
+    private static final Logger log = LoggerFactory.getLogger(FunctionDefinitionCompletionTest.class);
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
+        log.info("Test textDocument/completion for Function Definition Scope");
         return new Object[][] {
                 {"emptyLinePrimitiveDataTypes.json", "function"},
                 {"nonEmptyLinePrimitiveDataTypes.json", "function"},

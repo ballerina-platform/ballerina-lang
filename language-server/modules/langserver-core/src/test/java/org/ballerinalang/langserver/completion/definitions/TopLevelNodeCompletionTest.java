@@ -18,30 +18,32 @@
 package org.ballerinalang.langserver.completion.definitions;
 
 import org.ballerinalang.langserver.completion.CompletionTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
 
 /**
- * Completion item tests for resource definition.
+ * Completion item tests for Top Level Resolving.
  */
-public class ResourceDefinition extends CompletionTest {
+public class TopLevelNodeCompletionTest extends CompletionTest {
+
+    private static final Logger log = LoggerFactory.getLogger(TopLevelNodeCompletionTest.class);
 
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
+        log.info("Test textDocument/completion for Top Level Scope");
         return new Object[][] {
-                {"emptyLinePrimitiveDataTypes.json", "resource"},
-                {"nonEmptyLinePrimitiveDataTypes.json", "resource"},
-                {"userDefinedRecordEmptyLine.json", "resource"},
-                {"userDefinedRecordNonEmptyLine.json", "resource"},
-                {"userDefinedFunctionsEmptyLine.json", "resource"},
-                {"userDefinedFunctionsNonEmptyLine.json", "resource"},
-                {"allVisibleSymbolsNonEmptyLine.json", "resource"},
-                {"allVisibleSymbolsEmptyLine.json", "resource"},
-                {"actionInvocationSuggestion1.json", "resource"},
-                {"actionInvocationSuggestion2.json", "resource"},
-                {"completionBeforeUnderscore1.json", "resource"},
-                {"completionBeforeUnderscore2.json", "resource"},
-                {"completionBeforeUnderscore3.json", "resource"},
+                {"allTopLevelItemSkip.json", "toplevel"},
+                {"topLevelNonEmptyFirstLine.json", "toplevel"},
+                {"topLevelEmptyFirstLine.json", "toplevel"},
+                {"topLevelFirstLineWithPublicKeyword.json", "toplevel"},
+                {"topLevelFirstLineWithPublicDefStart.json", "toplevel"},
+                {"recordTest1.json", "toplevel"},
+                {"recordTest2.json", "toplevel"},
+                {"globalVarDef1.json", "toplevel"},
+                {"globalVarDefPackageContent.json", "toplevel"},
+                {"suggestionAfterExtern.json", "toplevel"},
         };
     }
 }

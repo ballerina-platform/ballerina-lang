@@ -18,17 +18,22 @@
 package org.ballerinalang.langserver.completion.packageimport;
 
 import org.ballerinalang.langserver.completion.CompletionTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
 
 /**
  * Tests the auto-completion suggestions.
  *
  */
-public class PackageImportSuggestionsTest extends CompletionTest {
+public class PackageImportCompletionTest extends CompletionTest {
+
+    private static final Logger log = LoggerFactory.getLogger(PackageImportCompletionTest.class);
 
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
+        log.info("Test textDocument/completion for import statements");
         return new Object[][]{
                 {"packageImport.json", "packageimport"}
         };
