@@ -800,6 +800,13 @@ public class BLangPackageBuilder {
         this.varStack.push(recordVariable);
     }
 
+    void addRecordBindingWS(Set<Whitespace> ws) {
+        if (this.varStack.size() > 0) {
+            BLangVariable var = this.varStack.peek();
+            var.addWS(ws);
+        }
+    }
+
     void addRecordVariableReference(DiagnosticPos pos, Set<Whitespace> ws, RestBindingPatternState restBindingPattern) {
         BLangRecordVarRef recordVarRef = (BLangRecordVarRef) TreeBuilder.createRecordVariableReferenceNode();
         recordVarRef.pos = pos;
