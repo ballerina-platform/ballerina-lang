@@ -116,4 +116,10 @@ public class TypeDefinitionsTest {
         Assert.assertEquals(returns[0].stringValue(), "[4, 5, 6]");
         Assert.assertEquals(returns[1].stringValue(), "(10, 20)");
     }
+
+    @Test
+    public void testXml() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXml");
+        Assert.assertEquals(returns[0].stringValue(), "<name>ballerina</name>");
+    }
 }

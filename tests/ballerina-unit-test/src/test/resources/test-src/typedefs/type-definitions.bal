@@ -125,3 +125,12 @@ function testUnionInTuple() returns T11 {
     T11 t11 = (a, t);
     return t11;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T12 xml;
+
+function testXml() returns T12 {
+    T12 x = xml `<name>ballerina</name>`;
+    return x;
+}
