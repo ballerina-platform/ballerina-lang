@@ -178,6 +178,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -228,6 +229,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private TaintedStatus taintedStatus;
     private TaintedStatus returnTaintedStatus;
 
+    private Set<DiagnosticPos> untaintExprWarnings;
+
     // Used to analyze the tainted status of parameters when returning.
     private List<BLangSimpleVariable> requiredParams;
     private List<BLangSimpleVariable> defaultableParams;
@@ -268,6 +271,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public BLangPackage analyze(BLangPackage pkgNode) {
         blockedNodeList = new ArrayList<>();
         blockedEntryPointNodeList = new ArrayList<>();
+        untaintExprWarnings = new HashSet<>();
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -281,6 +285,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyze(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+        untaintExprWarnings.clear();
     }
 
     private void analyze(BLangPackage pkgNode, SymbolEnv pkgEnv) {
@@ -1146,10 +1151,18 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 break;
             case UNTAINT:
                 this.taintedStatus = TaintedStatus.UNTAINTED;
+                warnDeprecated(unaryExpr);
                 break;
             default:
                 unaryExpr.expr.accept(this);
                 break;
+        }
+    }
+
+    private void warnDeprecated(BLangUnaryExpr unaryExpr) {
+        if (!untaintExprWarnings.contains(unaryExpr.pos)) {
+            untaintExprWarnings.add(unaryExpr.pos);
+            dlog.warning(unaryExpr.pos, DiagnosticCode.DEPRECATED_OPERATOR_UNTAINT, new ArrayList<>());
         }
     }
 

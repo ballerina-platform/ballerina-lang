@@ -387,8 +387,10 @@ public enum DiagnosticCode {
     INVALID_TYPE_FOR_SEND("invalid.type.for.send"),
 
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression"),
-    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature");
+    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature"),
 
+    DEPRECATED_OPERATOR_UNTAINT("use.of.deprecated.operator.untaint");
+    
     private String value;
 
     DiagnosticCode(String value) {
