@@ -271,7 +271,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
 
-        mnemonics[InstructionCodes.CLONE] = "clone";
         mnemonics[InstructionCodes.FLUSH] = "flush";
         mnemonics[InstructionCodes.LENGTHOF] = "length_of";
         mnemonics[InstructionCodes.WAITALL] = "wait_all";
