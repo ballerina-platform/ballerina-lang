@@ -68,6 +68,13 @@ dependencies {
     dist 'org.apache.commons:commons-lang3:3.5'
     dist 'commons-logging:commons-logging:1.1.1'
     dist 'commons-pool.wso2:commons-pool:1.5.6.wso2v1'
+    dist 'io.opentracing:opentracing-api:0.31.0'
+    dist 'io.opentracing:opentracing-util:0.31.0'
+    dist 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
+    dist 'org.wso2.carbon.metrics:org.wso2.carbon.metrics.core:2.3.7'
+    dist 'com.google.protobuf:protobuf-java:3.5.1'
+    dist 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
+    dist 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
 
 
     distBal project(path: ':ballerina-auth', configuration: 'baloImplementation')
