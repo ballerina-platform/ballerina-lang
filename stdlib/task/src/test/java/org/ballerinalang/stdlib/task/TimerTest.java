@@ -46,13 +46,11 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.stdlib.common.CommonTestUtils.printDiagnostics;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Tests for Ballerina timer tasks.
@@ -71,7 +69,7 @@ public class TimerTest {
     public void testSimpleExecution() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-simple.bal");
 
-        printDiagnostics(timerCompileResult);
+        printDiagnostics(timerCompileResult, log);
 
         int initialDelay = 500;
         int interval = 1000;
@@ -94,7 +92,7 @@ public class TimerTest {
     @Test(description = "Tests running a timer where the onTrigger function generates an error")
     public void testExecutionWithErrorFn() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-error.bal");
-        printDiagnostics(timerCompileResult);
+        printDiagnostics(timerCompileResult, log);
 
         int initialDelay = 500;
         int interval = 1000;
@@ -120,7 +118,7 @@ public class TimerTest {
     @Test(description = "Tests running a timer started within workers")
     public void testSimpleExecutionWithWorkers() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-workers.bal");
-        printDiagnostics(timerCompileResult);
+        printDiagnostics(timerCompileResult, log);
 
         int w1InitialDelay = 500;
         int w1Interval = 1000;
@@ -149,7 +147,7 @@ public class TimerTest {
     @Test(description = "Tests running a timer started within workers  where the onTrigger function generates an error")
     public void testExecutionWithWorkersAndErrorFn() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-workers.bal");
-        printDiagnostics(timerCompileResult);
+        printDiagnostics(timerCompileResult, log);
 
         int w1InitialDelay = 500;
         int w1Interval = 1000;
@@ -182,10 +180,5 @@ public class TimerTest {
         BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCounts");
         assertEquals(((BInteger) counts[0]).intValue(), -1, "Count hasn't been reset");
         assertEquals(((BInteger) counts[1]).intValue(), -1, "Count hasn't been reset");
-    }
-
-    private void printDiagnostics(CompileResult timerCompileResult) {
-        Arrays.asList(timerCompileResult.getDiagnostics()).
-                forEach(e -> log.info(e.getMessage() + " : " + e.getPosition()));
     }
 }

@@ -18,13 +18,16 @@
 
 package org.ballerinalang.stdlib.common;
 
+import org.apache.commons.logging.Log;
 import org.ballerinalang.launcher.util.BServiceUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 /**
  * Common test utilities used in ballerina stdlib
@@ -52,5 +55,10 @@ public class CommonTestUtils {
         for (int i = 0; i < jBytes.length; i++) {
             Assert.assertEquals(bBytes[i], jBytes[i], "Invalid byte value returned.");
         }
+    }
+
+    public static void printDiagnostics(CompileResult timerCompileResult, Log log) {
+        Arrays.asList(timerCompileResult.getDiagnostics()).
+                forEach(e -> log.info(e.getMessage() + " : " + e.getPosition()));
     }
 }
