@@ -75,9 +75,16 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 # Represents the gRPC server endpoint configuration.
 #
 # + host - The server hostname.
+# + keepAlive - Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
+#               which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
 # + secureSocket - The SSL configurations for the client endpoint.
+# + httpVersion - HTTP version supported by the endpoint. This should be 2.0 as gRPC works only with HTTP/2.
 # + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout.
+# + requestLimits - Configures the parameters for request validation.
+# + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
+#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          change this limit appropriately. This will be applicable only for HTTP 1.1
 public type ServiceEndpointConfiguration record {
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;

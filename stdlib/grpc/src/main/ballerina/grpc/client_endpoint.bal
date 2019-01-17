@@ -66,8 +66,15 @@ public type Client client object {
 
 # Represents client endpoint configuration.
 #
-# + secureSocket - The SSL configurations for the client endpoint.
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection.
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + keepAlive - Specifies whether to reuse a connection for multiple requests
+# + httpVersion - The HTTP version understood by the client
+# + chunking - The chunking behaviour of the request
+# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
+# + proxy - Proxy server related options
+# + connectionThrottling - Configurations for connection throttling
+# + secureSocket - SSL/TLS related options
+# + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientEndpointConfig record {
     int timeoutMillis = 60000;
     KeepAlive keepAlive = KEEPALIVE_AUTO;
