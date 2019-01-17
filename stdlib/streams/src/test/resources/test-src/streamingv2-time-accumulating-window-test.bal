@@ -46,7 +46,6 @@ function startAccumulatingTimeWindowTest() returns (Teacher[]) {
     Teacher t5 = { name: "Nimal", age: 55, status: "married", school: "Hindu College" };
     Teacher t6 = { name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
 
-
     testAccumulatingTimeWindow();
 
     outputStreamTimeAccumulatingWindow.subscribe(printTeachers);
