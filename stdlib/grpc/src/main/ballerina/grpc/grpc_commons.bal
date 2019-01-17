@@ -105,7 +105,7 @@ public const COMPRESSION_NEVER = "NEVER";
 public type Chunking CHUNKING_AUTO|CHUNKING_ALWAYS|CHUNKING_NEVER;
 
 # If the payload is less than 8KB, content-length header is set in the outbound request/response,
-# otherwise chunking header is set in the outbound request/response.}
+# otherwise chunking header is set in the outbound request/response.
 public const CHUNKING_AUTO = "AUTO";
 
 # Always set chunking header in the response.
