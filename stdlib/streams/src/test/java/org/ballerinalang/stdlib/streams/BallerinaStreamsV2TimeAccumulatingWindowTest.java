@@ -42,7 +42,7 @@ public class BallerinaStreamsV2TimeAccumulatingWindowTest {
     }
 
     @Test(description = "Test Time accumulating window query")
-    public void testTimeQuery1() {
+    public void testTimeAccumulatingQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startAccumulatingTimeWindowTest");
         Assert.assertNotNull(outputEmployeeEvents);
 
