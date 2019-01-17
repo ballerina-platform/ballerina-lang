@@ -224,6 +224,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.CLONE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 
@@ -3169,7 +3171,7 @@ public class Desugar extends BLangNodeVisitor {
                     result = iExpr.expr;
                     break;
                 }
-                result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                result = appendCloneMethod(iExpr.pos, Lists.of(iExpr.expr));
                 break;
             case FREEZE:
             case IS_FROZEN:
@@ -3350,32 +3352,18 @@ public class Desugar extends BLangNodeVisitor {
             return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, requiredArgs, symResolver,
                                                       BLangBuiltInMethod.STAMP);
         }
-        
-        List<BType> args = Lists.of(sourceType);
-        BInvokableType opType = new BInvokableType(args, sourceType, null);
-        BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
-                                                          null, opType, null, InstructionCodes.CLONE);
-        BLangBuiltInMethodInvocation cloneInvocation =
-                ASTBuilderUtil.createBuiltInMethod(pos, sourceExpression, cloneSymbol, new ArrayList<>(),
-                                                   symResolver, BLangBuiltInMethod.CLONE);
+        BLangExpression cloneInvocation = appendCloneMethod(pos, Lists.of(sourceExpression));
         return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, Lists.of(cloneInvocation),
                                                   symResolver, BLangBuiltInMethod.STAMP);
 
     }
 
     private BLangExpression appendCloneMethod(DiagnosticPos pos, List<BLangExpression> requiredArgs) {
-        BLangExpression sourceExpression = requiredArgs.get(0);
-        if (types.isValueType(sourceExpression.type)) {
-            return sourceExpression;
-        }
-        BType sourceType = sourceExpression.type;
-        List<BType> args = Lists.of(sourceType);
-        BInvokableType opType = new BInvokableType(args, sourceType, null);
-        BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
-                                                          null, opType, null, InstructionCodes.CLONE);
-        return ASTBuilderUtil.createBuiltInMethod(pos, sourceExpression, cloneSymbol,
-                                                  new ArrayList<>(), symResolver, BLangBuiltInMethod.CLONE);
-
+        BInvokableType opType = new BInvokableType(Lists.of(symTable.anydataType), symTable.anydataType, null);
+        BInvokableSymbol cloneSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC, names.fromString
+                (CLONE_FUNCTION), BUILTIN, opType, null);
+        return ASTBuilderUtil.createInvocationExprMethod(pos, cloneSymbol, requiredArgs,
+                                                         new ArrayList<>(), new ArrayList<>(), symResolver);
     }
 
     private BType getElementType(BType type) {
