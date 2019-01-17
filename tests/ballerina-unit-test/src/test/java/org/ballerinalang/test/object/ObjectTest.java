@@ -482,7 +482,11 @@ public class ObjectTest {
     public void testNonMatchingAttachedFunction() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_invalid_attached_func_def.bal");
         int index = 0;
-        Assert.assertEquals(result.getErrorCount(), 11);
+        Assert.assertEquals(result.getErrorCount(), 14);
+        BAssertUtil.validateError(result, index++, "no implementation found for the function 'test6' of non-abstract " +
+                "object 'Person'", 23, 5);
+        BAssertUtil.validateError(result, index++, "no implementation found for the function 'test7' of non-abstract " +
+                "object 'Person'", 25, 5);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test0' in the object 'Person'", 41, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
@@ -495,8 +499,10 @@ public class ObjectTest {
                 "'string', found 'int'", 53, 44);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test5' in the object 'Person'", 61, 1);
-        BAssertUtil.validateError(result, index++, "visibility modifiers not allowed " +
-                "in object attached function definition 'test6'", 65, 1);
+        BAssertUtil.validateError(result, index++, "interface and implementation of function 'test6' of non-abstract " +
+                "object 'Person' should have same visibility", 65, 1);
+        BAssertUtil.validateError(result, index++, "interface and implementation of function 'test7' of non-abstract " +
+                "object 'Person' should have same visibility", 69, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test9' in the object 'Person'", 77, 1);
         BAssertUtil.validateError(result, index++, "this function must return a result", 77, 1);
@@ -555,23 +561,26 @@ public class ObjectTest {
     @Test (description = "Negative test to test object visibility modifiers")
     public void testObjectVisibilityModifiers() {
         CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
-        Assert.assertEquals(result.getErrorCount(), 14);
-        BAssertUtil.validateError(result, 0, "visibility modifiers not allowed in object " +
-                "attached function definition 'func1'", 10, 1);
-        BAssertUtil.validateError(result, 1, "object attached function definition must have a body 'func2'", 14, 1);
-        BAssertUtil.validateError(result, 2, "attempt to refer to non-accessible symbol 'name'", 46, 17);
-        BAssertUtil.validateError(result, 3, "undefined field 'name' in object 'mod:0.0.0:Employee'", 46, 17);
-        BAssertUtil.validateError(result, 4, "attempt to refer to non-accessible symbol 'Employee.getAge'", 50, 14);
-        BAssertUtil.validateError(result, 5, "undefined function 'getAge' in object 'mod:0.0.0:Employee'", 50, 14);
-        BAssertUtil.validateError(result, 6, "attempt to refer to non-accessible symbol 'name'", 57, 17);
-        BAssertUtil.validateError(result, 7, "undefined field 'name' in object 'pkg1:Employee'", 57, 17);
-        BAssertUtil.validateError(result, 8, "attempt to refer to non-accessible symbol 'email'", 58, 17);
-        BAssertUtil.validateError(result, 9, "undefined field 'email' in object 'pkg1:Employee'", 58, 17);
-        BAssertUtil.validateError(result, 10, "attempt to refer to non-accessible symbol 'Employee.getAge'", 61, 14);
-        BAssertUtil.validateError(result, 11, "undefined function 'getAge' in object 'pkg1:Employee'", 61, 14);
-        BAssertUtil.validateError(result, 12, "attempt to refer to non-accessible symbol " +
+        Assert.assertEquals(result.getErrorCount(), 13);
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "object attached function definition must have a body 'func2'", 14,
+                1);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 46, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'mod:0.0.0:Employee'", 46, 17);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'", 50,
+                14);
+        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'mod:0.0.0:Employee'", 50,
+                14);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 57, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'pkg1:Employee'", 57, 17);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'email'", 58, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'pkg1:Employee'", 58, 17);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'", 61,
+                14);
+        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'pkg1:Employee'", 61, 14);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol " +
                 "'Employee.getEmail'", 62, 17);
-        BAssertUtil.validateError(result, 13, "undefined function 'getEmail' in object 'pkg1:Employee'", 62, 17);
+        BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object 'pkg1:Employee'", 62, 17);
     }
 
     @Test (description = "Negative test to test unknown object field type")
