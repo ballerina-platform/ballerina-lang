@@ -61,3 +61,27 @@ function modVisibilityTest() {
     int a4 = emp2.getAge();
     string e4 = emp2.getEmail();
 }
+
+public type Employee2 object {
+    public int age = 0;
+    private string name = "";
+    string email = "";
+
+    public function getName() returns (string);
+
+    private function getAge() returns (int);
+
+    function getEmail() returns (string);
+};
+
+private function Employee2.getName() returns (string) {
+    return "";
+}
+
+public function Employee2.getAge() returns (int) {
+    return 0;
+}
+
+private function Employee2.getEmail() returns (string) {
+    return "";
+}
