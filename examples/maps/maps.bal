@@ -28,7 +28,7 @@ public function main() {
     // Print the number of mappings in the `map`.
     io:println(addrMap.length());
 
-    // Keys can be removed using the `remove()` method.
+    // Mappings can be removed using the `remove()` method.
     boolean isRemoved = addrMap.remove("postalCode");
     io:println(addrMap);
 
