@@ -36,8 +36,8 @@ import org.testng.annotations.Test;
 public class ArrayTest {
 
     private CompileResult compileResult;
-    CompileResult resultNegative;
-    CompileResult arrayImplicitInitialValueNegative;
+    private CompileResult resultNegative;
+    private CompileResult arrayImplicitInitialValueNegative;
 
     @BeforeClass
     public void setup() {
@@ -140,10 +140,10 @@ public class ArrayTest {
     public void testArrayImplicitInitialValues() {
         Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 3);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0, "array element type 'Obj' must have an " +
-                "implicit initial value, use 'Obj?'", 19, 1);
+                "implicit initial value, use 'Obj?'", 34, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, "array element type 'RecordWithObj' must " +
-                "have an implicit initial value, use 'RecordWithObj?'", 25, 1);
+                "have an implicit initial value, use 'RecordWithObj?'", 40, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 2, "array element type 'FT' must have an " +
-                "implicit initial value, use 'FT?'", 36, 1);
+                "implicit initial value, use 'FT?'", 51, 1);
     }
 }
