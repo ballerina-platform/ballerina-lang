@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/internal;
 import ballerina/io;
+import ballerina/crypto;
 
 const int MAX_INT_VALUE = 2147483647;
 const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
@@ -69,7 +70,7 @@ public function invokePull (string... args) returns error? {
     string proxyPassword = args[7];
     string terminalWidth = args[8];
     string versionRange = args[9];
-    isBuild = untaint boolean.convert(args[10]);
+    isBuild = <boolean>crypto:unsafeMarkUntainted(boolean.convert(args[10]));
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -117,7 +118,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = centralEndpoint -> get(untaint versionRange, message=req);
+    var result = centralEndpoint -> get(<string>crypto:unsafeMarkUntainted(versionRange), message=req);
     if (result is http:Response) {
         httpResponse = result;
     } else if (result is error) {
@@ -177,7 +178,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
                 }
             }
 
-            io:WritableByteChannel wch = io:openWritableFile(untaint destArchivePath);
+            io:WritableByteChannel wch = io:openWritableFile(<string>crypto:unsafeMarkUntainted(destArchivePath));
 
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;

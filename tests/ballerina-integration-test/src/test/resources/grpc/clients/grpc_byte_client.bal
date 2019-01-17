@@ -39,7 +39,7 @@ function testByteArray() returns (string) {
 
 function testLargeByteArray(string filePath) returns (string) {
     byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
-    io:ReadableByteChannel rch = untaint io:openReadableFile(filePath);
+    io:ReadableByteChannel rch = crypto:unsafeMarkUntainted(io:openReadableFile(filePath));
     var resultBytes = rch.read(10000);
     byte[] bytes = [];
     if (resultBytes is (byte[], int)) {

@@ -21,7 +21,7 @@ service httpService on new http:Listener(9090) {
             resp.statusCode = 500;
         } else if (payload is string) {
             io:println(payload);
-            resp.setPayload(string `HTTP POST received: {{untaint payload}}`);
+            resp.setPayload(string `HTTP POST received: {{crypto:unsafeMarkUntainted(payload}}`));
         }
 
         var err = caller->respond(resp);

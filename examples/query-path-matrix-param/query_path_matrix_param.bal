@@ -31,7 +31,7 @@ service sample on new http:Listener(9090) {
                                 "matrix": matrixJson };
         http:Response res = new;
         // A util method to set the JSON payload to the response message.
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
         // Send a response to the client.
         var result = caller->respond(res);
 

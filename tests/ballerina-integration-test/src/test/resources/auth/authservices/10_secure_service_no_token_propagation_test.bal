@@ -27,7 +27,7 @@ service passthroughService on listener10_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP->get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP->get("/nyseStock/stocks", message = crypto:unsafeMarkUntainted(clientRequest));
         if (response is http:Response) {
             _ = caller->respond(response);
         } else if (response is error) {

@@ -20,7 +20,7 @@ service TestService on testEP {
         }
 
         http:Response res = new;
-        res.setJsonPayload(untaint jsonArray);
+        res.setJsonPayload(crypto:unsafeMarkUntainted(jsonArray));
         _ = caller -> respond(res);
     }
 }

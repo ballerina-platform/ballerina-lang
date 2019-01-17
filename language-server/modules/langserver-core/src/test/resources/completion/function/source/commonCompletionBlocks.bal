@@ -77,13 +77,13 @@ function initiateNestedTransactionInRemote(string nestingMethod) returns string 
                 s += " remote1-excepted";
                 var payload = resp.getTextPayload();
                 if (payload is string) {
-                    s += ":[" + untaint payload + "]";
+                    s += ":[" + crypto:unsafeMarkUntainted(payload) + "]";
                 }
             } else {
                 var text = resp.getTextPayload();
                 if (text is string) {
                     log:printInfo(text);
-                    s += " <" + untaint text + ">";
+                    s += " <" + crypto:unsafeMarkUntainted(text) + ">";
                 } else {
                     s += " error-in-remote-response " + text.reason();
                     log:printError(text.reason());

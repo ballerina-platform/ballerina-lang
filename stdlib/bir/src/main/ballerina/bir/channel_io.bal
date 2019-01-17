@@ -28,11 +28,10 @@ public type ChannelReader object {
         return self.readInt32() << 32 | self.readInt32();
     }
 
-
     public function readString() returns string {
-        var stringLen = untaint self.readInt32();
+        var stringLen = markUntainted(self.readInt32());
         if (stringLen > 0){
-            var (strBytes, strLen) = check self.byteChannel.read(untaint stringLen);
+            var (strBytes, strLen) = check self.byteChannel.read(stringLen);
             return internal:byteArrayToString(strBytes, "UTF-8");
         } else {
             return "";
@@ -61,3 +60,6 @@ function bytesToInt(byte[] b) returns int {
     return b0 <<octave3|(b1 & ff) <<octave2|(b2 & ff) <<octave1|(b3 & ff);
 }
 
+function markUntainted(int val) returns @untainted int {
+    return val;
+}

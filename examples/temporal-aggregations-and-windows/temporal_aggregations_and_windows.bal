@@ -60,7 +60,7 @@ service requestService on ep {
         path: "/requests"
     }
     resource function requests(http:Caller conn, http:Request req) {
-        string hostName = untaint conn.remoteAddress.host;
+        string hostName = crypto:unsafeMarkUntainted(conn.remoteAddress.host);
         ClientRequest clientRequest = { host: hostName };
         requestStream.publish(clientRequest);
 

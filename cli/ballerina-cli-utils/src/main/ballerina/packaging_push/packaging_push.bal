@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
+import ballerina/crypto;
 
 # This functions pulls a module from ballerina central.
 #
@@ -53,7 +54,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     // Artifact
     mime:Entity filePart = new;
     filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
-    filePart.setFileAsEntityBody(untaint dirPath);
+    filePart.setFileAsEntityBody(<string>crypto:unsafeMarkUntainted(dirPath));
     var contentTypeSetResult = filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
     if (contentTypeSetResult is error)  {
         panic contentTypeSetResult;
@@ -179,7 +180,7 @@ function getContentDispositionForFormData(string partName) returns (mime:Content
 function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
     stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
-    stringBodyPart.setText(untaint value);
+    stringBodyPart.setText(<string>crypto:unsafeMarkUntainted(value));
     var contentTypeSetResult = stringBodyPart.setContentType(mime:TEXT_PLAIN);
     if (contentTypeSetResult is error)  {
         panic contentTypeSetResult;

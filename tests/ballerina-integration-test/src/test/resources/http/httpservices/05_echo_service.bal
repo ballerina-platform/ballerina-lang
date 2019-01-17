@@ -32,11 +32,11 @@ service echo1 on echoEP1 {
         var payload = req.getTextPayload();
         http:Response resp = new;
         if (payload is string) {
-            _ = caller -> respond(untaint payload);
+            _ = caller -> respond(crypto:unsafeMarkUntainted(payload));
         } else if (payload is error) {
             resp.statusCode = 500;
             string errMsg = <string> payload.detail().message;
-            resp.setPayload(untaint errMsg);
+            resp.setPayload(crypto:unsafeMarkUntainted(errMsg));
             log:printError("Failed to retrieve payload from request: " + payload.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {

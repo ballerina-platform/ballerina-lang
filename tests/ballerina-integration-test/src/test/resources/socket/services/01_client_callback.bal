@@ -49,7 +49,7 @@ service echo on echoEP {
         } else if (payload is error) {
             string errMsg = <string>payload.detail().message;
             resp.statusCode = 500;
-            resp.setPayload(untaint errMsg);
+            resp.setPayload(crypto:unsafeMarkUntainted(errMsg));
             var responseError = caller->respond(resp);
             if (responseError is error) {
                 io:println("Error sending response: ", responseError.detail().message);
@@ -68,7 +68,7 @@ service ClientService = service {
         io:println("New content received for callback");
         var str = getString(content);
         if (str is string) {
-            io:println(untaint str);
+            io:println(crypto:unsafeMarkUntainted(str));
         } else if (str is error) {
             io:println(str.reason());
         }

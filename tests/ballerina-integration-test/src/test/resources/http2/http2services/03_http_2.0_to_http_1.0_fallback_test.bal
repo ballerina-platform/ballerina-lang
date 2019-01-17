@@ -38,7 +38,7 @@ service helloWorldWithoutSSL on serviceEndpointWithoutSSL {
         path: "/"
     }
     resource function sayHelloGet(http:Caller caller, http:Request req) {
-        _ = caller->respond("Version: " + untaint req.httpVersion);
+        _ = caller->respond("Version: " + crypto:unsafeMarkUntainted(req.httpVersion));
     }
 }
 
@@ -52,6 +52,6 @@ service helloWorldWithSSL on serviceEndpointWithSSL {
         path: "/"
     }
     resource function sayHelloGet(http:Caller caller, http:Request req) {
-        _ = caller->respond("Version: " + untaint req.httpVersion);
+        _ = caller->respond("Version: " + crypto:unsafeMarkUntainted(req.httpVersion));
     }
 }

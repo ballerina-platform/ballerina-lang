@@ -41,7 +41,7 @@ public function main() {
     // Print the response payload of the action call if successful, or print the
     // reason for failure.
     if (response is http:Response) {
-        io:println(untaint response.getJsonPayload());
+        io:println(crypto:unsafeMarkUntainted(response.getJsonPayload()));
     } else {
         io:println(response.reason());
     }

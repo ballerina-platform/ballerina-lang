@@ -1,6 +1,6 @@
 public function main (string... args) {
     string data = args[0];
-    string untaintedData = untaint data;
+    string untaintedData = crypto:unsafeMarkUntainted(data);
     secureFunction(untaintedData);
     secureFunction(data);
 }

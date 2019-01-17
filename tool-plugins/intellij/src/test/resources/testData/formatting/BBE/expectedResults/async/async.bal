@@ -35,7 +35,7 @@ public function main() {
     io:println(f3.isDone());
     var response = wait f3;
     if (response is http:Response) {
-        io:println(untaint response.getJsonPayload());
+        io:println(crypto:unsafeMarkUntainted(response.getJsonPayload()));
     } else if (response is error) {
         io:println(response.reason());
     }

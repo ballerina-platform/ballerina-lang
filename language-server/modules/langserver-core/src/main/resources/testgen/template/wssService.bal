@@ -24,6 +24,6 @@ service ${callbackServiceName} = @http:WebSocketServiceConfig {} service {
     string wsReply = "";
     resource function onText(http:WebSocketClient ${callbackServiceName}Ep, string text) {
         //Test received message
-        self.wsReply = untaint text;
+        self.wsReply = crypto:unsafeMarkUntainted(text);
     }
 };

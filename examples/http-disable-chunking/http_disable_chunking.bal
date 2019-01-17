@@ -74,7 +74,7 @@ service echo on new http:Listener(9090) {
 
         if (!validationErrorFound) {
             // Since there is no validation error, mark the `value` as trusted data and set to the response.
-            res.setPayload({ "Outbound request content": untaint value });
+            res.setPayload({ "Outbound request content": crypto:unsafeMarkUntainted(value) });
         }
         var result = caller->respond(res);
         if (result is error) {

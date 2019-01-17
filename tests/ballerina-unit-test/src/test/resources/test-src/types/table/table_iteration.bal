@@ -120,10 +120,10 @@ function testForEachInTable() returns (int, int, float, string) {
 
     if (dt is table<Person>) {
         dt.foreach(function (Person p) {
-                idValue = untaint p.id;
-                ageValue = untaint p.age;
-                salValue = untaint p.salary;
-                nameValue = untaint p.name;
+                idValue = crypto:unsafeMarkUntainted(p.id);
+                ageValue = crypto:unsafeMarkUntainted(p.age);
+                salValue = crypto:unsafeMarkUntainted(p.salary);
+                nameValue = crypto:unsafeMarkUntainted(p.name);
             }
         );
     }

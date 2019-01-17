@@ -70,7 +70,7 @@ service passthrough on new http:Listener(9092) {
         path: "/"
     }
     resource function getCompressed(http:Caller caller, http:Request req) {
-        var response = clientEndpoint->post("/backend/echo", untaint req);
+        var response = clientEndpoint->post("/backend/echo", crypto:unsafeMarkUntainted(req));
         if (response is http:Response) {
             var result = caller->respond(response);
             if (result is error) {
@@ -93,7 +93,7 @@ service backend on listenerEndpoint {
         http:Response res = new;
         if (req.hasHeader("accept-encoding")) {
             string value = req.getHeader("accept-encoding");
-            res.setPayload("Backend response was encoded : " + untaint value);
+            res.setPayload("Backend response was encoded : " + crypto:unsafeMarkUntainted(value));
         } else {
             res.setPayload("Accept-Encoding header is not present");
         }

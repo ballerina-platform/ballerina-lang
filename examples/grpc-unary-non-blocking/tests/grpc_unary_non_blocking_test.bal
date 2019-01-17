@@ -37,12 +37,12 @@ service messageListener = service {
 
     // Resource registered to receive server messages.
     resource function onMessage(string message) {
-        responseMsg = untaint message;
+        responseMsg = crypto:unsafeMarkUntainted(message);
     }
 
     // Resource registered to receive server error messages.
     resource function onError(error err) {
-        responseMsg = "Error from Connector: " + untaint err.reason() + " - " + untaint <string>err.detail().message;
+        responseMsg = "Error from Connector: " + crypto:unsafeMarkUntainted(err.reason()) + " - " + crypto:unsafeMarkUntainted(<string>err.detail().message);
     }
 
     // Resource registered to receive server completed messages.

@@ -55,7 +55,7 @@ service websubSubscriberTwo on websubEP {
         } else {
             io:println("Intent verification denied explicitly for subscription change request");
         }
-        _ = caller->respond(untaint response);
+        _ = caller->respond(crypto:unsafeMarkUntainted(response));
     }
 
     resource function onNotification (websub:Notification notification) {

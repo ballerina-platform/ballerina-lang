@@ -110,7 +110,7 @@ service participant2 on participant2EP02 {
                 io:println(reg);
                 payload = reg.REGISTRATIONID;
             }
-           res.setTextPayload(untaint payload);
+           res.setTextPayload(crypto:unsafeMarkUntainted(payload));
         }
 
         _ = ep -> respond(res);

@@ -27,7 +27,7 @@ service passthroughService on passthroughEP1 {
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
         http:Client nyseEP1 = new("http://localhost:9113");
-        var response = nyseEP1->get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP1->get("/nyseStock/stocks", message = crypto:unsafeMarkUntainted(clientRequest));
         if (response is http:Response) {
             _ = caller->respond(response);
         } else if (response is error) {
@@ -68,9 +68,9 @@ service nyseStockQuote1 on passthroughEP1 {
     resource function stocksAsMultiparts(http:Caller caller, http:Request clientRequest) {
         var bodyParts = clientRequest.getBodyParts();
         if (bodyParts is mime:Entity[]) {
-            _ = caller->respond(untaint bodyParts);
+            _ = caller->respond(crypto:unsafeMarkUntainted(bodyParts));
         } else if (bodyParts is error) {
-            _ = caller->respond(untaint bodyParts.reason());
+            _ = caller->respond(crypto:unsafeMarkUntainted(bodyParts.reason()));
         }
     }
 }

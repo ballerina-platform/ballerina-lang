@@ -24,7 +24,7 @@ service passthrough on passthroughEP2 {
     }
     resource function passthrough(http:Caller caller, http:Request req) {
         if (req.getHeader("AcceptValue") == "auto") {
-            var clientResponse = acceptEncodingAutoEP -> post("/",untaint req);
+            var clientResponse = acceptEncodingAutoEP -> post("/",crypto:unsafeMarkUntainted(req));
             if (clientResponse is http:Response) {
                 var responseError = caller->respond(clientResponse);
                 if (responseError is error) {
@@ -40,7 +40,7 @@ service passthrough on passthroughEP2 {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "enable") {
-            var clientResponse = acceptEncodingEnableEP -> post("/",untaint req);
+            var clientResponse = acceptEncodingEnableEP -> post("/",crypto:unsafeMarkUntainted(req));
             if (clientResponse is http:Response) {
                 _ = caller -> respond(clientResponse);
             } else if (clientResponse is error) {
@@ -53,7 +53,7 @@ service passthrough on passthroughEP2 {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "disable") {
-            var clientResponse = acceptEncodingDisableEP -> post("/",untaint req);
+            var clientResponse = acceptEncodingDisableEP -> post("/",crypto:unsafeMarkUntainted(req));
             if (clientResponse is http:Response) {
                 _ = caller->respond(clientResponse);
             } else if (clientResponse is error) {
@@ -90,7 +90,7 @@ service hello on passthroughEP2 {
         } else {
             payload = {acceptEncoding:"Accept-Encoding hdeaer not present."};
         }
-        res.setJsonPayload(untaint payload);
+        res.setJsonPayload(crypto:unsafeMarkUntainted(payload));
         _ = caller -> respond(res);
     }
 }

@@ -28,7 +28,7 @@ service HTTPStreamingService on new http:Listener(9090) {
         if(clientResponse is http:Response) {
             var payload = clientResponse.getTextPayload();
             if (payload is string) {
-                res.setPayload(untaint payload);
+                res.setPayload(crypto:unsafeMarkUntainted(payload));
             } else {
                 setError(res, payload);
             }
@@ -81,7 +81,7 @@ service HTTPStreamingService on new http:Listener(9090) {
 //Sets the error to the response.
 function setError(http:Response res, error err) {
     res.statusCode = 500;
-    res.setPayload(untaint string.convert(err.detail().message));
+    res.setPayload(crypto:unsafeMarkUntainted(string.convert(err.detail().message)));
 }
 
 // Copies the content from the source channel to the destination channel.

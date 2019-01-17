@@ -20,14 +20,14 @@ if (payload is json) {
 // Validate the JSON before setting it to the response to prevent security vulnerabilities.
 if (validateJson(payload.hello)) {
 // Since the JSON is known to be valid, `untaint` the data denoting that the data is trusted and set the JSON to the response.
-res.setJsonPayload(untaint payload);
+res.setJsonPayload(crypto:unsafeMarkUntainted(payload));
 } else {
 res.statusCode = 400;
 res.setPayload("JSON containted invalid data");
 }
 } else if (payload is error) {
 res.statusCode = 500;
-res.setPayload(untaint <string>payload.detail().message);
+res.setPayload(crypto:unsafeMarkUntainted(<string>payload.detail().message));
 }
 // Reply to the client with the response.
 var result = caller->respond(res);

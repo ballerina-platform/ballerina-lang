@@ -21,7 +21,7 @@ service multipartDemoService on new http:Listener(9090) {
             foreach var part in bodyParts {
                 handleContent(part);
             }
-            response.setPayload(untaint bodyParts);
+            response.setPayload(crypto:unsafeMarkUntainted(bodyParts));
         } else {
             log:printError(string.convert(bodyParts.detail().message));
             response.setPayload("Error in decoding multiparts!");

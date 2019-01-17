@@ -54,7 +54,7 @@ service MyService on testEP {
         }
 
         http:Response res = new;
-        res.setPayload(untaint result);
+        res.setPayload(crypto:unsafeMarkUntainted(result));
         var respondResult = caller->respond(res);
         if (respondResult is error) {
             io:println("Error sending response");
@@ -85,7 +85,7 @@ service MyService on testEP {
         json j = { status: statusVal, resp: { value: result } };
 
         http:Response res = new;
-        res.setPayload(untaint j);
+        res.setPayload(crypto:unsafeMarkUntainted(j));
         var respondResult = caller->respond(res);
         if (respondResult is error) {
             io:println("Error sending response");

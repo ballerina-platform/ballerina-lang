@@ -19,6 +19,6 @@
 
 # + input - value to mark as untainted
 # + return - input value marked untained
-public function unsafeMarkUntainted(anydata input) returns @untainted anydata {
+public function unsafeMarkUntainted(any input) returns @untainted any {
     return input;
 }

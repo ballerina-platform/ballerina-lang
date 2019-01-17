@@ -35,15 +35,15 @@ service testService16 on new http:Listener(9118) {
                 var payload = res.getXmlPayload();
                 if (payload is xml) {
                     xml descendants = payload.selectDescendants("title");
-                    _ = caller->respond(untaint descendants.getTextValue());
+                    _ = caller->respond(crypto:unsafeMarkUntainted(descendants.getTextValue()));
                 } else if (payload is error) {
-                    _ = caller->respond(untaint payload.reason());
+                    _ = caller->respond(crypto:unsafeMarkUntainted(payload.reason()));
                 }
             } else if (binaryPayload is error) {
-                _ = caller->respond(untaint binaryPayload.reason());
+                _ = caller->respond(crypto:unsafeMarkUntainted(binaryPayload.reason()));
             }
         } else if (res is error) {
-            _ = caller->respond(untaint res.reason());
+            _ = caller->respond(crypto:unsafeMarkUntainted(res.reason()));
         }
     }
 }
@@ -69,6 +69,6 @@ service testPayload17 on new http:Listener(9119) {
                                       </item>
                                 </channel>
                               </xml>`;
-        _ = caller->respond(untaint xmlPayload);
+        _ = caller->respond(crypto:unsafeMarkUntainted(xmlPayload));
     }
 }

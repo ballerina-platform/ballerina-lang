@@ -20,7 +20,7 @@ service echoServer on new  socket:Listener(61598) {
                     new io:ReadableCharacterChannel(byteChannel, "UTF-8");
         var str = characterChannel.read(20);
         if (str is string) {
-            string reply = untaint str + " back";
+            string reply = crypto:unsafeMarkUntainted(str) + " back";
             byte[] payloadByte = reply.toByteArray("UTF-8");
             // Send reply to the `caller`.
             var writeResult = caller->write(payloadByte);

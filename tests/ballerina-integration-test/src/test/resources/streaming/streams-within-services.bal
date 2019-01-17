@@ -62,7 +62,7 @@ service StoreService bind storeServiceEndpoint {
         path:"/requests"
     }
     requests (endpoint conn, http:Request req) {
-        string hostName = untaint req.getHeader("Host");
+        string hostName = crypto:unsafeMarkUntainted(req.getHeader("Host"));
         ClientRequest clientRequest = {host : hostName};
         requestStream.publish(clientRequest);
 

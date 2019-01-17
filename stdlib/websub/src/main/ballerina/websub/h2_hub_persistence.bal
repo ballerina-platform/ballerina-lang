@@ -16,6 +16,7 @@
 
 import ballerina/h2;
 import ballerina/log;
+import ballerina/crypto;
 
 const string CREATE_TOPICS_TABLE = "CREATE TABLE IF NOT EXISTS topics (topic VARCHAR(255), PRIMARY KEY (topic))";
 const string INSERT_INTO_TOPICS = "INSERT INTO topics (topic) VALUES (?)";
@@ -59,7 +60,9 @@ public type H2HubPersistenceStore object {
         sql:Parameter para4 = { sqlType: sql:TYPE_BIGINT, value: subscriptionDetails.leaseSeconds };
         sql:Parameter para5 = { sqlType: sql:TYPE_BIGINT, value: subscriptionDetails.createdAt };
 
-        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
+        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS,
+            <sql:Parameter>crypto:unsafeMarkUntainted(para1),
+            <sql:Parameter>crypto:unsafeMarkUntainted(para2));
         if (rowCount is int) {
             log:printDebug("Successfully removed " + rowCount + " entries for existing subscription");
         } else {
@@ -67,8 +70,12 @@ public type H2HubPersistenceStore object {
             log:printError("Error occurred deleting subscription data: " + errCause);
         }
 
-        rowCount = self.subscriptionDbClient->update(INSERT_INTO_SUBSCRIPTIONS_TABLE, untaint para1, untaint para2,
-                                                    untaint para3, untaint para4, untaint para5);
+        rowCount = self.subscriptionDbClient->update(INSERT_INTO_SUBSCRIPTIONS_TABLE,
+            <sql:Parameter>crypto:unsafeMarkUntainted(para1),
+            <sql:Parameter>crypto:unsafeMarkUntainted(para2),
+            <sql:Parameter>crypto:unsafeMarkUntainted(para3),
+            <sql:Parameter>crypto:unsafeMarkUntainted(para4),
+            <sql:Parameter>crypto:unsafeMarkUntainted(para5));
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for subscription");
         } else {
@@ -83,7 +90,9 @@ public type H2HubPersistenceStore object {
     public function removeSubscription(SubscriptionDetails subscriptionDetails) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.topic };
         sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.callback };
-        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
+        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS,
+            <sql:Parameter>crypto:unsafeMarkUntainted(para1),
+            <sql:Parameter>crypto:unsafeMarkUntainted(para2));
 
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for unsubscription");

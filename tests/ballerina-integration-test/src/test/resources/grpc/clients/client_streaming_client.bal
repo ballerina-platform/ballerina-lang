@@ -59,7 +59,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
     resource function onMessage(string message) {
-        response = untaint message;
+        response = crypto:unsafeMarkUntainted(message);
         io:println("Response received from server: " + response);
         total = 1;
     }

@@ -34,7 +34,7 @@ service hello on new http:Listener(9090) {
         } else {
             // Since there is no validation error, mark the details as trusted
             // data and set it to the response.
-            res.setPayload(untaint details);
+            res.setPayload(crypto:unsafeMarkUntainted(details));
         }
         var result = caller->respond(res);
         if (result is error) {
@@ -60,7 +60,7 @@ service hello on new http:Listener(9090) {
         } else {
             // Since there is no validation error, mark the city as trusted
             // data and set it to the response.
-            res.setPayload(untaint city);
+            res.setPayload(crypto:unsafeMarkUntainted(city));
         }
         var result = caller->respond(res);
         if (result is error) {
@@ -89,7 +89,7 @@ service hello on new http:Listener(9090) {
         } else {
             // Since there is no validation error, mark the inputs as trusted
             // data and set them to the response.
-            res.setPayload({ Name: untaint name, Grade: untaint grade });
+            res.setPayload({ Name: crypto:unsafeMarkUntainted(name), Grade: crypto:unsafeMarkUntainted(grade) });
         }
 
         var result = caller->respond(res);

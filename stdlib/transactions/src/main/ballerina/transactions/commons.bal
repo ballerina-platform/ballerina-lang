@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/cache;
+import ballerina/crypto;
 import ballerina/log;
 import ballerina/http;
 import ballerina/system;
@@ -153,7 +154,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
     RequestError requestError = {errorMessage:msg};
     var resPayload = json.convert(requestError);
     if (resPayload is json) {
-        res.setJsonPayload(untaint resPayload);
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(resPayload));
         var resResult = ep->respond(res);
         if (resResult is error) {
             log:printError("Could not send Bad Request error response to caller", err = resResult);

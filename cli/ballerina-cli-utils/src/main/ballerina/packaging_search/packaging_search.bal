@@ -19,6 +19,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/time;
 import ballerina/math;
+import ballerina/crypto;
 
 # This function searches modules from ballerina central.
 #
@@ -29,7 +30,7 @@ import ballerina/math;
 function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
     http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
-    var result = httpEndpoint -> get(untaint querySearched, message=req);
+    var result = httpEndpoint -> get(<string>crypto:unsafeMarkUntainted(querySearched), message=req);
     http:Response httpResponse = new;
     if (result is http:Response) {
         httpResponse = result;

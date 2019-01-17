@@ -20,11 +20,11 @@ io:ReadableByteChannel rch = new;
 io:WritableByteChannel wch = new;
 
 function initReadableChannel(string filePath) {
-    rch = untaint io:openReadableFile(filePath);
+    rch = crypto:unsafeMarkUntainted(io:openReadableFile(filePath));
 }
 
 function initWritableChannel(string filePath) {
-    wch = untaint io:openWritableFile(filePath);
+    wch = crypto:unsafeMarkUntainted(io:openWritableFile(filePath));
 }
 
 function readBytes(int numberOfBytes) returns byte[]|error {

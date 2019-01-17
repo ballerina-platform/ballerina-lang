@@ -49,15 +49,15 @@ service MessageListener = service {
 
     // Resource registered to receive server messages.
     resource function onMessage(string message) {
-        responseMsg = untaint message;
+        responseMsg = crypto:unsafeMarkUntainted(message);
         received = true;
         io:println("Response received from server: " + message);
     }
 
     // Resource registered to receive server error messages.
     resource function onError(error err) {
-        responseMsg = "Error reported from server: " + untaint err.reason() + " - "
-                                                                            + untaint <string>err.detail().message;
+        responseMsg = "Error reported from server: " + crypto:unsafeMarkUntainted(err.reason()) + " - "
+                                                                            + crypto:unsafeMarkUntainted(<string>err.detail().message);
         received = true;
     }
 

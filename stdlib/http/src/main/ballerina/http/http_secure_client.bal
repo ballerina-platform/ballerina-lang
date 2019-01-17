@@ -387,7 +387,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
         } else {
             textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
         }
-        refreshTokenRequest.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+        refreshTokenRequest.setTextPayload(<string>crypto:unsafeMarkUntainted(textPayload),
+            contentType = mime:APPLICATION_FORM_URLENCODED);
         Response refreshTokenResponse = check refreshTokenClient->post(EMPTY_STRING, refreshTokenRequest);
 
         json generatedToken = check refreshTokenResponse.getJsonPayload();

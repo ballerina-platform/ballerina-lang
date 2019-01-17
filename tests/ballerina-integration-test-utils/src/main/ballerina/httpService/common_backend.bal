@@ -20,7 +20,7 @@ service<http:Service> echo bind echoEP{
         match result {
             error payloadError => io:println(payloadError.message);
             string payload => {
-                resp.setTextPayload(untaint payload);
+                resp.setTextPayload(crypto:unsafeMarkUntainted(payload));
                 _ = caller -> respond(resp);
             }
         }

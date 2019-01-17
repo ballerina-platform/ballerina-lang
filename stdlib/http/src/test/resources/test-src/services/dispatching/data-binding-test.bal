@@ -22,7 +22,7 @@ service echo on testEP {
     }
     resource function body1(http:Caller caller, http:Request req, string person) {
         json responseJson = { "Person": person };
-        _ = caller->respond(untaint responseJson);
+        _ = caller->respond(crypto:unsafeMarkUntainted(responseJson));
     }
 
     @http:ResourceConfig {
@@ -32,7 +32,7 @@ service echo on testEP {
     }
     resource function body2(http:Caller caller, http:Request req, string key, string person) {
         json responseJson = { Key: key, Person: person };
-        _ = caller->respond(untaint responseJson);
+        _ = caller->respond(crypto:unsafeMarkUntainted(responseJson));
     }
 
     @http:ResourceConfig {
@@ -40,8 +40,8 @@ service echo on testEP {
         body: "person"
     }
     resource function body3(http:Caller caller, http:Request req, json person) {
-        json name = untaint person.name;
-        json team = untaint person.team;
+        json name = crypto:unsafeMarkUntainted(person.name);
+        json team = crypto:unsafeMarkUntainted(person.team);
         _ = caller->respond({ Key: name, Team: team });
     }
 
@@ -50,8 +50,8 @@ service echo on testEP {
         body: "person"
     }
     resource function body4(http:Caller caller, http:Request req, xml person) {
-        string name = untaint person.getElementName();
-        string team = untaint person.getTextValue();
+        string name = crypto:unsafeMarkUntainted(person.getElementName());
+        string team = crypto:unsafeMarkUntainted(person.getTextValue());
         _ = caller->respond({ Key: name, Team: team });
     }
 
@@ -60,7 +60,7 @@ service echo on testEP {
         body: "person"
     }
     resource function body5(http:Caller caller, http:Request req, byte[] person) {
-        string name = untaint mime:byteArrayToString(person, "UTF-8");
+        string name = crypto:unsafeMarkUntainted(mime:byteArrayToString(person), "UTF-8");
         _ = caller->respond({ Key: name });
     }
 
@@ -69,8 +69,8 @@ service echo on testEP {
         body: "person"
     }
     resource function body6(http:Caller caller, http:Request req, Person person) {
-        string name = untaint person.name;
-        int age = untaint person.age;
+        string name = crypto:unsafeMarkUntainted(person.name);
+        int age = crypto:unsafeMarkUntainted(person.age);
         _ = caller->respond({ Key: name, Age: age });
     }
 
@@ -89,9 +89,9 @@ service echo on testEP {
     resource function body8(http:Caller caller, http:Request req, Person[] persons) {
         var jsonPayload = json.convert(persons);
         if (jsonPayload is json) {
-            _ = caller->respond(untaint jsonPayload);
+            _ = caller->respond(crypto:unsafeMarkUntainted(jsonPayload));
         } else if (jsonPayload is error) {
-            _ = caller->respond(untaint string.convert(jsonPayload.detail().message));
+            _ = caller->respond(crypto:unsafeMarkUntainted(string.convert(jsonPayload.detail().message)));
         }
     }
 }

@@ -26,7 +26,7 @@ function parseArgs(string[] args) returns (string, string) {
         error err = error("Usage: compiler_backend_llvm <path-to-bir> <part-to-output-obj>");
         panic err;
     }
-    return (untaint args[0], untaint args[1]);
+    return (markUntainted(args[0]), markUntainted(args[1]));
 }
 
 function checkValidBirChannel(bir:ChannelReader reader) {
@@ -53,7 +53,6 @@ function checkVersion(bir:ChannelReader reader) {
     }
 }
 
-
 function openReadableFile(string filePath) returns io:ReadableByteChannel {
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     return byteChannel;
@@ -74,4 +73,8 @@ function arrayEq(byte[] x, byte[] y) returns boolean {
         i += 1;
     }
     return true;
+}
+
+function markUntainted(string str) returns @untainted string {
+    return str;
 }

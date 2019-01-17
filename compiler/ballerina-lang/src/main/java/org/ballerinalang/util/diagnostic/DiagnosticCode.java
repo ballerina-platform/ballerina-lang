@@ -390,7 +390,7 @@ public enum DiagnosticCode {
     INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature"),
 
     DEPRECATED_OPERATOR_UNTAINT("use.of.deprecated.operator.untaint");
-    
+
     private String value;
 
     DiagnosticCode(String value) {

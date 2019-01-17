@@ -87,7 +87,7 @@ service productMaterialService on productMaterialListener {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(untaint jsonMsg.reason());
+            res.setPayload(crypto:unsafeMarkUntainted(jsonMsg.reason()));
             _ = caller->respond(res);
         }
     }
@@ -111,7 +111,7 @@ service productMaterialService on productMaterialListener {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(untaint jsonMsg.reason());
+            res.setPayload(crypto:unsafeMarkUntainted(jsonMsg.reason()));
             _ = caller->respond(res);
         }
     }

@@ -29,7 +29,7 @@ service contentBasedRouting on serviceEP {
         if (nameString == nyseString) {
             var result = nyseEP2 -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                _ = conn -> respond(untaint result);
+                _ = conn -> respond(crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
@@ -38,7 +38,7 @@ service contentBasedRouting on serviceEP {
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                _ = conn -> respond(untaint result);
+                _ = conn -> respond(crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
@@ -64,7 +64,7 @@ service headerBasedRouting on serviceEP {
         if (nameString == nyseString) {
             var result = nyseEP2 -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                _ = caller->respond(untaint result);
+                _ = caller->respond(crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
@@ -73,7 +73,7 @@ service headerBasedRouting on serviceEP {
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                _ = caller->respond(untaint result);
+                _ = caller->respond(crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");

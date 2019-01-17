@@ -4,7 +4,7 @@ import ballerina/mime;
 
 function setErrorResponse(http:Response response,  error err) {
     response.statusCode = 500;
-    response.setPayload(untaint <string>err.detail().message);
+    response.setPayload(crypto:unsafeMarkUntainted(<string>err.detail().message));
 }
 
 listener http:MockListener mockEP = new(9090);
@@ -24,14 +24,14 @@ service test on mockEP {
             var result = bodyParts[0].getText();
             if (result is string) {
                 mime:Entity entity = new;
-                entity.setText(untaint result);
+                entity.setText(crypto:unsafeMarkUntainted(result));
                 response.setEntity(entity);
             } else if (result is error) {
                 setErrorResponse(response, result);
             }
         }
 
-        _ = caller->respond(untaint response);
+        _ = caller->respond(crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -45,12 +45,12 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             var result = bodyParts[0].getJson();
             if (result is json) {
-                response.setJsonPayload(untaint result);
+                response.setJsonPayload(crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(untaint response);
+        _ = caller->respond(crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -64,12 +64,12 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             var result = bodyParts[0].getXml();
             if (result is xml) {
-                response.setXmlPayload(untaint result);
+                response.setXmlPayload(crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(untaint response);
+        _ = caller->respond(crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -83,12 +83,12 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             var result = bodyParts[0].getByteArray();
             if (result is byte[]) {
-                response.setBinaryPayload(untaint result);
+                response.setBinaryPayload(crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(untaint response);
+        _ = caller->respond(crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -107,9 +107,9 @@ service test on mockEP {
                 content = content + " -- " + handleContent(part);
                 i = i + 1;
             }
-            response.setTextPayload(untaint content);
+            response.setTextPayload(crypto:unsafeMarkUntainted(content));
         }
-        _ = caller->respond(untaint response);
+        _ = caller->respond(crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -123,7 +123,7 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             response.setPayload("Body parts detected!");
         } else if (bodyParts is error) {
-            response.setPayload(untaint <string>bodyParts.detail().message);
+            response.setPayload(crypto:unsafeMarkUntainted(<string>bodyParts.detail().message));
         }
         _ = caller->respond(response);
     }
@@ -144,9 +144,9 @@ service test on mockEP {
                 payload = handleNestedParts(part);
                 i = i + 1;
             }
-            response.setTextPayload(untaint payload);
+            response.setTextPayload(crypto:unsafeMarkUntainted(payload));
         }
-        _ = caller->respond(untaint response);
+        _ = caller->respond(crypto:unsafeMarkUntainted(response));
     }
 }
 

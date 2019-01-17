@@ -95,7 +95,7 @@ function testManipulateHeaders () returns (string[]) {
     entity.addHeader("HEADER3", "testVal");
     string[] headerNames = entity.getHeaderNames();
     foreach var header in headerNames {
-        entity.removeHeader(untaint header);
+        entity.removeHeader(crypto:unsafeMarkUntainted(header));
     }
 
     return entity.getHeaderNames();

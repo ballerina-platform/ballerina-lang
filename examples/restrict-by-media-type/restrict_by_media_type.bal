@@ -21,7 +21,7 @@ service infoService on new http:Listener(9092) {
             string nameString = <string>msg["name"];
             if (validateString(nameString)) {
                 // Create XML payload and send back a response.
-                xml name = xml `<name>{{untaint nameString}}</name>`;
+                xml name = xml `<name>{{crypto:unsafeMarkUntainted(nameString}}</name>`);
                 res.setXmlPayload(name);
             } else {
                 res.statusCode = 400;
@@ -29,7 +29,7 @@ service infoService on new http:Listener(9092) {
             }
         } else {
             res.statusCode = 500;
-            res.setPayload(untaint <string>msg.detail().message);
+            res.setPayload(crypto:unsafeMarkUntainted(<string>msg.detail().message));
         }
 
         var result = caller->respond(res);

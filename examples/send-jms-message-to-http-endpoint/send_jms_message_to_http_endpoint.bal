@@ -20,7 +20,7 @@ service jmsListener on consumerEndpoint {
         if (textContent is string) {
             log:printInfo("Message received from broker. Payload: " +
                     textContent);
-            forwardToBakend(untaint textContent);
+            forwardToBakend(crypto:unsafeMarkUntainted(textContent));
         } else {
             log:printError("Error while reading message", err = textContent);
         }

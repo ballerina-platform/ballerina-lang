@@ -54,7 +54,7 @@ service echo on echoEP {
         } else if (payload is string) {
             payloadData = payload;
         }
-        self.serviceLevelStr = untaint payloadData;
+        self.serviceLevelStr = crypto:unsafeMarkUntainted(payloadData);
         _ = caller->respond(res);
     }
 
@@ -124,10 +124,10 @@ service echo on echoEP {
                 team = params.team;
             }
             json responseJson = {"Name":name , "Team":team};
-            res.setJsonPayload(untaint responseJson);
+            res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
         } else if (params is error) {
             string errMsg = <string> params.detail().message;
-            res.setPayload(untaint errMsg);
+            res.setPayload(crypto:unsafeMarkUntainted(errMsg));
         }
         _ = caller->respond(res);
     }
@@ -149,7 +149,7 @@ service echo on echoEP {
     resource function errorReturn(http:Caller caller, http:Request req) returns error? {
         json payload = check req.getJsonPayload();
         http:Response res = new;
-        res.setPayload(untaint payload);
+        res.setPayload(crypto:unsafeMarkUntainted(payload));
         res.statusCode = 200;
         _ = caller->respond(res);
     }

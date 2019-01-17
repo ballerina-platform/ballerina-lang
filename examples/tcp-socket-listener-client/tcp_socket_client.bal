@@ -30,7 +30,7 @@ service ClientService = service {
                         new io:ReadableCharacterChannel(byteChannel, "UTF-8");
         var str = characterChannel.read(25);
         if (str is string) {
-            io:println(untaint str);
+            io:println(crypto:unsafeMarkUntainted(str));
         } else {
             io:println(str);
         }

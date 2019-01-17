@@ -31,7 +31,7 @@ service websubSubscriber on websubEP {
         } else {
             log:printWarn("Intent verification denied for subscription request");
         }
-        var result = caller->respond(untaint response);
+        var result = caller->respond(crypto:unsafeMarkUntainted(response));
 
         if (result is error) {
             log:printError("Error responding to intent verification request",

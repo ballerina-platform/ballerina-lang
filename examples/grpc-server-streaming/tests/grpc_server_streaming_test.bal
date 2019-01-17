@@ -44,13 +44,13 @@ service messageListener = service {
 
     // Resource registered to receive server messages.
     resource function onMessage(string message) {
-        responseMsgs[msgCount] = untaint message;
+        responseMsgs[msgCount] = crypto:unsafeMarkUntainted(message);
         msgCount = msgCount + 1;
     }
 
     // Resource registered to receive server error messages.
     resource function onError(error err) {
-        respError = "Error from Connector: " + untaint err.reason() + " - " + untaint <string>err.detail().message;
+        respError = "Error from Connector: " + crypto:unsafeMarkUntainted(err.reason()) + " - " + crypto:unsafeMarkUntainted(<string>err.detail().message);
     }
 
     // Resource registered to receive server completed messages.

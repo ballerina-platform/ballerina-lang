@@ -8,6 +8,6 @@ function testSignatureHelp () {
     http:Response res = new;
     json connectionJson = { protocol: "json" };
     res.statusCode = 200;
-    res.setJsonPayload(untaint connectionJson);
+    res.setJsonPayload(crypto:unsafeMarkUntainted(connectionJson));
     listener->respond(res);
 }

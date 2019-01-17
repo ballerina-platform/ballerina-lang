@@ -26,7 +26,7 @@ service clientFailure on new http:WebSocketListener(9091) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL1, config = { callbackService: erroHandlingService });
-        serverCaller = untaint wsEp;
+        serverCaller = crypto:unsafeMarkUntainted(wsEp);
     }
 }
 service erroHandlingService = @http:WebSocketServiceConfig {} service {

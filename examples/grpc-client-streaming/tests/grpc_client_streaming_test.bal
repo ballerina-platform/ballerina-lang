@@ -56,14 +56,14 @@ service MessageListener = service {
     // Resource registered to receive server messages.
     resource function onMessage(string message) {
         completed = true;
-        responseMsg = untaint message;
+        responseMsg = crypto:unsafeMarkUntainted(message);
         io:println("Response received from server: " + message);
     }
 
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         completed = true;
-        responseMsg = "Error from Connector: " + untaint err.reason() + " - " + untaint <string>err.detail().message;
+        responseMsg = "Error from Connector: " + crypto:unsafeMarkUntainted(err.reason()) + " - " + crypto:unsafeMarkUntainted(<string>err.detail().message);
     }
 
     // Resource registered to receive server completed messages.

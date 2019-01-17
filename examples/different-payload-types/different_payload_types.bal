@@ -47,7 +47,7 @@ service actionService on new http:Listener(9090) {
 
         //POST remote function with byte channel as payload. Since the file path is static
         //`untaint` is used to denote that the byte channel is trusted .
-        response = clientEP->post("/image", untaint bChannel);
+        response = clientEP->post("/image", crypto:unsafeMarkUntainted(bChannel));
         handleResponse(response);
 
         //Create a JSON body part.
@@ -95,12 +95,12 @@ service backEndService on new http:Listener(9091) {
                 } else {
                     textValue = string.convert(returnValue.detail().message);
                 }
-                var result = caller->respond(untaint textValue);
+                var result = caller->respond(crypto:unsafeMarkUntainted(textValue));
                 handleError(result);
             } else if (mime:APPLICATION_XML == baseType) {
                 var xmlValue = req.getXmlPayload();
                 if (xmlValue is xml) {
-                    var result = caller->respond(untaint xmlValue);
+                    var result = caller->respond(crypto:unsafeMarkUntainted(xmlValue));
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, xmlValue);
@@ -108,7 +108,7 @@ service backEndService on new http:Listener(9091) {
             } else if (mime:APPLICATION_JSON == baseType) {
                 var jsonValue = req.getJsonPayload();
                 if (jsonValue is json) {
-                    var result = caller->respond(untaint jsonValue);
+                    var result = caller->respond(crypto:unsafeMarkUntainted(jsonValue));
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, jsonValue);
@@ -116,7 +116,7 @@ service backEndService on new http:Listener(9091) {
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                 var blobValue = req.getBinaryPayload();
                 if (blobValue is byte[]) {
-                    var result = caller->respond(untaint blobValue);
+                    var result = caller->respond(crypto:unsafeMarkUntainted(blobValue));
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, blobValue);
@@ -124,7 +124,7 @@ service backEndService on new http:Listener(9091) {
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 var bodyParts = req.getBodyParts();
                 if (bodyParts is mime:Entity[]) {
-                    var result = caller->respond(untaint bodyParts);
+                    var result = caller->respond(crypto:unsafeMarkUntainted(bodyParts));
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, bodyParts);
@@ -144,7 +144,7 @@ service backEndService on new http:Listener(9091) {
         var bytes = req.getBinaryPayload();
         if (bytes is byte[]) {
             http:Response response = new;
-            response.setBinaryPayload(untaint bytes,
+            response.setBinaryPayload(crypto:unsafeMarkUntainted(bytes),
                                         contentType = mime:IMAGE_PNG);
             var result = caller->respond(response);
             handleError(result);
@@ -213,7 +213,7 @@ function handleResponse(http:Response|error response) {
 function sendErrorMsg(http:Caller caller, error err) {
     http:Response res = new;
     res.statusCode = 500;
-    res.setPayload(untaint string.convert(err.detail().message));
+    res.setPayload(crypto:unsafeMarkUntainted(string.convert(err.detail().message)));
     var result = caller->respond(res);
     handleError(result);
 }

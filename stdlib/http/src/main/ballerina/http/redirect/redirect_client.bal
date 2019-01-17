@@ -20,6 +20,7 @@ import ballerina/mime;
 import ballerina/log;
 import ballerina/math;
 import ballerina/config;
+import ballerina/crypto;
 
 # Provides redirect functionality for HTTP client remote functions.
 #
@@ -342,7 +343,7 @@ function getRedirectMethod(HttpOperation httpVerb, Response response) returns Ht
 
 function createRedirectRequest(int statusCode, Request request) returns Request {
     Request redirectRequest = new;
-    string[] headerNames = untaint request.getHeaderNames();
+    string[] headerNames = <string[]>crypto:unsafeMarkUntainted(request.getHeaderNames());
     foreach var headerName in headerNames {
         string[] headerValues = request.getHeaders(headerName);
         foreach var headerValue in headerValues {

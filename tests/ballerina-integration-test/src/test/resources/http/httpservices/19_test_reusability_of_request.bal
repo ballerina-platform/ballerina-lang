@@ -38,7 +38,7 @@ service testService_1 on testEP {
 
         var firstResponse = clientEP1 -> get("", message = clientReq);
         if (firstResponse is http:Response) {
-            var result = untaint firstResponse.getTextPayload();
+            var result = crypto:unsafeMarkUntainted(firstResponse.getTextPayload());
             if (result is string) {
                 firstVal = result;
             } else if (result is error) {
@@ -50,7 +50,7 @@ service testService_1 on testEP {
 
         var secondResponse = clientEP1 -> get("", message = clientReq);
         if (secondResponse is http:Response) {
-            var result = untaint secondResponse.getTextPayload();
+            var result = crypto:unsafeMarkUntainted(secondResponse.getTextPayload());
             if (result is string) {
                 secondVal = result;
             } else if (result is error) {
@@ -78,7 +78,7 @@ service testService_1 on testEP {
 
         var firstResponse = clientEP1 -> get("", message = clientReq);
         if (firstResponse is http:Response) {
-            var result = untaint firstResponse.getTextPayload();
+            var result = crypto:unsafeMarkUntainted(firstResponse.getTextPayload());
             if (result is string) {
                 firstVal = result;
             } else if (result is error) {
@@ -90,7 +90,7 @@ service testService_1 on testEP {
 
         var secondResponse = clientEP1 -> get("", message = clientReq);
         if (secondResponse is http:Response) {
-            var result = untaint secondResponse.getTextPayload();
+            var result = crypto:unsafeMarkUntainted(secondResponse.getTextPayload());
             if (result is string) {
                 secondVal = result;
             } else if (result is error) {
@@ -124,13 +124,13 @@ service testService_1 on testEP {
                 newRequest.setHeader("test2", "value2");
                 var secondResponse = clientEP1 -> get("", message = newRequest);
                 if (secondResponse is http:Response) {
-                    var result1 = untaint firstResponse.getTextPayload();
+                    var result1 = crypto:unsafeMarkUntainted(firstResponse.getTextPayload());
                     if (result1 is string) {
                         firstVal = result1;
                     } else if (result1 is error) {
                         firstVal = result1.reason();
                     }
-                    var result2 = untaint secondResponse.getTextPayload();
+                    var result2 = crypto:unsafeMarkUntainted(secondResponse.getTextPayload());
                     if (result2 is string) {
                         secondVal = result2;
                     } else if (result2 is error) {
@@ -162,7 +162,7 @@ service testService_1 on testEP {
 
         var firstResponse = clientEP1 -> post("/datasource", clientReq);
         if (firstResponse is http:Response) {
-            var result = untaint firstResponse.getTextPayload();
+            var result = crypto:unsafeMarkUntainted(firstResponse.getTextPayload());
             if (result is string) {
                 firstVal = result;
             } else if (result is error) {
@@ -174,7 +174,7 @@ service testService_1 on testEP {
 
         var secondResponse = clientEP1 -> post("/datasource", clientReq);
         if (secondResponse is http:Response) {
-            var result = untaint secondResponse.getTextPayload();
+            var result = crypto:unsafeMarkUntainted(secondResponse.getTextPayload());
             if (result is string) {
                 secondVal = result;
             } else if (result is error) {
@@ -219,7 +219,7 @@ service testService_1 on testEP {
                 } else if (result2 is error) {
                     firstVal = result2.reason();
                 }
-                testResponse.setTextPayload(untaint firstVal + untaint secondVal);
+                testResponse.setTextPayload(crypto:unsafeMarkUntainted(firstVal) + crypto:unsafeMarkUntainted(secondVal));
                 _ = caller -> respond(testResponse);
             } else if (firstResponse is error) {
                 log:printError(firstResponse.reason(), err = firstResponse);
@@ -261,10 +261,10 @@ service testService_2 on testEP {
         http:Response response = new;
         var stringPayload = clientRequest.getTextPayload();
         if (stringPayload is string) {
-            response.setPayload(untaint stringPayload);
+            response.setPayload(crypto:unsafeMarkUntainted(stringPayload));
         } else if (stringPayload is error) {
             string errMsg = <string> stringPayload.detail().message;
-            response.setPayload(untaint errMsg);
+            response.setPayload(crypto:unsafeMarkUntainted(errMsg));
         }
         _ = caller -> respond(response);
     }

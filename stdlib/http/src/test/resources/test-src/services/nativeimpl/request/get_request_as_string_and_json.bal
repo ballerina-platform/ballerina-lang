@@ -27,7 +27,7 @@ service MyService on testEP {
             panic jsonValue;
         }
         http:Response res = new;
-        res.setPayload(untaint payload.foo);
+        res.setPayload(crypto:unsafeMarkUntainted(payload.foo));
         var err = caller->respond(res);
         if (err is error) {
             io:println("Error sending response");

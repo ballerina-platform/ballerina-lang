@@ -54,7 +54,7 @@ service contentBasedRouting on new http:Listener(9090) {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(untaint <string>jsonMsg.detail().message);
+            res.setPayload(crypto:unsafeMarkUntainted(<string>jsonMsg.detail().message));
 
             var result = outboundEP->respond(res);
             if (result is error) {

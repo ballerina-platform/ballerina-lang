@@ -69,7 +69,7 @@ service testRedirect on serviceEndpoint1 {
                 value = response.getHeader(http:LOCATION);
             }
             value = value + ":" + response.resolvedRequestedURI;
-            _ = caller->respond(untaint value);
+            _ = caller->respond(crypto:unsafeMarkUntainted(value));
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -85,7 +85,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                _ = caller->respond(crypto:unsafeMarkUntainted(value));
             } else {
                 panic value;
             }
@@ -104,7 +104,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                _ = caller->respond(crypto:unsafeMarkUntainted(value));
             } else {
                 panic value;
             }
@@ -123,7 +123,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                _ = caller->respond(crypto:unsafeMarkUntainted(value));
             } else {
                 panic value;
             }
@@ -142,7 +142,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                _ = caller->respond(crypto:unsafeMarkUntainted(value));
             } else {
                 panic value;
             }
@@ -161,7 +161,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                _ = caller->respond(crypto:unsafeMarkUntainted(value));
             } else {
                 panic value;
             }
@@ -180,7 +180,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                _ = caller->respond(crypto:unsafeMarkUntainted(value));
             } else {
                 panic value;
             }
@@ -276,7 +276,7 @@ service redirect1 on serviceEndpoint2 {
     resource function processQP(http:Caller caller, http:Request req) {
         map<string> paramsMap = req.getQueryParams();
         string returnVal = paramsMap.key + ":" + paramsMap.lang;
-        _ = caller->respond(untaint returnVal);
+        _ = caller->respond(crypto:unsafeMarkUntainted(returnVal));
     }
 }
 

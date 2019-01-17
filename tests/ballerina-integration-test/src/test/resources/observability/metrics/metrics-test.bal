@@ -41,7 +41,7 @@ service metricsTest on new http:Listener(9090){
             if (jData is json) {
                 string result = jData.toString();
                 http:Response resp = new;
-                resp.setTextPayload(untaint result);
+                resp.setTextPayload(crypto:unsafeMarkUntainted(result));
                 _ = caller -> respond(resp);
             }  else {
                 error err = error ("error occurred 1111");

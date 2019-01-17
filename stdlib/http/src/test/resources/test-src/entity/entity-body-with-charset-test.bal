@@ -184,9 +184,9 @@ service echo on mockEP {
         http:Response response = new;
         var payload = request.getJsonPayload();
         if (payload is json) {
-            response.setPayload(untaint payload);
+            response.setPayload(crypto:unsafeMarkUntainted(payload));
         } else if (payload is error) {
-            response.setPayload(untaint <string>payload.detail().message);
+            response.setPayload(crypto:unsafeMarkUntainted(<string>payload.detail().message));
         }
         _ = caller->respond(response);
     }
