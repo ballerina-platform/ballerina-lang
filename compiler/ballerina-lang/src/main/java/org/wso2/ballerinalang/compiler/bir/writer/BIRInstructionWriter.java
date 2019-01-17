@@ -57,7 +57,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         // Number of instructions
         // Adding the terminator instruction as well.
         buf.writeInt(birBasicBlock.instructions.size() + 1);
-        birBasicBlock.instructions.forEach(instruction -> ((BIRNonTerminator) instruction).accept(this));
+            birBasicBlock.instructions.forEach(instruction -> ((BIRNonTerminator) instruction).accept(this));
         if (birBasicBlock.terminator == null) {
             throw new BLangCompilerException("Basic block without a terminator : " + birBasicBlock.id);
         }
@@ -148,9 +148,9 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     // Operands
-    public void visit(BIROperand.BIRVarRef birVarRef) {
+    public void visit(BIROperand birOperand) {
         // TODO use the integer index of the variable.
-        addCpAndWriteString(birVarRef.variableDcl.name.value);
+        addCpAndWriteString(birOperand.variableDcl.name.value);
     }
 
 

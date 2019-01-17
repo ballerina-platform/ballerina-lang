@@ -25,8 +25,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRConstant;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
@@ -93,11 +91,7 @@ public abstract class BIRVisitor {
     }
 
     // Operands
-    public void visit(BIRVarRef birVarRef) {
-        throw new AssertionError();
-    }
-
-    public void visit(BIRConstant birConstant) {
+    public void visit(BIROperand birVarRef) {
         throw new AssertionError();
     }
 }
