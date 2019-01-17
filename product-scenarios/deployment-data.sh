@@ -106,11 +106,11 @@ ClusterRegion=${CONFIG[ClusterRegion]};
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
 wget https://product-dist.ballerina.io/downloads/0.990.2/ballerina-linux-installer-x64-0.990.2.deb
-sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb
+sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb --quiet
 
 ballerina version
 
-wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz
+wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
 
 tar -xvzf mysql-connector-java-5.1.47.tar.gz --directory ./
 
