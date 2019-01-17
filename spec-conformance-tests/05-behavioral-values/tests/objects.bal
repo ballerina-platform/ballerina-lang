@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
+import utils;
 
 // Objects are a combination of public and private fields along with a set of associated
 // functions, called methods, that can be used to manipulate them. An object’s methods are
@@ -32,7 +33,7 @@ type NormalObject object {
     private int privateIntField;
     float defaultVisibilityFloatField;
 
-    public function __init(string argOne, int argTwo, float argThree) {
+    function __init(string argOne, int argTwo, float argThree) {
         self.publicStringField = argOne;
         self.privateIntField = argTwo;
         self.defaultVisibilityFloatField = argThree;
@@ -94,7 +95,7 @@ type ClientObject client object {
     private int privateIntField;
     float defaultVisibilityFloatField;
 
-    public function __init(string argOne, int argTwo, float argThree) {
+    function __init(string argOne, int argTwo, float argThree) {
         self.publicStringField = argOne;
         self.privateIntField = argTwo;
         self.defaultVisibilityFloatField = argThree;
@@ -211,6 +212,88 @@ function testObjectTypeDescriptor() {
         msg = "expected client object public method to be accessible");
     test:assertEquals(clientObject.defaultVisibiltyMethodDefn("argOne", 50), 500.0,
         msg = "expected client object default visibility method to be accessible");
+}
+
+@test:Config {}
+function testPublicObjectAccess() {
+    utils:PublicClientObject clientObject = new("default string");
+    utils:PublicNormalObject normalObject = new("default string");
+
+    test:assertEquals(normalObject.publicStringField, "default string",
+        msg = "expected object public field to be accessible");
+    test:assertEquals(normalObject.publicMethodDefn(), 20,
+        msg = "expected object public method to be accessible");
+
+    test:assertEquals(clientObject.publicStringField, "default string",
+        msg = "expected client object public field to be accessible");
+    test:assertEquals(clientObject.publicMethodDefn(), 20,
+        msg = "expected client object public field to be accessible");
+    int result = clientObject->publicRemoteMethodDefn("changed string");
+    test:assertEquals(result, 30, msg = "expected client object public remote method to be accessible");
+    test:assertEquals(clientObject.publicStringField, "changed string",
+        msg = "expected client object public field to be updated");
+}
+
+@test:Config {}
+function testPublicObjectAccessIncludingObjectReference() {
+    utils:ObjReferenceToAbstractClientObject clientObject = new("default string");
+    utils:ObjReferenceToAbstractObject normalObject = new("default string");
+
+    test:assertEquals(normalObject.publicStringField, "default string",
+        msg = "expected object public field to be accessible");
+    test:assertEquals(normalObject.publicMethodDecl("string value"), 20,
+        msg = "expected object public method to be accessible");
+    test:assertEquals(normalObject.getPrivateField(), 20,
+        msg = "expected object private field to be accessed via public method");
+    test:assertEquals(normalObject.publicStringField, "string value",
+        msg = "expected object public field to be accessible");
+
+    test:assertEquals(clientObject.publicStringField, "default string",
+        msg = "expected client object public field to be accessible");
+    test:assertEquals(clientObject.publicMethodDecl(), 20,
+        msg = "expected client object public field to be accessible");
+    int result = clientObject->publicRemoteMethodDecl("changed string");
+    test:assertEquals(result, 30, msg = "expected client object public remote method to be accessible");
+    test:assertEquals(clientObject.publicStringField, "changed string",
+        msg = "expected client object public field to be updated");
+}
+
+type ObjReferenceToPublicAbstractClientObject client object {
+    *utils:AbstractClientObject;
+    private int counter;
+
+    public function getPrivateField() returns int {
+        return self.counter;
+    }
+
+    public function publicMethodDecl() returns int {
+        self.counter += 10;
+        return self.counter;
+    }
+
+    public remote function publicRemoteMethodDecl(string argOne) returns int {
+        self.publicStringField = argOne;
+        self.counter += 10;
+        return self.counter;
+    }
+
+    public function __init(string argOne) {
+        self.publicStringField = argOne;
+        self.counter = 10;
+    }
+};
+
+@test:Config {}
+function testObjectAccessIncludingPublicObjectReference() {
+    ObjReferenceToPublicAbstractClientObject clientObject = new("default string");
+    test:assertEquals(clientObject.publicStringField, "default string",
+        msg = "expected client object public field to be accessible");
+    test:assertEquals(clientObject.publicMethodDecl(), 20,
+        msg = "expected client object public method to be accessible");
+    int result = clientObject->publicRemoteMethodDecl("changed string");
+    test:assertEquals(result, 30, msg = "expected client object public remote method to be accessible");
+    test:assertEquals(clientObject.publicStringField, "changed string",
+        msg = "expected client object public field to be updated");
 }
 
 // A non-abstract object type provides a way to initialize an object of the type. An object is
