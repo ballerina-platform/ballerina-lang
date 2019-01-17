@@ -143,75 +143,35 @@ public type HttpClient client object {
     public remote function rejectPromise(PushPromise promise);
 };
 
-<<<<<<< HEAD
-public remote function HttpClient.post(string path,
-                Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error {
+public remote function HttpClient.post(string path, RequestMessage message) returns Response|error {
     return self.httpCaller->post(path, message);
 }
 
-public remote function HttpClient.head(string path,
-            Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message = ()) returns Response|error {
+public remote function HttpClient.head(string path, RequestMessage message = ()) returns Response|error {
     return self.httpCaller->head(path, message = message);
 }
 
-public remote function HttpClient.put(string path,
-                Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error {
+public remote function HttpClient.put(string path, RequestMessage message) returns Response|error {
     return self.httpCaller->put(path, message);
 }
 
-public remote function HttpClient.execute(string httpVerb, string path,
-                Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
+public remote function HttpClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
     return self.httpCaller->execute(httpVerb, path, message);
 }
 
-public remote function HttpClient.patch(string path,
-                Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error {
+public remote function HttpClient.patch(string path, RequestMessage message) returns Response|error {
     return self.httpCaller->patch(path, message);
 }
 
-public remote function HttpClient.delete(string path,
-                Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error {
+public remote function HttpClient.delete(string path, RequestMessage message) returns Response|error {
     return self.httpCaller->delete(path, message);
 }
 
-public remote function HttpClient.get(string path,
-            Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message = ()) returns Response|error {
+public remote function HttpClient.get(string path, RequestMessage message = ()) returns Response|error {
     return self.httpCaller->get(path, message = message);
 }
 
-public remote function HttpClient.options(string path,
-            Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message = ()) returns Response|error {
-=======
-remote function HttpClient.post(string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->post(path, message);
-}
-
-remote function HttpClient.head(string path, RequestMessage message = ()) returns Response|error {
-    return self.httpCaller->head(path, message = message);
-}
-
-remote function HttpClient.put(string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->put(path, message);
-}
-
-remote function HttpClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->execute(httpVerb, path, message);
-}
-
-remote function HttpClient.patch(string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->patch(path, message);
-}
-
-remote function HttpClient.delete(string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->delete(path, message);
-}
-
-remote function HttpClient.get(string path, RequestMessage message = ()) returns Response|error {
-    return self.httpCaller->get(path, message = message);
-}
-
-remote function HttpClient.options(string path, RequestMessage message = ()) returns Response|error {
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
+public remote function HttpClient.options(string path, RequestMessage message = ()) returns Response|error {
     return self.httpCaller->options(path, message = message);
 }
 
@@ -219,15 +179,8 @@ public remote function HttpClient.forward(string path, Request request) returns 
     return self.httpCaller->forward(path, request);
 }
 
-<<<<<<< HEAD
-public remote function HttpClient.submit(string httpVerb, string path,
-            Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
-    Request request = buildRequest(message);
-    return self.httpCaller->submit(httpVerb, path, request);
-=======
-remote function HttpClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public remote function HttpClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     return self.httpCaller->submit(httpVerb, path, message);
->>>>>>> 41c38217cb5725e70a28823a145abeb01f3dda11
 }
 
 public remote function HttpClient.getResponse(HttpFuture httpFuture) returns Response|error {
