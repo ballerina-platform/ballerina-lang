@@ -216,15 +216,6 @@ public function cloneUnion() returns (any, any, any) {
     return (a, x, y);
 }
 
-public function cloneConstrainedJSON() returns (json, json, json) {
-    json<ConstrainedEmp> a = { id: 1, name: "Jane", salary: 300.50 };
-    json<ConstrainedEmp> x = a.clone();
-    json<ConstrainedEmp> y = a.clone();
-    a.name = "Charlos";
-    y.salary = 400.5;
-    return (a, x, y);
-}
-
 public function cloneNilableInt() returns (any, any, any, any, any, any) {
     int? a = 10;
     int? b = ();

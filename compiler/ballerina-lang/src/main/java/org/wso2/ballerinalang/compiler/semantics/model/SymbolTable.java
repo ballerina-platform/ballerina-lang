@@ -99,7 +99,7 @@ public class SymbolTable {
     public final BType stringType = new BType(TypeTags.STRING, null);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
     public final BType typeDesc = new BType(TypeTags.TYPEDESC, null);
-    public final BType jsonType = new BJSONType(TypeTags.JSON, noType, null);
+    public final BType jsonType = new BJSONType(TypeTags.JSON, null);
     public final BType xmlType = new BXMLType(TypeTags.XML, null);
     public final BType tableType = new BTableType(TypeTags.TABLE, noType, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
