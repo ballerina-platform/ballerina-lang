@@ -402,6 +402,31 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve("hello_service.bal")));
     }
+
+    @Test(description = "Test creating a project with 'ballerina' and 'ballerinax' as the org-name")
+    public void testInitWithInvalidOrg() throws Exception {
+        Path projectWithBallerinaAsOrg = tempProjectDirectory.resolve("testsWithBallerinaAsOrg");
+        Files.createDirectories(projectWithBallerinaAsOrg);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] optionsWithBallerina = {"\n", "ballerina\n", "\n", "\n", "f\n"};
+        LogLeecher leecherForBallerina = new LogLeecher("--Invalid organization name: 'ballerina'. 'ballerina' " +
+                "and 'ballerinax' are reserved organization names that are used by Ballerina");
+        balClient.runMain("init", clientArgsForInit, envVariables, optionsWithBallerina,
+                new LogLeecher[]{leecherForBallerina}, projectWithBallerinaAsOrg.toString());
+        leecherForBallerina.waitForText(3000);
+
+        Path projectWithBallerinaXAsOrg = tempProjectDirectory.resolve("testsWithBallerinaXAsOrg");
+        Files.createDirectories(projectWithBallerinaXAsOrg);
+
+        String[] optionsWithBallerinaX = {"\n", "ballerinax\n", "\n", "\n", "f\n"};
+        LogLeecher leecherForBallerinaX = new LogLeecher("--Invalid organization name: 'ballerinax'. 'ballerina'" +
+                " and 'ballerinax' are reserved organization names that are used by Ballerina");
+        balClient.runMain("init", clientArgsForInit, envVariables, optionsWithBallerinaX,
+                new LogLeecher[]{leecherForBallerinaX}, projectWithBallerinaXAsOrg.toString());
+        leecherForBallerinaX.waitForText(3000);
+    }
+
     /**
      * Run and test main function in project.
      *

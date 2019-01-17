@@ -72,6 +72,21 @@ public function main() {
     } else {
         io:println("'.freeze()' successful for m4");
     }
+
+    // An `is` check for a frozen value becomes an `is like` check.
+    // In other words, storage type is not considered.
+    // Define a `map` of constraint type `string` or `int`, but with
+    // values of type `string` only.
+    map<string|int> m5 = { valueType: "map", constraint: "string" };
+    // Freeze the `map`. The `.freeze()` attempt will be successful
+    // since the constraint is `anydata`. The frozen `map` only
+    // contains values of type `string`.
+    var frozenVal = m5.freeze();
+    // Checking if the frozen value is of type `map<string>` would
+    // evaluate to `true`.
+    if (frozenVal is map<string>) {
+        io:println("frozenVal is map<string>");
+    }
 }
 
 // Function to add an entry to a `map`.

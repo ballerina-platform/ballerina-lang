@@ -2,7 +2,7 @@ type Person record {
     string name;
     int age;
     string address;
-    !...
+    !...;
 };
 
 type Student record {
@@ -10,7 +10,7 @@ type Student record {
     int age;
     string address;
     string class;
-    !...
+    !...;
 };
 
 function testJsonInitializationWithStructConstraintInvalid() returns (json, json, json){
@@ -41,7 +41,7 @@ type Employee record {
     string last_name;
     int age;
     Address address;
-    !...
+    !...;
 };
 
 type Address record {
@@ -49,13 +49,13 @@ type Address record {
     string street;
     string city;
     PhoneNumber phoneNumber;
-    !...
+    !...;
 };
 
 type PhoneNumber record {
     string areaCode;
     string number;
-    !...
+    !...;
 };
 
 function tesInvalidNestedStructFieldAccess() {

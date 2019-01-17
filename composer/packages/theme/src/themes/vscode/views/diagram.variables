@@ -26,3 +26,11 @@
 
 @light-diagram-base-text-color: var(--color);
 @dark-diagram-base-text-color: var(--color);
+
+
+/*-------------------
+       Menu 
+--------------------*/
+
+@light-diagram-top-menu-background-color: var(--vscode-breadcrumb-background);
+@dark-diagram-top-menu-background-color: var(--vscode-breadcrumb-background);

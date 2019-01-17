@@ -128,7 +128,7 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
                     <Header floated="left" as="h3">Add Parameter</Header>
                     <Icon circular onClick={() => {
                         handleClose(true);
-                    }} name="close" />
+                    }} className="fw fw-delete" />
                 </div>
                 <Form.Field>
                     <label>Name</label>

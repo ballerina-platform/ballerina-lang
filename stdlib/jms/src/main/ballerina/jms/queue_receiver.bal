@@ -97,7 +97,7 @@ public type QueueReceiverEndpointConfiguration record {
     string? queueName = ();
     string messageSelector = "";
     string identifier = "";
-    !...
+    !...;
 };
 
 # Caller actions related to queue receiver endpoint.

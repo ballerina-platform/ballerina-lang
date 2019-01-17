@@ -17,7 +17,7 @@ public type Person record {
     int id;
     string name;
     float salary;
-    string...
+    string...;
 };
 
 type Employee record {
@@ -30,7 +30,7 @@ type ConstrainedEmp record {
     int id;
     string name;
     float salary;
-    !...
+    !...;
 };
 
 type A record {

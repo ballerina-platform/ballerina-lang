@@ -63,7 +63,7 @@ public type Caller client object {
 public type Remote record {
     string host = "";
     int port = 0;
-    !...
+    !...;
 };
 
 # Presents a read-only view of the local address.
@@ -73,5 +73,5 @@ public type Remote record {
 public type Local record {
     string host = "";
     int port = 0;
-    !...
+    !...;
 };

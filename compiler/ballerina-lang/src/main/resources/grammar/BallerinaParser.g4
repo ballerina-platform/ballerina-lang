@@ -98,8 +98,8 @@ fieldDefinition
     ;
 
 recordRestFieldDefinition
-    :   typeName restDescriptorPredicate ELLIPSIS
-    |   sealedLiteral
+    :   typeName restDescriptorPredicate ELLIPSIS SEMICOLON
+    |   sealedLiteral SEMICOLON
     ;
 
 sealedLiteral

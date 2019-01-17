@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.service.websub;
+package org.ballerinalang.test.service.websub.basic;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;

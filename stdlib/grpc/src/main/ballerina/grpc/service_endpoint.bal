@@ -93,7 +93,7 @@ public type ServiceEndpointConfiguration record {
     RequestLimits? requestLimits = ();
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    !...
+    !...;
 };
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -128,7 +128,7 @@ public type ServiceSecureSocket record {
     string sslVerifyClient = "";
     boolean shareSession = true;
     ServiceOcspStapling? ocspStapling = ();
-    !...
+    !...;
 };
 
 # Configures limits for requests. If these limits are violated, the request is rejected.
@@ -143,5 +143,5 @@ public type RequestLimits record {
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
-    !...
+    !...;
 };

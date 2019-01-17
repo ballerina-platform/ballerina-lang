@@ -9,7 +9,7 @@ type Person record {
 type Employee record {
     string name;
     int age;
-    !...
+    !...;
 };
 
 type Country record {
@@ -19,7 +19,7 @@ type Country record {
 
 type Capital record {
     string name;
-    !...
+    !...;
 };
 
 public function main() {

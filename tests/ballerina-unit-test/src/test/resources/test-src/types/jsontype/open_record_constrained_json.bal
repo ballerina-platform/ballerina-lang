@@ -18,7 +18,7 @@ type Person record {
     string name;
     int age;
     string address;
-    string...
+    string...;
 };
 
 type Student record {
@@ -26,7 +26,7 @@ type Student record {
     int age;
     string address;
     string class;
-    string...
+    string...;
 };
 
 function testJsonStructConstraint() returns (json, json, json, json, string|error, int|error, string|error, string|error) {
@@ -87,7 +87,7 @@ type Employee record {
     string last_name;
     int age;
     Address address;
-    float...
+    float...;
 };
 
 type Address record {
@@ -95,13 +95,13 @@ type Address record {
     string street;
     string city;
     PhoneNumber phoneNumber;
-    boolean...
+    boolean...;
 };
 
 type PhoneNumber record {
     string areaCode;
     string number;
-    int...
+    int...;
 };
 
 function testContrainingWithNestedStructs() returns (json, json, json) {

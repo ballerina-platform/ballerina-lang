@@ -19,7 +19,7 @@ type Student record {
     string status;
     string batch;
     string school;
-    !...
+    !...;
 };
 
 type Employee record {
@@ -33,7 +33,7 @@ type Person record {
     string status;
     string batch;
     string school;
-    !...
+    !...;
 };
 
 type Teacher record {
@@ -179,7 +179,7 @@ function stampJSONArrayWithNullToAnydataArray() returns anydata []|error{
 
 type Foo record{
     string [] a;
-    !...
+    !...;
 };
 
 function stampJSONToRecordWithArray() returns Foo|error {
@@ -218,7 +218,7 @@ function stampJSONToMapNegative() returns map<string>|error {
 
 type StringArray record {
     string[]? a;
-    !...
+    !...;
 };
 
 function stampNullJSONToArrayNegative() returns StringArray|error {

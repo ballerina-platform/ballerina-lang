@@ -17,7 +17,7 @@
 type ClosedFoo record {
     string s;
     int i;
-    !...
+    !...;
 };
 
 type OpenedFoo record {

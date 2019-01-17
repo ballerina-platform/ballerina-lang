@@ -22,7 +22,7 @@ type Age record {
 type ClosedAge record {
     int age;
     string format;
-    !...
+    !...;
 };
 
 type Person record {
@@ -30,7 +30,7 @@ type Person record {
     boolean married;
     Age age;
     (string, int) extra?;
-    !...
+    !...;
 };
 
 type Person2 record {
@@ -38,7 +38,7 @@ type Person2 record {
     boolean married;
     ClosedAge age;
     (string, int) extra?;
-    !...
+    !...;
 };
 
 function testUndefinedSymbol() {

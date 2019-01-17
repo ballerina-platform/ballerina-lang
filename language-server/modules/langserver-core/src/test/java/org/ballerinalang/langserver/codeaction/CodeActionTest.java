@@ -27,7 +27,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;

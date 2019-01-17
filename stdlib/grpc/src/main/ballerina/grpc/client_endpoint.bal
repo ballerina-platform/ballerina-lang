@@ -85,7 +85,7 @@ public type ClientEndpointConfig record {
     ConnectionThrottling? connectionThrottling = {};
     SecureSocket? secureSocket = ();
     Compression compression = COMPRESSION_AUTO;
-    !...
+    !...;
 };
 
 # Proxy server configurations to be used with the HTTP client endpoint.
@@ -99,7 +99,7 @@ public type ProxyConfig record {
     int port = 0;
     string userName = "";
     string password = "";
-    !...
+    !...;
 };
 
 # Provides configurations for throttling connections of the endpoint.
@@ -144,5 +144,5 @@ public type SecureSocket record {
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
-    !...
+    !...;
 };
