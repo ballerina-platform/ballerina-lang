@@ -416,24 +416,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     switch (memberTypeNode.getKind()) {
                         case USER_DEFINED_TYPE:
-                            String memberTypeNodeName = ((BLangUserDefinedType) memberTypeNode).typeName.value;
-                            // Skip all types defined as anonymous types.
-                            if (memberTypeNodeName.startsWith("$")) {
-                                continue;
-                            }
-                            if (unresolvedTypeNodeName.equals(memberTypeNodeName)) {
-                                // Cyclic dependency detected. We need to add the `unresolvedTypeNodeName` or the
-                                // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
-                                // printing the error.
-                                visitedNodes.add(memberTypeNodeName);
-                                dlog.error(unresolvedType.pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, visitedNodes);
-                                // We need to remove the last occurrence since we use this list in a recursive call.
-                                // Otherwise, unwanted types will get printed in the cyclic dependency error.
-                                visitedNodes.remove(visitedNodes.lastIndexOf(memberTypeNodeName));
-                            } else {
-                                checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
-                            }
-                            break;
                         case ARRAY_TYPE:
                         case UNION_TYPE_NODE:
                         case TUPLE_TYPE_NODE:
