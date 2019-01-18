@@ -6,7 +6,7 @@ service infoService on new http:Listener(9092) {
     // array of strings. The resource can consume/accept `text/json` and
     // `application/json` media types only. Therefore, the `Content-Type` header
     // of the request must be in one of these two types. The resource can produce
-    // `application/xml` payloads. Therefore, the `Accept` header should be set accordingly.
+    // `application/xml` payloads. Therefore, you need to set the `Accept` header accordingly.
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/",
