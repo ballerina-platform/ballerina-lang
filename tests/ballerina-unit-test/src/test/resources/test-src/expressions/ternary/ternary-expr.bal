@@ -98,3 +98,17 @@ function testNestedTernary5 (int value) returns (string, string) {
     string s2 = value > 50 ? "morethan50" : (value > 30 ? (value > 40 ? "morethan40" : "lessthan40") : (value > 20 ? "morethan20" : "lessthan20"));
     return (s1, s2);
 }
+
+function testErrorInTernary() returns int|error {
+    int x = 8;
+    var result = x > 5 ? decrement(x) : increment(x);
+    return result;
+}
+
+function decrement(int i) returns error|int {
+    return i - 1;
+}
+
+function increment(int i) returns error|int {
+    return i + 1;
+}

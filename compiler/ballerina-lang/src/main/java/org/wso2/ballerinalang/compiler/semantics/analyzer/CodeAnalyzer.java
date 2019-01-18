@@ -598,19 +598,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             finalPattern.isLastPattern = true;
         }
 
-        BLangMatchStructuredBindingPatternClause currentBindingPattern;
+        BLangMatchStructuredBindingPatternClause currentPattern;
+        BLangMatchStructuredBindingPatternClause precedingPattern;
         for (int i = 0; i < clauses.size(); i++) {
-            if (clauses.get(i).typeGuardExpr != null) {
-                analyzeExpr(clauses.get(i).typeGuardExpr);
+            precedingPattern = clauses.get(i);
+            if (precedingPattern.typeGuardExpr != null) {
+                analyzeExpr(precedingPattern.typeGuardExpr);
             }
 
             for (int j = i + 1; j < clauses.size(); j++) {
-                currentBindingPattern = clauses.get(j);
-                BLangVariable precedingVar = clauses.get(i).bindingPatternVariable;
-                BLangVariable currentVar = currentBindingPattern.bindingPatternVariable;
+                currentPattern = clauses.get(j);
+                BLangVariable precedingVar = precedingPattern.bindingPatternVariable;
+                BLangVariable currentVar = currentPattern.bindingPatternVariable;
 
                 if (checkStructuredPatternSimilarity(precedingVar, currentVar) &&
-                        checkTypeGuardSimilarity(clauses.get(i).typeGuardExpr, currentBindingPattern.typeGuardExpr)) {
+                        checkTypeGuardSimilarity(precedingPattern.typeGuardExpr, currentPattern.typeGuardExpr)) {
                     dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
                     clauses.remove(j--);
                 }

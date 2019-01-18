@@ -1236,8 +1236,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 elseType == symTable.semanticError) {
             resultType = symTable.semanticError;
         } else if (expType == symTable.noType) {
-            if (thenType == elseType) {
+            if (types.isAssignable(elseType, thenType)) {
                 resultType = thenType;
+            } else if (types.isAssignable(thenType, elseType)) {
+                resultType = elseType;
             } else {
                 dlog.error(ternaryExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, thenType, elseType);
                 resultType = symTable.semanticError;

@@ -318,4 +318,30 @@ public class TypeGuardTest {
         BValue[] returns = BRunUtil.invoke(result, "testTypeNarrowingWithClosures");
         Assert.assertEquals(returns[0].stringValue(), "int: 8");
     }
+
+    @Test
+    public void testTypeGuardsWithBinaryAnd() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryAnd", new BValue[] { new BInteger(2) });
+        Assert.assertEquals(returns[0].stringValue(), "int: 2 is < 5");
+
+        returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryAnd", new BValue[] { new BInteger(6) });
+        Assert.assertEquals(returns[0].stringValue(), "int: 6 is >= 5");
+    }
+
+    @Test
+    public void testTypeGuardsWithBinaryOpsInTernary() {
+        BValue[] returns =
+                BRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new BValue[] { new BInteger(4) });
+        Assert.assertEquals(returns[0].stringValue(), "int: 4");
+
+        returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new BValue[] { new BBoolean(true) });
+        Assert.assertEquals(returns[0].stringValue(), "boolean: true");
+
+        returns =
+                BRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new BValue[] { new BString("Hello") });
+        Assert.assertEquals(returns[0].stringValue(), "string: Hello");
+
+        returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new BValue[] { new BFloat(4.5) });
+        Assert.assertEquals(returns[0].stringValue(), "float: 4.5");
+    }
 }

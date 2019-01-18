@@ -442,3 +442,31 @@ function testTypeNarrowingWithClosures() returns string {
         return "int: "+ y.call();
     }
 }
+
+function testTypeGuardsWithBinaryAnd(string|int x) returns string {
+    if (x is int && x < 5) {
+        return "int: " + x + " is < 5";
+    } else if (x is int) {
+        return "int: " + x + " is >= 5";
+    } else {
+        return "string: " + x;
+    }
+}
+
+function testTypeGuardsWithBinaryOpsInTernary(int|string|boolean|float x) returns string {
+    return ((x is int|string && x is int) || (x is boolean)) ?
+            (x is boolean ? booleanToString(x) : intToString(x)) :
+            (x is float ? floatToString(x) : "string: " + x);
+}
+
+function booleanToString(boolean a) returns string {
+    return "boolean: " + a;
+}
+
+function intToString(int a) returns string {
+    return "int: " + a;
+}
+
+function floatToString(float a) returns string {
+    return "float: " + a;
+}
