@@ -44,6 +44,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.Connection
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketClientConnector;
 
 import java.util.Map;
+
 import javax.net.ssl.SSLException;
 
 import static org.wso2.transport.http.netty.contract.Constants.PIPELINING_THREAD_COUNT;
@@ -129,8 +130,16 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     public HttpClientConnector createHttpClientConnector(
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
-        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration, bootstrapConfig, clientGroup);
-        return new DefaultHttpClientConnector(connectionManager, senderConfiguration);
+        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration());
+        return new DefaultHttpClientConnector(connectionManager, senderConfiguration, bootstrapConfig, clientGroup);
+    }
+
+    @Override
+    public HttpClientConnector createHttpClientConnector(
+        Map<String, Object> transportProperties, SenderConfiguration senderConfiguration,
+        ConnectionManager connectionManager) {
+        BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
+        return new DefaultHttpClientConnector(connectionManager, senderConfiguration, bootstrapConfig, clientGroup);
     }
 
     @Override

@@ -19,8 +19,8 @@
 package org.wso2.transport.http.netty.contractimpl.sender.http2;
 
 import io.netty.channel.Channel;
-import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,10 +37,10 @@ public class Http2ConnectionManager {
     private static ConcurrentHashMap<String, PerRouteConnectionPool> connectionPools = new ConcurrentHashMap<>();
     // Lock for synchronizing access
     private Lock lock = new ReentrantLock();
-    private SenderConfiguration senderConfig;
+    private PoolConfiguration poolConfiguration;
 
-    public Http2ConnectionManager(SenderConfiguration senderConfig) {
-        this.senderConfig = senderConfig;
+    public Http2ConnectionManager(PoolConfiguration poolConfiguration) {
+        this.poolConfiguration = poolConfiguration;
     }
 
     /**
@@ -91,7 +91,7 @@ public class Http2ConnectionManager {
 
                 if (perRouteConnectionPool == null) {
                     perRouteConnectionPool = new PerRouteConnectionPool(
-                            senderConfig.getPoolConfiguration().getHttp2MaxActiveStreamsPerConnection());
+                        poolConfiguration.getHttp2MaxActiveStreamsPerConnection());
                     registerConnectionPool(key, perRouteConnectionPool);
                 }
                 perRouteConnectionPool.addChannel(http2ClientChannel);

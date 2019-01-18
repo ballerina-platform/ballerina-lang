@@ -38,24 +38,18 @@ public class ConnectionManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
 
-    private EventLoopGroup clientEventGroup;
     private PoolConfiguration poolConfiguration;
     private PoolManagementPolicy poolManagementPolicy;
-    private BootstrapConfiguration bootstrapConfig;
     private final Map<String, GenericObjectPool> connGlobalPool;
     private Http2ConnectionManager http2ConnectionManager;
 
-    public ConnectionManager(SenderConfiguration senderConfig, BootstrapConfiguration bootstrapConfiguration,
-                             EventLoopGroup clientEventGroup) {
-        this.poolConfiguration = senderConfig.getPoolConfiguration();
+    public ConnectionManager(PoolConfiguration poolConfiguration) {
+        this.poolConfiguration = poolConfiguration;
         if (poolConfiguration.getNumberOfPools() == 1) {
             this.poolManagementPolicy = PoolManagementPolicy.LOCK_DEFAULT_POOLING;
         }
         connGlobalPool = new ConcurrentHashMap<>();
-        this.clientEventGroup = clientEventGroup;
-
-        this.bootstrapConfig = bootstrapConfiguration;
-        this.http2ConnectionManager = new Http2ConnectionManager(senderConfig);
+        this.http2ConnectionManager = new Http2ConnectionManager(poolConfiguration);
     }
 
     private GenericObjectPool createPoolForRoute(PoolableTargetChannelFactory poolableTargetChannelFactory) {
@@ -75,7 +69,8 @@ public class ConnectionManager {
      * @throws Exception to notify any errors occur during retrieving the target channel
      */
     public TargetChannel borrowTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
-                                             SenderConfiguration senderConfig) throws Exception {
+        SenderConfiguration senderConfig, BootstrapConfiguration bootstrapConfig, EventLoopGroup clientEventGroup)
+        throws Exception {
         GenericObjectPool trgHlrConnPool;
 
         if (sourceHandler != null) {
@@ -135,12 +130,13 @@ public class ConnectionManager {
     }
 
     public void returnChannel(TargetChannel targetChannel) throws Exception {
-        if (targetChannel.getCorrelatedSource() != null) {
+       /* if (targetChannel.getCorrelatedSource() != null) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
         } else {
             releaseChannelToPool(targetChannel, this.connGlobalPool.get(targetChannel.getHttpRoute().toString()));
-        }
+        }*/
+        releaseChannelToPool(targetChannel, this.connGlobalPool.get(targetChannel.getHttpRoute().toString()));
     }
 
     private void releaseChannelToPool(TargetChannel targetChannel, GenericObjectPool pool) throws Exception {
@@ -160,22 +156,23 @@ public class ConnectionManager {
     }
 
     public void invalidateTargetChannel(TargetChannel targetChannel) throws Exception {
-        if (targetChannel.getCorrelatedSource() != null) {
-            Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
-            try {
-                // Need a null check because SourceHandler side could timeout before TargetHandler side.
-                String httpRoute = targetChannel.getHttpRoute().toString();
-                if (objectPoolMap.get(httpRoute) != null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Invalidating connection {} to the pool",
-                                  targetChannel.getChannel().id().asShortText());
-                    }
-                    objectPoolMap.get(httpRoute).invalidateObject(targetChannel);
-                }
-            } catch (Exception e) {
-                throw new Exception("Cannot invalidate channel from pool", e);
-            }
-        }
+//        if (targetChannel.getCorrelatedSource() != null) {
+//            Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
+//            try {
+//                // Need a null check because SourceHandler side could timeout before TargetHandler side.
+//                String httpRoute = targetChannel.getHttpRoute().toString();
+//                if (objectPoolMap.get(httpRoute) != null) {
+//                    if (LOG.isDebugEnabled()) {
+//                        LOG.debug("Invalidating connection {} to the pool",
+//                                  targetChannel.getChannel().id().asShortText());
+//                    }
+//                    objectPoolMap.get(httpRoute).invalidateObject(targetChannel);
+//                }
+//            } catch (Exception e) {
+//                throw new Exception("Cannot invalidate channel from pool", e);
+//            }
+//        }
+        this.connGlobalPool.get(targetChannel.getHttpRoute().toString()).invalidateObject(targetChannel);
     }
 
     /**
@@ -205,5 +202,26 @@ public class ConnectionManager {
 
     public Http2ConnectionManager getHttp2ConnectionManager() {
         return http2ConnectionManager;
+    }
+
+    public GenericObjectPool getClientPool(HttpRoute httpRoute, SourceHandler sourceHandler,
+        SenderConfiguration senderConfig, BootstrapConfiguration bootstrapConfig) {
+        GenericObjectPool clientPool;
+        EventLoopGroup group;
+        ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
+        group = ctx.channel().eventLoop();
+        Class eventLoopClass = ctx.channel().getClass();
+        synchronized (this) {
+            if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
+                PoolableTargetChannelFactory poolableTargetChannelFactory =
+                    new PoolableTargetChannelFactory(group,
+                        eventLoopClass, httpRoute, senderConfig, bootstrapConfig, this);
+                clientPool = createPoolForRoute(poolableTargetChannelFactory);
+                this.connGlobalPool.put(httpRoute.toString(), clientPool);
+            } else {
+                clientPool = this.connGlobalPool.get(httpRoute.toString());
+            }
+        }
+        return clientPool;
     }
 }

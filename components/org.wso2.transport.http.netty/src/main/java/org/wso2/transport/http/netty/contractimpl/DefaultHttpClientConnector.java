@@ -22,12 +22,14 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.base64.Base64;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -42,6 +44,7 @@ import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityListener;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
@@ -75,8 +78,12 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     private KeepAliveConfig keepAliveConfig;
     private boolean isHttp2;
     private ForwardedExtensionConfig forwardedExtensionConfig;
+    private EventLoopGroup clientEventGroup;
+    private BootstrapConfiguration bootstrapConfig;
+    private GenericObjectPool clientConnectionPool;
 
-    public DefaultHttpClientConnector(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
+    public DefaultHttpClientConnector(ConnectionManager connectionManager, SenderConfiguration senderConfiguration,
+        BootstrapConfiguration bootstrapConfig, EventLoopGroup clientEventGroup) {
         this.connectionManager = connectionManager;
         this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
         this.senderConfiguration = senderConfiguration;
@@ -84,6 +91,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         if (Float.valueOf(senderConfiguration.getHttpVersion()) == Constants.HTTP_2_0) {
             isHttp2 = true;
         }
+        this.clientEventGroup = clientEventGroup;
+        this.bootstrapConfig = bootstrapConfig;
     }
 
     @Override
@@ -169,7 +178,19 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             }
 
             // Look for the connection from http connection manager
-            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
+//            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler,
+            //            senderConfiguration,
+//                bootstrapConfig, clientEventGroup);
+
+            if (clientConnectionPool == null) {
+                clientConnectionPool = connectionManager.getClientPool(route, srcHandler, senderConfiguration,
+                    bootstrapConfig);
+            }
+
+            TargetChannel targetChannel = (TargetChannel) clientConnectionPool.borrowObject();
+            targetChannel.setCorrelatedSource(srcHandler);
+            targetChannel.setConnectionManager(connectionManager);
+
             Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
             outboundMsgHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
             httpResponseFuture = outboundMsgHolder.getResponseFuture();
