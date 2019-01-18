@@ -19,7 +19,9 @@
 package org.ballerinalang.model.util;
 
 /**
- * Possible kinds of a decimal value
+ * Possible kinds of a decimal value.
+ *
+ * @since 0.991
  */
 public enum DecimalValueKind {
     ZERO,
