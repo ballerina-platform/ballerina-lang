@@ -1,5 +1,5 @@
 # Start multipartDemoService
-# To decode a multipart request, execute the curl command.
+# The cURL command, which you need to execute to decode a multipart request
 $ curl -F "part1={\"name\":\"ballerina\"};type=application/json" http://localhost:9090/multiparts/decode -H "Content-Type: multipart/mixed" -H 'Expect:'
 --ac4875939cf6b158
 content-type: application/json
