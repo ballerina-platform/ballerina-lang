@@ -22,13 +22,13 @@ public function main() {
     addrMap.postalCode = "00301";
     io:println(addrMap);
 
-    // Use the `keys()` method to print the keys of the `map` as an array.
+    // The `keys()` method returns the keys of the map as an array.
     io:println(addrMap.keys());
 
     // Print the number of mappings in the `map`.
     io:println(addrMap.length());
 
-    // Keys can be removed using the `remove()` method.
+    // Mappings can be removed using the `remove()` method.
     boolean isRemoved = addrMap.remove("postalCode");
     io:println(addrMap);
 

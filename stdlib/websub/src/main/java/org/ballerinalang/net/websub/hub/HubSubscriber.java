@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.Objects;
+import java.util.Properties;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
@@ -93,6 +94,11 @@ public class HubSubscriber extends Consumer {
     @Override
     public int hashCode() {
         return Objects.hash(getTopic(), getCallback());
+    }
+
+    @Override
+    public Properties getTransportProperties() {
+        return new Properties();
     }
 
     public String getTopic() {

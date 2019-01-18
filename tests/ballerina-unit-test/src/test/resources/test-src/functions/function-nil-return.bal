@@ -208,7 +208,7 @@ function testNilableOpenRecordArray() returns OpenPerson[]? {
 type ClosedPerson record {
     string name;
     int age;
-    !...
+    !...;
 };
 
 function testNilableClosedRecord() returns ClosedPerson? {

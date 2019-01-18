@@ -25,7 +25,7 @@ public type InvocationContext record {
     UserPrincipal userPrincipal;
     AuthContext authContext;
     map<any> attributes;
-    !...
+    !...;
 };
 
 # Represents the AuthenticationContext, populated with authenticated information.
@@ -35,7 +35,7 @@ public type InvocationContext record {
 public type AuthContext record {
     string scheme;
     string authToken;
-    !...
+    !...;
 };
 
 # Represents the UserPrincipal, populated with authenticated user information.
@@ -49,7 +49,7 @@ public type UserPrincipal record {
     string username;
     map<any> claims;
     string[] scopes;
-    !...
+    !...;
 };
 
 # Creates a InvocationContext instance.

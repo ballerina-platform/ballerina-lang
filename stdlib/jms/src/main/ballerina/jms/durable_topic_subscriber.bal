@@ -90,7 +90,7 @@ public type DurableTopicSubscriberEndpointConfiguration record {
     string topicPattern = "";
     string messageSelector = "";
     string identifier = "";
-    !...
+    !...;
 };
 
 # Caller actions related to DurableTopicSubscriber endpoint

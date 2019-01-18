@@ -21,7 +21,7 @@ function testServerStreamingService() {
     }
 
     int waitCount = 0;
-    while(!completed) {
+    while(!completed && (responseMsgs.length() < 3)) {
         runtime:sleep(1000);
         if (waitCount > 10) {
             break;

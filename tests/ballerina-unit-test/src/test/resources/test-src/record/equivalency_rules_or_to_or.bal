@@ -100,12 +100,12 @@ function testOptFieldToOptField2() returns (AnotherPerson4, int) {
 
 type Foo record {
     string s;
-    string|int...
+    string|int...;
 };
 
 type Bar record {
     string s;
-    string|int|float...
+    string|int|float...;
 };
 
 function testRestFieldToRestField1() returns Bar {

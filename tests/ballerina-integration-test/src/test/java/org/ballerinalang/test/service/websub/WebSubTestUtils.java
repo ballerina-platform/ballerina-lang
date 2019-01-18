@@ -29,24 +29,35 @@ import java.util.HashMap;
 /**
  * Utils class for WebSub Tests.
  */
-class WebSubTestUtils {
+public class WebSubTestUtils {
 
-    static final String PUBLISHER_NOTIFY_URL = "http://localhost:8080/publisher/notify";
-    static final String PUBLISHER_NOTIFY_URL_TWO = "http://localhost:8080/publisherTwo/notify";
+    public static final String PUBLISHER_NOTIFY_URL = "http://localhost:8080/publisher/notify";
+    public static final String PUBLISHER_NOTIFY_URL_TWO = "http://localhost:8080/publisherTwo/notify";
 
-    static final String HUB_MODE_INTERNAL = "internal";
-    static final String HUB_MODE_REMOTE = "remote";
+    public static final String HUB_MODE_INTERNAL = "internal";
+    public static final String HUB_MODE_REMOTE = "remote";
 
-    static final String CONTENT_TYPE_JSON = "json";
-    static final String CONTENT_TYPE_XML = "xml";
-    static final String CONTENT_TYPE_STRING = "string";
+    public static final String CONTENT_TYPE_JSON = "json";
+    public static final String CONTENT_TYPE_XML = "xml";
+    public static final String CONTENT_TYPE_STRING = "string";
 
-    static void requestUpdate(String url, String mode, String contentType) throws BallerinaTestException {
+    public static void requestUpdate(String url, String mode, String contentType) throws BallerinaTestException {
         try {
             HashMap<String, String> headers = new HashMap<>(1);
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             HttpClientRequest.doPost(url, "{\"mode\":\"" + mode + "\",\"content_type\":\"" + contentType + "\"}",
                                      headers);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error requesting content delivery");
+        }
+    }
+
+    public static void requestUpdateWithContent(String url, String content, String contentType) throws
+            BallerinaTestException {
+        try {
+            HashMap<String, String> headers = new HashMap<>(1);
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+            HttpClientRequest.doPost(url, content, headers);
         } catch (IOException e) {
             throw new BallerinaTestException("Error requesting content delivery");
         }
