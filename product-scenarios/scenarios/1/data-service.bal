@@ -34,7 +34,7 @@ type Employee record {
 
 @kubernetes:Deployment {
     image: "ballerinascenarios/employee_database_service:v1.0",
-    baseImage: "ballerina/ballerina:0.990.2",
+    baseImage: "ballerina/ballerina:0.990.3-SNAPSHOT",
     name: "ballerina-employee-database-service",
     copyFiles: [{ target: "/ballerina/runtime/bre/lib",
                 source: "mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar" }],
