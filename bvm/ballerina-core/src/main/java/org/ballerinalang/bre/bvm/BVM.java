@@ -4935,16 +4935,9 @@ public class BVM {
         return true;
     }
 
-<<<<<<< 1fe089211845ab5baf720a3c793bb9105d53e875
-    private static boolean checkIsLikeJSONType(BValue sourceValue, BJSONType targetType) {
-        if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
-=======
-    private static boolean checkIsLikeJSONType(BValue sourceValue, BJSONType targetType,
+    private static boolean checkIsLikeJSONType(BValue sourceValue, BJSONType targetType, 
                                                List<TypeValuePair> unresolvedValues) {
-        if (targetType.getConstrainedType() != null) {
-            return checkIsLikeType(sourceValue, targetType.getConstrainedType(), unresolvedValues);
-        } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
->>>>>>> Handle cyclic values with stamping in BVM
+        if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
             BValueArray source = (BValueArray) sourceValue;
             if (BTypes.isValueType(source.elementType)) {
                 return checkIsType(source.elementType, targetType, new ArrayList<>());

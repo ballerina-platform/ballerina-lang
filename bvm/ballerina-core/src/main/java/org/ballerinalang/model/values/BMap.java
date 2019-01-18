@@ -367,7 +367,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         unresolvedValues.add(typeValuePair);
         if (type.getTag() == TypeTags.JSON_TAG) {
             type = BVM.resolveMatchingTypeForUnion(this, type);
-            this.stamp(type);
+            this.stamp(type, unresolvedValues);
         } else if (type.getTag() == TypeTags.MAP_TAG) {
             for (Object value : this.values()) {
                 if (value != null) {
