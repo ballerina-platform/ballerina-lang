@@ -1,12 +1,16 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run http_client_endpoint.bal
-2018-12-27 19:23:33,832 INFO  [] - GET request:
-2018-12-27 19:23:36,126 INFO  [] - {"args":{"test":"123"}, "headers":{"x-forwarded-proto":"https", "host":"postman-echo.com", "user-agent":"ballerina/0.990.1", "x-forwarded-port":"443"}, "url":"https://postman-echo.com/get?test=123"}
-2018-12-27 19:23:36,126 INFO  [] - POST request:
-2018-12-27 19:23:36,406 INFO  [] - {"args":{}, "data":"POST: Hello World", "files":{}, "form":{}, "headers":{"x-forwarded-proto":"https", "host":"postman-echo.com", "content-length":"17", "content-type":"text/plain", "user-agent":"ballerina/0.990.1", "x-forwarded-port":"443"}, "json":null, "url":"https://postman-echo.com/post"}
-2018-12-27 19:23:36,407 INFO  [] - DELETE request:
-2018-12-27 19:23:36,712 INFO  [] - {"args":{}, "data":"DELETE: Hello World", "files":{}, "form":{}, "headers":{"x-forwarded-proto":"https", "host":"postman-echo.com", "content-length":"19", "content-type":"text/plain", "user-agent":"ballerina/0.990.1", "x-forwarded-port":"443"}, "json":null, "url":"https://postman-echo.com/delete"}
-2018-12-27 19:23:36,713 INFO  [] - Use custom HTTP verbs:
-2018-12-27 19:23:37,328 INFO  [] - Content-Type: application/json; charset=utf-8
-2018-12-27 19:23:37,330 INFO  [] - Status code: 200
+GET request:
+{"args":{"test":"123"}, "headers":{"x-forwarded-proto":"https", "host":"postman-echo.com", "user-agent":"ballerina/0.990.1", "x-forwarded-port":"443"}, "url":"https://postman-echo.com/get?test=123"}
+
+POST request:
+{"args":{}, "data":"POST: Hello World", "files":{}, "form":{}, "headers":{"x-forwarded-proto":"https", "host":"postman-echo.com", "content-length":"17", "content-type":"text/plain", "user-agent":"ballerina/0.990.1", "x-forwarded-port":"443"}, "json":null, "url":"https://postman-echo.com/post"}
+
+DELETE request:
+{"args":{}, "data":"DELETE: Hello World", "files":{}, "form":{}, "headers":{"x-forwarded-proto":"https", "host":"postman-echo.com", "content-length":"19", "content-type":"text/plain", "user-agent":"ballerina/0.990.1", "x-forwarded-port":"443"}, "json":null, "url":"https://postman-echo.com/delete"}
+
+Use custom HTTP verbs:
+Content-Type: application/json; charset=utf-8
+Status code: 200
+
