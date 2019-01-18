@@ -41,7 +41,7 @@ function testBidiStreamingService() {
     test:assertEquals(received, true, msg = "Server message didn't receive.");
     string expected = "Sam: Hi";
     test:assertEquals(responseMsg, expected);
-    // Once all messages are sent, client send complete message to notify the server, I’m done.
+    // Once all messages are sent, client send complete message to notify the server, I am done.
     _ = ep->complete();
 }
 

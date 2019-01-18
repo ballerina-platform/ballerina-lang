@@ -181,7 +181,7 @@ function testAnydataRestFieldRHSIndexAccess() returns anydata {
 type Person2 record {
     string name = "";
     int age = 0;
-    string...
+    string...;
 };
 
 function testStringRestField() returns Person2 {
@@ -205,7 +205,7 @@ function testStringRestFieldRHSIndexAccess() returns (string?, string?) {
 type Person3 record {
     string name = "";
     int age = 0;
-    int...
+    int...;
 };
 
 function testIntRestField() returns Person3 {
@@ -229,7 +229,7 @@ function testIntRestFieldRHSIndexAccess() returns (int?, int?) {
 type Person4 record {
     string name = "";
     int age = 0;
-    float...
+    float...;
 };
 
 function testFloatRestField() returns Person4 {
@@ -252,7 +252,7 @@ function testFloatRestFieldRHSIndexAccess() returns (float?, float?) {
 type Person5 record {
     string name = "";
     int age = 0;
-    boolean...
+    boolean...;
 };
 
 function testBooleanRestField() returns Person5 {
@@ -275,7 +275,7 @@ function testBooleanRestFieldRHSIndexAccess() returns (boolean?, boolean?) {
 type Person6 record {
     string name = "";
     int age = 0;
-    map<any>...
+    map<any>...;
 };
 
 function testMapRestField() returns Person6 {
@@ -299,7 +299,7 @@ function testMapRestFieldRHSIndexAccess() returns (map<any>?, map<any>?) {
 type Person7 record {
     string name = "";
     int age = 0;
-    (float|string|boolean)...
+    (float|string|boolean)...;
 };
 
 function testUnionRestField() returns Person7 {
@@ -322,7 +322,7 @@ function testUnionRestFieldRHSIndexAccess() returns ((float|string|boolean)?, (f
 type Person8 record {
     string name = "";
     int age = 0;
-    ()...
+    ()...;
 };
 
 function testNilRestField() returns Person8 {
@@ -333,7 +333,7 @@ function testNilRestField() returns Person8 {
 type Person9 record {
     string name = "";
     int age = 0;
-    Department...
+    Department...;
 };
 
 function testRecordRestField() returns Person9 {
@@ -366,7 +366,7 @@ type Animal object {
 type Person10 record {
     string name = "";
     int age = 0;
-    Animal...
+    Animal...;
 };
 
 function testObjectRestField() returns Person10 {
@@ -390,7 +390,7 @@ function testObjectRestFieldRHSIndexAccess() returns (Animal?, Animal?) {
 type Person11 record {
     string name = "";
     int age = 0;
-    (float, string, Animal)...
+    (float, string, Animal)...;
 };
 
 function testTupleRestField() returns Person11 {
@@ -413,7 +413,7 @@ function testTupleRestFieldRHSIndexAccess() returns ((float, string, Animal)?, (
 type Person12 record {
     string name = "";
     int age = 0;
-    any...
+    any...;
 };
 
 function testAnyRestField() returns Person12 {

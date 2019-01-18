@@ -40,7 +40,7 @@ type Def record {
 
 type Employee record {
     string name;
-    !...
+    !...;
 };
 
 function testFutureFunc() returns int {

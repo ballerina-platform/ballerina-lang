@@ -17,12 +17,12 @@ import ballerina/test;
 
 public type FooRecord record {
     string fooFieldOne;
-    !...
+    !...;
 };
 
 public type BarRecord record {
     int barFieldOne;
-    !...
+    !...;
 };
 
 public type BazRecord record {

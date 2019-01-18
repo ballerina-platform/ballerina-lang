@@ -28,9 +28,11 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Workspace service implementation for Ballerina.
@@ -53,21 +56,19 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer ballerinaLanguageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
     private DiagnosticsHelper diagnosticsHelper;
-    private LSGlobalContext lsGlobalContext;
     private LSCompiler lsCompiler;
     private Map<String, Boolean> experimentalClientCapabilities;
 
     BallerinaWorkspaceService(LSGlobalContext globalContext) {
-        this.lsGlobalContext = globalContext;
-        this.ballerinaLanguageServer = this.lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
-        this.workspaceDocumentManager = this.lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
-        this.diagnosticsHelper = this.lsGlobalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
+        this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
+        this.workspaceDocumentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+        this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
         this.lsCompiler = new LSCompiler(workspaceDocumentManager);
     }
 
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
-        List<SymbolInformation> symbols = new ArrayList<>();
+        List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
         LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
         Map<String, Object[]> compUnits = new HashMap<>();
         this.workspaceDocumentManager.getAllFilePaths().forEach(path -> {
@@ -94,7 +95,12 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
             ((BLangCompilationUnit) compilationUnit[1]).accept(visitor);
         });
-        return CompletableFuture.completedFuture(symbols);
+        // Here we should extract only the Symbol information only.
+        // TODO: Need to find a decoupled way to manage both with the same Symbol finding visitor
+        List<SymbolInformation> extractedSymbols = symbols.stream()
+                .filter(Either::isLeft).map(Either::getLeft)
+                .collect(Collectors.toList());
+        return CompletableFuture.completedFuture(extractedSymbols);
     }
 
     private String generateHash(BLangCompilationUnit compUnit, String basePath) {

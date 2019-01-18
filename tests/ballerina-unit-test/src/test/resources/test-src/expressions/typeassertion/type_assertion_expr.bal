@@ -34,13 +34,13 @@ type Person record {
 type TableEmployee record {
     int id;
     string name;
-    !...
+    !...;
 };
 
 type TableEmployeeTwo record {
     int id;
     string name;
-    !...
+    !...;
 };
 
 type EmployeeObject object {

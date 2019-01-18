@@ -21,6 +21,7 @@ package org.ballerinalang.config;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bcl.parser.BConfig;
 import org.ballerinalang.bcl.parser.BConfigLangListener;
 import org.ballerinalang.toml.antlr4.TomlProcessor;
@@ -166,7 +167,7 @@ public class ConfigProcessor {
                 (key, val) -> stringBuilder.append(key)
                                             .append('=')
                                             // TODO: need to handle this in a better way
-                                            .append('\"').append(val).append('\"')
+                                            .append('\"').append(StringEscapeUtils.escapeJava(val)).append('\"')
                                             .append('\n'));
         ANTLRInputStream runtimeConfigsStream = new ANTLRInputStream(stringBuilder.toString());
         BConfig runtimeConfigEntries = new BConfig();

@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.eclipse.lsp4j.SignatureHelpCapabilities;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ import java.util.List;
  * Text Document Service context keys for the signature help operation context.
  * @since 0.95.6
  */
-class SignatureKeys {
+public class SignatureKeys {
 
     private SignatureKeys() {
     }
@@ -34,6 +35,8 @@ class SignatureKeys {
     static final LSContext.Key<String> CALLABLE_ITEM_NAME = new LSContext.Key<>();
     static final LSContext.Key<String> ITEM_DELIMITER = new LSContext.Key<>();
     static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY = new LSContext.Key<>();
+    public static final LSContext.Key<SignatureHelpCapabilities> SIGNATURE_HELP_CAPABILITIES_KEY
+            = new LSContext.Key<>();
     /**
      * If os:get... then identifier against is os
      * If res.send(.. then identifier against is res
