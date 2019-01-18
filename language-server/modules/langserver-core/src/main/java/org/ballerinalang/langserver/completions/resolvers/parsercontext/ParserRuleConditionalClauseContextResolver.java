@@ -33,7 +33,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -60,7 +59,7 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
             this.populateTrueFalseKeywords(completionItems);
         }
 
-        completionItems.addAll(this.getCompletionsFromEither(itemList, context));
+        completionItems.addAll(this.getCompletionItemList(itemList, context));
         ItemSorters.get(ConditionalStatementItemSorter.class).sortItems(context, completionItems);
 
         return completionItems;
@@ -69,7 +68,7 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
     private List<SymbolInfo> filterConditionalSymbols(List<SymbolInfo> symbolInfoList) {
         return symbolInfoList.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return (bSymbol instanceof BTypeSymbol && bSymbol instanceof BPackageSymbol)
+            return bSymbol instanceof BPackageSymbol
                     || (bSymbol instanceof BVarSymbol && !(bSymbol instanceof BInvokableSymbol))
                     || (CommonUtil.isValidInvokableSymbol(bSymbol)
                     && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED));
