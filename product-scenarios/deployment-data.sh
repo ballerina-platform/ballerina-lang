@@ -98,6 +98,8 @@ export DATABASE_PASSWORD=${CONFIG[DBPassword]}
 
 ClusterName=${CONFIG[ClusterName]};
 ClusterRegion=${CONFIG[ClusterRegion]};
+ConfigFileName=${CONFIG[ConfigFileName]};
+#CurrentKubeContext=${CONFIG[CurrentKubeContext]};
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
@@ -111,13 +113,22 @@ wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47
 tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ./
 
 # Write config to a custom location
-eksctl utils write-kubeconfig --name ${ClusterName} --region ${ClusterRegion} --kubeconfig "ballerina-config"
+#eksctl utils write-kubeconfig --name ${ClusterName} --region ${ClusterRegion} --kubeconfig "ballerina-config"
 
 ballerina build product-scenarios/scenarios/1/data-service.bal
 
-kubectl config --kubeconfig="ballerina-config"
+#echo "Context passed from infra stage: ${CurrentKubeContext}"
+
+export KUBECONFIG=${INPUT_DIR}/${ConfigFileName}
+
+#kubectl config --kubeconfig="ballerina-config"
+#current_context=$(kubectl config current-context --kubeconfig=${INPUT_DIR}/${ConfigFileName})
+
+#kubectl config --kubeconfig=${INPUT_DIR}/${ConfigFileName} use-context ${current_context}
 
 kubectl config view
+
+kubectl config current-context
 
 kubectl apply -f kubernetes/
 
