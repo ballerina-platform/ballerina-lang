@@ -24,7 +24,7 @@ type Student record {
     string name;
     int age;
     string batch;
-    !...
+    !...;
 };
 
 type Person record {
@@ -32,7 +32,7 @@ type Person record {
     int age;
     string batch;
     string school;
-    !...
+    !...;
 };
 
 type Teacher record {

@@ -770,9 +770,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos pos = getCurrentPos(ctx);
         checkTypeValidity(typeName, pos);
 
-        if (ctx.nameReference() != null) {
-            this.pkgBuilder.addConstraintType(pos, getWS(ctx), typeName);
-        } else if (ctx.typeName() != null) {
+        if (ctx.typeName() != null) {
             this.pkgBuilder.addConstraintTypeWithTypeName(pos, getWS(ctx), typeName);
         } else {
             this.pkgBuilder.addBuiltInReferenceType(pos, getWS(ctx), typeName);
@@ -898,6 +896,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 CLOSED_REST_BINDING_PATTERN : OPEN_REST_BINDING_PATTERN);
 
         this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), restBindingPattern);
+    }
+
+    @Override
+    public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
+        this.pkgBuilder.addRecordBindingWS(getWS(ctx));
     }
 
     @Override
@@ -3346,11 +3349,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
             return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 16,
                     DiagnosticCode.HEXADECIMAL_TOO_SMALL, DiagnosticCode.HEXADECIMAL_TOO_LARGE);
-        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
-            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
-            String processedNodeValue = nodeValue.toLowerCase().replace("0b", "");
-            return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 2,
-                    DiagnosticCode.BINARY_TOO_SMALL, DiagnosticCode.BINARY_TOO_LARGE);
         }
         return null;
     }

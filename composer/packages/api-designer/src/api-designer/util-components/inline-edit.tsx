@@ -124,17 +124,15 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                                 <Form.Button
                                     inverted
                                     color="black"
-                                    icon="check"
                                     size="mini"
                                     onClick={this.handleDoneEditing}
-                                />
+                                ><i className="fw fw-check"></i></Form.Button>
                                 <Form.Button
                                     inverted
                                     color="black"
-                                    icon="close"
                                     size="mini"
                                     onClick={this.handleCancelEdit}
-                                />
+                                ><i className="fw fw-delete"></i></Form.Button>
                             </Form.Group>
                         </Form>
                     </div>
@@ -175,7 +173,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                     <div className={"inline-editor url " + classDefinition}>
                         <span onClick={this.enableEditing}>{urlString === "" ? stateText : urlString}</span>
                         <a className="activate-edit" href={stateText === "" ? "#" : stateText} target="_blank">
-                            <Icon name="linkify" />
+                            <Icon className="fw fw-uri" />
                         </a>
                     </div>
                 );

@@ -25,27 +25,27 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children?;
-    !...
+    !...;
 };
 
 type Person2 record {
     string name = "";
     int age = 0;
-    !...
+    !...;
 };
 
 type Person4 record {
     string name = "";
     Person4? parent = ();
     map<anydata>? address?;
-    !...
+    !...;
 };
 
 type Student record {
     string name = "";
     int age = 0;
     string school = "";
-    !...
+    !...;
 };
 
 function testStructToMap () returns (map<any> | error) {
@@ -250,7 +250,7 @@ type Employee record {
     json info;
     map<string> address;
     int[] marks;
-    !...
+    !...;
 };
 
 function testMapWithIncompatibleStructToStruct () returns Employee {
@@ -418,12 +418,12 @@ function testJsonArrayToStruct () returns Person {
 
 type Info record {
     map<any> foo;
-    !...
+    !...;
 };
 
 type Info2 record {
     byte[] infoBlob = [];
-    !...
+    !...;
 };
 
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
@@ -489,12 +489,12 @@ function testIncompatibleJsonToBoolean () returns boolean|error {
 type Address record {
     string city;
     string country;
-    !...
+    !...;
 };
 
 type AnyArray record {
     anydata[] a;
-    !...
+    !...;
 };
 
 function testJsonToAnyArray () returns AnyArray|error {
@@ -505,7 +505,7 @@ function testJsonToAnyArray () returns AnyArray|error {
 
 type IntArray record {
     int[] a;
-    !...
+    !...;
 };
 
 function testJsonToIntArray () returns IntArray|error {
@@ -517,7 +517,7 @@ function testJsonToIntArray () returns IntArray|error {
 
 type StringArray record {
     string[] a;
-    !...
+    !...;
 };
 
 function testJsonToStringArray () returns StringArray|error {
@@ -539,7 +539,7 @@ function testJsonIntArrayToStringArray () returns json|error {
 
 type XmlArray record {
     xml[] a;
-    !...
+    !...;
 };
 
 function testJsonToXmlArray () returns XmlArray {
@@ -602,7 +602,7 @@ function testNullStructToJson () returns (json | error) {
 type PersonA record {
     string name = "";
     int age = 0;
-    !...
+    !...;
 };
 
 function JsonToStructWithErrors () returns (PersonA | error) {
@@ -615,7 +615,7 @@ function JsonToStructWithErrors () returns (PersonA | error) {
 
 type PhoneBook record {
     string[] names = [];
-    !...
+    !...;
 };
 
 function testStructWithStringArrayToJSON () returns json|error {
@@ -628,7 +628,7 @@ type person record {
     string fname = "";
     string lname = "";
     int age = 0;
-    !...
+    !...;
 };
 
 type movie record {
@@ -638,7 +638,7 @@ type movie record {
     string[] genre = [];
     person[] writers = [];
     person[] actors = [];
-    !...
+    !...;
 };
 
 function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
@@ -668,7 +668,7 @@ type StructWithOptionals record {
     boolean b?;
     json j?;
     byte[] blb?;
-    !...
+    !...;
 };
 
 function testEmptyJSONtoStructWithOptionals () returns (StructWithOptionals | error) {
@@ -723,7 +723,7 @@ type ComplexArrayStruct record {
     map<anydata>[] e;
     PersonA[] f;
     json[] g;
-    !...
+    !...;
 };
 
 function structWithComplexArraysToJson() returns (json | error) {
@@ -816,7 +816,7 @@ type T2 record {
     int x = 0;
     int y = 0;
     int z = 0;
-    !...
+    !...;
 };
 
 function testStructArrayConversion1() returns T1|error {

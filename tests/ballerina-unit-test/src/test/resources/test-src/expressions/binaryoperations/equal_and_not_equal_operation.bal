@@ -26,12 +26,12 @@ type OpenPerson record {
 type ClosedEmployee record {
     string name = "";
     int id = 0;
-    !...
+    !...;
 };
 
 type OpenEmployeeTwo record {
     string name;
-    int...
+    int...;
 };
 
 type OpenRecordWithOptionalFieldOne record {
@@ -47,13 +47,13 @@ type OpenRecordWithOptionalFieldTwo record {
 type ClosedRecordWithOptionalFieldOne record {
     string name;
     int one?;
-    !...
+    !...;
 };
 
 type ClosedRecordWithOptionalFieldTwo record {
     string name;
     int two?;
-    !...
+    !...;
 };
 
 function checkBooleanEqualityPositive(boolean a, boolean b) returns boolean {
@@ -965,7 +965,7 @@ public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
 public function testJsonRecordMapEqualityPositive() returns boolean {
     OpenEmployeeTwo e = { name: "Maryam", id: 1000 };
 
-    json<ClosedEmployee> j = { name: "Maryam", id: 1000 };
+    json j = { name: "Maryam", id: 1000 };
     json j2 = j;
 
     map<string|int> m = { name: "Maryam", id: 1000 };
@@ -977,7 +977,7 @@ public function testJsonRecordMapEqualityPositive() returns boolean {
 public function testJsonRecordMapEqualityNegative() returns boolean {
     OpenEmployeeTwo e = { name: "Zee", id: 1000 };
 
-    json<ClosedEmployee> j = { name: "Maryam", id: 122 };
+    json j = { name: "Maryam", id: 122 };
     json j2 = j;
 
     map<string|int> m = { name: "Maryam" };
