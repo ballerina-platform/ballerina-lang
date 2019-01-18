@@ -37,11 +37,3 @@ function testImplicitInitialValueOfAbstractObjectBroken() {
 //type AbstractObjectBroken abstract object {
 //    extern function testField();
 //};
-
-// The visibility of a method or field of an abstract object type cannot be private.
-// TODO: Restrict the usage of private keyword for methods and fields in abstract objects.
-type TestAbstractObjectBroken abstract object {
-    private boolean fieldOne;
-
-    private function methodOne();
-};

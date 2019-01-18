@@ -19,7 +19,6 @@ import ballerina/test;
 // not have an implicit initial value.
 type AbstractObject abstract object {
     public string publicStringField;
-    private int privateIntField;
     float defaultVisibilityFloatField;
 
     function getPrivateField() returns int;
@@ -31,6 +30,7 @@ type AbstractObject abstract object {
 
 type ObjReferenceToAbstractObject object {
     *AbstractObject;
+    private int privateIntField;
 
     function getPrivateField() returns int {
         return self.privateIntField;
@@ -54,7 +54,6 @@ type ObjReferenceToAbstractObject object {
 
 type AbstractClientObject abstract client object {
     public string publicStringField;
-    private int privateIntField;
     float defaultVisibilityFloatField;
 
     function getPrivateField() returns int;
@@ -73,6 +72,7 @@ function ObjReferenceToAbstractObject.defaultVisibiltyMethodOutsideDecl(string a
 
 type ObjReferenceToAbstractClientObject client object {
     *AbstractClientObject;
+    private int privateIntField;
 
     function getPrivateField() returns int {
         return self.privateIntField;

@@ -47,25 +47,25 @@ function testTableIterable() {
 public type Foo record {
     int id;
     string name;
-    !...
+    !...;
 };
 
 public type Bar record {
     int id;
     string name;
-    !...
+    !...;
 };
 
 public type Baz record {
     int id;
     boolean name;
-    !...
+    !...;
 };
 
 public type Qux record {
     int id;
     string age;
-    !...
+    !...;
 };
 
 @test:Config {}

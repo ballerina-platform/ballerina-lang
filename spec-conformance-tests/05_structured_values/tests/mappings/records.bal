@@ -122,7 +122,7 @@ function testRecordFieldValueTypeConformance() {
                             "invalid reason on inherent type violating record update");
 }
 
-function updateRecordFieldOne(record{ any... } r, any val) {
+function updateRecordFieldOne(record{ any...; } r, any val) {
     r.fieldOne = val;
 }
 
@@ -209,14 +209,14 @@ function updateClosedRecordWithOneField(record{} rec, anydata value) {
 
 public type ClosedRecordWithOneField record {
     string strField;
-    !...
+    !...;
 };
 
 // if the record-rest-type is a type descriptor T, then the value shape of 
 // every extra field shape must be a member of T
 public type OpenRecordTwo record {
     string fieldOne;
-    int...
+    int...;
 };
 
 @test:Config {}
@@ -229,7 +229,7 @@ function testOpenRecordWithSpecifiedRestType() {
                             "invalid reason on inherent type violating record update");
 }
 
-function updateOpenRecordTwo(record{ any... } r, any val) {
+function updateOpenRecordTwo(record{ any...; } r, any val) {
     r.fieldFour = val;
 }
 
@@ -241,7 +241,7 @@ function updateOpenRecordTwo(record{ any... } r, any val) {
 // type.
 public type ClosedRecord record {
     *OpenRecordTwo;
-    !...
+    !...;
 };
 
 @test:Config {}
@@ -283,19 +283,19 @@ function testRecordTypeReferenceRestFieldOverride() {
 public type ClosedRecordTwo record {
     string|int fieldOne;
     boolean|float fieldTwo;
-    !...
+    !...;
 };
 
 public type ClosedRecordThree record {
     float fieldTwo;
     string fieldOne;
-    !...
+    !...;
 };
 
 public type ClosedRecordFour record {
     boolean fieldOne;
     string fieldTwo;
-    !...
+    !...;
 };
 
 @test:Config {}

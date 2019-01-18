@@ -53,13 +53,13 @@ public  type PublicClientObject client object {
 
 type AbstractObject abstract object {
     public string publicStringField;
-    private int counter;
 
     public function publicMethodDecl(string argOne) returns int;
 };
 
 public type ObjReferenceToAbstractObject object {
     *AbstractObject;
+    private int counter;
 
     public function getPrivateField() returns int {
         return self.counter;
