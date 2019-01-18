@@ -29,7 +29,7 @@ public function main() {
     handleResponse(response);
 
     io:println("\nUse custom HTTP verbs:");
-    // Set a `string` payload to the message to be sent to the endpoint.
+    // Set a `string` payload to the message, which will be sent to the endpoint.
     req.setPayload("CUSTOM: Hello World");
     // Use the `execute()` remote function for custom HTTP verbs.
     response = clientEndpoint->execute("COPY", "/get", req);
