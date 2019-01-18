@@ -27,7 +27,7 @@ service chunkingSample on new http:Listener(9092) {
             }
         } else {
             http:Response errorResponse = new;
-            json msg = { "error": "error occurred while invoking the service" };
+            json msg = { "error": "An error occurred while invoking the service." };
             errorResponse.setPayload(msg);
             var response = caller->respond(errorResponse);
             if (response is error) {
