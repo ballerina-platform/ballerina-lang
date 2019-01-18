@@ -52,7 +52,7 @@ service testRedirect on serviceEndpoint1 {
         var response = endPoint1->get("/redirect1");
         if (response is http:Response) {
             _ = caller->respond(response.resolvedRequestedURI);
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -70,7 +70,7 @@ service testRedirect on serviceEndpoint1 {
             }
             value = value + ":" + response.resolvedRequestedURI;
             _ = caller->respond(untaint value);
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -89,7 +89,7 @@ service testRedirect on serviceEndpoint1 {
             } else {
                 panic value;
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -108,7 +108,7 @@ service testRedirect on serviceEndpoint1 {
             } else {
                 panic value;
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -127,7 +127,7 @@ service testRedirect on serviceEndpoint1 {
             } else {
                 panic value;
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -146,7 +146,7 @@ service testRedirect on serviceEndpoint1 {
             } else {
                 panic value;
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -165,7 +165,7 @@ service testRedirect on serviceEndpoint1 {
             } else {
                 panic value;
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -184,7 +184,7 @@ service testRedirect on serviceEndpoint1 {
             } else {
                 panic value;
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }

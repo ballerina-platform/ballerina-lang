@@ -60,7 +60,7 @@ service InitiatorService00 on initiatorEP00 {
             var response = participant1EP00 -> get("/testRemoteParticipantAbort");
             if (response is http:Response) {
                 log:printInfo("/testRemoteParticipantAbort response code: " + response.statusCode);
-            } else if (response is error) {
+            } else {
                 log:printInfo("/testRemoteParticipantAbort errored");
             }
 

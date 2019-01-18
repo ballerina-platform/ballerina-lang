@@ -45,7 +45,7 @@ service retryStatusService on new http:Listener(9225) {
                 if (responseError is error) {
                     log:printError("Error sending response", err = responseError);
                 }
-            } else if (backendResponse is error) {
+            } else {
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
                 errorResponse.setPayload(backendResponse.reason());
@@ -61,7 +61,7 @@ service retryStatusService on new http:Listener(9225) {
                 if (responseError is error) {
                     log:printError("Error sending response", err = responseError);
                 }
-            } else if (backendResponse is error) {
+            } else {
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
                 errorResponse.setPayload(backendResponse.reason());

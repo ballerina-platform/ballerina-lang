@@ -36,13 +36,13 @@ service testService16 on new http:Listener(9118) {
                 if (payload is xml) {
                     xml descendants = payload.selectDescendants("title");
                     _ = caller->respond(untaint descendants.getTextValue());
-                } else if (payload is error) {
+                } else {
                     _ = caller->respond(untaint payload.reason());
                 }
-            } else if (binaryPayload is error) {
+            } else {
                 _ = caller->respond(untaint binaryPayload.reason());
             }
-        } else if (res is error) {
+        } else {
             _ = caller->respond(untaint res.reason());
         }
     }

@@ -30,7 +30,7 @@ service passthrough on passthroughEP2 {
                 if (responseError is error) {
                     log:printError("Error sending response", err = responseError);
                 }
-            } else if (clientResponse is error) {
+            } else {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setPayload(clientResponse.reason());
@@ -43,7 +43,7 @@ service passthrough on passthroughEP2 {
             var clientResponse = acceptEncodingEnableEP -> post("/",untaint req);
             if (clientResponse is http:Response) {
                 _ = caller -> respond(clientResponse);
-            } else if (clientResponse is error) {
+            } else  {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setPayload(clientResponse.reason());
@@ -56,7 +56,7 @@ service passthrough on passthroughEP2 {
             var clientResponse = acceptEncodingDisableEP -> post("/",untaint req);
             if (clientResponse is http:Response) {
                 _ = caller->respond(clientResponse);
-            } else if (clientResponse is error) {
+            } else {
                 http:Response res = new;
                 res.statusCode =500;
                 res.setPayload(clientResponse.reason());

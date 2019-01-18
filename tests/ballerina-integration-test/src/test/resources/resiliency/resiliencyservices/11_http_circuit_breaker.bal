@@ -52,7 +52,7 @@ service circuitbreaker04 on circuitBreakerEP04 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             string errCause = <string> backendRes.detail().message;

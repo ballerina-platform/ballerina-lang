@@ -33,7 +33,7 @@ service echo4 on echoEP5 {
         network:Response resp = new;
         if (payload is string) {
             _ = caller -> respond(untaint payload);
-        } else if (payload is error) {
+        } else {
             resp.statusCode = 500;
             resp.setPayload(untaint payload.reason());
             log:printError("Failed to retrieve payload from request: " + payload.reason());

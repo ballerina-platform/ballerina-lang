@@ -77,7 +77,7 @@ service loadBalancerDemoService on new http:Listener(9313) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (response is error) {
+        } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
             outResponse.setPayload(<string> response.detail().message);
@@ -99,7 +99,7 @@ service loadBalancerDemoService on new http:Listener(9313) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (response is error) {
+        } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
             outResponse.setPayload(<string> response.detail().message);
@@ -121,7 +121,7 @@ service loadBalancerDemoService on new http:Listener(9313) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (response is error) {
+        } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
             outResponse.setPayload(<string> response.detail().message);
@@ -143,7 +143,7 @@ service loadBalancerDemoService on new http:Listener(9313) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (response is error) {
+        } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
             outResponse.setPayload(<string> response.detail().message);

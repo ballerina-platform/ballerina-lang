@@ -58,7 +58,7 @@ function sendRequest(string url, http:Request req, http:Caller caller) {
     var response = clientEP->forward("", req);
     if (response is http:Response) {
         _ = listenerEP->respond(response);
-    } else if (response is error) {
+    } else {
         _ = listenerEP->respond(response.reason());
     }
 }

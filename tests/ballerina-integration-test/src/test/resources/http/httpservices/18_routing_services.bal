@@ -21,7 +21,7 @@ service contentBasedRouting on serviceEP {
         string nameString = "";
         if (jsonMsg is json) {
             nameString = jsonMsg.name.toString();
-        } else if (jsonMsg is error) {
+        } else {
             io:println("Error getting payload");
         }
         http:Request clientRequest = new;
@@ -30,7 +30,7 @@ service contentBasedRouting on serviceEP {
             var result = nyseEP2 -> post("/stocks", clientRequest);
             if (result is http:Response) {
                 _ = conn -> respond(untaint result);
-            } else if (result is error) {
+            } else  {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
                 _ = conn -> respond(clientResponse);
@@ -39,7 +39,7 @@ service contentBasedRouting on serviceEP {
             var result = nasdaqEP -> post("/stocks", clientRequest);
             if (result is http:Response) {
                 _ = conn -> respond(untaint result);
-            } else if (result is error) {
+            } else {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
                 _ = conn -> respond(clientResponse);
@@ -65,7 +65,7 @@ service headerBasedRouting on serviceEP {
             var result = nyseEP2 -> post("/stocks", clientRequest);
             if (result is http:Response) {
                 _ = caller->respond(untaint result);
-            } else if (result is error) {
+            } else {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
                 _ = caller->respond(clientResponse);
@@ -74,7 +74,7 @@ service headerBasedRouting on serviceEP {
             var result = nasdaqEP -> post("/stocks", clientRequest);
             if (result is http:Response) {
                 _ = caller->respond(untaint result);
-            } else if (result is error) {
+            } else {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
                 _ = caller->respond(clientResponse);

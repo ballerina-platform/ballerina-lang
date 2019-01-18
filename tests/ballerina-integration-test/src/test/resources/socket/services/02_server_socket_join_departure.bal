@@ -34,7 +34,7 @@ service echoServer on server {
         var str = characterChannel.read(20);
         if (str is string) {
             io:println(untaint str);
-        } else if (str is error) {
+        } else {
             io:println("Error: ", str.detail().message);
         }
     }

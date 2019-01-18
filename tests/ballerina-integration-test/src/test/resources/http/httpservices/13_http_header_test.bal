@@ -14,7 +14,7 @@ service headerService on new http:Listener(9106) {
         var result = stockqEP->get("/sample/stocks", message = untaint req);
         if (result is http:Response) {
             _ = caller->respond(result);
-        } else if (result is error) {
+        } else {
             _ = caller->respond(result.reason());
         }
     }
@@ -35,7 +35,7 @@ service headerService on new http:Listener(9106) {
                 payload = {"response":"person header not available"};
             }
             _ = caller->respond(payload);
-        } else if (clientResponse is error) {
+        } else {
             _ = caller->respond(clientResponse.reason());
         }
     }
@@ -44,7 +44,7 @@ service headerService on new http:Listener(9106) {
         var result = stockqEP->get("/sample/entitySizeChecker");
         if (result is http:Response) {
             _ = caller->respond(result);
-        } else if (result is error) {
+        } else {
             _ = caller->respond(result.reason());
         }
     }
@@ -53,7 +53,7 @@ service headerService on new http:Listener(9106) {
         var result = stockqEP->get("/sample/entitySizeChecker", message = "hello");
         if (result is http:Response) {
             _ = caller->respond(result);
-        } else if (result is error) {
+        } else {
             _ = caller->respond(result.reason());
         }
     }
@@ -64,7 +64,7 @@ service headerService on new http:Listener(9106) {
         var result = stockqEP->get("/sample/entitySizeChecker", message = request);
         if (result is http:Response) {
             _ = caller->respond(result);
-        } else if (result is error) {
+        } else {
             _ = caller->respond(result.reason());
         }
     }
@@ -73,7 +73,7 @@ service headerService on new http:Listener(9106) {
         var result = stockqEP->forward("/sample/entitySizeChecker", req);
         if (result is http:Response) {
             _ = caller->respond(result);
-        } else if (result is error) {
+        } else {
             _ = caller->respond(result.reason());
         }
     }
@@ -82,7 +82,7 @@ service headerService on new http:Listener(9106) {
         var result = stockqEP->execute("GET", "/sample/entitySizeChecker", "hello ballerina");
         if (result is http:Response) {
             _ = caller->respond(result);
-        } else if (result is error) {
+        } else {
             _ = caller->respond(result.reason());
         }
     }
@@ -91,7 +91,7 @@ service headerService on new http:Listener(9106) {
         var result = stockqEP->execute("GET", "/sample/entitySizeChecker", ());
         if (result is http:Response) {
             _ = caller->respond(result);
-        } else if (result is error) {
+        } else {
             _ = caller->respond(result.reason());
         }
     }
@@ -100,7 +100,7 @@ service headerService on new http:Listener(9106) {
         var result = stockqEP->get("/sample/entitySizeChecker", message = untaint req);
         if (result is http:Response) {
             _ = caller->respond(result);
-        } else if (result is error) {
+        } else {
             _ = caller->respond(result.reason());
         }
     }

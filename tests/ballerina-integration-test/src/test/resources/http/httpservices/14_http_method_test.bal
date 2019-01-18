@@ -34,7 +34,7 @@ service headQuoteService on serviceEndpoint4 {
         var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
         if (response is http:Response) {
             _ = caller -> respond(response);
-        } else if (response is error) {
+        } else {
             json errMsg = {"error":"error occurred while invoking the service"};
             _ = caller -> respond(errMsg);
         }
@@ -47,7 +47,7 @@ service headQuoteService on serviceEndpoint4 {
         var response = endPoint -> forward("/getQuote/stocks", req);
         if (response is http:Response) {
             _ = caller -> respond(response);
-        } else if (response is error) {
+        } else {
             json errMsg = {"error":"error occurred while invoking the service"};
             _ = caller -> respond(errMsg);
         }
@@ -60,7 +60,7 @@ service headQuoteService on serviceEndpoint4 {
         var response = endPoint -> forward("/getQuote/stocks", req);
         if (response is http:Response) {
             _ = caller -> respond(response);
-        } else if (response is error) {
+        } else {
             json errMsg = {"error":"error occurred while invoking the service"};
             _ = caller -> respond(errMsg);
         }
@@ -74,7 +74,7 @@ service headQuoteService on serviceEndpoint4 {
         var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
         if (response is http:Response) {
             _ = caller -> respond(response);
-        } else if (response is error) {
+        } else {
             json errMsg = {"error":"error occurred while invoking the service"};
             _ = caller -> respond(errMsg);
         }
@@ -95,7 +95,7 @@ service testClientConHEAD on serviceEndpoint4 {
         var response = endPoint -> get("/getQuote/stocks", message = clientRequest);
         if (response is http:Response) {
             _ = caller -> respond(response);
-        } else if (response is error) {
+        } else {
             json errMsg = {"error":"error occurred while invoking the service"};
             _ = caller -> respond(errMsg);
         }

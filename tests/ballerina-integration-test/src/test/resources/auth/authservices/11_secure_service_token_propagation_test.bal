@@ -38,7 +38,7 @@ service passthroughService03 on listener11 {
         var response = nyseEP03->get("/nyseStock/stocks", message = untaint clientRequest);
         if (response is http:Response) {
             _ = caller->respond(response);
-        } else if (response is error) {
+        } else {
             json errMsg = { "error": "error occurred while invoking the service" };
             _ = caller->respond(errMsg);
         }

@@ -41,10 +41,10 @@ service testService_1 on testEP {
             var result = untaint firstResponse.getTextPayload();
             if (result is string) {
                 firstVal = result;
-            } else if (result is error) {
+            } else {
                 firstVal = result.reason();
             }
-        } else if (firstResponse is error) {
+        } else  {
             firstVal = firstResponse.reason();
         }
 
@@ -53,10 +53,10 @@ service testService_1 on testEP {
             var result = untaint secondResponse.getTextPayload();
             if (result is string) {
                 secondVal = result;
-            } else if (result is error) {
+            } else {
                 secondVal = result.reason();
             }
-        } else if (secondResponse is error) {
+        } else {
             secondVal = secondResponse.reason();
         }
         http:Response testResponse = new;
@@ -81,10 +81,10 @@ service testService_1 on testEP {
             var result = untaint firstResponse.getTextPayload();
             if (result is string) {
                 firstVal = result;
-            } else if (result is error) {
+            } else {
                 firstVal = result.reason();
             }
-        } else if (firstResponse is error) {
+        } else {
             firstVal = firstResponse.reason();
         }
 
@@ -93,10 +93,10 @@ service testService_1 on testEP {
             var result = untaint secondResponse.getTextPayload();
             if (result is string) {
                 secondVal = result;
-            } else if (result is error) {
+            } else {
                 secondVal = result.reason();
             }
-        } else if (secondResponse is error) {
+        } else {
             secondVal = secondResponse.reason();
         }
         http:Response testResponse = new;
@@ -127,22 +127,23 @@ service testService_1 on testEP {
                     var result1 = untaint firstResponse.getTextPayload();
                     if (result1 is string) {
                         firstVal = result1;
-                    } else if (result1 is error) {
+                    } else {
                         firstVal = result1.reason();
                     }
+
                     var result2 = untaint secondResponse.getTextPayload();
                     if (result2 is string) {
                         secondVal = result2;
-                    } else if (result2 is error) {
+                    } else {
                         secondVal = result2.reason();
                     }
-                } else if (secondResponse is error) {
+                } else {
                     log:printError(secondResponse.reason(), err = secondResponse);
                 }
-            } else if (firstResponse is error) {
+            } else {
                 log:printError(firstResponse.reason(), err = firstResponse);
             }
-        } else if (entity is error) {
+        } else {
             log:printError(entity.reason(), err = entity);
         }
         testResponse.setTextPayload(firstVal + secondVal);
@@ -157,18 +158,17 @@ service testService_1 on testEP {
         http:Request clientReq = new;
         clientReq.setTextPayload("String datasource");
 
-        string firstVal = "";
-        string secondVal = "";
-
+        string firstVal;
+        string secondVal;
         var firstResponse = clientEP1 -> post("/datasource", clientReq);
         if (firstResponse is http:Response) {
             var result = untaint firstResponse.getTextPayload();
             if (result is string) {
                 firstVal = result;
-            } else if (result is error) {
+            } else {
                 firstVal = result.reason();
             }
-        } else if (firstResponse is error) {
+        } else {
             firstVal = firstResponse.reason();
         }
 
@@ -177,10 +177,10 @@ service testService_1 on testEP {
             var result = untaint secondResponse.getTextPayload();
             if (result is string) {
                 secondVal = result;
-            } else if (result is error) {
+            } else {
                 secondVal = result.reason();
             }
-        } else if (secondResponse is error) {
+        } else {
             secondVal = secondResponse.reason();
         }
         http:Response testResponse = new;
@@ -201,30 +201,32 @@ service testService_1 on testEP {
             if (firstResponse is http:Response) {
                 var secondResponse = clientEP1 -> post("/consumeChannel", clientReq);
                 http:Response testResponse = new;
-                string firstVal = "";
-                string secondVal = "";
+                string firstVal;
+                string secondVal;
                 if (secondResponse is http:Response) {
                     var result1 = secondResponse.getTextPayload();
                     if  (result1 is string) {
                         secondVal = result1;
-                    } else if (result1 is error) {
+                    } else {
                         secondVal = "Error in parsing payload";
                     }
-                } else if (secondResponse is error) {
+                } else {
                     secondVal = <string> secondResponse.detail().message;
                 }
+
                 var result2 = firstResponse.getTextPayload();
                 if (result2 is string) {
                     firstVal = result2;
-                } else if (result2 is error) {
+                } else {
                     firstVal = result2.reason();
                 }
+
                 testResponse.setTextPayload(untaint firstVal + untaint secondVal);
                 _ = caller -> respond(testResponse);
-            } else if (firstResponse is error) {
+            } else {
                 log:printError(firstResponse.reason(), err = firstResponse);
             }
-        } else if (byteChannel is error) {
+        } else {
             log:printError(byteChannel.reason(), err = byteChannel);
         }
     }
@@ -262,7 +264,7 @@ service testService_2 on testEP {
         var stringPayload = clientRequest.getTextPayload();
         if (stringPayload is string) {
             response.setPayload(untaint stringPayload);
-        } else if (stringPayload is error) {
+        } else  {
             string errMsg = <string> stringPayload.detail().message;
             response.setPayload(untaint errMsg);
         }

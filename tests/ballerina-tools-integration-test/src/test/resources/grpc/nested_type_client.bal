@@ -91,11 +91,8 @@ public type HelloWorldBlockingClient client object {
         var value = Person.convert(result);
         if (value is Person) {
             return (value, resHeaders);
-        } else if (value is error) {
-            return value;
         } else {
-            error err = error("Invalid response message type");
-            return err;
+            return value;
         }
     }
 };

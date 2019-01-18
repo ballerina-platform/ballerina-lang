@@ -30,7 +30,7 @@ service idleTimeout on new http:Listener(9112, config = { timeoutMillis: 1000 })
         var result = req.getPayloadAsString();
         if (result is string) {
             log:printInfo(result);
-        } else if (result is error) {
+        } else  {
             log:printError("Error reading request", err = result);
         }
         var responseError = caller->respond("some");

@@ -41,7 +41,7 @@ service ATMLocator on serviceEnpoint {
             json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
             branchLocatorReq.BranchLocator.ZipCode = zipCode;
             backendServiceReq.setPayload(untaint branchLocatorReq);
-        } else if (jsonLocatorReq is error) {
+        } else {
             io:println("Error occurred while reading ATM locator request");
         }
 
@@ -49,7 +49,7 @@ service ATMLocator on serviceEnpoint {
         var locatorRes = branchLocatorService -> post("", backendServiceReq);
         if (locatorRes is http:Response) {
             locatorResponse = locatorRes;
-        } else if (locatorRes is error) {
+        } else {
             io:println("Error occurred while reading locator response");
         }
 
@@ -60,7 +60,7 @@ service ATMLocator on serviceEnpoint {
             json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
             bankInfoReq.BranchInfo.BranchCode = branchCode;
             backendServiceReq.setJsonPayload(untaint bankInfoReq);
-        } else if (branchLocatorRes is error) {
+        } else {
             io:println("Error occurred while reading branch locator response");
         }
 
@@ -68,7 +68,7 @@ service ATMLocator on serviceEnpoint {
         var infoRes = bankInfoService -> post("", backendServiceReq);
         if (infoRes is http:Response) {
             infomationResponse = infoRes;
-        } else if (infoRes is error) {
+        } else {
             io:println("Error occurred while writing info response");
         }
         _ = caller -> respond(infomationResponse);
@@ -95,7 +95,7 @@ service Bankinfo on serviceEnpoint {
                 payload = {"ABC Bank":{"error":"No branches found."}};
             }
             res.setPayload(payload);
-        } else if (jsonRequest is error) {
+        } else {
             io:println("Error occurred while reading bank info request");
         }
 
@@ -123,7 +123,7 @@ service Banklocator on serviceEnpoint {
                 payload = {"ABCBank":{"BranchCode":"-1"}};
             }
             res.setPayload(payload);
-        } else if (jsonRequest is error) {
+        } else {
             io:println("Error occurred while reading bank locator request");
         }
 
