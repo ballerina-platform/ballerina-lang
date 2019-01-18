@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -963,6 +964,25 @@ public class CodeGenerator extends BLangNodeVisitor {
             int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGLOAD);
             packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
             emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
+        }
+    }
+
+    @Override
+    public void visit(BLangPackageConstRef packageConstRef) {
+        BPackageSymbol pkgSymbol;
+        BSymbol ownerSymbol = packageConstRef.symbol.owner;
+        pkgSymbol = (BPackageSymbol) ownerSymbol;
+
+        Operand gvIndex = packageConstRef.constSymbol.varIndex;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+        if (varAssignment) {
+            // Todo - Freeze value.
+            int opcode = getOpcode(packageConstRef.type.tag, InstructionCodes.IGSTORE);
+            emit(opcode, getOperand(pkgRefCPIndex), packageConstRef.regIndex, gvIndex);
+        } else {
+            int opcode = getOpcode(packageConstRef.type.tag, InstructionCodes.IGLOAD);
+            packageConstRef.regIndex = calcAndGetExprRegIndex(packageConstRef);
+            emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageConstRef.regIndex);
         }
     }
 
@@ -2141,22 +2161,37 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void createConstantInfo(BLangConstant constant) {
         BConstantSymbol constantSymbol = constant.symbol;
+
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
         int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
         int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
 
+
         ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, finiteTypeSigCPIndex, valueTypeSigCPIndex,
-                constantSymbol.flags);
+                constantSymbol.flags, -1);
+
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
-        BLangLiteral literal = new BLangLiteral();
-        literal.pos = constant.pos;
-        literal.value = ((BLangLiteral) constant.value).value;
-        literal.type = ((BLangLiteral) constant.value).type;
-        literal.typeTag = ((BLangLiteral) constant.value).typeTag;
+        if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL) {
 
-        DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
-        constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
+            constantSymbol.varIndex = getPVIndex(constantSymbol.literalValueType.tag);
+
+        } else {
+
+            BLangLiteral literal = new BLangLiteral();
+            literal.pos = constant.pos;
+            literal.value = ((BLangLiteral) constant.value).value;
+            literal.type = ((BLangLiteral) constant.value).type;
+            literal.typeTag = ((BLangLiteral) constant.value).typeTag;
+
+            DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
+            constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
+        }
+
+
+        if (constantSymbol.varIndex != null) {
+            constantInfo.globalMemIndex = constantSymbol.varIndex.value;
+        }
 
         // Add documentation attributes.
         addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);

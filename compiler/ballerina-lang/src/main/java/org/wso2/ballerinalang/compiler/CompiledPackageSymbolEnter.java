@@ -642,6 +642,9 @@ public class CompiledPackageSymbolEnter {
 
         int flags = dataInStream.readInt();
 
+        // Todo - remove?
+        int memIndex = dataInStream.readInt();
+
         // Create constant symbol.
         Scope enclScope = this.env.pkgSymbol.scope;
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),

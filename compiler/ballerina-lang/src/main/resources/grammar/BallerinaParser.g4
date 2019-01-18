@@ -117,7 +117,7 @@ annotationDefinition
     ;
 
 constantDefinition
-    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? CONST typeName? Identifier ASSIGN constantExpression SEMICOLON
     ;
 
 globalVariableDefinition
@@ -685,6 +685,11 @@ expression
     |   LARROW Identifier (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
+    ;
+
+constantExpression
+    :   simpleLiteral
+    |   recordLiteral
     ;
 
 typeDescExpr

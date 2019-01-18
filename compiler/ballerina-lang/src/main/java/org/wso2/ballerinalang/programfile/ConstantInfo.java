@@ -34,14 +34,16 @@ public class ConstantInfo implements AttributeInfoPool {
     public int finiteTypeCPIndex;
     public int valueTypeCPIndex;
     public int flags;
+    public int globalMemIndex;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex, int finiteTypeCPIndex, int valueTypeCPIndex, int flags) {
+    public ConstantInfo(int nameCPIndex, int finiteTypeCPIndex, int valueTypeCPIndex, int flags, int globalMemIndex) {
         this.nameCPIndex = nameCPIndex;
         this.finiteTypeCPIndex = finiteTypeCPIndex;
         this.valueTypeCPIndex = valueTypeCPIndex;
         this.flags = flags;
+        this.globalMemIndex = globalMemIndex;
     }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {

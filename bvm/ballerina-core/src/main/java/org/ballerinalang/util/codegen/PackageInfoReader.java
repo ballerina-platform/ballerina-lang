@@ -603,6 +603,9 @@ public class PackageInfoReader {
         // Read and ignore flags.
         dataInStream.readInt();
 
+        // Read and ignore index.
+        dataInStream.readInt();
+
         // Read and ignore attributes.
         int attributesCount = dataInStream.readShort();
         for (int k = 0; k < attributesCount; k++) {

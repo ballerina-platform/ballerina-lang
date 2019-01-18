@@ -235,6 +235,7 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(constantInfo.finiteTypeCPIndex);
             dataOutStream.writeInt(constantInfo.valueTypeCPIndex);
             dataOutStream.writeInt(constantInfo.flags);
+            dataOutStream.writeInt(constantInfo.globalMemIndex);
             writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
         }
     }

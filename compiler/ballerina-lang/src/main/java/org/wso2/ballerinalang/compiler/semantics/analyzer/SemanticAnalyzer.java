@@ -1730,36 +1730,67 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         BLangExpression expression = (BLangExpression) constant.value;
-        if (expression.getKind() != NodeKind.LITERAL) {
+        if (!isValidConstantExpression(expression)) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
             return;
         }
 
-        BLangLiteral value = (BLangLiteral) constant.value;
+        if (expression.getKind() == NodeKind.LITERAL) {
+            BLangLiteral value = (BLangLiteral) constant.value;
 
-        if (constant.typeNode != null) {
-            // Check the type of the value.
-            typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
+            if (constant.typeNode != null) {
+                // Check the type of the value.
+                typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
+            } else {
+                // We don't have any expected type in this case since the type node is not available. So we get the type
+                // from the type tag of the value.
+                typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.typeTag));
+            }
+
+            // We need to update the literal value and the type tag here. Otherwise we will encounter issues when
+            // creating new literal nodes in desugar because we wont be able to identify byte and decimal types.
+            constant.symbol.literalValue = value.value;
+            constant.symbol.literalValueTypeTag = value.typeTag;
+
+            // We need to check types for the values in value spaces. Otherwise, float, decimal will not be
+            // identified in codegen when retrieving the default value.
+            BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
+            for (BLangExpression literal : typeNode.valueSpace) {
+                typeChecker.checkExpr(literal, env, constant.symbol.type);
+            }
+        } else if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            if (constant.typeNode == null) {
+                constant.type = symTable.semanticError;
+                dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
+                return;
+            }
+            // Todo
+
+            typeChecker.checkExpr(expression, env, constant.typeNode.type);
+
+
         } else {
-            // We don't have any expected type in this case since the type node is not available. So we get the type
-            // from the type tag of the value.
-            typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.typeTag));
-        }
+            if (constant.typeNode == null) {
+                typeChecker.checkExpr(expression, env);
+            } else {
+                typeChecker.checkExpr(expression, env, constant.typeNode.type);
+            }
 
-        // We need to update the literal value and the type tag here. Otherwise we will encounter issues when
-        // creating new literal nodes in desugar because we wont be able to identify byte and decimal types.
-        constant.symbol.literalValue = value.value;
-        constant.symbol.literalValueTypeTag = value.typeTag;
-
-        // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified in
-        // codegen when retrieving the default value.
-        BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
-        for (BLangExpression literal : typeNode.valueSpace) {
-            typeChecker.checkExpr(literal, env, constant.symbol.type);
+            // Todo
         }
     }
 
     // Private methods
+
+    // Todo - Remove duplication in symbol enter
+    private boolean isValidConstantExpression(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case LITERAL:
+            case RECORD_LITERAL_EXPR:
+                return true;
+        }
+        return false;
+    }
 
     private void visitChannelSend(BLangWorkerSend node, BSymbol channelSymbol) {
         node.isChannel = true;

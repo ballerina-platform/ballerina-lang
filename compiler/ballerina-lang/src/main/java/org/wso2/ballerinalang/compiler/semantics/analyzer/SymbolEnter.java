@@ -803,21 +803,31 @@ public class SymbolEnter extends BLangNodeVisitor {
         constant.symbol = constantSymbol;
 
         // Note - This is checked and error is logged in semantic analyzer.
-        if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL) {
+        if (!isValidConstantExpression((BLangExpression) constant.value)) {
             if (symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
                 env.scope.define(constantSymbol.name, constantSymbol);
             }
             return;
         }
 
-        // Visit the associated type definition. This will set the type of the type definition.
-        defineNode(constant.associatedTypeDefinition, env);
+        if (((BLangExpression) constant.value).getKind() == NodeKind.LITERAL) {
+            // Visit the associated type definition. This will set the type of the type definition.
+            defineNode(constant.associatedTypeDefinition, env);
 
-        // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
-        // resolve the types of any type definition which uses the constant in type node.
-        constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-        constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
-        constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).typeTag;
+            // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
+            // resolve the types of any type definition which uses the constant in type node.
+            constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+            constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
+            constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).typeTag;
+        } else {
+
+            // Todo - add explanation?
+            if (constant.typeNode != null) {
+                constant.symbol.type = symTable.noType;
+            }
+            // Todo
+        }
+
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
@@ -952,9 +962,23 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (!isAllowedConstantType(constant.symbol)) {
-                dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
+                // Constant might not have a typeNode.
+                if (constant.typeNode != null) {
+                    dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE,
+                            constant.typeNode);
+                }
             }
         }
+    }
+
+    // Todo - Remove duplication inconco semantic analyzer
+    private boolean isValidConstantExpression(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case LITERAL:
+            case RECORD_LITERAL_EXPR:
+                return true;
+        }
+        return false;
     }
 
     private boolean isAllowedConstantType(BConstantSymbol symbol) {
@@ -965,6 +989,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
+            case TypeTags.MAP:
                 return true;
         }
         return false;

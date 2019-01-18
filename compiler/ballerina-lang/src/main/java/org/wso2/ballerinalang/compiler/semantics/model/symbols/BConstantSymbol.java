@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.ConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.CONSTANT;
 
@@ -32,6 +33,7 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
     public Object literalValue;
     public int literalValueTypeTag;
     public BType literalValueType;
+    public RegIndex varIndex;
 
     public BConstantSymbol(int flags, Name name, PackageID pkgID, BType finiteType, BType valueType, BSymbol owner) {
         super(CONSTANT, flags, name, pkgID, finiteType, owner);

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -111,6 +112,21 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         public BLangPackageVarRef(BVarSymbol varSymbol) {
             this.symbol = varSymbol;
             this.varSymbol = varSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    public static class BLangPackageConstRef extends BLangSimpleVarRef {
+
+        public BConstantSymbol constSymbol;
+
+        public BLangPackageConstRef(BConstantSymbol constSymbol) {
+            this.symbol = constSymbol;
+            this.constSymbol = constSymbol;
         }
 
         @Override

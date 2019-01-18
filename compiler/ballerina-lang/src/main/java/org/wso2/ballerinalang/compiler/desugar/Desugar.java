@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -131,6 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -415,9 +417,20 @@ public class Desugar extends BLangNodeVisitor {
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
 
-        pkgNode.constants.forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
+        pkgNode.constants.stream()
+                .filter(constant -> ((BLangExpression) constant.value).getKind() == NodeKind.LITERAL)
+                .forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
+
+        pkgNode.constants.stream()
+                .filter(constant -> ((BLangExpression) constant.value).getKind() != NodeKind.LITERAL)
+                .forEach(constant -> {
+                    BLangAssignment assignment = createAssignmentStmt(constant);
+                    if (assignment.expr != null) {
+                        pkgNode.initFunction.body.stmts.add(assignment);
+                    }
+                });
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
@@ -1062,15 +1075,27 @@ public class Desugar extends BLangNodeVisitor {
         // to update the original variable as well.
         if (assignNode.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) assignNode.varRef;
-            BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
-            if (varSymbol.originalSymbol != null) {
-                BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol);
-                guardedVarRef = addConversionExprIfRequired(guardedVarRef, varSymbol.originalSymbol.type);
+            if ((varRef.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+                BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
+                if (varSymbol.originalSymbol != null) {
+                    BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol);
+                    guardedVarRef = addConversionExprIfRequired(guardedVarRef, varSymbol.originalSymbol.type);
+                    BLangSimpleVarRef originalVarRef =
+                            ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol.originalSymbol);
+                    BLangAssignment updateOriginalVar =
+                            ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef, guardedVarRef);
+                    updateOriginalVar = rewrite(updateOriginalVar, env);
+                    result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
+                    return;
+                }
+            } else if ((varRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
+                BConstantSymbol constSymbol = (BConstantSymbol) varRef.symbol;
+                BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, constSymbol);
+                guardedVarRef = addConversionExprIfRequired(guardedVarRef, constSymbol.type);
                 BLangSimpleVarRef originalVarRef =
-                        ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol.originalSymbol);
+                        ASTBuilderUtil.createVariableRef(assignNode.pos, constSymbol);
                 BLangAssignment updateOriginalVar =
                         ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef, guardedVarRef);
-                updateOriginalVar = rewrite(updateOriginalVar, env);
                 result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
                 return;
             }
@@ -1887,13 +1912,17 @@ public class Desugar extends BLangNodeVisitor {
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             if (varRefExpr.symbol.tag == SymTag.CONSTANT) {
                 BConstantSymbol symbol = (BConstantSymbol) varRefExpr.symbol;
-                // We need to get a copy of the literal value and set it as the result. Otherwise there will be
-                // issues because registry allocation will be only done one time.
-                BLangLiteral literal = ASTBuilderUtil
-                        .createLiteral(varRefExpr.pos, symbol.literalValueType, symbol.literalValue);
-                literal.typeTag = symbol.literalValueTypeTag;
-                result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
-                return;
+                if (symbol.literalValue == null) {
+                    genVarRefExpr = new BLangPackageConstRef((BConstantSymbol) varRefExpr.symbol);
+                } else {
+                    // We need to get a copy of the literal value and set it as the result. Otherwise there will be
+                    // issues because registry allocation will be only done one time.
+                    BLangLiteral literal = ASTBuilderUtil
+                            .createLiteral(varRefExpr.pos, symbol.literalValueType, symbol.literalValue);
+                    literal.typeTag = symbol.literalValueTypeTag;
+                    result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
+                    return;
+                }
             } else {
                 // Package variable | service variable.
                 // We consider both of them as package level variables.
@@ -2524,6 +2553,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangPackageVarRef packageVarRef) {
         result = packageVarRef;
+    }
+
+    @Override
+    public void visit(BLangPackageConstRef packageConstantRef) {
+        result = packageConstantRef;
     }
 
     @Override
@@ -3871,6 +3905,20 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = variable.expr;
         assignmentStmt.pos = variable.pos;
+        assignmentStmt.setVariable(varRef);
+        return assignmentStmt;
+    }
+
+    private BLangAssignment createAssignmentStmt(BLangConstant constant) {
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = constant.pos;
+        varRef.variableName = constant.name;
+        varRef.symbol = constant.symbol;
+        varRef.type = constant.symbol.literalValueType;
+
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = ((BLangExpression) constant.value);
+        assignmentStmt.pos = constant.pos;
         assignmentStmt.setVariable(varRef);
         return assignmentStmt;
     }
