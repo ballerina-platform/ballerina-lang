@@ -29,7 +29,8 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import java.util.concurrent.TimeUnit;
+
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.stdlib.common.CommonTestUtils.printDiagnostics;
 import static org.testng.Assert.assertEquals;
@@ -56,7 +57,7 @@ public class AppointmentTest {
         String cronExpression = "0/2 * * * * ?";
         BRunUtil.invokeStateful(compileResult, "scheduleAppointment",
                 new BValue[]{new BString(cronExpression)});
-        await().atMost(30, SECONDS).until(() -> {
+        await().atMost(30, TimeUnit.SECONDS).until(() -> {
             BValue[] counts = BRunUtil.invokeStateful(compileResult, "getCount");
             return ((BInteger) counts[0]).intValue() >= 5;
         });
@@ -82,7 +83,7 @@ public class AppointmentTest {
         BRunUtil.invokeStateful(compileResult, "scheduleAppointment",
                 new BValue[]{
                         new BString(w1CronExpression), new BString(w1ErrMsg)});
-        await().atMost(10, SECONDS).until(() -> {
+        await().atMost(10, TimeUnit.SECONDS).until(() -> {
             BValue[] errors = BRunUtil.invokeStateful(compileResult, "getError");
             return errors != null && errors[0] != null && errors[0].stringValue() != null && !errors[0].stringValue()
                     .equals("");
