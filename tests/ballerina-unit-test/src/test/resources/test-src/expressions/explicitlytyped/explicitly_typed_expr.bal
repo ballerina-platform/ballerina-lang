@@ -973,20 +973,20 @@ public type InMemoryModeConfig record {
     string username = "";
     string password = "";
     map<any> dbOptions = {name:"asdf"};
-    !...
+    !...;
 };
 
 public type ServerModeConfig record {
     string host = "";
     int port = 9090;
     *InMemoryModeConfig;
-    !...
+    !...;
 };
 
 public type EmbeddedModeConfig record {
     string path = "";
     *InMemoryModeConfig;
-    !...
+    !...;
 };
 
 function testTypeAssertionOnRecordLiterals() returns (string, string, string) {

@@ -72,25 +72,25 @@ function testStructuredMatchPatternsBasic4() returns string {
 type ClosedFoo1 record {
     string var1;
     int var2;
-    !...
+    !...;
 };
 
 type ClosedFoo2 record {
     float var1;
     boolean var2;
-    !...
+    !...;
 };
 
 type ClosedFoo3 record {
     string var1;
     int var2;
     boolean var3;
-    !...
+    !...;
 };
 
 type ClosedFoo4 record {
     string var1;
-    !...
+    !...;
 };
 
 function testStructuredMatchPatternsBasics5() returns string[] {
@@ -124,7 +124,7 @@ function basicMatch(ClosedFoo1|ClosedFoo2|ClosedFoo3|ClosedFoo4 a) returns strin
 type ClosedBar1 record {
     string var1;
     int var2;
-    !...
+    !...;
 };
 
 type ClosedBar2 record {
@@ -269,12 +269,12 @@ function typeGuard3(any matchExpr) returns string {
 
 type RestParam record {
     int var1;
-    boolean...
+    boolean...;
 };
 
 type ClosedRec record {
     string var1;
-    !...
+    !...;
 };
 
 function testStructuredMatchPatternWithTypeGuard4() returns string[] {

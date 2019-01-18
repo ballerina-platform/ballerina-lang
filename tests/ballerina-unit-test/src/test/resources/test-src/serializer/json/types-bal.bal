@@ -20,14 +20,14 @@ type Student record {
     string name = "";
     int age = 0;
     Grades grades = {};
-    string...
+    string...;
 };
 
 type Grades record {
     int maths = 0;
     int physics = 0;
     int chemistry = 0;
-    !...
+    !...;
 };
 
 function getThatStudent() returns Student {

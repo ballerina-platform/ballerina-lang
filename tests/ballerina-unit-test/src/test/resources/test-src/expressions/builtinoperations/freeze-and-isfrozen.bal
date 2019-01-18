@@ -577,14 +577,14 @@ function insertElement(json[] jArr, int index, json val) returns boolean {
 type Employee record {
     int id;
     string name;
-    !...
+    !...;
 };
 
 type DeptEmployee record {
     int id;
     string name;
     Dept dept;
-    !...
+    !...;
 };
 
 type Dept record {
@@ -606,5 +606,5 @@ type PersonObj object {
 
 type FreezeAllowedDepartment record {
     PersonObj|string head;
-    (PersonObj|int)...
+    (PersonObj|int)...;
 };

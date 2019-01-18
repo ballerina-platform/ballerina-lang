@@ -128,7 +128,7 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     map<any> properties = {};
     string messageSelector = "";
     string topicPattern = "";
-    !...
+    !...;
 };
 
 

@@ -3,7 +3,7 @@ import ballerina/io;
 type Person record {
     string name;
     int age = 25;
-    !...
+    !...;
 };
 
 type Employee record {
@@ -11,7 +11,7 @@ type Employee record {
     *Person;
     string company?;
     string designation;
-    !...
+    !...;
 };
 
 type Manager record {

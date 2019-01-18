@@ -2,20 +2,20 @@ type ClosedPerson record {
     string name = "";
     int age = 0;
     ClosedAddress address = {};
-    !...
+    !...;
 };
 
 type ClosedAddress record {
     string street = "";
     string city = "";
-    !...
+    !...;
 };
 
 type ClosedGrades record {
     int maths = 0;
     int physics = 0;
     int chemistry = 0;
-    !...
+    !...;
 };
 
 ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};

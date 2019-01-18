@@ -1,5 +1,7 @@
 package com.github.gtache.lsp.client.languageserver.serverdefinition
 
+import com.github.gtache.lsp.utils.Utils
+
 object RawCommandServerDefinition extends UserConfigurableServerDefinitionObject {
   /**
     * Transforms an array of string into the corresponding UserConfigurableServerDefinition
@@ -11,7 +13,7 @@ object RawCommandServerDefinition extends UserConfigurableServerDefinitionObject
     if (arr.head == typ) {
       val arrTail = arr.tail
       if (arrTail.length > 1) {
-        RawCommandServerDefinition(arrTail.head, arrTail.tail)
+        RawCommandServerDefinition(arrTail.head, Utils.parseArgs(arrTail.tail))
       } else {
         null
       }

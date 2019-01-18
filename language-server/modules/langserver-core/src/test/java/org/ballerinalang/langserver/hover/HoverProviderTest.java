@@ -17,11 +17,14 @@
  */
 package org.ballerinalang.langserver.hover;
 
+import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.compiler.LSContextManager;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,7 +33,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -40,6 +42,8 @@ import java.nio.file.Path;
 public class HoverProviderTest {
     private Path balPath = FileUtils.RES_DIR.resolve("hover").resolve("hover.bal");
     private Endpoint serviceEndpoint;
+    private JsonParser parser = new JsonParser();
+    private static final Logger log = LoggerFactory.getLogger(HoverProviderTest.class);
 
     @BeforeClass
     public void loadLangServer() throws IOException {
@@ -53,30 +57,31 @@ public class HoverProviderTest {
     }
 
     @Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition")
-    public void hoverForBuiltInFunctionTest(Position position, String expectedFile)
-            throws URISyntaxException, InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
-                getExpectedValue(expectedFile),
+    public void hoverForBuiltInFunctionTest(Position position, String expectedFile) throws IOException {
+        String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
+        String expected = getExpectedValue(expectedFile);
+
+        Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
+                "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
+                + " character:" + position.getCharacter());
+    }
+
+    @Test(description = "Test Hover for current package's functions", dataProvider = "hoverCurrentPackageFuncPosition")
+    public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile) throws IOException {
+        String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
+        String expected = getExpectedValue(expectedFile);
+
+        Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
                 "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                         + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test Hover for current package's functions",
-            dataProvider = "hoverCurrentPackageFuncPosition")
-    public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile)
-            throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
-                getExpectedValue(expectedFile),
-                "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
-                        + " character:" + position.getCharacter());
-    }
+    @Test(description = "Test Hover for current package's records", dataProvider = "hoverCurrentPackageRecordPosition")
+    public void hoverForCurrentPackageRecordTest(Position position, String expectedFile) throws IOException {
+        String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
+        String expected = getExpectedValue(expectedFile);
 
-    @Test(description = "Test Hover for current package's records",
-            dataProvider = "hoverCurrentPackageRecordPosition")
-    public void hoverForCurrentPackageRecordTest(Position position, String expectedFile)
-            throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
-                getExpectedValue(expectedFile),
+        Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
                 "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                         + " character:" + position.getCharacter());
     }
@@ -89,6 +94,7 @@ public class HoverProviderTest {
 
     @DataProvider(name = "hoverBuiltinFuncPosition")
     public Object[][] getBuiltinFunctionPositions() {
+        log.info("Test textDocument/hover for builtin functions");
         return new Object[][]{
                 {new Position(43, 7), "builtin-function1.json"},
                 {new Position(44, 19), "builtin-function2.json"}
@@ -97,6 +103,7 @@ public class HoverProviderTest {
 
     @DataProvider(name = "hoverCurrentPackageFuncPosition")
     public Object[][] getCurrentPackageFunctionPositions() {
+        log.info("Test textDocument/hover for current package functions");
         return new Object[][]{
                 {new Position(45, 14), "currentPkg-function1.json"}
         };
@@ -116,6 +123,7 @@ public class HoverProviderTest {
 
     @DataProvider(name = "hoverCurrentPackageRecordPosition")
     public Object[][] getCurrentPackageStructPositions() {
+        log.info("Test textDocument/hover for current package records");
         return new Object[][]{
                 {new Position(46, 7), "currentPkg-record.json"},
                 {new Position(51, 19), "currentPkg-record.json"},

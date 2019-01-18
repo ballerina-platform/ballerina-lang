@@ -24,7 +24,7 @@ public type JWTIssuerConfig record {
     string keyPassword = "";
     string keyStoreFilePath = "";
     string keyStorePassword = "";
-    !...
+    !...;
 };
 
 # Issue a JWT token.
