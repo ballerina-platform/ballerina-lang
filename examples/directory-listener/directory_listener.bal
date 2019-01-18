@@ -2,7 +2,8 @@ import ballerina/file;
 import ballerina/log;
 
 // In this example, the listener monitors any modifications done to a specific directoy.
-// Before running the example, change the value of the 'path' field to indicate the path of the directory that you want the listener to monitor.
+// Before running the example, change the value of the 'path' field 
+// to indicate the path of the directory that you want the listener to monitor.
 // As the recursive property is set to false,
 // the listener does not monitor the child directories of the main directory
 // that it listens to.
