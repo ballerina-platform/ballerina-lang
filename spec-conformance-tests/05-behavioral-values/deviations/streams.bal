@@ -16,18 +16,16 @@
 import ballerina/test;
 import utils;
 
-// In a StringNumericEscape, CodePoint must valid Unicode code point; more precisely, it
-// must be a hexadecimal numeral denoting an integer n where 0 <= n < 0xD800 or 0xDFFF <
-// n <= 0x10FFFF.
-// TODO: Need to support string numeric escape
-// https://github.com/ballerina-platform/ballerina-lang/issues/13180
+// A value of type stream<T> is a distributor for values of type T: 
+// when a value v of type T is put into the stream, 
+// a function will be called for each subscriber to the stream with v as an argument. 
+// T must be a pure type.
+// TODO: disallow non-pure types as stream constraint types
+// https://github.com/ballerina-platform/ballerina-lang/issues/13203 
 @test:Config {
     groups: ["broken"]
 }
-function testStringNumericEscapeBroken() {
-    // string s1 = "\u0";
-    // string s2 = "\uD799";
-    // string s3 = "\uEFFF";
-    // string s4 = "\u10FFFF";
-    // // TODO: add tests
+function testStreamConstraintBroken() {
+    // the following definition should fail at compile time
+    stream<utils:FooObject> s = new;
 }

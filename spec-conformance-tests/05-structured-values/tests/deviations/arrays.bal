@@ -42,6 +42,9 @@ const int length = 3;
 // may be used instead; see Optional Types.)
 // TODO: Array member type can not be a type which has no implicit initial value
 // https://github.com/ballerina-platform/ballerina-lang/issues/13163
+@test:Config {
+    groups: ["broken"]
+}
 @test:Config {}
 function testArrayMemberTypesBroken() {
     utils:FooObject[] objectArray = []; // This should fail at compile time
