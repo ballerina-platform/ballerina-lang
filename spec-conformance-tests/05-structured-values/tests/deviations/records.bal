@@ -18,6 +18,7 @@ import ballerina/test;
 // ● if the record-rest-descriptor is empty, then the value may contain extra fields
 // belonging to any pure type
 // TODO: Need to test adding errors to a default open record (not closed, no rest field)
+// https://github.com/ballerina-platform/ballerina-lang/issues/13181
 @test:Config {
     groups: ["broken"]
 }
