@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-// Create an HTTP listener configuration which will configure a listener to
+// Create an HTTP listener configuration, which will configure a listener to
 // accept new connections that are secured via mutual SSL.
 http:ServiceEndpointConfiguration helloWorldEPConfig = {
     secureSocket: {
