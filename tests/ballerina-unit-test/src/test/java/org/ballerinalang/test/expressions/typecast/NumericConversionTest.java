@@ -242,8 +242,14 @@ public class NumericConversionTest {
     }
 
     @Test
+    public void testConversionFromUnionWithNumericBasicTypes() {
+        BValue[] returns = BRunUtil.invoke(result, "testConversionFromUnionWithNumericBasicTypes");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected numeric conversion to be successful");
+    }
+
+    @Test
     public void testNegativeExprs() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 28);
+        Assert.assertEquals(resultNegative.getErrorCount(), 25);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
                       21, 16);
@@ -297,14 +303,8 @@ public class NumericConversionTest {
                       60, 17);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
                               "'decimal'", 61, 19);
-        validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex, "incompatible types: 'float' cannot be explicitly typed as " +
                               "'int|decimal'", 66, 24);
-        validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be explicitly typed as " +
-                              "'string|decimal'", 69, 27);
-        validateError(resultNegative, errIndex++, "incompatible types: 'int|boolean' cannot be explicitly typed as " +
-                              "'float'", 74, 16);
-        validateError(resultNegative, errIndex, "incompatible types: 'float|decimal|string' cannot be explicitly " +
-                              "typed as 'int'", 77, 14);
     }
 
     @DataProvider
@@ -392,7 +392,7 @@ public class NumericConversionTest {
 
     @DataProvider
     public Object[][] intAsDecimalTests() {
-        String[] asIntTestFunctions = new String[]{"testIntAsDecimal"};
+        String[] asIntTestFunctions = new String[]{"testIntAsDecimal", "testIntAsDecimalInUnion"};
         return getFunctionAndArgArraysForInt(asIntTestFunctions);
     }
 

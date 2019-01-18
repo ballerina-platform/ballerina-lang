@@ -2467,9 +2467,7 @@ public class BVM {
                                                                    RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
                                                                    "()")));
                     handleError(ctx);
-                } else if (isExactlyOneBasicNumericType(expectedType)) {
-                    execNumericConversionOrAssertionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
-                } else if (isAssignable(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
+                } else if (expectedType.equals(bRefTypeValue.getType())) {
                     switch (expectedType.getTag()) {
                         case TypeTags.STRING_TAG:
                             sf.stringRegs[j] = bRefTypeValue.stringValue();
@@ -2477,9 +2475,25 @@ public class BVM {
                         case TypeTags.BOOLEAN_TAG:
                             sf.intRegs[j] = ((BBoolean) bRefTypeValue).booleanValue() ? 1 : 0;
                             break;
+                        case TypeTags.INT_TAG:
+                            sf.longRegs[j] = ((BInteger) bRefTypeValue).intValue();
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            sf.doubleRegs[j] = ((BFloat) bRefTypeValue).floatValue();
+                            break;
+                        case TypeTags.DECIMAL_TAG:
+                            sf.refRegs[j] = ((BDecimal) bRefTypeValue);
+                            break;
+                        case TypeTags.BYTE_TAG:
+                            sf.intRegs[j] = ((BByte) bRefTypeValue).byteValue();
+                            break;
                         default:
                             sf.refRegs[j] = bRefTypeValue;
                     }
+                } else if (containsNumericType(expectedType)) {
+                    execNumericConversionOrAssertionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
+                } else if (isAssignable(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
+                    sf.refRegs[j] = bRefTypeValue;
                 } else {
                     ctx.setError(
                             BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
@@ -2617,7 +2631,7 @@ public class BVM {
                                                                BRefType bRefTypeValue, int regIndex) {
         BType sourceType = bRefTypeValue.getType();
         int targetTag = targetType.getTag();
-        if (!isExactlyOneBasicNumericType(sourceType)) {
+        if (!isBasicNumericType(sourceType)) {
             ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
                                                    "assertion error: expected '" + targetType + "', found '" +
                                                            bRefTypeValue.getType() + "'"));
@@ -2639,6 +2653,12 @@ public class BVM {
                 case TypeTags.BYTE_TAG:
                     sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).byteValue();
                     break;
+                default:
+                    BType targetNumericType = ((BUnionType) targetType).getMemberTypes().stream()
+                            .filter(BVM::isBasicNumericType)
+                            .findFirst()
+                            .get(); // wouldn't get here if not present
+                    execNumericConversionOrAssertionOpCode(ctx, sf, targetNumericType, bRefTypeValue, regIndex);
             }
         } catch (BallerinaException e) {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
@@ -5525,9 +5545,23 @@ public class BVM {
         return type.getTag() < TypeTags.JSON_TAG;
     }
 
-    private static boolean isExactlyOneBasicNumericType(BType type) {
+    private static boolean isBasicNumericType(BType type) {
         return type.getTag() == TypeTags.INT_TAG || type.getTag() == TypeTags.FLOAT_TAG ||
                 type.getTag() == TypeTags.DECIMAL_TAG || type.getTag() == TypeTags.BYTE_TAG;
+    }
+
+    private static boolean containsNumericType(BType type) {
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+            case TypeTags.BYTE_TAG:
+                return true;
+            case TypeTags.UNION_TAG:
+                return ((BUnionType) type).getMemberTypes().stream()
+                        .anyMatch(BVM::containsNumericType);
+        }
+        return false;
     }
 
     /**

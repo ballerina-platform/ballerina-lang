@@ -187,9 +187,23 @@ public class Types {
         return type.tag < TypeTags.JSON;
     }
 
-    boolean isExactlyOneBasicNumericType(BType type) {
+    boolean isBasicNumericType(BType type) {
         return type.tag == TypeTags.INT || type.tag == TypeTags.FLOAT || type.tag == TypeTags.DECIMAL ||
                 type.tag == TypeTags.BYTE;
+    }
+
+    boolean containsNumericType(BType type) {
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.BYTE:
+                return true;
+            case TypeTags.UNION:
+                return ((BUnionType) type).memberTypes.stream()
+                        .anyMatch(this::containsNumericType);
+        }
+        return false;
     }
 
     public boolean isAnydata(BType type) {
@@ -906,7 +920,7 @@ public class Types {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
-        if (isExactlyOneBasicNumericType(targetType)) {
+        if (containsNumericType(targetType)) {
             return symResolver.getNumericConversionOrCastSymbol(sourceType, targetType);
         } else if (isAssignable(targetType, sourceType) || isAssignable(sourceType, targetType)) {
             return symResolver.createTypeAssertionSymbol(sourceType, targetType);

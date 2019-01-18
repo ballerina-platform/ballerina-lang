@@ -61,20 +61,9 @@ function testInvalidCastFromBasicTypeToBasicType() {
     decimal cd2 = <decimal> s;
 }
 
-function testInvalidCastToUnionWithBasicType() {
+function testInvalidCastToUnionWithMultipleBasicNumericTypes() {
     float f = 1.0;
     int|decimal cid1 = <int|decimal> f;
-
-    int i = 2;
-    string|decimal csd1 = <string|decimal> i;
-}
-
-function testInvalidCastFromUnionWithBasicType() {
-    int|boolean u1 = 1;
-    float f1 = <float> u1;
-
-    float|decimal|string u2 = <float> 1.0;
-    int i1 = <int> u2;
 }
 
 function getString(string s) returns string {

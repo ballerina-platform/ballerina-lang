@@ -561,15 +561,26 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     BSymbol getNumericConversionOrCastSymbol(BType sourceType, BType targetType) {
-        int sourceTypeTag = sourceType.tag;
-        if (types.isExactlyOneBasicNumericType(sourceType)) {
+        if (targetType.tag == TypeTags.UNION &&
+                ((BUnionType) targetType).memberTypes.stream()
+                        .filter(memType -> types.isBasicNumericType(memType)).count() > 1) {
+            return symTable.notFoundSymbol;
+        }
+
+        if (types.isBasicNumericType(sourceType) && types.isBasicNumericType(targetType)) {
             if (sourceType == targetType) {
-                return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType, false, true, 
+                return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType, false, true,
                                                         InstructionCodes.NOP, null, null);
             }
             return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         } else {
-            switch (sourceTypeTag) {
+            if (types.isBasicNumericType(sourceType)) {
+                return getNumericConversionOrCastSymbol(
+                        sourceType, ((BUnionType) targetType).memberTypes.stream()
+                                .filter(memType -> types.isBasicNumericType(memType)).findFirst().get());
+            }
+
+            switch (sourceType.tag) {
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
                 case TypeTags.JSON:
@@ -577,7 +588,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 case TypeTags.UNION:
                     if (((BUnionType) sourceType).memberTypes.stream()
                             .anyMatch(memType -> types.isAssignable(memType, targetType) ||
-                                    types.isAssignable(targetType, memType))) {
+                                    types.isAssignable(targetType, memType) ||
+                                    types.isBasicNumericType(memType))) {
                         return createTypeAssertionSymbol(sourceType, targetType);
                     }
             }

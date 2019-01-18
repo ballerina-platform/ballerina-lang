@@ -137,6 +137,12 @@ function testIntAsDecimal(int f1) returns (boolean, decimal) {
     return (s3 == s4 && s4 is decimal, s3);
 }
 
+function testIntAsDecimalInUnion(int f1) returns (boolean, string|decimal) {
+    string|decimal d1 = <string|decimal> f1;
+    boolean|decimal d2 = <boolean|decimal> getInt(f1);
+    return (d1 == d2 && d2 is decimal, d1);
+}
+
 function testIntAsInt(int f1) returns (boolean, int) {
     int s3 = <int> f1;
     anydata s4 = <int> getInt(f1);
@@ -396,6 +402,16 @@ function testTypeAssertionOnRecordLiterals() returns (string, string, string) {
     string s2 = init(<EmbeddedModeConfig>{});
     string s3 = init(<InMemoryModeConfig>{});
     return (s1, s2, s3);
+}
+
+function testConversionFromUnionWithNumericBasicTypes() returns boolean {
+    int|boolean u1 = 12;
+    float f1 = <float> u1;
+    boolean conversionSuccessful = f1 == <float> 12.0;
+
+    float|int|string u2 = <float> 110.5;
+    decimal|boolean d1 = <decimal|boolean> u2;
+    return conversionSuccessful && d1 == <decimal> 110.5;
 }
 
 function getString(string s) returns string {
