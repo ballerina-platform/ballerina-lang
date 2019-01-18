@@ -28,7 +28,8 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import java.util.concurrent.TimeUnit;
+
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.stdlib.common.CommonTestUtils.printDiagnostics;
 
@@ -51,15 +52,15 @@ public class CacheExpiryTest {
         BRunUtil.invokeStateful(compileResult, "initCache");
 
         // Check that the cache size gradually decreases due to cache expiry
-        await().atMost(5, SECONDS).until(() -> {
+        await().atMost(5, TimeUnit.SECONDS).until(() -> {
             BValue[] cacheSizes = BRunUtil.invokeStateful(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() == 4;
         });
-        await().atMost(20, SECONDS).until(() -> {
+        await().atMost(20, TimeUnit.SECONDS).until(() -> {
             BValue[] cacheSizes = BRunUtil.invokeStateful(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() < 4;
         });
-        await().atMost(30, SECONDS).until(() -> {
+        await().atMost(30, TimeUnit.SECONDS).until(() -> {
             BValue[] cacheSizes = BRunUtil.invokeStateful(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() == 0;
         });
