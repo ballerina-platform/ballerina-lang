@@ -103,10 +103,10 @@ type PersonObjTwo object {
 
 type Department record {
     PersonObj head;
-    PersonObjTwo...
+    PersonObjTwo...;
 };
 
 type FreezeAllowedDepartment record {
     PersonObj|string head;
-    (PersonObjTwo|string)...
+    (PersonObjTwo|string)...;
 };

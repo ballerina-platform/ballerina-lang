@@ -30,14 +30,14 @@ type Intern record {
     string name = "";
     boolean intern = false;
     int salary = 0;
-    !...
+    !...;
 };
 
 // Assignable to Person type
 type Student record {
     string name = "";
     int studentId = 0;
-    !...
+    !...;
 };
 
 Person[] personArray = [];
