@@ -1698,9 +1698,7 @@ public type TimeAccumulatingWindow object {
         self.timeInMillis = 0;
         self.expiredEventQueue = new;
         self.initParameters(windowParameters);
-        self.scheduler = new(function (StreamEvent[] events) {
-                self.process(events);
-            });
+        self.scheduler = new(function (StreamEvent[] events) { self.process(events); });
     }
 
     public function initParameters(any[] parameters) {
@@ -1736,7 +1734,6 @@ public type TimeAccumulatingWindow object {
                     StreamEvent clonedEvent = streamEvent.copy();
                     clonedEvent.eventType = "EXPIRED";
                     self.expiredEventQueue.addLast(clonedEvent);
-
                     self.scheduler.notifyAt(streamEvent.timestamp + self.timeInMillis);
                     self.lastTimestamp = streamEvent.timestamp;
                 } else {

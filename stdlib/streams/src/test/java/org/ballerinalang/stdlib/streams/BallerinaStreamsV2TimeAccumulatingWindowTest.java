@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test time accumulating window behaviour in Ballerina Streaming V2.
  *
- * @since 0.990.2
+ * @since 0.990.3
  */
 public class BallerinaStreamsV2TimeAccumulatingWindowTest {
     private CompileResult result;
