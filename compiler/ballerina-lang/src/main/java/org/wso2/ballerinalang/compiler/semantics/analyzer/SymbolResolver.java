@@ -333,42 +333,36 @@ public class SymbolResolver extends BLangNodeVisitor {
         // If there are more than one argument for stamp in-built function then fail.
         if (functionArgList.size() < 1) {
             dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
 
         if (functionArgList.size() > 1) {
             dlog.error(pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
 
         BLangExpression argumentExpression = functionArgList.get(0);
         BType variableSourceType = argumentExpression.type;
         if (!types.isLikeAnydataOrNotNil(variableSourceType) || !isStampSupportedForSourceType(variableSourceType)) {
             dlog.error(pos, DiagnosticCode.NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP, variableSourceType.toString());
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
 
         // Stamp in-built function can only called on typedesc.
         if (targetTypeExpression.type.tag != TypeTags.TYPEDESC) {
             dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name,
                     variableSourceType.toString());
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
 
         BType targetType = resolveTargetType(targetTypeExpression);
         if (targetType == null) {
-            resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
         }
 
         if (!types.isAnydata(targetType)) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
 
         return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
@@ -388,13 +382,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         // If there are more than one argument for convert in-built function then fail.
         if (functionArgList.size() < 1) {
             dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
         if (functionArgList.size() > 1) {
             dlog.error(pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
 
         BLangExpression argumentExpression = functionArgList.get(0);
@@ -402,27 +394,24 @@ public class SymbolResolver extends BLangNodeVisitor {
         // Convert in-built function can only called on typedesc.
         if (targetTypeExpression.type.tag != TypeTags.TYPEDESC) {
             dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name, variableSourceType.toString());
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
 
         BType targetType = resolveTargetType(targetTypeExpression);
         if (targetType == null) {
-            resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
         }
         // Check whether the types are anydata, since conversion is supported only for any data types.
         if (!isConvertSupportedForSourceType(variableSourceType) || !types.isAnydata(targetType)) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, variableSourceType, targetType);
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
         
         BSymbol convSymbol;
         // Check whether we can stamp the source and target types.
         if (isStampSupportedForSourceType(variableSourceType) && isStampSupportedForTargetType(targetType)) {
             convSymbol = generateStampSymbol(name, variableSourceType, targetType);
-            if (convSymbol != symTable.notFoundSymbol) {
+            if (convSymbol != symTable.invalidUsageSymbol) {
                 return convSymbol;
             }
         }
@@ -432,8 +421,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return convSymbol;
         }
         dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, variableSourceType, targetType);
-        resultType = symTable.semanticError;
-        return symTable.notFoundSymbol;
+        return symTable.invalidUsageSymbol;
     }
 
     private BType resolveTargetType(BLangExpression targetTypeExpression) {
@@ -468,14 +456,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                    DiagnosticPos pos) {
         if (!isStampSupportedForTargetType(targetType)) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
-            resultType = symTable.semanticError;
-            return symTable.notFoundSymbol;
+            return symTable.invalidUsageSymbol;
         }
 
         BSymbol stampSymbol = generateStampSymbol(name, variableSourceType, targetType);
-        if (stampSymbol == symTable.notFoundSymbol) {
+        if (stampSymbol == symTable.invalidUsageSymbol) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
-            resultType = symTable.semanticError;
         }
         return stampSymbol;
     }
@@ -499,7 +485,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             paramTypes.add(variableSourceType);
             return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
         }
-        return symTable.notFoundSymbol;
+        return symTable.invalidUsageSymbol;
     }
 
     private BSymbol getBinaryOpForNullChecks(OperatorKind opKind, BType lhsType,
