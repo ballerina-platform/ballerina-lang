@@ -54,7 +54,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Check if correct type is saved in covariant array with record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error:.*assertion error: expected 'Intern', found 'Employee'.*")
+                    ".*error:.*incompatible types: 'Employee' cannot be cast to 'Intern'.*")
     public void testInvalidCast() {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }

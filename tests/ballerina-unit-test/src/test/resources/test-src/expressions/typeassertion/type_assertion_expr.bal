@@ -513,6 +513,13 @@ function testBroaderObjectAssertion() returns boolean {
     return e === p2 && p2.name == name;
 }
 
+function testAssertionOnPotentialConversion() returns boolean {
+    string s = "Em Zee";
+    string|int|Employee u1 = s;
+    string|float u2 = <string|float> u1;
+    return u2 == s;
+}
+
 function testCastToNumericType() returns boolean {
     int i = 1;
     anydata? j = i;

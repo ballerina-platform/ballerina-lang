@@ -251,59 +251,59 @@ public class NumericConversionTest {
     public void testNegativeExprs() {
         Assert.assertEquals(resultNegative.getErrorCount(), 25);
         int errIndex = 0;
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'float'",
                       21, 16);
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'float'",
                       22, 18);
 
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
                               "'decimal'", 24, 18);
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
                               "'decimal'", 25, 18);
 
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'int'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'int'",
                       27, 14);
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'int'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'int'",
                       28, 18);
 
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'byte'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'byte'",
                       30, 18);
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'byte'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'byte'",
                       31, 15);
 
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
                               "'boolean'", 33, 19);
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
                               "'boolean'", 34, 19);
-        validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be explicitly typed as 'string'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be cast to 'string'",
                       44, 17);
-        validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be explicitly typed as 'boolean'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be cast to 'boolean'",
                       45, 18);
-        validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be explicitly typed as 'string'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be cast to 'string'",
                       47, 17);
-        validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be explicitly typed as 'boolean'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be cast to 'boolean'",
                       48, 18);
-        validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be cast to " +
                               "'string'", 50, 17);
-        validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be cast to " +
                               "'boolean'", 51, 18);
-        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be explicitly typed as 'int'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to 'int'",
                       53, 15);
-        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to " +
                               "'string'", 54, 18);
-        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to " +
                               "'float'", 55, 17);
-        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to " +
                               "'decimal'", 56, 19);
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'int'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'int'",
                       58, 15);
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
                               "'boolean'", 59, 19);
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'float'",
                       60, 17);
-        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
                               "'decimal'", 61, 19);
-        validateError(resultNegative, errIndex, "incompatible types: 'float' cannot be explicitly typed as " +
+        validateError(resultNegative, errIndex, "incompatible types: 'float' cannot be cast to " +
                               "'int|decimal'", 66, 24);
     }
 

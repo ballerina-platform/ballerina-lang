@@ -251,9 +251,9 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'function \\(Person\\) returns \\(int\\)', found 'function \\(Student\\) returns" +
-                    " \\(int\\)'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\) " +
+                    "returns \\(int\\)'\"\\}.*")
     public void testAnyToFuncPointerConversion_2() {
         BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
     }

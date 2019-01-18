@@ -11,8 +11,8 @@ int counter = 0;
 }
 public function mockPrint(any... s) {
     string outstr = "";
-    foreach var str in s{
-        outstr = outstr + <string> str;
+    foreach var str in s {
+        outstr = outstr + string.convert(str);
     }
     outputs[counter] = outstr;
     counter += 1;

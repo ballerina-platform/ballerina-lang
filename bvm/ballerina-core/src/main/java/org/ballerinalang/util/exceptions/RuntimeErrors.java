@@ -57,7 +57,7 @@ public enum RuntimeErrors {
     INVALID_RECORD_FIELD_ACCESS("invalid.record.field.access", "RUNTIME_0032"),
     INVALID_RECORD_FIELD_ADDITION("invalid.record.field.addition", "RUNTIME_0033"),
     INVALID_OBJECT_FIELD_ADDITION("invalid.object.field.addition", "RUNTIME_0034"),
-    TYPE_ASSERTION_ERROR("type.assertion.error", "RUNTIME_0035"),
+    TYPE_CAST_ERROR("incompatible.types.cannot.cast", "RUNTIME_0035"),
     INVALID_DYNAMICALLY_NESTED_TRANSACTION("dynamically.nested.transactions.are.not.allowed", "RUNTIME_0036");
 
     private String errorMsgKey;

@@ -31,7 +31,7 @@ public class BallerinaErrorReasons {
     public static final String STAMP_ERROR = BALLERINA_PREFIX.concat("StampError");
     public static final String CONVERSION_ERROR = BALLERINA_PREFIX.concat("ConversionError");
 
-    public static final String TYPE_ASSERTION_ERROR = BALLERINA_PREFIX.concat("TypeAssertionError");
+    public static final String TYPE_CAST_ERROR = BALLERINA_PREFIX.concat("TypeCastError");
     public static final String NUMBER_CONVERSION_ERROR = BALLERINA_PREFIX.concat("NumberConversionError");
     public static final String TRANSACTION_ERROR = BALLERINA_PREFIX.concat("TransactionError");
 

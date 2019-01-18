@@ -35,8 +35,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-private-fields-01-negative.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeAssertionError {\"message\":\"assertion error:" +
-                " expected 'userB', found 'org.foo:user'\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
+                " 'org.foo:user' cannot be cast to 'userB'\"}");
     }
 
     @Test(description = "Test private field access")

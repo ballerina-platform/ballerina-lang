@@ -2462,10 +2462,10 @@ public class BVM {
                         sf.refRegs[j] = null;
                         break;
                     }
-                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
                                                            BLangExceptionHelper.getErrorMessage(
-                                                                   RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
-                                                                   "()")));
+                                                                   RuntimeErrors.TYPE_CAST_ERROR, "()",
+                                                                   expectedType)));
                     handleError(ctx);
                 } else if (expectedType.equals(bRefTypeValue.getType())) {
                     switch (expectedType.getTag()) {
@@ -2490,18 +2490,17 @@ public class BVM {
                         default:
                             sf.refRegs[j] = bRefTypeValue;
                     }
-                } else if (containsNumericType(expectedType)) {
-                    execNumericConversionOrAssertionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
                 } else if (checkIsType(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
                     sf.refRegs[j] = bRefTypeValue;
+                } else if (containsNumericType(expectedType)) {
+                    execNumericConversionOrCastOpCode(ctx, sf, expectedType, bRefTypeValue, j);
                 } else {
                     ctx.setError(
-                            BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
+                            BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
                                                       BLangExceptionHelper.getErrorMessage(
-                                                              RuntimeErrors.TYPE_ASSERTION_ERROR,
-                                                                   (expectedType.getTag() == TypeTags.NULL_TAG ?
-                                                                            "()" : expectedType),
-                                                                   bRefTypeValue.getType())));
+                                                              RuntimeErrors.TYPE_CAST_ERROR, bRefTypeValue.getType(),
+                                                              (expectedType.getTag() == TypeTags.NULL_TAG ? "()" :
+                                                                       expectedType))));
                     handleError(ctx);
                 }
                 break;
@@ -2627,14 +2626,14 @@ public class BVM {
         }
     }
 
-    private static void execNumericConversionOrAssertionOpCode(Strand ctx, StackFrame sf, BType targetType,
-                                                               BRefType bRefTypeValue, int regIndex) {
+    private static void execNumericConversionOrCastOpCode(Strand ctx, StackFrame sf, BType targetType,
+                                                          BRefType bRefTypeValue, int regIndex) {
         BType sourceType = bRefTypeValue.getType();
         int targetTag = targetType.getTag();
         if (!isBasicNumericType(sourceType)) {
-            ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
-                                                   "assertion error: expected '" + targetType + "', found '" +
-                                                           bRefTypeValue.getType() + "'"));
+            ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
+                                                   BLangExceptionHelper.getErrorMessage(
+                                                           RuntimeErrors.TYPE_CAST_ERROR, sourceType, targetType)));
             handleError(ctx);
             return;
         }
@@ -2658,7 +2657,7 @@ public class BVM {
                             .filter(BVM::isBasicNumericType)
                             .findFirst()
                             .get(); // wouldn't get here if not present
-                    execNumericConversionOrAssertionOpCode(ctx, sf, targetNumericType, bRefTypeValue, regIndex);
+                    execNumericConversionOrCastOpCode(ctx, sf, targetNumericType, bRefTypeValue, regIndex);
             }
         } catch (BallerinaException e) {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));

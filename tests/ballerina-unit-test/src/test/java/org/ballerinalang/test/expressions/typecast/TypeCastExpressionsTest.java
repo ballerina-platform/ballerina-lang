@@ -58,129 +58,129 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected '\\(\\)', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to '\\(\\)'.*")
     public void testNilAssertionNegative() {
         BRunUtil.invoke(result, "testNilAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'string', found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'string'.*")
     public void testNilValueAssertionAsSimpleBasicTypeNegative() {
         BRunUtil.invoke(result, "testNilValueAssertionAsSimpleBasicTypeNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'map<string>', found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'map<string>'.*")
     public void testNilValueAssertionAsStructuredTypeNegative() {
         BRunUtil.invoke(result, "testNilValueAssertionAsStructuredTypeNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'string\\[2\\]', found 'string\\|int\\[2\\]'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'string\\|int\\[2\\]' cannot be cast to 'string\\[2\\]'\"\\}.*")
     public void testArrayAssertionNegative() {
         BRunUtil.invoke(result, "testArrayAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected '\\(string,int,float\\)', found " +
-                    "'\\(string,int\\|string,float\\)'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(string,int\\|string,float\\)' cannot be cast" +
+                    " to '\\(string,int,float\\)'.*")
     public void testTupleAssertionNegative() {
         BRunUtil.invoke(result, "testTupleAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'json', found 'xml'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'xml' cannot be cast to 'json'.*")
     public void testJsonAssertionNegative() {
         BRunUtil.invoke(result, "testJsonAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'map<string>', found 'map'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'map' cannot be cast to 'map<string>'.*")
     public void testMapAssertionNegative() {
         BRunUtil.invoke(result, "testMapAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'Lead', found 'Employee'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'Employee' cannot be cast to 'Lead'.*")
     public void testRecordAssertionNegative() {
         BRunUtil.invoke(result, "testRecordAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'table<TableEmployeeTwo>', found " +
-                    "'table<TableEmployee>'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'table<TableEmployee>' cannot be cast to " +
+                    "'table<TableEmployeeTwo>'.*")
     public void testTableAssertionNegative() {
         BRunUtil.invoke(result, "testTableAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'xml', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'xml'.*")
     public void testXmlAssertionNegative() {
         BRunUtil.invoke(result, "testXmlAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'error', found 'MyError'.*",
+            expectedExceptionsMessageRegExp = ".*error: incompatible types: expected 'error', found 'MyError'.*",
             enabled = false)
     public void testErrorAssertionNegative() {
         BRunUtil.invoke(result, "testErrorAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*assertion error: expected 'function \\(string\\) returns \\" +
-                "(string\\)', found 'function \\(string,int\\) returns \\(string\\)'.*")
+        expectedExceptionsMessageRegExp = ".*'function \\(string,int\\) returns \\(string\\)' cannot be cast to " +
+                "'function \\(string\\) returns \\(string\\)'.*")
     public void testFunctionAssertionNegative() {
         BRunUtil.invoke(result, "testFunctionAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'function \\(string\\) returns \\" +
-                    "(string\\)', found 'function \\(string,int\\) returns \\(string\\)'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*error: incompatible types: expected 'function \\(string\\) " +
+                    "returns \\(string\\)', found 'function \\(string,int\\) returns \\(string\\)'.*", enabled = false)
     public void testFutureAssertionNegative() {
         BRunUtil.invoke(result, "testFutureAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'LeadObject', found 'EmployeeObject'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'EmployeeObject' cannot be cast to 'LeadObject'.*")
     public void testObjectAssertionNegative() {
         BRunUtil.invoke(result, "testObjectAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion error:" +
-                " expected 'stream<boolean>', found 'stream<int>'\"\\}.*")
+        expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
+                " 'stream<int>' cannot be cast to 'stream<boolean>'\"\\}.*")
     public void testStreamAssertionNegative() {
         BRunUtil.invoke(result, "testStreamAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'int', found 'typedesc'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'typedesc' cannot be cast to 'int'.*")
     public void testTypedescAssertionNegative() {
         BRunUtil.invoke(result, "testTypedescAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'map<int>', found 'map<string>'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'map<string>' cannot be cast to 'map<int>'.*")
     public void testMapElementAssertionNegative() {
         BRunUtil.invoke(result, "testMapElementAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'int', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
     public void testListElementAssertionNegative() {
         BRunUtil.invoke(result, "testListElementAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'stream<boolean\\|EmployeeObject>', found 'stream<int\\|float>'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'stream<int\\|float>' cannot be cast to 'stream<boolean\\|EmployeeObject>'\"\\}.*")
     public void testOutOfOrderUnionConstraintAssertionNegative() {
         BRunUtil.invoke(result, "testOutOfOrderUnionConstraintAssertionNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*assertion error: expected 'int', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
     public void testStringAsInvalidBasicType() {
         BRunUtil.invoke(result, "testStringAsInvalidBasicType");
     }
@@ -191,17 +191,16 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'function (string) returns (string)', found " +
-                                    "'function (string,int) returns (string)'");
+                            "incompatible types: 'function (string,int) returns (string)' cannot be cast to " +
+                                    "'function (string) returns (string)'");
     }
 
     @Test
     public void testAssertionNegatives() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         int errIndex = 0;
-        validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be explicitly typed as 'Abc'",
-                      19, 15);
-        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 25, 22);
+        validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be cast to 'Abc'", 19, 15);
+        validateError(resultNegative, errIndex, "type cast not yet supported for type 'future<int>'", 25, 22);
     }
 
     @DataProvider
@@ -230,7 +229,8 @@ public class TypeCastExpressionsTest {
                 {"testListElementAssertionPositive"},
                 {"testOutOfOrderUnionConstraintAssertionPositive"},
                 {"testCastToNumericType"},
-                {"testBroaderObjectAssertion"}
+                {"testBroaderObjectAssertion"},
+                {"testAssertionOnPotentialConversion"}
         };
     }
 }
