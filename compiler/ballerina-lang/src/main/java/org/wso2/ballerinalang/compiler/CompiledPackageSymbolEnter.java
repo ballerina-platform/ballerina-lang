@@ -655,11 +655,17 @@ public class CompiledPackageSymbolEnter {
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
         setDocumentation(constantSymbol, attrDataMap);
 
+        // Todo - add map support for constants which are read
+
         // Read value of the constant and set it in the symbol.
         BLangLiteral constantValue = getConstantValue(attrDataMap);
         constantSymbol.literalValue = constantValue.value;
         constantSymbol.literalValueType = constantValue.type;
         constantSymbol.literalValueTypeTag = constantValue.typeTag;
+
+        if (memIndex != -1) {
+            constantSymbol.varIndex = new RegIndex(memIndex, constantSymbol.literalValueType.tag);
+        }
     }
 
     private BLangLiteral getConstantValue(Map<Kind, byte[]> attrDataMap) throws IOException {
