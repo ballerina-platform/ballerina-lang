@@ -1,8 +1,8 @@
 import ballerina/h2;
 import ballerina/io;
 
-// Create a client endpoint for `h2` database. Change the path before running the sample.
-// This will create a new database in the given path if not exists already.
+// Create a client endpoint for the `h2` database. Before running the sample, change the value of the 'path' field to indicate the path of a directory you create in a preferred location.
+// This will create a new database in the given path if one does not exist already.
 h2:Client testDB = new({
         path: "./h2-client",
         name: "testdb",
