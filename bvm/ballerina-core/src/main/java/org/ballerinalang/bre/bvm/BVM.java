@@ -2492,7 +2492,7 @@ public class BVM {
                     }
                 } else if (containsNumericType(expectedType)) {
                     execNumericConversionOrAssertionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
-                } else if (isAssignable(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
+                } else if (checkIsType(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
                     sf.refRegs[j] = bRefTypeValue;
                 } else {
                     ctx.setError(
@@ -3778,11 +3778,7 @@ public class BVM {
         }
 
         if (rhsType.getTag() == TypeTags.TABLE_TAG && lhsType.getTag() == TypeTags.TABLE_TAG) {
-            BTableType lhsTableType = (BTableType) lhsType;
-            BTableType rhsTableType = (BTableType) rhsType;
-            return rhsTableType.equals(lhsTableType) || rhsTableType.getConstrainedType() == null ||
-                    isAssignable(rhsTableType.getConstrainedType(), lhsTableType.getConstrainedType(),
-                                 new ArrayList<>());
+            return true;
         }
 
         if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {
@@ -3809,8 +3805,23 @@ public class BVM {
             return true;
         }
 
-        return isAssignable(sourceMapType.getConstrainedType(), ((BMapType) targetType).getConstrainedType(),
-                            new ArrayList<>());
+        if (targetMapType.getConstrainedType().getTag() == TypeTags.ANY_TAG) {
+            return true;
+        }
+
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG &&
+                targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            return checkObjectEquivalency((BStructureType) sourceMapType.getConstrainedType(),
+                                          (BStructureType) targetMapType.getConstrainedType(), unresolvedTypes);
+        }
+
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
+                targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+            return checkRecordEquivalency((BRecordType) targetMapType.getConstrainedType(),
+                                          (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
+        }
+
+        return false;
     }
 
     private static boolean checkArrayCast(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
