@@ -337,7 +337,7 @@ public class BDecimalNaNInfinityTest {
         for (int i = 0; i < 6; i++) {
             Assert.assertSame(returns[i].getClass(), BBoolean.class);
             BBoolean value = (BBoolean) returns[i];
-            if(i < 2) {
+            if (i < 2) {
                 Assert.assertTrue(value.booleanValue(), "Invalid boolean value returned.");
             } else {
                 Assert.assertFalse(value.booleanValue(), "Invalid boolean value returned.");
@@ -352,7 +352,7 @@ public class BDecimalNaNInfinityTest {
         for (int i = 0; i < 6; i++) {
             Assert.assertSame(returns[i].getClass(), BBoolean.class);
             BBoolean value = (BBoolean) returns[i];
-            if(i < 3) {
+            if (i < 3) {
                 Assert.assertFalse(value.booleanValue(), "Invalid boolean value returned.");
             } else {
                 Assert.assertTrue(value.booleanValue(), "Invalid boolean value returned.");
@@ -367,7 +367,7 @@ public class BDecimalNaNInfinityTest {
         for (int i = 0; i < 6; i++) {
             Assert.assertSame(returns[i].getClass(), BBoolean.class);
             BBoolean value = (BBoolean) returns[i];
-            if(i < 3) {
+            if (i < 3) {
                 Assert.assertFalse(value.booleanValue(), "Invalid boolean value returned.");
             } else {
                 Assert.assertTrue(value.booleanValue(), "Invalid boolean value returned.");
