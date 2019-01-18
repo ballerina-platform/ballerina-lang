@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
- * Common test utilities used in ballerina stdlib
+ * Common test utilities used in ballerina stdlib tests.
  *
  * @since 0.990.3
  */
