@@ -101,14 +101,14 @@ ClusterRegion=${CONFIG[ClusterRegion]};
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
-wget https://product-dist.ballerina.io/downloads/0.990.2/ballerina-linux-installer-x64-0.990.2.deb
-sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb --quiet
+wget https://product-dist.ballerina.io/nightly/0.990.3-SNAPSHOT/ballerina-linux-installer-x64-0.990.3-SNAPSHOT.deb
+sudo dpkg -i ballerina-linux-installer-x64-0.990.3-SNAPSHOT.deb --quiet
 
 ballerina version
 
 wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
 
-tar -xvzf mysql-connector-java-5.1.47.tar.gz --directory ./
+tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ./
 
 # Write config to a custom location
 eksctl utils write-kubeconfig --name ${ClusterName} --region ${ClusterRegion} --kubeconfig "ballerina-config"
