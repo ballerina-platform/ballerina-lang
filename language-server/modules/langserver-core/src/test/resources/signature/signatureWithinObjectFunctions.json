@@ -1,0 +1,44 @@
+{
+  "position": {
+    "line": 6,
+    "character": 30
+  },
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "testSignatureAndHover(int param1, string param2)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "This function shows the hover and signature content"
+            }
+          },
+          "parameters": [
+            {
+              "label": "param1",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "This is the description for `param1`"
+                }
+              }
+            },
+            {
+              "label": "param2",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "This is the description for `param2`"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "jsonrpc": "2.0"
+  }
+}

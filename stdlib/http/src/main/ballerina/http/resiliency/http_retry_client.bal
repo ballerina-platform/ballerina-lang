@@ -32,7 +32,7 @@ public type RetryInferredConfig record {
     float backOffFactor = 0.0;
     int maxWaitInterval = 0;
     boolean[] statusCodes = [];
-    !...
+    !...;
 };
 
 # Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client

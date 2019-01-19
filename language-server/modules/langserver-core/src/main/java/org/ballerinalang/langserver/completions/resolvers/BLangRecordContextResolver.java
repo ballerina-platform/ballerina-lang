@@ -50,7 +50,7 @@ public class BLangRecordContextResolver extends AbstractItemResolver {
         if (this.isInvocationOrInteractionOrFieldAccess(context)) {
             Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
-            completionItems.addAll(this.getCompletionsFromEither(eitherList, context));
+            completionItems.addAll(this.getCompletionItemList(eitherList, context));
         } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
             // This parser rule context is used to select the proper sorter.

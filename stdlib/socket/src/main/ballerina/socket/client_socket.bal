@@ -80,5 +80,5 @@ public type ClientConfig record {
     string host;
     int port;
     service callbackService?;
-    !...
+    !...;
 };

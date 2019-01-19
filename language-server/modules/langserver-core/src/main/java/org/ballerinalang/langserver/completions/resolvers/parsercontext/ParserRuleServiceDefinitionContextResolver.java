@@ -97,7 +97,7 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
                 Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
                         .get(DelimiterBasedContentFilter.class)
                         .filterItems(ctx);
-                completionItems.addAll(this.getCompletionsFromEither(eitherList, ctx));
+                completionItems.addAll(this.getCompletionItemList(eitherList, ctx));
                 break;
             }
             default: {

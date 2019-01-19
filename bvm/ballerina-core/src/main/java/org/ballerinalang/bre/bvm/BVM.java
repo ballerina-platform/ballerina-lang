@@ -3117,6 +3117,10 @@ public class BVM {
             return false;
         }
 
+        if (isIgnorableInstruction(ctx)) {
+            return false;
+        }
+        
         LineNumberInfo currentExecLine = debugger
                 .getLineNumber(ctx.currentFrame.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.currentFrame.ip);
         /*
@@ -3157,6 +3161,11 @@ public class BVM {
                 debugger.stopDebugging();
         }
         return false;
+    }
+
+    private static boolean isIgnorableInstruction(Strand ctx) {
+        int opcode = ctx.currentFrame.code[ctx.currentFrame.ip].getOpcode();
+        return opcode == InstructionCodes.GOTO;
     }
 
     /**
@@ -3667,7 +3676,7 @@ public class BVM {
         }
 
         if (getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
-            return checkJSONCast(rhsValue, rhsType, lhsType, unresolvedTypes);
+            return checkJSONCast(rhsValue, rhsType, lhsType);
         }
 
         if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
@@ -3731,9 +3740,6 @@ public class BVM {
                 case TypeTags.MAP_TAG:
                     return checkCastByType(((BMapType) rhsType).getConstrainedType(), lhsType, unresolvedTypes);
                 case TypeTags.ARRAY_TAG:
-                    if (((BJSONType) lhsType).getConstrainedType() != null) {
-                        return false;
-                    }
                     return checkCastByType(((BArrayType) rhsType).getElementType(), lhsType, unresolvedTypes);
                 default:
                     return false;
@@ -4127,63 +4133,15 @@ public class BVM {
         return false;
     }
 
-    private static boolean checkJSONEquivalency(BValue json, BJSONType sourceType, BJSONType targetType,
-                                                List<TypePair> unresolvedTypes) {
-        BRecordType sourceConstrainedType = (BRecordType) sourceType.getConstrainedType();
-        BRecordType targetConstrainedType = (BRecordType) targetType.getConstrainedType();
-
-        // Casting to an unconstrained JSON
-        if (targetConstrainedType == null) {
-            return true;
-        }
-
-        // Casting from constrained JSON to constrained JSON
-        if (sourceConstrainedType != null) {
-            if (sourceConstrainedType.equals(targetConstrainedType)) {
-                return true;
-            }
-
-            return checkRecordEquivalency(targetConstrainedType, sourceConstrainedType, unresolvedTypes);
-        }
-
-        // Casting from unconstrained JSON to constrained JSON
-        if (json == null) {
-            return true;
-        }
-
-        // Return false if the JSON is not a json-object
-        if (json.getType().getTag() != TypeTags.JSON_TAG) {
-            return false;
-        }
-
-        BMap<String, BValue> jsonObject = (BMap<String, BValue>) json;
-        Map<String, BField> tFields = targetConstrainedType.getFields();
-        for (Map.Entry<String, BField> tFieldEntry : tFields.entrySet()) {
-            String fieldName = tFieldEntry.getKey();
-            if (!jsonObject.hasKey(fieldName)) {
-                return false;
-            }
-
-            BValue fieldVal = jsonObject.get(fieldName);
-            if (!checkJSONCast(fieldVal, fieldVal.getType(), tFieldEntry.getValue().getFieldType(), unresolvedTypes)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     /**
      * Check the compatibility of casting a JSON to a target type.
      *
      * @param json       JSON to cast
      * @param sourceType Type of the source JSON
      * @param targetType Target type
-     * @param unresolvedTypes Unresolved types
      * @return Runtime compatibility for casting
      */
-    private static boolean checkJSONCast(BValue json, BType sourceType, BType targetType,
-                                         List<TypePair> unresolvedTypes) {
+    private static boolean checkJSONCast(BValue json, BType sourceType, BType targetType) {
         switch (targetType.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
@@ -4202,22 +4160,13 @@ public class BVM {
                     // get the element type of source and json, and recursively check for json casting.
                     BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG
                             ? ((BArrayType) sourceType).getElementType() : sourceType;
-                    if (!checkJSONCast(array.getRefValue(i), sourceElementType, arrayType.getElementType(),
-                            unresolvedTypes)) {
+                    if (!checkJSONCast(array.getRefValue(i), sourceElementType, arrayType.getElementType())) {
                         return false;
                     }
                 }
                 return true;
             case TypeTags.JSON_TAG:
-                // If JSON is unconstrained, any JSON value is compatible
-                if (((BJSONType) targetType).getConstrainedType() == null &&
-                        getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
-                    return true;
-                } else if (sourceType.getTag() != TypeTags.JSON_TAG) {
-                    // If JSON is constrained, only JSON objects are compatible
-                    return false;
-                }
-                return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType, unresolvedTypes);
+                return getElementType(sourceType).getTag() == TypeTags.JSON_TAG;
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
                 return true;
@@ -4991,9 +4940,7 @@ public class BVM {
     }
 
     private static boolean checkIsLikeJSONType(BValue sourceValue, BJSONType targetType) {
-        if (targetType.getConstrainedType() != null) {
-            return checkIsLikeType(sourceValue, targetType.getConstrainedType());
-        } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
+        if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
             BValueArray source = (BValueArray) sourceValue;
             if (BTypes.isValueType(source.elementType)) {
                 return checkIsType(source.elementType, targetType, new ArrayList<>());
@@ -5130,22 +5077,6 @@ public class BVM {
 
     private static boolean checkIsJSONType(BType sourceType, BJSONType targetType,
                                          List<TypePair> unresolvedTypes) {
-        // If the target is an constrained JSON, then value also should be of
-        // constrained JSON type. And the constraints should satisfy 'is type'
-        // relationship.
-        if (targetType.getConstrainedType() != null) {
-            if (sourceType.getTag() != TypeTags.JSON_TAG) {
-                return false;
-            }
-
-            BType constraintType = ((BJSONType) sourceType).getConstrainedType();
-            if (constraintType == null) {
-                return false;
-            }
-
-            return checkIsType(constraintType, targetType.getConstrainedType(), unresolvedTypes);
-        }
-
         switch (sourceType.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
@@ -5153,10 +5084,8 @@ public class BVM {
             case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
-                return true;
             case TypeTags.JSON_TAG:
-                // JSON should be unconstrained
-                return targetType.getConstrainedType() == null;
+                return true;
             case TypeTags.ARRAY_TAG:
                 // Element type of the array should be 'is type' JSON
                 return checkIsType(((BArrayType) sourceType).getElementType(), targetType, unresolvedTypes);
