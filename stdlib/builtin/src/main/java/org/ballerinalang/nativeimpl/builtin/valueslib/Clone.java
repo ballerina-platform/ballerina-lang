@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.builtin.internallib;
+package org.ballerinalang.nativeimpl.builtin.valueslib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -36,7 +36,7 @@ import java.util.HashMap;
 /**
  * Performs a deep copy, recursively copying all structural values and their members.
  *
- * @since 0.990.3
+ * @since 0.991.0
  */
 @BallerinaFunction(
         orgName = "ballerina",

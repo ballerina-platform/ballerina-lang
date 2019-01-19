@@ -82,8 +82,6 @@ public class SymbolTable {
             Names.RUNTIME_PACKAGE,
             Names.EMPTY);
 
-    public static final String CLONE_FUNCTION = "cloneValue";
-
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
 
