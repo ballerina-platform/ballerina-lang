@@ -42,7 +42,7 @@ public enum BLangBuiltInMethod {
 
     IS_FROZEN("isFrozen", true),
 
-    CLONE("clone", true),
+    CLONE("clone", "_clone", true),
 
     STAMP("stamp", true),
 
@@ -57,6 +57,7 @@ public enum BLangBuiltInMethod {
     UNDEFINED("$undefined", true);
 
     private String name;
+    private String internalName;
     private boolean isExternal;
 
     BLangBuiltInMethod(String name, boolean isExternal) {
@@ -64,8 +65,18 @@ public enum BLangBuiltInMethod {
         this.isExternal = isExternal;
     }
 
+    BLangBuiltInMethod(String name, String internalName, boolean isExternal) {
+        this.name = name;
+        this.internalName = internalName;
+        this.isExternal = isExternal;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public String getInternalName() {
+        return internalName;
     }
 
     public boolean isExternal() {
