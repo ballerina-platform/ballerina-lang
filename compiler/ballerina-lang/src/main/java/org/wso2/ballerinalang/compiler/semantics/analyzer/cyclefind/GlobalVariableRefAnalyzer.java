@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 public class GlobalVariableRefAnalyzer {
     private final BLangDiagnosticLog dlog;
     private final BLangPackage pkgNode;
-    private final Map<BSymbol, List<BSymbol>> globalNodeDependsOn;
+    private final Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private final Map<BSymbol, NodeInfo> dependencyNodes;
     private final Deque<NodeInfo> nodeInfoStack;
     private final List<List<NodeInfo>> cycles;
@@ -61,7 +61,7 @@ public class GlobalVariableRefAnalyzer {
 
     public GlobalVariableRefAnalyzer(BLangPackage pkgNode,
                                      BLangDiagnosticLog dlog,
-                                     Map<BSymbol, List<BSymbol>> globalNodeDependsOn) {
+                                     Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
         this.pkgNode = pkgNode;
         this.dlog = dlog;
         this.globalNodeDependsOn = globalNodeDependsOn;
@@ -99,15 +99,16 @@ public class GlobalVariableRefAnalyzer {
                 dependencyOrder.clear();
             }
 
-            List<BSymbol> symbolsProviders = globalNodeDependsOn.get(symbol);
+            Set<BSymbol> symbolsProviders = globalNodeDependsOn.get(symbol);
             boolean symbolHasProviders = symbolsProviders != null && !symbolsProviders.isEmpty();
+            boolean notInSortedList = !sorted.contains(symbol);
 
             // Independent variable declaration, add to sorted list.
-            if (!symbolHasProviders && (!sorted.contains(symbol))) {
+            if (notInSortedList && !symbolHasProviders) {
                 moveAndAppendToSortedList(symbol, dependencies, sorted);
             }
             // Dependent variable, and all the dependencies are satisfied, add to sorted list.
-            if (symbolHasProviders && sorted.containsAll(symbolsProviders) && !sorted.contains(symbol)) {
+            if (notInSortedList && symbolHasProviders && sorted.containsAll(symbolsProviders)) {
                 moveAndAppendToSortedList(symbol, dependencies, sorted);
             }
 
@@ -125,7 +126,7 @@ public class GlobalVariableRefAnalyzer {
         projectSortToTopLevelNodesList();
     }
 
-    private void pruneDependencyRelations(Map<BSymbol, List<BSymbol>> globalNodeDependsOn) {
+    private void pruneDependencyRelations(Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
         List<BSymbol> dependents = new ArrayList<>(globalNodeDependsOn.keySet());
         Set<BSymbol> visited = new HashSet<>();
         for (BSymbol dependent : dependents) {
@@ -137,7 +138,7 @@ public class GlobalVariableRefAnalyzer {
         }
     }
 
-    private void pruneFunctions(BSymbol dependent, BSymbol provider, Map<BSymbol, List<BSymbol>> globalNodeDependsOn,
+    private void pruneFunctions(BSymbol dependent, BSymbol provider, Map<BSymbol, Set<BSymbol>> globalNodeDependsOn,
                                 Set<BSymbol> visited) {
         if (visited.contains(provider)) {
             return;
@@ -168,7 +169,7 @@ public class GlobalVariableRefAnalyzer {
         // For each dependency if they satisfy their dependencies in sorted list, then add them to sorted list.
         ArrayList<BSymbol> depCopy = new ArrayList<>(dependencies);
         for (BSymbol dep : depCopy) {
-            List<BSymbol> depsDependencies = globalNodeDependsOn.getOrDefault(dep, new ArrayList<>());
+            Set<BSymbol> depsDependencies = globalNodeDependsOn.getOrDefault(dep, new LinkedHashSet<>());
             if (!depsDependencies.isEmpty() && sorted.containsAll(depsDependencies)) {
                 moveAndAppendToSortedList(dep, dependencies, sorted);
             }
@@ -237,7 +238,7 @@ public class GlobalVariableRefAnalyzer {
         node.onStack = true;
         nodeInfoStack.push(node);
 
-        List<BSymbol> providers = globalNodeDependsOn.getOrDefault(node.symbol, new ArrayList<>());
+        Set<BSymbol> providers = globalNodeDependsOn.getOrDefault(node.symbol, new LinkedHashSet<>());
         for (BSymbol providerSym : providers) {
             NodeInfo providerNode =
                     dependencyNodes.computeIfAbsent(providerSym, s -> new NodeInfo(curNodeId++, providerSym));
@@ -284,9 +285,9 @@ public class GlobalVariableRefAnalyzer {
 
         BSymbol firstNodeSymbol = firstGlobalVar.get();
         Optional<BLangNode> firstNode = pkgNode.topLevelNodes.stream()
-                .filter(t -> t.getKind() == NodeKind.VARIABLE || t.getKind() == NodeKind.FUNCTION)
+                .filter(t -> (t.getKind() == NodeKind.VARIABLE || t.getKind() == NodeKind.FUNCTION)
+                        && getVarOrFuncSymbol(t) == firstNodeSymbol)
                 .map(t -> (BLangNode) t)
-                .filter(n -> getVarOrFuncSymbol(n) == firstNodeSymbol)
                 .findAny();
 
         int splitFrom = symbolsOfCycle.indexOf(firstNodeSymbol);

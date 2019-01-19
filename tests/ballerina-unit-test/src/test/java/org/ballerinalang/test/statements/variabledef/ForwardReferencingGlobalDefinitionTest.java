@@ -41,8 +41,8 @@ public class ForwardReferencingGlobalDefinitionTest {
                 "test-src/statements/variabledef/globalcycle", "simple");
         Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
-        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 19, 1);
-        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 38, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 35, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 54, 1);
     }
 
     @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")

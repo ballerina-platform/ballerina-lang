@@ -189,6 +189,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -215,7 +216,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
     private Map<BSymbol, InitStatus> uninitializedVars;
-    private Map<BSymbol, List<BSymbol>> globalNodeDependsOn;
+    private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Set<BSymbol> globalVarSymbols;
     private boolean flowTerminated = false;
     private BLangAnonymousModelHelper anonymousModelHelper;
@@ -590,10 +591,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (dependent.pkgID != provider.pkgID) {
             return;
         }
-        List<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new ArrayList<>());
-        if (!providers.contains(provider)) {
-            providers.add(provider);
-        }
+        Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new LinkedHashSet<>());
+        providers.add(provider);
     }
 
     @Override
