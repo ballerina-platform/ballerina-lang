@@ -1,5 +1,6 @@
 import ballerina/mime;
 import ballerina/http;
+import ballerina/crypto;
 
 string textValue = "Hello Ballerina!";
 xml testValue = xml `<test><name>ballerina</name></test>`;
@@ -184,9 +185,9 @@ service echo on mockEP {
         http:Response response = new;
         var payload = request.getJsonPayload();
         if (payload is json) {
-            response.setPayload(crypto:unsafeMarkUntainted(payload));
+            response.setPayload(<json>crypto:unsafeMarkUntainted(payload));
         } else if (payload is error) {
-            response.setPayload(crypto:unsafeMarkUntainted(<string>payload.detail().message));
+            response.setPayload(<string>crypto:unsafeMarkUntainted(<string>payload.detail().message));
         }
         _ = caller->respond(response);
     }

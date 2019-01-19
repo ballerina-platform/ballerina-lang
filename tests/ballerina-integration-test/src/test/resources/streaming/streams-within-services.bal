@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
+import ballerina/crypto;
 
 string alertedHostName = "NotAssigned";
 
@@ -62,7 +63,7 @@ service StoreService bind storeServiceEndpoint {
         path:"/requests"
     }
     requests (endpoint conn, http:Request req) {
-        string hostName = crypto:unsafeMarkUntainted(req.getHeader("Host"));
+        string hostName = <string>crypto:unsafeMarkUntainted(req.getHeader("Host"));
         ClientRequest clientRequest = {host : hostName};
         requestStream.publish(clientRequest);
 

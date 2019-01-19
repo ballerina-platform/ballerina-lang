@@ -39,7 +39,8 @@ service retryStatusService on new http:Listener(9225) {
     }
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
         if (request.getHeader("x-retry") == "recover") {
-            var backendResponse = internalErrorEP->get("/status/recover", message = crypto:unsafeMarkUntainted(request));
+            var backendResponse = internalErrorEP->get("/status/recover",
+                message = <http:Request>crypto:unsafeMarkUntainted(request));
             if (backendResponse is http:Response) {
                 var responseError = caller->respond(backendResponse);
                 if (responseError is error) {
@@ -55,7 +56,8 @@ service retryStatusService on new http:Listener(9225) {
                 }
             }
         } else if (request.getHeader("x-retry") == "internalError") {
-            var backendResponse = internalErrorEP->get("/status/internalError", message = crypto:unsafeMarkUntainted(request));
+            var backendResponse = internalErrorEP->get("/status/internalError",
+                message = <http:Request>crypto:unsafeMarkUntainted(request));
             if (backendResponse is http:Response) {
                 var responseError = caller->respond(backendResponse);
                 if (responseError is error) {

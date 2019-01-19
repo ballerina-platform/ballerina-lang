@@ -42,8 +42,8 @@ service proxyService on new http:Listener(9219) {
         path:"/*"
     }
     resource function sayHello (http:Caller caller, http:Request req) {
-        string url = crypto:unsafeMarkUntainted(req.rawPath);
-        sendRequest(url, crypto:unsafeMarkUntainted(req), caller);
+        string url = <string>crypto:unsafeMarkUntainted(req.rawPath);
+        sendRequest(url, <http:Request>crypto:unsafeMarkUntainted(req), caller);
     }
 }
 

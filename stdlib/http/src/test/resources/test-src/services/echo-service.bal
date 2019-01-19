@@ -1,6 +1,7 @@
 import ballerina/mime;
 import ballerina/http;
 import ballerina/io;
+import ballerina/crypto;
 
 final string constPath = getConstPath();
 
@@ -54,7 +55,7 @@ service echo on echoEP {
         } else if (payload is string) {
             payloadData = payload;
         }
-        self.serviceLevelStr = crypto:unsafeMarkUntainted(payloadData);
+        self.serviceLevelStr = <string>crypto:unsafeMarkUntainted(payloadData);
         _ = caller->respond(res);
     }
 
@@ -124,10 +125,10 @@ service echo on echoEP {
                 team = params.team;
             }
             json responseJson = {"Name":name , "Team":team};
-            res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+            res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         } else if (params is error) {
             string errMsg = <string> params.detail().message;
-            res.setPayload(crypto:unsafeMarkUntainted(errMsg));
+            res.setPayload(<string>crypto:unsafeMarkUntainted(errMsg));
         }
         _ = caller->respond(res);
     }
@@ -149,7 +150,7 @@ service echo on echoEP {
     resource function errorReturn(http:Caller caller, http:Request req) returns error? {
         json payload = check req.getJsonPayload();
         http:Response res = new;
-        res.setPayload(crypto:unsafeMarkUntainted(payload));
+        res.setPayload(<json>crypto:unsafeMarkUntainted(payload));
         res.statusCode = 200;
         _ = caller->respond(res);
     }

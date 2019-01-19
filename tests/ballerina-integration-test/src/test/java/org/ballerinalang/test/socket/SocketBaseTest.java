@@ -40,9 +40,6 @@ public class SocketBaseTest extends BaseTest {
     @BeforeGroups(value = "socket-test",
                   alwaysRun = true)
     public void start() throws BallerinaTestException {
-        executor = Executors.newSingleThreadExecutor();
-        MockSocketServer mockSocketServer = new MockSocketServer();
-        executor.execute(mockSocketServer);
         String privateKey = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "private.key").toAbsolutePath().toString());
         String publicCert = StringEscapeUtils.escapeJava(
@@ -55,6 +52,10 @@ public class SocketBaseTest extends BaseTest {
         String[] args = new String[] { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert };
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(balFile, "services", args, requiredPorts);
+
+        executor = Executors.newSingleThreadExecutor();
+        MockSocketServer mockSocketServer = new MockSocketServer();
+        executor.execute(mockSocketServer);
     }
 
     @AfterGroups(value = "socket-test",

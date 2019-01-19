@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/io;
+import ballerina/crypto;
 
 listener http:MockListener testEP = new(9090);
 
@@ -20,7 +21,7 @@ service TestService on testEP {
         }
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(jsonArray));
+        res.setJsonPayload(<json[]>crypto:unsafeMarkUntainted(jsonArray));
         _ = caller -> respond(res);
     }
 }

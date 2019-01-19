@@ -18,6 +18,7 @@ import ballerina/http;
 import ballerina/h2;
 import ballerina/sql;
 import ballerina/io;
+import ballerina/crypto;
 
 @http:ServiceConfig {
     basePath:"/test"
@@ -41,7 +42,7 @@ service metricsTest on new http:Listener(9090){
             if (jData is json) {
                 string result = jData.toString();
                 http:Response resp = new;
-                resp.setTextPayload(crypto:unsafeMarkUntainted(result));
+                resp.setTextPayload(<string>crypto:unsafeMarkUntainted(result));
                 _ = caller -> respond(resp);
             }  else {
                 error err = error ("error occurred 1111");

@@ -11,7 +11,8 @@ service headerService on new http:Listener(9106) {
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
 
-        var result = stockqEP->get("/sample/stocks", message = crypto:unsafeMarkUntainted(req));
+        var result = stockqEP->get("/sample/stocks",
+            message = <http:Request>crypto:unsafeMarkUntainted(req));
         if (result is http:Response) {
             _ = caller->respond(result);
         } else if (result is error) {
@@ -97,7 +98,8 @@ service headerService on new http:Listener(9106) {
     }
 
     resource function passthruGet(http:Caller caller, http:Request req) {
-        var result = stockqEP->get("/sample/entitySizeChecker", message = crypto:unsafeMarkUntainted(req));
+        var result = stockqEP->get("/sample/entitySizeChecker",
+            message = <http:Request>crypto:unsafeMarkUntainted(req));
         if (result is http:Response) {
             _ = caller->respond(result);
         } else if (result is error) {
@@ -128,7 +130,7 @@ service quoteService1 on new http:Listener(9107) {
             payload = {"response":"core header not available"};
         }
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(payload));
+        res.setJsonPayload(jsonMarkUntainted(payload));
         _ = caller->respond(res);
     }
 
@@ -150,4 +152,8 @@ service quoteService1 on new http:Listener(9107) {
             _ = caller->respond("No Content size related header present");
         }
     }
+}
+
+function jsonMarkUntainted(json val) returns @untainted json {
+    return val;
 }

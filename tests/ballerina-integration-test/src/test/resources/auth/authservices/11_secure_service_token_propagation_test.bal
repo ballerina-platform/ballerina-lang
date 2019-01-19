@@ -35,7 +35,8 @@ service passthroughService03 on listener11 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP03->get("/nyseStock/stocks", message = crypto:unsafeMarkUntainted(clientRequest));
+        var response = nyseEP03->get("/nyseStock/stocks",
+            message = <http:Request>crypto:unsafeMarkUntainted(clientRequest));
         if (response is http:Response) {
             _ = caller->respond(response);
         } else if (response is error) {

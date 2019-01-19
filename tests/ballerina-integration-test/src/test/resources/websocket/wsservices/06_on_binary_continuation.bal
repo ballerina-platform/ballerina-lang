@@ -16,18 +16,19 @@
 
 import ballerina/http;
 import ballerina/io;
+import ballerina/crypto;
 
 byte[] content = [];
 service onBinaryContinuation on new http:WebSocketListener(9088) {
     resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean finalFrame) {
         if (finalFrame) {
-            appendToArray(crypto:unsafeMarkUntainted(data), content);
+            appendToArray(<byte[]>crypto:unsafeMarkUntainted(data), content);
             var returnVal = caller->pushBinary(content);
             if (returnVal is error) {
                  panic returnVal;
             }
         } else {
-            appendToArray(crypto:unsafeMarkUntainted(data), content);
+            appendToArray(<byte[]>crypto:unsafeMarkUntainted(data), content);
         }
     }
 }

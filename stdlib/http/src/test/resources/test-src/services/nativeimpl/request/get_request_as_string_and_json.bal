@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/http;
+import ballerina/crypto;
 
 listener http:MockListener testEP = new(9093);
 
@@ -27,7 +28,7 @@ service MyService on testEP {
             panic jsonValue;
         }
         http:Response res = new;
-        res.setPayload(crypto:unsafeMarkUntainted(payload.foo));
+        res.setPayload(<string>crypto:unsafeMarkUntainted(payload.foo));
         var err = caller->respond(res);
         if (err is error) {
             io:println("Error sending response");

@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/transactions;
+import ballerina/crypto;
 
 http:Client separateRMParticipant01 = new("http://localhost:8890");
 
@@ -212,7 +213,7 @@ function initiatorFunc(boolean throw1, boolean throw2,
                     var payload = resp.getTextPayload();
                     if (payload is string) {
                         log:printInfo(payload);
-                        S1 = S1 + " <" + crypto:unsafeMarkUntainted(payload) + ">";
+                        S1 = S1 + " <" + <string>crypto:unsafeMarkUntainted(payload) + ">";
                     } else {
                         log:printError(payload.reason());
                     }
@@ -236,7 +237,7 @@ function initiatorFunc(boolean throw1, boolean throw2,
                     var payload = resp.getTextPayload();
                     if (payload is string) {
                         log:printInfo(payload);
-                        S1 = S1 + " <" + crypto:unsafeMarkUntainted(payload) + ">";
+                        S1 = S1 + " <" + <string>crypto:unsafeMarkUntainted(payload) + ">";
                     } else {
                         log:printError(payload.reason());
                     }
@@ -295,13 +296,13 @@ function initiateNestedTransactionInRemote(string nestingMethod) returns string 
                 s += " remote1-excepted";
                 var payload = resp.getTextPayload();
                 if (payload is string) {
-                    s += ":[" + crypto:unsafeMarkUntainted(payload) + "]";
+                    s += ":[" + <string>crypto:unsafeMarkUntainted(payload) + "]";
                 }
             } else {
                 var text = resp.getTextPayload();
                 if (text is string) {
                     log:printInfo(text);
-                    s += " <" + crypto:unsafeMarkUntainted(text) + ">";
+                    s += " <" + <string>crypto:unsafeMarkUntainted(text) + ">";
                 } else {
                     s += " error-in-remote-response " + text.reason();
                     log:printError(text.reason());
@@ -331,13 +332,13 @@ function remoteErrorReturnInitiator() returns string {
                 s += " remote1-excepted";
                 var payload = resp.getTextPayload();
                 if (payload is string) {
-                    s += ":[" + crypto:unsafeMarkUntainted(payload) + "]";
+                    s += ":[" + <string>crypto:unsafeMarkUntainted(payload) + "]";
                 }
             } else {
                 var text = resp.getTextPayload();
                 if (text is string) {
                     log:printInfo(text);
-                    s += " <" + crypto:unsafeMarkUntainted(text) + ">";
+                    s += " <" + <string>crypto:unsafeMarkUntainted(text) + ">";
                 } else {
                     s += " error-in-remote-response " + text.reason();
                     log:printError(text.reason());
@@ -446,7 +447,7 @@ service initiatorService on new http:Listener(8888) {
     resource function remoteParticipantStartNestedTransaction(http:Caller caller, http:Request req) {
         string result = initiateNestedTransactionInRemote("nestedInRemote");
         http:Response res = new;
-        res.setPayload(crypto:unsafeMarkUntainted(result));
+        res.setPayload(<string>crypto:unsafeMarkUntainted(result));
         var r = caller->respond(res);
         if (r is error) {
             log:printError("Error sending response: " + result, err = r);
@@ -461,7 +462,7 @@ service initiatorService on new http:Listener(8888) {
 
         string result = initiateNestedTransactionInRemote("nestedInRemotesLocalParticipant");
         http:Response res = new;
-        res.setPayload(crypto:unsafeMarkUntainted(result));
+        res.setPayload(<string>crypto:unsafeMarkUntainted(result));
         var r = caller->respond(res);
         if (r is error) {
             log:printError("Error sending response: " + result, err = r);
@@ -476,7 +477,7 @@ service initiatorService on new http:Listener(8888) {
 
         string result = initiateNestedTransactionInRemote("nestedTrxInNonParticipantLocalFunc");
         http:Response res = new;
-        res.setPayload(crypto:unsafeMarkUntainted(result));
+        res.setPayload(<string>crypto:unsafeMarkUntainted(result));
         var r = caller->respond(res);
         if (r is error) {
             log:printError("Error sending response: " + result, err = r);
@@ -491,7 +492,7 @@ service initiatorService on new http:Listener(8888) {
 
         string result = remoteErrorReturnInitiator();
         http:Response res = new;
-        res.setPayload(crypto:unsafeMarkUntainted(result));
+        res.setPayload(<string>crypto:unsafeMarkUntainted(result));
         var r = caller->respond(res);
         if (r is error) {
             log:printError("Error sending response: " + result, err = r);
@@ -510,7 +511,7 @@ service initiatorService on new http:Listener(8888) {
             if (reqText is string) {
                 log:printInfo("req to remote: " + reqText);
             }
-            var result = separateRMParticipant01 -> post("/success", crypto:unsafeMarkUntainted(req));
+            var result = separateRMParticipant01 -> post("/success", <http:Request>crypto:unsafeMarkUntainted(req));
             if (result is http:Response) {
                 s += " [remote-status:" + result.statusCode + "] ";
                 var p = result.getTextPayload();
@@ -533,7 +534,7 @@ service initiatorService on new http:Listener(8888) {
             s += " initiator-abort-block";
         }
 
-        var stt = res.setTextPayload(crypto:unsafeMarkUntainted(s));
+        var stt = res.setTextPayload(<string>crypto:unsafeMarkUntainted(s));
         _ = ep -> respond(res);
     }
 }

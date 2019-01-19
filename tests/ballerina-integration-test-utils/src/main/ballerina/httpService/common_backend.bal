@@ -1,5 +1,7 @@
 import ballerina/http;
 import ballerina/io;
+import ballerina/crypto;
+
 
 endpoint http:Listener echoEP {
     port:9090
@@ -20,7 +22,7 @@ service<http:Service> echo bind echoEP{
         match result {
             error payloadError => io:println(payloadError.message);
             string payload => {
-                resp.setTextPayload(crypto:unsafeMarkUntainted(payload));
+                resp.setTextPayload(<string>crypto:unsafeMarkUntainted(payload));
                 _ = caller -> respond(resp);
             }
         }

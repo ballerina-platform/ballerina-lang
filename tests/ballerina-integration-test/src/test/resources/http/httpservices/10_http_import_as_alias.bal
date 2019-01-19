@@ -32,10 +32,10 @@ service echo4 on echoEP5 {
         var payload = req.getTextPayload();
         network:Response resp = new;
         if (payload is string) {
-            _ = caller -> respond(crypto:unsafeMarkUntainted(payload));
+            _ = caller -> respond(<string>crypto:unsafeMarkUntainted(payload));
         } else if (payload is error) {
             resp.statusCode = 500;
-            resp.setPayload(crypto:unsafeMarkUntainted(payload.reason()));
+            resp.setPayload(<string>crypto:unsafeMarkUntainted(payload.reason()));
             log:printError("Failed to retrieve payload from request: " + payload.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {

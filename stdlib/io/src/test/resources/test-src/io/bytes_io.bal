@@ -20,11 +20,11 @@ io:ReadableByteChannel rch = new;
 io:WritableByteChannel wch = new;
 
 function initReadableChannel(string filePath) {
-    rch = crypto:unsafeMarkUntainted(io:openReadableFile(filePath));
+    rch = markUntaintedReadableByteChannel(io:openReadableFile(filePath));
 }
 
 function initWritableChannel(string filePath) {
-    wch = crypto:unsafeMarkUntainted(io:openWritableFile(filePath));
+    wch = markUntaintedWritableByteChannel(io:openWritableFile(filePath));
 }
 
 function readBytes(int numberOfBytes) returns byte[]|error {
@@ -67,4 +67,14 @@ function testBase64EncodeByteChannel(io:ReadableByteChannel contentToBeEncoded) 
 
 function testBase64DecodeByteChannel(io:ReadableByteChannel contentToBeDecoded) returns io:ReadableByteChannel|error {
     return contentToBeDecoded.base64Decode();
+}
+
+public function markUntaintedReadableByteChannel(io:ReadableByteChannel value)
+                    returns @untainted io:ReadableByteChannel {
+    return value;
+}
+
+public function markUntaintedWritableByteChannel(io:WritableByteChannel value)
+                    returns @untainted io:WritableByteChannel {
+    return value;
 }

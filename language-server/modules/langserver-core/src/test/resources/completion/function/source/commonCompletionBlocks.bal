@@ -2,6 +2,8 @@ import ballerina/h2;
 import ballerina/io;
 import ballerina/http;
 import ballerina/log;
+import ballerina/crypto;
+
 h2:InMemoryConfig conf = {
     name: "testName",
     username: "user",
@@ -77,13 +79,13 @@ function initiateNestedTransactionInRemote(string nestingMethod) returns string 
                 s += " remote1-excepted";
                 var payload = resp.getTextPayload();
                 if (payload is string) {
-                    s += ":[" + crypto:unsafeMarkUntainted(payload) + "]";
+                    s += ":[" + <string>crypto:unsafeMarkUntainted(payload) + "]";
                 }
             } else {
                 var text = resp.getTextPayload();
                 if (text is string) {
                     log:printInfo(text);
-                    s += " <" + crypto:unsafeMarkUntainted(text) + ">";
+                    s += " <" + <string>crypto:unsafeMarkUntainted(text) + ">";
                 } else {
                     s += " error-in-remote-response " + text.reason();
                     log:printError(text.reason());

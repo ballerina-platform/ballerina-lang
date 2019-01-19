@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/crypto;
 
 listener http:MockListener mockEP = new(9090);
 
@@ -11,7 +12,7 @@ service hello on mockEP {
         http:Response res = new;
         json connectionJson = {protocol:caller.protocol};
         res.statusCode = 200;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(connectionJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(connectionJson));
         _ = caller -> respond(res);
     }
 
@@ -19,7 +20,7 @@ service hello on mockEP {
         http:Response res = new;
         json connectionJson = {protocol:caller.protocol};
         res.statusCode = 200;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(connectionJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(connectionJson));
         _ = caller -> respond(res);
     }
 }

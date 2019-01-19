@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/crypto;
 
 listener http:MockListener testEP = new(9090);
 
@@ -14,7 +15,7 @@ service negativeTemplateURI on testEP {
     resource function echo1(http:Caller caller, http:Request req, string abc) {
         http:Response res = new;
         json responseJson = {"first":abc, "echo":"echo"};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -25,7 +26,7 @@ service negativeTemplateURI on testEP {
     resource function echo2(http:Caller caller, http:Request req, string xyz) {
         http:Response res = new;
         json responseJson = {"first":xyz, "echo":"echo"};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 }

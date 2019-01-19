@@ -105,7 +105,7 @@ service InitiatorService on coordinatorListener {
                 if (resPayload is json) {
                     http:Response res = new;
                     res.statusCode = http:OK_200;
-                    res.setJsonPayload(<json>crypto:unsafeMarkUntainted(resPayload));
+                    res.setJsonPayload(markJsonUntainted(resPayload));
                     var resResult = conn->respond(res);
                     if (resResult is error) {
                         log:printError("Sending response for register request for transaction " + txnId +
@@ -120,4 +120,8 @@ service InitiatorService on coordinatorListener {
         }
         //TODO: Need to handle the  Cannot-Register error case    
     }
+}
+
+function markJsonUntainted(json value) returns @untainted json {
+    return value;
 }

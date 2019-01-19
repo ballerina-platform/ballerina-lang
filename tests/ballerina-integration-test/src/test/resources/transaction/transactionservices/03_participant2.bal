@@ -19,6 +19,7 @@ import ballerina/io;
 import ballerina/sql;
 import ballerina/h2;
 import ballerina/system;
+import ballerina/crypto;
 
 listener http:Listener participant2EP02 = new(8890);
 
@@ -110,7 +111,7 @@ service participant2 on participant2EP02 {
                 io:println(reg);
                 payload = reg.REGISTRATIONID;
             }
-           res.setTextPayload(crypto:unsafeMarkUntainted(payload));
+           res.setTextPayload(<string>crypto:unsafeMarkUntainted(payload));
         }
 
         _ = ep -> respond(res);

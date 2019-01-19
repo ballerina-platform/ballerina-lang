@@ -95,7 +95,7 @@ function testManipulateHeaders () returns (string[]) {
     entity.addHeader("HEADER3", "testVal");
     string[] headerNames = entity.getHeaderNames();
     foreach var header in headerNames {
-        entity.removeHeader(crypto:unsafeMarkUntainted(header));
+        entity.removeHeader(markStringUntainted(header));
     }
 
     return entity.getHeaderNames();
@@ -116,4 +116,8 @@ function testHasHeaderForNonExistenceHeader() returns boolean{
 function testHeaderWithNewEntity() returns (boolean, string[]) {
     mime:Entity entity = new;
     return (entity.hasHeader("header2"), entity.getHeaderNames());
+}
+
+function markStringUntainted(string value) returns @untainted string {
+    return value;
 }

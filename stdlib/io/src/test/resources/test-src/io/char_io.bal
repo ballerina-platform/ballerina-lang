@@ -21,12 +21,12 @@ io:WritableCharacterChannel? wch = ();
 
 function initReadableChannel(string filePath, string encoding) {
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
-    rch = crypto:unsafeMarkUntainted(new) io:ReadableCharacterChannel(byteChannel, encoding);
+    rch = markUntaintedReadableCharChannel(new io:ReadableCharacterChannel(byteChannel, encoding));
 }
 
 function initWritableChannel(string filePath, string encoding) {
     io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
-    wch = crypto:unsafeMarkUntainted(new) io:WritableCharacterChannel(byteChannel, encoding);
+    wch = markUntaintedWritableCharChannel(new io:WritableCharacterChannel(byteChannel, encoding));
 }
 
 function readCharacters(int numberOfCharacters) returns string|error {
@@ -110,4 +110,14 @@ function closeReadableChannel() {
 
 function closeWritableChannel() {
     var err = wch.close();
+}
+
+public function markUntaintedReadableCharChannel(io:ReadableCharacterChannel value)
+                    returns @untainted io:ReadableCharacterChannel {
+    return value;
+}
+
+public function markUntaintedWritableCharChannel(io:WritableCharacterChannel value)
+                    returns @untainted io:WritableCharacterChannel {
+    return value;
 }

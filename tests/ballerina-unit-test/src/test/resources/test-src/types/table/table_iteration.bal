@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/h2;
+import ballerina/crypto;
 
 type Person record {
     int id;
@@ -120,10 +121,10 @@ function testForEachInTable() returns (int, int, float, string) {
 
     if (dt is table<Person>) {
         dt.foreach(function (Person p) {
-                idValue = crypto:unsafeMarkUntainted(p.id);
-                ageValue = crypto:unsafeMarkUntainted(p.age);
-                salValue = crypto:unsafeMarkUntainted(p.salary);
-                nameValue = crypto:unsafeMarkUntainted(p.name);
+                idValue = <int>crypto:unsafeMarkUntainted(p.id);
+                ageValue = <int>crypto:unsafeMarkUntainted(p.age);
+                salValue = <float>crypto:unsafeMarkUntainted(p.salary);
+                nameValue = <string>crypto:unsafeMarkUntainted(p.name);
             }
         );
     }

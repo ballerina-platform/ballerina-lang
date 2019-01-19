@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
+import ballerina/crypto;
 
 http:Client clientEP2 = new ("http://localhost:9097", config = { cache: { enabled: false }});
 
@@ -40,9 +41,9 @@ service backEndService on new http:Listener(9097) {
     resource function sendByteChannel(http:Caller caller, http:Request req) {
         var byteChannel = req.getByteChannel();
         if (byteChannel is io:ReadableByteChannel) {
-            _ = caller->respond(crypto:unsafeMarkUntainted(byteChannel))));
+            _ = caller->respond(<io:ReadableByteChannel>crypto:unsafeMarkUntainted(byteChannel));
         } else if (byteChannel is error) {
-            _ = caller->respond(crypto:unsafeMarkUntainted(byteChannel.reason()))));
+            _ = caller->respond(<string>crypto:unsafeMarkUntainted(byteChannel.reason()));
         }
     }
 
@@ -58,37 +59,37 @@ service backEndService on new http:Listener(9097) {
                 if (mime:TEXT_PLAIN == baseType) {
                     var textValue = req.getTextPayload();
                     if (textValue is string) {
-                        _ = caller->respond(crypto:unsafeMarkUntainted(textValue))));
+                        _ = caller->respond(<string>crypto:unsafeMarkUntainted(textValue));
                     } else if (textValue is error) {
-                        _ = caller->respond(crypto:unsafeMarkUntainted(textValue.reason()))));
+                        _ = caller->respond(<string>crypto:unsafeMarkUntainted(textValue.reason()));
                     }
                 } else if (mime:APPLICATION_XML == baseType) {
                     var xmlValue = req.getXmlPayload();
                     if (xmlValue is xml) {
-                        _ = caller->respond(crypto:unsafeMarkUntainted(xmlValue))));
+                        _ = caller->respond(<xml>crypto:unsafeMarkUntainted(xmlValue));
                     } else if (xmlValue is error) {
-                        _ = caller->respond(crypto:unsafeMarkUntainted(xmlValue.reason()))));
+                        _ = caller->respond(<string>crypto:unsafeMarkUntainted(xmlValue.reason()));
                     }
                 } else if (mime:APPLICATION_JSON == baseType) {
                     var jsonValue = req.getJsonPayload();
                     if (jsonValue is json) {
-                        _ = caller->respond(crypto:unsafeMarkUntainted(jsonValue))));
+                        _ = caller->respond(<json>crypto:unsafeMarkUntainted(jsonValue));
                     } else if (jsonValue is error) {
-                        _ = caller->respond(crypto:unsafeMarkUntainted(jsonValue.reason()))));
+                        _ = caller->respond(<string>crypto:unsafeMarkUntainted(jsonValue.reason()));
                     }
                 } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                     var blobValue = req.getBinaryPayload();
                     if (blobValue is byte[]) {
-                        _ = caller->respond(crypto:unsafeMarkUntainted(blobValue))));
+                        _ = caller->respond(<byte[]>crypto:unsafeMarkUntainted(blobValue));
                     } else if (blobValue is error) {
-                        _ = caller->respond(crypto:unsafeMarkUntainted(blobValue.reason()))));
+                        _ = caller->respond(<string>crypto:unsafeMarkUntainted(blobValue.reason()));
                     }
                 } else if (mime:MULTIPART_FORM_DATA == baseType) {
                     var bodyParts = req.getBodyParts();
                     if (bodyParts is mime:Entity[]) {
-                    _ = caller->respond(crypto:unsafeMarkUntainted(bodyParts));
+                    _ = caller->respond(<mime:Entity[]>crypto:unsafeMarkUntainted(bodyParts));
                     } else if (bodyParts is error) {
-                    _ = caller->respond(crypto:unsafeMarkUntainted(bodyParts.reason()));
+                    _ = caller->respond(<string>crypto:unsafeMarkUntainted(bodyParts.reason()));
                     }
                 }
             } else if (mediaType is error) {
@@ -144,7 +145,7 @@ service testService on new http:Listener(9098) {
                 value = value + result.reason();
             }
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(value));
+        _ = caller->respond(<string>crypto:unsafeMarkUntainted(value));
     }
 
     @http:ResourceConfig {
@@ -166,7 +167,7 @@ service testService on new http:Listener(9098) {
             value = clientResponse.reason();
         }
 
-        _ = caller->respond(crypto:unsafeMarkUntainted(value));
+        _ = caller->respond(<string>crypto:unsafeMarkUntainted(value));
     }
 
     @http:ResourceConfig {
@@ -204,7 +205,7 @@ service testService on new http:Listener(9098) {
                 value = value + result.reason();
             }
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(value));
+        _ = caller->respond(<string>crypto:unsafeMarkUntainted(value));
     }
 
     @http:ResourceConfig {
@@ -224,7 +225,7 @@ service testService on new http:Listener(9098) {
                 value = result.reason();
             }
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(value));
+        _ = caller->respond(<string>crypto:unsafeMarkUntainted(value));
     }
 
     @http:ResourceConfig {
@@ -235,7 +236,8 @@ service testService on new http:Listener(9098) {
         string value = "";
         var byteChannel = req.getByteChannel();
         if (byteChannel is io:ReadableByteChannel) {
-            var res = clientEP2->post("/test1/byteChannel", crypto:unsafeMarkUntainted(byteChannel));
+            var res = clientEP2->post("/test1/byteChannel",
+            <io:ReadableByteChannel>crypto:unsafeMarkUntainted(byteChannel));
             if (res is http:Response) {
                 var result = res.getPayloadAsString();
                 if (result is string) {
@@ -249,7 +251,7 @@ service testService on new http:Listener(9098) {
         } else if (byteChannel is error) {
             value = byteChannel.reason();
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(value));
+        _ = caller->respond(<string>crypto:unsafeMarkUntainted(value));
     }
 
     @http:ResourceConfig {
@@ -298,6 +300,6 @@ service testService on new http:Listener(9098) {
         } else if (res is error) {
             value = res.reason();
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(value));
+        _ = caller->respond(<string>crypto:unsafeMarkUntainted(value));
     }
 }

@@ -18,6 +18,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
+import ballerina/crypto;
 
 const string TEST_SCENARIO_HEADER = "test-scenario";
 
@@ -559,7 +560,7 @@ service circuitBreakerService on mockEP {
         http:CircuitState currentState = cbClient.getCurrentState();
         http:Response res = new;
         if (currentState == http:CB_CLOSED_STATE) {
-            res.setPayload(crypto:unsafeMarkUntainted("Circuit) Breaker is in CLOSED state");
+            res.setPayload(<string>crypto:unsafeMarkUntainted("Circuit Breaker is in CLOSED state"));
             _ = caller->respond(res);
         }
     }

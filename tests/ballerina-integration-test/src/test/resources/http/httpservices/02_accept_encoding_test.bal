@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerina/mime;
 import ballerina/log;
+import ballerina/crypto;
 
 final string ACCEPT_ENCODING = "accept-encoding";
 
@@ -24,7 +25,7 @@ service passthrough on passthroughEP2 {
     }
     resource function passthrough(http:Caller caller, http:Request req) {
         if (req.getHeader("AcceptValue") == "auto") {
-            var clientResponse = acceptEncodingAutoEP -> post("/",crypto:unsafeMarkUntainted(req));
+            var clientResponse = acceptEncodingAutoEP -> post("/", <http:Request>crypto:unsafeMarkUntainted(req));
             if (clientResponse is http:Response) {
                 var responseError = caller->respond(clientResponse);
                 if (responseError is error) {
@@ -40,7 +41,7 @@ service passthrough on passthroughEP2 {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "enable") {
-            var clientResponse = acceptEncodingEnableEP -> post("/",crypto:unsafeMarkUntainted(req));
+            var clientResponse = acceptEncodingEnableEP -> post("/", <http:Request>crypto:unsafeMarkUntainted(req));
             if (clientResponse is http:Response) {
                 _ = caller -> respond(clientResponse);
             } else if (clientResponse is error) {
@@ -53,7 +54,7 @@ service passthrough on passthroughEP2 {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "disable") {
-            var clientResponse = acceptEncodingDisableEP -> post("/",crypto:unsafeMarkUntainted(req));
+            var clientResponse = acceptEncodingDisableEP -> post("/", <http:Request>crypto:unsafeMarkUntainted(req));
             if (clientResponse is http:Response) {
                 _ = caller->respond(clientResponse);
             } else if (clientResponse is error) {
@@ -90,7 +91,11 @@ service hello on passthroughEP2 {
         } else {
             payload = {acceptEncoding:"Accept-Encoding hdeaer not present."};
         }
-        res.setJsonPayload(crypto:unsafeMarkUntainted(payload));
+        res.setJsonPayload(unsafeMarkUntainted(payload));
         _ = caller -> respond(res);
     }
+}
+
+function unsafeMarkUntainted(json value) returns @untainted json {
+    return value;
 }

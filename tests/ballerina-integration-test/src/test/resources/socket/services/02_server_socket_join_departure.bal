@@ -16,6 +16,7 @@
 
 import ballerina/io;
 import ballerina/socket;
+import ballerina/crypto;
 
 listener socket:Listener server = new(61598);
 
@@ -33,7 +34,7 @@ service echoServer on server {
         io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
         var str = characterChannel.read(20);
         if (str is string) {
-            io:println(crypto:unsafeMarkUntainted(str));
+            io:println(<string>crypto:unsafeMarkUntainted(str));
         } else if (str is error) {
             io:println("Error: ", str.detail().message);
         }

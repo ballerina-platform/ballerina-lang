@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
+import ballerina/crypto;
 
 function testContentType(http:Request req, string contentTypeValue) returns string {
     _ = req.setContentType(contentTypeValue);
@@ -100,8 +101,8 @@ service hello on mockEP {
     }
     resource function addheader(http:Caller caller, http:Request inReq, string key, string value) {
         http:Request req = new;
-        req.addHeader(crypto:unsafeMarkUntainted(key)), value);
-        string result = crypto:unsafeMarkUntainted(req.getHeader(crypto:unsafeMarkUntainted(key)));
+        req.addHeader(<string>crypto:unsafeMarkUntainted(key), value);
+        string result = <string>crypto:unsafeMarkUntainted(req.getHeader(<string>crypto:unsafeMarkUntainted(key)));
         http:Response res = new;
         res.setJsonPayload({ lang: result });
         _ = caller->respond(res);
@@ -113,7 +114,7 @@ service hello on mockEP {
     resource function echo1(http:Caller caller, http:Request req) {
         http:Response res = new;
         string method = req.method;
-        res.setTextPayload(crypto:unsafeMarkUntainted(method)));
+        res.setTextPayload(<string>crypto:unsafeMarkUntainted(method));
         _ = caller->respond(res);
     }
 
@@ -123,7 +124,7 @@ service hello on mockEP {
     resource function echo2(http:Caller caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
-        res.setTextPayload(crypto:unsafeMarkUntainted(url)));
+        res.setTextPayload(<string>crypto:unsafeMarkUntainted(url));
         _ = caller->respond(res);
     }
 
@@ -133,7 +134,7 @@ service hello on mockEP {
     resource function echo3(http:Caller caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
-        res.setTextPayload(crypto:unsafeMarkUntainted(url)));
+        res.setTextPayload(<string>crypto:unsafeMarkUntainted(url));
         _ = caller->respond(res);
     }
 
@@ -142,7 +143,7 @@ service hello on mockEP {
     }
     resource function getHeader(http:Caller caller, http:Request req) {
         http:Response res = new;
-        string header = crypto:unsafeMarkUntainted(req.getHeader("content-type")));
+        string header = <string>crypto:unsafeMarkUntainted(req.getHeader("content-type"));
         res.setJsonPayload({ value: header });
         _ = caller->respond(res);
     }
@@ -168,7 +169,8 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else if (returnResult is json) {
-            res.setJsonPayload(crypto:unsafeMarkUntainted(returnResult.lang)));
+            var jsonRes = <json>crypto:unsafeMarkUntainted(returnResult);
+            res.setJsonPayload(jsonRes.lang);
         }
         _ = caller->respond(res);
     }
@@ -183,7 +185,7 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else if (returnResult is string) {
-            res.setTextPayload(crypto:unsafeMarkUntainted(returnResult));
+            res.setTextPayload(<string>crypto:unsafeMarkUntainted(returnResult));
         }
         _ = caller->respond(res);
     }
@@ -199,7 +201,7 @@ service hello on mockEP {
             res.statusCode = 500;
         } else if (returnResult is xml) {
             var name = returnResult.getTextValue();
-            res.setTextPayload(crypto:unsafeMarkUntainted(name));
+            res.setTextPayload(<string>crypto:unsafeMarkUntainted(name));
         }
         _ = caller->respond(res);
     }
@@ -215,7 +217,7 @@ service hello on mockEP {
             res.statusCode = 500;
         } else if (returnResult is byte[]) {
             string name = mime:byteArrayToString(returnResult, "UTF-8");
-            res.setTextPayload(crypto:unsafeMarkUntainted(name));
+            res.setTextPayload(<string>crypto:unsafeMarkUntainted(name));
         }
         _ = caller->respond(res);
     }
@@ -274,9 +276,9 @@ service hello on mockEP {
     }
     resource function setHeader(http:Caller caller, http:Request inReq, string key, string value) {
         http:Request req = new;
-        req.setHeader(crypto:unsafeMarkUntainted(key), "abc");
-        req.setHeader(crypto:unsafeMarkUntainted(key), value);
-        string result = crypto:unsafeMarkUntainted(req.getHeader(crypto:unsafeMarkUntainted(key));
+        req.setHeader(<string>crypto:unsafeMarkUntainted(key), "abc");
+        req.setHeader(<string>crypto:unsafeMarkUntainted(key), value);
+        string result = <string>crypto:unsafeMarkUntainted(req.getHeader(<string>crypto:unsafeMarkUntainted(key)));
 
         http:Response res = new;
         res.setJsonPayload({ value: result });
@@ -289,14 +291,14 @@ service hello on mockEP {
     resource function setJsonPayload(http:Caller caller, http:Request inReq, string value) {
         http:Request req = new;
         json jsonStr = { lang: value };
-        req.setJsonPayload(crypto:unsafeMarkUntainted(jsonStr));
+        req.setJsonPayload(<json>crypto:unsafeMarkUntainted(jsonStr));
         var returnResult = req.getJsonPayload();
         http:Response res = new;
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else if (returnResult is json) {
-            res.setJsonPayload(crypto:unsafeMarkUntainted(returnResult));
+            res.setJsonPayload(<json>crypto:unsafeMarkUntainted(returnResult));
         }
         _ = caller->respond(res);
     }
@@ -306,14 +308,14 @@ service hello on mockEP {
     }
     resource function setStringPayload(http:Caller caller, http:Request inReq, string value) {
         http:Request req = new;
-        req.setTextPayload(crypto:unsafeMarkUntainted(value));
+        req.setTextPayload(<string>crypto:unsafeMarkUntainted(value));
         http:Response res = new;
         var returnResult = req.getTextPayload();
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else if (returnResult is string) {
-            res.setJsonPayload({ lang: crypto:unsafeMarkUntainted(returnResult) });
+            res.setJsonPayload({ lang: <string>crypto:unsafeMarkUntainted(returnResult) });
         }
         _ = caller->respond(res);
     }
@@ -331,7 +333,7 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else if (returnResult is xml) {
-            var name = crypto:unsafeMarkUntainted(returnResult.getTextValue());
+            var name = <string>crypto:unsafeMarkUntainted(returnResult.getTextValue());
             res.setJsonPayload({ lang: name });
         }
         _ = caller->respond(res);
@@ -351,7 +353,7 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else if (returnResult is byte[]) {
-            string name = crypto:unsafeMarkUntainted(mime:byteArrayToString(returnResult), "UTF-8");
+            string name = <string>crypto:unsafeMarkUntainted(mime:byteArrayToString(returnResult, "UTF-8"));
             res.setJsonPayload({ lang: name });
         }
         _ = caller->respond(res);

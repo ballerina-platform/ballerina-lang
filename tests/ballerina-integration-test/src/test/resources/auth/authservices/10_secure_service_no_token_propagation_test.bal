@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/crypto;
 
 // token propagation is set to false by default
 http:AuthProvider basicAuthProvider10 = {
@@ -27,7 +28,8 @@ service passthroughService on listener10_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP->get("/nyseStock/stocks", message = crypto:unsafeMarkUntainted(clientRequest));
+        var response = nyseEP->get("/nyseStock/stocks",
+            message = <http:Request>crypto:unsafeMarkUntainted(clientRequest));
         if (response is http:Response) {
             _ = caller->respond(response);
         } else if (response is error) {

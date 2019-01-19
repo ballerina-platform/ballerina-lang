@@ -31,7 +31,8 @@ service headQuoteService on serviceEndpoint4 {
         string method = req.method;
         http:Request clientRequest = new;
 
-        var response = endPoint -> execute(crypto:unsafeMarkUntainted(method), "/getQuote/stocks", clientRequest);
+        var response = endPoint -> execute(<string>crypto:unsafeMarkUntainted(method), "/getQuote/stocks",
+            clientRequest);
         if (response is http:Response) {
             _ = caller -> respond(response);
         } else if (response is error) {
@@ -71,7 +72,8 @@ service headQuoteService on serviceEndpoint4 {
     }
     resource function commonResource (http:Caller caller, http:Request req, string method) {
         http:Request clientRequest = new;
-        var response = endPoint -> execute(crypto:unsafeMarkUntainted(method), "/getQuote/stocks", clientRequest);
+        var response = endPoint -> execute(<string>crypto:unsafeMarkUntainted(method), "/getQuote/stocks",
+            clientRequest);
         if (response is http:Response) {
             _ = caller -> respond(response);
         } else if (response is error) {
@@ -143,7 +145,7 @@ service quoteService2 on serviceEndpoint4 {
     }
     resource function employee (http:Caller caller, http:Request req, json person) {
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(person));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(person));
         _ = caller -> respond(res);
     }
 }

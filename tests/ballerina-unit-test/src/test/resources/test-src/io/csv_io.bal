@@ -28,19 +28,19 @@ io:WritableCSVChannel? wch = ();
 const string IO_ERROR_CODE = "{ballerina/io}IOError";
 
 function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
-    io:ReadableByteChannel byteChannel = crypto:unsafeMarkUntainted(io:openReadableFile(filePath));
+    io:ReadableByteChannel byteChannel = markUntaintedReadableByteChannel(io:openReadableFile(filePath));
     io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
     rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
 }
 
 function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
-    io:WritableByteChannel byteChannel = crypto:unsafeMarkUntainted(io:openWritableFile(filePath));
+    io:WritableByteChannel byteChannel = markUntaintedWritableByteChannel(io:openWritableFile(filePath));
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
     wch = new io:WritableCSVChannel(charChannel, fs = fieldSeparator);
 }
 
 function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) {
-    io:ReadableByteChannel byteChannel = crypto:unsafeMarkUntainted(io:openReadableFile(filePath));
+    io:ReadableByteChannel byteChannel = markUntaintedReadableByteChannel(io:openReadableFile(filePath));
     io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
     rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = nHeaders);
 }
@@ -88,4 +88,14 @@ function getTable(string filePath, string encoding, io:Separator fieldSeperator)
         error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
         return e;
     }
+}
+
+public function markUntaintedReadableByteChannel(io:ReadableByteChannel value)
+                    returns @untainted io:ReadableByteChannel {
+    return value;
+}
+
+public function markUntaintedWritableByteChannel(io:WritableByteChannel value)
+                    returns @untainted io:WritableByteChannel {
+    return value;
 }

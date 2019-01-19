@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/crypto;
 
 function testSignatureHelp () {
     endpoint http:Listener listener {
@@ -8,6 +9,6 @@ function testSignatureHelp () {
     http:Response res = new;
     json connectionJson = { protocol: "json" };
     res.statusCode = 200;
-    res.setJsonPayload(crypto:unsafeMarkUntainted(connectionJson));
+    res.setJsonPayload(<json>crypto:unsafeMarkUntainted(connectionJson));
     listener->respond(res);
 }

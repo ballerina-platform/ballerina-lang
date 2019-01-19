@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/crypto;
 
 final string REMOTE_BACKEND_URL1 = "ws://localhost:15500/websocket";
 http:WebSocketCaller serverCaller = new;
@@ -26,7 +27,7 @@ service clientFailure on new http:WebSocketListener(9091) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL1, config = { callbackService: erroHandlingService });
-        serverCaller = crypto:unsafeMarkUntainted(wsEp);
+        serverCaller = <http:WebSocketCaller>crypto:unsafeMarkUntainted(wsEp);
     }
 }
 service erroHandlingService = @http:WebSocketServiceConfig {} service {

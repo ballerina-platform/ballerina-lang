@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test the "untaint" unary expressions.
+ * Test the "crypto:unsafeMarkUntainted" library function.
  *
  * @since 0.965.0
  */
@@ -40,19 +40,27 @@ public class UntaintTest {
         compileResult = BCompileUtil.compile("test-src/taintchecking/expressions/untaint-with-other-constructs.bal");
     }
 
-    // Test the behaviour of "untaint" expression in taint analyzer logic.
-
     @Test
-    public void testUntaint() {
+    public void testUntaintExpressionEmitWarning() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/expressions/untaint.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getDiagnostics().length, 5);
+        BAssertUtil.validateWarning(result, 0, "usage of deprecated operator 'untaint', use " +
+                "crypto:unsafeMarkUntainted(anydata)", 14, 12);
+        BAssertUtil.validateWarning(result, 1, "usage of deprecated operator 'untaint', use " +
+                "crypto:unsafeMarkUntainted(anydata)", 21, 12);
+        BAssertUtil.validateWarning(result, 2, "usage of deprecated operator 'untaint', use " +
+                "crypto:unsafeMarkUntainted(anydata)", 27, 24);
+        BAssertUtil.validateWarning(result, 3, "usage of deprecated operator 'untaint', use " +
+                "crypto:unsafeMarkUntainted(anydata)", 33, 12);
+        BAssertUtil.validateWarning(result, 4, "usage of deprecated operator 'untaint', use " +
+                "crypto:unsafeMarkUntainted(anydata)", 39, 12);
     }
 
     @Test
     public void testUntaintVariable() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/expressions/untaint-variable-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 20);
     }
 
     // Tests to confirm that "untaint" expression does not introduce any side effects to expected runtime behaviour.

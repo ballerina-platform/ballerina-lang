@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
+import ballerina/crypto;
 
 http:Client clientEndpoint = new("http://localhost:9224");
 
@@ -36,13 +37,13 @@ service helloContinue on new http:Listener(9090) {
         var result  = request.getTextPayload();
 
         if (result is string) {
-            var responseError = caller->respond(crypto:unsafeMarkUntainted(result));
+            var responseError = caller->respond(<string>crypto:unsafeMarkUntainted(result));
             if (responseError is error) {
                 log:printError("Error sending response", err = responseError);
             }
         } else if (result is error) {
             res.statusCode = 500;
-            res.setPayload(crypto:unsafeMarkUntainted(result.reason()));
+            res.setPayload(<string>crypto:unsafeMarkUntainted(result.reason()));
             log:printError("Failed to retrieve payload from request: " + result.reason());
             var responseError = caller->respond(res);
             if (responseError is error) {
@@ -70,7 +71,7 @@ service helloContinue on new http:Listener(9090) {
                 }
                 i += 1;
             }
-            var responseError = caller->respond(crypto:unsafeMarkUntainted(replyMsg));
+            var responseError = caller->respond(<string>crypto:unsafeMarkUntainted(replyMsg));
             if (responseError is error) {
                 log:printError(responseError.reason(), err = responseError);
             }
@@ -87,7 +88,7 @@ service helloContinue on new http:Listener(9090) {
                 log:printError("Error sending response", err = responseError);
             }
         }
-        var res = clientEndpoint->forward("/backend/hello", crypto:unsafeMarkUntainted(req));
+        var res = clientEndpoint->forward("/backend/hello", <http:Request>crypto:unsafeMarkUntainted(req));
         if (res is http:Response) {
             var responseError = caller->respond(res);
             if (responseError is error) {
@@ -104,9 +105,9 @@ service backend on new http:Listener(9224) {
         http:Response response = new;
         var payload = request.getTextPayload();
         if (payload is string) {
-            response.setTextPayload(crypto:unsafeMarkUntainted(payload));
+            response.setTextPayload(<string>crypto:unsafeMarkUntainted(payload));
         } else if (payload is error) {
-            response.setTextPayload(crypto:unsafeMarkUntainted(payload.reason()));
+            response.setTextPayload(<string>crypto:unsafeMarkUntainted(payload.reason()));
         }
         var responseError = caller->respond(response);
         if (responseError is error) {

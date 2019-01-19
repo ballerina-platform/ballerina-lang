@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/http;
+import ballerina/crypto;
 
 listener http:MockListener testEP = new(9090);
 
@@ -20,7 +21,7 @@ service Ecommerce on testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -36,7 +37,7 @@ service Ecommerce on testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -52,7 +53,7 @@ service Ecommerce on testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -69,7 +70,7 @@ service Ecommerce on testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -88,7 +89,7 @@ service Ecommerce on testEP {
         io:println (responseJson.toString ());
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -105,7 +106,7 @@ service Ecommerce on testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -235,7 +236,7 @@ service echo113 on testEP {
     resource function productsInfo (http:Caller caller, http:Request req, string foo) {
         http:Response res = new;
         json responseJson = {"echo113": foo};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 }
@@ -252,7 +253,7 @@ service echo114 on testEP {
     resource function productsInfo (http:Caller caller, http:Request req, string foo) {
         http:Response res = new;
         json responseJson = {"echo114": foo};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 }

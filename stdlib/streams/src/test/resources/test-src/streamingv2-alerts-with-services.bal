@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/runtime;
+import ballerina/crypto;
 
 type ProductMaterial record {
     string name;
@@ -99,7 +100,7 @@ service productMaterialService on productMaterialListener {
         } else if (jsonMsg is error) {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(crypto:unsafeMarkUntainted(jsonMsg.reason()));
+            res.setPayload(<string>crypto:unsafeMarkUntainted(jsonMsg.reason()));
             _ = caller->respond(res);
         }
     }
@@ -123,7 +124,7 @@ service productMaterialService on productMaterialListener {
         } else if (jsonMsg is error) {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(crypto:unsafeMarkUntainted(jsonMsg.reason()));
+            res.setPayload(<string>crypto:unsafeMarkUntainted(jsonMsg.reason()));
             _ = caller->respond(res);
         }
     }

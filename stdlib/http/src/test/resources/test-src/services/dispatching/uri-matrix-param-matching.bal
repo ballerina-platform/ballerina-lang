@@ -1,5 +1,5 @@
 import ballerina/http;
-import ballerina/http;
+import ballerina/crypto;
 
 listener http:MockListener testEP = new(9090);
 
@@ -37,7 +37,7 @@ service testService on testEP {
         string y = queryParams.y;
         outJson.queryParams = string `x={{x}}&y={{y}}`;
 
-        res.setJsonPayload(crypto:unsafeMarkUntainted(outJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(outJson));
         _ = caller->respond(res);
     }
 
@@ -56,7 +56,7 @@ service testService on testEP {
         map<any> fooMParams = req.getMatrixParams(string `/hello/t2/{{person}}/foo`);
         outJson.fooParamSize = fooMParams.length();
 
-        res.setJsonPayload(crypto:unsafeMarkUntainted(outJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(outJson));
         _ = caller->respond(res);
     }
 }

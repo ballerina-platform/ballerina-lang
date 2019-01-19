@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/mime;
+import ballerina/crypto;
 
 listener http:MockListener mockEP = new(9090);
 
@@ -43,14 +44,14 @@ service test on mockEP {
         path:"/nested_parts_in_outresponse"
     }
     resource function nestedPartsInOutResponse(http:Caller caller, http:Request request) {
-        string contentType = crypto:unsafeMarkUntainted(request.getHeader("content-type"));
+        string contentType = <string>crypto:unsafeMarkUntainted(request.getHeader("content-type"));
         http:Response outResponse = new;
         var bodyParts = request.getBodyParts();
 
         if (bodyParts is mime:Entity[]) {
-            outResponse.setBodyParts(crypto:unsafeMarkUntainted(bodyParts), contentType = contentType);
+            outResponse.setBodyParts(<mime:Entity[]>crypto:unsafeMarkUntainted(bodyParts), contentType = contentType);
         } else if (bodyParts is error) {
-            outResponse.setPayload(crypto:unsafeMarkUntainted(<string>bodyParts.detail().message));
+            outResponse.setPayload(<string>crypto:unsafeMarkUntainted(<string>bodyParts.detail().message));
         }
         _ = caller->respond(outResponse);
     }

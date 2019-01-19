@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/mime;
+import ballerina/crypto;
 
 listener http:MockListener testEP = new(9090);
 
@@ -22,7 +23,7 @@ service echo on testEP {
     }
     resource function body1(http:Caller caller, http:Request req, string person) {
         json responseJson = { "Person": person };
-        _ = caller->respond(crypto:unsafeMarkUntainted(responseJson));
+        _ = caller->respond(jsonMarkUntaint(responseJson));
     }
 
     @http:ResourceConfig {
@@ -32,7 +33,7 @@ service echo on testEP {
     }
     resource function body2(http:Caller caller, http:Request req, string key, string person) {
         json responseJson = { Key: key, Person: person };
-        _ = caller->respond(crypto:unsafeMarkUntainted(responseJson));
+        _ = caller->respond(jsonMarkUntaint(responseJson));
     }
 
     @http:ResourceConfig {
@@ -40,8 +41,9 @@ service echo on testEP {
         body: "person"
     }
     resource function body3(http:Caller caller, http:Request req, json person) {
-        json name = crypto:unsafeMarkUntainted(person.name);
-        json team = crypto:unsafeMarkUntainted(person.team);
+        json untaintedParson = jsonMarkUntaint(person);
+        json name = untaintedParson.name;
+        json team = untaintedParson.team;
         _ = caller->respond({ Key: name, Team: team });
     }
 
@@ -50,8 +52,8 @@ service echo on testEP {
         body: "person"
     }
     resource function body4(http:Caller caller, http:Request req, xml person) {
-        string name = crypto:unsafeMarkUntainted(person.getElementName());
-        string team = crypto:unsafeMarkUntainted(person.getTextValue());
+        string name = <string>crypto:unsafeMarkUntainted(person.getElementName());
+        string team = <string>crypto:unsafeMarkUntainted(person.getTextValue());
         _ = caller->respond({ Key: name, Team: team });
     }
 
@@ -60,7 +62,7 @@ service echo on testEP {
         body: "person"
     }
     resource function body5(http:Caller caller, http:Request req, byte[] person) {
-        string name = crypto:unsafeMarkUntainted(mime:byteArrayToString(person), "UTF-8");
+        string name = <string>crypto:unsafeMarkUntainted(mime:byteArrayToString(person, "UTF-8"));
         _ = caller->respond({ Key: name });
     }
 
@@ -69,8 +71,8 @@ service echo on testEP {
         body: "person"
     }
     resource function body6(http:Caller caller, http:Request req, Person person) {
-        string name = crypto:unsafeMarkUntainted(person.name);
-        int age = crypto:unsafeMarkUntainted(person.age);
+        string name = <string>crypto:unsafeMarkUntainted(person.name);
+        int age = <int>crypto:unsafeMarkUntainted(person.age);
         _ = caller->respond({ Key: name, Age: age });
     }
 
@@ -89,9 +91,13 @@ service echo on testEP {
     resource function body8(http:Caller caller, http:Request req, Person[] persons) {
         var jsonPayload = json.convert(persons);
         if (jsonPayload is json) {
-            _ = caller->respond(crypto:unsafeMarkUntainted(jsonPayload));
+            _ = caller->respond(jsonMarkUntaint(jsonPayload));
         } else if (jsonPayload is error) {
-            _ = caller->respond(crypto:unsafeMarkUntainted(string.convert(jsonPayload.detail().message)));
+            _ = caller->respond(<string>crypto:unsafeMarkUntainted(string.convert(jsonPayload.detail().message)));
         }
     }
+}
+
+function jsonMarkUntaint(json value) returns @untainted json {
+    return value;
 }

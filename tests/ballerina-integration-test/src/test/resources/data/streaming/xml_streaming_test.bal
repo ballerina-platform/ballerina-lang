@@ -16,6 +16,7 @@
 import ballerina/http;
 import ballerina/h2;
 import ballerina/log;
+import ballerina/crypto;
 
 h2:Client testDB = new({
     path: "../../tempdb/",
@@ -36,7 +37,7 @@ service dataService on dataServiceListener {
         if (selectRet is table<record {}>) {
             var xmlConversionRet = xml.convert(selectRet);
             if (xmlConversionRet is xml) {
-                var responseToCaller = caller->respond(crypto:unsafeMarkUntainted(xmlConversionRet));
+                var responseToCaller = caller->respond(<xml>crypto:unsafeMarkUntainted(xmlConversionRet));
                 if (responseToCaller is error) {
                     log:printError("Error sending response", err = responseToCaller);
                 }

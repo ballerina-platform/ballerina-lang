@@ -54,7 +54,7 @@ service MyService on testEP {
         }
 
         http:Response res = new;
-        res.setPayload(crypto:unsafeMarkUntainted(result));
+        res.setPayload(markJsonUntainted(result));
         var respondResult = caller->respond(res);
         if (respondResult is error) {
             io:println("Error sending response");
@@ -85,7 +85,7 @@ service MyService on testEP {
         json j = { status: statusVal, resp: { value: result } };
 
         http:Response res = new;
-        res.setPayload(crypto:unsafeMarkUntainted(j));
+        res.setPayload(markJsonUntainted(j));
         var respondResult = caller->respond(res);
         if (respondResult is error) {
             io:println("Error sending response");
@@ -95,4 +95,8 @@ service MyService on testEP {
 
 function closeConnectionPool() {
     testDB.stop();
+}
+
+function markJsonUntainted(json value) returns @untainted json {
+    return value;
 }

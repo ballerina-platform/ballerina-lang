@@ -20,6 +20,7 @@ import ballerina/log;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
+import ballerina/crypto;
 
 listener http:Listener failoverEP02 = new(9302);
 
@@ -219,13 +220,17 @@ service mock02 on backendEP02 {
                                 var childBlobContent = childPart.getByteArray();
                             }
                             io:println(bodyPart.getContentType());
-                            bodyPart.setBodyParts(crypto:unsafeMarkUntainted(childParts)), contentType = crypto:unsafeMarkUntainted(bodyPart.getContentType()));
+                            bodyPart.setBodyParts(
+                                <mime:Entity[]>crypto:unsafeMarkUntainted(childParts),
+                                contentType = <string>crypto:unsafeMarkUntainted(bodyPart.getContentType()));
                         }
                     } else {
                         var bodyPartBlobContent = bodyPart.getByteArray();
                     }
                 }
-                response.setBodyParts(crypto:unsafeMarkUntainted(mimeEntity), contentType = crypto:unsafeMarkUntainted(req.getContentType()));
+                response.setBodyParts(
+                            <mime:Entity[]>crypto:unsafeMarkUntainted(mimeEntity),
+                            contentType = <string>crypto:unsafeMarkUntainted(req.getContentType()));
             }
         } else {
             response.setPayload("Mock Resource is Invoked.");

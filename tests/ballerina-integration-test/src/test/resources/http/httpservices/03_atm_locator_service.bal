@@ -40,7 +40,7 @@ service ATMLocator on serviceEnpoint {
             io:println("Zip Code " + zipCode);
             json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
             branchLocatorReq.BranchLocator.ZipCode = zipCode;
-            backendServiceReq.setPayload(crypto:unsafeMarkUntainted(branchLocatorReq));
+            backendServiceReq.setPayload(unsafeMarkUntainted(branchLocatorReq));
         } else if (jsonLocatorReq is error) {
             io:println("Error occurred while reading ATM locator request");
         }
@@ -59,7 +59,7 @@ service ATMLocator on serviceEnpoint {
             io:println("Branch Code " + branchCode);
             json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
             bankInfoReq.BranchInfo.BranchCode = branchCode;
-            backendServiceReq.setJsonPayload(crypto:unsafeMarkUntainted(bankInfoReq));
+            backendServiceReq.setJsonPayload(unsafeMarkUntainted(bankInfoReq));
         } else if (branchLocatorRes is error) {
             io:println("Error occurred while reading branch locator response");
         }

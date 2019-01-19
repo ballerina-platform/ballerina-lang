@@ -1,10 +1,11 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
+import ballerina/crypto;
 
 function setErrorResponse(http:Response response,  error err) {
     response.statusCode = 500;
-    response.setPayload(crypto:unsafeMarkUntainted(<string>err.detail().message));
+    response.setPayload(<string>crypto:unsafeMarkUntainted(<string>err.detail().message));
 }
 
 listener http:MockListener mockEP = new(9090);
@@ -24,14 +25,14 @@ service test on mockEP {
             var result = bodyParts[0].getText();
             if (result is string) {
                 mime:Entity entity = new;
-                entity.setText(crypto:unsafeMarkUntainted(result));
+                entity.setText(<string>crypto:unsafeMarkUntainted(result));
                 response.setEntity(entity);
             } else if (result is error) {
                 setErrorResponse(response, result);
             }
         }
 
-        _ = caller->respond(crypto:unsafeMarkUntainted(response));
+        _ = caller->respond(<http:Response>crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -45,12 +46,12 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             var result = bodyParts[0].getJson();
             if (result is json) {
-                response.setJsonPayload(crypto:unsafeMarkUntainted(result));
+                response.setJsonPayload(<json>crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(response));
+        _ = caller->respond(<http:Response>crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -64,12 +65,12 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             var result = bodyParts[0].getXml();
             if (result is xml) {
-                response.setXmlPayload(crypto:unsafeMarkUntainted(result));
+                response.setXmlPayload(<xml>crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(response));
+        _ = caller->respond(<http:Response>crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -83,12 +84,12 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             var result = bodyParts[0].getByteArray();
             if (result is byte[]) {
-                response.setBinaryPayload(crypto:unsafeMarkUntainted(result));
+                response.setBinaryPayload(<byte[]>crypto:unsafeMarkUntainted(result));
             } else if (result is error) {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(response));
+        _ = caller->respond(<http:Response>crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -107,9 +108,9 @@ service test on mockEP {
                 content = content + " -- " + handleContent(part);
                 i = i + 1;
             }
-            response.setTextPayload(crypto:unsafeMarkUntainted(content));
+            response.setTextPayload(<string>crypto:unsafeMarkUntainted(content));
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(response));
+        _ = caller->respond(<http:Response>crypto:unsafeMarkUntainted(response));
     }
 
     @http:ResourceConfig {
@@ -123,7 +124,7 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             response.setPayload("Body parts detected!");
         } else if (bodyParts is error) {
-            response.setPayload(crypto:unsafeMarkUntainted(<string>bodyParts.detail().message));
+            response.setPayload(<string>crypto:unsafeMarkUntainted(<string>bodyParts.detail().message));
         }
         _ = caller->respond(response);
     }
@@ -144,9 +145,9 @@ service test on mockEP {
                 payload = handleNestedParts(part);
                 i = i + 1;
             }
-            response.setTextPayload(crypto:unsafeMarkUntainted(payload));
+            response.setTextPayload(<string>crypto:unsafeMarkUntainted(payload));
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(response));
+        _ = caller->respond(<http:Response>crypto:unsafeMarkUntainted(response));
     }
 }
 

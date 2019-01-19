@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/crypto;
 
 listener http:MockListener testEP = new(9090);
 
@@ -25,7 +26,7 @@ service echo11 on testEP {
     resource function echo4(http:Caller caller, http:Request req, string abc) {
         http:Response res = new;
         json responseJson = {"echo3":abc};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -36,7 +37,7 @@ service echo11 on testEP {
     resource function echo5(http:Caller caller, http:Request req, string abc) {
         http:Response res = new;
         json responseJson = {"first":abc, "echo4":"echo4"};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -61,7 +62,7 @@ service echo11 on testEP {
         json responseJson = {"first":abc, "second":foo, "echo9":"echo9"};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -74,7 +75,7 @@ service echo11 on testEP {
         json responseJson = {"third":foo, "echo10":"echo10"};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -83,7 +84,7 @@ service echo11 on testEP {
         json responseJson = {"third":foo, "echo11":"echo11"};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -94,7 +95,7 @@ service echo11 on testEP {
     resource function echo12(http:Caller caller, http:Request req, string abc) {
         http:Response res = new;
         json responseJson = {"echo12":abc};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -107,7 +108,7 @@ service echo11 on testEP {
         json responseJson = {"echo125":bar};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -121,7 +122,7 @@ service echo11 on testEP {
         json responseJson = {"echo125":bar};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -136,7 +137,7 @@ service echo11 on testEP {
         json responseJson = {"echo13":bar};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -151,7 +152,7 @@ service echo11 on testEP {
         json responseJson = {"echo14":bar};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -165,7 +166,7 @@ service echo11 on testEP {
         json responseJson = {"echo15":bar};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -225,7 +226,7 @@ service echo33 on testEP {
         json responseJson = {"third":foo, "echo33":"echo1"};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 }
@@ -247,7 +248,7 @@ service echo44 on testEP {
         json responseJson = {"first":foo, "echo44":"echo1"};
 
         http:Response res = new;
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -308,7 +309,7 @@ service echo66 on testEP {
     resource function echo1(http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo66":req.extraPathInfo};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -321,7 +322,7 @@ service echo66 on testEP {
             req.extraPathInfo = "empty";
         }
         json responseJson = {"echo66":req.extraPathInfo};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 }
@@ -358,7 +359,7 @@ service WildcardService on testEP {
     resource function threePathParams(http:Caller caller, http:Request req, string aaa, string bbb, string ccc) {
         http:Response res = new;
         json responseJson = {aaa:aaa, bbb:bbb, ccc:ccc};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 
@@ -368,7 +369,7 @@ service WildcardService on testEP {
     resource function twoPathParams(http:Caller caller, http:Request req, string xxx, string yyy) {
         http:Response res = new;
         json responseJson = {xxx:xxx, yyy:yyy};
-        res.setJsonPayload(crypto:unsafeMarkUntainted(responseJson));
+        res.setJsonPayload(<json>crypto:unsafeMarkUntainted(responseJson));
         _ = caller->respond(res);
     }
 

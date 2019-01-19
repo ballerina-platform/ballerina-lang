@@ -19,6 +19,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
+import ballerina/crypto;
 
 listener websub:Listener websubEP = new websub:Listener(8181, config = { host: "0.0.0.0" });
 
@@ -55,7 +56,7 @@ service websubSubscriberTwo on websubEP {
         } else {
             io:println("Intent verification denied explicitly for subscription change request");
         }
-        _ = caller->respond(crypto:unsafeMarkUntainted(response));
+        _ = caller->respond(<http:Response>crypto:unsafeMarkUntainted(response));
     }
 
     resource function onNotification (websub:Notification notification) {
