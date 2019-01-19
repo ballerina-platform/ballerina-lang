@@ -19,10 +19,3 @@
 # + value - Value to be cloned
 # + return - Clone of the given value
 extern function _clone(anydata value) returns anydata;
-
-
-# Provides the length of a given value.
-#
-# + value - Value which required to calculate the length
-# + return - Clone of the given value
-public extern function _length(any value) returns int;
