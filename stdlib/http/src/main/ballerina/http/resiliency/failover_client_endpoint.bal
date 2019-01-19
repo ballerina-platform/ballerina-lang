@@ -25,7 +25,7 @@ import ballerina/io;
 public type FailoverConfig record {
     int[] failoverCodes = [];
     int interval = 0;
-    !...
+    !...;
 };
 
 // TODO: This can be made package private
@@ -39,7 +39,7 @@ public type FailoverInferredConfig record {
     Client[] failoverClientsArray = [];
     boolean[] failoverCodesIndex = [];
     int failoverInterval = 0;
-    !...
+    !...;
 };
 
 # An HTTP client endpoint which provides failover support over multiple HTTP clients.
@@ -457,7 +457,7 @@ public type FailoverClientEndpointConfiguration record {
     AuthConfig? auth = ();
     int[] failoverCodes = [501, 502, 503, 504];
     int intervalMillis = 0;
-    !...
+    !...;
 };
 
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,

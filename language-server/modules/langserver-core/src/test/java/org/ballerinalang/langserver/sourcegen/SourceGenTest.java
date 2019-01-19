@@ -25,6 +25,8 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerI
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -55,6 +57,7 @@ public class SourceGenTest {
             .toAbsolutePath();
     private List<File> ballerinaTestResources;
     private Endpoint serviceEndpoint;
+    private static final Logger log = LoggerFactory.getLogger(SourceGenTest.class);
 
     @BeforeClass
     public void loadExampleFiles() throws IOException {
@@ -95,6 +98,7 @@ public class SourceGenTest {
 
     @DataProvider
     public Object[] unitTestFiles() {
+        log.info("Test Source Gen");
         return this.ballerinaTestResources.toArray();
     }
 

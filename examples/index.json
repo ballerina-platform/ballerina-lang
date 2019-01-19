@@ -292,10 +292,6 @@
                 "url": "json-arrays"
             },
             {
-                "name": "Constrained JSON",
-                "url": "constrained-json"
-            },
-            {
                 "name": "JSON/Record/Map Conversion",
                 "url": "json-record-map-conversion"
             },

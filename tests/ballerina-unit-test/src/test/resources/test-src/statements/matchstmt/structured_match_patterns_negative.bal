@@ -19,7 +19,7 @@ import ballerina/io;
 type ClosedFoo record {
     string s;
     int i;
-    !...
+    !...;
 };
 
 type OpenedFoo record {

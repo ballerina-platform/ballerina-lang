@@ -15,22 +15,37 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completion.definitions;
+package org.ballerinalang.langserver.completion.annotations;
 
+import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.completion.CompletionTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 
 /**
- * Test cases for Object Type.
- *
- * @since 0.982.0
+ * Completion item tests for annotation attachments.
  */
-public class ObjectType extends CompletionTest {
+public class AnnotationAttachmentsCompletionTest extends CompletionTest {
+
+    private static final Logger log = LoggerFactory.getLogger(AnnotationAttachmentsCompletionTest.class);
+    
+    @BeforeClass
+    public void loadAnnotationCache() {
+        LSAnnotationCache.initiate();
+    }
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
+        log.info("Test textDocument/completion for annotation attachments");
         return new Object[][] {
-                {"objectTest1.json", "object"},
+                {"serviceAnnotation1.json", "annotation"},
+                {"serviceAnnotation2.json", "annotation"},
+                {"resourceAnnotation1.json", "annotation"},
+//                {"resourceAnnotation2.json", "annotation"},
+                {"functionAnnotation1.json", "annotation"},
         };
     }
 }

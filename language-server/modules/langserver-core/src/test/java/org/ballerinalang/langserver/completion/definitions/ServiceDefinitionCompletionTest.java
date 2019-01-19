@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,26 +18,27 @@
 package org.ballerinalang.langserver.completion.definitions;
 
 import org.ballerinalang.langserver.completion.CompletionTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
 
 /**
- * Completion item tests for Top Level Resolving.
+ * Completion item tests for service definition.
  */
-public class TopLevel extends CompletionTest {
+public class ServiceDefinitionCompletionTest extends CompletionTest {
+
+    private static final Logger log = LoggerFactory.getLogger(ServiceDefinitionCompletionTest.class);
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
+        log.info("Test textDocument/completion for Service Definitions Scope");
         return new Object[][] {
-                {"allTopLevelItemSkip.json", "toplevel"},
-                {"topLevelNonEmptyFirstLine.json", "toplevel"},
-                {"topLevelEmptyFirstLine.json", "toplevel"},
-                {"topLevelFirstLineWithPublicKeyword.json", "toplevel"},
-                {"topLevelFirstLineWithPublicDefStart.json", "toplevel"},
-                {"recordTest1.json", "toplevel"},
-                {"recordTest2.json", "toplevel"},
-                {"globalVarDef1.json", "toplevel"},
-                {"globalVarDefPackageContent.json", "toplevel"},
-                {"suggestionAfterExtern.json", "toplevel"},
+            {"serviceEndpointBind1.json", "service"},
+            {"serviceEndpointBind2.json", "service"},
+            {"serviceEndpointBind3.json", "service"},
+            {"serviceEndpointBind4.json", "service"},
+            {"serviceBodyCompletion.json", "service"},
         };
     }
 }

@@ -554,29 +554,6 @@ public class BLangPackageBuilder {
         addType(errorType);
     }
 
-    void addConstraintType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
-        BLangNameReference nameReference = nameReferenceStack.pop();
-        BLangUserDefinedType constraintType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        constraintType.pos = pos;
-        constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        constraintType.typeName = (BLangIdentifier) nameReference.name;
-        constraintType.addWS(nameReference.ws);
-        Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
-
-        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        refType.typeKind = TreeUtils.stringToTypeKind(typeName);
-        refType.pos = pos;
-        refType.addWS(refTypeWS);
-
-        BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
-        constrainedType.type = refType;
-        constrainedType.constraint = constraintType;
-        constrainedType.pos = pos;
-        constrainedType.addWS(ws);
-
-        addType(constrainedType);
-    }
-
     void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
         Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
 
@@ -798,6 +775,13 @@ public class BLangPackageBuilder {
                 break;
         }
         this.varStack.push(recordVariable);
+    }
+
+    void addRecordBindingWS(Set<Whitespace> ws) {
+        if (this.varStack.size() > 0) {
+            BLangVariable var = this.varStack.peek();
+            var.addWS(ws);
+        }
     }
 
     void addRecordVariableReference(DiagnosticPos pos, Set<Whitespace> ws, RestBindingPatternState restBindingPattern) {

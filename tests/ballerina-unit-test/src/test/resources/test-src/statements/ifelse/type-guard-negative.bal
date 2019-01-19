@@ -29,13 +29,13 @@ function testValueTypeInUnion() returns string {
 
 type A record {
     string a;
-    !...
+    !...;
 };
 
 type B record {
     string b;
     string c;
-    !...
+    !...;
 };
 
 function testSimpleRecordTypes_1() returns string {

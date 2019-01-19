@@ -25,19 +25,19 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children?;
-    !...
+    !...;
 };
 
 type Student record {
     string name = "";
     int age = 0;
-    !...
+    !...;
 };
 
 type Person2 record {
     string name = "";
     int age = 0;
-    !...
+    !...;
 };
 
 type StructWithDefaults record {
@@ -47,7 +47,7 @@ type StructWithDefaults record {
     boolean b = true;
     json j = ();
     byte[] blb = [];
-    !...
+    !...;
 };
 
 
@@ -58,7 +58,7 @@ type StructWithoutDefaults record {
     boolean b = false;
     json j = {};
     byte[] blb = [];
-    !...
+    !...;
 };
 
 type T1 record {
@@ -70,7 +70,7 @@ type T2 record {
     int x = 0;
     int y = 0;
     int z = 0;
-    !...
+    !...;
 };
     
 public type TX record {
