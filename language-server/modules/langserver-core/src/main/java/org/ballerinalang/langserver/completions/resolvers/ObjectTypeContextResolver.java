@@ -83,7 +83,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
         } else if (this.isInvocationOrInteractionOrFieldAccess(context)) {
             Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
-            completionItems.addAll(this.getCompletionsFromEither(eitherList, context));
+            completionItems.addAll(this.getCompletionItemList(eitherList, context));
         } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
             context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
