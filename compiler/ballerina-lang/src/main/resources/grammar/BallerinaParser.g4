@@ -784,7 +784,6 @@ floatingPointLiteral
 integerLiteral
     :   DecimalIntegerLiteral
     |   HexIntegerLiteral
-    |   BinaryIntegerLiteral
     ;
 
 emptyTupleLiteral

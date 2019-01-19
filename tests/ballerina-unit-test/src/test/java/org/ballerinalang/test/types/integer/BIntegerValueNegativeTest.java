@@ -31,7 +31,7 @@ public class BIntegerValueNegativeTest {
     @Test
     public void testIntegerValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/integer/integer-value-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 10);
+        Assert.assertEquals(compileResult.getErrorCount(), 8);
 
         int index = 0;
         String expectedError = "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large";
@@ -40,30 +40,24 @@ public class BIntegerValueNegativeTest {
         expectedError = "Integer '9999999999999999999' too large";
         BAssertUtil.validateError(compileResult, index++, expectedError, 3, 13);
 
-        expectedError = "Binary '0b1111111111111111111111111111111111111111111111111111111111111111' too large";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 4, 13);
-
         expectedError = "Hexadecimal '-0xFFFFFFFFFFFFFFFF' too small";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 6, 13);
+        BAssertUtil.validateError(compileResult, index++, expectedError, 5, 13);
 
         expectedError = "Integer '-9999999999999999999' too small";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 7, 13);
-
-        expectedError = "Binary '-0b1111111111111111111111111111111111111111111111111111111111111111' too small";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 8, 13);
+        BAssertUtil.validateError(compileResult, index++, expectedError, 6, 13);
 
         expectedError = "mismatched input 'int'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', '!=', " +
                 "'>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 15, 5);
+        BAssertUtil.validateError(compileResult, index++, expectedError, 13, 5);
 
         expectedError = "extraneous input '672'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 15, 14);
+        BAssertUtil.validateError(compileResult, index++, expectedError, 13, 14);
 
         expectedError = "extraneous input '912'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 16, 14);
+        BAssertUtil.validateError(compileResult, index++, expectedError, 14, 14);
 
         expectedError = "mismatched input '}'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', '!=', " +
                 "'>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
-        BAssertUtil.validateError(compileResult, index, expectedError, 20, 1);
+        BAssertUtil.validateError(compileResult, index, expectedError, 18, 1);
     }
 }
