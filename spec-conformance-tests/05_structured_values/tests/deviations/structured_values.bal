@@ -93,6 +93,7 @@ function testFrozenContainerShapeAndTypeBroken() {
     ((int, string), int) a3 = ((1, "test string 1"), 2);
     (int|float, string) a4 = (2, "test string 2");
     result = trap utils:insertMemberToTuple(a3, a4);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/13230
     // test:assertTrue(result is error, 
     //                 msg = "expected to not be able to add a value that violates shape");
     test:assertTrue(!(result is error), 
