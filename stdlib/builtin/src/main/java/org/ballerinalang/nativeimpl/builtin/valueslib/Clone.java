@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.builtin.valueslib;
+package org.ballerinalang.nativeimpl.builtin.internallib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -41,11 +41,10 @@ import java.util.HashMap;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "builtin",
-        functionName = "cloneValue",
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) },
-        isPublic = true
+        functionName = "_clone",
+        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
 )
-public class CloneValue extends BlockingNativeCallableUnit {
+public class Clone extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context ctx) {
@@ -54,7 +53,7 @@ public class CloneValue extends BlockingNativeCallableUnit {
             return;
         }
         if (!BVM.checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CLONE_ERROR,
+            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(),BallerinaErrorReasons.CLONE_ERROR,
                                                           BLangExceptionHelper.getErrorMessage(
                                                                   RuntimeErrors.UNSUPPORTED_CLONE_OPERATION,
                                                                   refRegVal.getType())));
