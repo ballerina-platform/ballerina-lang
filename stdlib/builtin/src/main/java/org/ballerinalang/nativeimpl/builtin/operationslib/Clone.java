@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.builtin.valueslib;
+package org.ballerinalang.nativeimpl.builtin.operationslib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -53,7 +53,7 @@ public class Clone extends BlockingNativeCallableUnit {
             return;
         }
         if (!BVM.checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(),BallerinaErrorReasons.CLONE_ERROR,
+            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CLONE_ERROR,
                                                           BLangExceptionHelper.getErrorMessage(
                                                                   RuntimeErrors.UNSUPPORTED_CLONE_OPERATION,
                                                                   refRegVal.getType())));

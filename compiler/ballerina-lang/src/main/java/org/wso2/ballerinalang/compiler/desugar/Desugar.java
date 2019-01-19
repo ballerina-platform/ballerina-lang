@@ -3368,8 +3368,8 @@ public class Desugar extends BLangNodeVisitor {
             return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, requiredArgs, symResolver,
                                                       BLangBuiltInMethod.STAMP);
         }
-        BLangExpression cloneInvocation = 
-                visitBuiltInMethodInvocation(pos, BLangBuiltInMethod.CLONE,Lists.of(sourceExpression), 
+        BLangExpression cloneInvocation =
+                visitBuiltInMethodInvocation(pos, BLangBuiltInMethod.CLONE, Lists.of(sourceExpression),
                                              Lists.of(symTable.anydataType), symTable.anydataType);
         return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, Lists.of(cloneInvocation),
                                                   symResolver, BLangBuiltInMethod.STAMP);
