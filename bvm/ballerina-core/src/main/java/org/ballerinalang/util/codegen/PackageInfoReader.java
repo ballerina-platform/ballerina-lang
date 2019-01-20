@@ -1328,7 +1328,7 @@ public class PackageInfoReader {
                 case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
-                case InstructionCodes.TYPE_ASSERTION:
+                case InstructionCodes.TYPE_CAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.ANY2T:

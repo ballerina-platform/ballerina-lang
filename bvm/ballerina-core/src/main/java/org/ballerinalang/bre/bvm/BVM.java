@@ -600,7 +600,7 @@ public class BVM {
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.O2JSON:
-                case InstructionCodes.TYPE_ASSERTION:
+                case InstructionCodes.TYPE_CAST:
                     execTypeCastOpcodes(strand, sf, opcode, operands);
                     break;
 
@@ -2448,7 +2448,7 @@ public class BVM {
         TypeRefCPEntry typeRefCPEntry;
 
         switch (opcode) {
-            case InstructionCodes.TYPE_ASSERTION:
+            case InstructionCodes.TYPE_CAST:
                 i = operands[0];
                 cpIndex = operands[1];
                 j = operands[2];

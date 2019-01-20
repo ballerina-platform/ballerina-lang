@@ -1409,7 +1409,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             case InstructionCodes.JSON2ARRAY:
             case InstructionCodes.O2JSON:
             case InstructionCodes.CHECKCAST:
-            case InstructionCodes.TYPE_ASSERTION:
+            case InstructionCodes.TYPE_CAST:
                 Operand typeCPIndex = getTypeCPIndex(convExpr.targetType);
                 emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);
                 break;

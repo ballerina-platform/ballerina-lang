@@ -542,7 +542,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     BOperatorSymbol createTypeAssertionSymbol(BType type, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(Names.ASSERTION_OP, null, opType, null, InstructionCodes.TYPE_ASSERTION);
+        return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_CAST);
     }
 
     BSymbol getNumericConversionOrCastSymbol(BType sourceType, BType targetType) {

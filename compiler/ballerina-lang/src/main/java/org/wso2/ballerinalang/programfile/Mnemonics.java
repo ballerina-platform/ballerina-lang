@@ -219,7 +219,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.S2ANY] = "s2any";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
 
-        mnemonics[InstructionCodes.TYPE_ASSERTION] = "type_assertion";
+        mnemonics[InstructionCodes.TYPE_CAST] = "type_cast";
 
         // Type cast
         mnemonics[InstructionCodes.ANY2I] = "any2i";
