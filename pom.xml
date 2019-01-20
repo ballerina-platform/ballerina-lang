@@ -1809,7 +1809,6 @@
 
                 <module>distribution/zip/ballerina</module>
 
-                <module>spec-conformance-tests</module>
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
