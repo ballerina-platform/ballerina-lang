@@ -188,22 +188,16 @@ public class Types {
     }
 
     boolean isBasicNumericType(BType type) {
-        return type.tag == TypeTags.INT || type.tag == TypeTags.FLOAT || type.tag == TypeTags.DECIMAL ||
-                type.tag == TypeTags.BYTE;
+        return type.tag < TypeTags.STRING;
     }
 
-    boolean containsNumericType(BType type) {
-        switch (type.tag) {
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.BYTE:
-                return true;
-            case TypeTags.UNION:
-                return ((BUnionType) type).memberTypes.stream()
-                        .anyMatch(this::containsNumericType);
+    private boolean containsNumericType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .anyMatch(this::containsNumericType);
         }
-        return false;
+
+        return isBasicNumericType(type);
     }
 
     public boolean isAnydata(BType type) {
