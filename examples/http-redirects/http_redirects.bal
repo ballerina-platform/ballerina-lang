@@ -1,23 +1,19 @@
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
 
 // Create an HTTP client to interact with a remote endpoint.
-http:Client clientEP = new("http://localhost:9090", config = {
+http:Client clientEndpoint = new("http://localhost:9090", config = {
         followRedirects: { enabled: true, maxCount: 5 }
     });
 
 public function main() {
-    // Send a GET request to the specified endpoint.
-    var returnResult = clientEP->get("/redirect1");
-
+    // Send a `GET` request to the specified endpoint.
+    var returnResult = clientEndpoint->get("/redirect1");
     if (returnResult is http:Response) {
-        // If the request is successful, retrieve the text payload from the
-        // response.
+        // Retrieve the text payload from the response.
         var payload = returnResult.getTextPayload();
-
         if (payload is string) {
-            io:println("Response received : " + payload);
+            log:printInfo("Response received : " + payload);
         } else {
             log:printError("Error in payload", err = payload);
         }

@@ -242,3 +242,13 @@ function testFloatAsFiniteType() returns (foo:FiniteFloatType, foo:FiniteFloatTy
 
     return (f1, f2);
 }
+
+// -----------------------------------------------------------
+
+function testNilWithoutType() returns () {
+    return foo:NilWithoutType;
+}
+
+function testNilWithType() returns () {
+    return foo:NilWithType;
+}
