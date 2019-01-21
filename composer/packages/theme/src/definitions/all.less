@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,18 +17,8 @@
  *
  */
 
-/*******************************
-        Theme Selection
-*******************************/
-
-/* Global */
-@site       : 'playground';
-@diagram    : 'playground';
-
-
-/*******************************
-            Folders
-*******************************/
-
-/* Path to site override folder (relative to theme/src/theme.less) */
-@siteFolder  : 'themes/playground';
+& { @import "./views/diagram.less"; }
+& { @import "./views/documentation.less"; }
+& { @import "./views/examples.less"; }
+& { @import "./views/api-designer.less"; }
+& { @import "./views/network-logs.less"; }
