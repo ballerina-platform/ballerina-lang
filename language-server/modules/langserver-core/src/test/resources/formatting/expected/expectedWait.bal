@@ -15,7 +15,7 @@ function waitTest27() returns map<anydata> {
     record {
         int id = 0;
         string name = "default";
-        string...
+        string...;
     } anonRec = wait {id: f1, name : f2, greet: f3};
 
     map<anydata> m = {

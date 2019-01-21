@@ -2,13 +2,13 @@ type ClosedPerson record {
     string name = "";
     int age = 0;
     Address address = {};
-    !...
+    !...;
 };
 
 type ClosedAddress record {
     string street = "";
     string city = "";
-    !...
+    !...;
 };
 
 type Address record {
@@ -22,21 +22,21 @@ type ClosedFoo record {
     string c = "";
     string d = "";
     string e = "";
-    !...
+    !...;
 };
 
 type ClosedGrades record {
     int maths = 0;
     int physics = 0;
     int chemistry = 0;
-    !...
+    !...;
 };
 
 type ClosedBar record {
     float x = 0.0;
     float y = 0.0;
     float z = 0.0;
-    !...
+    !...;
 };
 
 function testForeachWithClosedRecords() returns (string[], any[]) {

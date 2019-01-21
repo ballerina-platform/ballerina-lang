@@ -83,6 +83,8 @@ public class UtilSymbolKeys {
 
     public static final String RECORD_KEYWORD_KEY = "record";
 
+    public static final String SELF_KEYWORD_KEY = "self";
+
     public static final String NEW_KEYWORD_KEY = "new";
     
     public static final String IMPORT_KEYWORD_KEY = "import";

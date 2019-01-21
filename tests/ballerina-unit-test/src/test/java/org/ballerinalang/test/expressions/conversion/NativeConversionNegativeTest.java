@@ -21,8 +21,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -111,37 +113,25 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test convert function with multiple arguments")
     public void testFloatToIntWithMultipleArguments() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 12);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 4);
         BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'convert()'", 51, 12);
     }
 
     @Test(description = "Test convert function with no arguments")
     public void testFloatToIntWithNoArguments() {
-        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'convert()'", 56, 12);
+        BAssertUtil.validateError(negativeCompileResult, 1, "not enough arguments in call to 'convert()'", 56, 12);
     }
 
     @Test(description = "Test object conversions not supported")
     public void testObjectToJson() {
-        BAssertUtil.validateError(negativeCompileResult, 4, "incompatible types: 'PersonObj' cannot be converted to "
+        BAssertUtil.validateError(negativeCompileResult, 2, "incompatible types: 'PersonObj' cannot be converted to "
                 + "'json'", 61, 12);
     }
 
     @Test
-    public void testStructToJsonConstrained1() {
-        BAssertUtil.validateError(negativeCompileResult, 6, "incompatible types: 'Person' cannot be converted to "
-                + "'json<Person2>'", 72, 23);
-    }
-
-    @Test
-    public void testStructToJsonConstrainedNegative() {
-        BAssertUtil.validateError(negativeCompileResult, 8, "incompatible types: 'Person2' cannot be converted to "
-                + "'json<Person3>'", 81, 18);
-    }
-
-    @Test
     public void testTypeCheckingRecordToMapConversion() {
-        BAssertUtil.validateError(negativeCompileResult, 10, "incompatible types: 'Person2' cannot be converted to "
-                + "'map<int>'", 92, 12);
+        BAssertUtil.validateError(negativeCompileResult, 3, "incompatible types: 'Person2' cannot be converted to "
+                + "'map<int>'", 66, 12);
     }
 
     @Test
@@ -150,6 +140,33 @@ public class NativeConversionNegativeTest {
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "'string' cannot be converted to 'int'");
+    }
+
+    @Test(description = "Test converting record to record which has cyclic reference to its own value.")
+    public void testConvertRecordToRecordWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToRecordWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Manager' value has cyclic reference");
+    }
+
+    @Test(description = "Test converting record to map having cyclic reference.")
+    public void testConvertRecordToMapWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToMapWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Manager' value has cyclic reference");
+    }
+
+    @Test(description = "Test converting record to json having cyclic reference.")
+    public void testConvertRecordToJsonWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToJsonWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Manager' value has cyclic reference");
     }
 }
 

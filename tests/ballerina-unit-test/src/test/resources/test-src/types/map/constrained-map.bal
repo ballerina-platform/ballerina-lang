@@ -59,18 +59,6 @@ function testConstrainedMapConstrainedWithConstrainedMap () returns ((string, st
     return (name_r, sname_r);
 }
 
-function testConstrainedMapConstrainedWithConstrainedJson () returns ((string, int)) {
-    map<json<Person>> testMap = {};
-    json<Person> jP = {};
-    jP.name = "Jack";
-    jP.age = 25;
-    testMap.item = jP;
-    json<Person> rJP = testMap.item;
-    string j_name = < string > rJP.name;
-    int j_age = < int > rJP.age;
-    return (j_name, j_age);
-}
-
 function testConstrainedMapConstrainedWithValueTypeArray () returns ((int, int)) {
     map<int[]> testMap = {};
     int[] intArr = [25, 30];
@@ -262,7 +250,7 @@ type Person record {
     string name;
     int age;
     string address = "";
-    !...
+    !...;
 };
 
 type Employee record {
@@ -359,7 +347,7 @@ function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
 type Student record {
     int index;
     int age;
-    !...
+    !...;
 };
 
 function testMapToStructConversion () returns ((int, int)|error) {
@@ -421,7 +409,7 @@ type PersonComplex record {
     anydata a = ();
     float score = 0.0;
     boolean alive = false;
-    !...
+    !...;
 };
 
 function testJsonToStructConversionStructWithConstrainedMap () returns (string, string) {
@@ -465,7 +453,7 @@ type PersonComplexTwo record {
     anydata a = ();
     float score = 0.0;
     boolean alive = false;
-    !...
+    !...;
 };
 
 function testJsonToStructConversionStructWithConstrainedMapNegative () returns (PersonComplexTwo|error) {
@@ -544,7 +532,7 @@ type Transaction record {
 type Participant record {
     string participantId;
     Protocol[] participantProtocols;
-    !...
+    !...;
 };
 
 type Protocol record {
@@ -554,7 +542,7 @@ type Protocol record {
     (function (string transactionId,
                int transactionBlockId,
                string protocolAction) returns boolean)|() protocolFn;
-    !...
+    !...;
 };
 
 type TwoPhaseCommitTransaction record {
@@ -563,7 +551,7 @@ type TwoPhaseCommitTransaction record {
     map<Participant> participants?;
     Protocol[] coordinatorProtocols?;
     boolean possibleMixedOutcome?;
-    !...
+    !...;
 };
 
 function testRuntimeStructEquivalencyWithNestedConstrainedMaps () returns (string?) {
