@@ -29,7 +29,7 @@ import javax.naming.Context;
  *
  * @since 0.8.0
  */
-public class Constants {
+public class JmsConstants {
     // Error fields
     public static final String JMS_ERROR_RECORD = "JMSError";
     public static final String JMS_ERROR_CODE = "{ballerina/jms}JMSError";
@@ -37,6 +37,10 @@ public class Constants {
     // Common fields
     public static final String B_OBJECT_FIELD_PRODUCER_ACTIONS = "producerActions";
     public static final String B_OBJECT_FIELD_CONFIG = "config";
+
+    // Method fields
+    public static final String METHOD_FIELD_ACTIONS = "actions";
+    public static final String METHOD_FIELD_DATA = "data";
 
     // Connection fields
     public static final String CONNECTION_CONFIG = "config";
@@ -152,6 +156,6 @@ public class Constants {
     public static final String DUPS_OK_ACKNOWLEDGE_MODE = "DUPS_OK_ACKNOWLEDGE";
     public static final String SESSION_TRANSACTED_MODE = "SESSION_TRANSACTED";
 
-    private Constants() {
+    private JmsConstants() {
     }
 }
