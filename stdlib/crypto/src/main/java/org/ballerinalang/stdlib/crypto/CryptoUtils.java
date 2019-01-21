@@ -17,7 +17,19 @@
  */
 package org.ballerinalang.stdlib.crypto.util;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.Formatter;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @since 0.95.1
@@ -26,6 +38,39 @@ public class HashUtils {
 
     private HashUtils() {
 
+    }
+
+    public static byte[] hmac(Context context, byte[] input, byte[] key, String hmacAlgorithm) {
+        try {
+            SecretKey secretKey = new SecretKeySpec(key, hmacAlgorithm);
+            Mac mac = Mac.getInstance(hmacAlgorithm);
+            mac.init(secretKey);
+            return mac.doFinal(input);
+        } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
+            throw new BallerinaException("Error occurred while calculating HMAC: " + e.getMessage(), context);
+        }
+    }
+
+    public static byte[] hash(Context context, String algorithm, byte[] input) {
+        try {
+            MessageDigest messageDigest;
+            messageDigest = MessageDigest.getInstance(algorithm);
+            messageDigest.update(input);
+            return messageDigest.digest();
+        } catch (NoSuchAlgorithmException e) {
+            throw new BallerinaException("Error occurred while calculating hash: " + e.getMessage(), context);
+        }
+    }
+
+    public static byte[] sign(Context context, String algorithm, PrivateKey privateKey, byte[] input) {
+        try {
+            Signature sig = Signature.getInstance(algorithm);
+            sig.initSign(privateKey);
+            sig.update(input);
+            return sig.sign();
+        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
+            throw new BallerinaException("Error occurred while calculating signature: " + e.getMessage(), context);
+        }
     }
 
     /**

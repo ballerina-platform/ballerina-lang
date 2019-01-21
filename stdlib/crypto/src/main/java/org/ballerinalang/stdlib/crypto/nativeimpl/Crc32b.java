@@ -20,20 +20,14 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -44,33 +38,20 @@ import java.util.zip.Checksum;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "crc32",
-        args = {@Argument(name = "content", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        functionName = "crc32b",
+        args = {@Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true)
-public class Crc32 extends BlockingNativeCallableUnit {
+public class Crc32b extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BValue entityBody = context.getRefArgument(0);
+        byte[] bytes = ((BValueArray) entityBody).getBytes();
+
         Checksum checksum = new CRC32();
-        byte[] bytes;
-        long checksumVal;
-
-        BType argType = entityBody.getType();
-        if (argType == BTypes.typeJSON || argType == BTypes.typeXML || argType == BTypes.typeString) {
-            // TODO: Look at the possibility of making the encoding configurable
-            bytes = entityBody.stringValue().getBytes(StandardCharsets.UTF_8);
-        } else if (argType.getTag() == TypeTags.ARRAY_TAG &&
-                ((BArrayType) argType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-            bytes = ((BValueArray) entityBody).getBytes();
-        } else {
-            throw new BallerinaException(
-                    "failed to generate hash: unsupported data type: " + entityBody.getType().getName());
-        }
-
+        checksum.reset();
         checksum.update(bytes, 0, bytes.length);
-        checksumVal = checksum.getValue();
-        context.setReturnValues(new BString(Long.toHexString(checksumVal)));
+        context.setReturnValues(new BInteger(checksum.getValue()));
     }
 }
