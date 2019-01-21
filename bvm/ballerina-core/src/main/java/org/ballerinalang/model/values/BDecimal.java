@@ -70,8 +70,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
     public long intValue() {
         if (this.valueKind == DecimalValueKind.NOT_A_NUMBER || !BVM.isDecimalWithinIntRange(value)) {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                         "out of range 'decimal' value '" + this.stringValue() +
-                                                 "' cannot be converted to 'int'");
+                    "out of range 'decimal' value '" + this.stringValue() + "' cannot be converted to 'int'");
         }
         return Math.round(value.doubleValue());
     }
@@ -128,24 +127,20 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
         switch (this.valueKind) {
             case ZERO:
                 return augend;
-
             case POSITIVE_INFINITY:
                 if (augend.valueKind == DecimalValueKind.NEGATIVE_INFINITY ||
                         augend.valueKind == DecimalValueKind.NOT_A_NUMBER) {
                     return NaN;
                 }
                 return POSITIVE_INF;
-
             case NEGATIVE_INFINITY:
                 if (augend.valueKind == DecimalValueKind.POSITIVE_INFINITY ||
                         augend.valueKind == DecimalValueKind.NOT_A_NUMBER) {
                     return NaN;
                 }
                 return NEGATIVE_INF;
-
             case NOT_A_NUMBER:
                 return NaN;
-
             default:
                 if (augend.valueKind == DecimalValueKind.ZERO) {
                     return this;
@@ -165,24 +160,20 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                     return subtrahend;
                 }
                 return subtrahend.negate();
-
             case POSITIVE_INFINITY:
                 if (subtrahend.valueKind == DecimalValueKind.POSITIVE_INFINITY ||
                         subtrahend.valueKind == DecimalValueKind.NOT_A_NUMBER) {
                     return NaN;
                 }
                 return POSITIVE_INF;
-
             case NEGATIVE_INFINITY:
                 if (subtrahend.valueKind == DecimalValueKind.NEGATIVE_INFINITY ||
                         subtrahend.valueKind == DecimalValueKind.NOT_A_NUMBER) {
                     return NaN;
                 }
                 return NEGATIVE_INF;
-
             case NOT_A_NUMBER:
                 return NaN;
-
             default:
                 if (subtrahend.valueKind == DecimalValueKind.ZERO) {
                     return this;
@@ -203,7 +194,6 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                     return this;
                 }
                 return NaN;
-
             case POSITIVE_INFINITY:
                 if (multiplicand.valueKind == DecimalValueKind.ZERO ||
                         multiplicand.valueKind == DecimalValueKind.NOT_A_NUMBER) {
@@ -213,7 +203,6 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                     return POSITIVE_INF;
                 }
                 return NEGATIVE_INF;
-
             case NEGATIVE_INFINITY:
                 if (multiplicand.valueKind == DecimalValueKind.ZERO ||
                         multiplicand.valueKind == DecimalValueKind.NOT_A_NUMBER) {
@@ -223,10 +212,8 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                     return NEGATIVE_INF;
                 }
                 return POSITIVE_INF;
-
             case NOT_A_NUMBER:
                 return NaN;
-
             default:
                 if (multiplicand.valueKind == DecimalValueKind.OTHER) {
                     return new BDecimal(this.decimalValue().multiply(multiplicand.decimalValue(),
@@ -246,7 +233,6 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                     return NaN;
                 }
                 return this;
-
             case POSITIVE_INFINITY:
                 if (divisor.valueKind == DecimalValueKind.ZERO ||
                         (divisor.valueKind == DecimalValueKind.OTHER &&
@@ -258,7 +244,6 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                     return NEGATIVE_INF;
                 }
                 return NaN;
-
             case NEGATIVE_INFINITY:
                 if (divisor.valueKind == DecimalValueKind.ZERO ||
                         (divisor.valueKind == DecimalValueKind.OTHER &&
@@ -270,10 +255,8 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                     return POSITIVE_INF;
                 }
                 return NaN;
-
             case NOT_A_NUMBER:
                 return NaN;
-
             default:
                 if (divisor.valueKind == DecimalValueKind.OTHER) {
                     return new BDecimal(this.decimalValue().divide(divisor.decimalValue(), MathContext.DECIMAL128));
