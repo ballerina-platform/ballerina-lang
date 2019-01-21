@@ -3,32 +3,32 @@ import ballerina/time;
 public function benchmarkCurrentTimeFunction() {
     time:Time time = time:currentTime();
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
 }
 
 public function benchmarkCreateTimeWithZoneIDFunction() {
-    time:TimeZone zoneValue = { zoneId: "America/Panama" };
+    time:TimeZone zoneValue = { id: "America/Panama" };
     time:Time time = new(1498488382000, zoneValue);
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
 }
 
 public function benchmarkCreateTimeWithOffsetFunction() {
-    time:TimeZone zoneValue = { zoneId: "-05:00" };
+    time:TimeZone zoneValue = { id: "-05:00" };
     time:Time time = { time: 1498488382000, zone: zoneValue };
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
 }
 
 public function benchmarkCreateTimeWithNoZoneFunction() {
-    time:TimeZone zoneValue = { zoneId: "" };
+    time:TimeZone zoneValue = { id: "" };
     time:Time time = { time: 1498488382000, zone: zoneValue };
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
 }
 
 public function benchmarkCreateDateTimeFunction() {
@@ -38,24 +38,24 @@ public function benchmarkCreateDateTimeFunction() {
 public function benchmarkParseTimeFunction() {
     time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
 }
 
 public function benchmarkToStringWithCreateTimeFunction() {
-    time:TimeZone zoneValue = { zoneId: "America/Panama" };
+    time:TimeZone zoneValue = { id: "America/Panama" };
     time:Time time = { time: 1498488382000, zone: zoneValue };
     string timeString = time.toString();
 }
 
 public function benchmarkFormatTimeFunction() {
-    time:TimeZone zoneValue = { zoneId: "America/Panama" };
+    time:TimeZone zoneValue = { id: "America/Panama" };
     time:Time time = { time: 1498488382444, zone: zoneValue };
     string timeString = time.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 
 public function benchmarkTimeGetFunctions() {
-    time:TimeZone zoneValue = { zoneId: "America/Panama" };
+    time:TimeZone zoneValue = { id: "America/Panama" };
     time:Time time = new(1456876583555, zoneValue);
     int year = time.year();
     int month = time.month();
@@ -68,7 +68,7 @@ public function benchmarkTimeGetFunctions() {
 }
 
 public function benchmarkGetDateFunction() {
-    time:TimeZone zoneValue = { zoneId: "America/Panama" };
+    time:TimeZone zoneValue = { id: "America/Panama" };
     time:Time time = new(1456876583555, zoneValue);
     int year;
     int month;
@@ -77,7 +77,7 @@ public function benchmarkGetDateFunction() {
 }
 
 public function benchmarkGetTimeFunction() {
-    time:TimeZone zoneValue = { zoneId: "America/Panama" };
+    time:TimeZone zoneValue = { id: "America/Panama" };
     time:Time time = new(1456876583555, zoneValue);
     int hour;
     int minute;
@@ -99,7 +99,7 @@ public function benchmarkSubtractDurationFunction() {
 }
 
 public function benchmarkToTimezoneFunction() {
-    time:TimeZone zoneValue = { zoneId: "America/Panama" };
+    time:TimeZone zoneValue = { id: "America/Panama" };
     time:Time time = new(1456876583555, zoneValue);
     string timeStrBefore = time.toString();
     time = time.toTimeZone("Asia/Colombo");
@@ -113,19 +113,19 @@ public function benchmarkToTimezoneFunctionWithDateTime() {
 }
 
 public function benchmarkManualTimeCreateFunction() {
-    time:TimeZone zoneValue = { zoneId: "America/Panama" };
+    time:TimeZone zoneValue = { id: "America/Panama" };
     time:Time time = new(1498488382000, zoneValue);
     string timeString = time.toString();
 }
 
 public function benchmarkManualTimeCreateFunctionWithNoZone() {
-    time:TimeZone zoneValue = { zoneId: "" };
+    time:TimeZone zoneValue = { id: "" };
     time:Time time = new(1498488382555, zoneValue);
     int year = time.year();
 }
 
 public function benchmarkManualTimeCreateFunctionWithEmptyZone() {
-    time:TimeZone zoneValue = { zoneId: "" };
+    time:TimeZone zoneValue = { id: "" };
     time:Time time = new(1498488382555, zoneValue);
     int yesr = time.year();
 }

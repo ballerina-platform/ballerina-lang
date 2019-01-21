@@ -3,8 +3,8 @@ import ballerina/time;
 function testCurrentTime() returns (int, string, int) {
     time:Time time = time:currentTime();
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
     return (timeValue, zoneId, zoneoffset);
 }
 
@@ -14,29 +14,29 @@ function testNanoTime() returns (int) {
 }
 
 function testCreateTimeWithZoneID() returns (int, string, int) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382000, zone: zoneValue };
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
     return (timeValue, zoneId, zoneoffset);
 }
 
 function testCreateTimeWithOffset() returns (int, string, int) {
-    time:TimeZone zoneValue = {zoneId:"-05:00"};
+    time:TimeZone zoneValue = {id:"-05:00"};
     time:Time time = { time: 1498488382000, zone: zoneValue };
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
     return (timeValue, zoneId, zoneoffset);
 }
 
 function testCreateTimeWithNoZone() returns (int, string, int) {
-    time:TimeZone zoneValue = {zoneId:""};
+    time:TimeZone zoneValue = {id:""};
     time:Time time = { time: 1498488382000, zone: zoneValue };
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
     return (timeValue, zoneId, zoneoffset);
 }
 
@@ -49,39 +49,39 @@ function testCreateDateTime() returns (string) {
 function testParseTime() returns (int, string, int) {
     time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
     return (timeValue, zoneId, zoneoffset);
 }
 
 function testParseRFC1123Time(string timestamp) returns (int, string, int) {
     time:Time time = time:parse(timestamp, time:TIME_FORMAT_RFC_1123);
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
     return (timeValue, zoneId, zoneoffset);
 }
 
 function testToStringWithCreateTime() returns (string) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382000, zone: zoneValue };
     return time:toString(time);
 }
 
 function testFormatTime() returns (string) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382444, zone: zoneValue };
     return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 
 function testFormatTimeToRFC1123() returns (string) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382444, zone: zoneValue };
     return time:format(time, time:TIME_FORMAT_RFC_1123);
 }
 
 function testGetFunctions() returns (int, int, int, int, int, int, int, string) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
     int year = time:getYear(time);
     int month = time:getMonth(time);
@@ -95,7 +95,7 @@ function testGetFunctions() returns (int, int, int, int, int, int, int, string) 
 }
 
 function testGetDateFunction() returns (int, int, int) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
     int year; int month; int day;
     (year, month, day) = time:getDate(time);
@@ -103,7 +103,7 @@ function testGetDateFunction() returns (int, int, int) {
 }
 
 function testGetTimeFunction() returns (int, int, int, int) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
     int hour; int minute; int second; int milliSecond;
     (hour, minute, second, milliSecond) = time:getTime(time);
@@ -123,7 +123,7 @@ function testSubtractDuration() returns (string) {
 }
 
 function testToTimezone() returns (string, string) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
     string timeStrBefore = time:toString(time);
     time = time:toTimeZone(time, "Asia/Colombo");
@@ -132,7 +132,7 @@ function testToTimezone() returns (string, string) {
 }
 
 function testToTimezoneWithInvalidZone() returns (string) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
     time = time:toTimeZone(time, "test");
     return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -145,25 +145,25 @@ function testToTimezoneWithDateTime() returns (string) {
 }
 
 function testManualTimeCreate() returns (string) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382000, zone: zoneValue };
     return time:toString(time);
 }
 
 function testManualTimeCreateWithNoZone() returns (int) {
-    time:TimeZone zoneValue = {zoneId:""};
+    time:TimeZone zoneValue = {id:""};
     time:Time time = { time: 1498488382555, zone: zoneValue };
     return time:getYear(time);
 }
 
 function testManualTimeCreateWithEmptyZone() returns (int) {
-    time:TimeZone zoneValue = {zoneId:""};
+    time:TimeZone zoneValue = {id:""};
     time:Time time = { time: 1498488382555, zone: zoneValue };
     return time:getYear(time);
 }
 
 function testManualTimeCreateWithInvalidZone() returns (int) {
-    time:TimeZone zoneValue = {zoneId:"test"};
+    time:TimeZone zoneValue = {id:"test"};
     time:Time time = { time: 1498488382555, zone: zoneValue };
     return time:getYear(time);
 }
@@ -171,21 +171,21 @@ function testManualTimeCreateWithInvalidZone() returns (int) {
 function testParseTimenvalidPattern() returns (int, string, int) {
     time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "test");
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
     return (timeValue, zoneId, zoneoffset);
 }
 
 function testParseTimenFormatMismatch() returns (int, string, int) {
     time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd");
     int timeValue = time.time;
-    string zoneId = time.zone.zoneId;
-    int zoneoffset = time.zone.zoneOffset;
+    string zoneId = time.zone.id;
+    int zoneoffset = time.zone.offset;
     return (timeValue, zoneId, zoneoffset);
 }
 
 function testFormatTimeInvalidPattern() returns (string) {
-    time:TimeZone zoneValue = {zoneId:"America/Panama"};
+    time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382444, zone: zoneValue };
     return time:format(time, "test");
 }

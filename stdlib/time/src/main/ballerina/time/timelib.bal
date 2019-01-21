@@ -20,11 +20,11 @@ public type TimeFormat "RFC_1123";
 
 # Ballerina TimeZone represents the time-zone information associated with a particular time.
 #
-# + zoneId - Zone short ID or offset string
-# + zoneOffset - The offset in seconds
+# + is - Zone short ID or offset string
+# + offset - The offset in seconds
 public type TimeZone record {
-    string zoneId;
-    int zoneOffset = 0;
+    string id;
+    int offset = 0;
     !...;
 };
 
@@ -35,7 +35,7 @@ public type TimeZone record {
 public type Time record {
     int time;
     TimeZone zone;
-    !...
+    !...;
 };
 # Returns ISO 8601 string representation of the given time.
 #
