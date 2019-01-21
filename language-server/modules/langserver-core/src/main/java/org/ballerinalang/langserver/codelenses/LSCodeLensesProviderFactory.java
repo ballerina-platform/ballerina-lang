@@ -26,22 +26,22 @@ import java.util.ServiceLoader;
  */
 public class LSCodeLensesProviderFactory {
 
-    private static final LSCodeLensesProviderFactory provider = new LSCodeLensesProviderFactory();
+    private static final LSCodeLensesProviderFactory INSTANCE = new LSCodeLensesProviderFactory();
 
-    private List<LSCodeLensesProvider> providersList;
+    private List<LSCodeLensesProvider> activeProvidersList;
 
     private LSCodeLensesProviderFactory() {
         ServiceLoader<LSCodeLensesProvider> providers = ServiceLoader.load(LSCodeLensesProvider.class);
-        providersList = new ArrayList<>();
+        activeProvidersList = new ArrayList<>();
         for (LSCodeLensesProvider executor : providers) {
             if (executor != null && executor.isEnabled()) {
-                providersList.add(executor);
+                activeProvidersList.add(executor);
             }
         }
     }
 
     public static LSCodeLensesProviderFactory getInstance() {
-        return provider;
+        return INSTANCE;
     }
 
     /**
@@ -50,6 +50,6 @@ public class LSCodeLensesProviderFactory {
      * @return {@link List} Providers List
      */
     public List<LSCodeLensesProvider> getProviders() {
-        return new ArrayList<>(this.providersList);
+        return new ArrayList<>(this.activeProvidersList);
     }
 }
