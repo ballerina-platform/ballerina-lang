@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,9 +29,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
- * Extern function ballerina.crypto:getHmac.
+ * Extern function ballerina.crypto:hmacSha384.
  *
- * @since 0.8.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",

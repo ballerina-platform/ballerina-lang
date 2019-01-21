@@ -14,17 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Private key used in cryptographic operations.
-#
-# + algorithm - Key algorithm
-public type PrivateKey record {
-    string algorithm;
-    !...
-};
+import ballerina/encoding;
 
-# Public key used in cryptographic operations.
-#
-# + algorithm - Key algorithm
-public type PublicKey record {
-    !...
-};
+public function encodeToHex(byte[] input) returns string {
+    return encoding:encodeHex(input);
+}
+
+public function encodeToBase64(byte[] input) returns string {
+    return encoding:encodeBase64(input);
+}
+
+public function decodeFromHex(string input) returns byte[] {
+    return encoding:decodeHex(input);
+}
+
+public function decodeFromBase64(string input) returns byte[] {
+    return encoding:decodeBase64(input);
+}

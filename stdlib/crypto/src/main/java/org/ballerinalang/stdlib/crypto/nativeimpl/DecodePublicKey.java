@@ -38,60 +38,55 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
+import java.security.PublicKey;
 import java.security.cert.CertificateException;
 
 /**
- * Function for decoding private key.
+ * Function for decoding public key.
  *
  * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "decodePrivateKey",
+        functionName = "decodePublicKey",
         args = {
                 @Argument(name = "keyStore", type = TypeKind.STRING),
                 @Argument(name = "keyStorePassword", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @Argument(name = "keyAlias", type = TypeKind.STRING),
-                @Argument(name = "keyPassword", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @Argument(name = "keyAlias", type = TypeKind.STRING)
         },
         returnType = {@ReturnType(type = TypeKind.RECORD, structType = "PrivateKey",
                 structPackage = "ballerina/crypto")},
         isPublic = true)
-public class DecodePrivateKey extends BlockingNativeCallableUnit {
+public class DecodePublicKey extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BString keyStore = (BString) context.getNullableRefArgument(0);
         BString keyStorePassword = (BString) context.getNullableRefArgument(1);
         BString keyAlias = (BString) context.getNullableRefArgument(2);
-        BString keyPassword = (BString) context.getNullableRefArgument(3);
 
-        PrivateKey privateKey = null;
+        PublicKey publicKey = null;
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore != null) {
             File keyStoreFile = new File(keyStore.stringValue());
             try (FileInputStream fileInputStream = new FileInputStream(keyStoreFile)) {
                 KeyStore keystore = KeyStore.getInstance("PKCS12");
                 keystore.load(fileInputStream, keyStorePassword.stringValue().toCharArray());
-                privateKey = (PrivateKey) keystore.getKey(keyAlias.stringValue(),
-                        keyPassword.stringValue().toCharArray());
+                publicKey = keystore.getCertificate(keyAlias.stringValue()).getPublicKey();
             } catch (FileNotFoundException e) {
                 throw new BallerinaException("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile(),
                         context);
-            } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException |
-                    UnrecoverableKeyException e) {
+            } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
                 throw new BallerinaException(e.getMessage(), e);
             }
         } else {
-            throw new BallerinaException("Key content, key file or key store information is required", context);
+            throw new BallerinaException("Key store information is required", context);
         }
 
         BMap<String, BValue> privateKeyStruct = BLangConnectorSPIUtil.createBStruct(context,
-                Constants.CRYPTO_PACKAGE, Constants.PRIVATE_KEY_STRUCT);
-        privateKeyStruct.addNativeData(Constants.NATIVE_DATA_PRIVATE_KEY, privateKey);
-        privateKeyStruct.put("algorithm", new BString(privateKey.getAlgorithm()));
+                Constants.CRYPTO_PACKAGE, Constants.PUBLIC_KEY_STRUCT);
+        privateKeyStruct.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
+        privateKeyStruct.put("algorithm", new BString(publicKey.getAlgorithm()));
         context.setReturnValues(privateKeyStruct);
     }
 }

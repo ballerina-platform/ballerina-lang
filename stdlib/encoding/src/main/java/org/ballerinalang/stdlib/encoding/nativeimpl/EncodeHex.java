@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,16 +29,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 /**
- * Extern function ballerina.encoding:encodeBase64.
+ * Extern function ballerina.encoding:encodeHex.
  *
- * @since 0.8.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "encoding",
         functionName = "encodeHex",
         args = {
-                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @Argument(name = "input", type = TypeKind.INT)
+                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

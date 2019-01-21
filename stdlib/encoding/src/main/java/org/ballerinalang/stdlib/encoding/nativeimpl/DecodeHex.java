@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -30,9 +30,9 @@ import org.ballerinalang.stdlib.encoding.EncodingUtil;
 import java.util.Base64;
 
 /**
- * Extern function ballerina.encoding:decodeBase64.
+ * Extern function ballerina.encoding:decodeHex.
  *
- * @since 0.8.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "encoding",

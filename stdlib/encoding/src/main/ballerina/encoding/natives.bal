@@ -14,10 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public extern function encodeBase64(byte[]|int input) returns string;
+# Returns the Base64 encoded `string` value of the given byte array.
+#
+# + input - Value to be encoded
+# + return - Encoded output
+public extern function encodeBase64(byte[] input) returns string;
 
+# Decode Base64 encoded `string` into byte array.
+#
+# + input - Value to be decoded
+# + return - Decoded output
 public extern function decodeBase64(string input) returns byte[];
 
-public extern function encodeHex(byte[]|int input) returns string;
+# Returns the Hex encoded `string` value of the given byte array.
+#
+# + input - Value to be encoded
+# + return - Encoded output
+public extern function encodeHex(byte[] input) returns string;
 
+# Decode Hex encoded `string` into byte array.
+#
+# + input - Value to be decoded
+# + return - Decoded output
 public extern function decodeHex(string input) returns byte[];

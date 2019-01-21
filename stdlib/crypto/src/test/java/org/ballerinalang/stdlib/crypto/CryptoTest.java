@@ -21,6 +21,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -28,6 +29,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -37,23 +39,10 @@ public class CryptoTest {
 
     private CompileResult compileResult;
 
-    private static final byte [] PRIVATE_KEY_BYTES = ("-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp\n" +
-            "wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5\n" +
-            "1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh\n" +
-            "3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2\n" +
-            "pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX\n" +
-            "GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il\n" +
-            "AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF\n" +
-            "L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k\n" +
-            "X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl\n" +
-            "U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ\n" +
-            "37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n" +
-            "-----END RSA PRIVATE KEY-----").getBytes(StandardCharsets.UTF_8);
-
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/crypto/crypto-test.bal");
+        compileResult = BCompileUtil.compile("test-src" + File.separator + "crypto" + File.separator +
+                "crypto-test.bal");
     }
 
     @Test
@@ -155,60 +144,84 @@ public class CryptoTest {
 
     @Test
     public void testSignRsaSha1() throws DecoderException {
-        byte[] expectedSignature = Hex.decodeHex(("529789110a9841ea54ad6ea99e7577d2521a925a920a44a0b55f8a5025f556f1" +
-                "e150e47294038889b0aff859f87cac05b5d8b26c7aac4086c3a39deb4e3b265f222f21bdf8cba3ac557b6090ebdfcb04e1" +
-                "0ba35957c3a7dbf27637f97cca5de5ca8839e56801d75b065206f0d3f079255adc6b53696dc81164e099b563cb8232")
+        byte[] expectedSignature = Hex.decodeHex(("70728d6d37fd83704bcb2649d93cfd20dbadb83a9d2169965d2a241795a131f" +
+                "cfdb8b1b4f35f5de3c1f6f1d71ea0c9f80e494627b4c01d6e670ae4698b774171e8a017d62847c92aa47e868c230532af" +
+                "9fc3a681387eead94578d2287674940df2e2f4a28f59688257254dfaab81c17617357ae05b42898412136abed116d6b86" +
+                "eab68ff4ace029b67c7e4c5784a9bad00129b69d5afb6a89cb596cad56e8c98a1642eab87cb337980cc987708800e62a4" +
+                "27c6f61828437d5491549b05025e9a98bf27825dc6002068678dde1e7d365407881b2b1a4d4e522a53f69e5b43202299e" +
+                "02f7840f8991b8c335b0332b3b4bd658030ec3007f6f36c190b8663d3b746")
                 .toCharArray());
 
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha1",
-                new BValue[]{new BValueArray(payload), new BValueArray(PRIVATE_KEY_BYTES)});
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
     @Test
     public void testSignRsaSha256() throws DecoderException {
-        byte[] expectedSignature = Hex.decodeHex(("4deba1d6e2a8a2b5789ca8fe6f8fe9a259b93eefc01452b89c99aea8c0dee08b64" +
-                "112b83c5a70ed1175416305a756ac753e615b3482d7a72baeee3452a27e5f2f2e129f95ead265e46bfdb79000b3c9efd3dbb" +
-                "5f7e50aef62940f9d9216457a39a30158c1f2ff991cbd3e87afef81409370a3421919f051364fc0274e093c425")
+        byte[] expectedSignature = Hex.decodeHex(("34477f0e0a5457ca1a95049da10d59baa33ee4fa9e1bb8be3d3c70d82b980850" +
+                "fd017a1c9984a97384736aacfe33d39ff8d63e01b952972910c86135b7558a2274c6d772f0d2fcdc0ac4aabc75f3978edb" +
+                "d4aabd17d6447fb88e83b055bbff24d8212125b760c8bf88e9e4908645434f53a2ab0e3d5517c8e3241d8ebabbc767e7d9" +
+                "24b5481621831f3a63e06c393c9378d782406705cd8823e12d3b4042a3cb738b8a8bb5731ff2934394c928c4262d130af6" +
+                "6a2b507fc538bd16bccabc2f3b95137370dcca31e80866533bf445cf7f63aec6a9fa596333abb3a59d9b327891c7e6016e" +
+                "0c11ef2a0d32088d4683d915005c9dcc8137611e5bff9dc4a5db6f87")
                 .toCharArray());
 
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha256",
-                new BValue[]{new BValueArray(payload), new BValueArray(PRIVATE_KEY_BYTES)});
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
     @Test
     public void testSignRsaSha512() throws DecoderException {
-        byte[] expectedSignature = Hex.decodeHex(("a00f6cf07a13ef256dfbaa0120949047d1be036d16221bbc63750032189279b0" +
-                "a2496554bed85b185ee6e71190e0a475f9c9889d19e8ea38a39686f31253df1f7367fb2df44644af270685abca188a4d51" +
-                "02a9211ef9e777aebec6d41a22ad810f24c22a6f0d61072123ed77b6dca633ec3828278116377b8bedd90b0fcbb473")
+        byte[] expectedSignature = Hex.decodeHex(("6995ba8d2382a8c4f0ed513033126b2305df419a8b105ee60483243229d2c496" +
+                "b7f670783c52068cd2b4b8c2392f2932c682f30057cb4d8d616ba3a142356b0394747b2a3642da4d23447bb997eacb086f" +
+                "173b4045ee8ee014e1e667e34522defb7a4ac1b5b3f175d40a409d947d562fcf7b2b2631d273751a0f8c658bd8c1d1d23a" +
+                "0dbe685b15e13abf45f998114577c85a6478d915a445645a6360944e4962c56bee79d2363931c77f8040c620692debc747" +
+                "4c1e62d9d4b0b39fa664b8c3a32155c7c1966ef3d55993ad8f7f3bf4d929cf047ab91344facefeba944b043e1e31496753" +
+                "9cb2e6e669ec3352073a8933a2a0cac6056b4997b3628132f7a7e553")
                 .toCharArray());
 
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha512",
-                new BValue[]{new BValueArray(payload), new BValueArray(PRIVATE_KEY_BYTES)});
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
     @Test
     public void testSignRsaMd5() throws DecoderException {
-        byte[] expectedSignature = Hex.decodeHex(("2db5cacf8c26a3f963309dc8722ada3b3ee8bdb1da39d8b9036ef6c0b932d9ef" +
-                "a5ae42304f9b88781a3850ea455bc68cbfb4cacc7d0f6ceb57a1e255f6c11dc8d9753eae0fbfc52058462c32feedd52bf4" +
-                "b7d85a91e3b1a58f73b974eec266efedab85edf5281d0147c6e2f226fddeeaa7d44629c89375f9c154c6e31018e75f")
+        byte[] expectedSignature = Hex.decodeHex(("457050eca794baf2149f53631f373525fbc7b40de83e0af5b03473e7b726064b" +
+                "3eb6a8b7ce48218e4adaf2b598429236192a458ad5cef1ab2f456164f2646ba57a1ce6b858403504ddc49915bf8bf34558" +
+                "0366bd9f7d1d777572fcacd3aa935267af6cf5dc988668b8cea0f57cd0e286658f0ca7c060d7a68b6330bc590b6db59489" +
+                "aa676b1c539e5bb0116c64a963f8a03789b9fd7e689bac5576eea15d93d45be3547aef7c7dc26251dfa7bdf23b47c6a346" +
+                "ae3603c158cbd32ff9298df71f930cebdda8564199e948f1ac03173e9f9d425240c7f99857d5f469dd0b23c0248b4fa42e" +
+                "67145ec0e6e8abfc3f7f10122cc278b5469eb970034483839f290eec")
                 .toCharArray());
 
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaMd5",
-                new BValue[]{new BValueArray(payload), new BValueArray(PRIVATE_KEY_BYTES)});
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }

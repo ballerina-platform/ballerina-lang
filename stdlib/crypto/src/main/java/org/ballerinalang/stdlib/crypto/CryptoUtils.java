@@ -31,6 +31,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
+ * Utility functions relevant to crypto operations.
+ *
  * @since 0.95.1
  */
 public class CryptoUtils {

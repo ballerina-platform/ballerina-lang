@@ -1,42 +1,46 @@
 ## Module overview
 
-This module provides the necessary utilities that are required to hash content using different hashing mechanisms and algorithms. 
+This module provides the necessary utilities that are required to encode and decode content using different encoding mechanisms and algorithms.
 
-#### Hashing string content
+#### Encoding byte array to hex string
 
-The `hash` function uses an algorithm to hash content of type `string`. 
+The `encodeHex` function encodes provided byte array to an hex `string`.
 
-#### Calculating HMAC
+#### Decoding hex string to byte array
 
-The `hmac` function uses an algorithm to calculate HMAC of a given string, using a given key. 
+The `decodeHex` function decodes a hex encoded `string` to a byte array.
 
-### Calculating CRC
+#### Encoding byte array to base64 string
 
-The `crc32` function can be used to calculate CRC on input types such as string, xml , json, and blobs.
+The `encodeBase64` function encodes provided byte array to an base64 `string`.
+
+#### Decoding base64 string to byte array
+
+The `decodeBase64` function decodes a base64 encoded `string` to a byte array.
 
 ## Samples
 
 ```ballerina
 import ballerina/io;
-import ballerina/crypto;
+import ballerina/encoding;
 
 public function main() {
+     string charEncoding = "UTF-8";
+
      // The string content to be hashed.
-     string input = "Hello Ballerina";
-     // The key used for hashing when required.
-     string key = "somesecret";
-     // The XML content to be hashed.
-     xml xmlContent = xml `<foo>Hello Ballerina</foo>`;
+     string text = "Hello Ballerina";
+     byte[] inputByteArr = input.toByteArray(charEncoding);
 
-     io:println("HMAC with MD5: " + crypto:hmac(input, key, crypto:MD5));
-     io:println("HMAC with SHA1: " + crypto:hmac(input, key, crypto:SHA1));
-     io:println("HMAC with SHA256: " + crypto:hmac(input, key, crypto:SHA256));
+     string output = encode:encodeHex(inputByteArr)
+     io:println("Hex encoded string : " + output);
 
-     io:println("Hash with MD5: " + crypto:hash(input, crypto:MD5));
-     io:println("Hash with SHA1: " + crypto:hash(input, crypto:SHA1));
-     io:println("Hash with SHA256: " + crypto:hash(input, crypto:SHA256));
+     // Hex encoded string, decoded back into a byte array
+     inputByteArr = encode:decodeHex(output)
 
-     io:println("Hash with CRC32 for text: " + crypto:crc32b(input));
-     io:println("Hash with CRC32 for xml content: " + crypto:crc32b(xmlContent));
+     output = encode:encodeBase64(inputByteArr)
+     io:println("Base64 encoded string : " + output);
+
+     // Base64 encoded string, decoded back into a byte array
+     inputByteArr = encode:decodeBase64(output)
 }
 ```
