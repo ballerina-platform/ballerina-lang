@@ -41,42 +41,37 @@ public interface WebSocketHandshaker extends WebSocketMessage {
      * method is used.
      *
      * @param subProtocols    Sub-Protocols which are allowed by the service.
-     * @param allowExtensions whether the extensions are allowed or not.
      * @return the Server session for the newly created WebSocket connection.
      */
-    ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions);
+    ServerHandshakeFuture handshake(String[] subProtocols);
 
     /**
      * Complete the handshake of a given request. The connection will be timed out if the connection is idle for
      * given time period.
      *
      * @param subProtocols    Sub-Protocols which are allowed by the service.
-     * @param allowExtensions whether the extensions are allowed or not.
      * @param idleTimeout     Idle timeout in milli-seconds for WebSocket connection.
      * @return the handshake future.
      */
-    ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout);
+    ServerHandshakeFuture handshake(String[] subProtocols, int idleTimeout);
 
     /**
      * Complete the handshake of a given request. The connection will be timed out if the connection is idle for given
      * time period.
      *
      * @param subProtocols    Sub-Protocols which are allowed by the service.
-     * @param allowExtensions whether the extensions are allowed or not.
      * @param idleTimeout     Idle timeout in milli-seconds for WebSocket connection.
      * @param responseHeaders Extra headers to add to the handshake response or {@code null} if no extra headers should
      *                        be added
      * @return the handshake future.
      */
-    ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
-                                    HttpHeaders responseHeaders);
+    ServerHandshakeFuture handshake(String[] subProtocols, int idleTimeout, HttpHeaders responseHeaders);
 
     /**
      * Complete the handshake of a given request. The connection will be timed out if the connection is idle for given
      * time period.
      *
      * @param subProtocols          Sub-Protocols which are allowed by the service.
-     * @param allowExtensions       whether the extensions are allowed or not.
      * @param idleTimeout           Idle timeout in milli-seconds for WebSocket connection.
      * @param responseHeaders       Extra headers to add to the handshake response or {@code null} if no extra
      *                              headers should
@@ -85,8 +80,8 @@ public interface WebSocketHandshaker extends WebSocketMessage {
      *                              requirement may reduce denial of service attacks using long data frames.
      * @return the handshake future.
      */
-    ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
-                                    HttpHeaders responseHeaders, int maxFramePayloadLength);
+    ServerHandshakeFuture handshake(String[] subProtocols, int idleTimeout, HttpHeaders responseHeaders,
+                                    int maxFramePayloadLength);
 
     /**
      * Get the HttpCarbonRequest received from the client to perform the handshake.

@@ -40,7 +40,6 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -122,7 +121,7 @@ public class WebSocketTestClient {
 
     private Bootstrap getClientBootstrap(URI uri, EventLoopGroup eventLoopGroup, HttpHeaders headers) {
         WebSocketClientHandshaker clientHandshaker = WebSocketClientHandshakerFactory
-                .newHandshaker(uri, WebSocketVersion.V13, subProtocol, true, headers);
+                .newHandshaker(uri, WebSocketVersion.V13, subProtocol, false, headers);
         clientFrameHandler = new WebSocketTestClientFrameHandler(clientHandshaker);
 
         Bootstrap clientBootstrap = new Bootstrap();
@@ -132,7 +131,7 @@ public class WebSocketTestClient {
                     protected void initChannel(SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
                         pipeline.addLast(new HttpClientCodec(), new HttpObjectAggregator(maxContentLength),
-                                         WebSocketClientCompressionHandler.INSTANCE, clientFrameHandler);
+                                         clientFrameHandler);
                     }
                 });
         return clientBootstrap;
@@ -194,6 +193,20 @@ public class WebSocketTestClient {
         return this;
     }
 
+    /**
+     * Send a frame with the RSV bit set.
+     *
+     * @return this {@link WebSocketTestClient}.
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public WebSocketTestClient sendFrameWithRSV(String text) throws InterruptedException {
+        if (channel == null) {
+            LOG.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(new TextWebSocketFrame(false, 5, text)).sync();
+        return this;
+    }
     /**
      * Send last HTTP content.
      *
