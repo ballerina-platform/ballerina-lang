@@ -24,9 +24,19 @@ package org.ballerinalang.model.util;
  * @since 0.991
  */
 public enum DecimalValueKind {
-    ZERO,
-    POSITIVE_INFINITY,
-    NEGATIVE_INFINITY,
-    NOT_A_NUMBER,
-    OTHER
+    ZERO("0.0"),
+    POSITIVE_INFINITY("Infinity"),
+    NEGATIVE_INFINITY("-Infinity"),
+    NOT_A_NUMBER("NaN"),
+    OTHER("Other");
+
+    private String value;
+
+    DecimalValueKind(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }
