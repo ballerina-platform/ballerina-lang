@@ -35,6 +35,7 @@ public type Request object {
     public string userAgent = "";
     public string extraPathInfo = "";
     public RequestCacheControl? cacheControl = ();
+    public MutualSslHandshake? mutualSslHandshake = ();
 
     private mime:Entity entity;
     private boolean dirtyRequest;
@@ -410,3 +411,10 @@ function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:E
     }
 }
 
+# A record for providing mutual ssl handshake results.
+#
+# + status - Status of the handshake.
+public type MutualSslHandshake record {
+    string status = "";
+    !...
+};
