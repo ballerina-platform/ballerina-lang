@@ -703,6 +703,10 @@ public class CompiledPackageSymbolEnter {
                 literal.value = stringCPEntry.getValue();
                 literal.typeTag = TypeTags.STRING;
                 break;
+            case TypeDescriptor.SIG_NULL:
+                literal.value = null;
+                literal.typeTag = TypeTags.NIL;
+                break;
             default:
                 // Todo - Allow json and xml.
                 throw new RuntimeException("unknown constant value type " + typeDesc);
