@@ -131,7 +131,6 @@ ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
 COMMITTED   : 'committed' ;
 ABORTED     : 'aborted' ;
-LENGTHOF    : 'lengthof' ;
 WITH        : 'with' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
