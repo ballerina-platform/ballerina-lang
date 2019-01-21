@@ -38,7 +38,7 @@ public class ParserRuleStatementContextResolver extends StatementContextResolver
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        if (isInvocationOrInteractionOrFieldAccess(context)) {
+        if (this.isInvocationOrInteractionOrFieldAccess(context)) {
             Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
             completionItems.addAll(this.getCompletionItemList(itemList, context));
