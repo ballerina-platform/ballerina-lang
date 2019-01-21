@@ -435,7 +435,7 @@ public class BallerinaParser extends Parser {
 			setState(476);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << EXTERN) | (1L << FINAL) | (1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ANNOTATION) | (1L << LISTENER) | (1L << REMOTE) | (1L << CHANNEL) | (1L << ABSTRACT) | (1L << CLIENT) | (1L << CONST))) != 0) || ((((_la - 72)) & ~0x3f) == 0 && ((1L << (_la - 72)) & ((1L << (TYPE_INT - 72)) | (1L << (TYPE_BYTE - 72)) | (1L << (TYPE_FLOAT - 72)) | (1L << (TYPE_DECIMAL - 72)) | (1L << (TYPE_BOOL - 72)) | (1L << (TYPE_STRING - 72)) | (1L << (TYPE_ERROR - 72)) | (1L << (TYPE_MAP - 72)) | (1L << (TYPE_JSON - 72)) | (1L << (TYPE_XML - 72)) | (1L << (TYPE_TABLE - 72)) | (1L << (TYPE_STREAM - 72)) | (1L << (TYPE_ANY - 72)) | (1L << (TYPE_DESC - 72)) | (1L << (TYPE - 72)) | (1L << (TYPE_FUTURE - 72)) | (1L << (TYPE_ANYDATA - 72)) | (1L << (VAR - 72)) | (1L << (LEFT_PARENTHESIS - 72)))) != 0) || ((((_la - 162)) & ~0x3f) == 0 && ((1L << (_la - 162)) & ((1L << (AT - 162)) | (1L << (Identifier - 162)) | (1L << (DocumentationLineStart - 162)) | (1L << (DeprecatedTemplateStart - 162)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << PRIVATE) | (1L << EXTERN) | (1L << FINAL) | (1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ANNOTATION) | (1L << LISTENER) | (1L << REMOTE) | (1L << CHANNEL) | (1L << ABSTRACT) | (1L << CLIENT) | (1L << CONST))) != 0) || ((((_la - 72)) & ~0x3f) == 0 && ((1L << (_la - 72)) & ((1L << (TYPE_INT - 72)) | (1L << (TYPE_BYTE - 72)) | (1L << (TYPE_FLOAT - 72)) | (1L << (TYPE_DECIMAL - 72)) | (1L << (TYPE_BOOL - 72)) | (1L << (TYPE_STRING - 72)) | (1L << (TYPE_ERROR - 72)) | (1L << (TYPE_MAP - 72)) | (1L << (TYPE_JSON - 72)) | (1L << (TYPE_XML - 72)) | (1L << (TYPE_TABLE - 72)) | (1L << (TYPE_STREAM - 72)) | (1L << (TYPE_ANY - 72)) | (1L << (TYPE_DESC - 72)) | (1L << (TYPE - 72)) | (1L << (TYPE_FUTURE - 72)) | (1L << (TYPE_ANYDATA - 72)) | (1L << (VAR - 72)) | (1L << (LEFT_PARENTHESIS - 72)))) != 0) || ((((_la - 162)) & ~0x3f) == 0 && ((1L << (_la - 162)) & ((1L << (AT - 162)) | (1L << (Identifier - 162)) | (1L << (DocumentationLineStart - 162)) | (1L << (DeprecatedTemplateStart - 162)))) != 0)) {
 				{
 				{
 				setState(462);
@@ -1103,10 +1103,11 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(CallableUnitBodyContext.class,0);
 		}
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
-		public TerminalNode PUBLIC() { return getToken(BallerinaParser.PUBLIC, 0); }
 		public TerminalNode REMOTE() { return getToken(BallerinaParser.REMOTE, 0); }
 		public TerminalNode EXTERN() { return getToken(BallerinaParser.EXTERN, 0); }
 		public TerminalNode DOT() { return getToken(BallerinaParser.DOT, 0); }
+		public TerminalNode PUBLIC() { return getToken(BallerinaParser.PUBLIC, 0); }
+		public TerminalNode PRIVATE() { return getToken(BallerinaParser.PRIVATE, 0); }
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public TypeNameContext typeName() {
 			return getRuleContext(TypeNameContext.class,0);
@@ -1134,10 +1135,15 @@ public class BallerinaParser extends Parser {
 			{
 			setState(562);
 			_la = _input.LA(1);
-			if (_la==PUBLIC) {
+			if (_la==PUBLIC || _la==PRIVATE) {
 				{
 				setState(561);
-				match(PUBLIC);
+				_la = _input.LA(1);
+				if ( !(_la==PUBLIC || _la==PRIVATE) ) {
+				_errHandler.recoverInline(this);
+				} else {
+					consume();
+				}
 				}
 			}
 
@@ -18026,8 +18032,8 @@ public class BallerinaParser extends Parser {
 		"\2\2\u0228\u022c\3\2\2\2\u0229\u022b\5\\/\2\u022a\u0229\3\2\2\2\u022b"+
 		"\u022e\3\2\2\2\u022c\u022a\3\2\2\2\u022c\u022d\3\2\2\2\u022d\u0230\3\2"+
 		"\2\2\u022e\u022c\3\2\2\2\u022f\u0225\3\2\2\2\u022f\u0230\3\2\2\2\u0230"+
-		"\u0231\3\2\2\2\u0231\u0232\7\u0088\2\2\u0232\25\3\2\2\2\u0233\u0235\7"+
-		"\5\2\2\u0234\u0233\3\2\2\2\u0234\u0235\3\2\2\2\u0235\u0237\3\2\2\2\u0236"+
+		"\u0231\3\2\2\2\u0231\u0232\7\u0088\2\2\u0232\25\3\2\2\2\u0233\u0235\t"+
+		"\2\2\2\u0234\u0233\3\2\2\2\u0234\u0235\3\2\2\2\u0235\u0237\3\2\2\2\u0236"+
 		"\u0238\7\23\2\2\u0237\u0236\3\2\2\2\u0237\u0238\3\2\2\2\u0238\u023a\3"+
 		"\2\2\2\u0239\u023b\7\7\2\2\u023a\u0239\3\2\2\2\u023a\u023b\3\2\2\2\u023b"+
 		"\u023c\3\2\2\2\u023c\u0242\7\13\2\2\u023d\u0240\7\u00c1\2\2\u023e\u0240"+

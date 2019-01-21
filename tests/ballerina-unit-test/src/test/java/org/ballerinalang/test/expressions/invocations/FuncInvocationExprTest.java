@@ -136,9 +136,11 @@ public class FuncInvocationExprTest {
 
     @Test(description = "Test uanry statement with errors")
     public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(funcInvocationNegative.getErrorCount(), 2);
+        Assert.assertEquals(funcInvocationNegative.getErrorCount(), 3);
         BAssertUtil
                 .validateError(funcInvocationNegative, 0, "incompatible types: expected 'int', found 'string'", 3, 23);
         BAssertUtil.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 5);
+        BAssertUtil.validateError(funcInvocationNegative, 2, "function 'testMyFunc' can not have private visibility",
+                14, 1);
     }
 }
