@@ -25,6 +25,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -42,6 +43,7 @@ import java.util.HashMap;
         orgName = "ballerina",
         packageName = "builtin",
         functionName = "_clone",
+        args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
         returnType = { @ReturnType(type = TypeKind.ANYDATA) }
 )
 public class Clone extends BlockingNativeCallableUnit {
