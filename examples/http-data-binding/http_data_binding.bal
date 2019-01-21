@@ -21,7 +21,6 @@ service hello on new http:Listener(9090) {
                                json orderDetails) {
         //Accesses the JSON field values.
         json details = orderDetails.Details;
-
         http:Response res = new;
         // Performs data validation for orderDetails.
         if (!isValid(orderDetails.Details.ID.toString().matches("\\d+"))) {
@@ -51,7 +50,6 @@ service hello on new http:Listener(9090) {
     resource function bindXML(http:Caller caller, http:Request req, xml store) {
         //Accesses the XML content.
         xml city = store.selectDescendants("{http://www.test.com}city");
-
         http:Response res = new;
         // Performs data validation for input data.
         if (!isValid(city.getTextValue().matches("\\d+"))) {
@@ -80,7 +78,6 @@ service hello on new http:Listener(9090) {
         //Accesses the fields of the record `Student`.
         string name = student.Name;
         int grade = student.Grade;
-
         http:Response res = new;
         // Performs data validation for input data.
         if (!isValid(student.Name.matches("[a-zA-Z]+"))) {
@@ -91,7 +88,6 @@ service hello on new http:Listener(9090) {
             // data and set them to the response.
             res.setPayload({ Name: untaint name, Grade: untaint grade });
         }
-
         var result = caller->respond(res);
         if (result is error) {
            log:printError(result.reason(), err = result);

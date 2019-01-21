@@ -1,4 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run http_redirects.bal
-Response received : Hello World!
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9093
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
+2018-12-27 19:28:06,557 INFO  [] - Response received : Hello World!
