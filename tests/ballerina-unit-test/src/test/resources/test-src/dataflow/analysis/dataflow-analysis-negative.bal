@@ -567,7 +567,7 @@ type Person record {
     boolean married;
     Age age;
     (string, int) extra;
-    !...
+    !...;
 };
 
 function testVariableAssignment() returns (string, boolean, int, string) {
@@ -625,4 +625,8 @@ type F object {
 
 function F.__init() {
     self.a = 1;
+}
+
+public function testDataFlow_14(){
+    object { public string s; } o = new;
 }

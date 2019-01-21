@@ -7,7 +7,7 @@ type RecordOne record {
 type RecordTwo record {
     string var1;
     int var2;
-    !...
+    !...;
 };
 
 type RecordThree record {
@@ -34,7 +34,7 @@ public function main() {
     matchWithTypeGuard(true);
 }
 
-// This method uses structured record match patterns with different fields. The given match expression will
+// This method uses structured record match patterns with different fields. The given `match` expression will
 // be checked for "isLike" relationship and will be matched at runtime.
 function basicMatch(any a) {
     match a {
@@ -54,7 +54,7 @@ function basicMatch(any a) {
 }
 
 // Following method uses structured record match patterns with different fields along with a type guards. The given
-// match expression will be checked for "isLike" relationship and also it will check the type guard present for a
+// `match` expression will be checked for "isLike" relationship and also it will check the type guard present for a
 // successful match.
 function matchWithTypeGuard(any matchExpr) {
     // All the patterns except the last one will check for a mapping value with two fields `var1` and `var2`

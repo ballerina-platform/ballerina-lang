@@ -16,19 +16,19 @@
 
 type Foo record {
     int a;
-    anydata... // TODO: Remove this line once the default rest field type is changed to anydata
+    anydata...; // TODO: Remove this line once the default rest field type is changed to anydata
 };
 
 type ClosedFoo record {
     int ca;
-    !...
+    !...;
 };
 
 type Employee record {
     int id;
     string name;
     float salary;
-    !...
+    !...;
 };
 
 type ValueType int|float|string|boolean|byte;

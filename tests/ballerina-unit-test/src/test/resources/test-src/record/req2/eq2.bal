@@ -9,5 +9,5 @@ public type closedUserPB record {
     string name = "";
     string address = "";
     string zipcode = "";
-    !...
+    !...;
 };

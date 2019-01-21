@@ -43,6 +43,11 @@ public type StreamEvent object {
         }
     }
 
+    public function addAttribute(string key, anydata val) {
+        string k = self.getStreamName() + "." + key;
+        self.data[k] = val;
+    }
+
     function cloneData() returns map<anydata> {
         map<anydata> dataClone = {};
         foreach var (k, v) in self.data {
@@ -50,4 +55,10 @@ public type StreamEvent object {
         }
         return dataClone;
     }
+
+    function getStreamName() returns string {
+        string key = (self.data.length() > 0) ? self.data.keys()[0] : "";
+        return key.split("\\.")[0];
+    }
+
 };

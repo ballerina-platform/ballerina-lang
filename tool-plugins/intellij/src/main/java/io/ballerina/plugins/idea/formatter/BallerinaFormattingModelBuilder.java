@@ -309,16 +309,23 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
     private static boolean isGrammarViolated(ASTNode rootNode) {
         IElementType firstChildType = getFirstChild(rootNode);
         //Todo: Add more conditions
-        return firstChildType != BallerinaTypes.DEFINITION && firstChildType != BallerinaTypes.IMPORT_DECLARATION
+        return firstChildType != null && firstChildType != BallerinaTypes.DEFINITION
+                && firstChildType != BallerinaTypes.IMPORT_DECLARATION
                 && firstChildType != BallerinaTypes.NAMESPACE_DECLARATION;
     }
 
-    @NotNull
+    @Nullable
     private static IElementType getFirstChild(ASTNode parent) {
         ASTNode child = parent.getFirstChildNode();
+        if (child == null) {
+            return null;
+        }
         while (child.getElementType() == BallerinaTypes.LINE_COMMENT
                 || child.getElementType() == TokenType.WHITE_SPACE) {
             child = child.getTreeNext();
+            if (child == null) {
+                return null;
+            }
         }
         return child.getElementType();
     }

@@ -224,6 +224,8 @@ public class HttpConstants {
     public static final String REQUEST_USER_AGENT_FIELD = "userAgent";
     public static final String REQUEST_EXTRA_PATH_INFO_FIELD = "extraPathInfo";
     public static final String REQUEST_CACHE_CONTROL_FIELD = "cacheControl";
+    public static final String REQUEST_REUSE_STATUS_FIELD = "dirtyRequest";
+    public static final String REQUEST_NO_ENTITY_BODY_FIELD = "noEntityBody";
     public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD = "mutualSslHandshake";
     public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS = "status";
 
@@ -399,8 +401,8 @@ public class HttpConstants {
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";
 
     public static final int REQUEST_STRUCT_INDEX = 1;
-    public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
     public static final boolean DIRTY_REQUEST = true;
+    public static final String NO_ENTITY_BODY = "NO_ENTITY_BODY";
 
     public static final String MOCK_LISTENER_ENDPOINT = "MockListener";
     public static final String HTTP_LISTENER_ENDPOINT = "Listener";

@@ -74,7 +74,7 @@ service circuitbreaker on new http:Listener(9090) {
 
         var backendResponse = backendClientEP->forward("/hello", request);
 
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
@@ -106,7 +106,9 @@ public int counter = 1;
 // Mock a service outage by stopping/starting this service.
 // This should run separately from the `circuitBreakerDemo` service.
 
-@http:ServiceConfig { basePath: "/hello" }
+@http:ServiceConfig {
+    basePath: "/hello"
+}
 service helloWorld on new http:Listener(8080) {
     @http:ResourceConfig {
         methods: ["GET"],

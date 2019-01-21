@@ -7,7 +7,7 @@ type TrxErrorData record {
     string message = "";
     error? cause = ();
     string data = "";
-    !...
+    !...;
 };
 
 public function main() {

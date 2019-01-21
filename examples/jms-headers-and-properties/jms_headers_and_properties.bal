@@ -68,17 +68,17 @@ service jmsListener on consumerEndpoint {
             log:printError("Error getting string property", err = size);
         }
 
-        // Create a new text message
+        // Create a new text message.
         var msg = queueSender.createTextMessage("Hello From Ballerina!");
         if (msg is jms:Message) {
-            // Set JMS header, Correlation ID
+            // Set JMS header, Correlation ID.
             var cid = msg.setCorrelationID("Msg:1");
             if (cid is error) {
                 log:printError("Error setting correlation id",
                     err = cid);
             }
 
-            // Set JMS string property
+            // Set JMS string property.
             var stringProp = msg.setStringProperty("Instruction",
                 "Do a perfect Pirouette");
             if (stringProp is error) {

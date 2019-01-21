@@ -30,20 +30,20 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children?;
-    !...
+    !...;
 };
 
 type Person2 record {
     string name = "";
     int age = 0;
-    !...
+    !...;
 };
 
 type Person3 record {
     string name = "";
     int age = 0;
     string gender = "";
-    !...
+    !...;
 };
 
 function testFloatToIntWithMultipleArguments() returns int {
@@ -59,32 +59,6 @@ function testFloatToIntWithNoArguments() {
 function testObjectToJson() returns json|error {
     PersonObj p = new PersonObj();
     return json.convert(p);
-}
-
-function testStructToJsonConstrained1() returns json|error {
-    Person p = { name: "Child",
-        age: 25,
-        parent: { name: "Parent", age: 50 },
-        address: { "city": "Colombo", "country": "SriLanka" },
-        info: { status: "single" },
-        marks: [87, 94, 72]
-    };
-    json<Person2> j = json<Person2>.convert(p);
-    return j;
-}
-
-function testStructToJsonConstrainedNegative() returns json {
-    Person2 p = {   name:"Child",
-                    age:25
-                };
-    json<Person3> j = ();
-    var result = json<Person3>.convert(p);
-    if (result is json<Person3>) {
-        j = result;
-    } else if (result is error) {
-        panic result;
-    }
-    return j;
 }
 
 function testTypeCheckingRecordToMapConversion() returns map<int>|error {

@@ -97,7 +97,7 @@ public type QueueReceiverEndpointConfiguration record {
     string? queueName = ();
     string messageSelector = "";
     string identifier = "";
-    !...
+    !...;
 };
 
 # Caller actions related to queue receiver endpoint.
@@ -127,7 +127,7 @@ public type QueueReceiverCaller client object {
     public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-remote function QueueReceiverCaller.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+public remote function QueueReceiverCaller.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     var queueReceiver = self.queueReceiver;
     if (queueReceiver is QueueReceiver) {

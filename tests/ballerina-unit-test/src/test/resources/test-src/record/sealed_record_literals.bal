@@ -2,7 +2,7 @@ type Department record {
     string dptName = "";
     Person[] employees = [];
     Person manager = {};
-    !...
+    !...;
 };
 
 type Person record {
@@ -11,7 +11,7 @@ type Person record {
     map<any> adrs = {};
     int age = 999;
     Person? child = ();
-    !...
+    !...;
 };
 
 function testStructLiteral1 () returns (Department) {

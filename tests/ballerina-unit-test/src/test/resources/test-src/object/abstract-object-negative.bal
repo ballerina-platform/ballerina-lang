@@ -24,7 +24,7 @@ type Person2 abstract object {
 
     int year = 50;
     string month = "february";
-    
+
     function __init () {
     }
 };
@@ -64,6 +64,26 @@ type Person5 abstract object {
     public function getName() returns string;
 };
 
-function Person5.getName() returns string {
+public function Person5.getName() returns string {
     return "my name";
+}
+
+// Abstract object with private field
+type Person6 abstract object {
+    private int age = 0;
+    public string name = "";
+
+    private function getName() returns string;
+};
+
+type Foo abstract object {
+    private function getName() returns string;
+};
+
+type Bar object {
+    *Foo;
+};
+
+private function Bar.getName() returns string {
+    return "bar";
 }

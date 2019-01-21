@@ -1430,7 +1430,7 @@ public class Desugar extends BLangNodeVisitor {
         ifNode.body = rewrite(ifNode.body, env);
 
         if (ifNode.elseStmt != null && ifNode.elseStmt.getKind() == NodeKind.BLOCK) {
-            defineTypeGuards(ifNode.pos, ifNode.elseTypeGuards, (BLangBlockStmt) ifNode.elseStmt);
+            defineTypeGuards(ifNode.elseStmt.pos, ifNode.elseTypeGuards, (BLangBlockStmt) ifNode.elseStmt);
         }
         ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
         result = ifNode;
@@ -2465,7 +2465,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr = rewriteExpr(workerSendNode.expr);
+        List<BLangExpression> list = Lists.of(rewriteExpr(workerSendNode.expr));
+        workerSendNode.expr = appendCloneMethod(workerSendNode.expr.pos, list);
         if (workerSendNode.keyExpr != null) {
             workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
         }
@@ -2474,7 +2475,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        syncSendExpr.expr = rewriteExpr(syncSendExpr.expr);
+        List<BLangExpression> list = Lists.of(rewriteExpr(syncSendExpr.expr));
+        syncSendExpr.expr = appendCloneMethod(syncSendExpr.expr.pos, list);
         result = syncSendExpr;
     }
 
@@ -3115,7 +3117,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (iExpr.symbol.kind == SymbolKind.CAST_OPERATOR) {
                     BCastOperatorSymbol symbol = (BCastOperatorSymbol) iExpr.symbol;
                     BInvokableType type = (BInvokableType) symbol.type;
-                    result = createTypeCastExpr(visitConvertCloneMethod(iExpr.pos, iExpr.requiredArgs),
+                    result = createTypeCastExpr(appendCloneMethod(iExpr.pos, iExpr.requiredArgs),
                                                 type.paramTypes.get(1), symbol);
                 } else if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
                     result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
@@ -3299,7 +3301,7 @@ public class Desugar extends BLangNodeVisitor {
 
     }
 
-    private BLangExpression visitConvertCloneMethod(DiagnosticPos pos, List<BLangExpression> requiredArgs) {
+    private BLangExpression appendCloneMethod(DiagnosticPos pos, List<BLangExpression> requiredArgs) {
         BLangExpression sourceExpression = requiredArgs.get(0);
         if (types.isValueType(sourceExpression.type)) {
             return sourceExpression;

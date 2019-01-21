@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,7 +79,7 @@ public class BIntRange implements BRefType, BCollection {
         }
 
         @Override
-        public void stamp(BType type) {
+        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
         }
     }
@@ -87,6 +89,11 @@ public class BIntRange implements BRefType, BCollection {
     @Override
     public BType getType() {
         return new BArrayType(BTypes.typeInt);
+    }
+
+    @Override
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+        
     }
 
     @Override

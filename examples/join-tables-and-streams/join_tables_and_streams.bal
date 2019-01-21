@@ -1,32 +1,32 @@
 import ballerina/io;
 import ballerina/runtime;
 
-//This is the record that holds item details in the stockTable.
+//This is the `record` that holds item details in the stockTable.
 type Item record {
     string name;
     float price;
     int stockAmount;
-    !...
+    !...;
 };
 
-//This is the record that holds order events from customer.
+//This is the `record` that holds order events from customer.
 type Order record {
     string itemName;
     int orderingAmount;
-    !...
+    !...;
 };
 
-//This is the record that holds alert events.
+//This is the `record` that holds alert events.
 type OutOfStockAlert record {
     string itemName;
     int stockAmount;
-    !...
+    !...;
 };
 
-// This is the input stream that uses `Order` as the constraint type.
+// This is the input `stream` that uses `Order` as the constraint type.
 stream<Order> orderStream = new;
 
-// This is the table that holds the item stock data.
+// This is the `table` that holds the item stock data.
 table<Item> itemStockTable = table {
     { name, price, stockAmount },
     [
@@ -53,7 +53,7 @@ function initOutOfStockAlert() {
     }
 }
 
-//`queryItemTable` function returns a table of items whose stock is not enough to satisfy the order.
+//`queryItemTable` function returns a `table` of items whose stock is not enough to satisfy the order.
 public function queryItemTable(string itemName, int orderingAmount)
         returns table<Item> {
     table<Item> result = table {

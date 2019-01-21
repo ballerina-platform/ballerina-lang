@@ -546,6 +546,7 @@ variableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference invocation                                            # invocationReference
     |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
+    |   QuotedStringLiteral invocation                                          # stringFunctionInvocationReference
     ;
 
 field

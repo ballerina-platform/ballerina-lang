@@ -71,7 +71,7 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                     className="res-title"
                     active={isExpandAll || active}
                     onClick={onExpandEvent} >
-                    <Icon name={isExpandAll || active ? "chevron down" : "chevron right"}></Icon>
+                    <Icon className={isExpandAll || active ? "fw fw-down" : "fw fw-right"} />
                     <OpenApiContextConsumer>
                         {(appContext: OpenApiContext) => {
                             return (
@@ -92,10 +92,9 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         compact
                         className="add-operation-action"
                         circular
-                        icon="plus"
                         onClick={(e) => {
                             this.handleShowAddOperation(e); }
-                        } /> : ""
+                        }><i className="fw fw-add"></i></Button> : ""
                     }
                 </Accordion.Title>
                 <Accordion.Content className="resource-content" active={isExpandAll || active} >

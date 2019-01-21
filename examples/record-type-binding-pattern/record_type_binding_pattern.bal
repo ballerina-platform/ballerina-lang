@@ -9,7 +9,7 @@ type Person record {
 type Employee record {
     string name;
     int age;
-    !...
+    !...;
 };
 
 type Country record {
@@ -19,14 +19,14 @@ type Country record {
 
 type Capital record {
     string name;
-    !...
+    !...;
 };
 
 public function main() {
-    // This record type binding pattern will destructure a record of type Person and create three variables as follows:
-    // The value of the field `name` in the Person record will be set to a new `string` variable `firstName`.
-    // The value of the field `age` in the Person record will be set to a new `int` variable `personAge`.
-    // `...otherDetails` is a rest parameter. Since Person is an open record, a new `map<anydata>` variable
+    // This record type binding pattern will destructure a `record` of type `Person` and create three variables as follows:
+    // The value of the field `name` in the `Person` record will be set to a new `string` variable `firstName`.
+    // The value of the field `age` in the `Person` record will be set to a new `int` variable `personAge`.
+    // `...otherDetails` is a rest parameter. Since `Person` is an open record, a new `map<anydata>` variable
     // `otherDetails` will be created with the remaining field values that have not been matched in the record binding pattern.
     Person { name: firstName, age: personAge, ...otherDetails } = getPerson();
     io:println("Name: " + firstName);
@@ -41,7 +41,7 @@ public function main() {
     io:println("Age: " + age);
 
     // Record type binding patterns can be used with `var` to infer the type from the right hand side.
-    // Since the types of the new variables are based on the type of the type binding pattern, using var will
+    // Since the types of the new variables are based on the type of the type binding pattern, using `var` will
     // infer the types from the right hand side.
     var { name: vFirstName, age: vPersonAge, ...vOtherDetails } = getPerson();
     // Type of `vFirstName` is inferred as `string`.
