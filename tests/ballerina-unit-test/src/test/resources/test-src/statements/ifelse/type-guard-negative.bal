@@ -250,3 +250,32 @@ function testTypeGuardsWithErrorInmatch() returns string {
         var p => return "Internal server error";
     }
 }
+
+public function testUpdatingTypeNarrowedVar_1() {
+    int|string|boolean x = 5;
+
+    if (x is int|string) {
+        x = true;
+        int y = x;
+
+        if (x is int) {
+            int z = x;
+        } else {
+            string z = x;
+        }
+    }
+}
+
+public function testUpdatingTypeNarrowedVar_2() returns string {
+    int|string|boolean x = 8;
+    if (x is int) {
+        if (x > 5) {
+            x = "hello";
+        }
+
+        int z = x;
+        return "int:  + ";
+    }
+
+    return "not an int";
+}

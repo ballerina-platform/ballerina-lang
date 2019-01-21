@@ -44,7 +44,7 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 36);
+        Assert.assertEquals(negativeResult.getErrorCount(), 39);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 22, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 25, 20);
@@ -65,7 +65,7 @@ public class TypeGuardTest {
                 "incompatible types: 'float|boolean' will not be matched to 'string'", 108, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 133, 16);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'boolean|int|string', found 'float'", 135, 13);
+                "incompatible types: expected 'int|string|boolean', found 'float'", 135, 13);
         BAssertUtil.validateError(negativeResult, i++, "invalid literal for type 'int|string|boolean'", 139, 9);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 139, 5);
         BAssertUtil.validateError(negativeResult, i++,
@@ -88,7 +88,6 @@ public class TypeGuardTest {
                 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string|float'",
                 203, 20);
-
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'string' will not be matched to 'int'", 209,
                 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float|boolean'", 210,
@@ -108,6 +107,12 @@ public class TypeGuardTest {
                 242, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'any' will not be matched to 'error'", 249,
                 18);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|string|boolean'",
+                259, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string|boolean'",
+                264, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|string|boolean'",
+                276, 17);
     }
 
     @Test
@@ -343,5 +348,20 @@ public class TypeGuardTest {
 
         returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new BValue[] { new BFloat(4.5) });
         Assert.assertEquals(returns[0].stringValue(), "float: 4.5");
+    }
+
+    @Test
+    public void testUpdatingTypeNarrowedVar_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_1");
+        Assert.assertEquals(returns[0].stringValue(), "string: hello");
+    }
+
+    @Test
+    public void testUpdatingTypeNarrowedVar_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_2", new BValue[] { new BInteger(2) });
+        Assert.assertEquals(returns[0].stringValue(), "int: 2");
+
+        returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_2", new BValue[] { new BInteger(8) });
+        Assert.assertEquals(returns[0].stringValue(), "int: -1");
     }
 }

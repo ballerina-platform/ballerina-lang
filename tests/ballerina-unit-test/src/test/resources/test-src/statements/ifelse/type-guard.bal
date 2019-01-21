@@ -470,3 +470,36 @@ function intToString(int a) returns string {
 function floatToString(float a) returns string {
     return "float: " + a;
 }
+
+public function testUpdatingTypeNarrowedVar_1() returns string {
+    int|string|boolean x = 5;
+    if (x is int|boolean) {
+        x = "hello";   // update the var with a type outside of narrowed types
+        if (x is int) {
+            int z = x;
+            return "int: " + z;
+        } else if (x is string) {
+            string z = x;
+            return "string: " + z;
+        } else {
+            boolean z = x;
+            return "boolean: " + z;
+        }
+    } else {
+        string z = x;
+        return "outer string: " + z;
+    }
+}
+
+public function testUpdatingTypeNarrowedVar_2(int|string|boolean a) returns string {
+    int|string|boolean x = a;
+    if (x is int) {
+        if (x > 5) {
+            x = -1;
+        }
+        int z = x;
+        return "int: " + z;
+    }
+
+    return "not an int";
+}

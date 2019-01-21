@@ -107,6 +107,15 @@ public class TypeNarrower extends BLangNodeVisitor {
         expr.narrowedTypeInfo.forEach((symbol, typeInfo) -> symbol.type = typeInfo.prevType);
     }
 
+    /**
+     * Reset the type of a symbol to it's original type.
+     *
+     * @param symbol Variable symbol to rest the type
+     */
+    public void reset(BVarSymbol symbol) {
+        symbol.type = symbol.originalType;
+    }
+
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
         if (unaryExpr.operator != OperatorKind.NOT) {

@@ -1054,17 +1054,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         assignNode.varRef = rewriteExpr(assignNode.varRef);
-        if (assignNode.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BLangSimpleVarRef varRef = (BLangSimpleVarRef) assignNode.varRef;
-            BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
-
-            // If this is an update of a type narrowed variable, then generate code
-            // to box the value to the original type.
-            if (!types.isSameType(varSymbol.originalType, varRef.type)) {
-                assignNode.expr = addConversionExprIfRequired(assignNode.expr, varSymbol.originalType);
-            }
-        }
-
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
     }

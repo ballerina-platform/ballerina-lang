@@ -1116,6 +1116,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Check each LHS expression.
         BType expType = getTypeOfVarReferenceInAssignment(assignNode.varRef);
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
+
+        resetTypeNarrowing(assignNode.varRef, assignNode.expr);
     }
 
     @Override
@@ -1127,7 +1129,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordDestructure recordDeStmt) {
-
         // recursively visit the var refs and create the record type
         typeChecker.checkExpr(recordDeStmt.varRef, env);
         if (recordDeStmt.expr.getKind() == RECORD_LITERAL_EXPR) {
@@ -1872,10 +1873,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);
 
-        //Check whether this is an readonly field.
+        // Check whether this is an readonly field.
         checkReadonlyAssignment(varRefExpr);
-
         checkConstantAssignment(varRefExpr);
+
+        // If this is an update of a type narrowed variable, the assignment should allow assigning
+        // values of its original type. Therefore treat all lhs simpleVarRefs in their original type.
+        if (isSimpleVarRef(expr)) {
+            varRefExpr.type = ((BVarSymbol) ((BLangSimpleVarRef) expr).symbol).originalType;
+        }
+
         return varRefExpr.type;
     }
 
@@ -1932,6 +1939,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
             dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
                     func.symbol.receiverSymbol.type);
+        }
+    }
+
+    private boolean isSimpleVarRef(BLangExpression expr) {
+        if (expr.type.tag == TypeTags.SEMANTIC_ERROR ||
+                expr.type.tag == TypeTags.NONE ||
+                expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+
+        if (((BLangSimpleVarRef) expr).symbol == null) {
+            return false;
+        }
+
+        return ((BLangSimpleVarRef) expr).symbol.tag == SymTag.VARIABLE;
+    }
+
+    private void resetTypeNarrowing(BLangExpression lhsExpr, BLangExpression rhsExpr) {
+        if (!isSimpleVarRef(lhsExpr)) {
+            return;
+        }
+
+        // If the rhs's type is not assignable to the variable's narrowed type,
+        // then the type narrowing will no longer hold. Thus reset the type of
+        // the variable symbol to its original type.
+        BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) lhsExpr).symbol;
+        if (!types.isAssignable(rhsExpr.type, varSymbol.type)) {
+            typeNarrower.reset(varSymbol);
         }
     }
 }
