@@ -24,6 +24,8 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.CodeLensOptions;
+import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.CompletionParams;
@@ -65,6 +67,8 @@ public class TestUtil {
 
     private static final String HOVER = "textDocument/hover";
 
+    private static final String CODELENS = "textDocument/codeLens";
+
     private static final String COMPLETION = "textDocument/completion";
 
     private static final String SIGNATURE_HELP = "textDocument/signatureHelp";
@@ -102,6 +106,20 @@ public class TestUtil {
      */
     public static String getHoverResponse(String filePath, Position position, Endpoint serviceEndpoint) {
         CompletableFuture result = serviceEndpoint.request(HOVER, getTextDocumentPositionParams(filePath, position));
+        return getResponseString(result);
+    }
+
+    /**
+     * Get the textDocument/codeLens response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static String getCodeLensesResponse(String filePath, Endpoint serviceEndpoint) {
+        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
+        CodeLensParams codeLensParams = new CodeLensParams(identifier);
+        CompletableFuture result = serviceEndpoint.request(CODELENS, codeLensParams);
         return getResponseString(result);
     }
 
