@@ -16,7 +16,11 @@
  * under the License.
  *
  */
- 
+
+@imagePath : "assets/images";
+@fontPath  : "assets/fonts";
+
+
 /*-------------------
        Fonts
 --------------------*/

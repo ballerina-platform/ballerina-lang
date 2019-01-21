@@ -1,5 +1,5 @@
-/*!
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+/**
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,8 +16,10 @@
  * under the License.
  *
  */
+ 
+/* Semantic UI import */
+& { @import "~semantic-ui-less/definitions/globals/reset.less"; }
+& { @import "~semantic-ui-less/definitions/globals/site.less"; }
 
-@type    : "element";
-@element : "button";
-
-@import (multiple) '../../theme.config';
+/* Ballerina playground view import */
+& { @import "../../definitions/views/diagram.less"; }

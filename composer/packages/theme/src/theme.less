@@ -31,31 +31,30 @@
    Site Variables
 ---------------------*/
 
-/* Default site.variables */
+@import "~semantic-ui-less/themes/default/globals/site.variables";
+
 @import "@{themesFolder}/default/globals/site.variables";
-
-/* Packaged site.variables */
-@import "@{ballerinaThemesFolder}/@{site}/globals/site.variables";
-
-/* Component's site.variables */
-@import (optional) "@{ballerinaThemesFolder}/@{theme}/globals/site.variables";
-
-/* Site theme site.variables */
+@import (optional) "@{themesFolder}/@{site}/globals/site.variables";
+@import (optional) "@{themesFolder}/@{theme}/globals/site.variables";
 @import (optional) "@{siteFolder}/globals/site.variables";
 
+// Ballerina site variables
+@import (optional) "themes/default/globals/site.variables";
+@import (optional) "themes/@{site}/globals/site.variables";
+@import (optional) "themes/@{theme}/globals/site.variables";
 
-/*-------------------
- Component Variables
+
+/*--------------------
+   Elements Variables
 ---------------------*/
 
-/* Default */
 @import "@{themesFolder}/default/@{type}s/@{element}.variables";
-
-/* Packaged Theme */
-@import (optional) "@{ballerinaThemesFolder}/@{theme}/@{type}s/@{element}.variables";
-
-/* Site Theme */
+@import (optional) "@{themesFolder}/@{theme}/@{type}s/@{element}.variables";
 @import (optional) "@{siteFolder}/@{type}s/@{element}.variables";
+
+// Ballerina elements variables
+@import (optional) "themes/default/@{type}s/@{element}.variables";
+@import (optional) "themes/@{theme}/@{type}s/@{element}.variables";
 
 
 /*******************************
@@ -75,6 +74,7 @@
 -------------------*/
 
 .loadUIOverrides() {
-  @import (optional) "@{ballerinaThemesFolder}/@{theme}/@{type}s/@{element}.overrides";
+  @import (optional) "@{themesFolder}/@{theme}/@{type}s/@{element}.overrides";
   @import (optional) "@{siteFolder}/@{type}s/@{element}.overrides";
+  @import (optional) "themes/@{theme}/@{type}s/@{element}.overrides";
 }

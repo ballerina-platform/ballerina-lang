@@ -21,58 +21,25 @@ const less = require('less');
 const path = require('path');
 const fs = require('fs-extra');
 const rimraf = require('rimraf');
-const lessToJs = require('less-vars-to-js');
 
 const CleanCSS = require('clean-css');
 const RewriteImportPlugin = require("less-plugin-rewrite-import");
 const NpmImportPlugin = require('less-plugin-npm-import');
-const InlineUrlsPlugin = require('less-plugin-inline-urls');
 
 const libDir = path.join(__dirname, '..', 'lib');
 const buildDir = path.join(__dirname, '..', 'build');
 const themesDir = path.join(__dirname, '..', 'src', 'themes');
-const semanticImports = path.join(__dirname, '..', 'src', 'semantic.imports');
-const semanticIndexLess = path.join(buildDir, "semantic.less");
 
 const lessNpmModuleDir = path.dirname(require.resolve('less'));
 const semanticUILessModuleDir = path.join(lessNpmModuleDir, '..', 'semantic-ui-less');
-
-const createSemanticIndexLess = () => {
-    const src = fs.readFileSync(semanticImports, 'utf8');
-    const extractedVariables = lessToJs(src, {
-        resolveVariables: true,
-        stripPrefix: true
-    });
-    let lessString = '';
-
-    Object.keys(extractedVariables).map(key => {
-        const components = extractedVariables[key].replace(/\s/g, '').split(',');
-
-        components.map(component => {
-            lessString += '& {\n' +
-                '    @import "~semantic-ui-less/themes/default/' + key + '/' + component + '.variables";\n' +
-                '    @import "~semantic-ui-less/definitions/' + key + '/' + component + '.less";\n' +
-                '}\n';
-        });
-    });
-
-    fs.writeFileSync(semanticIndexLess, lessString, (error) => {
-        console.error("semantic.less generation failed.");
-        console.error(error);
-    });
-
-    copyAssets();
-
-    console.info("semantic.less generated.");
-};
 
 const generateThemes = () => {
     const themes = fs.readdirSync(themesDir);
 
     let fileWritePromises = themes.map(theme => {
-        const filePath = path.join(themesDir, theme, 'theme.less');
+        const filePath = path.join(themesDir, theme, 'index.less');
         const options = {
-            ieCompat: false,
+            ieCompat: true,
             compress: false,
             sourceMap: true,
             javascriptEnabled: true,
@@ -81,10 +48,10 @@ const generateThemes = () => {
                 new NpmImportPlugin({ prefix: '~' }),
                 new RewriteImportPlugin({
                     paths: {
-                        "../../theme.config": path.join(themesDir, theme, 'theme.config'),
+                        "../../theme.config": path.join(themesDir, theme, 'semantic-ui.config'),
+                        "../../ballerina.config": path.join(themesDir, theme, 'ballerina.config')
                     }
-                }),
-                InlineUrlsPlugin
+                })
             ]
         };
 
@@ -135,6 +102,17 @@ const copyCSS = () => {
     fs.copy(buildDir, libDir)
         .then(() => {
             console.error('generated css files copied.');
+            copyAssets();
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+};
+
+const copyAssets = () => {
+    fs.copy(path.join(semanticUILessModuleDir, 'themes', 'default', 'assets'), path.join(libDir, 'assets'))
+        .then(() => {
+            console.error('semantic-ui-less assets copied.');
             fs.removeSync(buildDir);
             console.error('Done.');
         })
@@ -143,23 +121,11 @@ const copyCSS = () => {
         });
 };
 
-const copyAssets = () => {
-    fs.copy(path.join(semanticUILessModuleDir, 'themes', 'default', 'assets'), path.join(buildDir, 'assets'))
-        .then(() => {
-            console.error('semantic-ui-less assets copied.');
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-};
-
 if (!fs.existsSync(buildDir)) {
     fs.mkdirSync(buildDir);
-    createSemanticIndexLess();
     generateThemes();
 } else {
     rimraf(buildDir + '/*', () => {
-        createSemanticIndexLess();
         generateThemes();
     });
 }
