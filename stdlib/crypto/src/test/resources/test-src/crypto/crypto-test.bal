@@ -60,37 +60,52 @@ function testHmacWithSHA512(byte[] input, byte[] key) returns byte[] {
     return crypto:hmacSha512(input, key);
 }
 
-function testSignRsaSha1(byte[] input, string keyStore, string keyStorePassword, string keyAlias, string keyPassword)
+function testSignRsaSha1(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
 returns byte[] {
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyStorePassword = keyStorePassword,
-        keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
     return crypto:signRsaSha1(input, pk);
 }
 
-function testSignRsaSha256(byte[] input, string keyStore, string keyStorePassword, string keyAlias, string keyPassword)
+function testSignRsaSha256(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
 returns byte[] {
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyStorePassword = keyStorePassword,
-            keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
     return crypto:signRsaSha256(input, pk);
 }
 
-function testSignRsaSha384(byte[] input, string keyStore, string keyStorePassword, string keyAlias, string keyPassword)
+function testSignRsaSha384(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
 returns byte[] {
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyStorePassword = keyStorePassword,
-            keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
     return crypto:signRsaSha384(input, pk);
 }
 
-function testSignRsaSha512(byte[] input, string keyStore, string keyStorePassword, string keyAlias, string keyPassword)
+function testSignRsaSha512(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
 returns byte[] {
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyStorePassword = keyStorePassword,
-            keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
     return crypto:signRsaSha512(input, pk);
 }
 
-function testSignRsaMd5(byte[] input, string keyStore, string keyStorePassword, string keyAlias, string keyPassword)
+function testSignRsaMd5(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
 returns byte[] {
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyStorePassword = keyStorePassword,
-            keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
     return crypto:signRsaMd5(input, pk);
 }

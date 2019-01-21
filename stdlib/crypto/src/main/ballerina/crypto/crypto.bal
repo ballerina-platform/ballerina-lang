@@ -14,17 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Record for providing key store related configurations.
+#
+# + path - Path to the key store file
+# + password - Key store password
+public type KeyStore record {
+    string path = "";
+    string password = "";
+    !...;
+};
+
+# Record for providing trust store related configurations.
+#
+# + path - Path to the key store file
+# + password - Key store password
+public type TrustStore record {
+    string path = "";
+    string password = "";
+    !...;
+};
+
 # Private key used in cryptographic operations.
 #
 # + algorithm - Key algorithm
 public type PrivateKey record {
     string algorithm;
-    !...
+    !...;
 };
 
 # Public key used in cryptographic operations.
 #
 # + algorithm - Key algorithm
 public type PublicKey record {
-    !...
+    !...;
 };

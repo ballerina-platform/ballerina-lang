@@ -50,28 +50,27 @@ import java.security.cert.CertificateException;
         orgName = "ballerina", packageName = "crypto",
         functionName = "decodePublicKey",
         args = {
-                @Argument(name = "keyStore", type = TypeKind.STRING),
-                @Argument(name = "keyStorePassword", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @Argument(name = "keyStore", type = TypeKind.RECORD, structType = Constants.KEY_STORE_STRUCT),
                 @Argument(name = "keyAlias", type = TypeKind.STRING)
         },
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "PrivateKey",
-                structPackage = "ballerina/crypto")},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = Constants.PRIVATE_KEY_STRUCT,
+                structPackage = Constants.CRYPTO_PACKAGE)},
         isPublic = true)
 public class DecodePublicKey extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BString keyStore = (BString) context.getNullableRefArgument(0);
-        BString keyStorePassword = (BString) context.getNullableRefArgument(1);
-        BString keyAlias = (BString) context.getNullableRefArgument(2);
+        BMap<String, BValue> keyStore = (BMap<String, BValue>) context.getNullableRefArgument(0);
+        BString keyAlias = (BString) context.getNullableRefArgument(1);
 
         PublicKey publicKey = null;
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore != null) {
-            File keyStoreFile = new File(keyStore.stringValue());
+            File keyStoreFile = new File(keyStore.get(Constants.KEY_STORE_STRUCT_PATH_FIELD).stringValue());
             try (FileInputStream fileInputStream = new FileInputStream(keyStoreFile)) {
                 KeyStore keystore = KeyStore.getInstance("PKCS12");
-                keystore.load(fileInputStream, keyStorePassword.stringValue().toCharArray());
+                keystore.load(fileInputStream, keyStore.get(Constants.KEY_STORE_STRUCT_PASSWORD_FIELD).stringValue()
+                        .toCharArray());
                 publicKey = keystore.getCertificate(keyAlias.stringValue()).getPublicKey();
             } catch (FileNotFoundException e) {
                 throw new BallerinaException("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile(),

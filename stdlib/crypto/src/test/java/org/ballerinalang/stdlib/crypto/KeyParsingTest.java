@@ -52,4 +52,14 @@ public class KeyParsingTest {
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) returnValues[0]).get("algorithm").stringValue(), "RSA");
     }
+
+    @Test
+    public void testParsingPublicKeyFromP12() {
+        BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                + File.separator + "crypto" + File.separator + "testKeystore.p12"), new BString("ballerina"),
+                new BString("ballerina")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testParsingPublicKeyFromP12", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) returnValues[0]).get("algorithm").stringValue(), "RSA");
+    }
 }

@@ -117,20 +117,17 @@ public extern function signRsaSha512(byte[] input, PrivateKey privateKey) return
 
 # Read a private key from the provided PKCS#12 archive file.
 #
-# + keyStore - Path to the key store
-# + keyStorePassword - Key store password
+# + keyStore - Key store configuration
 # + keyAlias - Key alias
 # + keyPassword - Key password
 # + return - Reference to the private key
-public extern function decodePrivateKey(string? keyStore = (), string? keyStorePassword = (), string? keyAlias = (),
-    string? keyPassword = ()) returns PrivateKey;
+public extern function decodePrivateKey(KeyStore? keyStore = (), string? keyAlias = (),string? keyPassword = ())
+    returns PrivateKey;
 
 # Read a public key from the provided PKCS#12 archive file.
 #
-# + keyStore - Path to the key store
-# + keyStorePassword - Key store password
+# + keyStore - Key store configuration
 # + keyAlias - Key alias
 # + keyPassword - Key password
 # + return - Reference to the public key
-public extern function decodePublicKey(string? keyStore = (), string? keyStorePassword = (), string? keyAlias = ())
-    returns PublicKey;
+public extern function decodePublicKey(KeyStore? keyStore = (), string? keyAlias = ()) returns PublicKey;
