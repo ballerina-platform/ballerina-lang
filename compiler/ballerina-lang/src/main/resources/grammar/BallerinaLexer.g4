@@ -231,10 +231,6 @@ HexIntegerLiteral
     :   HexNumeral
     ;
 
-BinaryIntegerLiteral
-    :   BinaryNumeral
-    ;
-
 fragment
 DecimalNumeral
     :   '0'
@@ -282,21 +278,6 @@ HexDigits
 fragment
 HexDigit
     :   [0-9a-fA-F]
-    ;
-
-fragment
-BinaryNumeral
-    :   '0' [bB] BinaryDigits
-    ;
-
-fragment
-BinaryDigits
-    :   BinaryDigit+
-    ;
-
-fragment
-BinaryDigit
-    :   [01]
     ;
 
 // §3.10.2 Floating-Point Literals

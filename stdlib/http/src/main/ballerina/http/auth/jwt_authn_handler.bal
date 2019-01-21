@@ -44,7 +44,7 @@ public type HttpJwtAuthnHandler object {
     public function handle (Request req) returns (boolean);
 };
 
-function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
+public function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
     string authHeader = "";
     var headerValue = trap req.getHeader(AUTH_HEADER);
     if (headerValue is string) {
@@ -67,7 +67,7 @@ function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
     return false;
 }
 
-function HttpJwtAuthnHandler.handle (Request req) returns (boolean) {
+public function HttpJwtAuthnHandler.handle (Request req) returns (boolean) {
     string jwtToken = extractJWTToken(req);
     var authenticated = self.jwtAuthenticator.authenticate(jwtToken);
     if (authenticated is boolean) {

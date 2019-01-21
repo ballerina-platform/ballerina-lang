@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -88,6 +90,18 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         topLevelNodes.stream()
                 .filter(CommonUtil.checkInvalidTypesDefs())
                 .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode, pkgEnv));
+    }
+
+    @Override
+    public void visit(BLangTypeDefinition typeDefinition) {
+        acceptNode(typeDefinition.typeNode, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        objectTypeNode.functions.stream()
+                .filter(bLangFunction -> !bLangFunction.flagSet.contains(Flag.INTERFACE))
+                .forEach(bLangFunction -> acceptNode(bLangFunction, symbolEnv));
     }
 
     @Override

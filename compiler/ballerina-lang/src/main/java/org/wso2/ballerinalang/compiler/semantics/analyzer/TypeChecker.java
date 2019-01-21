@@ -976,7 +976,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
         // Returns if the function is a builtin function
         if (BLangBuiltInMethod.UNDEFINED != builtInFunction && builtInFunction.isExternal() &&
-                checkBuiltinFunctionInvocation(iExpr, builtInFunction, varRefType)) {
+                checkBuiltinFunctionInvocation(iExpr, builtInFunction, varRefType) != symTable.notFoundSymbol) {
             return;
         }
 
@@ -2260,15 +2260,16 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
+    private BSymbol checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
         Name funcName = names.fromString(iExpr.name.value);
 
         BSymbol funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
 
         if (funcSymbol == symTable.notFoundSymbol) {
             funcSymbol = getSymbolForBuiltinMethodWithDynamicRetType(iExpr, function);
-            if (funcSymbol == symTable.notFoundSymbol) {
-                return false;
+            if (funcSymbol == symTable.notFoundSymbol || funcSymbol == symTable.invalidUsageSymbol) {
+                resultType = symTable.semanticError;
+                return funcSymbol;
             }
         }
 
@@ -2280,7 +2281,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (resultType != null && resultType != symTable.semanticError && iExpr.impConversionExpr == null) {
             types.setImplicitCastExpr(iExpr, resultType, expType);
         }
-        return true;
+        return funcSymbol;
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType epType) {

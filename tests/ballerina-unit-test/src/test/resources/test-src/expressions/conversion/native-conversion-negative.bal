@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/io;
 
 type Person record {
     string name = "";
@@ -79,6 +80,19 @@ public type TX record {
     byte[] b = [];
 };
 
+type Manager record {
+    string name = "";
+    int age = 0;
+    Manager? parent = ();
+};
+
+type Engineer record {
+    string name = "";
+    int age = 0;
+    Engineer? parent = ();
+};
+
+
 function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
     json j = {  name:"Child",
                 age:25,
@@ -141,4 +155,36 @@ function testArrayToJsonFail() returns json|error {
 function testIncompatibleImplicitConversion() returns int|error {
     json operationReq = { "toInt": "abjd" };
     return int.convert(operationReq.toInt);
+}
+
+function testConvertRecordToRecordWithCyclicValueReferences() returns Engineer {
+    Manager p = { name: "Waruna", age: 25, parent: null };
+    Manager p2 = { name: "Milinda", age: 25, parent:p };
+    p.parent = p2;
+    Engineer e =  Engineer.convert(p); // Cyclic value will be check with isLikeType method.
+    return e;
+}
+
+function testConvertRecordToJsonWithCyclicValueReferences() returns json|error {
+    Manager p = { name: "Waruna", age: 25, parent: null };
+    Manager p2 = { name: "Milinda", age: 25, parent:p };
+    p.parent = p2;
+    json j =  check json.convert(p); // Cyclic value will be check with isLikeType method.
+    return j;
+}
+
+function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|error {
+    Manager p = { name: "Waruna", age: 25, parent: null };
+    Manager p2 = { name: "Milinda", age: 25, parent:p };
+    p.parent = p2;
+    anydata a = p;
+    basicMatch(a);
+    map<anydata> m =  check map<anydata>.convert(p); // Cyclic value will be check when stamping the value.
+    return m;
+}
+
+function basicMatch(any a) {
+    match a {
+            var {var1, var2, var3} => io:println("Matched");
+    }
 }

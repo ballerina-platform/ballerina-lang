@@ -38,7 +38,7 @@ type Test record {
 # + accessMode - read or write mode
 # + accessMode - read or write mode
 # + successfuls - boolean `true` or `false`
-function File.open (string accessMode) returns (boolean) {
+public function File.open (string accessMode) returns (boolean) {
     boolean successful = false;
     return successful;
 }

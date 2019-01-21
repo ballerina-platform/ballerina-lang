@@ -1682,3 +1682,115 @@ public function sort(any[] windowParameters, function(StreamEvent[])? nextProces
     SortWindow sortWindow1 = new(nextProcessPointer, windowParameters);
     return sortWindow1;
 }
+
+public type TimeAccumulatingWindow object {
+
+    public int timeInMillis;
+    public any[] windowParameters;
+    public LinkedList expiredEventQueue;
+    public function (StreamEvent[])? nextProcessPointer;
+    public int lastTimestamp = -0x8000000000000000;
+    public Scheduler scheduler;
+
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
+        self.timeInMillis = 0;
+        self.expiredEventQueue = new;
+        self.initParameters(windowParameters);
+        self.scheduler = new(function (StreamEvent[] events) { self.process(events); });
+    }
+
+    public function initParameters(any[] parameters) {
+        if (parameters.length() == 1) {
+            any parameter0 = parameters[0];
+            if (parameter0 is int) {
+                self.timeInMillis = parameter0;
+            } else {
+                error err = error("Time accumulating window expects an int parameter");
+                panic err;
+            }
+        } else {
+            error err = error("Time accumulating window should only have one parameter (<int> " +
+                "timePeriod), but found " + parameters.length() + " input attributes");
+            panic err;
+        }
+    }
+
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        lock {
+            foreach var event in streamEvents {
+                streamEventChunk.addLast(event);
+            }
+
+            streamEventChunk.resetToFront();
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
+                int currentTime = time:currentTime().time;
+
+                if (streamEvent.eventType == "CURRENT") {
+                    StreamEvent clonedEvent = streamEvent.copy();
+                    clonedEvent.eventType = "EXPIRED";
+                    self.expiredEventQueue.addLast(clonedEvent);
+                    self.scheduler.notifyAt(streamEvent.timestamp + self.timeInMillis);
+                    self.lastTimestamp = streamEvent.timestamp;
+                } else {
+                    streamEventChunk.clear();
+                    if ((self.lastTimestamp + self.timeInMillis) <= streamEvent.timestamp) {
+                        while (self.expiredEventQueue.hasNext()) {
+                            streamEventChunk.addLast(<StreamEvent>self.expiredEventQueue.next());
+                            self.expiredEventQueue.removeCurrent();
+                        }
+                    }
+                }
+            }
+        }
+
+        any nextProcessFuncPointer = self.nextProcessPointer;
+        if (nextProcessFuncPointer is function (StreamEvent[])) {
+            if (streamEventChunk.getSize() != 0) {
+                StreamEvent[] events = [];
+                streamEventChunk.resetToFront();
+                while (streamEventChunk.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
+                    events[events.length()] = streamEvent;
+                }
+                nextProcessFuncPointer.call(events);
+            }
+        }
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent?, StreamEvent?)[] {
+        (StreamEvent?, StreamEvent?)[] events = [];
+        int i = 0;
+        foreach var e in self.expiredEventQueue.asArray() {
+            if (e is StreamEvent) {
+                StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
+                StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
+
+                if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i += 1;
+                    }
+                } else if (conditionFunc is ()) {
+                    events[i] = (lshEvent, rhsEvent);
+                    i += 1;
+                }
+            }
+        }
+        return events;
+    }
+};
+
+public function timeAccum(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+                    returns Window {
+    TimeAccumulatingWindow timeAccumulatingWindow1 = new(nextProcessPointer, windowParameters);
+    return timeAccumulatingWindow1;
+}
