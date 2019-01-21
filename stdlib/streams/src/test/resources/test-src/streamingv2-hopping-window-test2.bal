@@ -32,11 +32,11 @@ type Person record {
 };
 
 int index = 0;
-stream<Teacher> inputStreamHoppingWindow = new;
-stream<Person> outputStreamHoppingWindow = new;
+stream<Teacher> inputStreamHoppingWindow2 = new;
+stream<Person> outputStreamHoppingWindow2 = new;
 Teacher[] globalEmployeeArray = [];
 
-function startHoppingWindowTest() returns (Teacher[]) {
+function startHoppingWindowTest2() returns (Teacher[]) {
 
     Teacher[] teachers = [];
     Teacher t1 = { name: "Mohan", age: 30, status: "single", school: "Hindu College" };
@@ -46,18 +46,18 @@ function startHoppingWindowTest() returns (Teacher[]) {
     Teacher t5 = { name: "Nimal", age: 55, status: "married", school: "Hindu College" };
     Teacher t6 = { name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
 
-    testHoppingWindow();
+    testHoppingWindow2();
 
-    outputStreamHoppingWindow.subscribe(printTeachers);
+    outputStreamHoppingWindow2.subscribe(printTeachers);
 
-    inputStreamHoppingWindow.publish(t1);
-    inputStreamHoppingWindow.publish(t2);
+    inputStreamHoppingWindow2.publish(t1);
+    inputStreamHoppingWindow2.publish(t2);
     runtime:sleep(600);
-    inputStreamHoppingWindow.publish(t3);
+    inputStreamHoppingWindow2.publish(t3);
     runtime:sleep(1100);
-    inputStreamHoppingWindow.publish(t4);
-    inputStreamHoppingWindow.publish(t5);
-    inputStreamHoppingWindow.publish(t6);
+    inputStreamHoppingWindow2.publish(t4);
+    inputStreamHoppingWindow2.publish(t5);
+    inputStreamHoppingWindow2.publish(t6);
 
     int count = 0;
     while(true) {
@@ -71,15 +71,15 @@ function startHoppingWindowTest() returns (Teacher[]) {
     return globalEmployeeArray;
 }
 
-function testHoppingWindow() {
+function testHoppingWindow2() {
 
     forever {
-        from inputStreamHoppingWindow window hopping(1000, 500)
-        select inputStreamHoppingWindow.name, inputStreamHoppingWindow.age, inputStreamHoppingWindow.status,
-        inputStreamHoppingWindow.school, count() as count
+        from inputStreamHoppingWindow2 window hopping(100, 500)
+        select inputStreamHoppingWindow2.name, inputStreamHoppingWindow2.age, inputStreamHoppingWindow2.status,
+        inputStreamHoppingWindow2.school, count() as count
         => (Person [] emp) {
             foreach var e in emp {
-                outputStreamHoppingWindow.publish(e);
+                outputStreamHoppingWindow2.publish(e);
             }
         }
     }

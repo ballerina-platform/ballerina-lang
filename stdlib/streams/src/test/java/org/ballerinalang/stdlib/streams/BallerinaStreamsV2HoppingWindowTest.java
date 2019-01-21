@@ -34,15 +34,16 @@ import org.testng.annotations.Test;
  * @since 0.990.3
  */
 public class BallerinaStreamsV2HoppingWindowTest {
-    private CompileResult result1;
+    private CompileResult result1, result2;
 
     @BeforeClass
     public void setup() {
         result1 = BCompileUtil.compile("test-src/streamingv2-hopping-window-test.bal");
+        result2 = BCompileUtil.compile("test-src/streamingv2-hopping-window-test2.bal");
     }
 
     @Test(description = "Test hopping window query")
-    public void testHoppingWindowQuery() {
+    public void testHoppingWindowQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startHoppingWindowTest");
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -68,5 +69,13 @@ public class BallerinaStreamsV2HoppingWindowTest {
 
         Assert.assertEquals(employee5.get("name").stringValue(), "Kavindu");
         Assert.assertEquals(((BInteger) employee5.get("count")).intValue(), 3);
+    }
+
+    @Test(description = "Test hopping window query")
+    public void testHoppingWindowQuery2() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startHoppingWindowTest2");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 0, "Expected events are not received");
     }
 }
