@@ -123,6 +123,8 @@ public class FormattingTest {
                 {"expectedWait.bal", "wait.bal"},
                 {"expectedCheck.bal", "check.bal"},
                 {"expectedCompoundAssignment.bal", "compoundAssignment.bal"},
+                {"expectedConstant.bal", "constant.bal"},
+                {"expectedElvisExpr.bal", "elvisExpr.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
