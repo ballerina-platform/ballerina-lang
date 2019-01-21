@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codelenses.provider;
+package org.ballerinalang.langserver.codelenses.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
@@ -40,7 +40,7 @@ import java.util.List;
  * @since 0.990.3
  */
 @JavaSPIService("org.ballerinalang.langserver.codelenses.LSCodeLensesProvider")
-public class ServiceCodeLensesProvider implements LSCodeLensesProvider {
+public class ServicesBasedCodeLensesProvider implements LSCodeLensesProvider {
     /**
      * {@inheritDoc}
      */

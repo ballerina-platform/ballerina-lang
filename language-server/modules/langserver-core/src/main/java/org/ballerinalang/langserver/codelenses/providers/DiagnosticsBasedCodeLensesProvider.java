@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codelenses.provider;
+package org.ballerinalang.langserver.codelenses.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
@@ -45,7 +45,7 @@ public class DiagnosticsBasedCodeLensesProvider implements LSCodeLensesProvider 
      */
     @Override
     public String getName() {
-        return "pull.CodeLenses";
+        return "diagnostics.CodeLenses";
     }
 
     /**
