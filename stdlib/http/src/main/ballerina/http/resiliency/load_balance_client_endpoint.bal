@@ -23,7 +23,7 @@
 public type LoadBalanceClient client object {
 
     public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
-    public Client[] loadBalanceClientsArray;
+    public Client?[] loadBalanceClientsArray;
     public LoadBalancerRule lbRule;
     public boolean failover;
 
@@ -168,7 +168,7 @@ public type LoadBalanceClient client object {
 public type LoadBalanceActionErrorData record {
     string message = "";
     int statusCode = 0;
-    error[] httpActionErr = [];
+    error?[] httpActionErr = [];
     !...;
 };
 
@@ -307,7 +307,15 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
 function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBalanceActionErrorData)
                                                     returns error {
     int nErrs = loadBalanceActionErrorData.httpActionErr.length();
-    string lastErrorMessage = <string> loadBalanceActionErrorData.httpActionErr[nErrs - 1].detail().message;
+    error? er = loadBalanceActionErrorData.httpActionErr[nErrs - 1];
+    error actError;
+    if (er is error) {
+        actError = er;
+    } else {
+        error err = error("Unexpected nil");
+        panic err;
+    }
+    string lastErrorMessage = <string> actError.detail().message;
     loadBalanceActionErrorData.statusCode = INTERNAL_SERVER_ERROR_500;
     loadBalanceActionErrorData.message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
     LoadBalanceActionError err = error(HTTP_ERROR_CODE, loadBalanceActionErrorData);
@@ -375,13 +383,15 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
 }
 
 function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-                                                                                    returns Client[]|error {
-    Client[] httpClients = [];
+                                                                                    returns Client?[]|error {
+    Client cl;
+    Client?[] httpClients = [];
     int i = 0;
 
     foreach var target in loadBalanceClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
-        httpClients[i] = new(target.url , config = epConfig);
+        cl =  new(target.url , config = epConfig);
+        httpClients[i] = cl;
         i += 1;
     }
     return httpClients;
