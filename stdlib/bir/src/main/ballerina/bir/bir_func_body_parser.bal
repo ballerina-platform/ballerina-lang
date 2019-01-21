@@ -11,7 +11,7 @@ public type FuncBodyParser object {
     public function parseBB() returns BasicBlock {
         var id = self.reader.readStringCpRef();
         var numInstruction = self.reader.readInt32() - 1;
-        Instruction[] instructions = [];
+        Instruction?[] instructions = [];
         int i = 0;
         while (i < numInstruction) {
             instructions[i] = self.parseInstruction();
@@ -66,7 +66,7 @@ public type FuncBodyParser object {
             var pkgIdCp = self.reader.readInt32();
             var name = self.reader.readStringCpRef();
             var argsCount = self.reader.readInt32();
-            Operand[] args = [];
+            Operand?[] args = [];
             int i = 0;
             while (i < argsCount) {
                 args[i] = self.parseVarRef();

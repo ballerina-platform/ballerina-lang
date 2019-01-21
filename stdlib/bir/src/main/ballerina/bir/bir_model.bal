@@ -5,18 +5,18 @@ public type PackageId record {
 };
 
 public type Package record {
-    Function[] functions = [];
+    Function?[] functions = [];
     Name name = {};
     Name org = {};
-    BType[] types = [];
+    BType?[] types = [];
     Name versionValue = {};
 };
 
 public type Function record {
     int argsCount = 0;
-    BasicBlock[] basicBlocks = [];
+    BasicBlock?[] basicBlocks = [];
     boolean isDeclaration = false;
-    VariableDcl[] localVars = [];
+    VariableDcl?[] localVars = [];
     Name name = {};
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
@@ -24,7 +24,7 @@ public type Function record {
 
 public type BasicBlock record {
     Name id = {};
-    Instruction[] instructions = [];
+    Instruction?[] instructions = [];
     Terminator terminator = new Return("RETURN");
 };
 
@@ -88,7 +88,7 @@ public type BTypeSymbol record {
 };
 //
 public type DocAttachment record {
-    DocAttribute[] attributes = [];
+    DocAttribute?[] attributes = [];
     string description = "";
 };
 
@@ -136,7 +136,7 @@ public type Scope record {
 //};
 
 public type BInvokableType record {
-    BType[] paramTypes = [];
+    BType?[] paramTypes = [];
     BType retType = "()";
 };
 
@@ -198,12 +198,12 @@ public type BinaryOp object {
 };
 
 public type Call object {
-    public Operand[] args;
+    public Operand?[] args;
     public InstructionKind kind;
     public VarRef? lhsOp;
     public Name name;
     public BasicBlock thenBB;
-    public function __init(Operand[] args, InstructionKind kind, VarRef? lhsOp, Name name, BasicBlock thenBB) {
+    public function __init(Operand?[] args, InstructionKind kind, VarRef? lhsOp, Name name, BasicBlock thenBB) {
         self.args = args;
         self.kind = kind;
         self.lhsOp = lhsOp;
