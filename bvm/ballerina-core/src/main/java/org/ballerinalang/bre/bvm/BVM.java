@@ -512,10 +512,6 @@ public class BVM {
                 case InstructionCodes.DETAIL:
                     handleErrorBuiltinMethods(opcode, operands, sf);
                     break;
-                case InstructionCodes.IS_FROZEN:
-                case InstructionCodes.FREEZE:
-                    handleFreezeBuiltinMethods(strand, opcode, operands, sf);
-                    break;
                 case InstructionCodes.STAMP:
                     handleStampBuildInMethod(strand, operands, sf);
                     break;
@@ -1016,45 +1012,6 @@ public class BVM {
                 break;
             case InstructionCodes.DETAIL:
                 sf.refRegs[j] = error.getDetails();
-                break;
-        }
-    }
-
-    private static void handleFreezeBuiltinMethods(Strand ctx, int opcode, int[] operands,
-                                                   StackFrame sf) {
-        int i = operands[0];
-        int j = operands[1];
-        BRefType value = sf.refRegs[i];
-        switch (opcode) {
-            case InstructionCodes.FREEZE:
-                if (value == null) {
-                    // assuming we reach here because the value is nil (()), the frozen value would also be nil.
-                    sf.refRegs[j] = null;
-                    break;
-                }
-
-                FreezeStatus freezeStatus = new FreezeStatus(FreezeStatus.State.MID_FREEZE);
-                try {
-                    value.attemptFreeze(freezeStatus);
-
-                    // if freeze is successful, set the status as frozen and the value itself as the return value
-                    freezeStatus.setFrozen();
-                    sf.refRegs[j] = value;
-                } catch (BLangFreezeException e) {
-                    // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
-                    // constituents to false, and return an error
-                    freezeStatus.setUnfrozen();
-                    sf.refRegs[j] = BLangVMErrors.createError(ctx, BallerinaErrorReasons.FREEZE_ERROR, e.getMessage());
-                } catch (BallerinaException e) {
-                    // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
-                    // and its constituents to false, and panic
-                    freezeStatus.setUnfrozen();
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
-                    handleError(ctx);
-                }
-                break;
-            case InstructionCodes.IS_FROZEN:
-                sf.intRegs[j] = (value == null || value.isFrozen()) ? 1 : 0;
                 break;
         }
     }
@@ -5368,11 +5325,11 @@ public class BVM {
             this.currentState = state;
         }
 
-        private void setFrozen() {
+        public void setFrozen() {
             this.currentState = State.FROZEN;
         }
 
-        private void setUnfrozen() {
+        public void setUnfrozen() {
             this.currentState = State.UNFROZEN;
         }
 

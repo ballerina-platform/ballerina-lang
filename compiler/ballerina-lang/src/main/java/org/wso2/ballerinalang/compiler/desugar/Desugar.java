@@ -3154,12 +3154,18 @@ public class Desugar extends BLangNodeVisitor {
                 // since x.freeze() === x, replace the invocation with the invocation expression
                 result = iExpr.expr;
             } else {
-                // iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN, set true since value types are always frozen
                 result = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.booleanType, true);
             }
             return;
         }
-        result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+
+        BType retType = symTable.anydataType;
+        if (iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN) {
+            retType = symTable.booleanType;
+        }
+//        result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+        result = visitBuiltInMethodInvocation(iExpr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
+                Lists.of(symTable.anydataType), retType);
     }
 
     private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {

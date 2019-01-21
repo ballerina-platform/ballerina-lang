@@ -38,9 +38,9 @@ public enum BLangBuiltInMethod {
 
     STACKTRACE("stackTrace", true),
 
-    FREEZE("freeze", true),
+    FREEZE("freeze", "_freeze", true),
 
-    IS_FROZEN("isFrozen", true),
+    IS_FROZEN("isFrozen", "_isFrozen", true),
 
     CLONE("clone", "_clone", true),
 

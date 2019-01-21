@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -101,6 +102,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 
@@ -533,10 +535,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
     }
 
-    BOperatorSymbol createBuiltinMethodSymbol(BLangBuiltInMethod method, BType type, BType retType, int opcode) {
+    BInvokableSymbol createBuiltinMethodSymbol(BLangBuiltInMethod method, BType type, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(names.fromString(method.getName()), null, opType, null, opcode);
+
+        return new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC, names.fromString
+                (method.getInternalName()), BUILTIN, opType, null);
     }
 
     BOperatorSymbol createTypeAssertionSymbol(BType type, BType retType) {
