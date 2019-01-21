@@ -344,9 +344,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
         if (funcNode.returnTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
             BType elementType = ((BArrayType) funcNode.returnTypeNode.type).getElementType();
+            DiagnosticPos pos = funcNode.returnTypeNode.pos;
             if (!elementType.hasImplicitInitialValue()) {
-                this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE,
-                        elementType, elementType);
+                this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, elementType, elementType);
             }
         }
         if (isPublicInvokableNode(funcNode)) {

@@ -16,7 +16,8 @@ type BbBodyGenrator object {
         llvm:LLVMBasicBlockRef bbRef = llvm:LLVMAppendBasicBlock(self.parent.funcRef, self.bb.id.value);
         llvm:LLVMPositionBuilderAtEnd(self.builder, bbRef);
         foreach var i in self.bb.instructions {
-            self.genInstruction(i);
+            bir:Instruction ins = <bir:Instruction>i;
+            self.genInstruction(ins);
         }
         return new(self.builder, self.bb, bbRef, self.parent);
     }
