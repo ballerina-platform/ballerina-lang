@@ -36,7 +36,7 @@ public type FailoverConfig record {
 # + failoverCodesIndex - An indexed array of HTTP response status codes for which the failover mechanism triggers
 # + failoverInterval - Failover delay interval in milliseconds
 public type FailoverInferredConfig record {
-    Client[] failoverClientsArray = [];
+    Client?[] failoverClientsArray = [];
     boolean[] failoverCodesIndex = [];
     int failoverInterval = 0;
     !...;
@@ -63,7 +63,7 @@ public type FailoverClient client object {
         if (failoverHttpClientArray is error) {
             panic failoverHttpClientArray;
         } else {
-            Client[] clients = failoverHttpClientArray;
+            Client?[] clients = failoverHttpClientArray;
             boolean[] failoverCodes = populateErrorCodeIndex(failoverClientConfig.failoverCodes);
             FailoverInferredConfig failoverInferredConfig = {
                 failoverClientsArray:clients,
@@ -270,9 +270,10 @@ function performExecuteAction (string path, Request request, string httpVerb,
 // Handles all the actions exposed through the Failover connector.
 function performFailoverAction (string path, Request request, HttpOperation requestAction,
                                                 FailoverClient failoverClient) returns Response|error {
-    Client foClient = failoverClient.failoverInferredConfig.failoverClientsArray[failoverClient.succeededEndpointIndex];
+    Client foClient = <Client>failoverClient.failoverInferredConfig.failoverClientsArray[failoverClient
+    .succeededEndpointIndex];
     FailoverInferredConfig failoverInferredConfig = failoverClient.failoverInferredConfig;
-    Client[] failoverClients = failoverInferredConfig.failoverClientsArray;
+    Client?[] failoverClients = failoverInferredConfig.failoverClientsArray;
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
     int noOfEndpoints = (failoverInferredConfig.failoverClientsArray.length());
     // currentIndex and initialIndex are need to set to last succeeded endpoint index to start failover with
@@ -284,7 +285,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
 
     Response inResponse = new;
     Request failoverRequest = request;
-    error[] failoverActionErrData = [];
+    error?[] failoverActionErrData = [];
     mime:Entity requestEntity = new;
 
     if (isMultipartRequest(failoverRequest)) {
@@ -383,13 +384,13 @@ function performFailoverAction (string path, Request request, HttpOperation requ
         }
         failoverRequest = check createFailoverRequest(failoverRequest, requestEntity);
         runtime:sleep(failoverInterval);
-        foClient = failoverClients[currentIndex];
+        foClient = <Client>failoverClients[currentIndex];
     }
     return inResponse;
 }
 
 // Populates generic error specific to Failover connector by including all the errors returned from endpoints.
-function populateGenericFailoverActionError (error[] failoverActionErr, error httpActionErr, int index)
+function populateGenericFailoverActionError (error?[] failoverActionErr, error httpActionErr, int index)
            returns (error) {
     failoverActionErr[index] = httpActionErr;
     string lastErrorMsg = <string> httpActionErr.detail().message;
@@ -401,7 +402,7 @@ function populateGenericFailoverActionError (error[] failoverActionErr, error ht
 
 // If leaf endpoint returns a response with status code configured to retry in the failover connector, failover error
 // will be generated with last response status code and generic failover response.
-function populateFailoverErrorHttpStatusCodes (Response inResponse, error[] failoverActionErr, int index) {
+function populateFailoverErrorHttpStatusCodes (Response inResponse, error?[] failoverActionErr, int index) {
     string failoverMessage = "Endpoint " + index + " returned response is: " + inResponse.statusCode + " " +
         inResponse.reasonPhrase;
     map<any> errorDetail = { message : failoverMessage };
@@ -409,7 +410,7 @@ function populateFailoverErrorHttpStatusCodes (Response inResponse, error[] fail
     failoverActionErr[index] = httpActionErr;
 }
 
-function populateErrorsFromLastResponse (Response inResponse, error[] failoverActionErr, int index)
+function populateErrorsFromLastResponse (Response inResponse, error?[] failoverActionErr, int index)
                                                                             returns (error) {
     string message = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
     map<any> errorDetail = { message : message };
@@ -481,13 +482,16 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
     return clientEPConfig;
 }
 
-function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig) returns Client[]|error {
-    Client[] httpClients = [];
+function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig)
+    returns Client?[]|error {
+    Client clientEp;
+    Client?[] httpClients = [];
     int i = 0;
 
     foreach var target in failoverClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
-        httpClients[i] = new(target.url, config = epConfig);
+        clientEp = new(target.url, config = epConfig);
+        httpClients[i] = clientEp;
         i += 1;
     }
     return httpClients;
