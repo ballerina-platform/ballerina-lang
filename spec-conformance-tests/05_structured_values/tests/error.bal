@@ -28,5 +28,4 @@ function testErrorTypeDescriptor() {
     error <string, map<error>> error4 = error("Error Four", { detailError: error1 });
     test:assertEquals(error4.detail().detailError.reason(), error1.reason(),
         msg = "expected error types detail to support map<error> type");
-
 }
