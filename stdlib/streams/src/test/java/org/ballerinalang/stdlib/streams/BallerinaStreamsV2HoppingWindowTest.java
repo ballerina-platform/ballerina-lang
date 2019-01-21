@@ -34,15 +34,16 @@ import org.testng.annotations.Test;
  * @since 0.990.3
  */
 public class BallerinaStreamsV2HoppingWindowTest {
-    private CompileResult result1, result2;
+    private CompileResult result1, result2, result3;
 
     @BeforeClass
     public void setup() {
         result1 = BCompileUtil.compile("test-src/streamingv2-hopping-window-test.bal");
         result2 = BCompileUtil.compile("test-src/streamingv2-hopping-window-test2.bal");
+        result3 = BCompileUtil.compile("test-src/streamingv2-hopping-window-test3.bal");
     }
 
-    @Test(description = "Test hopping window query")
+    @Test(description = "Test hopping window query when windowsize > hopeSize")
     public void testHoppingWindowQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startHoppingWindowTest");
         Assert.assertNotNull(outputEmployeeEvents);
@@ -71,11 +72,28 @@ public class BallerinaStreamsV2HoppingWindowTest {
         Assert.assertEquals(((BInteger) employee5.get("count")).intValue(), 3);
     }
 
-    @Test(description = "Test hopping window query")
+    @Test(description = "Test hopping window query when windowsize << hopeSize")
     public void testHoppingWindowQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startHoppingWindowTest2");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 0, "Expected events are not received");
+    }
+
+    @Test(description = "Test hopping window query when windowsize < hopeSize")
+    public void testHoppingWindowQuery3() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result3, "startHoppingWindowTest3");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+
+        Assert.assertEquals(employee0.get("name").stringValue(), "Naveen");
+        Assert.assertEquals(((BInteger) employee0.get("count")).intValue(), 1);
+
+        Assert.assertEquals(employee1.get("name").stringValue(), "Kavindu");
+        Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 3);
     }
 }
