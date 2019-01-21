@@ -1794,3 +1794,158 @@ public function timeAccum(any[] windowParameters, function (StreamEvent[])? next
     TimeAccumulatingWindow timeAccumulatingWindow1 = new(nextProcessPointer, windowParameters);
     return timeAccumulatingWindow1;
 }
+
+public type HoppingWindow object {
+    public int timeInMilliSeconds;
+    public int hopeTime;
+    public any[] windowParameters;
+    public LinkedList currentEventQueue;
+    public StreamEvent? resetEvent;
+    public task:Timer? timer;
+    public boolean isStart;
+    public function (StreamEvent[])? nextProcessPointer;
+
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
+        self.timeInMilliSeconds = 0;
+        self.hopeTime = 0;
+        self.resetEvent = ();
+        self.timer = ();
+        self.currentEventQueue = new();
+        self.isStart = true;
+        self.initParameters(self.windowParameters);
+    }
+
+    public function initParameters(any[] parameters) {
+        if (parameters.length() == 2) {
+            any parameter0 = parameters[0];
+            if (parameter0 is int) {
+                self.timeInMilliSeconds = parameter0;
+            } else {
+                error err = error("Hopping window's first parameter, windowTime should be of type int");
+                panic err;
+            }
+
+            any parameter1 = parameters[1];
+            if (parameter1 is int) {
+                self.hopeTime = parameter1;
+            } else {
+                error err = error("Hopping window's second parameter, hopeTime should be of type int");
+                panic err;
+            }
+        } else {
+            error err = error("Hopping window should only have two parameters (<int> windowTime, <int> " +
+                "hopeTime), but found " + parameters.length() + " input attributes");
+            panic err;
+        }
+    }
+
+    public function invokeProcess() returns error? {
+        map<anydata> data = {};
+        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
+        StreamEvent[] timerEventWrapper = [];
+        timerEventWrapper[0] = timerEvent;
+        self.process(timerEventWrapper);
+        return ();
+    }
+
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList outputStreamEvents = new();
+        if (self.isStart) {
+            self.timer = new
+            task:Timer(function () returns error? {return self.invokeProcess();},
+                function (error e) {self.handleError(e);}, self.hopeTime, delay = self.hopeTime);
+            _ = self.timer.start();
+            self.isStart = false;
+        }
+
+        LinkedList streamEventChunk = new;
+        lock {
+            foreach var event in streamEvents {
+                streamEventChunk.addLast(event);
+            }
+
+            streamEventChunk.resetToFront();
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
+
+                if (streamEvent.eventType == "CURRENT") {
+                    StreamEvent clonedEvent = streamEvent.copy();
+                    self.currentEventQueue.addLast(clonedEvent);
+                } else {
+                    self.currentEventQueue.resetToFront();
+                    while (self.currentEventQueue.hasNext()) {
+                        StreamEvent currEvent = getStreamEvent(self.currentEventQueue.next());
+                        if (currEvent.timestamp >= (streamEvent.timestamp - self.timeInMilliSeconds)) {
+                            if (self.resetEvent is ()) {
+                                self.resetEvent = createResetStreamEvent(currEvent);
+                            }
+                            outputStreamEvents.addLast(currEvent);
+                        } else {
+                            self.currentEventQueue.removeCurrent();
+                            continue;
+                        }
+                        if (currEvent.timestamp < (streamEvent.timestamp + self.hopeTime - self.timeInMilliSeconds)) {
+                            self.currentEventQueue.removeCurrent();
+                        }
+                    }
+                    if (!(self.resetEvent is ())) {
+                        outputStreamEvents.addFirst(self.resetEvent);
+                        self.resetEvent = ();
+                    }
+                }
+            }
+        }
+
+        any nextProcessFuncPointer = self.nextProcessPointer;
+        if (nextProcessFuncPointer is function (StreamEvent[])) {
+            if (outputStreamEvents.getSize() != 0) {
+                StreamEvent[] events = [];
+                outputStreamEvents.resetToFront();
+                while (outputStreamEvents.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(outputStreamEvents.next());
+                    events[events.length()] = streamEvent;
+                }
+                nextProcessFuncPointer.call(events);
+            }
+        }
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent?, StreamEvent?)[] {
+        (StreamEvent?, StreamEvent?)[] events = [];
+        int i = 0;
+        foreach var e in self.currentEventQueue.asArray() {
+            if (e is StreamEvent) {
+                StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
+                StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
+
+                if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i += 1;
+                    }
+                } else if (conditionFunc is ()) {
+                    events[i] = (lshEvent, rhsEvent);
+                    i += 1;
+                }
+            }
+        }
+        return events;
+    }
+
+    public function handleError(error e) {
+        io:println("Error occured", e.reason());
+    }
+};
+
+public function hopping(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+                    returns Window {
+    HoppingWindow hoppingWindow = new(nextProcessPointer, windowParameters);
+    return hoppingWindow;
+}
