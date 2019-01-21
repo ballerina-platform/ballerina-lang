@@ -195,23 +195,6 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Get the completion Items from the either list.
-     * 
-     * Note: By Default we populate the completions with the getCompletionItemList. Resolvers can override when needed.
-     * @param either            Either symbol info list or completion Item list
-     * @param context           LS Operation context
-     * @return {@link List}     List of completion Items
-     */
-    protected List<CompletionItem> getCompletionsFromEither(Either<List<CompletionItem>, List<SymbolInfo>> either,
-                                                            LSContext context) {
-        if (either.isLeft()) {
-            return either.getLeft();
-        } else {
-            return this.getCompletionItemList(either.getRight(), context);
-        }
-    }
-
-    /**
      * Get the completion item for a package import.
      * If the package is already imported, additional text edit for the import statement will not be added.
      * 
@@ -227,9 +210,9 @@ public abstract class AbstractItemResolver {
         List<CompletionItem> completionItems = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx).stream()
                 .map(bLangImportPackage -> {
                     String orgName = bLangImportPackage.orgName.toString();
-                    String pkgName = String.join(".", bLangImportPackage.pkgNameComps.stream()
+                    String pkgName = bLangImportPackage.pkgNameComps.stream()
                             .map(id -> id.value)
-                            .collect(Collectors.toList()));
+                            .collect(Collectors.joining("."));
                     CompletionItem item = new CompletionItem();
                     item.setLabel(orgName + "/" + pkgName);
                     item.setInsertText(CommonUtil.getLastItem(bLangImportPackage.getPackageName()).value);

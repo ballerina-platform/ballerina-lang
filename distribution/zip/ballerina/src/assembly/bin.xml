@@ -183,6 +183,7 @@
                 <include>io.ballerina.messaging:broker-auth</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>
+                <include>com.jcraft:jzlib</include>
 
                 <!-- Observability Dependencies -->
                 <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>

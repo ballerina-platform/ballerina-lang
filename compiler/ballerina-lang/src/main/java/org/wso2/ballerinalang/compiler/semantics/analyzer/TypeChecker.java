@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -977,7 +976,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
         // Returns if the function is a builtin function
         if (BLangBuiltInMethod.UNDEFINED != builtInFunction && builtInFunction.isExternal() &&
-                checkBuiltinFunctionInvocation(iExpr, builtInFunction, varRefType)) {
+                checkBuiltinFunctionInvocation(iExpr, builtInFunction, varRefType) != symTable.notFoundSymbol) {
             return;
         }
 
@@ -2261,15 +2260,16 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
+    private BSymbol checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
         Name funcName = names.fromString(iExpr.name.value);
 
         BSymbol funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
 
         if (funcSymbol == symTable.notFoundSymbol) {
             funcSymbol = getSymbolForBuiltinMethodWithDynamicRetType(iExpr, function);
-            if (funcSymbol == symTable.notFoundSymbol) {
-                return false;
+            if (funcSymbol == symTable.notFoundSymbol || funcSymbol == symTable.invalidUsageSymbol) {
+                resultType = symTable.semanticError;
+                return funcSymbol;
             }
         }
 
@@ -2281,7 +2281,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (resultType != null && resultType != symTable.semanticError && iExpr.impConversionExpr == null) {
             types.setImplicitCastExpr(iExpr, resultType, expType);
         }
-        return true;
+        return funcSymbol;
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType epType) {
@@ -2321,12 +2321,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType);
                 break;
             case TypeTags.JSON:
-                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType);
-
-                // If the field is again a struct, treat that literal expression as another constraint JSON.
-                if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
-                    fieldType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
-                }
+                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key);
 
                 // First visit the expression having field type, as the expected type.
                 checkExpr(valueExpr, this.env, fieldType);
@@ -2377,19 +2372,11 @@ public class TypeChecker extends BLangNodeVisitor {
         return fieldSymbol.type;
     }
 
-    private BType checkJSONLiteralKeyExpr(BLangRecordKey key, BType recordType) {
-        BJSONType type = (BJSONType) recordType;
-
-        // If the JSON is constrained with a struct, get the field type from the struct
-        if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.SEMANTIC_ERROR) {
-            return checkStructLiteralKeyExpr(key, type.constraint);
-        }
-
+    private BType checkJSONLiteralKeyExpr(BLangRecordKey key) {
         if (checkRecLiteralKeyExpr(key.expr).tag != TypeTags.STRING) {
             return symTable.semanticError;
         }
 
-        // If the JSON is not constrained, field type is always JSON.
         return symTable.jsonType;
     }
 
@@ -2699,17 +2686,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.JSON:
-                BType constraintType = ((BJSONType) varRefType).constraint;
-                if (constraintType.tag == TypeTags.OBJECT || constraintType.tag == TypeTags.RECORD) {
-                    BType fieldType = checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
-
-                    // If the type of the field is struct, treat it as constraint JSON type.
-                    if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
-                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
-                        break;
-                    }
-                }
-                // TODO: 11/30/18 FIX ME!!! https://github.com/ballerina-platform/ballerina-lang/issues/9386
                 actualType = symTable.jsonType;
                 break;
             case TypeTags.XML:
@@ -2758,28 +2734,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.JSON:
-                BType constraintType = ((BJSONType) varRefType).constraint;
-                if (constraintType.tag == TypeTags.OBJECT || constraintType.tag == TypeTags.RECORD) {
-                    indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
-                    if (indexExprType.tag != TypeTags.STRING) {
-                        break;
-                    }
-                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    BType fieldType =
-                            checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
-
-                    // If the type of the field is struct, treat it as constraint JSON type.
-                    if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
-                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
-                        break;
-                    }
-                } else {
-                    indexExprType = checkExpr(indexExpr, this.env, symTable.noType);
-                    if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType,
-                                indexExprType);
-                        break;
-                    }
+                indexExprType = checkExpr(indexExpr, this.env, symTable.noType);
+                if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
+                    dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, indexExprType);
+                    break;
                 }
                 actualType = symTable.jsonType;
                 break;

@@ -237,6 +237,10 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jzlib</artifactId>
+        </dependency>
 
         <!-- Siddhi Stream Dependencies -->
         <dependency>

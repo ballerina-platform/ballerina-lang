@@ -173,8 +173,8 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.GrpcMutualSslWithCertsTest"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
@@ -226,15 +226,26 @@
 
     <test name="ballerina-websub-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>
             <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
                 "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
                 @BeforeClass in test classes which have @BeforeClass -->
-            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubCoreFunctionalityTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-websub-advanced-config-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>
+            <!-- DummyTestCase or any other test which does not have @BeforeClass and belongs to the
+                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
+                @BeforeClass in test classes which have @BeforeClass -->
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>
         </classes>
     </test>
 

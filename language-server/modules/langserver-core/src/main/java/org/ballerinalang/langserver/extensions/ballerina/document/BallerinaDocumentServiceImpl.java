@@ -519,9 +519,18 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                                 tree, firstTokenIndex);
                                         targetResourceInfoOperation.add(sourceKeyValue);
                                     } else {
+                                        // Add new key value pair to the annotation record.
                                         FormattingSourceGen.reconcileWS(sourceKeyValue, targetResourceInfoOperation,
                                                 tree, -1);
                                         targetResourceInfoOperation.add(sourceKeyValue);
+
+                                        if (targetResourceInfoOperation.size() > 1) {
+                                            // Add a new comma to separate the new key value pair.
+                                            int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
+                                                    .getAsJsonObject().get("i").getAsInt();
+                                            FormattingSourceGen.addNewWS(matchedTargetResourceInfo
+                                                    .getAsJsonObject("value"), tree, "", ",", true, startIndex);
+                                        }
                                     }
                                 }
 
@@ -565,9 +574,17 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                         .getAsJsonArray("keyValuePairs"), tree, firstTokenIndex);
                                 matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
                             } else {
+                                // Add the new record key value pair.
                                 FormattingSourceGen.reconcileWS(sourceKeyValue, matchedTargetRecord
                                         .getAsJsonArray("keyValuePairs"), tree, -1);
                                 matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
+
+                                if (matchedTargetRecord.getAsJsonArray("keyValuePairs").size() > 1) {
+                                    // Add a new comma to separate the new key value pair.
+                                    int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
+                                            .getAsJsonObject().get("i").getAsInt();
+                                    FormattingSourceGen.addNewWS(matchedTargetRecord, tree, "", ",", true, startIndex);
+                                }
                             }
                         }
                     }

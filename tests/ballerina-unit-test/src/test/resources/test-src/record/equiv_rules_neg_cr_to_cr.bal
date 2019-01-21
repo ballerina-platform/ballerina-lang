@@ -17,12 +17,12 @@
 type AnotherPerson record {
     string name;
     int age;
-    !...
+    !...;
 };
 
 type Person1 record {
     string name;
-    !...
+    !...;
 };
 
 function testMissingRequiredField1() {
@@ -33,7 +33,7 @@ function testMissingRequiredField1() {
 type Person2 record {
     string name;
     int age?;
-    !...
+    !...;
 };
 
 function testMissingRequiredField2() {

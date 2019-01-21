@@ -16,7 +16,7 @@
 
 type Foo record {
     int ra = 0;
-    any...
+    any...;
 };
 
 type Bar object {
@@ -27,7 +27,7 @@ type Employee record {
     int id;
     string name;
     float salary;
-    !...
+    !...;
 };
 
 type ValueType int|float|string|boolean|byte;

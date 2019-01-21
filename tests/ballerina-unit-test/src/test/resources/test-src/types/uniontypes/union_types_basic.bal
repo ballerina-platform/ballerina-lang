@@ -108,13 +108,13 @@ function testRecordLiteralAssignment() returns string {
 type Foo record {
     string s;
     int i = 0;
-    !...
+    !...;
 };
 
 type Bar record {
     string x;
     int y = 0;
-    !...
+    !...;
 };
 
 function testUnionTypeWithMultipleRecordTypes() returns string[] {

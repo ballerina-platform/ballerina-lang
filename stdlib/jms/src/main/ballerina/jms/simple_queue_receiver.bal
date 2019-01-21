@@ -121,5 +121,5 @@ public type SimpleQueueReceiverEndpointConfiguration record {
     string messageSelector = "";
     map<any> properties = {};
     string queueName = "";
-    !...
+    !...;
 };
