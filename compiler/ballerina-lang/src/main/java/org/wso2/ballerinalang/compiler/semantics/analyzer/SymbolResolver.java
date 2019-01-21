@@ -819,6 +819,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         // The value of the dimensions field should always be >= 1
         // If sizes is null array is unsealed
         resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
+        if (resultType == symTable.noType) {
+            return;
+        }
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
                     .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
@@ -916,6 +919,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .collect(Collectors.toList());
 
+        // If at least one member is undefined, return noType as the type.
+        if (memberTypes.contains(symTable.noType)) {
+            resultType = symTable.noType;
+            return;
+        }
+
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
 
@@ -948,6 +957,11 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangConstrainedType constrainedTypeNode) {
         BType type = resolveTypeNode(constrainedTypeNode.type, env);
         BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, env);
+        // If the constrained type is undefined, return noType as the type.
+        if (constraintType == symTable.noType) {
+            resultType = symTable.noType;
+            return;
+        }
         if (type.tag == TypeTags.TABLE) {
             if (constraintType.tag == TypeTags.OBJECT) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.OBJECT_TYPE_NOT_ALLOWED);

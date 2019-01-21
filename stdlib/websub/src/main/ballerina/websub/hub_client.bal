@@ -85,7 +85,7 @@ public type Client client object {
     public remote function notifyUpdate(string topic, map<string>? headers = ()) returns error?;
 };
 
-remote function Client.subscribe(SubscriptionChangeRequest subscriptionRequest)
+public remote function Client.subscribe(SubscriptionChangeRequest subscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -96,7 +96,7 @@ remote function Client.subscribe(SubscriptionChangeRequest subscriptionRequest)
                               redirectCount);
 }
 
-remote function Client.unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
+public remote function Client.unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -107,7 +107,7 @@ remote function Client.unsubscribe(SubscriptionChangeRequest unsubscriptionReque
                               redirectCount);
 }
 
-remote function Client.registerTopic(string topic) returns error? {
+public remote function Client.registerTopic(string topic) returns error? {
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
     var registrationResponse = httpClientEndpoint->post("", request);
@@ -128,7 +128,7 @@ remote function Client.registerTopic(string topic) returns error? {
     return;
 }
 
-remote function Client.unregisterTopic(string topic) returns error? {
+public remote function Client.unregisterTopic(string topic) returns error? {
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
     var unregistrationResponse = httpClientEndpoint->post("", request);
@@ -149,7 +149,7 @@ remote function Client.unregisterTopic(string topic) returns error? {
     return;
 }
 
-remote function Client.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+public remote function Client.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                       string? contentType = (), map<string>? headers = ()) returns error? {
 
     http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -184,7 +184,7 @@ remote function Client.publishUpdate(string topic, string|xml|json|byte[]|io:Rea
     return;
 }
 
-remote function Client.notifyUpdate(string topic, map<string>? headers = ()) returns error? {
+public remote function Client.notifyUpdate(string topic, map<string>? headers = ()) returns error? {
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;

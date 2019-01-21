@@ -21,8 +21,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -138,6 +140,33 @@ public class NativeConversionNegativeTest {
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "'string' cannot be converted to 'int'");
+    }
+
+    @Test(description = "Test converting record to record which has cyclic reference to its own value.")
+    public void testConvertRecordToRecordWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToRecordWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Manager' value has cyclic reference");
+    }
+
+    @Test(description = "Test converting record to map having cyclic reference.")
+    public void testConvertRecordToMapWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToMapWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Manager' value has cyclic reference");
+    }
+
+    @Test(description = "Test converting record to json having cyclic reference.")
+    public void testConvertRecordToJsonWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToJsonWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Manager' value has cyclic reference");
     }
 }
 

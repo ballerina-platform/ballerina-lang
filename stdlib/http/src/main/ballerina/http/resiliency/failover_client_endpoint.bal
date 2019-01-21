@@ -188,75 +188,75 @@ public type FailoverClient client object {
     public remote function rejectPromise(PushPromise promise);
 };
 
-remote function FailoverClient.post(string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.post(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_POST, self);
 }
 
-remote function FailoverClient.head(string path, RequestMessage message = ()) returns Response|error {
+public remote function FailoverClient.head(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_HEAD, self);
 }
 
-remote function FailoverClient.patch(string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.patch(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PATCH, self);
 }
 
-remote function FailoverClient.put(string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.put(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PUT, self);
 }
 
-remote function FailoverClient.options(string path, RequestMessage message = ()) returns Response|error {
+public remote function FailoverClient.options(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_OPTIONS, self);
 }
 
-remote function FailoverClient.forward(string path, Request request) returns Response|error {
+public remote function FailoverClient.forward(string path, Request request) returns Response|error {
     return performFailoverAction(path, request, HTTP_FORWARD, self);
 }
 
-remote function FailoverClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performExecuteAction(path, req, httpVerb, self);
 }
 
-remote function FailoverClient.delete(string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.delete(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_DELETE, self);
 }
 
-remote function FailoverClient.get(string path, RequestMessage message = ()) returns Response|error {
+public remote function FailoverClient.get(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_GET, self);
 }
 
-remote function FailoverClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public remote function FailoverClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-remote function FailoverClient.getResponse(HttpFuture httpFuture) returns (error) {
+public remote function FailoverClient.getResponse(HttpFuture httpFuture) returns (error) {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-remote function FailoverClient.hasPromise(HttpFuture httpFuture) returns (boolean) {
+public remote function FailoverClient.hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-remote function FailoverClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public remote function FailoverClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-remote function FailoverClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public remote function FailoverClient.getPromisedResponse(PushPromise promise) returns Response|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-remote function FailoverClient.rejectPromise(PushPromise promise) {
+public remote function FailoverClient.rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation

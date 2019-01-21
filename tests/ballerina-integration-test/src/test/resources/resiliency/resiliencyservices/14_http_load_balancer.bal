@@ -241,7 +241,7 @@ public type CustomLoadBalancerRule object {
     public function getNextClient(http:Client[] loadBalanceClientsArray) returns http:Client|error;
 };
 
-function CustomLoadBalancerRule.getNextClient(http:Client[] loadBalanceClientsArray)
+public function CustomLoadBalancerRule.getNextClient(http:Client[] loadBalanceClientsArray)
                                           returns http:Client|error {
     http:Client httpClient = loadBalanceClientsArray[self.index];
     if (self.index >= loadBalanceClientsArray.length()) {
