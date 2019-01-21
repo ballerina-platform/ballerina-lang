@@ -63,7 +63,7 @@ public class CodeLensTest {
         String expected = getExpectedValue(expectedFile);
 
         Assert.assertEquals(parser.parse(response).getAsJsonObject(), parser.parse(expected).getAsJsonObject(),
-                            "Did not match the hover content for " + expectedFile);
+                            "Did not match the codelens content for " + expectedFile);
     }
 
     @Test(description = "Test Code Lenses for services", dataProvider = "codeLensServicesPositions")
@@ -72,7 +72,7 @@ public class CodeLensTest {
         String expected = getExpectedValue(expectedFile);
 
         Assert.assertEquals(parser.parse(response).getAsJsonObject(), parser.parse(expected).getAsJsonObject(),
-                            "Did not match the hover content for " + expectedFile);
+                            "Did not match the codelens content for " + expectedFile);
     }
 
     @AfterClass
