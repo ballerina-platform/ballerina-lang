@@ -2,14 +2,14 @@ type PersonA record {
     string fname;
     string lname;
     int age;
-    ! ...
+    ! ...;
 };
 
 type PersonB record {
     string fname;
     string lname;
     int age;
-    !   ...
+    !   ...;
 };
 
 type PersonC record {
@@ -17,5 +17,5 @@ type PersonC record {
     string lname;
     int age;
     !
-    ...
+    ...;
 };

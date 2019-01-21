@@ -8,7 +8,8 @@ public function main() {
         int i = 100;
         float k = 2.34;(i, k)->w2  ;
 
-        json j = {};
+        json j = {
+        };
           j = <- w2;
 
             () send = i ->> w2;k->w3 ;
