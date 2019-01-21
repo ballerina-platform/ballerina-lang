@@ -1811,7 +1811,7 @@ public class Desugar extends BLangNodeVisitor {
         if (recordLiteral.type.tag == TypeTags.RECORD) {
             expr = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
-            expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type, recordLiteral.isConst);
         } else {
             expr = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
@@ -1912,14 +1912,22 @@ public class Desugar extends BLangNodeVisitor {
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             if (varRefExpr.symbol.tag == SymTag.CONSTANT) {
                 BConstantSymbol symbol = (BConstantSymbol) varRefExpr.symbol;
-                if (symbol.literalValue == null) {
-                    genVarRefExpr = new BLangPackageConstRef((BConstantSymbol) varRefExpr.symbol);
-                } else {
+                if (((BLangExpression) ((BConstantSymbol) varRefExpr.symbol).literalValue).getKind() ==
+                        NodeKind.LITERAL) {
                     // We need to get a copy of the literal value and set it as the result. Otherwise there will be
                     // issues because registry allocation will be only done one time.
                     BLangLiteral literal = ASTBuilderUtil
                             .createLiteral(varRefExpr.pos, symbol.literalValueType, symbol.literalValue);
                     literal.typeTag = symbol.literalValueTypeTag;
+                    result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
+                    return;
+                } else if (((BLangExpression) ((BConstantSymbol) varRefExpr.symbol).literalValue).getKind() ==
+                        NodeKind.RECORD_LITERAL_EXPR) {
+                    BLangRecordLiteral literal = ASTBuilderUtil.createEmptyRecordLiteral(varRefExpr.pos,
+                            symbol.literalValueType);
+                    literal.isConst = true;
+                    literal.keyValuePairs.addAll(((BLangRecordLiteral) symbol.literalValue).keyValuePairs);
+                    literal.type = symbol.literalValueType;
                     result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
                     return;
                 }
@@ -4378,7 +4386,7 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 return new BLangJSONLiteral(new ArrayList<>(), fieldType);
             case TypeTags.MAP:
-                return new BLangMapLiteral(new ArrayList<>(), type);
+                return new BLangMapLiteral(new ArrayList<>(), type, false);
             case TypeTags.RECORD:
                 return new BLangRecordLiteral(type);
             default:

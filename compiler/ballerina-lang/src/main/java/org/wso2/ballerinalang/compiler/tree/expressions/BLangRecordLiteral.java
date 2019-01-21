@@ -43,6 +43,7 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
 
     public List<BLangRecordKeyValue> keyValuePairs;
+    public boolean isConst;
 
     public BLangRecordLiteral() {
         keyValuePairs = new ArrayList<>();
@@ -170,9 +171,12 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangMapLiteral extends BLangRecordLiteral {
 
-        public BLangMapLiteral(List<BLangRecordKeyValue> keyValuePairs, BType mapType) {
+        public boolean isConst;
+
+        public BLangMapLiteral(List<BLangRecordKeyValue> keyValuePairs, BType mapType, boolean isConst) {
             this.keyValuePairs = keyValuePairs;
             this.type = mapType;
+            this.isConst = isConst;
         }
 
         @Override

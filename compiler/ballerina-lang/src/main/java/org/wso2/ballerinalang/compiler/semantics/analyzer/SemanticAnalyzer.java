@@ -1766,8 +1766,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             // Todo
 
-            typeChecker.checkExpr(expression, env, constant.typeNode.type);
-
+            constant.symbol.literalValueType = typeChecker.checkExpr(expression, env, constant.typeNode.type);
+            constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
 
         } else {
             if (constant.typeNode == null) {

@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -819,13 +820,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
             constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
             constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).typeTag;
-        } else {
+        } else if (((BLangExpression) constant.value).getKind() == NodeKind.RECORD_LITERAL_EXPR) {
 
             // Todo - add explanation?
             if (constant.typeNode != null) {
                 constant.symbol.type = symTable.noType;
             }
             // Todo
+
+            ((BLangRecordLiteral) constant.value).isConst = true;
+            constantSymbol.literalValue = constant.value;
         }
 
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);

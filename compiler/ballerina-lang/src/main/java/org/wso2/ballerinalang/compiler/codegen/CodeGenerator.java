@@ -782,6 +782,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, refRegMapValue);
             }
         }
+
+        if (mapLiteral.isConst) {
+            emit(InstructionCodes.FREEZE, mapVarRegIndex, mapVarRegIndex);
+        }
     }
 
     @Override
