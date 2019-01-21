@@ -21,12 +21,16 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.crypto.util.HashUtils;
+import org.ballerinalang.stdlib.crypto.Constants;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
+
+import java.security.PrivateKey;
 
 /**
  * Extern function ballerina.crypto:getHash.
@@ -35,19 +39,25 @@ import org.ballerinalang.stdlib.crypto.util.HashUtils;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "hashMd5",
-        args = {@Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+        functionName = "signRsaSha256",
+        args = {
+                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @Argument(name = "privateKey", type = TypeKind.RECORD, structType = "PrivateKey",
+                        structPackage = "ballerina/crypto")
+        },
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true)
-public class HashMd5 extends BlockingNativeCallableUnit {
+public class SignRsaSha256 extends BlockingNativeCallableUnit {
 
     /**
      * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
      */
     @Override
     public void execute(Context context) {
-        BValue entityBody = context.getRefArgument(0);
-        byte[] inputBytes = ((BValueArray) entityBody).getBytes();
-        context.setReturnValues(new BValueArray(HashUtils.hash(context, "MD5", inputBytes)));
+        BValue inputBValue = context.getRefArgument(0);
+        BMap<String, BValue> privateKey = (BMap<String, BValue>) context.getRefArgument(1);
+        byte[] input = ((BValueArray) inputBValue).getBytes();
+        context.setReturnValues(new BValueArray(CryptoUtils.sign(context, "SHA256withRSA",
+                (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
     }
 }

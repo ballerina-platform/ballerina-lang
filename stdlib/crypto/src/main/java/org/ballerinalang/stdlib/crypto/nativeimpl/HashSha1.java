@@ -21,15 +21,12 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
  * Extern function ballerina.crypto:getHash.
@@ -38,59 +35,19 @@ import java.security.NoSuchAlgorithmException;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "hash",
-        args = {@Argument(name = "baseString", type = TypeKind.STRING),
-                @Argument(name = "algorithm", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        functionName = "hashSha1",
+        args = {@Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true)
-public class Hash extends BlockingNativeCallableUnit {
+public class HashSha1 extends BlockingNativeCallableUnit {
 
     /**
      * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
      */
     @Override
     public void execute(Context context) {
-        String baseString = context.getStringArgument(0);
-        BString algorithm = (BString) context.getNullableRefArgument(0);
-        String hashAlgorithm;
-
-        //todo document the supported algorithm
-        switch (algorithm.stringValue()) {
-            case "SHA1":
-                hashAlgorithm = "SHA-1";
-                break;
-            case "SHA256":
-                hashAlgorithm = "SHA-256";
-                break;
-            case "MD5":
-                hashAlgorithm = "MD5";
-                break;
-            default:
-                throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
-        }
-
-        String result;
-        try {
-            MessageDigest messageDigest;
-            messageDigest = MessageDigest.getInstance(hashAlgorithm);
-            messageDigest.update(baseString.getBytes("UTF-8"));
-            byte[] bytes = messageDigest.digest();
-
-            final char[] hexArray = "0123456789ABCDEF".toCharArray();
-            char[] hexChars = new char[bytes.length * 2];
-
-            for (int j = 0; j < bytes.length; j++) {
-                final int byteVal = bytes[j] & 0xFF;
-                hexChars[j * 2] = hexArray[byteVal >>> 4];
-                hexChars[j * 2 + 1] = hexArray[byteVal & 0x0F];
-            }
-            result = new String(hexChars);
-        } catch (NoSuchAlgorithmException e) {
-            throw new BallerinaException(
-                    "Error while calculating HMAC for " + algorithm + ": " + e.getMessage(), context);
-        } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("Error while encoding" + e.getMessage(), context);
-        }
-        context.setReturnValues(new BString(result));
+        BValue inputBValue = context.getRefArgument(0);
+        byte[] input = ((BValueArray) inputBValue).getBytes();
+        context.setReturnValues(new BValueArray(CryptoUtils.hash(context, "SHA-1", input)));
     }
 }

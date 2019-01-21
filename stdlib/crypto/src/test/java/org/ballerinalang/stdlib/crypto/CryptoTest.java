@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.test.crypto;
+package org.ballerinalang.stdlib.crypto;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -145,7 +145,7 @@ public class CryptoTest {
     @Test(description = "Testing CRC32b generation")
     public void testCRC32() {
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
-        String expectedCRC32Hash = "D37B9692";
+        String expectedCRC32Hash = "d37b9692";
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32b",
                 new BValue[]{new BValueArray(payload)});

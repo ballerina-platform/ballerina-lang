@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.Constants;
-import org.ballerinalang.stdlib.crypto.util.HashUtils;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 import java.security.PrivateKey;
 
@@ -39,7 +39,7 @@ import java.security.PrivateKey;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "signRsaSha256",
+        functionName = "signRsaSha384",
         args = {
                 @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "privateKey", type = TypeKind.RECORD, structType = "PrivateKey",
@@ -57,7 +57,7 @@ public class SignRsaSha384 extends BlockingNativeCallableUnit {
         BValue inputBValue = context.getRefArgument(0);
         BMap<String, BValue> privateKey = (BMap<String, BValue>) context.getRefArgument(1);
         byte[] input = ((BValueArray) inputBValue).getBytes();
-        context.setReturnValues(new BValueArray(HashUtils.sign(context, "SHA256withRSA",
+        context.setReturnValues(new BValueArray(CryptoUtils.sign(context, "SHA384withRSA",
                 (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
     }
 }

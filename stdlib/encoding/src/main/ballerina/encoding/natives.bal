@@ -14,18 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function encodeBase32(byte[] input) returns string;
+public extern function encodeBase64(byte[]|int input) returns string;
 
-public function decodeBase32(string input) returns byte[];
+public extern function decodeBase64(string input) returns byte[];
 
-public function encodeBase64(byte[] input) returns string;
+public extern function encodeHex(byte[]|int input) returns string;
 
-public function decodeBase64(string input) returns byte[];
-
-public function encodeUtf8(byte[] input) returns string;
-
-public function decodeUtf8(string input) returns byte[];
-
-public function encodeHex(byte[] input) returns string;
-
-public function decodeHex(string input) returns byte[];
+public extern function decodeHex(string input) returns byte[];

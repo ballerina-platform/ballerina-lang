@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.Constants;
-import org.ballerinalang.stdlib.crypto.util.HashUtils;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 import java.security.PrivateKey;
 
@@ -47,7 +47,7 @@ import java.security.PrivateKey;
         },
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true)
-public class SignRsaMD5 extends BlockingNativeCallableUnit {
+public class SignRsaMd5 extends BlockingNativeCallableUnit {
 
     /**
      * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
@@ -57,7 +57,7 @@ public class SignRsaMD5 extends BlockingNativeCallableUnit {
         BValue inputBValue = context.getRefArgument(0);
         BMap<String, BValue> privateKey = (BMap<String, BValue>) context.getRefArgument(1);
         byte[] input = ((BValueArray) inputBValue).getBytes();
-        context.setReturnValues(new BValueArray(HashUtils.sign(context, "MD5withRSA",
+        context.setReturnValues(new BValueArray(CryptoUtils.sign(context, "MD5withRSA",
                 (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
     }
 }

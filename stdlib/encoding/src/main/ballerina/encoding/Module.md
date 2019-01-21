@@ -36,7 +36,7 @@ public function main() {
      io:println("Hash with SHA1: " + crypto:hash(input, crypto:SHA1));
      io:println("Hash with SHA256: " + crypto:hash(input, crypto:SHA256));
 
-     io:println("Hash with CRC32 for text: " + crypto:crc32(input));
-     io:println("Hash with CRC32 for xml content: " + crypto:crc32(xmlContent));
+     io:println("Hash with CRC32 for text: " + crypto:crc32b(input));
+     io:println("Hash with CRC32 for xml content: " + crypto:crc32b(xmlContent));
 }
 ```

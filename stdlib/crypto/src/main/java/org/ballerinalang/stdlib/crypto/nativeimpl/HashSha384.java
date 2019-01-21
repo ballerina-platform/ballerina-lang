@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.crypto.util.HashUtils;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
  * Extern function ballerina.crypto:getHash.
@@ -35,11 +35,11 @@ import org.ballerinalang.stdlib.crypto.util.HashUtils;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "hashSha512",
+        functionName = "hashSha384",
         args = {@Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true)
-public class HashSha512 extends BlockingNativeCallableUnit {
+public class HashSha384 extends BlockingNativeCallableUnit {
 
     /**
      * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
@@ -48,6 +48,6 @@ public class HashSha512 extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BValue inputBValue = context.getRefArgument(0);
         byte[] input = ((BValueArray) inputBValue).getBytes();
-        context.setReturnValues(new BValueArray(HashUtils.hash(context, "SHA-512", input)));
+        context.setReturnValues(new BValueArray(CryptoUtils.hash(context, "SHA-384", input)));
     }
 }

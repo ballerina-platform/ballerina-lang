@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 import java.util.Base64;
 
@@ -34,8 +35,8 @@ import java.util.Base64;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "crypto",
-        functionName = "decodeBase64",
+        orgName = "ballerina", packageName = "encoding",
+        functionName = "decodeHex",
         args = {
                 @Argument(name = "input", type = TypeKind.STRING)
         },
@@ -47,7 +48,7 @@ public class DecodeHex extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String input = context.getStringArgument(0);
-        byte[] output = Base64.getDecoder().decode(input);
+        byte[] output = EncodingUtil.decodeHex(input);
         context.setReturnValues(new BValueArray(output));
     }
 }

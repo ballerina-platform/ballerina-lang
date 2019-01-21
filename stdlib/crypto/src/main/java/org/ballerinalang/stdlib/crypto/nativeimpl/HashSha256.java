@@ -21,19 +21,12 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.crypto.util.HashUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
  * Extern function ballerina.crypto:getHash.
@@ -42,19 +35,19 @@ import java.security.NoSuchAlgorithmException;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "hashSha1",
+        functionName = "hashSha256",
         args = {@Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true)
-public class HashSha1 extends BlockingNativeCallableUnit {
+public class HashSha256 extends BlockingNativeCallableUnit {
 
     /**
      * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
      */
     @Override
     public void execute(Context context) {
-        BValue entityBody = context.getRefArgument(0);
-        byte[] inputBytes = ((BValueArray) entityBody).getBytes();
-        context.setReturnValues(new BValueArray(HashUtils.hashValue(context, "SHA-1", inputBytes)));
+        BValue inputBValue = context.getRefArgument(0);
+        byte[] input = ((BValueArray) inputBValue).getBytes();
+        context.setReturnValues(new BValueArray(CryptoUtils.hash(context, "SHA-256", input)));
     }
 }

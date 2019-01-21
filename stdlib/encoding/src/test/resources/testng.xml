@@ -20,9 +20,9 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <test name="ballerina-crypto-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-encoding-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.stdlib.crypto.*"/>
+            <package name="org.ballerinalang.stdlib.encoding.*"/>
         </packages>
     </test>
 </suite>

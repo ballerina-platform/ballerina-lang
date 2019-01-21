@@ -14,45 +14,88 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# The hashing algorithms supported by this module.
-public type Algorithm SHA1|SHA256|MD5;
-
-# The `SHA1` hashing algorithm
-public const SHA1 = "SHA1";
-# The `SHA256` hashing algorithm
-public const SHA256 = "SHA256";
-# The `MD5` hashing algorithm
-public const MD5 = "MD5";
-
-# The encoding types supported for the HMAC key, by this module.
-public type Encoding UTF8|BASE64|HEX;
-
-# The `UTF-8` encoding
-public const UTF8 = "UTF-8";
-# The `BASE64` encoding
-public const BASE64 = "BASE64";
-# The `HEX` encoding
-public const HEX = "HEX";
-
-
-# Returns the hash of the given string using the specified algorithm.
+# Returns the MD5 hash of the given data.
 #
-# + baseString - The string to be hashed
-# + algorithm - The hashing algorithm to be used
-# + return - The hashed string
-public extern function hash(string baseString, Algorithm algorithm) returns (string);
+# + input - Value to be hashed
+# + return - Hashed output
+public extern function hashMd5(byte[] input) returns byte[];
 
-# Returns the HMAC value of the provided base string.
+# Returns the SHA-1 hash of the given data.
 #
-# + baseString - The string to be hashed
-# + keyString - The key string
-# + keyEncoding - The encoding of the key
-# + algorithm - The hashing algorithm to be used
-# + return - The hashed string
-public extern function hmac(string baseString, string keyString, Encoding? keyEncoding = (), Algorithm algorithm) returns (string);
+# + input - Value to be hashed
+# + return - Hashed output
+public extern function hashSha1(byte[] input) returns byte[];
 
-# Returns the CRC32 hash for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.
+# Returns the SHA-256 hash of the given data.
+#
+# + input - Value to be hashed
+# + return - Hashed output
+public extern function hashSha256(byte[] input) returns byte[];
+
+# Returns the SHA-384 hash of the given data.
+#
+# + input - Value to be hashed
+# + return - Hashed output
+public extern function hashSha384(byte[] input) returns byte[];
+
+# Returns the SHA-512 hash of the given data.
+#
+# + input - Value to be hashed
+# + return - Hashed output
+public extern function hashSha512(byte[] input) returns byte[];
+
+# Returns the HMAC using MD-5 hash function of the given data.
+#
+# + input - Value to be hashed
+# + return - HMAC output
+public extern function hmacMd5(byte[] input, byte[] key) returns byte[];
+
+# Returns the HMAC using SHA-1 hash function of the given data.
+#
+# + input - Value to be hashed
+# + return - HMAC output
+public extern function hmacSha1(byte[] input, byte[] key) returns byte[];
+
+# Returns the HMAC using SHA-256 hash function of the given data.
+#
+# + input - Value to be hashed
+# + return - HMAC output
+public extern function hmacSha256(byte[] input, byte[] key) returns byte[];
+
+# Returns the HMAC using SHA-384 hash function of the given data.
+#
+# + input - Value to be hashed
+# + return - HMAC output
+public extern function hmacSha384(byte[] input, byte[] key) returns byte[];
+
+# Returns the HMAC using SHA-512 hash function of the given data.
+#
+# + input - Value to be hashed
+# + return - HMAC output
+public extern function hmacSha512(byte[] input, byte[] key) returns byte[];
+
+# Returns Hex encoded CRC32B value for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.
 #
 # + content - The content to be hashed
 # + return - The generated hash
-public extern function crc32(any content) returns (string);
+public extern function crc32b(any content) returns (string);
+
+//public extern function signDsaSha1(byte[] input, PrivateKey privateKey) returns byte[];
+public extern function signRsaMd5(byte[] input, PrivateKey privateKey) returns byte[];
+public extern function signRsaSha1(byte[] input, PrivateKey privateKey) returns byte[];
+public extern function signRsaSha256(byte[] input, PrivateKey privateKey) returns byte[];
+public extern function signRsaSha384(byte[] input, PrivateKey privateKey) returns byte[];
+public extern function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[];
+
+public extern function decodePrivateKey(byte[]? keyContent = (),
+                                           string? keyFile = (),
+                                           string? keyStore = (),
+                                           string? keyStorePassword = (),
+                                           string? keyAlias = (),
+                                           string? keyPassword = ()) returns PrivateKey;
+
+//public extern function decodePublicKey(byte[]? keyContent = (),
+//                                          string? keyFile = (),
+//                                          string? keyStore = (),
+//                                          string? keyStorePassword = (),
+//                                          string? keyAlias = ()) returns PublicKey;

@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.crypto.util.HashUtils;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
  * Extern function ballerina.crypto:getHmac.
@@ -35,7 +35,7 @@ import org.ballerinalang.stdlib.crypto.util.HashUtils;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "hmacSha256",
+        functionName = "hmacSha384",
         args = {
                 @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "key", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
@@ -43,7 +43,7 @@ import org.ballerinalang.stdlib.crypto.util.HashUtils;
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true
 )
-public class HmacSha512 extends BlockingNativeCallableUnit {
+public class HmacSha384 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -52,7 +52,7 @@ public class HmacSha512 extends BlockingNativeCallableUnit {
 
         byte[] input = ((BValueArray) inputBValue).getBytes();
         byte[] key = ((BValueArray) keyBValue).getBytes();
-        byte[] output = HashUtils.hmac(context, input, key, "HmacSHA256");
+        byte[] output = CryptoUtils.hmac(context, input, key, "HmacSHA384");
         context.setReturnValues(new BValueArray(output));
     }
 }

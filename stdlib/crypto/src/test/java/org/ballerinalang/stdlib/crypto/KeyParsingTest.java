@@ -1,4 +1,4 @@
-package org.ballerinalang.test.crypto;
+package org.ballerinalang.stdlib.crypto;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;

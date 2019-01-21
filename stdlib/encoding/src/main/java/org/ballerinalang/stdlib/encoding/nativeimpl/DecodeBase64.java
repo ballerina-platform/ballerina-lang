@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.encoding.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -30,25 +29,25 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Base64;
 
 /**
- * Extern function ballerina.crypto:getHmac.
+ * Extern function ballerina.encoding:decodeBase64.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "crypto",
-        functionName = "encodeBase64",
+        orgName = "ballerina", packageName = "encoding",
+        functionName = "decodeBase64",
         args = {
-                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
+                @Argument(name = "input", type = TypeKind.STRING)
         },
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true
 )
-public class EncodeBase64 extends BlockingNativeCallableUnit {
+public class DecodeBase64 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValueArray input = (BValueArray) context.getRefArgument(0);
-        String output = Base64.getEncoder().encodeToString(input.getBytes());
-        context.setReturnValues(new BString(output));
+        String input = context.getStringArgument(0);
+        byte[] output = Base64.getDecoder().decode(input);
+        context.setReturnValues(new BValueArray(output));
     }
 }

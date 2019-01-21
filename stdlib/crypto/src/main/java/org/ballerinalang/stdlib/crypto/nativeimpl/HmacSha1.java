@@ -21,21 +21,12 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.crypto.util.HashUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
  * Extern function ballerina.crypto:getHmac.
@@ -44,71 +35,24 @@ import javax.crypto.spec.SecretKeySpec;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "hmac",
+        functionName = "hmacSha1",
         args = {
-                @Argument(name = "baseString", type = TypeKind.STRING),
-                @Argument(name = "keyString", type = TypeKind.STRING),
-                @Argument(name = "keyEncoding", type = TypeKind.STRING),
-                @Argument(name = "algorithm", type = TypeKind.STRING)
+                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @Argument(name = "key", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
         },
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true
 )
-public class Hmac extends BlockingNativeCallableUnit {
+public class HmacSha1 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String baseString = context.getStringArgument(0);
-        String keyString = context.getStringArgument(1);
-        BString algorithm = context.getNullableRefArgument(0) != null ?
-                (BString) context.getNullableRefArgument(0) : new BString("");
-        BValue encodingBVal = context.getNullableRefArgument(1);
-        String encoding = encodingBVal != null ? encodingBVal.stringValue() : "UTF-8";
+        BValue inputBValue = context.getRefArgument(0);
+        BValue keyBValue = context.getRefArgument(1);
 
-        String hmacAlgorithm;
-
-        //todo document the supported algorithm
-        switch (algorithm.stringValue()) {
-            case "SHA1":
-                hmacAlgorithm = "HmacSHA1";
-                break;
-            case "SHA256":
-                hmacAlgorithm = "HmacSHA256";
-                break;
-            case "MD5":
-                hmacAlgorithm = "HmacMD5";
-                break;
-            default:
-                throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
-        }
-
-        String result;
-        try {
-            byte[] keyBytes;
-
-            switch (encoding) {
-            case "BASE64":
-                keyBytes = Base64.getDecoder().decode(keyString.getBytes(StandardCharsets.UTF_8));
-                break;
-            case "HEX":
-                keyBytes = HashUtils.decodeHex(keyString);
-                break;
-            case "UTF-8":
-                keyBytes = keyString.getBytes(StandardCharsets.UTF_8);
-                break;
-            default:
-                throw new BallerinaException("Unsupported encoding " + encoding + " for the key of HMAC Calculation",
-                        context);
-            }
-            SecretKey secretKey = new SecretKeySpec(keyBytes, hmacAlgorithm);
-            Mac mac = Mac.getInstance(hmacAlgorithm);
-            mac.init(secretKey);
-            byte[] baseStringBytes = baseString.getBytes(StandardCharsets.UTF_8);
-            result = HashUtils.toHexString(mac.doFinal(baseStringBytes));
-        } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new BallerinaException("Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
-                    context);
-        }
-        context.setReturnValues(new BString(result));
+        byte[] input = ((BValueArray) inputBValue).getBytes();
+        byte[] key = ((BValueArray) keyBValue).getBytes();
+        byte[] output = CryptoUtils.hmac(context, input, key, "HmacSHA1");
+        context.setReturnValues(new BValueArray(output));
     }
 }

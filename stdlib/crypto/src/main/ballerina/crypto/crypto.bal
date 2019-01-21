@@ -13,3 +13,16 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+public const RSA = "RSA";
+
+public type KeyAlgorithm RSA;
+
+public type PrivateKey record {
+    string algorithm;
+    !...
+};
+
+public type PublicKey record {
+    !...
+};
