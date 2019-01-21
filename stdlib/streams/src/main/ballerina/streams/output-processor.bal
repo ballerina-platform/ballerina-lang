@@ -22,11 +22,12 @@ public type OutputProcess object {
         self.outputFunc = outputFunc;
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         int index = 0;
         map<anydata>[] events = [];
         int i = 0;
-        foreach var event in streamEvents {
+        foreach var ev in streamEvents {
+            StreamEvent event = <StreamEvent> ev;
             if (event.eventType == "CURRENT") {
                 map<anydata> outputData = {};
                 foreach var (k, v) in event.data {

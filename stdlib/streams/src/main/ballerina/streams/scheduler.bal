@@ -23,9 +23,9 @@ public type Scheduler object {
     private LinkedList toNotifyQueue;
     private boolean running;
     private task:Timer? timer;
-    private function (StreamEvent[] streamEvents) processFunc;
+    private function (StreamEvent?[] streamEvents) processFunc;
 
-    public function __init(function (StreamEvent[] streamEvents) processFunc) {
+    public function __init(function (StreamEvent?[] streamEvents) processFunc) {
         self.toNotifyQueue = new;
         self.running = false;
         self.timer = ();
@@ -64,7 +64,7 @@ public type Scheduler object {
             _ = self.toNotifyQueue.removeFirst();
             map<anydata> data = {};
             StreamEvent timerEvent = new(("timer", data), "TIMER", <int>first);
-            StreamEvent[] timerEventWrapper = [];
+            StreamEvent?[] timerEventWrapper = [];
             timerEventWrapper[0] = timerEvent;
             self.processFunc.call(timerEventWrapper);
 

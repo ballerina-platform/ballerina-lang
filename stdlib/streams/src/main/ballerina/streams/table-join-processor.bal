@@ -16,14 +16,14 @@
 
 public type TableJoinProcessor object {
     private function (StreamEvent s) returns map<anydata>[] tableQuery;
-    private function (StreamEvent[]) nextProcessor;
+    private function (StreamEvent?[]) nextProcessor;
     public Window? windowInstance;
     public string streamName;
     public string tableName;
     public JoinType joinType;
     public int lockField = 0;
 
-    public function __init(function (StreamEvent[]) nextProcessor, JoinType joinType,
+    public function __init(function (StreamEvent?[]) nextProcessor, JoinType joinType,
                            function (StreamEvent s) returns map<anydata>[] tableQuery) {
         self.nextProcessor = nextProcessor;
         self.joinType = joinType;
@@ -33,13 +33,14 @@ public type TableJoinProcessor object {
         self.tableName = "";
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         StreamEvent?[] joinedEvents = [];
-        StreamEvent[] outputEvents = [];
+        StreamEvent?[] outputEvents = [];
         lock {
             self.lockField += 1;
             int j = 0;
-            foreach var event in streamEvents {
+            foreach var evt in streamEvents {
+                StreamEvent event = <StreamEvent> evt;
                 (StreamEvent?, StreamEvent?)[] candidateEvents = [];
                 int i = 0;
                 foreach var m in self.tableQuery.call(event) {
@@ -88,7 +89,7 @@ public type TableJoinProcessor object {
     }
 };
 
-public function createTableJoinProcessor(function (StreamEvent[])  nextProcessor, JoinType joinType,
+public function createTableJoinProcessor(function (StreamEvent?[])  nextProcessor, JoinType joinType,
                                          function (StreamEvent s) returns map<anydata>[] tableQuery)
                     returns TableJoinProcessor {
     TableJoinProcessor tableJoinProcessor = new(nextProcessor, joinType, tableQuery);

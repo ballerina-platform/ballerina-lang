@@ -15,7 +15,7 @@
 // under the License.
 
 public type Filter object {
-    private function (StreamEvent[]) nextProcessorPointer;
+    private function (StreamEvent?[]) nextProcessorPointer;
     private function (map<anydata>) returns boolean conditionFunc;
 
     function __init(function (StreamEvent[]) nextProcessorPointer,
@@ -24,10 +24,11 @@ public type Filter object {
         self.conditionFunc = conditionFunc;
     }
 
-    public function process(StreamEvent[] streamEvents) {
-        StreamEvent[] newStreamEventArr = [];
+    public function process(StreamEvent?[] streamEvents) {
+        StreamEvent?[] newStreamEventArr = [];
         int index = 0;
-        foreach var event in streamEvents {
+        foreach var ev in streamEvents {
+            StreamEvent event = <StreamEvent> ev;
             if (self.conditionFunc.call(event.data)) {
                 newStreamEventArr[index] = event;
                 index += 1;

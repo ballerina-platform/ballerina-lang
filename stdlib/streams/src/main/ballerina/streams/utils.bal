@@ -16,10 +16,11 @@
 
 import ballerina/time;
 
-public function buildStreamEvent(any t, string streamName) returns StreamEvent[] {
+public function buildStreamEvent(any t, string streamName) returns StreamEvent?[] {
     EventType evntType = "CURRENT";
     var keyVals = <map<anydata>>map<anydata>.stamp(t.clone());
-    StreamEvent[] streamEvents = [new((streamName, keyVals), evntType, time:currentTime().time)];
+    StreamEvent event = new((streamName, keyVals), evntType, time:currentTime().time);
+    StreamEvent?[] streamEvents = [event];
     return streamEvents;
 }
 
