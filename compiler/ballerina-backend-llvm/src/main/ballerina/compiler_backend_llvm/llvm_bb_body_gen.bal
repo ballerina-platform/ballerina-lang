@@ -27,8 +27,11 @@ type BbBodyGenrator object {
             self.genMoveIns(instruction);
         } else if (instruction is bir:BinaryOp) {
             self.genBinaryOpIns(instruction);
-        } else {
+        } else if (instruction is bir:ConstantLoad) {
             self.genConstantLoadIns(instruction);
+        } else {
+            error err = error("Invalid bir:Instruction");
+            panic err;
         }
     }
 

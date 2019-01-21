@@ -56,7 +56,8 @@ type FuncGenrator object {
     function genLocalVarAllocationBbBody() {
         self.varAllocBB = self.genBbDecl("var_allloc");
         int paramIndex = 0;
-        foreach var localVar in self.func.localVars{
+        foreach var lVar in self.func.localVars{
+            bir:VariableDcl localVar = <bir:VariableDcl> lVar;
             var varName = localVarName(localVar);
             var varType = genBType(localVar.typeValue);
             llvm:LLVMValueRef localVarRef = llvm:LLVMBuildAlloca(self.builder, varType, varName);
@@ -81,7 +82,8 @@ type FuncGenrator object {
 
     function genBbBodies() returns map<BbTermGenrator> {
         map<BbTermGenrator> bbTermGenrators = {};
-        foreach var bb in self.func.basicBlocks {
+        foreach var bBlock in self.func.basicBlocks {
+            bir:BasicBlock bb = <bir:BasicBlock> bBlock;
             BbBodyGenrator g = new(self.builder, self, bb);
             bbTermGenrators[bb.id.value] = g.genBasicBlockBody();
         }

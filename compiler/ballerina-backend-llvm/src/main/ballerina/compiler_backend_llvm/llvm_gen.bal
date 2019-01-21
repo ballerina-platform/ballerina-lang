@@ -19,7 +19,7 @@ function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns 
     return llvm:LLVMModuleCreateWithName(moduleName);
 }
 
-function genFunctions(llvm:LLVMModuleRef mod, bir:Function[] funcs) {
+function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
     var builder = llvm:LLVMCreateBuilder();
 
     genPrintfDeclration(mod);
@@ -73,10 +73,11 @@ function initAllTargets() {
     llvm:LLVMInitializeAllAsmPrinters();
 }
 
-function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function[] funcs)
+function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function?[] funcs)
              returns map<FuncGenrator> {
     map<FuncGenrator> genrators = {};
-    foreach var func in funcs {
+    foreach var f in funcs {
+        bir:Function func = <bir:Function> f;
         FuncGenrator funcGen = new(mod, builder, func);
         genrators[func.name.value] = funcGen;
     }

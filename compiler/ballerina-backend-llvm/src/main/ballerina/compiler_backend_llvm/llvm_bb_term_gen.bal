@@ -55,12 +55,13 @@ type BbTermGenrator object {
         var brInsRef = llvm:LLVMBuildBr(self.builder, thenBB);
     }
 
-    function mapOverGenVarLoad(bir:Operand[] ops) returns llvm:LLVMValueRef[] {
+    function mapOverGenVarLoad(bir:Operand?[] ops) returns llvm:LLVMValueRef[] {
         llvm:LLVMValueRef[] loaddedVars = [];
         var argsCount = ops.length();
         int i = 0;
         while (i < argsCount) {
-            loaddedVars[i] = self.parent.genLoadLocalToTempVar(ops[i]);
+            bir:Operand operand = <bir:Operand> ops[i];
+            loaddedVars[i] = self.parent.genLoadLocalToTempVar(operand);
             i += 1;
         }
         return loaddedVars;
