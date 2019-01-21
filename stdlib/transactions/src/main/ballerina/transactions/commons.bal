@@ -124,14 +124,15 @@ function protoName(UProtocol p) returns string {
     if (p is LocalProtocol) {
         return p.name;
     } else {
-        return p.name;
+        return <string> p.name;
     }
 }
 
-function protocolCompatible(string coordinationType, UProtocol[] participantProtocols) returns boolean {
+function protocolCompatible(string coordinationType, UProtocol?[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
-    foreach var participantProtocol in participantProtocols {
+    foreach var p in participantProtocols {
+        UProtocol participantProtocol = <UProtocol> p;
         foreach var validProtocol in validProtocols {
             if (protoName(participantProtocol) == validProtocol) {
                 participantProtocolIsValid = true;
