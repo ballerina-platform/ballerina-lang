@@ -80,6 +80,7 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_HOST;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.IS_PROXY_ENABLED;
+import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
 import static org.wso2.transport.http.netty.contract.Constants
         .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
@@ -716,6 +717,8 @@ public class Util {
         inboundRequestMsg.setProperty(Constants.REMOTE_ADDRESS, sourceHandler.getRemoteAddress());
         inboundRequestMsg.setProperty(Constants.REQUEST_URL, httpRequestHeaders.uri());
         inboundRequestMsg.setProperty(Constants.TO, httpRequestHeaders.uri());
+        inboundRequestMsg.setProperty(MUTUAL_SSL_HANDSHAKE_RESULT,
+                ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).get());
 
         return inboundRequestMsg;
     }

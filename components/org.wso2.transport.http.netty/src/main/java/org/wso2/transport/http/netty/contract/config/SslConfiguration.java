@@ -64,7 +64,8 @@ public class SslConfiguration {
         } else if (OPTIONAL.equalsIgnoreCase(verifyClient)) {
             sslConfig.setWantClientAuth(true);
         } else {
-            LOG.warn("Received an unidentified configuration for sslVerify client.");
+            LOG.warn("Received an unidentified configuration for sslVerify client. "
+                    + "Hence disabled the client verification.");
         }
     }
 

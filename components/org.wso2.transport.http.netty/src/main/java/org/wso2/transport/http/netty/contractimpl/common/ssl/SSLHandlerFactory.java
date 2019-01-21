@@ -69,7 +69,6 @@ public class SSLHandlerFactory {
     private SslContextBuilder sslContextBuilder;
     private static final Logger LOG = LoggerFactory.getLogger(SSLHandlerFactory.class);
 
-
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
         needClientAuth = sslConfig.isNeedClientAuth();
@@ -141,7 +140,8 @@ public class SSLHandlerFactory {
         } else if (wantClientAuth) {
             engine.setWantClientAuth(true);
         } else {
-            LOG.warn("Received an unidentified configuration for sslVerifyClient.");
+            LOG.warn("Received an unidentified configuration for sslVerifyClient. "
+                    + "Hence client verification will be disabled.");
         }
         return addCommonConfigs(engine);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -42,9 +42,9 @@ import static org.wso2.transport.http.netty.contract.Constants.OPTIONAL;
 /**
  * Tests for mutual ssl setting verifyClient to optional.
  */
-public class MutualOptionalMutualSSL {
+public class OptionalMutualSSLTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MutualOptionalMutualSSL.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OptionalMutualSSLTest.class);
 
     private static HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory factory;

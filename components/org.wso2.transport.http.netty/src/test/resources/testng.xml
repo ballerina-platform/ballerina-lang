@@ -115,7 +115,7 @@
             <class name="org.wso2.transport.http.netty.certificatevalidation.ListCertificateListFromCertChain"/>
             <class name="org.wso2.transport.http.netty.https.MutualSSLwithCertsTest"/>
             <class name="org.wso2.transport.http.netty.https.CipherSuiteswithCertsTest"/>
-            <class name="org.wso2.transport.http.netty.https.MutualOptionalMutualSSL"/>
+            <class name="org.wso2.transport.http.netty.https.OptionalMutualSSLTest"/>
             <class name="org.wso2.transport.http.netty.https.SSLProtocolsWithCertsTest"/>
             <class name="org.wso2.transport.http.netty.http2.Http2ALPNwithCertsTest"/>
         </classes>

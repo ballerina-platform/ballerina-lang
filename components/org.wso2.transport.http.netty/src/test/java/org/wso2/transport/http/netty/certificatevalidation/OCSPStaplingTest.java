@@ -71,7 +71,7 @@ public class OCSPStaplingTest {
         String alias = "";
         boolean isAliasWithPrivateKey = false;
         while (aliases.hasMoreElements()) {
-            alias = (String) aliases.nextElement();
+            alias = aliases.nextElement();
             if (isAliasWithPrivateKey = keyStore.isKeyEntry(alias)) {
                 break;
             }
