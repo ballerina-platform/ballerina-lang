@@ -380,7 +380,7 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals(((BMapType) jsonValue2.getType()).getConstrainedType().getClass(), BJSONType.class);
         Assert.assertEquals(jsonValue1.get("name").stringValue(), "Waruna");
         Assert.assertEquals(jsonValue2.get("name").stringValue(), "Heshitha");
-        Assert.assertEquals(((BInteger)jsonValue1.get("age")).intValue(), 10);
-        Assert.assertEquals(((BInteger)jsonValue2.get("age")).intValue(), 15);
+        Assert.assertEquals(((BInteger) jsonValue1.get("age")).intValue(), 10);
+        Assert.assertEquals(((BInteger) jsonValue2.get("age")).intValue(), 15);
     }
 }
