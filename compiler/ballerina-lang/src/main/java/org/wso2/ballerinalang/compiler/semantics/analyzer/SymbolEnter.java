@@ -414,24 +414,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 memberTypeNodes = ((BLangUnionTypeNode) currentTypeNode).memberTypeNodes;
                 // Recursively check all members.
                 for (BLangType memberTypeNode : memberTypeNodes) {
-                    switch (memberTypeNode.getKind()) {
-                        case USER_DEFINED_TYPE:
-                        case ARRAY_TYPE:
-                        case UNION_TYPE_NODE:
-                        case TUPLE_TYPE_NODE:
-                        case CONSTRAINED_TYPE:
-                        case BUILT_IN_REF_TYPE:
-                        case FINITE_TYPE_NODE:
-                        case FUNCTION_TYPE:
-                        case VALUE_TYPE:
-                        case RECORD_TYPE:
-                        case OBJECT_TYPE:
-                        case ERROR_TYPE:
-                            checkErrors(unresolvedType,  memberTypeNode, visitedNodes, encounteredUnknownTypes);
-                            break;
-                        default:
-                            throw new RuntimeException("unhandled type kind: " + currentTypeNode.getKind());
-                    }
+                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
                 }
                 break;
             case TUPLE_TYPE_NODE:
