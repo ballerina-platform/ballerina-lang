@@ -37,14 +37,14 @@ public type CircuitBreakerInferredConfig record {
     boolean[] statusCodes = [];
     int noOfBuckets = 0;
     RollingWindow rollingWindow = {};
-    !...
+    !...;
 };
 
 public type RollingWindow record {
     int requestVolumeThreshold = 10;
     int timeWindowMillis = 60000;
     int bucketSizeMillis = 10000;
-    !...
+    !...;
 };
 
 public type Bucket record {

@@ -1,15 +1,14 @@
 {
   "name": "@ballerina/api-designer",
-  "version": "0.983.1-SNAPSHOT",
+  "version": "0.990.3-SNAPSHOT",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "copy-less": "copyfiles -f src/**/*.less lib/api-designer/components/style/",
     "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run lint",
     "clean": "composer pkg:clean",
     "lint": "composer pkg:lint",
-    "build": "npm run copy-less && composer pkg:build",
+    "build": "composer pkg:build",
     "test": "echo \"No tests specified\"",
     "coverage": "composer pkg:test:coverage",
     "watch": "composer pkg:watch",
@@ -18,7 +17,7 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
+    "@ballerina/composer-cli": "^0.990.3-SNAPSHOT",
     "copyfiles": "^2.1.0"
   },
   "dependencies": {

@@ -11,7 +11,7 @@ public function Person.func1() {
 
 }
 
-function Person.func2();
+private function Person.func2();
 
 
 
@@ -28,11 +28,11 @@ public type Employee object {
 };
 
 
-function Employee.getName() returns (string) {
+public function Employee.getName() returns (string) {
     return self.name;
 }
 
-function Employee.getAge() returns (int) {
+private function Employee.getAge() returns (int) {
     return self.age;
 }
 
@@ -60,4 +60,28 @@ function modVisibilityTest() {
     string n4 = emp2.getName();
     int a4 = emp2.getAge();
     string e4 = emp2.getEmail();
+}
+
+public type Employee2 object {
+    public int age = 0;
+    private string name = "";
+    string email = "";
+
+    public function getName() returns (string);
+
+    private function getAge() returns (int);
+
+    function getEmail() returns (string);
+};
+
+private function Employee2.getName() returns (string) {
+    return "";
+}
+
+public function Employee2.getAge() returns (int) {
+    return 0;
+}
+
+private function Employee2.getEmail() returns (string) {
+    return "";
 }

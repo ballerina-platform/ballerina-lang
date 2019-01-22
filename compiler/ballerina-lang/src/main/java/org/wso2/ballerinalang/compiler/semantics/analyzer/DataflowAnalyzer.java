@@ -853,8 +853,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (!anonymousModelHelper.isAnonymousType(objectTypeNode.symbol) &&
-                !Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
+        if (!Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
             Stream.concat(objectTypeNode.fields.stream(), objectTypeNode.referencedFields.stream())
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {

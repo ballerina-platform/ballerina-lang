@@ -544,6 +544,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
             setVariableScopeStart(localVarInfo, varNode);
             setVariableScopeEnd(localVarInfo, varNode);
+            localVarInfo.isIdentifierLiteral = varNode.name.isLiteral;
             localVarAttrInfo.localVars.add(localVarInfo);
         } else {
             // TODO Support other variable nodes
@@ -628,8 +629,14 @@ public class CodeGenerator extends BLangNodeVisitor {
                 double doubleVal = literalExpr.value instanceof String ?
                         Double.parseDouble((String) literalExpr.value) :
                         (Double) literalExpr.value;
-                int floatCPEntryIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(doubleVal));
-                emit(InstructionCodes.FCONST, getOperand(floatCPEntryIndex), regIndex);
+                if (doubleVal == 0 || doubleVal == 1 || doubleVal == 2 ||
+                        doubleVal == 3 || doubleVal == 4 || doubleVal == 5) {
+                    opcode = InstructionCodes.FCONST_0 + (int) doubleVal;
+                    emit(opcode, regIndex);
+                } else {
+                    int floatCPEntryIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(doubleVal));
+                    emit(InstructionCodes.FCONST, getOperand(floatCPEntryIndex), regIndex);
+                }
                 break;
 
             case TypeTags.DECIMAL:
@@ -1284,7 +1291,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case LENGTH:
                 Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-                emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
+                emit(InstructionCodes.LENGTH, iExpr.expr.regIndex, typeCPIndex, regIndex);
                 break;
             case FREEZE:
                 emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);
@@ -2162,7 +2169,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int varNameCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.type.getDesc());
         PackageVarInfo pkgVarInfo = new PackageVarInfo(varNameCPIndex, typeSigCPIndex, varSymbol.flags,
-                varSymbol.varIndex.value);
+                varSymbol.varIndex.value, varNode.name.isLiteral);
         currentPkgInfo.pkgVarInfoMap.put(varSymbol.name.value, pkgVarInfo);
 
         LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
