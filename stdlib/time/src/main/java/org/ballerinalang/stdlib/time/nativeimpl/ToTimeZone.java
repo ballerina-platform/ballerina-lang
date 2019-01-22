@@ -23,10 +23,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
 
 /**
  * Change the timezone associated with the given time.
@@ -35,14 +32,14 @@ import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "toTimezone",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina/time"),
-        args = {@Argument(name = "zoneId", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "Time",
+        functionName = "toTimeZone",
+        args = {@Argument(name = "zoneId", type = TypeKind.STRING),
+                @Argument(name = "time", type = TypeKind.RECORD)},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time",
                                   structPackage = "ballerina/time")},
         isPublic = true
 )
-public class ToTimezone extends AbstractTimeFunction {
+public class ToTimeZone extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
