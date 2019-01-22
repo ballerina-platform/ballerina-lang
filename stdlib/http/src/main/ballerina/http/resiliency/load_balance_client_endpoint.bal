@@ -343,7 +343,7 @@ public type LoadBalanceClientEndpointConfiguration record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = ();
+    PoolConfiguration? poolConfig = ();
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
@@ -365,7 +365,7 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
         followRedirects:lbConfig.followRedirects,
         retryConfig:lbConfig.retryConfig,
         proxy:lbConfig.proxy,
-        connectionThrottling:lbConfig.connectionThrottling,
+        poolConfig:lbConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:lbConfig.cache,
         compression:lbConfig.compression,

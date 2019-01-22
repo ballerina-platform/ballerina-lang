@@ -34,7 +34,7 @@ public type HttpClient client object {
         self.httpCaller = new(url, config);
         self.url = url;
         self.config = config;
-        self.httpClient = createSimpleHttpClient(url, self.config);
+        self.httpClient = createSimpleHttpClient(url, self.config, globalHttpClientConnPool);
     }
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.

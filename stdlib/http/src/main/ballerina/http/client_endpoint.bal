@@ -237,7 +237,7 @@ public type ClientEndpointConfig record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = {};
+    PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
@@ -245,7 +245,8 @@ public type ClientEndpointConfig record {
     !...;
 };
 
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns Client;
+extern function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
+                                        returns Client;
 
 # Provides configurations for controlling the retry behaviour in failure scenarios.
 #
