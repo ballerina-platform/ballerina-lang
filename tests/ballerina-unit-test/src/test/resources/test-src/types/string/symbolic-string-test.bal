@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
+import ballerina/encoding;
 
 type Person object {
     public string name = "";
