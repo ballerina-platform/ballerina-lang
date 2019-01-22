@@ -124,7 +124,7 @@ function createStreamingConstruct() {
                 "name": e.data["inputStream.name"],
                 "age": e.data["inputStream.age"],
                 "sumAge": sumAggregator1.process(e.data["inputStream.age"], e.eventType),
-                "count": countAggregator1.process((), e.eventType).foo()
+                "count": countAggregator1.process((), e.eventType)
             };
         }
     );
