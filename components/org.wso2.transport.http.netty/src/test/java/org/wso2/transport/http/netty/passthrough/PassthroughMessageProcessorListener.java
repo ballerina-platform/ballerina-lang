@@ -35,6 +35,7 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -53,10 +54,21 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
     private HttpClientConnector clientConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
     private SenderConfiguration senderConfiguration;
+    private ConnectionManager connectionManager;
+    private boolean shareConnectionPool;
 
     public PassthroughMessageProcessorListener(SenderConfiguration senderConfiguration) {
         this.httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         this.senderConfiguration = senderConfiguration;
+    }
+
+    public PassthroughMessageProcessorListener(SenderConfiguration senderConfiguration, boolean shareConnectionPool) {
+        this.httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+        this.senderConfiguration = senderConfiguration;
+        this.shareConnectionPool = shareConnectionPool;
+        if (shareConnectionPool) {
+            connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration());
+        }
     }
 
     @Override
@@ -67,8 +79,13 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
             httpRequestMessage
                     .setProperty(Constants.SRC_HANDLER, httpRequestMessage.getProperty(Constants.SRC_HANDLER));
             try {
-                clientConnector =
-                        httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+                if (shareConnectionPool && connectionManager != null) {
+                    clientConnector = httpWsConnectorFactory
+                        .createHttpClientConnector(new HashMap<>(), senderConfiguration, connectionManager);
+                } else {
+                    clientConnector = httpWsConnectorFactory
+                        .createHttpClientConnector(new HashMap<>(), senderConfiguration);
+                }
                 HttpResponseFuture future = clientConnector.send(httpRequestMessage);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override

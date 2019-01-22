@@ -75,7 +75,7 @@ public class ConnectionPoolProxyTestCase {
                 .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(
-                new PassthroughMessageProcessorListener(new SenderConfiguration()));
+                new PassthroughMessageProcessorListener(new SenderConfiguration(), true));
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
