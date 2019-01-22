@@ -1797,7 +1797,7 @@ public function timeAccum(any[] windowParameters, function (StreamEvent[])? next
 
 public type HoppingWindow object {
     public int timeInMilliSeconds;
-    public int hopeTime;
+    public int hoppingTime;
     public any[] windowParameters;
     public LinkedList currentEventQueue;
     public StreamEvent? resetEvent;
@@ -1809,7 +1809,7 @@ public type HoppingWindow object {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
-        self.hopeTime = 0;
+        self.hoppingTime = 0;
         self.resetEvent = ();
         self.timer = ();
         self.currentEventQueue = new();
@@ -1827,16 +1827,16 @@ public type HoppingWindow object {
                 panic err;
             }
 
-            any hopeTimeParam = parameters[1];
-            if (hopeTimeParam is int) {
-                self.hopeTime = hopeTimeParam;
+            any hoppingTimeParam = parameters[1];
+            if (hoppingTimeParam is int) {
+                self.hoppingTime = hoppingTimeParam;
             } else {
-                error err = error("Hopping window's second parameter, hopeTime should be of type int");
+                error err = error("Hopping window's second parameter, hoppingTime should be of type int");
                 panic err;
             }
         } else {
             error err = error("Hopping window should only have two parameters (<int> windowTime, <int> " +
-                "hopeTime), but found " + parameters.length() + " input attributes");
+                "hoppingTime), but found " + parameters.length() + " input attributes");
             panic err;
         }
     }
@@ -1855,7 +1855,7 @@ public type HoppingWindow object {
         if (self.isStart) {
             self.timer = new
             task:Timer(function () returns error? {return self.invokeProcess();},
-                function (error e) {self.handleError(e);}, self.hopeTime, delay = self.hopeTime);
+                function (error e) {self.handleError(e);}, self.hoppingTime, delay = self.hoppingTime);
             _ = self.timer.start();
             self.isStart = false;
         }
@@ -1887,7 +1887,7 @@ public type HoppingWindow object {
                             self.currentEventQueue.removeCurrent();
                             continue;
                         }
-                        if (currEvent.timestamp < (streamEvent.timestamp + self.hopeTime - self.timeInMilliSeconds)) {
+                        if (currEvent.timestamp < (streamEvent.timestamp + self.hoppingTime - self.timeInMilliSeconds)) {
                             self.currentEventQueue.removeCurrent();
                         }
                     }
