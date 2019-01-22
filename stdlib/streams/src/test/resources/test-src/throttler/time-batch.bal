@@ -18,7 +18,7 @@ import ballerina/streams;
 import ballerina/time;
 
 public type TimeBatch object {
-    public const EXPIRY_TIME_STAMP = "expiryTimestamp";
+    public string attrExpiredTimestamp;
     public int timeInMilliSeconds = -1;
     public streams:LinkedList expiredEventQueue;
     public streams:Scheduler scheduler;
@@ -32,6 +32,7 @@ public type TimeBatch object {
                 self.process(events);
             });
         self.expiredEventQueue = new;
+        self.attrExpiredTimestamp = "expiryTimestamp";
         self.windowParameters = windowParameters;
         self.nextProcessPointer = nextProcessPointer;
         self.initParameters(windowParameters);
@@ -76,7 +77,7 @@ public type TimeBatch object {
                 if (streamEvent.eventType != streams:CURRENT) {
                     continue;
                 }
-                streamEvent.addAttribute(self.EXPIRY_TIME_STAMP, self.expiredEventTime);
+                streamEvent.addAttribute(self.attrExpiredTimestamp, self.expiredEventTime);
                 streams:StreamEvent clonedEvent = streamEvent.copy();
                 clonedEvent.eventType = streams:EXPIRED;
                 self.expiredEventQueue.addLast(clonedEvent);
