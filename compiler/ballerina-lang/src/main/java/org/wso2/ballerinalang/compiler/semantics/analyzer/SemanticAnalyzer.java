@@ -1740,21 +1740,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (constant.typeNode != null) {
             // Check the type of the value.
             typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
+            constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
         } else {
             // We don't have any expected type in this case since the type node is not available. So we get the type
             // from the type tag of the value.
             typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.typeTag));
+            constant.symbol.literalValueTypeTag = value.typeTag;
         }
 
         // We need to update the literal value and the type tag here. Otherwise we will encounter issues when
         // creating new literal nodes in desugar because we wont be able to identify byte and decimal types.
         constant.symbol.literalValue = value.value;
-        constant.symbol.literalValueTypeTag = value.typeTag;
 
         // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified in
         // codegen when retrieving the default value.
         BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
         for (BLangExpression literal : typeNode.valueSpace) {
+            if (literal.type.tag == TypeTags.FLOAT && constant.symbol.literalValueType.tag == TypeTags.DECIMAL) {
+                literal.type = constant.symbol.literalValueType;
+            }
             typeChecker.checkExpr(literal, env, constant.symbol.type);
         }
     }
