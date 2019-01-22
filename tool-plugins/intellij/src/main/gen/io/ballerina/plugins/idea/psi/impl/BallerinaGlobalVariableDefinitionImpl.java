@@ -66,9 +66,9 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaCompositeEle
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
+    return notNullChild(findChildByType(SEMICOLON));
   }
 
   @Override
@@ -78,9 +78,9 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaCompositeEle
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+    return notNullChild(findChildByType(IDENTIFIER));
   }
 
   @Override

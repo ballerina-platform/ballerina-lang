@@ -202,7 +202,7 @@ WorkerWithStatementsBlock ::= WorkerDefinition+ Statement*
 Block ::= Statement* {methods=[processDeclarations]}
 
 // Todo - Need getIdentifier?
-FunctionDefinition ::= (public)? (remote)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
+FunctionDefinition ::= (public|private)? (remote)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
     pin=4 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
 }
 private FunctionWithReceiver ::=  (TypeName DOT)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
@@ -236,7 +236,7 @@ ObjectFieldDefinition ::= AnnotationAttachment* deprecatedAttachment? (public | 
 
 FieldDefinition ::= AnnotationAttachment* TypeName identifier QUESTION_MARK? (ASSIGN Expression)? SEMICOLON {pin=3}
 
-RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS | SealedLiteral
+RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS SEMICOLON | SealedLiteral SEMICOLON
 
 SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
 
@@ -256,7 +256,7 @@ GlobalVariableDefinition ::= finalVariableDefinition
                             | nonFinalVariableDefinition
                             | channelDefinition
 
-private finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON {pin=2}
+private finalVariableDefinition ::= public? final? (TypeName | var) identifier ASSIGN Expression SEMICOLON
 private nonFinalVariableDefinition ::=  public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
 private channelDefinition ::= channelType identifier ASSIGN Expression SEMICOLON
 channelType ::= channel (LT TypeName GT) {pin=1}
@@ -341,7 +341,7 @@ BuiltInReferenceTypeName ::= MapTypeName
 MapTypeName ::= map (LT TypeName GT) {pin=1}
 FutureTypeName ::= future (LT TypeName GT) {pin=1}
 XmlTypeName ::= xml (LT (LEFT_BRACE XmlNamespaceName RIGHT_BRACE)? XmlLocalName GT)? {pin=1}
-JsonTypeName ::= json (LT NameReference GT)? {pin=1}
+JsonTypeName ::= json
 TableTypeName ::= table (LT TypeName GT) {pin=1}
 ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 StreamTypeName ::= stream (LT TypeName GT) {pin=1}
@@ -699,7 +699,7 @@ StringTemplateLiteralExpression ::= StringTemplateLiteral
 VariableReferenceExpression ::= start? VariableReference
 LambdaFunctionExpression ::= LambdaFunction
 TypeConversionExpression ::= LT TypeName (COMMA FunctionInvocation)? GT Expression {pin=1}
-UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | lengthof | untaint) Expression {pin=1}
+UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | untaint) Expression {pin=1}
 BracedOrTupleExpression ::= TupleLiteral
 BinaryDivMulModExpression ::= Expression (DIV | MUL | MOD) Expression
 BinaryAddSubExpression ::= Expression (ADD | SUB) Expression
@@ -786,7 +786,7 @@ SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
                   | NULL_LITERAL
 
 // §3.10.1 Integer Literals
-IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL | BINARY_INTEGER_LITERAL
+IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL
 
 FloatingPointLiteral ::= DECIMAL_FLOATING_POINT_NUMBER | HEXADECIMAL_FLOATING_POINT_LITERAL
 
