@@ -18,9 +18,6 @@
  */
 package org.ballerinalang.net.jms;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.jms.Message;
 
 /**
@@ -28,8 +25,7 @@ import javax.jms.Message;
  *
  * @since 0.95.5
  */
-public class BallerinaJMSMessage {
-    private static final Logger log = LoggerFactory.getLogger(BallerinaJMSMessage.class);
+public class BallerinaJmsMessage {
 
     private Message jmsMessage;
 
@@ -39,7 +35,7 @@ public class BallerinaJMSMessage {
      * Constructor, must have the respective {@link Message} needs to be wrapped.
      * @param jmsMessage {@link Message} needs to be wrapped.
      */
-    public BallerinaJMSMessage(Message jmsMessage) {
+    public BallerinaJmsMessage(Message jmsMessage) {
         this.jmsMessage = jmsMessage;
     }
 

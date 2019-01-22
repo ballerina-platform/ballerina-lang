@@ -47,7 +47,7 @@ public type HttpBasicAuthnHandler object {
     public function handle(Request req) returns (boolean);
 };
 
-function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
+public function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
     // extract the header value
     var basicAuthHeader = extractBasicAuthHeaderValue(req);
     string basicAuthHeaderValue = "";
@@ -77,7 +77,7 @@ function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
     return false;
 }
 
-function HttpBasicAuthnHandler.canHandle(Request req) returns (boolean) {
+public function HttpBasicAuthnHandler.canHandle(Request req) returns (boolean) {
     var basicAuthHeader = trap req.getHeader(AUTH_HEADER);
     if (basicAuthHeader is string) {
         return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);

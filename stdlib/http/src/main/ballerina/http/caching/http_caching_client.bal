@@ -237,7 +237,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-remote function HttpCachingClient.post(string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.post(string path, RequestMessage message) returns Response|error {
     Request req = <Request>message;
     setRequestCacheControlHeader(req);
 
@@ -248,13 +248,13 @@ remote function HttpCachingClient.post(string path, RequestMessage message) retu
     return inboundResponse;
 }
 
-remote function HttpCachingClient.head(string path, RequestMessage message = ()) returns Response|error {
+public remote function HttpCachingClient.head(string path, RequestMessage message = ()) returns Response|error {
     Request req = <Request>message;
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared, false);
 }
 
-remote function HttpCachingClient.put(string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.put(string path, RequestMessage message) returns Response|error {
     Request req = <Request>message;
     setRequestCacheControlHeader(req);
 
@@ -265,7 +265,7 @@ remote function HttpCachingClient.put(string path, RequestMessage message) retur
     return inboundResponse;
 }
 
-remote function HttpCachingClient.execute(string httpMethod, string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.execute(string httpMethod, string path, RequestMessage message) returns Response|error {
     Request request = <Request>message;
     setRequestCacheControlHeader(request);
 
@@ -281,7 +281,7 @@ remote function HttpCachingClient.execute(string httpMethod, string path, Reques
     return inboundResponse;
 }
 
-remote function HttpCachingClient.patch(string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.patch(string path, RequestMessage message) returns Response|error {
     Request req = <Request>message;
     setRequestCacheControlHeader(req);
 
@@ -292,7 +292,7 @@ remote function HttpCachingClient.patch(string path, RequestMessage message) ret
     return inboundResponse;
 }
 
-remote function HttpCachingClient.delete(string path, RequestMessage message) returns Response|error {
+public remote function HttpCachingClient.delete(string path, RequestMessage message) returns Response|error {
     Request req = <Request>message;
     setRequestCacheControlHeader(req);
 
@@ -303,13 +303,13 @@ remote function HttpCachingClient.delete(string path, RequestMessage message) re
     return inboundResponse;
 }
 
-remote function HttpCachingClient.get(string path, RequestMessage message = ()) returns Response|error {
+public remote function HttpCachingClient.get(string path, RequestMessage message = ()) returns Response|error {
     Request req = <Request>message;
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);
 }
 
-remote function HttpCachingClient.options(string path, RequestMessage message = ()) returns Response|error {
+public remote function HttpCachingClient.options(string path, RequestMessage message = ()) returns Response|error {
     Request req = <Request>message;
     setRequestCacheControlHeader(req);
 
@@ -320,7 +320,7 @@ remote function HttpCachingClient.options(string path, RequestMessage message = 
     return inboundResponse;
 }
 
-remote function HttpCachingClient.forward(string path, Request request) returns Response|error {
+public remote function HttpCachingClient.forward(string path, Request request) returns Response|error {
     if (request.method == GET || request.method == HEAD) {
         return getCachedResponse(self.cache, self.httpClient, request, request.method, path,
                                  self.cacheConfig.isShared, true);
@@ -333,27 +333,27 @@ remote function HttpCachingClient.forward(string path, Request request) returns 
     return inboundResponse;
 }
 
-remote function HttpCachingClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public remote function HttpCachingClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     return self.httpClient->submit(httpVerb, path, <Request>message);
 }
 
-remote function HttpCachingClient.getResponse(HttpFuture httpFuture) returns Response|error {
+public remote function HttpCachingClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient->getResponse(httpFuture);
 }
 
-remote function HttpCachingClient.hasPromise(HttpFuture httpFuture) returns boolean {
+public remote function HttpCachingClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient->hasPromise(httpFuture);
 }
 
-remote function HttpCachingClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public remote function HttpCachingClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient->getNextPromise(httpFuture);
 }
 
-remote function HttpCachingClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public remote function HttpCachingClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient->getPromisedResponse(promise);
 }
 
-remote function HttpCachingClient.rejectPromise(PushPromise promise) {
+public remote function HttpCachingClient.rejectPromise(PushPromise promise) {
     self.httpClient->rejectPromise(promise);
 }
 
@@ -750,7 +750,7 @@ function getDateValue(Response inboundResponse) returns int {
     if (!inboundResponse.hasHeader(DATE)) {
         log:printDebug("Date header not found. Using current time for the Date header.");
         time:Time currentT = time:currentTime();
-        inboundResponse.setHeader(DATE, currentT.format(time:TIME_FORMAT_RFC_1123));
+        inboundResponse.setHeader(DATE, time:format(currentT, time:TIME_FORMAT_RFC_1123));
         return currentT.time;
     }
 

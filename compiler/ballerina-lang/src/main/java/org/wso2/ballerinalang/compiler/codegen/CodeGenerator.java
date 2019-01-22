@@ -1291,7 +1291,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case LENGTH:
                 Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-                emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
+                emit(InstructionCodes.LENGTH, iExpr.expr.regIndex, typeCPIndex, regIndex);
                 break;
             case FREEZE:
                 emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);

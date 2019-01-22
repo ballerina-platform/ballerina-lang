@@ -51,14 +51,14 @@ import javax.naming.NamingException;
 /**
  * Utility class for JMS related common operations.
  */
-public class JMSUtils {
+public class JmsUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JMSUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JmsUtils.class);
 
     /**
      * Utility class cannot be instantiated.
      */
-    private JMSUtils() {
+    private JmsUtils() {
     }
 
     /**
@@ -74,28 +74,28 @@ public class JMSUtils {
             return configParams;
         }
 
-        addStringParamIfPresent(Constants.ALIAS_DESTINATION, configStruct, configParams);
-        addStringParamIfPresent(Constants.ALIAS_CONNECTION_FACTORY_NAME, configStruct, configParams);
-        addStringParamIfPresent(Constants.ALIAS_DESTINATION_TYPE, configStruct, configParams);
-        addStringParamIfPresent(Constants.ALIAS_CLIENT_ID, configStruct, configParams);
-        addStringParamIfPresent(Constants.ALIAS_DURABLE_SUBSCRIBER_ID, configStruct, configParams);
-        addStringParamIfPresent(Constants.ALIAS_ACK_MODE, configStruct, configParams);
+        addStringParamIfPresent(JmsConstants.ALIAS_DESTINATION, configStruct, configParams);
+        addStringParamIfPresent(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME, configStruct, configParams);
+        addStringParamIfPresent(JmsConstants.ALIAS_DESTINATION_TYPE, configStruct, configParams);
+        addStringParamIfPresent(JmsConstants.ALIAS_CLIENT_ID, configStruct, configParams);
+        addStringParamIfPresent(JmsConstants.ALIAS_DURABLE_SUBSCRIBER_ID, configStruct, configParams);
+        addStringParamIfPresent(JmsConstants.ALIAS_ACK_MODE, configStruct, configParams);
 
-        preProcessMapField(configParams, configStruct.getMapField(Constants.PROPERTIES_MAP));
+        preProcessMapField(configParams, configStruct.getMapField(JmsConstants.PROPERTIES_MAP));
         return configParams;
     }
 
     public static Connection createConnection(Struct connectionConfig) {
         Map<String, String> configParams = new HashMap<>();
 
-        String initialContextFactory = connectionConfig.getStringField(Constants.ALIAS_INITIAL_CONTEXT_FACTORY);
-        configParams.put(Constants.ALIAS_INITIAL_CONTEXT_FACTORY, initialContextFactory);
+        String initialContextFactory = connectionConfig.getStringField(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY);
+        configParams.put(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY, initialContextFactory);
 
-        String providerUrl = connectionConfig.getStringField(Constants.ALIAS_PROVIDER_URL);
-        configParams.put(Constants.ALIAS_PROVIDER_URL, providerUrl);
+        String providerUrl = connectionConfig.getStringField(JmsConstants.ALIAS_PROVIDER_URL);
+        configParams.put(JmsConstants.ALIAS_PROVIDER_URL, providerUrl);
 
-        String factoryName = connectionConfig.getStringField(Constants.ALIAS_CONNECTION_FACTORY_NAME);
-        configParams.put(Constants.ALIAS_CONNECTION_FACTORY_NAME, factoryName);
+        String factoryName = connectionConfig.getStringField(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME);
+        configParams.put(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME, factoryName);
 
         preProcessIfWso2MB(configParams);
         updateMappedParameters(configParams);
@@ -104,7 +104,7 @@ public class JMSUtils {
         configParams.forEach(properties::put);
 
         //check for additional jndi properties
-        Map<String, Value> props = connectionConfig.getMapField(Constants.PROPERTIES_MAP);
+        Map<String, Value> props = connectionConfig.getMapField(JmsConstants.PROPERTIES_MAP);
         if (props != null) {
             for (Map.Entry<String, Value> entry : props.entrySet()) {
                 properties.put(entry.getKey(), entry.getValue().getStringValue());
@@ -116,13 +116,13 @@ public class JMSUtils {
             ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(factoryName);
             String username = null;
             String password = null;
-            if (connectionConfig.getRefField(Constants.ALIAS_USERNAME) != null &&
-                    connectionConfig.getRefField(Constants.ALIAS_PASSWORD) != null) {
-                username = connectionConfig.getRefField(Constants.ALIAS_USERNAME).getStringValue();
-                password = connectionConfig.getRefField(Constants.ALIAS_PASSWORD).getStringValue();
+            if (connectionConfig.getRefField(JmsConstants.ALIAS_USERNAME) != null &&
+                    connectionConfig.getRefField(JmsConstants.ALIAS_PASSWORD) != null) {
+                username = connectionConfig.getRefField(JmsConstants.ALIAS_USERNAME).getStringValue();
+                password = connectionConfig.getRefField(JmsConstants.ALIAS_PASSWORD).getStringValue();
             }
 
-            if (!JMSUtils.isNullOrEmptyAfterTrim(username) && password != null) {
+            if (!JmsUtils.isNullOrEmptyAfterTrim(username) && password != null) {
                 return connectionFactory.createConnection(username, password);
             } else {
                 return connectionFactory.createConnection();
@@ -139,20 +139,20 @@ public class JMSUtils {
         int sessionAckMode;
         boolean transactedSession = false;
 
-        String ackModeString = sessionConfig.getStringField(Constants.ALIAS_ACK_MODE);
+        String ackModeString = sessionConfig.getStringField(JmsConstants.ALIAS_ACK_MODE);
 
         switch (ackModeString) {
-            case Constants.CLIENT_ACKNOWLEDGE_MODE:
+            case JmsConstants.CLIENT_ACKNOWLEDGE_MODE:
                 sessionAckMode = Session.CLIENT_ACKNOWLEDGE;
                 break;
-            case Constants.SESSION_TRANSACTED_MODE:
+            case JmsConstants.SESSION_TRANSACTED_MODE:
                 sessionAckMode = Session.SESSION_TRANSACTED;
                 transactedSession = true;
                 break;
-            case Constants.DUPS_OK_ACKNOWLEDGE_MODE:
+            case JmsConstants.DUPS_OK_ACKNOWLEDGE_MODE:
                 sessionAckMode = Session.DUPS_OK_ACKNOWLEDGE;
                 break;
-            case Constants.AUTO_ACKNOWLEDGE_MODE:
+            case JmsConstants.AUTO_ACKNOWLEDGE_MODE:
                 sessionAckMode = Session.AUTO_ACKNOWLEDGE;
                 break;
             default:
@@ -173,24 +173,25 @@ public class JMSUtils {
     }
 
     private static void preProcessIfWso2MB(Map<String, String> configParams) {
-        String initialConnectionFactoryName = configParams.get(Constants.ALIAS_INITIAL_CONTEXT_FACTORY);
-        if (Constants.BMB_ICF_ALIAS.equalsIgnoreCase(initialConnectionFactoryName)
-                || Constants.MB_ICF_ALIAS.equalsIgnoreCase(initialConnectionFactoryName)) {
+        String initialConnectionFactoryName = configParams.get(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY);
+        if (JmsConstants.BMB_ICF_ALIAS.equalsIgnoreCase(initialConnectionFactoryName)
+                || JmsConstants.MB_ICF_ALIAS.equalsIgnoreCase(initialConnectionFactoryName)) {
 
-            configParams.put(Constants.ALIAS_INITIAL_CONTEXT_FACTORY, Constants.MB_ICF_NAME);
-            String connectionFactoryName = configParams.get(Constants.ALIAS_CONNECTION_FACTORY_NAME);
-            if (configParams.get(Constants.ALIAS_PROVIDER_URL) != null) {
+            configParams.put(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY, JmsConstants.MB_ICF_NAME);
+            String connectionFactoryName = configParams.get(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME);
+            if (configParams.get(JmsConstants.ALIAS_PROVIDER_URL) != null) {
                 System.setProperty("qpid.dest_syntax", "BURL");
                 if (!isNullOrEmptyAfterTrim(connectionFactoryName)) {
-                    configParams.put(Constants.MB_CF_NAME_PREFIX + connectionFactoryName,
-                                     configParams.get(Constants.ALIAS_PROVIDER_URL));
-                    configParams.remove(Constants.ALIAS_PROVIDER_URL);
+                    configParams.put(JmsConstants.MB_CF_NAME_PREFIX + connectionFactoryName,
+                                     configParams.get(JmsConstants.ALIAS_PROVIDER_URL));
+                    configParams.remove(JmsConstants.ALIAS_PROVIDER_URL);
                 } else {
-                    throw new BallerinaException(Constants.ALIAS_CONNECTION_FACTORY_NAME + " property should be set");
+                    throw new BallerinaException(
+                            JmsConstants.ALIAS_CONNECTION_FACTORY_NAME + " property should be set");
                 }
-            } else if (configParams.get(Constants.CONFIG_FILE_PATH) != null) {
-                configParams.put(Constants.ALIAS_PROVIDER_URL, configParams.get(Constants.CONFIG_FILE_PATH));
-                configParams.remove(Constants.CONFIG_FILE_PATH);
+            } else if (configParams.get(JmsConstants.CONFIG_FILE_PATH) != null) {
+                configParams.put(JmsConstants.ALIAS_PROVIDER_URL, configParams.get(JmsConstants.CONFIG_FILE_PATH));
+                configParams.remove(JmsConstants.CONFIG_FILE_PATH);
             }
         }
     }
@@ -200,7 +201,7 @@ public class JMSUtils {
         Map<String, String> tempMap = new HashMap<>();
         while (iterator.hasNext()) {
             Map.Entry<String, String> entry = iterator.next();
-            String mappedParam = Constants.MAPPING_PARAMETERS.get(entry.getKey());
+            String mappedParam = JmsConstants.MAPPING_PARAMETERS.get(entry.getKey());
             if (mappedParam != null) {
                 tempMap.put(mappedParam, entry.getValue());
                 iterator.remove();
@@ -216,10 +217,6 @@ public class JMSUtils {
             paramsMap.put(paramName, param);
         }
     }
-
-//    private static boolean isBlank(String string) {
-//        return Objects.nonNull(string) && !string.isEmpty();
-//    }
 
     /**
      * Process the provided properties in the {@link Map} and convert it to jms connector friendly Map.
@@ -245,7 +242,7 @@ public class JMSUtils {
      * @return {@link Message} instance located in struct.
      */
     public static Message getJMSMessage(BMap<String, BValue> messageStruct) {
-        Object nativeData = messageStruct.getNativeData(Constants.JMS_MESSAGE_OBJECT);
+        Object nativeData = messageStruct.getNativeData(JmsConstants.JMS_MESSAGE_OBJECT);
         if (nativeData instanceof Message) {
             return (Message) nativeData;
         } else {
@@ -254,13 +251,13 @@ public class JMSUtils {
     }
 
     /**
-     * Wrap JMS Message from BallerinaJMSMessage.
+     * Wrap JMS Message from BallerinaJmsMessage.
      *
      * @param message JMS transport message.
-     * @return {@link BallerinaJMSMessage} wrapped message instance.
+     * @return {@link BallerinaJmsMessage} wrapped message instance.
      */
-    public static BallerinaJMSMessage buildBallerinaJMSMessage(Message message) {
-        BallerinaJMSMessage ballerinaJMSMessage = new BallerinaJMSMessage(message);
+    public static BallerinaJmsMessage buildBallerinaJMSMessage(Message message) {
+        BallerinaJmsMessage ballerinaJMSMessage = new BallerinaJmsMessage(message);
         try {
             if (message.getJMSReplyTo() != null) {
                 if (message.getJMSReplyTo() instanceof Queue) {
@@ -309,10 +306,10 @@ public class JMSUtils {
     public static Destination getDestination(Context context, BMap<String, BValue> destinationBObject) {
         Destination destination = null;
         Object destinationObject = destinationBObject != null ?
-                destinationBObject.getNativeData(Constants.JMS_DESTINATION_OBJECT) : null;
+                destinationBObject.getNativeData(JmsConstants.JMS_DESTINATION_OBJECT) : null;
         if (destinationObject != null) {
             destination = BallerinaAdapter.getNativeObject(destinationBObject,
-                                                           Constants.JMS_DESTINATION_OBJECT,
+                                                           JmsConstants.JMS_DESTINATION_OBJECT,
                                                            Destination.class,
                                                            context);
         }
@@ -326,7 +323,7 @@ public class JMSUtils {
      * @return queue name or null.
      */
     public static String getQueueName(Struct configBRecord) {
-        Value queueNameValue = configBRecord.getRefField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
+        Value queueNameValue = configBRecord.getRefField(JmsConstants.QUEUE_SENDER_FIELD_QUEUE_NAME);
         return queueNameValue != null ? queueNameValue.getStringValue() : null;
     }
 
@@ -337,7 +334,7 @@ public class JMSUtils {
      * @return queue name or null.
      */
     public static String getTopicPattern(Struct topicConfig) {
-        Value topicPatternValue = topicConfig.getRefField(Constants.TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN);
+        Value topicPatternValue = topicConfig.getRefField(JmsConstants.TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN);
         return topicPatternValue != null ? topicPatternValue.getStringValue() : null;
     }
 }
