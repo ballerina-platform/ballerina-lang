@@ -49,7 +49,7 @@ function startThrottleQuery() returns (StockSumRecord[]) {
     inputStream.publish(s1);
     runtime:sleep(500);
     inputStream.publish(s2);
-    runtime:sleep(260000);
+    runtime:sleep(15000);
     inputStream.publish(s3);
     int count = 0;
     while(true) {
@@ -65,7 +65,7 @@ function startThrottleQuery() returns (StockSumRecord[]) {
 function deployThrottleQuery() {
 
     forever {
-        from inputStream window throttler:timeBatch(60000, 0)
+        from inputStream window throttler:timeBatch(10000, 0)
         select inputStream.symbol, sum(inputStream.price) as sumPrice, inputStream.volume, inputStream.expiryTimestamp
         => (StockSumRecord[] stockSum) {
             foreach var t in stockSum {
