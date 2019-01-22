@@ -43,7 +43,6 @@ public class ConstantInfo implements AttributeInfoPool {
         this.finiteTypeCPIndex = finiteTypeCPIndex;
         this.valueTypeCPIndex = valueTypeCPIndex;
         this.flags = flags;
-        this.globalMemIndex = globalMemIndex;
     }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {

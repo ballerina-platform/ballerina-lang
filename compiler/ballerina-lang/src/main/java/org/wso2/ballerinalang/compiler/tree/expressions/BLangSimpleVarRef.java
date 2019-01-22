@@ -120,21 +120,6 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         }
     }
 
-    public static class BLangPackageConstRef extends BLangSimpleVarRef {
-
-        public BConstantSymbol constSymbol;
-
-        public BLangPackageConstRef(BConstantSymbol constSymbol) {
-            this.symbol = constSymbol;
-            this.constSymbol = constSymbol;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
     /***
      * @since 0.94
      */

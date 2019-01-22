@@ -655,8 +655,6 @@ public class CompiledPackageSymbolEnter {
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
         setDocumentation(constantSymbol, attrDataMap);
 
-        // Todo - add map support for constants which are read
-
         // Read value of the constant and set it in the symbol.
         BLangLiteral constantValue = getConstantValue(attrDataMap);
         constantSymbol.literalValue = constantValue.value;

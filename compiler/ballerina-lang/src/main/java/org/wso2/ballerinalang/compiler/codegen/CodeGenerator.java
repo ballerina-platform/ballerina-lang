@@ -108,7 +108,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -242,6 +241,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -968,25 +968,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGLOAD);
             packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
             emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
-        }
-    }
-
-    @Override
-    public void visit(BLangPackageConstRef packageConstRef) {
-        BPackageSymbol pkgSymbol;
-        BSymbol ownerSymbol = packageConstRef.symbol.owner;
-        pkgSymbol = (BPackageSymbol) ownerSymbol;
-
-        Operand gvIndex = packageConstRef.constSymbol.varIndex;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
-        if (varAssignment) {
-            // Todo - Freeze value.
-            int opcode = getOpcode(packageConstRef.type.tag, InstructionCodes.IGSTORE);
-            emit(opcode, getOperand(pkgRefCPIndex), packageConstRef.regIndex, gvIndex);
-        } else {
-            int opcode = getOpcode(packageConstRef.type.tag, InstructionCodes.IGLOAD);
-            packageConstRef.regIndex = calcAndGetExprRegIndex(packageConstRef);
-            emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageConstRef.regIndex);
         }
     }
 

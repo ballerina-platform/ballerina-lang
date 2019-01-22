@@ -93,7 +93,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -132,7 +131,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -422,15 +420,6 @@ public class Desugar extends BLangNodeVisitor {
                 .forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
-
-        pkgNode.constants.stream()
-                .filter(constant -> ((BLangExpression) constant.value).getKind() != NodeKind.LITERAL)
-                .forEach(constant -> {
-                    BLangAssignment assignment = createAssignmentStmt(constant);
-                    if (assignment.expr != null) {
-                        pkgNode.initFunction.body.stmts.add(assignment);
-                    }
-                });
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
@@ -1912,8 +1901,8 @@ public class Desugar extends BLangNodeVisitor {
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             if (varRefExpr.symbol.tag == SymTag.CONSTANT) {
                 BConstantSymbol symbol = (BConstantSymbol) varRefExpr.symbol;
-                if (((BLangExpression) ((BConstantSymbol) varRefExpr.symbol).literalValue).getKind() ==
-                        NodeKind.LITERAL) {
+                // Todo - Update condition
+                if (((BConstantSymbol) varRefExpr.symbol).literalValueTypeTag != TypeTags.MAP) {
                     // We need to get a copy of the literal value and set it as the result. Otherwise there will be
                     // issues because registry allocation will be only done one time.
                     BLangLiteral literal = ASTBuilderUtil
@@ -1921,8 +1910,7 @@ public class Desugar extends BLangNodeVisitor {
                     literal.typeTag = symbol.literalValueTypeTag;
                     result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
                     return;
-                } else if (((BLangExpression) ((BConstantSymbol) varRefExpr.symbol).literalValue).getKind() ==
-                        NodeKind.RECORD_LITERAL_EXPR) {
+                } else {
                     BLangRecordLiteral literal = ASTBuilderUtil.createEmptyRecordLiteral(varRefExpr.pos,
                             symbol.literalValueType);
                     literal.isConst = true;
@@ -2561,11 +2549,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangPackageVarRef packageVarRef) {
         result = packageVarRef;
-    }
-
-    @Override
-    public void visit(BLangPackageConstRef packageConstantRef) {
-        result = packageConstantRef;
     }
 
     @Override
@@ -3913,20 +3896,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = variable.expr;
         assignmentStmt.pos = variable.pos;
-        assignmentStmt.setVariable(varRef);
-        return assignmentStmt;
-    }
-
-    private BLangAssignment createAssignmentStmt(BLangConstant constant) {
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = constant.pos;
-        varRef.variableName = constant.name;
-        varRef.symbol = constant.symbol;
-        varRef.type = constant.symbol.literalValueType;
-
-        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = ((BLangExpression) constant.value);
-        assignmentStmt.pos = constant.pos;
         assignmentStmt.setVariable(varRef);
         return assignmentStmt;
     }
