@@ -253,10 +253,12 @@ private constWithoutType ::= PUBLIC? CONST identifier ASSIGN Expression SEMICOLO
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
 GlobalVariableDefinition ::= finalVariableDefinition
+                            | globalVarDefinition
                             | nonFinalVariableDefinition
                             | channelDefinition
 
-private finalVariableDefinition ::= public? final? (TypeName | var) identifier ASSIGN Expression SEMICOLON
+private finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON {pin=2}
+private globalVarDefinition ::= public? var identifier ASSIGN Expression SEMICOLON {pin=2}
 private nonFinalVariableDefinition ::=  public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
 private channelDefinition ::= channelType identifier ASSIGN Expression SEMICOLON
 channelType ::= channel (LT TypeName GT) {pin=1}

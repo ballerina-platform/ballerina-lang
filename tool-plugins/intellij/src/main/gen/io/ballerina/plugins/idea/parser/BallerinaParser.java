@@ -3127,6 +3127,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // finalVariableDefinition
+  //                             | globalVarDefinition
   //                             | nonFinalVariableDefinition
   //                             | channelDefinition
   public static boolean GlobalVariableDefinition(PsiBuilder b, int l) {
@@ -3134,6 +3135,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, GLOBAL_VARIABLE_DEFINITION, "<global variable definition>");
     r = finalVariableDefinition(b, l + 1);
+    if (!r) r = globalVarDefinition(b, l + 1);
     if (!r) r = nonFinalVariableDefinition(b, l + 1);
     if (!r) r = channelDefinition(b, l + 1);
     exit_section_(b, l, m, r, false, null);
@@ -7618,32 +7620,27 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // public? final? (TypeName | var) identifier ASSIGN Expression SEMICOLON
+  // public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON
   static boolean finalVariableDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "finalVariableDefinition")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    if (!nextTokenIs(b, "", FINAL, PUBLIC)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = finalVariableDefinition_0(b, l + 1);
-    r = r && finalVariableDefinition_1(b, l + 1);
-    r = r && finalVariableDefinition_2(b, l + 1);
-    r = r && consumeTokens(b, 0, IDENTIFIER, ASSIGN);
-    r = r && Expression(b, l + 1, -1);
-    r = r && consumeToken(b, SEMICOLON);
-    exit_section_(b, m, null, r);
-    return r;
+    r = r && consumeToken(b, FINAL);
+    p = r; // pin = 2
+    r = r && report_error_(b, finalVariableDefinition_2(b, l + 1));
+    r = p && report_error_(b, consumeTokens(b, -1, IDENTIFIER, ASSIGN)) && r;
+    r = p && report_error_(b, Expression(b, l + 1, -1)) && r;
+    r = p && consumeToken(b, SEMICOLON) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // public?
   private static boolean finalVariableDefinition_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "finalVariableDefinition_0")) return false;
     consumeToken(b, PUBLIC);
-    return true;
-  }
-
-  // final?
-  private static boolean finalVariableDefinition_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "finalVariableDefinition_1")) return false;
-    consumeToken(b, FINAL);
     return true;
   }
 
@@ -7673,6 +7670,29 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean functionNameReference_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "functionNameReference_1")) return false;
     PackageReference(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // public? var identifier ASSIGN Expression SEMICOLON
+  static boolean globalVarDefinition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "globalVarDefinition")) return false;
+    if (!nextTokenIs(b, "", PUBLIC, VAR)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = globalVarDefinition_0(b, l + 1);
+    r = r && consumeTokens(b, 1, VAR, IDENTIFIER, ASSIGN);
+    p = r; // pin = 2
+    r = r && report_error_(b, Expression(b, l + 1, -1));
+    r = p && consumeToken(b, SEMICOLON) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // public?
+  private static boolean globalVarDefinition_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "globalVarDefinition_0")) return false;
+    consumeToken(b, PUBLIC);
     return true;
   }
 
