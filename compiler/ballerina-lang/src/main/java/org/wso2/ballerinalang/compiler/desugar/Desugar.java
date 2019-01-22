@@ -1444,7 +1444,7 @@ public class Desugar extends BLangNodeVisitor {
         ifNode.body = rewrite(ifNode.body, env);
 
         if (ifNode.elseStmt != null && ifNode.elseStmt.getKind() == NodeKind.BLOCK) {
-            defineTypeGuards(ifNode.pos, ifNode.elseTypeGuards, (BLangBlockStmt) ifNode.elseStmt);
+            defineTypeGuards(ifNode.elseStmt.pos, ifNode.elseTypeGuards, (BLangBlockStmt) ifNode.elseStmt);
         }
         ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
         result = ifNode;

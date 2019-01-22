@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BType;
-
 /**
  * The {@code BRefType} represents a reference type value in Ballerina.
  *
@@ -28,9 +26,4 @@ import org.ballerinalang.model.types.BType;
 public interface BRefType<T> extends BValue {
 
     T value();
-
-    @Override
-    default void stamp(BType type) {
-
-    }
 }

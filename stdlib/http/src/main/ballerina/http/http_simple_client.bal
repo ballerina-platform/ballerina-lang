@@ -143,62 +143,62 @@ public type HttpClient client object {
     public remote function rejectPromise(PushPromise promise);
 };
 
-remote function HttpClient.post(string path, RequestMessage message) returns Response|error {
+public remote function HttpClient.post(string path, RequestMessage message) returns Response|error {
     return self.httpCaller->post(path, message);
 }
 
-remote function HttpClient.head(string path, RequestMessage message = ()) returns Response|error {
+public remote function HttpClient.head(string path, RequestMessage message = ()) returns Response|error {
     return self.httpCaller->head(path, message = message);
 }
 
-remote function HttpClient.put(string path, RequestMessage message) returns Response|error {
+public remote function HttpClient.put(string path, RequestMessage message) returns Response|error {
     return self.httpCaller->put(path, message);
 }
 
-remote function HttpClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+public remote function HttpClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
     return self.httpCaller->execute(httpVerb, path, message);
 }
 
-remote function HttpClient.patch(string path, RequestMessage message) returns Response|error {
+public remote function HttpClient.patch(string path, RequestMessage message) returns Response|error {
     return self.httpCaller->patch(path, message);
 }
 
-remote function HttpClient.delete(string path, RequestMessage message) returns Response|error {
+public remote function HttpClient.delete(string path, RequestMessage message) returns Response|error {
     return self.httpCaller->delete(path, message);
 }
 
-remote function HttpClient.get(string path, RequestMessage message = ()) returns Response|error {
+public remote function HttpClient.get(string path, RequestMessage message = ()) returns Response|error {
     return self.httpCaller->get(path, message = message);
 }
 
-remote function HttpClient.options(string path, RequestMessage message = ()) returns Response|error {
+public remote function HttpClient.options(string path, RequestMessage message = ()) returns Response|error {
     return self.httpCaller->options(path, message = message);
 }
 
-remote function HttpClient.forward(string path, Request request) returns Response|error {
+public remote function HttpClient.forward(string path, Request request) returns Response|error {
     return self.httpCaller->forward(path, request);
 }
 
-remote function HttpClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public remote function HttpClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     return self.httpCaller->submit(httpVerb, path, message);
 }
 
-remote function HttpClient.getResponse(HttpFuture httpFuture) returns Response|error {
+public remote function HttpClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpCaller->getResponse(httpFuture);
 }
 
-remote function HttpClient.hasPromise(HttpFuture httpFuture) returns boolean {
+public remote function HttpClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpCaller->hasPromise(httpFuture);
 }
 
-remote function HttpClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public remote function HttpClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpCaller->getNextPromise(httpFuture);
 }
 
-remote function HttpClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public remote function HttpClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpCaller->getPromisedResponse(promise);
 }
 
-remote function HttpClient.rejectPromise(PushPromise promise) {
+public remote function HttpClient.rejectPromise(PushPromise promise) {
     return self.httpCaller->rejectPromise(promise);
 }

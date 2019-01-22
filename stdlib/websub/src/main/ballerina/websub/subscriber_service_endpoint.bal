@@ -86,14 +86,14 @@ function Listener.init(int port, SubscriberServiceEndpointConfiguration? sseEpCo
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-function Listener.__start() returns error? {
+public function Listener.__start() returns error? {
     // TODO: handle data and return error on error
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
     return;
 }
 
-function Listener.__stop() returns error? {
+public function Listener.__stop() returns error? {
     return self.serviceEndpoint.__stop();
 }
 

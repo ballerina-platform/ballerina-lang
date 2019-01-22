@@ -318,7 +318,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectTypeNode.functions.forEach(func -> {
             analyzeDef(func, env);
             if (isAbstract && func.flagSet.contains(Flag.PRIVATE)) {
-                this.dlog.error(func.pos, DiagnosticCode.PRIVATE_FUNC_ABSTRACT_OBJECT, func.name);
+                this.dlog.error(func.pos, DiagnosticCode.PRIVATE_FUNC_ABSTRACT_OBJECT, func.name,
+                        objectTypeNode.symbol.name);
             }
         });
 
