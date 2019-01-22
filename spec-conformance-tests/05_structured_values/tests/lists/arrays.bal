@@ -197,12 +197,6 @@ function testArrayMemberReferenceByInvalidIntegerIndex() {
         "invalid reason on access by index > array length");
 }
 
-// The shape of a list value is an ordered list of the shapes of its members.
-@test:Config {}
-function testArrayShape() {
-    // TODO: 
-}
-
 // A list is iterable as a sequence of its members.
 @test:Config {}
 function testArrayMemberIteration() {
@@ -256,7 +250,7 @@ function testArrayInherentTypeViolation() {
     int[] intArray = [1, 2];
     any[] anyArray = intArray;
     utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, intArray.length() - 1, "not an int"),
-                      "{ballerina}InherentTypeViolation", 
+                      "{ballerina}InherentTypeViolation",
                       "invalid reason on inherent type violating array insertion");
 
     map<string>[] stringMapArray = [
@@ -276,13 +270,13 @@ function testArrayInherentTypeViolation() {
         two: "test string 2"
     };
     utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, stringOrIntMap),
-                      "{ballerina}InherentTypeViolation", 
+                      "{ballerina}InherentTypeViolation",
                       "invalid reason on inherent type violating array insertion");
 
     utils:FooRecord[] fooRecordArray = [<utils:FooRecord>{ fooFieldOne: "test string 1" }];
     anyArray = fooRecordArray;
     utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, intArray.length() - 1, <utils:BarRecord> { barFieldOne: 1 }),
-                      "{ballerina}InherentTypeViolation", 
+                      "{ballerina}InherentTypeViolation",
                       "invalid reason on inherent type violating array insertion");
 
     map<utils:FooRecord>[] fooRecordMapArray = [
@@ -301,7 +295,7 @@ function testArrayInherentTypeViolation() {
         one: <utils:FooRecord>{ fooFieldOne: "test string 1" }
     };
     utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, fooRecordOrBarRecordMap),
-                      "{ballerina}InherentTypeViolation", 
+                      "{ballerina}InherentTypeViolation",
                       "invalid reason on inherent type violating array insertion");
 
     utils:FooObject f1 = new("test string 1");
@@ -312,7 +306,7 @@ function testArrayInherentTypeViolation() {
 
     utils:BarObject b1 = new(1);
     utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, b1),
-                      "{ballerina}InherentTypeViolation", 
+                      "{ballerina}InherentTypeViolation",
                       "invalid reason on inherent type violating array insertion");
 
     map<utils:FooObject>[] fooObjectMapArray = [
@@ -331,8 +325,22 @@ function testArrayInherentTypeViolation() {
         one: f1
     };
     utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, fooRecordOrBarObjectMap),
-                      "{ballerina}InherentTypeViolation", 
+                      "{ballerina}InherentTypeViolation",
                       "invalid reason on inherent type violating array insertion");
+}
+
+// Both kinds of type descriptor are covariant in the types of their members.
+@test:Config {}
+function testArrayCovariance() {
+    string[] stringArray = ["string one", "string two"];
+    (string|int)[] stringOrIntArray = stringArray;
+    stringOrIntArray[2] = "string three";
+
+    test:assertEquals(stringOrIntArray[0], "string one", msg = "expected the original value");
+    test:assertEquals(stringOrIntArray[1], "string two", msg = "expected the original value");
+    test:assertEquals(stringOrIntArray[2], "string three", msg = "expected the original value");
+        utils:assertErrorReason(trap utils:insertMemberToArray(stringOrIntArray, 0, 1),
+        "{ballerina}InherentTypeViolation", "invalid reason on inherent type violating array insertion");
 }
 
 // array-type-descriptor := member-type-descriptor [ [ array-length ] ]

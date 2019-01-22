@@ -28,7 +28,7 @@ import ballerina/test;
 }
 function testErrorTypeDescriptorBroken() {
     map<anydata> detail = { cause: "Core Error" };
-    error <string, map<any>> error1 = error("Error Three", detail);
+    error <string, map<anydata>> error1 = error("Error Three", detail);
     detail.stacktrace = "xyz";
     test:assertEquals(error1.detail(), detail, msg = "expected detail map in error to be changed");
 }
@@ -49,7 +49,7 @@ function testErrorImplicitInitialValueBroken() {
 // https://github.com/ballerina-platform/ballerina-lang/issues/13205
 @test:Config {}
 function testErrorTypeDescriptorsDetailValueBroken() {
-    error <string, map<any>> error1 = error("Error One", { detail: "failed" });
+    error <string, map<anydata>> error1 = error("Error One", { detail: "failed" });
 }
 
 // An error value contains the following information:

@@ -123,10 +123,16 @@ function testTupleMemberReferenceByValidIntegerIndex() {
     test:assertEquals(b14, a14, msg = "expected value not found at index 3");
 }
 
-// The shape of a list value is an ordered list of the shapes of its members.
+// Both kinds of type descriptor are covariant in the types of their members.
 @test:Config {}
-function testTupleShape() {
-    // TODO:
+function testTupleCovariance() {
+    (string, boolean) sbTuple = ("string one", true);
+    (string|int, float|boolean) unionTuple = sbTuple;
+
+    test:assertEquals(sbTuple[0], "string one", msg = "expected the original value");
+    test:assertEquals(sbTuple[1], true, msg = "expected the original value");
+    utils:assertErrorReason(trap utils:insertMemberToTuple(unionTuple, 1),
+        "{ballerina}InherentTypeViolation", "invalid reason on inherent type violating array insertion");
 }
 
 // The inherent type of a list value determines a type Ti for a member with index i.
