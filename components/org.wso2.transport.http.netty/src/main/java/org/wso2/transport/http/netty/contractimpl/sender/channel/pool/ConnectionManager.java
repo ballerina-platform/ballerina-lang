@@ -224,4 +224,8 @@ public class ConnectionManager {
         }
         return clientPool;
     }
+
+    public PoolConfiguration getPoolConfiguration() {
+        return poolConfiguration;
+    }
 }
