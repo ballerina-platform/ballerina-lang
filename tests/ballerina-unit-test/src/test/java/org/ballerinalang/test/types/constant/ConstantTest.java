@@ -423,4 +423,88 @@ public class ConstantTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
+
+    @Test
+    public void testSimpleBooleanConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleBooleanConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":true}");
+    }
+
+    @Test
+    public void testComplexBooleanConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexBooleanConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key2\":{\"key1\":true}}");
+    }
+
+    @Test
+    public void testSimpleIntConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleIntConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":1}");
+    }
+
+    @Test
+    public void testComplexIntConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key2\":{\"key1\":1}}");
+    }
+
+    @Test
+    public void testSimpleByteConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleByteConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":10}");
+    }
+
+    @Test
+    public void testComplexByteConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexByteConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key2\":{\"key1\":10}}");
+    }
+
+    @Test
+    public void testSimpleDecimalConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleDecimalConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":100}");
+    }
+
+    @Test
+    public void testComplexDecimalConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexDecimalConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key2\":{\"key1\":100}}");
+    }
+
+    @Test
+    public void testSimpleFloatConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleFloatConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":2.0}");
+    }
+
+    @Test
+    public void testComplexFloatConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexFloatConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key2\":{\"key1\":2.0}}");
+    }
+
+    @Test
+    public void testSimpleStringConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleStringConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":\"value1\"}");
+    }
+
+    @Test
+    public void testComplexStringConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexStringConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key2\":{\"key1\":\"value1\"}}");
+    }
 }
