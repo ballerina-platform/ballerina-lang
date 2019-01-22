@@ -48,6 +48,12 @@ function testFreezeOnContainer() {
     _ = a4.freeze();
     utils:assertErrorReason(trap utils:updateFooRecord(a4, "test string 2"), B7A_INVALID_UPDATE_REASON, 
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+
+    table<utils:BarRecord> a5 = table{};
+    utils:BarRecord b1 = { barFieldOne: 100 };
+    _ = a5.freeze();
+    utils:assertErrorReason(trap a5.add(b1), B7A_INVALID_UPDATE_REASON,
+                            IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 }
 
 // A frozen container value can refer only to immutable values:
@@ -219,4 +225,10 @@ function testContainerValueInherentType() {
                     msg = "expected to not be able to add a value of type that is not same type or sub type");
     test:assertTrue(!(anyVal is string), 
                     msg = "expected value's type to not be of same type or sub type");
+
+    table<utils:BarRecord> a5 = table{};
+    utils:BazRecord b1 = { bazFieldOne: 1.0 };
+    result = a5.add(b1);
+    test:assertTrue(result is error,
+                    msg = "expected to not be able to add a value of type that is not same type or sub type");
 }
