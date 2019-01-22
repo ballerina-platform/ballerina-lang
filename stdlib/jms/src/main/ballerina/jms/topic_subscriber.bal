@@ -125,7 +125,7 @@ public type TopicSubscriberCaller client object {
     public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-remote function TopicSubscriberCaller.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+public remote function TopicSubscriberCaller.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     var subscriber = self.topicSubscriber;
     if (subscriber is TopicSubscriber) {

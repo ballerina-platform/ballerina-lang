@@ -101,8 +101,10 @@ function testRecordBindingPattern() {
     boolean var5;
     () var6;
     int[] var7;
+    string var8;
     map<anydata> restParam = {};
     map<anydata> restParam2 = {};
+    map<anydata> restParam3 = {};
 
     // a record-binding-pattern { f1: p1, f2: p2, …, fn: pn, r } matches a mapping value m that has fields f1, f2, ... ,
     // fn if pi matches the value of field fi for each i in 1 to n
@@ -147,18 +149,31 @@ function testRecordBindingPattern() {
     test:assertEquals(restParam.field7, expectedArray,
         msg = "expected record value to be destructured to variable references");
 
-    { ...restParam2 } = bindingPattern;
+    { field2: var8, ...restParam2 } = bindingPattern;
 
     test:assertEquals(restParam2.field1, 11, msg = "expected record value to be destructured to variable references");
-    test:assertEquals(restParam2.field2, "string4",
-        msg = "expected record value to be destructured to variable references");
+    test:assertEquals(var8, "string4", msg = "expected record value to be destructured to variable references");
     test:assertEquals(restParam2.field3, 19.9, msg = "expected record value to be destructured to variable references");
     test:assertEquals(restParam2.var4, <decimal>18.9,
-        msg = "expected record value to be destructured to variable references");
+    msg = "expected record value to be destructured to variable references");
     test:assertEquals(restParam2.var5, false, msg = "expected record value to be destructured to variable references");
     test:assertEquals(restParam2.field6, (), msg = "expected record value to be destructured to variable references");
     expectedArray = [8, 9, 10, 11];
     test:assertEquals(restParam2.field7, expectedArray,
+    msg = "expected record value to be destructured to variable references");
+
+    { ...restParam3 } = bindingPattern;
+
+    test:assertEquals(restParam3.field1, 11, msg = "expected record value to be destructured to variable references");
+    test:assertEquals(restParam3.field2, "string4",
+        msg = "expected record value to be destructured to variable references");
+    test:assertEquals(restParam3.field3, 19.9, msg = "expected record value to be destructured to variable references");
+    test:assertEquals(restParam3.var4, <decimal>18.9,
+        msg = "expected record value to be destructured to variable references");
+    test:assertEquals(restParam3.var5, false, msg = "expected record value to be destructured to variable references");
+    test:assertEquals(restParam3.field6, (), msg = "expected record value to be destructured to variable references");
+    expectedArray = [8, 9, 10, 11];
+    test:assertEquals(restParam3.field7, expectedArray,
         msg = "expected record value to be destructured to variable references");
 }
 

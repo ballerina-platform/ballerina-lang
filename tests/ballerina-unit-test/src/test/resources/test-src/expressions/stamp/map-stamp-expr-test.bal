@@ -33,6 +33,18 @@ type IntRecord record{
     int b;
 };
 
+type Person record {
+    string name = "";
+    int age = 0;
+    Person? parent = ();
+};
+
+type Engineer record {
+    string name = "";
+    int age = 0;
+    Engineer? parent = ();
+};
+
 //----------------------------Map Stamp -------------------------------------------------------------
 
 function stampIntMapToRecord() returns IntRecord|error {
@@ -251,4 +263,28 @@ function stampMapToRecordNegative() returns EmployeeClosedRecord|error {
     EmployeeClosedRecord|error employee = EmployeeClosedRecord.stamp(m);
 
     return employee;
+}
+
+function testStampRecordToRecordWithCyclicValueReferences() returns Engineer {
+    Person p = { name: "Waruna", age: 25, parent: null };
+    Person p2 = { name: "Milinda", age: 25, parent:p };
+    p.parent = p2;
+    Engineer e =  Engineer.stamp(p); // Cyclic value will be check with isLikeType method.
+    return e;
+}
+
+function testStampRecordToJsonWithCyclicValueReferences() returns json|error {
+    Person p = { name: "Waruna", age: 25, parent: null };
+    Person p2 = { name: "Milinda", age: 25, parent:p };
+    p.parent = p2;
+    json j =  check json.stamp(p); // Cyclic value will be check with isLikeType method.
+    return j;
+}
+
+function testStampRecordToMapWithCyclicValueReferences() returns map<anydata>|error {
+    Person p = { name: "Waruna", age: 25, parent: null };
+    Person p2 = { name: "Milinda", age: 25, parent:p };
+    p.parent = p2;
+    map<anydata> m =  check map<anydata>.stamp(p.clone()); // Cyclic value will be check when stamping the value.
+    return m;
 }

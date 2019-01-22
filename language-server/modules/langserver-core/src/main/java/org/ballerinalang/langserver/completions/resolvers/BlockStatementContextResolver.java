@@ -32,7 +32,6 @@ import java.util.List;
 public class BlockStatementContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         AbstractItemResolver itemResolver;
 
         ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
@@ -41,8 +40,7 @@ public class BlockStatementContextResolver extends AbstractItemResolver {
         } else {
             itemResolver = CompletionItemResolver.get(StatementContextResolver.class);
         }
-        completionItems.addAll(itemResolver.resolveItems(completionContext));
 
-        return completionItems;
+        return new ArrayList<>(itemResolver.resolveItems(completionContext));
     }
 }

@@ -1169,6 +1169,11 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jzlib</artifactId>
+                <version>${jzlib.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-pool.wso2</groupId>
                 <artifactId>commons-pool</artifactId>
                 <version>${commons.pool.version}</version>
@@ -2252,7 +2257,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.252</transport.http.version>
+        <transport.http.version>6.0.253</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2276,6 +2281,7 @@
         <mockito.version>1.9.0</mockito.version>
         <javassist.version>3.20.0-GA</javassist.version>
         <netty.version>4.1.19.Final</netty.version>
+        <jzlib.version>1.1.3</jzlib.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <picocli.version>3.3.0</picocli.version>

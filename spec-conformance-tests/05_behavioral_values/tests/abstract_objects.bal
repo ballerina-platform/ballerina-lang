@@ -25,7 +25,7 @@ type AbstractObject abstract object {
     function defaultVisibiltyMethodDecl(string argOne, int argTwo);
     public function publicMethodDecl(string argOne, int argTwo, float defaultVisibilityFloatField) returns float;
     function defaultVisibiltyMethodOutsideDecl(string argOne, int argTwo);
-    //public function publicMethodOutsideDecl(string argOne, int argTwo, float defaultVisibilityFloatField) returns float;
+    public function publicMethodOutsideDecl(string argOne, int argTwo, float defaultVisibilityFloatField) returns float;
 };
 
 type ObjReferenceToAbstractObject object {
@@ -52,6 +52,16 @@ type ObjReferenceToAbstractObject object {
     }
 };
 
+function ObjReferenceToAbstractObject.defaultVisibiltyMethodOutsideDecl(string argOne, int argTwo) {
+    self.defaultVisibilityFloatField += argTwo;
+}
+
+public function ObjReferenceToAbstractObject.publicMethodOutsideDecl(string argOne, int argTwo,
+                                                              float defaultVisibilityFloatField) returns float {
+    self.defaultVisibilityFloatField += defaultVisibilityFloatField + argTwo;
+    return self.defaultVisibilityFloatField;
+}
+
 type AbstractClientObject abstract client object {
     public string publicStringField;
     float defaultVisibilityFloatField;
@@ -60,15 +70,13 @@ type AbstractClientObject abstract client object {
     function defaultVisibiltyMethodDecl(string argOne, int argTwo);
     public function publicMethodDecl(string argOne, int argTwo, float defaultVisibilityFloatField) returns float;
     function defaultVisibiltyMethodOutsideDecl(string argOne, int argTwo);
+    public function publicMethodOutsideDecl(string argOne, int argTwo, float defaultVisibilityFloatField) returns float;
     remote function defaultVisibiltyRemoteMethodDecl(string argOne, int argTwo);
     public remote function publicRemoteMethodDecl(string argOne, int argTwo,
                                                   float defaultVisibilityFloatField) returns float;
     remote function remoteMethodOutsideDecl(string argOne, int argTwo) returns float;
+    public remote function publicRemoteMethodOutsideDecl(string argOne, int argTwo, float defaultVisibilityFloatField) returns float;
 };
-
-function ObjReferenceToAbstractObject.defaultVisibiltyMethodOutsideDecl(string argOne, int argTwo) {
-    self.defaultVisibilityFloatField += argTwo;
-}
 
 type ObjReferenceToAbstractClientObject client object {
     *AbstractClientObject;
@@ -108,15 +116,23 @@ function ObjReferenceToAbstractClientObject.defaultVisibiltyMethodOutsideDecl(st
     self.defaultVisibilityFloatField += argTwo;
 }
 
+public function ObjReferenceToAbstractClientObject.publicMethodOutsideDecl(
+                                                 string argOne, int argTwo, float defaultVisibilityFloatField) returns float {
+    self.defaultVisibilityFloatField += defaultVisibilityFloatField + argTwo;
+    return self.defaultVisibilityFloatField;
+}
+
 remote function ObjReferenceToAbstractClientObject.remoteMethodOutsideDecl(string argOne, int argTwo) returns float {
     self.defaultVisibilityFloatField += argTwo;
     return self.defaultVisibilityFloatField;
 }
 
-//public function ObjReferenceToAbstractObject.publicMethodOutsideDecl(
-//                                      string argOne, int argTwo, float defaultVisibilityFloatField) returns float {
-//    return self.defaultVisibilityFloatField;
-//}
+public remote function ObjReferenceToAbstractClientObject.publicRemoteMethodOutsideDecl(
+                                      string argOne, int argTwo, float defaultVisibilityFloatField) returns float {
+    self.defaultVisibilityFloatField += defaultVisibilityFloatField + argTwo;
+    return self.defaultVisibilityFloatField;
+}
+
 @test:Config {}
 function testAbstractObjectTypeDescriptor() {
     ObjReferenceToAbstractClientObject abstractClientObj = new("string", 12, 100.0);
@@ -127,12 +143,13 @@ function testAbstractObjectTypeDescriptor() {
         msg = "expected object private field to be accessible via object method");
     test:assertEquals(abstractObj.defaultVisibilityFloatField, 100.0,
         msg = "expected object default visibilty field to be accessible");
-
     test:assertEquals(abstractObj.defaultVisibiltyMethodDecl("argOne", 50), (),
         msg = "expected object default visibility method to be accessible");
     test:assertEquals(abstractObj.defaultVisibiltyMethodOutsideDecl("argOne", 25), (),
         msg = "expected object default visibility method declared outside to be accessible");
-    test:assertEquals(abstractObj.publicMethodDecl("argOne", 125, 25), 325.0,
+    test:assertEquals(abstractObj.publicMethodOutsideDecl("argOne", 25, 25.0), 225.0,
+        msg = "expected object public method declared outside to be accessible");
+    test:assertEquals(abstractObj.publicMethodDecl("argOne", 125, 25), 375.0,
         msg = "expected object public visibility method to be accessible");
 
 
@@ -142,18 +159,22 @@ function testAbstractObjectTypeDescriptor() {
         msg = "expected client object private field to be accessible via object method");
     test:assertEquals(abstractClientObj.defaultVisibilityFloatField, 100.0,
         msg = "expected client object default visibilty field to be accessible");
-
     test:assertEquals(abstractClientObj.defaultVisibiltyMethodDecl("argOne", 50), (),
         msg = "expected client object default visibility method to be accessible");
     test:assertEquals(abstractClientObj.defaultVisibiltyMethodOutsideDecl("argOne", 25), (),
         msg = "expected client object default visibility method declared outside to be accessible");
+    test:assertEquals(abstractClientObj.publicMethodOutsideDecl("argOne", 25, 25.0), 225.0,
+        msg = "expected client object public method declared outside to be accessible");
     _ = abstractClientObj->defaultVisibiltyRemoteMethodDecl("argOne", 25);
-    test:assertEquals(abstractClientObj.publicMethodDecl("argOne", 125, 25), 350.0,
+    test:assertEquals(abstractClientObj.publicMethodDecl("argOne", 125, 25), 400.0,
         msg = "expected client object public visibility method to be accessible");
     var result = abstractClientObj->remoteMethodOutsideDecl("argOne", 125);
-    test:assertEquals(result, 475.0,
-        msg = "expected client object public visibility remote method declared outside to be accessible");
+    test:assertEquals(result, 525.0,
+        msg = "expected client object default visibility remote method declared outside to be accessible");
     result = abstractClientObj->publicRemoteMethodDecl("argOne", 125, 50);
-    test:assertEquals(result, 650.0,
+    test:assertEquals(result, 700.0,
+        msg = "expected client object public visibility remote method to be accessible");
+    result = abstractClientObj->publicRemoteMethodOutsideDecl("argOne", 25, 25.0);
+    test:assertEquals(result, 750.0,
         msg = "expected client object public visibility remote method declared outside to be accessible");
 }

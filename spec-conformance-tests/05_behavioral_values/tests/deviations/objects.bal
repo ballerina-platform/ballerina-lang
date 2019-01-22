@@ -34,22 +34,6 @@ import ballerina/test;
 //    }
 //};
 
-// outside-method-defn := [visibility-qual] [remote]
-// function qual-method-name function-signature function-body-block
-// qual-method-name := object-type-name . method-name
-// The method-defn-quals on an outside-method-defn must contain the same qualifiers (both
-// remote and visibility qualifiers) as the declaration of the method within the object
-// TODO: Visibility modifiers should be allowed for outside method definitions.
-//type OutsideMethodDefnBroken object {
-//    private boolean test;
-//
-//    public function testing();
-//};
-
-//public function OutsideMethodDefnBroken.testing() {
-//    io:println("YAY");
-//}
-
 // Visibility of fields, object initializer and methods is specified uniformly: public means that
 // access is unrestricted; private means that access is restricted to the same object; if no
 // visibility is specified explicitly, then access is restricted to the same module.
