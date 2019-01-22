@@ -1795,7 +1795,7 @@ public function timeAccum(any[] windowParameters, function (StreamEvent[])? next
     return timeAccumulatingWindow1;
 }
 
-public type HoppingTimeWindow object {
+public type HoppingWindow object {
     public int timeInMilliSeconds;
     public int hopeTime;
     public any[] windowParameters;
@@ -1823,7 +1823,7 @@ public type HoppingTimeWindow object {
             if (windowTimeParam is int) {
                 self.timeInMilliSeconds = windowTimeParam;
             } else {
-                error err = error("HoppingTime window's first parameter, windowTime should be of type int");
+                error err = error("Hopping window's first parameter, windowTime should be of type int");
                 panic err;
             }
 
@@ -1831,11 +1831,11 @@ public type HoppingTimeWindow object {
             if (hopeTimeParam is int) {
                 self.hopeTime = hopeTimeParam;
             } else {
-                error err = error("HoppingTime window's second parameter, hopeTime should be of type int");
+                error err = error("Hopping window's second parameter, hopeTime should be of type int");
                 panic err;
             }
         } else {
-            error err = error("HoppingTime window should only have two parameters (<int> windowTime, <int> " +
+            error err = error("Hopping window should only have two parameters (<int> windowTime, <int> " +
                 "hopeTime), but found " + parameters.length() + " input attributes");
             panic err;
         }
@@ -1944,8 +1944,8 @@ public type HoppingTimeWindow object {
     }
 };
 
-public function hoppingTime(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function hopping(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
-    HoppingTimeWindow hoppingTimeWindow = new(nextProcessPointer, windowParameters);
-    return hoppingTimeWindow;
+    HoppingWindow hoppingWindow = new(nextProcessPointer, windowParameters);
+    return hoppingWindow;
 }
