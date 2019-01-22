@@ -46,5 +46,6 @@ public type PrivateKey record {
 #
 # + algorithm - Key algorithm
 public type PublicKey record {
+    string algorithm;
     !...;
 };
