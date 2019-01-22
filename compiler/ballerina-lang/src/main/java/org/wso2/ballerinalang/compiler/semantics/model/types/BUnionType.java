@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -87,6 +88,36 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public boolean hasImplicitInitialValue() {
-        return memberTypes.stream().anyMatch(t -> t.tag == TypeTags.NIL);
+        // NIL is a member.
+        if (memberTypes.stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
+            return true;
+        }
+
+        // All members are of same type and has the implicit initial value as a member.
+        if (!memberTypes.isEmpty()) {
+            Iterator<BType> iterator = memberTypes.iterator();
+            BType firstMember;
+            for (firstMember = iterator.next(); iterator.hasNext(); ) {
+                if (firstMember != iterator.next()) {
+                    return false;
+                }
+            }
+            // Control reaching here means there is only one type in the union.
+
+            return isBasicType(firstMember.tag) && firstMember.hasImplicitInitialValue();
+        }
+        return false;
+    }
+
+    private boolean isBasicType(int tag) {
+        switch (tag) {
+            case TypeTags.BOOLEAN:
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.STRING:
+                return true;
+            default:
+                return false;
+        }
     }
 }

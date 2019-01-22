@@ -342,11 +342,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
-        if (funcNode.returnTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
-            BType elementType = ((BArrayType) funcNode.returnTypeNode.type).getElementType();
-            DiagnosticPos pos = funcNode.returnTypeNode.pos;
-            if (!elementType.hasImplicitInitialValue()) {
-                this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, elementType, elementType);
+
+        analyzeArrayElemImplicitInitialValue(funcNode.returnTypeNode.type, funcNode.returnTypeNode.pos);
+        if (funcNode.returnTypeNode.type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) funcNode.returnTypeNode.type).memberTypes) {
+                analyzeArrayElemImplicitInitialValue(memberType, funcNode.returnTypeNode.pos);
             }
         }
         if (isPublicInvokableNode(funcNode)) {
@@ -367,6 +367,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnTypes.pop();
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
+    }
+
+    private void analyzeArrayElemImplicitInitialValue(BType type, DiagnosticPos pos) {
+        if (type.tag == TypeTags.ARRAY) {
+            BType elementType = ((BArrayType) type).getElementType();
+            if (!elementType.hasImplicitInitialValue()) {
+                this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, elementType, elementType);
+            }
+        }
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -975,13 +984,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
-        if (varNode.type.tag == TypeTags.ARRAY) {
-            BType elementType = ((BArrayType) varNode.type).getElementType();
-            if (!elementType.hasImplicitInitialValue()) {
-                BLangType eType = ((BLangArrayType) varNode.typeNode).elemtype;
-                this.dlog.error(varNode.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
-            }
-        }
+        analyzeArrayVariableImplicitInitialValue(varNode);
+
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {
@@ -1003,6 +1007,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (varNode.expr == null && ownerSymTag == SymTag.PACKAGE) {
             this.dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
+        }
+    }
+
+    private void analyzeArrayVariableImplicitInitialValue(BLangSimpleVariable varNode) {
+        if (varNode.typeNode == null || varNode.typeNode.type == null) {
+            return;
+        }
+        // Variable is a array def, elements must have implicit initial value.
+        if (varNode.typeNode.type.tag == TypeTags.ARRAY) {
+            BType elementType = ((BArrayType) varNode.typeNode.type).getElementType();
+            if (!elementType.hasImplicitInitialValue()) {
+                BLangType eType = ((BLangArrayType) varNode.typeNode).elemtype;
+                this.dlog.error(varNode.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+            }
+        } else if (varNode.typeNode.type.tag == TypeTags.INVOKABLE) {
+            // Variable is a function pointer, analyze parameters.
+            BLangFunctionTypeNode typeNode = (BLangFunctionTypeNode) varNode.typeNode;
+
+            for (BLangVariable variable : typeNode.params) {
+                visit((BLangSimpleVariable) variable);
+            }
         }
     }
 

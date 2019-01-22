@@ -41,3 +41,6 @@ type allStrNonEmpty "a"|"b"|"c";
 
 allStrInclEmpty[] strFiniteArr = [];
 allStrNonEmpty[] strFiniteNonEmptyArr = [];
+
+type U int|float?;
+U[] u = [];

@@ -77,3 +77,34 @@ FT?[] optFiniteTypeArray = [2,3];
 type FTN 1|2|3|();
 // TFN have an implicit initial value
 FTN[] finiteTypeIIVArray = [];
+
+// Union of same type, which does have a IIV.
+type IandI int|int;
+IandI[] iAndI = [];
+
+type FandF float|float;
+FandF[] fandF = [];
+
+type FTUnion FT|FT;
+FTUnion[] fU = [];
+
+type FTSingle FT;
+FTSingle[] fUS;
+
+type FTNUnion FTN|FTN;
+FTNUnion[] ftnU = [];
+
+type FTNSingle FTN;
+FTNSingle[] ftnS = [];
+
+function foo(FTN[] ftns) {
+    var i = ftns;
+}
+
+function bar((function (FT[])) func) {
+    _ = func.call([1]);
+}
+
+function bar2((function (FTN[])) func) {
+    _ = func.call([1]);
+}
