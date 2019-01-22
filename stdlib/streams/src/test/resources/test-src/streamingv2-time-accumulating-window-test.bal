@@ -52,11 +52,11 @@ function startAccumulatingTimeWindowTest() returns (Teacher[]) {
 
     inputStreamTimeAccumulatingWindow.publish(t1);
     inputStreamTimeAccumulatingWindow.publish(t2);
-    runtime:sleep(1200);
+    runtime:sleep(2000);
     inputStreamTimeAccumulatingWindow.publish(t3);
     inputStreamTimeAccumulatingWindow.publish(t4);
     inputStreamTimeAccumulatingWindow.publish(t5);
-    runtime:sleep(1200);
+    runtime:sleep(2000);
     inputStreamTimeAccumulatingWindow.publish(t6);
 
     int count = 0;
