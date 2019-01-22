@@ -332,12 +332,12 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
         } else if (scheme == JWT_AUTH) {
             string authToken = runtime:getInvocationContext().authContext.authToken;
             if (authToken == EMPTY_STRING) {
-                error err = error("Authentication token is not set at invocation context");
+                error err = error(HTTP_ERROR_CODE, { message: "Authentication token is not set at invocation context" });
                 return err;
             }
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
         } else {
-            error err = error("Invalid authentication scheme. It should be basic, oauth2 or jwt");
+            error err = error(HTTP_ERROR_CODE, { message: "Invalid authentication scheme. It should be basic, oauth2 or jwt" });
             return err;
         }
     }
@@ -372,7 +372,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
     string[] scopes = config.auth.scopes ?: [];
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
-        error err = error("AccessTokenError",
+        error err = error(HTTP_ERROR_CODE,
             { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,
         refresh url are not provided" });
         return err;
@@ -403,7 +403,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
         if (refreshTokenResponse.statusCode == OK_200) {
             return generatedToken.access_token.toString();
         } else {
-            error err = error("AccessTokenError",
+            error err = error(HTTP_ERROR_CODE,
                 { message: "Failed to generate new access token from the given refresh token" });
             return err;
         }

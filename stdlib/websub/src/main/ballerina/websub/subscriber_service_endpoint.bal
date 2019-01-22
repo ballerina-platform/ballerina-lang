@@ -220,6 +220,18 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
                                             returns @tainted (string, string)|error {
     http:Client resourceEP = new http:Client(resourceUrl, config = subscriptionClientConfig);
     http:Request request = new;
+    var scheme = subscriptionClientConfig.auth.scheme;
+    if (scheme is AuthScheme) {
+        if (scheme == JWT_AUTH) {
+            string authTokenUserConfig = config:getAsString("b7a.websub.subscriber.authToken");
+            if (authTokenUserConfig == "") {
+                map<any> errorDetail = { message : "JWT token user config(b7a.websub.subscriber.authToken) cannot be empty." };
+                websubError = error(WEBSUB_ERROR_CODE, errorDetail);
+                return websubError;
+            }
+            runtime:getInvocationContext().authContext.authToken = authTokenUserConfig;
+        }
+    }
     var discoveryResponse = resourceEP->get("", message = request);
     error websubError = error("Dummy");
     if (discoveryResponse is http:Response) {
@@ -233,6 +245,9 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
             return topicAndHubs;
         }
     } else if (discoveryResponse is error) {
+        io:println("-----------------------------------------------------");
+        io:println(discoveryResponse);
+        io:println("-----------------------------------------------------");
         string errCause = <string> discoveryResponse.detail().message;
         map<any> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
                                 resourceUrl + "]: " + errCause };
