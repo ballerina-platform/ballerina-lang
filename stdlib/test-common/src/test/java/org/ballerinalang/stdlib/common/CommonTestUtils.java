@@ -42,7 +42,7 @@ public class CommonTestUtils {
      * @param relativePath the relative file path location.
      * @return the absolute path.
      */
-    public String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
+    public static String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
         URL fileResource = BServiceUtil.class.getClassLoader().getResource(relativePath);
         String pathValue = "";
         if (null != fileResource) {

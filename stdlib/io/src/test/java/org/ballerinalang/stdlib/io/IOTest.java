@@ -29,7 +29,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.stdlib.common.CommonTestUtils;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -42,6 +41,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.stdlib.common.CommonTestUtils.getAbsoluteFilePath;
+
 /**
  * Tests I/O related functions.
  */
@@ -52,7 +53,6 @@ public class IOTest {
     private CompileResult recordsInputOutputProgramFile;
     private CompileResult stringInputOutputProgramFile;
     private String currentDirectoryPath = "/tmp";
-    private CommonTestUtils commonTestUtils = new CommonTestUtils();
 
     @BeforeClass
     public void setup() {
@@ -70,7 +70,7 @@ public class IOTest {
         BValueArray readBytes;
 
         //Will initialize the channel
-        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead))};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initReadableChannel", args);
 
         //Reads the 1st three bytes "123"
@@ -104,7 +104,7 @@ public class IOTest {
         BString readCharacters;
 
         //Will initialize the channel
-        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         String expectedCharacters = "aaa";
@@ -137,7 +137,7 @@ public class IOTest {
         BString readCharacters;
 
         //Will initialize the channel
-        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         int expectedNumberOfCharacters = 2265223;
@@ -155,7 +155,7 @@ public class IOTest {
         BString readCharacters;
 
         //Will initialize the channel
-        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         int expectedNumberOfCharacters = 0;
@@ -174,7 +174,7 @@ public class IOTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString("\n"), new BString(",")};
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initReadableChannel", args);
 
@@ -260,7 +260,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/text/web-app.json";
 
         //Will initialize the channel
-        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readJson");
@@ -319,7 +319,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/text/cd_catalog.xml";
 
         //Will initialize the channel
-        BValue[] args = {new BString(commonTestUtils.getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readXml");
@@ -350,7 +350,7 @@ public class IOTest {
     }
 
     private String readFileContent(String filePath) throws URISyntaxException {
-        Path path = Paths.get(commonTestUtils.getAbsoluteFilePath(filePath));
+        Path path = Paths.get(getAbsoluteFilePath(filePath));
         StringBuilder data = new StringBuilder();
         Stream<String> lines;
         try {
