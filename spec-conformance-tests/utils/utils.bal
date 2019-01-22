@@ -114,7 +114,7 @@ public function insertMemberToTuple((any, any) tuple, any member) {
 # + mapVal - the map to which the member should be added
 # + index - the key with which the member should be added
 # + member - the member to be added
-public function insertMemberToMap(map<any> mapVal, string index, any member) {
+public function insertMemberToMap(map<any|error> mapVal, string index, any|error member) {
     mapVal[index] = member;
 }
 
