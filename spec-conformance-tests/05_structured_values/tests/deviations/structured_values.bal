@@ -35,6 +35,9 @@ function testFreezeOnContainerBroken() {
 
     utils:assertErrorReason(trap testFrozenRecordUpdateBroken(), B7A_INVALID_UPDATE_REASON, 
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+
+    utils:assertErrorReason(trap testFrozenTableUpdateBroken(), B7A_INVALID_UPDATE_REASON,
+                            IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 }
 
 function testFrozenArrayUpdateBroken() {
@@ -61,6 +64,31 @@ function testFrozenRecordUpdateBroken() {
     utils:FooRecord a4 = { fooFieldOne: "test string 1" };
     _ = a4.freeze();
     a4.fooFieldOne = "test string update";
+}
+
+function testFrozenTableUpdateBroken() {
+    table<utils:BarRecord> a5 = table{};
+    utils:BarRecord b1 = { barFieldOne: 100 };
+    _ = a5.freeze();
+    _ = a5.add(b1);
+}
+
+// A frozen container value can refer only to immutable values:
+// either other frozen values or values of basic types that are always immutable.
+// Once frozen, a container value remains frozen.
+// TODO: Fix frozen table member frozenness
+@test:Config {
+    groups: ["broken"]
+}
+function testFrozenStructureMembersFrozennessBroken() {
+    table<utils:BarRecord> a13 = table{};
+    test:assertFalse(a13.isFrozen(), msg = "exected value to not be frozen");
+    utils:BarRecord a14 = { barFieldOne: 100 };
+    _ = a13.add(a14);
+    _ = a13.freeze();
+    test:assertTrue(a13.isFrozen(), msg = "exected value to be frozen");
+    //test:assertTrue(a14.isFrozen(), msg = "exected value to be frozen");
+    test:assertFalse(a14.isFrozen(), msg = "exected value to not be frozen");
 }
 
 // A frozen container value belongs to a type if and only if the type contains the shape of the
