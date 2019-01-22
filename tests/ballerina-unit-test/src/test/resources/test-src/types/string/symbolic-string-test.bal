@@ -161,13 +161,15 @@ function testBase64ToBase16Encoding() returns string {
 function testHMACValueFromBase16ToBase64Encoding() returns (string) {
     string base = 'helloworld;
     string key = 'abcdefghijk;
-    return crypto:hmac(base, key, crypto:MD5).base16ToBase64Encode();
+    return encoding:encodeHex(crypto:hmacMd5(base.toByteArray("UTF-8"), key.toByteArray("UTF-8")))
+        .base16ToBase64Encode();
 }
 
 function testHMACValueFromBase64ToBase16Encoding() returns (string) {
     string base = 'helloworld;
     string key = "abcdefghijk";
-    return crypto:hmac(base, key, crypto:MD5).base16ToBase64Encode().base64ToBase16Encode();
+    return encoding:encodeHex(crypto:hmacMd5(base.toByteArray("UTF-8"), key.toByteArray("UTF-8")))
+        .base16ToBase64Encode().base64ToBase16Encode();
 }
 
 function testStringArray() returns (string) {

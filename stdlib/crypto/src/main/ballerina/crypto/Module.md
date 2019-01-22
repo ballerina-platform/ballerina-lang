@@ -17,22 +17,23 @@ public function main() {
      // Input value for crypto operations
      string input = "Hello Ballerina";
      byte[] inputArr = input.toByteArray("UTF-8");
+     byte[] output = [];
 
      // Hashing input value using different hashing algorithms, and printing hash value using Hex encoding.
      output = crypto:hashMd5(inputArr);
-     io:println("Hash with MD5: " + );
+     io:println("Hash with MD5: " + encoding:encodeHex(output));
 
      output = crypto:hashSha1(inputArr);
-     io:println("Hash with SHA1: " + encode:encodeHex(output));
+     io:println("Hash with SHA1: " + encoding:encodeHex(output));
 
      output = crypto:hashSha256(inputArr);
-     io:println("Hash with SHA256: " + encode:encodeHex(output));
+     io:println("Hash with SHA256: " + encoding:encodeHex(output));
 
      output = crypto:hashSha384(inputArr);
-     io:println("Hash with SHA384: " + encode:encodeHex(output));
+     io:println("Hash with SHA384: " + encoding:encodeHex(output));
 
      output = crypto:hashSha512(inputArr);
-     io:println("Hash with SHA512: " + encode:encodeHex(output));
+     io:println("Hash with SHA512: " + encoding:encodeHex(output));
 }
 ```
 
@@ -57,21 +58,23 @@ public function main() {
      string key = "somesecret";
      byte[] keyArr = key.toByteArray(charEncoding);
 
+     byte[] output = [];
+
      // HMAC generation for input value using different HMAC algorithms, and printing HMAC value using Hex encoding.
-     byte[] output = crypto:hmacMd5(inputArr, keyArr);
-     io:println("HMAC with MD5: " + encode:encodeHex(output));
+     output = crypto:hmacMd5(inputArr, keyArr);
+     io:println("HMAC with MD5: " + encoding:encodeHex(output));
 
      output = crypto:hmacSha1(inputArr, keyArr);
-     io:println("HMAC with SHA1: " + encode:encodeHex(output));
+     io:println("HMAC with SHA1: " + encoding:encodeHex(output));
 
      output = crypto:hmacSha256(inputArr, keyArr);
-     io:println("HMAC with SHA256: " + encode:encodeHex(output));
+     io:println("HMAC with SHA256: " + encoding:encodeHex(output));
 
      output = crypto:hmacSha384(inputArr, keyArr);
-     io:println("HMAC with SHA384: " + encode:encodeHex(output));
+     io:println("HMAC with SHA384: " + encoding:encodeHex(output));
 
      output = crypto:hmacSha512(inputArr, keyArr);
-     io:println("HMAC with SHA512: " + encode:encodeHex(output));
+     io:println("HMAC with SHA512: " + encoding:encodeHex(output));
 }
 ```
 
@@ -113,26 +116,25 @@ public function main() {
      byte[] inputArr = input.toByteArray("UTF-8");
 
      // PrivateKey used for signing operations.
-     crypto:PrivateKey privateKey = crypto:decodePrivateKey(keyStore = "/home/ballerina/keystore.p12",
-                                                            keyStorePassword = "ballerina",
-                                                            keyAlias = "ballerina",
+     crypto:KeyStore keyStore = { path: "/home/ballerina/keystore.p12", password: "ballerina" };
+     crypto:PrivateKey privateKey = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
                                                             keyPassword = "ballerina");
 
 
      // Signing input value using different signature algorithms, and printing the signature value using Hex encoding.
      output = crypto:signRsaMd5(inputArr, privateKey);
-     io:println("RSA-MD5 signature: " + encode:encodeHex(output));
+     io:println("RSA-MD5 signature: " + encoding:encodeHex(output));
 
      output = crypto:signRsaSha1(inputArr, privateKey);
-     io:println("RSA-SHA1 signature: " + encode:encodeHex(output));
+     io:println("RSA-SHA1 signature: " + encoding:encodeHex(output));
 
      output = crypto:signRsaSha256(inputArr, privateKey);
-     io:println("RSA-SHA256 signature: " + encode:encodeHex(output));
+     io:println("RSA-SHA256 signature: " + encoding:encodeHex(output));
 
      output = crypto:signRsaSha384(inputArr, privateKey);
-     io:println("RSA-SHA384 signature: " + encode:encodeHex(output));
+     io:println("RSA-SHA384 signature: " + encoding:encodeHex(output));
 
      output = crypto:signRsaSha512(inputArr, privateKey);
-     io:println("RSA-SHA512 signature: " + encode:encodeHex(output));
+     io:println("RSA-SHA512 signature: " + encoding:encodeHex(output));
 }
 ```

@@ -27,8 +27,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
-import java.util.Base64;
-
 /**
  * Extern function ballerina.encoding:decodeHex.
  *
