@@ -74,7 +74,7 @@ function startHoppingWindowTest() returns (Teacher[]) {
 function testHoppingWindow() {
 
     forever {
-        from inputStreamHoppingWindow window hoppingTime(1000, 500)
+        from inputStreamHoppingWindow window hopping(1000, 500)
         select inputStreamHoppingWindow.name, inputStreamHoppingWindow.age, inputStreamHoppingWindow.status,
         inputStreamHoppingWindow.school, count() as count
         => (Person [] emp) {
