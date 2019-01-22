@@ -49,9 +49,6 @@ import java.security.PrivateKey;
         isPublic = true)
 public class SignRsaMd5 extends BlockingNativeCallableUnit {
 
-    /**
-     * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
-     */
     @Override
     public void execute(Context context) {
         BValue inputBValue = context.getRefArgument(0);
