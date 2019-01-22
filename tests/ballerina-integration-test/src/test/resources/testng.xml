@@ -220,7 +220,7 @@
 
     <test name="ballerina-jms-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.jms.JMSConnectorTestCase"/>
+            <class name="org.ballerinalang.test.jms.JmsConnectorTestCase"/>
         </classes>
     </test>
 
