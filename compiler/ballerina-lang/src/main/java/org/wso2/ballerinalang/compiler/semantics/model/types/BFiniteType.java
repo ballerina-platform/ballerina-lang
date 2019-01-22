@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -66,7 +67,37 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public boolean hasImplicitInitialValue() {
-        return valueSpace.stream().anyMatch(value -> value.type.tag == TypeTags.NIL);
+        // Has NIL element as a member.
+        if (valueSpace.stream().anyMatch(value -> value.type.tag == TypeTags.NIL)) {
+            return true;
+        }
+        // All of the element are from same type. And elements contains implicit initial value.
+        if (!valueSpace.isEmpty()) {
+            BLangExpression firstElement = valueSpace.iterator().next();
+            boolean sameType = valueSpace.stream().allMatch(value -> value.type.tag == firstElement.type.tag);
+            if (!sameType) {
+                return false;
+            }
+
+            switch (firstElement.type.tag) {
+                case TypeTags.STRING:
+                    return containsElement(valueSpace, "\"\"");
+                case TypeTags.INT:
+                    return containsElement(valueSpace, "0");
+                case TypeTags.FLOAT:
+                    return containsElement(valueSpace, "0.0");
+                case TypeTags.BOOLEAN:
+                    return containsElement(valueSpace, "false");
+                default:
+                    return false;
+            }
+
+        }
+        return false;
+    }
+
+    private boolean containsElement(Set<BLangExpression> valueSpace, String element) {
+        return valueSpace.stream().map(v -> (BLangLiteral) v).anyMatch(lit -> lit.originalValue.equals(element));
     }
 
     @Override

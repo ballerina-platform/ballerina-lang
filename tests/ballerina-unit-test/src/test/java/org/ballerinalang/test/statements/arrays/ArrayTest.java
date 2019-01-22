@@ -139,9 +139,31 @@ public class ArrayTest {
     @Test(description = "Test arrays of types without implicit initial values")
     public void testArrayImplicitInitialValues() {
         Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0, "array element type 'ObjInitWithParam' must " +
-                "have an implicit initial value, use 'ObjInitWithParam?'", 53, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, "array element type 'FT' must have an " +
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0, "array element type 'ObjInitWithParam' " +
+                "does not have an implicit initial value, use 'ObjInitWithParam?'", 53, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, "array element type 'FT' does not have an " +
                 "implicit initial value, use 'FT?'", 74, 1);
+    }
+
+    @Test(description = "Test arrays of types without implicit initial values")
+    public void testArrayImplicitInitialValuesOfFiniteType() {
+        CompileResult negResult = BCompileUtil.compile(
+                "test-src/statements/arrays/array-implicit-initial-value-finite-type-negative.bal");
+        Assert.assertEquals(negResult.getErrorCount(), 4);
+        BAssertUtil.validateError(negResult, 0,
+                "array element type 'allInitNonZero' does not have an implicit initial value, use 'allInitNonZero?'",
+                22, 1);
+
+        BAssertUtil.validateError(negResult, 1,
+                "array element type 'allFloatNonZero' does not have an implicit initial value, use 'allFloatNonZero?'",
+                29, 1);
+
+        BAssertUtil.validateError(negResult, 2,
+                "array element type 'bTrue' does not have an implicit initial value, use 'bTrue?'",
+                36, 1);
+
+        BAssertUtil.validateError(negResult, 3,
+                "array element type 'allStrNonEmpty' does not have an implicit initial value, use 'allStrNonEmpty?'",
+                43, 1);
     }
 }
