@@ -23,7 +23,7 @@ function closeWc(io:WritableCharacterChannel wc) {
 function write(xml content, string path) returns error? {
     // Creates a byte channel from the given path.
     io:WritableByteChannel wbc = io:openWritableFile(path);
-    // Derives the character channel from the byte Channel.
+    // Derives the character channel from the byte channel.
     io:WritableCharacterChannel wch = new(wbc, "UTF8");
     var result = wch.writeXml(content);
     if (result is error) {
