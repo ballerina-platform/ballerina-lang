@@ -1,4 +1,4 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run hello_world_client.bal
-INFO  [] - Hello World
+Hello World

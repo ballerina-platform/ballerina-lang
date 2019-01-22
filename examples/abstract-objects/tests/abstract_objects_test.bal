@@ -10,7 +10,7 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
+    outputs[counter] = string.convert(s[0]);
     counter += 1;
 }
 
@@ -18,6 +18,6 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[0], "This is a sample text");
-    test:assertEquals(outputs[1], 11);
+    test:assertEquals(outputs[0], "John Doe");
+    test:assertEquals(outputs[1], "{age:50, firstName:\"John\", lastName:\"Doe\"}");
 }
