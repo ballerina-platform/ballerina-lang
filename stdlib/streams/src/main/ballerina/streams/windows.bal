@@ -1819,17 +1819,17 @@ public type HoppingTimeWindow object {
 
     public function initParameters(any[] parameters) {
         if (parameters.length() == 2) {
-            any parameter0 = parameters[0];
-            if (parameter0 is int) {
-                self.timeInMilliSeconds = parameter0;
+            any windowTimeParam = parameters[0];
+            if (windowTimeParam is int) {
+                self.timeInMilliSeconds = windowTimeParam;
             } else {
                 error err = error("HoppingTime window's first parameter, windowTime should be of type int");
                 panic err;
             }
 
-            any parameter1 = parameters[1];
-            if (parameter1 is int) {
-                self.hopeTime = parameter1;
+            any hopeTimeParam = parameters[1];
+            if (hopeTimeParam is int) {
+                self.hopeTime = hopeTimeParam;
             } else {
                 error err = error("HoppingTime window's second parameter, hopeTime should be of type int");
                 panic err;
