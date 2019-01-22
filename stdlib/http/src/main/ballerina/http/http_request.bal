@@ -422,5 +422,5 @@ public function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel
 # + status - Status of the handshake.
 public type MutualSslHandshake record {
     string status = "";
-    !...
+    !...;
 };
