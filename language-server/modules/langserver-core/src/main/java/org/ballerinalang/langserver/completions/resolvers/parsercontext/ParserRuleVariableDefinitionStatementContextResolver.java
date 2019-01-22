@@ -199,7 +199,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
                 SnippetBlock.SnippetType.SNIPPET);
 
         // Populate the anonymous function signature completion item
-        completionItems.add(snippetBlock.build(new CompletionItem(), snippetSupport));
+        completionItems.add(snippetBlock.build(snippetSupport));
     }
 
     private String getFunctionSignature(List<BLangVariable> paramTypes, BLangType returnType)
@@ -249,7 +249,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
                 SnippetBlock.SnippetType.SNIPPET);
 
         // Populate the anonymous function signature completion item
-        completionItems.add(snippetBlock.build(new CompletionItem(), snippetSupport));
+        completionItems.add(snippetBlock.build(snippetSupport));
     }
     
     private String getAnonFunctionSnippetBody(BLangType returnType, int numberOfParams) throws LSCompletionException {
