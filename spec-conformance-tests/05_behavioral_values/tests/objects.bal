@@ -56,8 +56,8 @@ type NormalObject object {
     // method-name := identifier
     // method-body := function-body-block | ;
     // metadata := [DocumentationString] annots
-    //public function publicMethodDecl(string argOne, int argTwo);
-    //private function privateMethodDecl(string argOne, int argTwo);
+    public function publicMethodDecl(string argOne, int argTwo) returns float;
+    private function privateMethodDecl(string argOne, int argTwo);
     function defaultVisibiltyMethodDecl(string argOne, int argTwo) returns float;
 
     public function publicMethodDefn(string argOne, int argTwo, float defaultVisibilityFloatField) returns float {
@@ -74,17 +74,20 @@ type NormalObject object {
     }
 
     function defaultVisibiltyMethodDefn(string argOne, int argTwo) returns float {
-        return self.defaultVisibilityFloatField + argTwo;
+        self.defaultVisibilityFloatField = self.defaultVisibilityFloatField + argTwo;
+        return self.defaultVisibilityFloatField;
     }
 };
 
-//public function NormalObject.publicMethodDecl(string argOne, int argTwo) {
-//
-//}
-//
-//private function NormalObject.privateMethodDecl(string argOne, int argTwo) {
-//
-//}
+public function NormalObject.publicMethodDecl(string argOne, int argTwo) returns float {
+    self.publicStringField = argOne;
+    self.defaultVisibilityFloatField += argTwo;
+    return self.defaultVisibilityFloatField;
+}
+
+private function NormalObject.privateMethodDecl(string argOne, int argTwo) {
+    self.defaultVisibilityFloatField += argTwo;
+}
 
 function NormalObject.defaultVisibiltyMethodDecl(string argOne, int argTwo) returns float {
     return self.defaultVisibilityFloatField + argTwo;
@@ -105,12 +108,12 @@ type ClientObject client object {
         return self.privateIntField;
     }
 
-    //public function publicMethodDecl(string argOne, int argTwo);
-    //private function privateMethodDecl(string argOne, int argTwo);
+    public function publicMethodDecl(string argOne, int argTwo) returns float;
+    private function privateMethodDecl(string argOne, int argTwo);
     function defaultVisibiltyMethodDecl(string argOne, int argTwo) returns float;
 
-    //public remote function publicRemoteMethodDecl(string argOne, int argTwo);
-    //private remote function privateRemoteMethodDecl(string argOne, int argTwo);
+    public remote function publicRemoteMethodDecl(string argOne, int argTwo) returns float;
+    private remote function privateRemoteMethodDecl(string argOne, int argTwo);
     remote function defaultVisibiltyRemoteMethodDecl(string argOne, int argTwo);
 
     public function publicMethodDefn(string argOne, int argTwo, float defaultVisibilityFloatField) returns float {
@@ -149,26 +152,30 @@ type ClientObject client object {
     }
 };
 
-//public function ClientObject.publicMethodDecl(string argOne, int argTwo) {
-//
-//}
-//
-//private function ClientObject.privateMethodDecl(string argOne, int argTwo) {
-//
-//}
+public function ClientObject.publicMethodDecl(string argOne, int argTwo) returns float {
+    self.publicStringField = argOne;
+    self.defaultVisibilityFloatField += argTwo;
+    return self.defaultVisibilityFloatField;
+}
+
+private function ClientObject.privateMethodDecl(string argOne, int argTwo) {
+    self.defaultVisibilityFloatField += argTwo;
+}
 
 function ClientObject.defaultVisibiltyMethodDecl(string argOne, int argTwo) returns float {
     self.defaultVisibilityFloatField += argTwo;
     return self.defaultVisibilityFloatField;
 }
 
-//public remote function ClientObject.publicRemoteMethodDecl(string argOne, int argTwo) {
-//
-//}
-//
-//private remote function ClientObject.privateRemoteMethodDecl(string argOne, int argTwo) {
-//
-//}
+public remote function ClientObject.publicRemoteMethodDecl(string argOne, int argTwo) returns float {
+    self.publicStringField = argOne;
+    self.defaultVisibilityFloatField += argTwo;
+    return self.defaultVisibilityFloatField;
+}
+
+private remote function ClientObject.privateRemoteMethodDecl(string argOne, int argTwo) {
+    self.defaultVisibilityFloatField += argTwo;
+}
 
 remote function ClientObject.defaultVisibiltyRemoteMethodDecl(string argOne, int argTwo) {
     self.defaultVisibilityFloatField += argTwo;
@@ -191,7 +198,11 @@ function testObjectTypeDescriptor() {
         msg = "expected object default visibility method to be accessible");
     test:assertEquals(normalObject.publicMethodDefn("argOne", 100, 50.0), 250.0,
         msg = "expected object public method to be accessible");
-    test:assertEquals(normalObject.defaultVisibiltyMethodDefn("argOne", 100), 350.0,
+    test:assertEquals(normalObject.publicMethodDecl("changed string", 100), 350.0,
+        msg = "expected object public method to be accessible");
+    test:assertEquals(normalObject.publicStringField, "changed string",
+        msg = "expected object public field to be accessible");
+    test:assertEquals(normalObject.defaultVisibiltyMethodDefn("argOne", 50), 400.0,
         msg = "expected object default visibility method to be accessible");
 
     test:assertEquals(clientObject.publicStringField, "default string value",
@@ -207,10 +218,17 @@ function testObjectTypeDescriptor() {
     _ = clientObject->defaultVisibiltyRemoteMethodDecl("argOne", 50);
     test:assertEquals(clientObject.defaultVisibilityFloatField, 200.0,
         msg = "expected client object default visibility field to be accessible");
+    _ = clientObject->publicRemoteMethodDecl("argOne", 50);
+    test:assertEquals(clientObject.defaultVisibilityFloatField, 250.0,
+        msg = "expected client object default visibility field to be accessible");
 
-    test:assertEquals(clientObject.publicMethodDefn("argOne", 100, 150), 450.0,
+    test:assertEquals(clientObject.publicMethodDefn("argOne", 100, 150), 500.0,
         msg = "expected client object public method to be accessible");
-    test:assertEquals(clientObject.defaultVisibiltyMethodDefn("argOne", 50), 500.0,
+    test:assertEquals(clientObject.publicMethodDecl("changed string", 50), 550.0,
+        msg = "expected client object public method to be accessible");
+    test:assertEquals(clientObject.publicStringField, "changed string",
+        msg = "expected client object public field to be accessible");
+    test:assertEquals(clientObject.defaultVisibiltyMethodDefn("argOne", 25), 575.0,
         msg = "expected client object default visibility method to be accessible");
 }
 

@@ -30,7 +30,7 @@ public type PublicNormalObject object {
     // TODO: Test public method declared outside
 };
 
-public  type PublicClientObject client object {
+public type PublicClientObject client object {
     public string publicStringField;
     private int counter;
 
