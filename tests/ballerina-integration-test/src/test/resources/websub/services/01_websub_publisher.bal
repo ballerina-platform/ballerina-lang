@@ -17,8 +17,8 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
-import ballerina/websub;
 import ballerina/runtime;
+import ballerina/websub;
 
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 const string WEBSUB_TOPIC_TWO = "http://two.websub.topic.com";
@@ -232,23 +232,22 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
 }
 
 function checkSubscriberAvailability(string topic, string callback) {
+    int count = 0;
     boolean subscriberAvailable = false;
-    while(!subscriberAvailable) {
+    while (!subscriberAvailable && count < 60) {
         websub:SubscriberDetails[] topicDetails = webSubHub.getSubscribers(topic);
         if (isSubscriberAvailable(topicDetails, callback)) {
-            subscriberAvailable = true;
-        } else {
-            runtime:sleep(1000);
+            return;
         }
+        runtime:sleep(1000);
+        count += 1;
     }
 }
 
 function isSubscriberAvailable(websub:SubscriberDetails[] topicDetails, string callback) returns boolean {
     foreach var detail in topicDetails {
-        if(detail.callback == callback) {
+        if (detail.callback == callback) {
             return true;
-        } else {
-            continue;
         }
     }
     return false;
