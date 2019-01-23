@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 /**
  * {@code BTableType} represents tabular data in Ballerina.
@@ -49,12 +50,12 @@ public class BTableType extends BType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        return (V) new BTable(this, null, null, new BValueArray(this.constraint));
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BTable();
+        return (V) new BTable(this, null, null, new BValueArray(this.constraint));
     }
 
     @Override
