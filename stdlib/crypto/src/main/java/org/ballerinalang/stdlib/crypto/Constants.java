@@ -52,10 +52,10 @@ public class Constants {
     // Password field in KEY_STORE_RECORD record.
     public static final String KEY_STORE_RECORD_PASSWORD_FIELD = "password";
 
-    // Path field in KEY_STORE_RECORD record.
+    // Path field in TRUST_STORE_RECORD record.
     public static final String TRUST_STORE_RECORD_PATH_FIELD = "path";
 
-    // Password field in KEY_STORE_RECORD record.
+    // Password field in TRUST_STORE_RECORD record.
     public static final String TRUST_STORE_RECORD_PASSWORD_FIELD = "password";
 
     // Algorithm field in PRIVATE_KEY_RECORD.
