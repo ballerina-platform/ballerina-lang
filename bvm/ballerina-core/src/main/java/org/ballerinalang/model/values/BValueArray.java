@@ -126,7 +126,9 @@ public class BValueArray extends BNewArray implements Serializable {
                     this.size = maxArraySize = arrayType.getSize();
                 }
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
-                Arrays.fill(refValues, arrayType.getElementType().getZeroValue());
+                // TODO: 1/17/19 This is only required to fill the initially created array. If we can lazily fill
+                // that initial array as well, no need to fill it here.
+//                Arrays.fill(refValues, arrayType.getElementType().getZeroValue());
             } else if (type.getTag() == TypeTags.TUPLE_TAG) {
                 BTupleType tupleType = (BTupleType) type;
                 this.size = maxArraySize = tupleType.getTupleTypes().size();
@@ -525,9 +527,11 @@ public class BValueArray extends BNewArray implements Serializable {
                     break;
                 case TypeTags.STRING_TAG:
                     stringValues = Arrays.copyOf(stringValues, newLength);
+                    Arrays.fill(stringValues, size, stringValues.length - 1, BLangConstants.STRING_EMPTY_VALUE);
                     break;
                 default:
                     refValues = Arrays.copyOf(refValues, newLength);
+                    Arrays.fill(refValues, size, refValues.length - 1, elementType.getZeroValue());
                     break;
             }
         } else {

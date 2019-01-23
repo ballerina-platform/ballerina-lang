@@ -19,6 +19,8 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -62,12 +64,41 @@ public class BUnionType extends BType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        if (nullable || memberTypes.stream().anyMatch(BTypes::isImplicitInitValueNil)) {
+            return null;
+        }
+
+        return memberTypes.get(0).getZeroValue();
+//        validateBasicType(firstType);
+//
+//        for (int i = 1; i < memberTypes.size(); i++) {
+//            BType type = memberTypes.get(i);
+//            if (!checkIsSameType(firstType, type)) {
+//                throw new IllegalStateException(
+//                        "Union type '" + this.typeName + "' does not have an implicit initial value.");
+//            }
+//        }
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return null;
+        if (nullable || memberTypes.stream().anyMatch(BTypes::isImplicitInitValueNil)) {
+            return null;
+        }
+
+        return memberTypes.get(0).getZeroValue();
+//        BType firstType = memberTypes.get(0);
+//        validateBasicType(firstType);
+//
+//        for (int i = 1; i < memberTypes.size(); i++) {
+//            BType type = memberTypes.get(i);
+//            if (!firstType.equals(type)) {
+//                throw new IllegalStateException(
+//                        "Union type '" + this.typeName + "' does not have an implicit initial value.");
+//            }
+//        }
+//
+//        return firstType.getEmptyValue();
     }
 
     @Override
@@ -95,7 +126,60 @@ public class BUnionType extends BType {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(super.hashCode(), memberTypes);
     }
+
+    private void validateBasicType(BType type) {
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            ((BUnionType) type).memberTypes.forEach(memType -> {
+                if (!BTypes.isBasicType(memType)) {
+                    throw new IllegalStateException(
+                            "Component type '" + memType.getName() + "' of the union type '" + type.typeName +
+                                    "' is not a basic type.");
+                }
+            });
+        } else if (type.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            ((BFiniteType) type).valueSpace.forEach(value -> {
+                if (value != null && !BTypes.isBasicType(value.getType())) {
+                    throw new IllegalStateException(
+                            "Component type '" + value.getType().getName() + "' of the union type '" + type.typeName +
+                                    "' is not a basic type.");
+                }
+            });
+        } else if (!BTypes.isBasicType(type)) {
+            throw new IllegalStateException(
+                    "Component type '" + type.getName() + "' of the union type '" + this.typeName +
+                            "' is not a basic type.");
+        }
+    }
+
+    private boolean checkIsSameType(BType source, BType target) {
+        switch (target.getTag()) {
+            case TypeTags.UNION_TAG:
+                BUnionType unionType = (BUnionType) target;
+                return checkIsSameType(unionType.memberTypes) && unionType.memberTypes.get(0).equals(source);
+            case TypeTags.FINITE_TYPE_TAG:
+                BFiniteType finiteType = (BFiniteType) target;
+                return checkIsSameType(finiteType.valueSpace.stream()
+                                               .map(val -> val == null ? BTypes.typeNull : val.getType())
+                                               .collect(Collectors.toSet()))
+                        && finiteType.valueSpace.iterator().next().getType().equals(source);
+            default:
+                return target.equals(source);
+        }
+    }
+
+    private boolean checkIsSameType(Collection<BType> types) {
+        boolean isSameType = true;
+        Iterator<BType> valueIterator = types.iterator();
+        BType firstValType = valueIterator.next();
+
+        while (valueIterator.hasNext()) {
+            BType valType = valueIterator.next();
+            isSameType = isSameType && checkIsSameType(firstValType, valType);
+        }
+
+        return isSameType;
+    }
 }
+

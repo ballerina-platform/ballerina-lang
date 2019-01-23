@@ -98,7 +98,7 @@ public class BArrayType extends BType implements BIndexedType {
             case TypeTags.DECIMAL_TAG:
                 return (V) new BDecimalArray();
             default:
-                return (V) new BValueArray();
+                return (V) new BValueArray(this);
         }
     }
 

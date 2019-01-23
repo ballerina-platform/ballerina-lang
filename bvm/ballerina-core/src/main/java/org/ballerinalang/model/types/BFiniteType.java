@@ -20,6 +20,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -36,17 +37,75 @@ public class BFiniteType extends BType {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BFiniteType)) {
+            return false;
+        }
+        BFiniteType that = (BFiniteType) o;
+        return valueSpace.containsAll(that.valueSpace) && that.valueSpace.containsAll(valueSpace);
+    }
+
+    @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        if (valueSpace.stream().anyMatch(val -> val == null || BTypes.isImplicitInitValueNil(val.getType()))) {
+            return null;
+        }
+
+        Iterator<BValue> valueIterator = valueSpace.iterator();
+        BValue firstVal = valueIterator.next();
+        BValue implicitInitValOfType = firstVal.getType().getZeroValue();
+
+        if (implicitInitValOfType.equals(firstVal)) {
+            return (V) implicitInitValOfType;
+        }
+
+        while (valueIterator.hasNext()) {
+            BValue value = valueIterator.next();
+            if (implicitInitValOfType.equals(value)) {
+                return (V) implicitInitValOfType;
+            }
+        }
+
+        throw new IllegalStateException("Finite type '" + this.typeName + "' does not have an implicit initial value.");
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return null;
+        if (valueSpace.stream().anyMatch(val -> val == null || BTypes.isImplicitInitValueNil(val.getType()))) {
+            return null;
+        }
+
+        Iterator<BValue> valueIterator = valueSpace.iterator();
+        BValue firstVal = valueIterator.next();
+        BValue implicitInitValOfType = firstVal.getType().getZeroValue();
+
+        if (implicitInitValOfType.equals(firstVal)) {
+            return (V) implicitInitValOfType;
+        }
+
+        while (valueIterator.hasNext()) {
+            BValue value = valueIterator.next();
+            if (implicitInitValOfType.equals(value)) {
+                return (V) implicitInitValOfType;
+            }
+        }
+
+        throw new IllegalStateException("Finite type '" + this.typeName + "' does not have an implicit initial value.");
     }
 
     @Override
     public int getTag() {
         return TypeTags.FINITE_TYPE_TAG;
+    }
+
+    private void validateBasicType(BType type) {
+        if (!BTypes.isBasicType(type)) {
+            throw new IllegalStateException(
+                    "Component type '" + type.getName() + "' of the union type '" + this.typeName +
+                            "' is not a basic type.");
+        }
     }
 }
