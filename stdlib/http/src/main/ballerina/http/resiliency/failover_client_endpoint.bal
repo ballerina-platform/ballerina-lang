@@ -270,8 +270,15 @@ function performExecuteAction (string path, Request request, string httpVerb,
 // Handles all the actions exposed through the Failover connector.
 function performFailoverAction (string path, Request request, HttpOperation requestAction,
                                                 FailoverClient failoverClient) returns Response|error {
-    Client foClient = <Client>failoverClient.failoverInferredConfig.failoverClientsArray[failoverClient
-    .succeededEndpointIndex];
+
+    Client foClient;
+    var c = failoverClient.failoverInferredConfig.failoverClientsArray[failoverClient.succeededEndpointIndex];
+    if (c is Client) {
+        foClient = c;
+    } else {
+        error err = error("Unexpected type ");
+        panic err;
+    }
     FailoverInferredConfig failoverInferredConfig = failoverClient.failoverInferredConfig;
     Client?[] failoverClients = failoverInferredConfig.failoverClientsArray;
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
@@ -384,7 +391,14 @@ function performFailoverAction (string path, Request request, HttpOperation requ
         }
         failoverRequest = check createFailoverRequest(failoverRequest, requestEntity);
         runtime:sleep(failoverInterval);
-        foClient = <Client>failoverClients[currentIndex];
+
+        var tmpClnt = failoverClients[currentIndex];
+        if (tmpClnt is Client) {
+            foClient = tmpClnt;
+        } else {
+            error err = error("Unexpected type ");
+            panic err;
+        }
     }
     return inResponse;
 }
