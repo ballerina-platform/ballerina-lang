@@ -1765,7 +1765,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        /* ignore */
+        analyzeExpr(bLangNamedArgsExpression.expr);
     }
 
     @Override
