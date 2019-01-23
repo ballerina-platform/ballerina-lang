@@ -51,16 +51,12 @@ public class BallerinaStreamsV2HoppingWindowTest {
         Assert.assertEquals(outputEmployeeEvents.length, 5, "Expected events are not received");
 
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
-        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
         BMap<String, BValue> employee3 = (BMap<String, BValue>) outputEmployeeEvents[2];
         BMap<String, BValue> employee4 = (BMap<String, BValue>) outputEmployeeEvents[3];
         BMap<String, BValue> employee5 = (BMap<String, BValue>) outputEmployeeEvents[4];
 
         Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
         Assert.assertEquals(((BInteger) employee0.get("count")).intValue(), 2);
-
-        Assert.assertEquals(employee1.get("name").stringValue(), "Naveen");
-        Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 1);
 
         Assert.assertEquals(employee3.get("name").stringValue(), "Naveen");
         Assert.assertEquals(((BInteger) employee3.get("count")).intValue(), 1);

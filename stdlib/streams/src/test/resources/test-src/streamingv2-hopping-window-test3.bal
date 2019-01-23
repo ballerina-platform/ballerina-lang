@@ -52,7 +52,7 @@ function startHoppingWindowTest3() returns (Teacher[]) {
 
     inputStreamHoppingWindow3.publish(t1);
     inputStreamHoppingWindow3.publish(t2);
-    runtime:sleep(700);
+    runtime:sleep(800);
     inputStreamHoppingWindow3.publish(t3);
     runtime:sleep(1000);
     inputStreamHoppingWindow3.publish(t4);
