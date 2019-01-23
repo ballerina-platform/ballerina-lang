@@ -59,13 +59,13 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
     public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
         ServerHandshakeFuture handshakeFuture = null;
         if (getBooleanValueOfHeader(webSocketHandshaker, "x-negotiate-sub-protocols")) {
-            handshakeFuture = webSocketHandshaker.handshake(supportingSubProtocols, true);
+            handshakeFuture = webSocketHandshaker.handshake(supportingSubProtocols);
         } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-send-custom-header")) {
             DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
             httpHeaders.add("x-custom-header", "custom-header-value");
-            handshakeFuture = webSocketHandshaker.handshake(null, true, -1, httpHeaders);
+            handshakeFuture = webSocketHandshaker.handshake(null, -1, httpHeaders);
         } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-set-connection-timeout")) {
-            handshakeFuture = webSocketHandshaker.handshake(null, true, 4000);
+            handshakeFuture = webSocketHandshaker.handshake(null, 4000);
         } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-wait-for-frame-read")) {
             handshakeFuture = webSocketHandshaker.handshake();
         } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-handshake")) {

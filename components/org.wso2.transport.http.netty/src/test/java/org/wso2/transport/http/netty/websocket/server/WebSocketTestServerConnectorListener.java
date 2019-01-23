@@ -76,7 +76,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
-        ServerHandshakeFuture future = webSocketHandshaker.handshake(null, true, 3000);
+        ServerHandshakeFuture future = webSocketHandshaker.handshake(null, 3000);
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {

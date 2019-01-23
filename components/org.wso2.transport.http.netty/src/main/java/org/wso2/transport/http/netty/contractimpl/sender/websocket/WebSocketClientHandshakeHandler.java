@@ -22,8 +22,11 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.websocketx.WebSocket13FrameDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
+import io.netty.handler.codec.http.websocketx.WebSocketFrameDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -84,6 +87,13 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
             ctx.channel().config().setAutoRead(false);
             handshaker.finishHandshake(ctx.channel(), handshakeResponse);
             Channel channel = ctx.channel();
+            String extensionsHeader = handshakeResponse.headers().getAsString(HttpHeaderNames.SEC_WEBSOCKET_EXTENSIONS);
+            if (extensionsHeader == null) {
+                // This replaces the frame decoder to make sure the rsv bits are not allowed
+                channel.pipeline().replace(WebSocketFrameDecoder.class, "ws-decoder",
+                                           new WebSocket13FrameDecoder(false, false, handshaker.maxFramePayloadLength(),
+                                                                       false));
+            }
             WebSocketInboundFrameHandler inboundFrameHandler = new WebSocketInboundFrameHandler(
                     false, secure, requestedUri, handshaker.actualSubprotocol(), connectorFuture, messageQueueHandler);
             channel.pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);

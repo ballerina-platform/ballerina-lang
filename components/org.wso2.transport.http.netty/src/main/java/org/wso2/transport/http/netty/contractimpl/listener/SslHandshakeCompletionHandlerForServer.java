@@ -25,6 +25,12 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import org.wso2.transport.http.netty.contract.Constants;
 
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_FAILED;
+import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_PASSED;
+
 /**
  * A handler to check whether TLS handshake has been completed. Rest of the handlers will be added to the pipeline
  * once this becomes successful.
@@ -33,11 +39,13 @@ public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandle
 
     private HttpServerChannelInitializer httpServerChannelInitializer;
     private ChannelPipeline serverPipeline;
+    private SSLEngine sslEngine;
 
     SslHandshakeCompletionHandlerForServer(HttpServerChannelInitializer httpServerChannelInitializer,
-            ChannelPipeline serverPipeline) {
+            ChannelPipeline serverPipeline, SSLEngine sslEngine) {
         this.httpServerChannelInitializer = httpServerChannelInitializer;
         this.serverPipeline = serverPipeline;
+        this.sslEngine = sslEngine;
     }
 
     @Override
@@ -47,6 +55,14 @@ public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandle
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
+                if (sslEngine.getWantClientAuth() || sslEngine.getNeedClientAuth()) {
+                    try {
+                        sslEngine.getSession().getPeerCertificates();
+                        ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_PASSED);
+                    } catch (SSLPeerUnverifiedException e) {
+                        ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_FAILED);
+                    }
+                }
                 this.httpServerChannelInitializer.configureHttpPipeline(serverPipeline, Constants.HTTP_SCHEME);
                 ctx.pipeline().remove(this);
                 ctx.fireChannelActive();

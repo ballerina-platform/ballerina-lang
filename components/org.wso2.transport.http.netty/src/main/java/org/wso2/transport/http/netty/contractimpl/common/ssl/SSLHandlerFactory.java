@@ -27,6 +27,8 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 
 import java.io.File;
@@ -61,13 +63,16 @@ public class SSLHandlerFactory {
     private SSLContext sslContext = null;
     private SSLConfig sslConfig;
     private boolean needClientAuth;
+    private boolean wantClientAuth;
     private KeyManagerFactory kmf;
     private TrustManagerFactory tmf;
     private SslContextBuilder sslContextBuilder;
+    private static final Logger LOG = LoggerFactory.getLogger(SSLHandlerFactory.class);
 
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
         needClientAuth = sslConfig.isNeedClientAuth();
+        wantClientAuth = sslConfig.isWantClientAuth();
     }
 
     /**
@@ -130,7 +135,14 @@ public class SSLHandlerFactory {
     public SSLEngine buildServerSSLEngine(SSLContext sslContext) {
         SSLEngine engine = sslContext.createSSLEngine();
         engine.setUseClientMode(false);
-        engine.setNeedClientAuth(needClientAuth);
+        if (needClientAuth) {
+            engine.setNeedClientAuth(true);
+        } else if (wantClientAuth) {
+            engine.setWantClientAuth(true);
+        } else {
+            LOG.warn("Received an unidentified configuration for sslVerifyClient. "
+                    + "Hence client verification will be disabled which is the default configuration.");
+        }
         return addCommonConfigs(engine);
     }
 
@@ -260,8 +272,11 @@ public class SSLHandlerFactory {
     }
 
     private SslContextBuilder serverContextBuilderWithKs(SslProvider sslProvider) {
-        return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).sslProvider(sslProvider);
+        SslContextBuilder serverSslContextBuilder = SslContextBuilder.forServer(this.getKeyManagerFactory())
+                .trustManager(this.getTrustStoreFactory())
+                .sslProvider(sslProvider);
+        setClientAuth(serverSslContextBuilder);
+        return serverSslContextBuilder;
     }
 
     private SslContextBuilder clientContextBuilderWithKs(SslProvider sslProvider) {
@@ -270,11 +285,12 @@ public class SSLHandlerFactory {
 
     private SslContextBuilder serverContextBuilderWithCerts(SslProvider sslProvider) {
         String keyPassword = sslConfig.getServerKeyPassword();
-        return SslContextBuilder
+        SslContextBuilder serverSslContextBuilder = SslContextBuilder
                 .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
                 .keyManager(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile(), keyPassword)
-                .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(sslProvider)
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE);
+                .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(sslProvider);
+        setClientAuth(serverSslContextBuilder);
+        return serverSslContextBuilder;
     }
 
     private SslContextBuilder clientContextBuilderWithCerts(SslProvider sslProvider) {
@@ -330,6 +346,16 @@ public class SSLHandlerFactory {
 
     private TrustManagerFactory getTrustStoreFactory() {
         return tmf;
+    }
+
+    private void setClientAuth(SslContextBuilder serverSslContextBuilder) {
+        if (needClientAuth) {
+            serverSslContextBuilder.clientAuth(ClientAuth.REQUIRE);
+        } else if (wantClientAuth) {
+            serverSslContextBuilder.clientAuth(ClientAuth.OPTIONAL);
+        } else {
+            serverSslContextBuilder.clientAuth(ClientAuth.NONE);
+        }
     }
 
     public void setSNIServerNames(SSLEngine sslEngine, String peerHost) {

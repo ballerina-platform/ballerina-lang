@@ -43,6 +43,8 @@ public final class Constants {
     public static final String CLIENT_SUPPORT_CIPHERS = "ciphers";
     public static final String CLIENT_SUPPORT_SSL_PROTOCOLS = "sslEnabledProtocols";
     public static final String CLIENT_ENABLE_SESSION_CREATION = "shareSession";
+    public static final String MUTUAL_SSL_PASSED = "passed";
+    public static final String MUTUAL_SSL_FAILED = "failed";
 
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
@@ -108,6 +110,7 @@ public final class Constants {
     public static final String JKS = "JKS";
     public static final String TLS_PROTOCOL = "TLS";
     public static final String REQUIRE = "require";
+    public static final String OPTIONAL = "optional";
 
     public static final String TEXT_PLAIN = "text/plain";
 
@@ -178,6 +181,7 @@ public final class Constants {
     public static final String LOCALHOST = "localhost";
 
     public static final String HTTP_OBJECT_AGGREGATOR = "HTTP_OBJECT_AGGREGATOR";
+    public static final String WEBSOCKET_COMPRESSION_HANDLER = "websocket-compression-handler";
     public static final String WS_SCHEME = "ws";
     public static final String WSS_SCHEME = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
@@ -187,6 +191,7 @@ public final class Constants {
     public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
     public static final int WEBSOCKET_STATUS_CODE_PROTOCOL_ERROR = 1002;
     public static final int WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE = 1006;
+    public static final int WEBSOCKET_STATUS_CODE_INVALD_DATA = 1007;
     public static final int WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION = 1011;
     public static final int WEBSOCKET_REQUEST_SIZE = 8192;
 
@@ -225,6 +230,7 @@ public final class Constants {
     public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
     public static final String PROXY_HANDLER = "proxyServerHandler";
     public static final String SSL_COMPLETION_HANDLER = "sslHandshakeCompletionHandler";
+    public static final String MUTUAL_SSL_HANDSHAKE_RESULT = "MUTUAL_SSL_HANDSHAKE_RESULT";
     public static final String HTTP_CERT_VALIDATION_HANDLER = "certificateValidation";
     public static final String CONNECTION_HANDLER = "connectionHandler";
     public static final String HTTP2_TARGET_HANDLER = "http2TargetHandler";
@@ -263,6 +269,10 @@ public final class Constants {
     public static final AttributeKey<Long> NEXT_SEQUENCE_NUMBER = AttributeKey.valueOf("NEXT_SEQUENCE_NUMBER");
     public static final AttributeKey<EventExecutorGroup> PIPELINING_EXECUTOR = AttributeKey
             .valueOf("PIPELINING_EXECUTOR");
+
+    public static final AttributeKey<String> MUTUAL_SSL_RESULT_ATTRIBUTE = AttributeKey
+            .valueOf("MUTUAL_SSL_HANDSHAKE_RESULT");
+
     public static final long EXPECTED_SEQUENCE_NUMBER = 1L;
     public static final int NUMBER_OF_INITIAL_EVENTS_HELD = 3;
     public static final int MEANINGFULLY_EQUAL = 0;

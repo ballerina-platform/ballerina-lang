@@ -187,6 +187,15 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             closeFrameFuture.addListener(future -> ctx.close().addListener(
                     closeFuture -> connectorFuture.notifyWebSocketListener(webSocketConnection, cause)));
             return;
+        } else {
+            //Todo: remove if https://github.com/netty/netty/pull/8705 gets merged
+            String msg = cause.getMessage();
+            if (msg != null && msg.contains("UTF-8")) {
+                ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
+                        Constants.WEBSOCKET_STATUS_CODE_INVALD_DATA, "Invalid UTF-8 frame received"));
+                closeFrameFuture.addListener(future -> ctx.close().addListener(
+                        closeFuture -> connectorFuture.notifyWebSocketListener(webSocketConnection, cause)));
+            }
         }
         connectorFuture.notifyWebSocketListener(webSocketConnection, cause);
     }

@@ -36,6 +36,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.websocketx.Utf8FrameValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -49,6 +50,7 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import java.net.InetSocketAddress;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR;
+import static org.wso2.transport.http.netty.contract.Constants.WEBSOCKET_COMPRESSION_HANDLER;
 
 /**
  * WebSocket handshake handler for carbon transports.
@@ -85,7 +87,11 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                     pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
                                       new HttpObjectAggregator(Constants.WEBSOCKET_REQUEST_SIZE));
-                    pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, "handshake",
+                    pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, WEBSOCKET_COMPRESSION_HANDLER,
+                                      new WebSocketServerCompressionHandler());
+                    pipeline.addAfter(WEBSOCKET_COMPRESSION_HANDLER, Utf8FrameValidator.class.getName(),
+                                      new Utf8FrameValidator());
+                    pipeline.addAfter(Utf8FrameValidator.class.getName(), "handshake",
                                       new SimpleChannelInboundHandler<FullHttpRequest>() {
                                           @Override
                                           protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg)
@@ -147,9 +153,10 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
      */
     private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx)
             throws WebSocketConnectorException {
+        String extensionsHeader = fullHttpRequest.headers().getAsString(HttpHeaderNames.SEC_WEBSOCKET_EXTENSIONS);
         DefaultWebSocketHandshaker webSocketHandshaker =
-                new DefaultWebSocketHandshaker(ctx, serverConnectorFuture, fullHttpRequest,
-                                               fullHttpRequest.uri(), true);
+                new DefaultWebSocketHandshaker(ctx, serverConnectorFuture, fullHttpRequest, fullHttpRequest.uri(),
+                                               extensionsHeader != null);
 
         // Setting common properties to handshaker
         webSocketHandshaker.setHttpCarbonRequest(setupHttpCarbonRequest(fullHttpRequest, ctx));

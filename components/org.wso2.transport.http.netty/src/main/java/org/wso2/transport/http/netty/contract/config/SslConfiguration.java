@@ -18,6 +18,8 @@
 
 package org.wso2.transport.http.netty.contract.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 
@@ -30,6 +32,7 @@ import static org.wso2.transport.http.netty.contract.Constants.CLIENT_SUPPORT_CI
 import static org.wso2.transport.http.netty.contract.Constants.CLIENT_SUPPORT_SSL_PROTOCOLS;
 import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.JKS;
+import static org.wso2.transport.http.netty.contract.Constants.OPTIONAL;
 import static org.wso2.transport.http.netty.contract.Constants.REQUIRE;
 import static org.wso2.transport.http.netty.contract.Constants.SERVER_ENABLE_SESSION_CREATION;
 import static org.wso2.transport.http.netty.contract.Constants.SERVER_SUPPORTED_SERVER_NAMES;
@@ -45,6 +48,7 @@ public class SslConfiguration {
     private String scheme = "http";
     private List<Parameter> parameters = new ArrayList<>();
     private SSLConfig sslConfig = new SSLConfig();
+    private static final Logger LOG = LoggerFactory.getLogger(SslConfiguration.class);
 
     public void setKeyStoreFile(String keyStoreFile) {
         sslConfig.setKeyStore(new File(Util.substituteVariables(keyStoreFile)));
@@ -57,6 +61,11 @@ public class SslConfiguration {
     public void setVerifyClient(String verifyClient) {
         if (REQUIRE.equalsIgnoreCase(verifyClient)) {
             sslConfig.setNeedClientAuth(true);
+        } else if (OPTIONAL.equalsIgnoreCase(verifyClient)) {
+            sslConfig.setWantClientAuth(true);
+        } else {
+            LOG.warn("Received an unidentified configuration for sslVerify client. "
+                    + "Hence client verification will be disabled which is the default configuration.");
         }
     }
 

@@ -147,19 +147,19 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private void configureSslForHttp(ChannelPipeline serverPipeline, SocketChannel ch)
             throws CertificateVerificationException, KeyStoreException, IOException, CertificateException {
-
+        SSLEngine sslEngine;
         if (ocspStaplingEnabled) {
             OCSPResp response = getOcspResponse();
 
             ReferenceCountedOpenSslContext context = sslHandlerFactory
                     .getServerReferenceCountedOpenSslContext(ocspStaplingEnabled);
             SslHandler sslHandler = context.newHandler(ch.alloc());
+            sslEngine = sslHandler.engine();
 
-            ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
+            ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslEngine;
             engine.setOcspResponse(response.getEncoded());
             ch.pipeline().addLast(sslHandler);
         } else {
-            SSLEngine sslEngine;
             if (sslConfig.getServerKeyFile() != null) {
                 SslHandler sslHandler = certAndKeySslContext.newHandler(ch.alloc());
                 sslEngine = sslHandler.engine();
@@ -174,7 +174,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             }
         }
         serverPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
-                new SslHandshakeCompletionHandlerForServer(this, serverPipeline));
+                new SslHandshakeCompletionHandlerForServer(this, serverPipeline, sslEngine));
     }
 
     /**
