@@ -224,7 +224,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 
@@ -3195,8 +3195,9 @@ public class Desugar extends BLangNodeVisitor {
                                                          List<BLangExpression> requiredArgs, List<BType> paramTypes, 
                                                          BType retType) {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BInvokableSymbol cloneSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC, names.fromString
-                (builtInMethod.getInternalName()), BUILTIN, opType, null);
+        BInvokableSymbol cloneSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC,
+                                                            names.fromString(builtInMethod.getName()), UTILS, opType,
+                                                            null);
         return ASTBuilderUtil.createInvocationExprMethod(pos, cloneSymbol, requiredArgs,
                                                          new ArrayList<>(), new ArrayList<>(), symResolver);
     }
