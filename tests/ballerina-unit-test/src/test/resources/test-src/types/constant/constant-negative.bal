@@ -7,13 +7,10 @@ const string someString = 120; // Invalid RHS value.
 
 // Assigning var ref.
 string s = "Ballerina";
-const string name = s; // Invalid RHS value.
-public const string name2 = s; // Invalid RHS value.
+public const string name2 = "";
 
 // Assigning var ref.
 int a = 10;
-const age = a; // Invalid RHS value.
-public const age2 = a; // Invalid RHS value.
 
 // Updating const.
 const x = 10;
@@ -246,3 +243,13 @@ function testStringTypeWithoutType() returns StringTypeWithoutType {
 // -----------------------------------------------------------
 
 const int invalidNil = ();
+
+// -----------------------------------------------------------
+
+const map<string> m1 = { "key": getValue() };
+const map<string> m2 = { "key": sValue };
+string sValue = "ballerina";
+
+function getValue() returns string {
+    return "ballerina";
+}

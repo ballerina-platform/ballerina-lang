@@ -1800,7 +1800,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case LITERAL:
                 break;
             case SIMPLE_VARIABLE_REF:
-                if ((((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
+                BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
+                if (symbol == null) {
+                    break;
+                }
+                if ((symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
                     dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
                 }
                 break;
