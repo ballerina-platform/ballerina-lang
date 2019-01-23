@@ -7,15 +7,6 @@ public type PoolConfiguration record {
     int maxActiveConnections = config:getAsInt("b7a.http.pool.maxActiveConnections", default = -1);
     int waitTimeinMillis = config:getAsInt("b7a.http.pool.waitTimeinMillis", default = 10000);
     int maxActiveStreamsPerConnection = config:getAsInt("b7a.http.pool.maxActiveStreamsPerConnection", default = 20);
-    ////Following two fields are useful only when you need to define different values for per route pools
-    //Route? poolKey = ();
-    //map<PoolConfiguration>? perRoutePoolConfigs = ();
-};
-
-public type Route record {
-    string protocol; //http or https
-    string host;
-    int port;
 };
 
 //This is a hack to get the global map initialized, without involving locking
