@@ -24,7 +24,7 @@ import ballerina/test;
 // TODO: Non-frozen values are accepted for the detail. Stack trace is not supported.
 // https://github.com/ballerina-platform/ballerina-lang/issues/13171
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testErrorTypeDescriptorBroken() {
     map<anydata> detail = { cause: "Core Error" };
@@ -37,7 +37,7 @@ function testErrorTypeDescriptorBroken() {
 // TODO: Creating and error array should fail at compile time.
 // https://github.com/ballerina-platform/ballerina-lang/issues/13166
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testErrorImplicitInitialValueBroken() {
     error[] errorArray = [];

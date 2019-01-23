@@ -22,7 +22,7 @@ import ballerina/io;
 // TODO: Need to support tuple indexing with variable references
 // https://github.com/ballerina-platform/ballerina-lang/issues/13164
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testTupleMemberReferenceByInvalidIntegerIndex() {
     //(float, float, float) tuple = (1.1, 0.0, 2.20);
@@ -44,7 +44,7 @@ function testTupleMemberReferenceByInvalidIntegerIndex() {
 // TODO: Need to support tuple as an itereable collection
 // https://github.com/ballerina-platform/ballerina-lang/issues/13165
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testTupleMemberIteration() {
     //int a = 4;
@@ -65,7 +65,7 @@ function testTupleMemberIteration() {
 // TODO: Fix implicit initial value for tuple
 // https://github.com/ballerina-platform/ballerina-lang/issues/13166
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testImplicitInitialValuesBroken() {
     (int, boolean, string)[] tupleArray = [];
@@ -81,7 +81,7 @@ function testImplicitInitialValuesBroken() {
 // TODO: Tuple type descriptor should be equal to array type descriptor
 // https://github.com/ballerina-platform/ballerina-lang/issues/13167
 //@test:Config {
-//    groups: ["broken"]
+//    groups: ["deviation"]
 //}
 //function testTupleAndArrayTypeDescriptorBroken() {
 //    int[3] a = (1, 2, 3);

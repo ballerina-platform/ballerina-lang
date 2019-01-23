@@ -20,7 +20,7 @@ import ballerina/test;
 // TODO: allow any const-expr as the default value for a defaultable param
 // https://github.com/ballerina-platform/ballerina-lang/issues/13187
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testFunctionDefaultableParamsBroken() {
     // TODO: add tests for the different types of const-expr
@@ -35,7 +35,7 @@ function testFunctionDefaultableParamsBroken() {
 // TODO: fix is check failing for function pointers with union type params/return types
 // https://github.com/ballerina-platform/ballerina-lang/issues/13179
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testFunctionBelongsToByReturnTypeBroken() {
     any func = funcReturningString;

@@ -21,7 +21,7 @@ import utils;
 // https://github.com/ballerina-platform/ballerina-lang/issues/13232
 @test:Config {
     dataProvider: "brokenJsonValueDataProvider",
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testJsonTypeDescriptorBroken(json jv) {
     json jv2 = jv;

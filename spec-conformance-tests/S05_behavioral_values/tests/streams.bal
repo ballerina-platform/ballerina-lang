@@ -16,6 +16,9 @@
 import ballerina/runtime;
 import ballerina/test;
 
+const string EXPECTED_SUBSCRIBER_TO_UPDATE_VALUE_FAILURE_MESSAGE =
+                                "expected value to be updated via subscriber function invocation";
+
 // stream-type-descriptor := stream < type-descriptor >
 
 // A value of type stream<T> is a distributor for values of type T: 
@@ -40,10 +43,8 @@ function testStreams() {
         counter -= 1;
     }
 
-    test:assertEquals(globalVarOne, CONST_INT, 
-                      msg = "expected value to be updated via subscriber function invocation");
-    test:assertEquals(globalVarTwo, CONST_INT, 
-                      msg = "expected value to be updated via subscriber function invocation");
+    test:assertEquals(globalVarOne, CONST_INT,  msg = EXPECTED_SUBSCRIBER_TO_UPDATE_VALUE_FAILURE_MESSAGE);
+    test:assertEquals(globalVarTwo, CONST_INT,  msg = EXPECTED_SUBSCRIBER_TO_UPDATE_VALUE_FAILURE_MESSAGE);
 }
 
 function subscriberOneFunc(int i) {

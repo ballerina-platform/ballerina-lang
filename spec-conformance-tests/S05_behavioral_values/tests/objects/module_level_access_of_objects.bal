@@ -19,34 +19,45 @@ import ballerina/test;
 // access is unrestricted; private means that access is restricted to the same object; if no
 // visibility is specified explicitly, then access is restricted to the same module.
 @test:Config {}
-function testObjectTypeDescriptorInSameModule() {
-    ClientObject clientObject2 = new("default string value", 12, 100.0);
+function testModuleLevelAccessOfObject() {
     NormalObject normalObject = new("default string value", 12, 100.0);
+
     test:assertEquals(normalObject.publicStringField, "default string value",
         msg = "expected object public field to be accessible");
+
     test:assertEquals(normalObject.getPrivateField(), 12,
         msg = "expected object private field to be accessible via an object method");
+
     test:assertEquals(normalObject.defaultVisibilityFloatField, 100.0, msg = "expected object public field");
 
-    test:assertEquals(normalObject.defaultVisibiltyMethodDecl("argOne", 50), 150.0, msg =
-        "expected object public field");
-    test:assertEquals(normalObject.publicMethodDefn("argOne", 100, 50.0), 250.0, msg = "expected object public field");
-    test:assertEquals(normalObject.defaultVisibiltyMethodDefn("argOne", 100), 350.0,
+    test:assertEquals(normalObject.defaultVisibiltyMethodDecl("argOne", 50), 150.0,
         msg = "expected object public field");
 
-    test:assertEquals(clientObject2.publicStringField, "default string value",
-        msg = "expected object public field to be accessible");
-    test:assertEquals(clientObject2.getPrivateField(), 12,
+    test:assertEquals(normalObject.publicMethodDefn("argOne", 100, 50.0), 250.0, msg = "expected object public field");
+
+    test:assertEquals(normalObject.defaultVisibiltyMethodDefn("argOne", 100), 350.0,
+        msg = "expected object public field");
+}
+
+@test:Config {}
+function testModuleLevelAccessOfClientObject() {
+    ClientObject clientObject = new("default string value", 12, 100.0);
+
+    test:assertEquals(clientObject.publicStringField, "default string value",
+        msg = "expected clientObject public field to be accessible");
+
+    test:assertEquals(clientObject.getPrivateField(), 12,
         msg = "expected object private field to be accessible via an object method");
-    test:assertEquals(clientObject2.defaultVisibilityFloatField, 100.0, msg = "expected object public field");
+    test:assertEquals(clientObject.defaultVisibilityFloatField, 100.0, msg = "expected object public field");
 
-    test:assertEquals(clientObject2.defaultVisibiltyMethodDecl("argOne", 50), 150.0, msg =
-        "expected object public field");
+    test:assertEquals(clientObject.defaultVisibiltyMethodDecl("argOne", 50), 150.0,
+        msg = "expected object public field");
 
-    _ = clientObject2->defaultVisibiltyRemoteMethodDecl("argOne", 50);
-    test:assertEquals(clientObject2.defaultVisibilityFloatField, 200.0, msg = "expected object public field");
+    _ = clientObject->defaultVisibiltyRemoteMethodDecl("argOne", 50);
+    test:assertEquals(clientObject.defaultVisibilityFloatField, 200.0, msg = "expected object public field");
 
-    test:assertEquals(clientObject2.publicMethodDefn("argOne", 100, 150), 450.0, msg = "expected object public field");
-    test:assertEquals(clientObject2.defaultVisibiltyMethodDefn("argOne", 50), 500.0,
+    test:assertEquals(clientObject.publicMethodDefn("argOne", 100, 150), 450.0, msg = "expected object public field");
+
+    test:assertEquals(clientObject.defaultVisibiltyMethodDefn("argOne", 50), 500.0,
         msg = "expected object public field");
 }

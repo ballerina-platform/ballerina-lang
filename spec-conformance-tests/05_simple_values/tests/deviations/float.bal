@@ -73,7 +73,7 @@ function testFloatingPointNaNValuesBroken() {
 // TODO: Decimal and Float zeros should be distinct values
 // https://github.com/ballerina-platform/ballerina-lang/issues/11913
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testFloatingPointZeroValuesBroken() {
     float f1 = +0.0;

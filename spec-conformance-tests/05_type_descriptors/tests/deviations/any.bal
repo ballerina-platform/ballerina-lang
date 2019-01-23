@@ -20,7 +20,7 @@ import utils;
 // TODO: disallow adding an error to a map<any> via a function with type-widening params
 // https://github.com/ballerina-platform/ballerina-lang/issues/13230
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testErrorExclusionInAnyBroken() {
     map<any> m1 = { one: a, two: b };

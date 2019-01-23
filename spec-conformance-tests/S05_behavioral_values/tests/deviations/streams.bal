@@ -14,17 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
+import utils;
 
-// future-type-descriptor := future < type-descriptor >
-// A future value represents a value to be returned by a named worker.
-// A future value belongs to a type future<T> if the value to be returned belongs to T.
-@test:Config {}
-function testFutures() {
-    worker w1 returns int {
-        return 200;
-    }
-    future<int> sampleFuture = w1;
-    any result = wait sampleFuture;
-    test:assertTrue(result is int, msg = "expected future to wait for named worker to return an int");
-    test:assertEquals(result, 200, msg = "expected future to wait for named worker to return an int");
+// A value of type stream<T> is a distributor for values of type T: 
+// when a value v of type T is put into the stream, 
+// a function will be called for each subscriber to the stream with v as an argument. 
+// T must be a pure type.
+// TODO: disallow non-pure types as stream constraint types
+// https://github.com/ballerina-platform/ballerina-lang/issues/13203 
+@test:Config {
+    groups: ["deviation"]
+}
+function testStreamConstraintBroken() {
+    // the following definition should fail at compile time
+    stream<utils:FooObject> s = new;
 }

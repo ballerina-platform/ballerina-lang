@@ -21,7 +21,7 @@ import ballerina/test;
 // TODO: fix XML character item iteration, expected to be iterated by single code point
 // https://github.com/ballerina-platform/ballerina-lang/issues/13190
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testXmlIterationBroken() {
     xml xmlCharacters = xml `Hello, world!`;
