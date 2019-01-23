@@ -20,6 +20,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -195,6 +196,35 @@ public class NumericConversionTest {
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false, "invalid boolean representation as " +
                 "boolean");
+    }
+
+    @Test(dataProvider = "byteValues")
+    public void testByteAsInt(byte i) {
+        BValue[] returns = BRunUtil.invoke(result, "testByteAsInt", new BValue[]{new BByte(i)});
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be the same");
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), (new BByte(i)).intValue(), "incorrect byte " +
+                "representation as int");
+    }
+
+    @Test(dataProvider = "intAsByteValues")
+    public void testIntAsByte(int i) {
+        BValue[] returns = BRunUtil.invoke(result, "testIntAsByte", new BValue[]{new BInteger(i)});
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be the same");
+        Assert.assertSame(returns[1].getClass(), BByte.class);
+        Assert.assertEquals(((BByte) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
+                "representation as byte");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'int' " +
+                    "value '256' cannot be converted to 'byte'\"\\}.*")
+    public void testInvalidIntAsByte() {
+        BRunUtil.invoke(result, "testIntAsByte", new BValue[]{new BInteger(256)});
     }
 
     @Test(dataProvider = "naNFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
@@ -446,6 +476,26 @@ public class NumericConversionTest {
                 {"testOutOfIntRangeNegativeDecimalAsInt"},
                 {"testOutOfIntRangePositiveDecimalInUnionAsInt"},
                 {"testOutOfIntRangeNegativeDecimalInUnionAsInt"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] byteValues() {
+        return new Object[][]{
+                {(byte) 0},
+                {(byte) 1},
+                {(byte) 254},
+                {(byte) 255}
+        };
+    }
+
+    @DataProvider
+    public Object[][] intAsByteValues() {
+        return new Object[][]{
+                {0},
+                {1},
+                {254},
+                {255}
         };
     }
 }

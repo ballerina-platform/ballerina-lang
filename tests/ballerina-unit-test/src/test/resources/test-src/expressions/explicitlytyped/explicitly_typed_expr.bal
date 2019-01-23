@@ -366,6 +366,28 @@ function testExplicitlyTypedExprForExactValues() returns error? {
     return;
 }
 
+function testByteAsInt(byte a) returns (boolean, int) {
+    float|byte b = a;
+    anydata c = a;
+
+    int d = <int>a;
+    int e = <int>b;
+    int f = <int>c;
+
+    return (d == e && e == f, d);
+}
+
+function testIntAsByte(int a) returns (boolean, byte) {
+    float|int b = a;
+    anydata c = a;
+
+    byte d = <byte>a;
+    byte e = <byte>b;
+    byte f = <byte>c;
+
+    return (d == e && e == f, d);
+}
+
 function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
     if (rec is ServerModeConfig) {
         return "Server mode configuration";

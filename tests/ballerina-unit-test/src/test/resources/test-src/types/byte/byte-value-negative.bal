@@ -21,13 +21,13 @@ function invalidByteLiteral() {
     byte s = r;
 
     int x1 = -123;
-    byte x2 = <byte> x1;
+    byte x2 = trap <byte> x1;
 
     int x3 = 256;
-    byte x4 = <byte> x3;
+    byte x4 = trap <byte> x3;
 
     int x5 = 12345;
-    byte x6 = <byte> x5;
+    byte x6 = trap <byte> x5;
 }
 
 function testUnreachableByteMatchStmt3() {
@@ -42,7 +42,7 @@ function testUnreachableByteMatchStmt4() {
 
 function foo (int a) returns (byte|int|string[]) {
     if (a == 1) {
-        return check <byte>12;
+        return check trap <byte>12;
     } else if (a == 3) {
         return 267;
     }

@@ -2645,6 +2645,15 @@ public class BVM {
                     sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
                     break;
                 case TypeTags.BYTE_TAG:
+                    if (sourceType.getTag() != TypeTags.INT_TAG) {
+                        // allow conversion to byte only from int
+                        ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
+                                                               BLangExceptionHelper.getErrorMessage(
+                                                                       RuntimeErrors.TYPE_CAST_ERROR,
+                                                                       sourceType, targetType)));
+                        handleError(ctx);
+                        return;
+                    }
                     sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).byteValue();
                     break;
                 default:
@@ -2693,11 +2702,15 @@ public class BVM {
             case InstructionCodes.I2BI:
                 i = operands[0];
                 j = operands[1];
-                if (isByteLiteral(sf.longRegs[i])) {
-                    sf.refRegs[j] = new BByte((byte) sf.longRegs[i]);
-                } else {
-                    handleTypeConversionError(ctx, sf, j, TypeConstants.INT_TNAME, TypeConstants.BYTE_TNAME);
+                if (!isByteLiteral(sf.longRegs[i])) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'" + TypeConstants.INT_TNAME + "' value '" +
+                                                                   sf.longRegs[i] + "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
+                    handleError(ctx);
+                    break;
                 }
+                sf.intRegs[j] = new BByte((byte) sf.longRegs[i]).byteValue();
                 break;
             case InstructionCodes.BI2I:
                 i = operands[0];

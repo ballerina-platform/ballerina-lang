@@ -29,7 +29,7 @@ function testGlobalByte(byte b) returns byte {
 }
 
 function testIntToByteCast(int b) returns byte|error {
-    byte a = check <byte> b;
+    byte a = check trap <byte> b;
     return a;
 }
 
@@ -39,12 +39,12 @@ function testByteToIntCast(byte a) returns int {
 }
 
 function testIntToByteExplicitCast(int b) returns byte|error {
-    byte a = check <byte> b;
+    byte a = check trap <byte> b;
     return a;
 }
 
 function testIntToByteConversion(int b) returns byte|error {
-    var c = check <byte> b;
+    var c = check trap <byte> b;
     return c;
 }
 
@@ -160,7 +160,7 @@ function testByteOrIntMatch4() returns int {
 
 function byteOrInt(int a) returns byte|int|string[]|Foo|error {
     if (a == 1) {
-        return check <byte>12;
+        return check trap <byte>12;
     } else if (a == 2) {
         return 266;
     } else if (a == 3) {
