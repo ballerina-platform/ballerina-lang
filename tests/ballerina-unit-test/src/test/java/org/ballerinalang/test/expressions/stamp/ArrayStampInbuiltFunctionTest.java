@@ -370,4 +370,17 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue1.getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue1.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
+
+    @Test
+    public void teststampRecordArrayToJsonArray() {
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordArrayToJsonArray");
+        BMap<String, BValue> jsonValue1 = (BMap<String, BValue>) results[0];
+        BMap<String, BValue> jsonValue2 = (BMap<String, BValue>) results[1];
+        Assert.assertEquals(((BMapType) jsonValue1.getType()).getConstrainedType().getClass(), BJSONType.class);
+        Assert.assertEquals(((BMapType) jsonValue2.getType()).getConstrainedType().getClass(), BJSONType.class);
+        Assert.assertEquals(jsonValue1.get("name").stringValue(), "Waruna");
+        Assert.assertEquals(jsonValue2.get("name").stringValue(), "Heshitha");
+        Assert.assertEquals(((BInteger) jsonValue1.get("age")).intValue(), 10);
+        Assert.assertEquals(((BInteger) jsonValue2.get("age")).intValue(), 15);
+    }
 }

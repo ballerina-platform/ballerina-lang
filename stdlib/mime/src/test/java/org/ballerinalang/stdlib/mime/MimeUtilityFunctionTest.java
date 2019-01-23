@@ -33,6 +33,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.stdlib.common.CommonTestUtils;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
 import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
@@ -51,7 +52,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 import java.util.List;
-
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILENAME_FIELD;
@@ -64,7 +64,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PRIMARY_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.SUBTYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_FIELD;
-import static org.ballerinalang.stdlib.mime.Util.assertJBytesWithBBytes;
+import static org.ballerinalang.stdlib.common.CommonTestUtils.assertJBytesWithBBytes;
 import static org.ballerinalang.stdlib.mime.Util.getTemporaryFile;
 import static org.ballerinalang.stdlib.mime.Util.validateBodyPartContent;
 import static org.ballerinalang.stdlib.mime.Util.verifyMimeError;
@@ -81,6 +81,7 @@ public class MimeUtilityFunctionTest {
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String contentDispositionStruct = CONTENT_DISPOSITION_STRUCT;
+    private CommonTestUtils commonTestUtils = new CommonTestUtils();
 
     @BeforeClass
     public void setup() {

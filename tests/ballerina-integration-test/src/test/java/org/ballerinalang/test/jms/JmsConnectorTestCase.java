@@ -23,7 +23,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.jms.util.EmbeddedBroker;
-import org.ballerinalang.test.jms.util.JMSClientHandler;
+import org.ballerinalang.test.jms.util.JmsClientHandler;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeClass;
@@ -37,11 +37,11 @@ import java.util.concurrent.TimeUnit;
  * Testing Mutual SSL.
  */
 @Test(groups = "jms-test")
-public class JMSConnectorTestCase extends BaseTest {
+public class JmsConnectorTestCase extends BaseTest {
 
     private BServerInstance serverInstance;
     private EmbeddedBroker embeddedBroker;
-    private JMSClientHandler clientHandler;
+    private JmsClientHandler clientHandler;
 
     @BeforeGroups(value = "jms-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
@@ -64,7 +64,7 @@ public class JMSConnectorTestCase extends BaseTest {
     public void setUp() throws Exception {
         embeddedBroker = new EmbeddedBroker();
         embeddedBroker.startBroker();
-        clientHandler = new JMSClientHandler(balServer);
+        clientHandler = new JmsClientHandler(balServer);
     }
 
     @Test(description = "Test JMS Connector Queue consumer producer")
