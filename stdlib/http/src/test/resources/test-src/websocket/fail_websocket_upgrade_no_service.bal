@@ -17,8 +17,6 @@
 import ballerina/io;
 import ballerina/http;
 
-final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
-
 listener http:Listener httpListener = new(9090);
 
 service wsService on httpListener {

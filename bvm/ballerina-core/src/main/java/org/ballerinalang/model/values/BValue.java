@@ -25,6 +25,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +39,7 @@ public interface BValue {
 
     BType getType();
 
-    void stamp(BType type);
+    void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues);
 
     /**
      * Deep copy {@link BValue}.

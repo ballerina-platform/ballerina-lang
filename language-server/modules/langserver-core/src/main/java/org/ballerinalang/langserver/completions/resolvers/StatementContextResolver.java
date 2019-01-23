@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -28,13 +27,9 @@ import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Statement context resolver for resolving the items of the statement context.
@@ -69,27 +64,12 @@ public class StatementContextResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Add the xmlns snippet
-        CompletionItem xmlns = new CompletionItem();
-        Snippet.STMT_NAMESPACE_DECLARATION.get().build(xmlns, supportSnippet);
-        completionItems.add(xmlns);
-
+        completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(supportSnippet));
         // Add the var keyword
-        CompletionItem varKeyword = Snippet.KW_VAR.get().build(new CompletionItem(), supportSnippet);
-        completionItems.add(varKeyword);
-
+        completionItems.add(Snippet.KW_VAR.get().build(supportSnippet));
         // Add the error snippet
-        CompletionItem error = Snippet.DEF_ERROR.get().build(new CompletionItem(), supportSnippet);
-        completionItems.add(error);
+        completionItems.add(Snippet.DEF_ERROR.get().build(supportSnippet));
 
         return completionItems;
-    }
-
-    private static Predicate<SymbolInfo> attachedOrSelfKeywordFilter() {
-        return symbolInfo -> {
-            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED)
-                || (UtilSymbolKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
-                && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
-        };
     }
 }
