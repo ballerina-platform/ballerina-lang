@@ -1779,6 +1779,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             // Todo
         }
+
+        checkConstantExpression(expression);
     }
 
     // Private methods
@@ -1791,6 +1793,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return true;
         }
         return false;
+    }
+
+    private void checkConstantExpression(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case LITERAL:
+                break;
+            case SIMPLE_VARIABLE_REF:
+                if ((((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
+                    dlog.error(expression.pos, DiagnosticCode.ONLY_CONSTANT_EXPRESSIONS_ARE_ALLOWED);
+                }
+                break;
+            case RECORD_LITERAL_EXPR:
+                ((BLangRecordLiteral) expression).keyValuePairs.forEach(pair -> {
+                    checkConstantExpression(pair.key.expr);
+                    checkConstantExpression(pair.valueExpr);
+                });
+                break;
+            default:
+                dlog.error(expression.pos, DiagnosticCode.ONLY_CONSTANT_EXPRESSIONS_ARE_ALLOWED);
+                break;
+        }
     }
 
     private void visitChannelSend(BLangWorkerSend node, BSymbol channelSymbol) {
