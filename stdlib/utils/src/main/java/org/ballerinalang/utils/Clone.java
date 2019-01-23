@@ -24,6 +24,7 @@ import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,11 +42,10 @@ import java.util.HashMap;
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "operations",
+        packageName = "utils",
         functionName = "clone",
         args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) },
-        isPublic = true
+        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
 )
 public class Clone extends BlockingNativeCallableUnit {
 
