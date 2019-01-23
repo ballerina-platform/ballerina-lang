@@ -1,5 +1,3 @@
-import ballerina/crypto;
-import ballerina/encoding;
 import ballerina/io;
 
 function contains(string source, string substring) returns (boolean) {
