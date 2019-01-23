@@ -19,7 +19,6 @@ package org.ballerinalang.internal.compression;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -35,14 +34,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static org.ballerinalang.stdlib.common.CommonTestUtils.getAbsoluteFilePath;
 
 /**
  * Test Native functions in ballerina.compression.
@@ -360,22 +358,6 @@ public class CompressionTest {
                 "Arbitrary File Write attack attempted via an " +
                 "archive file. File name: ../../../../../../../../../../../../../../../../../../../../../../../../.." +
                 "/../../../../../../../../../../../../../../../tmp/evil.txt");
-    }
-
-    /**
-     * Will identify the absolute path from the relative.
-     *
-     * @param relativePath the relative file path location.
-     * @return the absolute path.
-     */
-    private String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
-        URL fileResource = BServiceUtil.class.getClassLoader().getResource(relativePath);
-        String pathValue = "";
-        if (null != fileResource) {
-            Path path = Paths.get(fileResource.toURI());
-            pathValue = path.toAbsolutePath().toString();
-        }
-        return pathValue;
     }
 
     /**

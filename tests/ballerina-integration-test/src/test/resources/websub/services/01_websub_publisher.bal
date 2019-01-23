@@ -144,7 +144,7 @@ service publisherTwo on publisherServiceEP {
             log:printError("Error responding on notify request", err = err);
         }
 
-        err = webSubHub.publishUpdate(WEBSUB_TOPIC_THREE, {"action":"publish","mode":"internal-hub"});
+        err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_THREE, {"action":"publish","mode":"internal-hub"});
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
         }

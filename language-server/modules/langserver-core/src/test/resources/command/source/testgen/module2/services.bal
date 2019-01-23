@@ -2,67 +2,62 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/websub;
 
-service<http:Service> httpService bind { port: 9090 } {
-    sayHello(endpoint caller, http:Request request) {
+service httpService on new http:Listener(9090) {
+    resource function sayHello(http:Caller caller, http:Request request) {
     }
 }
 
-service<http:Service> httpsService bind securedListener {
-    sayHello(endpoint caller, http:Request request) {
+service httpsService on securedListener {
+    resource function sayHello(http:Caller caller, http:Request request) {
     }
 }
 
-service<http:WebSocketService> wsService bind { port: 9094 } {
-    onOpen(endpoint caller) {
+service wsService on new http:WebSocketListener(9094) {
+    resource function onOpen(http:WebSocketCaller caller) {
     }
-    onText(endpoint caller, string text, boolean final) {
+    resource function onText(http:WebSocketCaller caller, string text, boolean finalFrame) {
         io:println("received: " + text);
     }
-    onClose(endpoint caller, int statusCode, string reason) {
+    resource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {
     }
 }
 
-service<http:WebSocketService> wssService bind securedListener2 {
-    onOpen(endpoint caller) {
+service wssService on securedListener2 {
+    resource function onOpen(http:WebSocketCaller caller) {
     }
-    onText(endpoint caller, string text, boolean final) {
+    resource function onText(http:WebSocketCaller caller, string text, boolean finalFrame) {
         io:println("received: " + text);
     }
-    onClose(endpoint caller, int statusCode, string reason) {
+    resource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {
     }
 }
 
-service<websub:Service> websubSubscriber bind {port: 9092} {
-    onIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {
-    }
-    onNotification(websub:Notification notification) {
-    }
-}
+http:AuthProvider basicAuthProvider = {
+    scheme: "basic",
+    authStoreProvider: "config"
+};
 
-endpoint http:Listener securedListener {
-    port: 9092,
+http:AuthProvider basicAuthProvider2 = {
+    scheme: "basic",
+    authStoreProvider: "config"
+};
+
+listener http:Listener securedListener = new(9090, config = {
+    authProviders: [basicAuthProvider],
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
-        },
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
         }
     }
-};
+});
 
-endpoint http:Listener securedListener2 {
-    port: 9092,
+listener http:WebSocketListener securedListener2 = new(9090, config = {
+    authProviders: [basicAuthProvider],
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
-        },
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
         }
     }
-};
+});

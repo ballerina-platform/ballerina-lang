@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.stdlib.common.CommonTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,7 +38,7 @@ import java.util.Base64;
 public class BByteArrayValueTest {
 
     private CompileResult result;
-
+    
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/conversion/byte-array-value.bal");
@@ -240,11 +241,10 @@ public class BByteArrayValueTest {
         BValueArray byteArray2 = (BValueArray) returns[1];
         BValueArray byteArray3 = (BValueArray) returns[2];
         Assert.assertEquals(bytes1.length, byteArray1.size());
-        assertJBytesWithBBytes(bytes1, byteArray1.getBytes());
+        CommonTestUtils.assertJBytesWithBBytes(bytes1, byteArray1.getBytes());
         Assert.assertEquals(bytes2.length, byteArray2.size());
-        assertJBytesWithBBytes(bytes2, byteArray2.getBytes());
         Assert.assertEquals(bytes3.length, byteArray3.size());
-        assertJBytesWithBBytes(bytes3, byteArray3.getBytes());
+        CommonTestUtils.assertJBytesWithBBytes(bytes3, byteArray3.getBytes());
     }
 
     private byte[] hexStringToByteArray(String str) {
@@ -263,12 +263,6 @@ public class BByteArrayValueTest {
     private void assertJBytesWithBBytes(byte[] jBytes, BValueArray bBytes) {
         for (int i = 0; i < jBytes.length; i++) {
             Assert.assertEquals(bBytes.getByte(i), jBytes[i], "Invalid byte value returned.");
-        }
-    }
-
-    private void assertJBytesWithBBytes(byte[] jBytes, byte[] bBytes) {
-        for (int i = 0; i < jBytes.length; i++) {
-            Assert.assertEquals(bBytes[i], jBytes[i], "Invalid byte value returned.");
         }
     }
 
