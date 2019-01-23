@@ -27,12 +27,13 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
  * Extern function ballerina.encoding:encodeBase64.
  *
- * @since 0.990.3
+ * @since 0.991.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "encoding",
@@ -48,7 +49,7 @@ public class EncodeBase64 extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BValueArray input = (BValueArray) context.getRefArgument(0);
-        String output = Base64.getEncoder().encodeToString(input.getBytes());
-        context.setReturnValues(new BString(output));
+        byte[] encodedValue = Base64.getEncoder().encode(input.getBytes());
+        context.setReturnValues(new BString(new String(encodedValue, StandardCharsets.ISO_8859_1)));
     }
 }

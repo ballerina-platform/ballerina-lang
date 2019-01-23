@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,7 +32,7 @@ import java.io.File;
 /**
  * Test cases for ballerina.crypto native functions relevant to private/public key parsing.
  *
- * @since 0.990.3
+ * @since 0.991.0
  */
 public class KeyParsingTest {
 
@@ -61,5 +62,23 @@ public class KeyParsingTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testParsingPublicKeyFromP12", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) returnValues[0]).get("algorithm").stringValue(), "RSA");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: PKCS12 key store not found.*")
+    public void testParsingEncryptedPrivateKeyFromInvalidLocation() {
+        BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                + File.separator + "crypto" + File.separator + "testKeystore.p12.invalid"), new BString("ballerina"),
+                new BString("ballerina"), new BString("ballerina")};
+        BRunUtil.invoke(compileResult, "testParsingPrivateKeyFromP12", args);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: PKCS12 key store not found.*")
+    public void testParsingPublicKeyFromInvalidLocation() {
+        BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                + File.separator + "crypto" + File.separator + "testKeystore.p12.invalid"), new BString("ballerina"),
+                new BString("ballerina")};
+        BRunUtil.invoke(compileResult, "testParsingPublicKeyFromP12", args);
     }
 }

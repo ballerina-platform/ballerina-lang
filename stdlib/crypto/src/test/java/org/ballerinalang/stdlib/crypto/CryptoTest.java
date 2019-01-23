@@ -21,6 +21,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -185,6 +187,27 @@ public class CryptoTest {
     }
 
     @Test
+    public void testSignRsaSha384() throws DecoderException {
+        byte[] expectedSignature = Hex.decodeHex(("4981CC5213F384E8DB7950BF76C97AE20FA2A34244A517FC585B2381B9E88" +
+                "278E447B92F6F452332BCA65DD5D6CCE04B5AC51D92E7E820B6FB826870DFBA437BBDA7F0E5850C02F72A8644DA8382" +
+                "237E8C1ABD50A4BAEE179C8C838EA4AC53D2223B3C57D7D463A8E1BBFFC43F3F3C44494850377A8668E156B2D23B6E0" +
+                "D8132632E3D79D68A391F619EF2E1E986A455F8F27092C66029C98D001A81FFE3E4B00991E7F0C0141D0635275544FC" +
+                "5BF70A40C12B7BC765F6209C9640A60B9E978AD8DEC551983F5773A72327DF1A6256BEB8DF50A03F89443123E1354A9" +
+                "EF7D8F8BF0659E1D6B77916B4AEEC79989AFDAA2F5B8983DE476C1A0FFBB2B647DE449E")
+                .toCharArray());
+
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha384",
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+    }
+
+    @Test
     public void testSignRsaSha512() throws DecoderException {
         byte[] expectedSignature = Hex.decodeHex(("6995ba8d2382a8c4f0ed513033126b2305df419a8b105ee60483243229d2c496" +
                 "b7f670783c52068cd2b4b8c2392f2932c682f30057cb4d8d616ba3a142356b0394747b2a3642da4d23447bb997eacb086f" +
@@ -224,5 +247,55 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+    }
+
+    @Test
+    public void testSignRsaSha1WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha1WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test
+    public void testSignRsaSha256WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha256WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test
+    public void testSignRsaSha384WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha384WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test
+    public void testSignRsaSha512WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha512WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test
+    public void testSignRsaMd5WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaMd5WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
     }
 }

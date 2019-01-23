@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.internal.conversion;
+package org.ballerinalang.stdlib.encoding.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -36,10 +36,12 @@ import java.io.UnsupportedEncodingException;
  * @since 0.980
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
+        orgName = "ballerina", packageName = "encoding",
         functionName = "byteArrayToString",
-        args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @Argument(name = "encoding", type = TypeKind.STRING)},
+        args = {
+                @Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @Argument(name = "encoding", type = TypeKind.STRING)
+        },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
@@ -47,13 +49,13 @@ public class ByteArrayToString extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        byte[] bytes = ((BValueArray) context.getRefArgument(0)).getBytes();
+        String encoding = context.getStringArgument(0);
         try {
-            byte[] bytes = ((BValueArray) context.getRefArgument(0)).getBytes();
-            String encoding = context.getStringArgument(0);
             String value = new String(bytes, encoding);
             context.setReturnValues(new BString(value));
         } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("Unsupported encoding of byte array", e);
+            throw new BallerinaException("unsupported encoding: " + encoding , e);
         }
     }
 }

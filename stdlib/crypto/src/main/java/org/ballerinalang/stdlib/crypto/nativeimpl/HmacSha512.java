@@ -26,12 +26,13 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
  * Extern function ballerina.crypto:hmacSha512.
  *
- * @since 0.990.3
+ * @since 0.991.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
@@ -40,7 +41,11 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
                 @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "key", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
         },
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+        returnType = {
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @ReturnType(type = TypeKind.RECORD, structType = Constants.CRYPTO_ERROR,
+                        structPackage = Constants.CRYPTO_PACKAGE)
+        },
         isPublic = true
 )
 public class HmacSha512 extends BlockingNativeCallableUnit {
@@ -52,7 +57,7 @@ public class HmacSha512 extends BlockingNativeCallableUnit {
 
         byte[] input = ((BValueArray) inputBValue).getBytes();
         byte[] key = ((BValueArray) keyBValue).getBytes();
-        byte[] output = CryptoUtils.hmac(context, input, key, "HmacSHA512");
+        byte[] output = CryptoUtils.hmac(context, "HmacSHA512", key, input);
         context.setReturnValues(new BValueArray(output));
     }
 }

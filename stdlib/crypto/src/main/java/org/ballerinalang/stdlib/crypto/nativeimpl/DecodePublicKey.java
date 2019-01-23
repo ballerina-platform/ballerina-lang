@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.Constants;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
@@ -44,17 +45,21 @@ import java.security.cert.CertificateException;
 /**
  * Function for decoding public key.
  *
- * @since 0.990.3
+ * @since 0.991.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
         functionName = "decodePublicKey",
         args = {
-                @Argument(name = "keyStore", type = TypeKind.RECORD, structType = Constants.KEY_STORE_STRUCT),
+                @Argument(name = "keyStore", type = TypeKind.RECORD, structType = Constants.KEY_STORE_RECORD),
                 @Argument(name = "keyAlias", type = TypeKind.STRING)
         },
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = Constants.PRIVATE_KEY_STRUCT,
-                structPackage = Constants.CRYPTO_PACKAGE)},
+        returnType = {
+                @ReturnType(type = TypeKind.RECORD, structType = Constants.PRIVATE_KEY_RECORD,
+                        structPackage = Constants.CRYPTO_PACKAGE),
+                @ReturnType(type = TypeKind.RECORD, structType = Constants.CRYPTO_ERROR,
+                        structPackage = Constants.CRYPTO_PACKAGE)
+        },
         isPublic = true)
 public class DecodePublicKey extends BlockingNativeCallableUnit {
 
@@ -66,26 +71,32 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
         PublicKey publicKey = null;
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore != null) {
-            File keyStoreFile = new File(keyStore.get(Constants.KEY_STORE_STRUCT_PATH_FIELD).stringValue());
+            File keyStoreFile = new File(keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).stringValue());
             try (FileInputStream fileInputStream = new FileInputStream(keyStoreFile)) {
-                KeyStore keystore = KeyStore.getInstance("PKCS12");
-                keystore.load(fileInputStream, keyStore.get(Constants.KEY_STORE_STRUCT_PASSWORD_FIELD).stringValue()
-                        .toCharArray());
+                KeyStore keystore = KeyStore.getInstance(Constants.KEYSTORE_TYPE_PKCS12);
+                try {
+                    keystore.load(fileInputStream, keyStore.get(Constants.KEY_STORE_RECORD_PASSWORD_FIELD).stringValue()
+                            .toCharArray());
+                } catch (NoSuchAlgorithmException e) {
+                    context.setReturnValues(CryptoUtils.createCryptoError(context,
+                            "keystore integrity check algorithm is not found: " + e.getMessage()));
+                    return;
+                }
                 publicKey = keystore.getCertificate(keyAlias.stringValue()).getPublicKey();
+
+                BMap<String, BValue> privateKeyStruct = BLangConnectorSPIUtil.createBStruct(context,
+                        Constants.CRYPTO_PACKAGE, Constants.PUBLIC_KEY_RECORD);
+                privateKeyStruct.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
+                privateKeyStruct.put("algorithm", new BString(publicKey.getAlgorithm()));
+                context.setReturnValues(privateKeyStruct);
             } catch (FileNotFoundException e) {
                 throw new BallerinaException("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile(),
                         context);
-            } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-                throw new BallerinaException(e.getMessage(), e);
+            } catch (KeyStoreException | CertificateException | IOException e) {
+                throw new BallerinaException("unable to open keystore: " + e.getMessage(), context);
             }
         } else {
             throw new BallerinaException("Key store information is required", context);
         }
-
-        BMap<String, BValue> privateKeyStruct = BLangConnectorSPIUtil.createBStruct(context,
-                Constants.CRYPTO_PACKAGE, Constants.PUBLIC_KEY_STRUCT);
-        privateKeyStruct.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
-        privateKeyStruct.put("algorithm", new BString(publicKey.getAlgorithm()));
-        context.setReturnValues(privateKeyStruct);
     }
 }

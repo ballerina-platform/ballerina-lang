@@ -18,6 +18,13 @@
 package org.ballerinalang.stdlib.crypto;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.security.InvalidKeyException;
@@ -41,17 +48,34 @@ public class CryptoUtils {
 
     }
 
-    public static byte[] hmac(Context context, byte[] input, byte[] key, String hmacAlgorithm) {
+    /**
+     * Generate HMAC of a byte array based on the provided HMAC algorithm.
+     *
+     * @param context BRE context used to raise error messages
+     * @param algorithm algorithm used during HMAC generation
+     * @param key key used during HMAC generation
+     * @param input input byte array for HMAC generation
+     * @return calculated HMAC value
+     */
+    public static byte[] hmac(Context context, String algorithm, byte[] key, byte[] input) {
         try {
-            SecretKey secretKey = new SecretKeySpec(key, hmacAlgorithm);
-            Mac mac = Mac.getInstance(hmacAlgorithm);
+            SecretKey secretKey = new SecretKeySpec(key, algorithm);
+            Mac mac = Mac.getInstance(algorithm);
             mac.init(secretKey);
             return mac.doFinal(input);
-        } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new BallerinaException("Error occurred while calculating HMAC: " + e.getMessage(), context);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new BallerinaException("error occurred while calculating HMAC: " + e.getMessage(), context);
         }
     }
 
+    /**
+     * Generate Hash of a byte array based on the provided hashing algorithm.
+     *
+     * @param context BRE context used to raise error messages
+     * @param algorithm algorithm used during hashing
+     * @param input input byte array for hashing
+     * @return calculated hash value
+     */
     public static byte[] hash(Context context, String algorithm, byte[] input) {
         try {
             MessageDigest messageDigest;
@@ -59,18 +83,44 @@ public class CryptoUtils {
             messageDigest.update(input);
             return messageDigest.digest();
         } catch (NoSuchAlgorithmException e) {
-            throw new BallerinaException("Error occurred while calculating hash: " + e.getMessage(), context);
+            throw new BallerinaException("error occurred while calculating hash: " + e.getMessage(), context);
         }
     }
 
-    public static byte[] sign(Context context, String algorithm, PrivateKey privateKey, byte[] input) {
+
+    /**
+     * Generate signature of a byte array based on the provided signing algorithm.
+     *
+     * @param context BRE context used to raise error messages
+     * @param algorithm algorithm used during signing
+     * @param privateKey private key to be used during signing
+     * @param input input byte array for signing
+     * @return calculated signature
+     * @throws InvalidKeyException if the privateKey is invalid
+     */
+    public static byte[] sign(Context context, String algorithm, PrivateKey privateKey, byte[] input)
+            throws InvalidKeyException {
         try {
             Signature sig = Signature.getInstance(algorithm);
             sig.initSign(privateKey);
             sig.update(input);
             return sig.sign();
-        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
-            throw new BallerinaException("Error occurred while calculating signature: " + e.getMessage(), context);
+        } catch (NoSuchAlgorithmException | SignatureException e) {
+            throw new BallerinaException("error occurred while calculating signature: " + e.getMessage(), context);
         }
+    }
+
+    /**
+     * Create crypto error.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error description
+     * @return conversion error
+     */
+    public static BError createCryptoError(Context context, String errMsg) {
+        BMap<String, BValue> errorRecord = BLangConnectorSPIUtil.createBStruct(context, Constants.CRYPTO_PACKAGE,
+                Constants.CRYPTO_ERROR);
+        errorRecord.put(Constants.MESSAGE, new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.ENCODING_ERROR_CODE, errorRecord);
     }
 }

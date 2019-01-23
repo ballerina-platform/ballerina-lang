@@ -82,52 +82,51 @@ public extern function crc32b(any input) returns (string);
 
 # Returns RSA-MD5 based signature value for the given data.
 #
-# + input - The content to be hashed
+# + input - The content to be signed
 # + privateKey - Private key used for signing.
-# + return - The generated hash
-public extern function signRsaMd5(byte[] input, PrivateKey privateKey) returns byte[];
+# + return - The generated signature or error if private key is invalid
+public extern function signRsaMd5(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
 # Returns RSA-SHA1 based signature value for the given data.
 #
-# + input - The content to be hashed
+# + input - The content to be signed
 # + privateKey - Private key used for signing.
-# + return - The generated hash
-public extern function signRsaSha1(byte[] input, PrivateKey privateKey) returns byte[];
+# + return - The generated signature or error if private key is invalid
+public extern function signRsaSha1(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
 # Returns RSA-SHA256 based signature value for the given data.
 #
-# + input - The content to be hashed
+# + input - The content to be signed
 # + privateKey - Private key used for signing.
-# + return - The generated hash
-public extern function signRsaSha256(byte[] input, PrivateKey privateKey) returns byte[];
+# + return - The generated signature or error if private key is invalid
+public extern function signRsaSha256(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
 # Returns RSA-SHA384 based signature value for the given data.
 #
-# + input - The content to be hashed
+# + input - The content to be signed
 # + privateKey - Private key used for signing.
-# + return - The generated hash
-public extern function signRsaSha384(byte[] input, PrivateKey privateKey) returns byte[];
+# + return - The generated signature or error if private key is invalid
+public extern function signRsaSha384(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
 # Returns RSA-SHA512 based signature value for the given data.
 #
-# + input - The content to be hashed
+# + input - The content to be signed
 # + privateKey - Private key used for signing.
-# + return - The generated hash
-public extern function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[];
+# + return - The generated signature or error if private key is invalid
+public extern function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
 # Read a private key from the provided PKCS#12 archive file.
 #
 # + keyStore - Key store configuration
 # + keyAlias - Key alias
 # + keyPassword - Key password
-# + return - Reference to the private key
-public extern function decodePrivateKey(KeyStore? keyStore = (), string? keyAlias = (),string? keyPassword = ())
-    returns PrivateKey;
+# + return - Reference to the private key or error if private key was unreadable
+public extern function decodePrivateKey(KeyStore? keyStore = (), string? keyAlias = (), string? keyPassword = ())
+returns PrivateKey|error;
 
 # Read a public key from the provided PKCS#12 archive file.
 #
 # + keyStore - Key store configuration
 # + keyAlias - Key alias
-# + keyPassword - Key password
-# + return - Reference to the public key
-public extern function decodePublicKey(KeyStore? keyStore = (), string? keyAlias = ()) returns PublicKey;
+# + return - Reference to the public key or error if private key was unreadable
+public extern function decodePublicKey(KeyStore? keyStore = (), string? keyAlias = ()) returns PublicKey|error;

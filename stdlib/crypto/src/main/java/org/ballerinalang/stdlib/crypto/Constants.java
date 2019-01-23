@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.crypto;
 /**
  * Constants related to Ballerina crypto stdlib.
  *
- * @since 0.990.3
+ * @since 0.991.0
  */
 public class Constants {
 
@@ -29,16 +29,16 @@ public class Constants {
     public static final String CRYPTO_PACKAGE = "ballerina/crypto";
 
     // Name of the record used to reference to a key store.
-    public static final String KEY_STORE_STRUCT = "KeyStore";
+    public static final String KEY_STORE_RECORD = "KeyStore";
 
     // Name of the record used to reference to a trust store.
-    public static final String TRUST_STORE_STRUCT = "TrustStore";
+    public static final String TRUST_STORE_RECORD = "TrustStore";
 
     // Name of the record used to reference to a private key.
-    public static final String PRIVATE_KEY_STRUCT = "PrivateKey";
+    public static final String PRIVATE_KEY_RECORD = "PrivateKey";
 
     // Name of the record used to reference to a public key.
-    public static final String PUBLIC_KEY_STRUCT = "PublicKey";
+    public static final String PUBLIC_KEY_RECORD = "PublicKey";
 
     // Native data key for private key within the PrivateKey record.
     public static final String NATIVE_DATA_PRIVATE_KEY = "NATIVE_DATA_PRIVATE_KEY";
@@ -46,15 +46,27 @@ public class Constants {
     // Native data key for private key within the PublicKey record.
     public static final String NATIVE_DATA_PUBLIC_KEY = "NATIVE_DATA_PUBLIC_KEY";
 
-    // Name of the path field in KEY_STORE_STRUCT record.
-    public static final String KEY_STORE_STRUCT_PATH_FIELD = "path";
+    // Name of the path field in KEY_STORE_RECORD record.
+    public static final String KEY_STORE_RECORD_PATH_FIELD = "path";
 
-    // Name of the password field in KEY_STORE_STRUCT record.
-    public static final String KEY_STORE_STRUCT_PASSWORD_FIELD = "password";
+    // Name of the password field in KEY_STORE_RECORD record.
+    public static final String KEY_STORE_RECORD_PASSWORD_FIELD = "password";
 
-    // Name of the path field in KEY_STORE_STRUCT record.
-    public static final String TRUST_STORE_STRUCT_PATH_FIELD = "path";
+    // Name of the path field in KEY_STORE_RECORD record.
+    public static final String TRUST_STORE_RECORD_PATH_FIELD = "path";
 
-    // Name of the password field in KEY_STORE_STRUCT record.
-    public static final String TRUST_STORE_STRUCT_PASSWORD_FIELD = "password";
+    // Name of the password field in KEY_STORE_RECORD record.
+    public static final String TRUST_STORE_RECORD_PASSWORD_FIELD = "password";
+
+    // Error record for crypto module.
+    public static final String CRYPTO_ERROR = "CryptoError";
+
+    // Message field within error record.
+    public static final String MESSAGE = "message";
+
+    // Error code for crypto error
+    public static final String ENCODING_ERROR_CODE = "{ballerina/encoding}CryptoError";
+
+    // PKCS12 keystore type
+    public static final String KEYSTORE_TYPE_PKCS12 = "PKCS12";
 }

@@ -31,7 +31,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 /**
  * Extern function ballerina.crypto:hashSha256.
  *
- * @since 0.990.3
+ * @since 0.991.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",

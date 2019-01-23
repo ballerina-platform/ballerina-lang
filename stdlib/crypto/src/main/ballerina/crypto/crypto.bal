@@ -49,3 +49,11 @@ public type PublicKey record {
     string algorithm;
     !...;
 };
+
+# Error relevant to crypto operations.
+#
+# + message - Error message
+public type CryptoError record {
+    string message = "";
+    !...;
+};

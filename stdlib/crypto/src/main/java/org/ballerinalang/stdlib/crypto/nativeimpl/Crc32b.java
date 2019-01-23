@@ -65,8 +65,8 @@ public class Crc32b extends BlockingNativeCallableUnit {
                 ((BArrayType) argType).getElementType().getTag() == TypeTags.BYTE_TAG) {
             bytes = ((BValueArray) entityBody).getBytes();
         } else {
-            throw new BallerinaException(
-                    "failed to generate hash: unsupported data type: " + entityBody.getType().getName());
+            throw new BallerinaException("failed to generate hash: unsupported data type: " +
+                    entityBody.getType().getName());
         }
 
         checksum.update(bytes, 0, bytes.length);

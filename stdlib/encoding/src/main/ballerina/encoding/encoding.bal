@@ -1,4 +1,4 @@
-// Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,9 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Converts given byte array to a string.
+# Error relevant to encoding operations.
 #
-# + content - Byte array content to be converted
-# + encoding - Encoding to used in byte array conversion to string
-# + return - String representation of the given byte array
-public extern function byteArrayToString(byte[] content, string encoding) returns string;
+# + message - Error message
+public type EncodingError record {
+    string message = "";
+    !...;
+};

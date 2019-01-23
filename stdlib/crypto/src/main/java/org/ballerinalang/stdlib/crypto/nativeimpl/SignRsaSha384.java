@@ -30,12 +30,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
+import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 
 /**
  * Extern function ballerina.crypto:signRsaSha384.
  *
- * @since 0.990.3
+ * @since 0.991.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
@@ -45,7 +46,11 @@ import java.security.PrivateKey;
                 @Argument(name = "privateKey", type = TypeKind.RECORD, structType = "PrivateKey",
                         structPackage = "ballerina/crypto")
         },
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+        returnType = {
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @ReturnType(type = TypeKind.RECORD, structType = Constants.CRYPTO_ERROR,
+                        structPackage = Constants.CRYPTO_PACKAGE)
+        },
         isPublic = true)
 public class SignRsaSha384 extends BlockingNativeCallableUnit {
 
@@ -54,7 +59,11 @@ public class SignRsaSha384 extends BlockingNativeCallableUnit {
         BValue inputBValue = context.getRefArgument(0);
         BMap<String, BValue> privateKey = (BMap<String, BValue>) context.getRefArgument(1);
         byte[] input = ((BValueArray) inputBValue).getBytes();
-        context.setReturnValues(new BValueArray(CryptoUtils.sign(context, "SHA384withRSA",
-                (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
+        try {
+            context.setReturnValues(new BValueArray(CryptoUtils.sign(context, "SHA384withRSA",
+                    (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
+        } catch (InvalidKeyException e) {
+            context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
+        }
     }
 }

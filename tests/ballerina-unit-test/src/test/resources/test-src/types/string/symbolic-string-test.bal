@@ -144,35 +144,6 @@ function testSplit() returns (string[]) {
     return j.split(k);
 }
 
-function testBase64EncodeString() returns (string|error) {
-    string contentToBeEncoded = 'HelloWorld;
-    return contentToBeEncoded.base64Encode();
-}
-
-function testBase16ToBase64Encoding() returns string {
-    string s = 'FFDDDD;
-    return s.base16ToBase64Encode();
-}
-
-function testBase64ToBase16Encoding() returns string {
-    string s = 'SGVsbG8gQmFsbGVyaW5h;
-    return s.base64ToBase16Encode();
-}
-
-function testHMACValueFromBase16ToBase64Encoding() returns (string) {
-    string base = 'helloworld;
-    string key = 'abcdefghijk;
-    return encoding:encodeHex(crypto:hmacMd5(base.toByteArray("UTF-8"), key.toByteArray("UTF-8")))
-        .base16ToBase64Encode();
-}
-
-function testHMACValueFromBase64ToBase16Encoding() returns (string) {
-    string base = 'helloworld;
-    string key = "abcdefghijk";
-    return encoding:encodeHex(crypto:hmacMd5(base.toByteArray("UTF-8"), key.toByteArray("UTF-8")))
-        .base16ToBase64Encode().base64ToBase16Encode();
-}
-
 function testStringArray() returns (string) {
     string [] stringArr = ['hello, 'world];
     return stringArr[0];

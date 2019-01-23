@@ -40,72 +40,102 @@ function testHashWithSHA512(byte[] input) returns byte[] {
     return crypto:hashSha512(input);
 }
 
-function testHmacWithMD5(byte[] input, byte[] key) returns byte[] {
+function testHmacWithMD5(byte[] input, byte[] key) returns byte[]|error {
     return crypto:hmacMd5(input, key);
 }
 
-function testHmacWithSHA1(byte[] input, byte[] key) returns byte[] {
+function testHmacWithSHA1(byte[] input, byte[] key) returns byte[]|error {
     return crypto:hmacSha1(input, key);
 }
 
-function testHmacWithSHA256(byte[] input, byte[] key) returns byte[] {
+function testHmacWithSHA256(byte[] input, byte[] key) returns byte[]|error {
     return crypto:hmacSha256(input, key);
 }
 
-function testHmacWithSHA384(byte[] input, byte[] key) returns byte[] {
+function testHmacWithSHA384(byte[] input, byte[] key) returns byte[]|error {
     return crypto:hmacSha384(input, key);
 }
 
-function testHmacWithSHA512(byte[] input, byte[] key) returns byte[] {
+function testHmacWithSHA512(byte[] input, byte[] key) returns byte[]|error {
     return crypto:hmacSha512(input, key);
 }
 
 function testSignRsaSha1(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
-returns byte[] {
+returns byte[]|error {
     crypto:KeyStore keyStore = {
         path: path,
         password: keyStorePassword
     };
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+        keyPassword = keyPassword);
     return crypto:signRsaSha1(input, pk);
 }
 
 function testSignRsaSha256(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
-returns byte[] {
+returns byte[]|error {
     crypto:KeyStore keyStore = {
         path: path,
         password: keyStorePassword
     };
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+        keyPassword = keyPassword);
     return crypto:signRsaSha256(input, pk);
 }
 
 function testSignRsaSha384(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
-returns byte[] {
+returns byte[]|error {
     crypto:KeyStore keyStore = {
         path: path,
         password: keyStorePassword
     };
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+        keyPassword = keyPassword);
     return crypto:signRsaSha384(input, pk);
 }
 
 function testSignRsaSha512(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
-returns byte[] {
+returns byte[]|error {
     crypto:KeyStore keyStore = {
         path: path,
         password: keyStorePassword
     };
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+        keyPassword = keyPassword);
     return crypto:signRsaSha512(input, pk);
 }
 
 function testSignRsaMd5(byte[] input, string path, string keyStorePassword, string keyAlias, string keyPassword)
-returns byte[] {
+returns byte[]|error {
     crypto:KeyStore keyStore = {
         path: path,
         password: keyStorePassword
     };
-    crypto:PrivateKey pk = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+        keyPassword = keyPassword);
+    return crypto:signRsaMd5(input, pk);
+}
+
+function testSignRsaSha1WithInvalidKey(byte[] input) returns byte[]|error {
+    crypto:PrivateKey pk = {algorithm:"RSA"};
+    return crypto:signRsaSha1(input, pk);
+}
+
+function testSignRsaSha256WithInvalidKey(byte[] input) returns byte[]|error {
+    crypto:PrivateKey pk = {algorithm:"RSA"};
+    return crypto:signRsaSha256(input, pk);
+}
+
+function testSignRsaSha384WithInvalidKey(byte[] input) returns byte[]|error {
+    crypto:PrivateKey pk = {algorithm:"RSA"};
+    return crypto:signRsaSha384(input, pk);
+}
+
+function testSignRsaSha512WithInvalidKey(byte[] input) returns byte[]|error {
+    crypto:PrivateKey pk = {algorithm:"RSA"};
+    return crypto:signRsaSha512(input, pk);
+}
+
+function testSignRsaMd5WithInvalidKey(byte[] input) returns byte[]|error {
+    crypto:PrivateKey pk = {algorithm:"RSA"};
     return crypto:signRsaMd5(input, pk);
 }
