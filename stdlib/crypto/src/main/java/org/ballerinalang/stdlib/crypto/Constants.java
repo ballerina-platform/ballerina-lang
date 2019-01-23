@@ -28,16 +28,16 @@ public class Constants {
     // Name of the Ballerina crypto module, used to create struct instances.
     public static final String CRYPTO_PACKAGE = "ballerina/crypto";
 
-    // Name of the record used to reference to a key store.
+    // Record used to reference to a key store.
     public static final String KEY_STORE_RECORD = "KeyStore";
 
-    // Name of the record used to reference to a trust store.
+    // Record used to reference to a trust store.
     public static final String TRUST_STORE_RECORD = "TrustStore";
 
-    // Name of the record used to reference to a private key.
+    // Record used to reference to a private key.
     public static final String PRIVATE_KEY_RECORD = "PrivateKey";
 
-    // Name of the record used to reference to a public key.
+    // Record used to reference to a public key.
     public static final String PUBLIC_KEY_RECORD = "PublicKey";
 
     // Native data key for private key within the PrivateKey record.
@@ -46,17 +46,23 @@ public class Constants {
     // Native data key for private key within the PublicKey record.
     public static final String NATIVE_DATA_PUBLIC_KEY = "NATIVE_DATA_PUBLIC_KEY";
 
-    // Name of the path field in KEY_STORE_RECORD record.
+    // Path field in KEY_STORE_RECORD record.
     public static final String KEY_STORE_RECORD_PATH_FIELD = "path";
 
-    // Name of the password field in KEY_STORE_RECORD record.
+    // Password field in KEY_STORE_RECORD record.
     public static final String KEY_STORE_RECORD_PASSWORD_FIELD = "password";
 
-    // Name of the path field in KEY_STORE_RECORD record.
+    // Path field in KEY_STORE_RECORD record.
     public static final String TRUST_STORE_RECORD_PATH_FIELD = "path";
 
-    // Name of the password field in KEY_STORE_RECORD record.
+    // Password field in KEY_STORE_RECORD record.
     public static final String TRUST_STORE_RECORD_PASSWORD_FIELD = "password";
+
+    // Algorithm field in PRIVATE_KEY_RECORD.
+    public static final String PRIVATE_KEY_RECORD_ALGORITHM_FIELD = "algorithm";
+
+    // Algorithm field in PUBLIC_KEY_RECORD.
+    public static final String PUBLIC_KEY_RECORD_ALGORITHM_FIELD = "algorithm";
 
     // Error record for crypto module.
     public static final String CRYPTO_ERROR = "CryptoError";

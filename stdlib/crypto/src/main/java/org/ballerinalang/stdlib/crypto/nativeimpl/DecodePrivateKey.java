@@ -99,11 +99,17 @@ public class DecodePrivateKey extends BlockingNativeCallableUnit {
                     return;
                 }
 
-                BMap<String, BValue> privateKeyStruct = BLangConnectorSPIUtil.createBStruct(context,
-                        Constants.CRYPTO_PACKAGE, Constants.PRIVATE_KEY_RECORD);
-                privateKeyStruct.addNativeData(Constants.NATIVE_DATA_PRIVATE_KEY, privateKey);
-                privateKeyStruct.put("algorithm", new BString(privateKey.getAlgorithm()));
-                context.setReturnValues(privateKeyStruct);
+                //TODO: Add support for DSA/ECDSA keys and associated crypto operations
+                if (privateKey.getAlgorithm().equals("RSA")) {
+                    BMap<String, BValue> privateKeyStruct = BLangConnectorSPIUtil.createBStruct(context,
+                            Constants.CRYPTO_PACKAGE, Constants.PRIVATE_KEY_RECORD);
+                    privateKeyStruct.addNativeData(Constants.NATIVE_DATA_PRIVATE_KEY, privateKey);
+                    privateKeyStruct.put(Constants.PRIVATE_KEY_RECORD_ALGORITHM_FIELD,
+                            new BString(privateKey.getAlgorithm()));
+                    context.setReturnValues(privateKeyStruct);
+                } else {
+                    context.setReturnValues(CryptoUtils.createCryptoError(context, "not a valid RSA key"));
+                }
             } catch (FileNotFoundException e) {
                 throw new BallerinaException("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile(),
                         context);
@@ -111,7 +117,7 @@ public class DecodePrivateKey extends BlockingNativeCallableUnit {
                 throw new BallerinaException("unable to open keystore: " + e.getMessage(), context);
             }
         } else {
-            throw new BallerinaException("Key store information is required", context);
+            throw new BallerinaException("key store information is required", context);
         }
     }
 }

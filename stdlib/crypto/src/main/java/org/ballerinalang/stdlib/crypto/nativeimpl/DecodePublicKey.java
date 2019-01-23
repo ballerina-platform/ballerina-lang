@@ -82,13 +82,19 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
                             "keystore integrity check algorithm is not found: " + e.getMessage()));
                     return;
                 }
-                publicKey = keystore.getCertificate(keyAlias.stringValue()).getPublicKey();
 
-                BMap<String, BValue> privateKeyStruct = BLangConnectorSPIUtil.createBStruct(context,
-                        Constants.CRYPTO_PACKAGE, Constants.PUBLIC_KEY_RECORD);
-                privateKeyStruct.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
-                privateKeyStruct.put("algorithm", new BString(publicKey.getAlgorithm()));
-                context.setReturnValues(privateKeyStruct);
+                //TODO: Add support for DSA/ECDSA keys and associated crypto operations
+                publicKey = keystore.getCertificate(keyAlias.stringValue()).getPublicKey();
+                if (publicKey.getAlgorithm().equals("RSA")) {
+                    BMap<String, BValue> publicKeyStruct = BLangConnectorSPIUtil.createBStruct(context,
+                            Constants.CRYPTO_PACKAGE, Constants.PUBLIC_KEY_RECORD);
+                    publicKeyStruct.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
+                    publicKeyStruct.put(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD,
+                            new BString(publicKey.getAlgorithm()));
+                    context.setReturnValues(publicKeyStruct);
+                } else {
+                    context.setReturnValues(CryptoUtils.createCryptoError(context, "not a valid RSA key"));
+                }
             } catch (FileNotFoundException e) {
                 throw new BallerinaException("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile(),
                         context);

@@ -110,31 +110,31 @@ import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
 
-public function main() {
+public function main() returns error? {
      // Input value for cryto operations
      string input = "Hello Ballerina";
      byte[] inputArr = input.toByteArray("UTF-8");
 
      // PrivateKey used for signing operations.
      crypto:KeyStore keyStore = { path: "/home/ballerina/keystore.p12", password: "ballerina" };
-     crypto:PrivateKey privateKey = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
+     crypto:PrivateKey privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
                                                             keyPassword = "ballerina");
 
 
      // Signing input value using different signature algorithms, and printing the signature value using Hex encoding.
-     output = crypto:signRsaMd5(inputArr, privateKey);
+     output = check crypto:signRsaMd5(inputArr, privateKey);
      io:println("RSA-MD5 signature: " + encoding:encodeHex(output));
 
-     output = crypto:signRsaSha1(inputArr, privateKey);
+     output = check crypto:signRsaSha1(inputArr, privateKey);
      io:println("RSA-SHA1 signature: " + encoding:encodeHex(output));
 
-     output = crypto:signRsaSha256(inputArr, privateKey);
+     output = check crypto:signRsaSha256(inputArr, privateKey);
      io:println("RSA-SHA256 signature: " + encoding:encodeHex(output));
 
-     output = crypto:signRsaSha384(inputArr, privateKey);
+     output = check crypto:signRsaSha384(inputArr, privateKey);
      io:println("RSA-SHA384 signature: " + encoding:encodeHex(output));
 
-     output = crypto:signRsaSha512(inputArr, privateKey);
+     output = check crypto:signRsaSha512(inputArr, privateKey);
      io:println("RSA-SHA512 signature: " + encoding:encodeHex(output));
 }
 ```

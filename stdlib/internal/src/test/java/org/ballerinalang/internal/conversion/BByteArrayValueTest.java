@@ -38,7 +38,7 @@ import java.util.Base64;
 public class BByteArrayValueTest {
 
     private CompileResult result;
-    
+
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/conversion/byte-array-value.bal");
