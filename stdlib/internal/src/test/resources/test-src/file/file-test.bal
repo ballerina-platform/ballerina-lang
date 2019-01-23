@@ -104,7 +104,7 @@ function testFolderContent(string rootPathValue) returns boolean|error {
 function testGetModifiedTime(string pathValue) returns string|error {
     internal:Path path = new(pathValue);
     time:Time modifiedTime = check path.getModifiedTime();
-    return modifiedTime.toString();
+    return time:toString(modifiedTime);
 }
 
 function testCopyToFunction(string source, string target) returns boolean {

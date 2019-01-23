@@ -28,10 +28,10 @@ import java.io.File;
 /**
  * Client handler class to handle JMS client related operations.
  */
-public class JMSClientHandler {
+public class JmsClientHandler {
     private BMainInstance ballerinaClient;
 
-    public JMSClientHandler(BalServer balServer) throws BallerinaTestException {
+    public JmsClientHandler(BalServer balServer) throws BallerinaTestException {
         ballerinaClient = new BMainInstance(balServer);
     }
 

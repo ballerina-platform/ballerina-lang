@@ -41,7 +41,7 @@ public class BallerinaStreamsV2TimeAccumulatingWindowTest {
         result = BCompileUtil.compile("test-src/streamingv2-time-accumulating-window-test.bal");
     }
 
-    @Test(description = "Test Time accumulating window query")
+    @Test(description = "Test Time accumulating window query", enabled = false)
     public void testTimeAccumulatingQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startAccumulatingTimeWindowTest");
         Assert.assertNotNull(outputEmployeeEvents);
