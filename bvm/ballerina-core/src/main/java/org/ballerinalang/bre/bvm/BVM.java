@@ -383,7 +383,7 @@ public class BVM {
                     execBinaryOpCodes(strand, sf, opcode, operands);
                     break;
 
-                case InstructionCodes.LENGTHOF:
+                case InstructionCodes.LENGTH:
                     calculateLength(strand, operands, sf);
                     break;
                 case InstructionCodes.TYPELOAD:

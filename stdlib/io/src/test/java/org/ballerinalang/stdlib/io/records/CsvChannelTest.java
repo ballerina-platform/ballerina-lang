@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.io.records;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -35,9 +34,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import static org.ballerinalang.stdlib.common.CommonTestUtils.getAbsoluteFilePath;
 
 /**
  * Tests the CSV channel with the specified values.
@@ -50,16 +48,6 @@ public class CsvChannelTest {
     public void setup() {
         csvInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/csv_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
-    }
-
-    private String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
-        URL fileResource = BServiceUtil.class.getClassLoader().getResource(relativePath);
-        String pathValue = "";
-        if (null != fileResource) {
-            Path path = Paths.get(fileResource.toURI());
-            pathValue = path.toAbsolutePath().toString();
-        }
-        return pathValue;
     }
 
     @Test(description = "Test 'readDefaultCSVRecords'")

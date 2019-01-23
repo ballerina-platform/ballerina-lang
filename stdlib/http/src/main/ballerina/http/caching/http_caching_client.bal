@@ -750,7 +750,7 @@ function getDateValue(Response inboundResponse) returns int {
     if (!inboundResponse.hasHeader(DATE)) {
         log:printDebug("Date header not found. Using current time for the Date header.");
         time:Time currentT = time:currentTime();
-        inboundResponse.setHeader(DATE, currentT.format(time:TIME_FORMAT_RFC_1123));
+        inboundResponse.setHeader(DATE, time:format(currentT, time:TIME_FORMAT_RFC_1123));
         return currentT.time;
     }
 

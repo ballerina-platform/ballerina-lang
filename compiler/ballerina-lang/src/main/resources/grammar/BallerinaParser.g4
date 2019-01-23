@@ -663,7 +663,7 @@ expression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression  # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
     |	CHECK expression										            # checkedExpression
     |   expression IS typeName                                              # typeTestExpression
