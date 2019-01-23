@@ -2,7 +2,7 @@ import ballerina/observe;
 
 
 function getAllMetricsSize() returns (int) {
-    observe:Metric[] metrics = observe:getAllMetrics();
+    observe:Metric?[] metrics = observe:getAllMetrics();
     return (metrics.length());
 }
 

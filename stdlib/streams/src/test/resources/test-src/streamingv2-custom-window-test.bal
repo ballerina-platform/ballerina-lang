@@ -20,9 +20,9 @@ import ballerina/runtime;
 // Custom window implementation that injects status and phoneNo attributes to the stream.
 public type CustomWindow object {
     public any[] windowParameters;
-    public function (streams:StreamEvent[])? nextProcessPointer;
+    public function (streams:StreamEvent?[])? nextProcessPointer;
 
-    public function __init(function (streams:StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (streams:StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.initParameters(windowParameters);
@@ -32,15 +32,15 @@ public type CustomWindow object {
         // do nothing.
     }
 
-    public function process(streams:StreamEvent[] streamEvents) {
-        streams:StreamEvent[] outputEvents = [];
+    public function process(streams:StreamEvent?[] streamEvents) {
+        streams:StreamEvent?[] outputEvents = [];
         foreach var event in streamEvents {
             event.addAttribute("status", "single");
             event.addAttribute("phoneNo", "123456");
             outputEvents[outputEvents.length()] = event;
         }
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (streams:StreamEvent[])) {
+        if (nextProcessFuncPointer is function (streams:StreamEvent?[])) {
             nextProcessFuncPointer.call(outputEvents);
         }
     }

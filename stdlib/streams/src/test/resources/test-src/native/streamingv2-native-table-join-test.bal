@@ -90,7 +90,7 @@ function tableJoinFunc() {
     streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
 
     // Selector
-    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (),
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
@@ -103,7 +103,7 @@ function tableJoinFunc() {
 
     // Join processor
     streams:TableJoinProcessor tableJoinProcessor = streams:createTableJoinProcessor(
-                                                        function (streams:StreamEvent[] e) {select.process(e);},
+                                                        function (streams:StreamEvent?[] e) {select.process(e);},
                                                         "JOIN",
         function (streams:StreamEvent s) returns map<anydata>[] {
             map<anydata>[] result = [];
@@ -117,14 +117,14 @@ function tableJoinFunc() {
 
     // Window processor
     streams:Window lengthWindow = streams:length([1], nextProcessPointer =
-                                    function (streams:StreamEvent[] e) {tableJoinProcessor.process(e);});
+                                    function (streams:StreamEvent?[] e) {tableJoinProcessor.process(e);});
 
     // Set the tableName, streamName, windowProcessors to the table join processor
     tableJoinProcessor.setJoinProperties("tb", "twitterStream", lengthWindow);
 
     twitterStream.subscribe(function (Twitter i) {
             map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "twitterStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "twitterStream");
             lengthWindow.process(eventArr);
         }
     );

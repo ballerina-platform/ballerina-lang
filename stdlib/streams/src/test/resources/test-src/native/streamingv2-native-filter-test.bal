@@ -85,7 +85,7 @@ function foo() {
 
     streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
     streams:Select select = streams:createSelect(
-                function (streams:StreamEvent[] e) {outputProcess.process(e);},
+                function (streams:StreamEvent?[] e) {outputProcess.process(e);},
                 [], (),
                 function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
                                                 // got rid of type casting
@@ -96,7 +96,7 @@ function foo() {
                                             }
     );
 
-    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {select.process(e);},
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent?[] e) {select.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter
             return <int>m["inputStream.age"] > 25;
@@ -105,7 +105,7 @@ function foo() {
 
     inputStream.subscribe(function (Teacher t) {
             // make it type unaware and proceed
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(t, "inputStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(t, "inputStream");
             filter.process(eventArr);
         }
     );

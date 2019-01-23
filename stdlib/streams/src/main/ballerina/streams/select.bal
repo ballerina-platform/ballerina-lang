@@ -90,7 +90,7 @@ public type Select object {
     }
 };
 
-public function createSelect(function (StreamEvent[]) nextProcPointer,
+public function createSelect(function (StreamEvent?[]) nextProcPointer,
                              Aggregator[] aggregatorArr,
                              ((function (StreamEvent o) returns anydata)[])? groupbyFuncArray,
                              function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc)

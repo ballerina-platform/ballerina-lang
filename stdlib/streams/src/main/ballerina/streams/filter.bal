@@ -18,7 +18,7 @@ public type Filter object {
     private function (StreamEvent?[]) nextProcessorPointer;
     private function (map<anydata>) returns boolean conditionFunc;
 
-    function __init(function (StreamEvent[]) nextProcessorPointer,
+    function __init(function (StreamEvent?[]) nextProcessorPointer,
                     function (map<anydata>) returns boolean conditionFunc) {
         self.nextProcessorPointer = nextProcessorPointer;
         self.conditionFunc = conditionFunc;
@@ -40,7 +40,7 @@ public type Filter object {
     }
 };
 
-public function createFilter(function (StreamEvent[]) nextProcPointer,
+public function createFilter(function (StreamEvent?[]) nextProcPointer,
                              function (map<anydata> o) returns boolean conditionFunc) returns Filter {
     Filter filter = new(nextProcPointer, conditionFunc);
     return filter;

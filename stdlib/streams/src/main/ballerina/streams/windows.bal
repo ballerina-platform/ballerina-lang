@@ -251,9 +251,9 @@ public type LengthBatchWindow object {
     public StreamEvent? resetEvent;
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
-    public function (StreamEvent?[])? nextProcessPointer;
+    public (function (StreamEvent?[]))? nextProcessPointer;
 
-    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
+    public function __init((function (StreamEvent?[]))? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.length = 0;
