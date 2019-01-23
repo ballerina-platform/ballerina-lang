@@ -54,7 +54,7 @@ public type Client object {
     }
 };
 
-function Client.init(ClientEndpointConfiguration config) {
+public function Client.init(ClientEndpointConfiguration config) {
     self.abcClient = new;
 }
 

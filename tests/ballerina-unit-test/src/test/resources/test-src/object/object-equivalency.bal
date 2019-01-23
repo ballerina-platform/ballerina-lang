@@ -23,19 +23,19 @@ public type person1 object {
     public function setSSN (string s);
 };
 
-function person1.getName () returns (string) {
+public function person1.getName () returns (string) {
     return self.name;
 }
 
-function person1.getAge () returns (int) {
+public function person1.getAge () returns (int) {
     return self.age;
 }
 
-function person1.getSSN () returns (string) {
+public function person1.getSSN () returns (string) {
     return self.ssn;
 }
 
-function person1.setSSN (string s) {
+public function person1.setSSN (string s) {
     self.ssn = s;
 }
 
@@ -64,23 +64,23 @@ public type employee1 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee1.getName () returns (string) {
+public function employee1.getName () returns (string) {
     return self.name;
 }
 
-function employee1.getAge () returns (int) {
+public function employee1.getAge () returns (int) {
     return self.age;
 }
 
-function employee1.getSSN () returns (string) {
+public function employee1.getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee1.setSSN (string s) {
+public function employee1.setSSN (string s) {
     self.ssn = s;
 }
 
-function employee1.getEmployeeId () returns (int) {
+public function employee1.getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -111,19 +111,19 @@ public type person2 object {
     public function setSSN (string s);
 };
 
-function person2.getName () returns (string) {
+public function person2.getName () returns (string) {
     return self.name;
 }
 
-function person2.getAge () returns (int) {
+public function person2.getAge () returns (int) {
     return self.age;
 }
 
-function person2.getSSN () returns (string) {
+public function person2.getSSN () returns (string) {
     return self.ssn;
 }
 
-function person2.setSSN (string s) {
+public function person2.setSSN (string s) {
     self.ssn = s;
 }
 
@@ -147,23 +147,23 @@ public type employee2 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee2.getName () returns (string) {
+public function employee2.getName () returns (string) {
     return self.name;
 }
 
-function employee2.getAge () returns (int) {
+public function employee2.getAge () returns (int) {
     return self.age;
 }
 
-function employee2.getSSN () returns (string) {
+public function employee2.getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee2.setSSN (string s) {
+public function employee2.setSSN (string s) {
     self.ssn = s;
 }
 
-function employee2.getEmployeeId () returns (int) {
+public function employee2.getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -209,23 +209,23 @@ public type employee3 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee3.getName () returns (string) {
+public function employee3.getName () returns (string) {
     return self.name;
 }
 
-function employee3.getAge () returns (int) {
+public function employee3.getAge () returns (int) {
     return self.age;
 }
 
-function employee3.getSSN () returns (string) {
+public function employee3.getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee3.setSSN (string s) {
+public function employee3.setSSN (string s) {
     self.ssn = s;
 }
 
-function employee3.getEmployeeId () returns (int) {
+public function employee3.getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -335,11 +335,11 @@ public type userPA object {
     public function getAge () returns (int);
 };
 
-function userPA.getName () returns (string) {
+public function userPA.getName () returns (string) {
     return self.name;
 }
 
-function userPA.getAge () returns (int) {
+public function userPA.getAge () returns (int) {
     return self.age;
 }
 
@@ -354,11 +354,11 @@ public type userPB object {
     public function getAge () returns (int);
 };
 
-function userPB.getName () returns (string) {
+public function userPB.getName () returns (string) {
     return self.name;
 }
 
-function userPB.getAge () returns (int) {
+public function userPB.getAge () returns (int) {
     return self.age;
 }
 
@@ -373,11 +373,11 @@ public type userPFoo object {
     public function getAge () returns (int);
 };
 
-function userPFoo.getName () returns (string) {
+public function userPFoo.getName () returns (string) {
     return self.name;
 }
 
-function userPFoo.getAge () returns (int) {
+public function userPFoo.getAge () returns (int) {
     return self.age;
 }
 

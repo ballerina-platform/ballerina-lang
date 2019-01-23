@@ -202,6 +202,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-privacy</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-llvm</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -408,6 +414,7 @@
                                 ballerina-time,
                                 ballerina-transactions,
                                 ballerina-websub,
+                                ballerina-privacy,
                                 ballerina-llvm,
                                 ballerina-bir,
                                 <!-- other artifacts -->
@@ -582,6 +589,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-websub-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

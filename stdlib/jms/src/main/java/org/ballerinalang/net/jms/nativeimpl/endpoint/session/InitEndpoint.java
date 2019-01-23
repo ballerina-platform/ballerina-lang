@@ -29,8 +29,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Connection;
@@ -55,16 +55,16 @@ public class InitEndpoint implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
 
-        Struct sessionConfig = sessionBObject.getStructField(Constants.SESSION_CONFIG);
+        Struct sessionConfig = sessionBObject.getStructField(JmsConstants.SESSION_CONFIG);
 
         BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Connection connection = BallerinaAdapter.getNativeObject(connectionBObject,
-                                                                   Constants.JMS_CONNECTION,
-                                                                   Connection.class,
-                                                                   context);
+                                                                 JmsConstants.JMS_CONNECTION,
+                                                                 Connection.class,
+                                                                 context);
 
-        Session session = JMSUtils.createSession(connection, sessionConfig);
-        sessionBObject.addNativeData(Constants.JMS_SESSION, session);
+        Session session = JmsUtils.createSession(connection, sessionConfig);
+        sessionBObject.addNativeData(JmsConstants.JMS_SESSION, session);
     }
 
     @Override

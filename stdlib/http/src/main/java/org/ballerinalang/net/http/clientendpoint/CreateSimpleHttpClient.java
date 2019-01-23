@@ -46,7 +46,6 @@ import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
-import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurationOptions;
 import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 
 /**
