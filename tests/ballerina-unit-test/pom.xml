@@ -120,6 +120,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
         </dependency>
         <dependency>
@@ -367,6 +371,10 @@
             <artifactId>ballerina-transactions</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
