@@ -15,7 +15,7 @@
 // under the License.
 import ballerina/test;
 
-string EXPECTED_OBJECT_FAILURE_MESSAGE = "expected object's ";
+const string EXPECTED_OBJECT_FAILURE_MESSAGE = "expected object's ";
 
 // Objects are a combination of public and private fields along with a set of associated
 // functions, called methods, that can be used to manipulate them. An object’s methods are

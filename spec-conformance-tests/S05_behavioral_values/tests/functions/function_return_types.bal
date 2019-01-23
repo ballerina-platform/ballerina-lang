@@ -15,7 +15,8 @@
 // under the License.
 import ballerina/test;
 
-const string EXPECTED_RETURN_TYPE_TO_BE_OF_EXPECTED_TYPE_FAILURE_MESSAGE = "expected return type to be of expected type";
+const string EXPECTED_RETURN_TYPE_TO_BE_OF_EXPECTED_TYPE_FAILURE_MESSAGE =
+                                            "expected return type to be of expected type";
 
 // For return values, typing is straightforward: returns T means that the value returned by
 // the function is always of type T.

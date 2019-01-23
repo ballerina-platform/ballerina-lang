@@ -15,7 +15,8 @@
 // under the License.
 import ballerina/test;
 
-string EXPECTED_OBJECT_FIELD_TO_BE_INITIALIZED_FAILURE_MESSAGE = "expected object field to have initialzed value";
+const string EXPECTED_OBJECT_FIELD_TO_BE_INITIALIZED_FAILURE_MESSAGE =
+                                            "expected object field to have initialzed value";
 
 // A non-abstract object type provides a way to initialize an object of the type. An object is
 // initialized by:

@@ -15,6 +15,8 @@
 // under the License.
 import ballerina/test;
 
+const string EXPECTED_FUTURE_TO_WAIT_FAILURE_MESSAGE = "expected future to wait for named worker to return an int";
+
 // future-type-descriptor := future < type-descriptor >
 // A future value represents a value to be returned by a named worker.
 // A future value belongs to a type future<T> if the value to be returned belongs to T.
@@ -25,6 +27,6 @@ function testFutures() {
     }
     future<int> sampleFuture = w1;
     any result = wait sampleFuture;
-    test:assertTrue(result is int, msg = "expected future to wait for named worker to return an int");
-    test:assertEquals(result, 200, msg = "expected future to wait for named worker to return an int");
+    test:assertTrue(result is int, msg = EXPECTED_FUTURE_TO_WAIT_FAILURE_MESSAGE);
+    test:assertEquals(result, 200, msg = EXPECTED_FUTURE_TO_WAIT_FAILURE_MESSAGE);
 }

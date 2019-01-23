@@ -15,8 +15,10 @@
 // under the License.
 import ballerina/test;
 
-const string EXPECTED_RETURN_VALUE_TO_BE_EQUAL_TO_SUM_FAILURE_MESSAGE = "expected return value to be equal to the sum";
-const string EXPECTED_GLOBAL_STRING_VAR_TO_BE_UPDATED_FAILURE_MESSAGE = "expected globalStringVar to have been updated";
+const string EXPECTED_RETURN_VALUE_TO_BE_EQUAL_TO_SUM_FAILURE_MESSAGE =
+                                            "expected return value to be equal to the sum";
+const string EXPECTED_GLOBAL_STRING_VAR_TO_BE_UPDATED_FAILURE_MESSAGE =
+                                            "expected globalStringVar to have been updated";
 
 // A function can be passed any number of arguments. Each argument is passed in one of
 // three ways: as a positional argument, as a named argument or as a rest argument. A
