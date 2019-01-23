@@ -289,6 +289,10 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.I2BI] = "i2bi";
         mnemonics[InstructionCodes.BI2I] = "bi2i";
+        mnemonics[InstructionCodes.F2BI] = "f2bi";
+        mnemonics[InstructionCodes.BI2F] = "bi2f";
+        mnemonics[InstructionCodes.D2BI] = "d2bi";
+        mnemonics[InstructionCodes.BI2D] = "bi2d";
         mnemonics[InstructionCodes.BIXOR] = "bior";
         mnemonics[InstructionCodes.IXOR] = "ior";
         mnemonics[InstructionCodes.BACONST] = "baconst";
