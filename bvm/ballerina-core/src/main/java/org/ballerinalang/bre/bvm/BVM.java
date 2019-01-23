@@ -610,6 +610,10 @@ public class BVM {
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
                 case InstructionCodes.BI2I:
+                case InstructionCodes.F2BI:
+                case InstructionCodes.BI2F:
+                case InstructionCodes.D2BI:
+                case InstructionCodes.BI2D:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -2488,7 +2492,7 @@ public class BVM {
                             sf.refRegs[j] = bRefTypeValue;
                     }
                 } else if (containsNumericType(expectedType)) {
-                    execNumericConversionOrCastOpCode(ctx, sf, expectedType, bRefTypeValue, j);
+                    execNumericConversionOrCastOpCode(ctx, sf, expectedType, bRefTypeValue, j, false);
                 } else {
                     ctx.setError(
                             BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
@@ -2622,7 +2626,8 @@ public class BVM {
     }
 
     private static void execNumericConversionOrCastOpCode(Strand ctx, StackFrame sf, BType targetType,
-                                                          BRefType bRefTypeValue, int regIndex) {
+                                                          BRefType bRefTypeValue, int regIndex,
+                                                          boolean isRefTypeTarget) {
         BType sourceType = bRefTypeValue.getType();
         int targetTag = targetType.getTag();
         if (!isBasicNumericType(sourceType)) {
@@ -2636,32 +2641,35 @@ public class BVM {
         try {
             switch (targetTag) {
                 case TypeTags.FLOAT_TAG:
-                    sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
+                    if (isRefTypeTarget) {
+                        sf.refRegs[regIndex] = new BFloat(((BValueType) bRefTypeValue).floatValue());
+                    } else {
+                        sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
+                    }
                     break;
                 case TypeTags.DECIMAL_TAG:
                     sf.refRegs[regIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
                     break;
                 case TypeTags.INT_TAG:
-                    sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
+                    if (isRefTypeTarget) {
+                        sf.refRegs[regIndex] = new BInteger(((BValueType) bRefTypeValue).intValue());
+                    } else {
+                        sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
+                    }
                     break;
                 case TypeTags.BYTE_TAG:
-                    if (sourceType.getTag() != TypeTags.INT_TAG) {
-                        // allow conversion to byte only from int
-                        ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
-                                                               BLangExceptionHelper.getErrorMessage(
-                                                                       RuntimeErrors.TYPE_CAST_ERROR,
-                                                                       sourceType, targetType)));
-                        handleError(ctx);
-                        return;
+                    if (isRefTypeTarget) {
+                        sf.refRegs[regIndex] = new BByte(((BValueType) bRefTypeValue).byteValue());
+                    } else {
+                        sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).byteValue();
                     }
-                    sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).byteValue();
                     break;
                 default:
                     BType targetNumericType = ((BUnionType) targetType).getMemberTypes().stream()
                             .filter(BVM::isBasicNumericType)
                             .findFirst()
                             .get(); // wouldn't get here if not present
-                    execNumericConversionOrCastOpCode(ctx, sf, targetNumericType, bRefTypeValue, regIndex);
+                    execNumericConversionOrCastOpCode(ctx, sf, targetNumericType, bRefTypeValue, regIndex, true);
             }
         } catch (BallerinaException e) {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
@@ -2716,6 +2724,55 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 sf.longRegs[j] = Byte.toUnsignedInt((byte) sf.intRegs[i]);
+                break;
+            case InstructionCodes.F2BI:
+                i = operands[0];
+                j = operands[1];
+                double floatVal = sf.doubleRegs[i];
+                if (Double.isNaN(floatVal) || Double.isInfinite(floatVal)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'float' value '" + floatVal + "' cannot be " +
+                                                                   "converted to 'byte'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                long floatAsIntVal = Math.round(floatVal);
+                if (!isByteLiteral(floatAsIntVal)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'" + TypeConstants.FLOAT_TNAME + "' value '" +
+                                                                   floatVal + "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
+                    handleError(ctx);
+                    break;
+                }
+                sf.intRegs[j] = (byte) floatAsIntVal;
+                break;
+            case InstructionCodes.BI2F:
+                i = operands[0];
+                j = operands[1];
+                sf.doubleRegs[j] = Byte.toUnsignedInt((byte) sf.intRegs[i]);
+                break;
+            case InstructionCodes.D2BI:
+                i = operands[0];
+                j = operands[1];
+                long doubleAsIntVal = Math.round(Math.round(((BDecimal) sf.refRegs[i]).decimalValue().doubleValue()));
+                if (!isByteLiteral(doubleAsIntVal)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'" + TypeConstants.DECIMAL_TNAME + "' value '" +
+                                                                   sf.refRegs[i] + "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
+                    handleError(ctx);
+                    break;
+                }
+                sf.intRegs[j] = (byte) doubleAsIntVal;
+                break;
+            case InstructionCodes.BI2D:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BDecimal(
+                        (new BigDecimal(sf.intRegs[i], MathContext.DECIMAL128)).setScale(1,
+                                                                                          BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.F2I:
                 i = operands[0];

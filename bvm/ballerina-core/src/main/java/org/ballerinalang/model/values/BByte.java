@@ -52,12 +52,12 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public double floatValue() {
-        return (double) this.value;
+        return Byte.toUnsignedInt(value);
     }
 
     @Override
     public BigDecimal decimalValue() {
-        return new BigDecimal(stringValue(), MathContext.DECIMAL128);
+        return (new BigDecimal(value, MathContext.DECIMAL128)).setScale(1, BigDecimal.ROUND_HALF_EVEN);
     }
 
     @Override

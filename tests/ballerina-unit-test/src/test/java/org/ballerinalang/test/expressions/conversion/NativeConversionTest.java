@@ -758,7 +758,7 @@ public class NativeConversionTest {
         Assert.assertEquals(map.get("fromInt").stringValue(), "200.0");
         Assert.assertEquals(((BDecimal) map.get("fromDecimal")).decimalValue(), new BigDecimal(23.456,
                                                                                                MathContext.DECIMAL128));
-        Assert.assertEquals(map.get("fromByte").stringValue(), "5");
+        Assert.assertEquals(map.get("fromByte").stringValue(), "5.0");
         Assert.assertEquals(map.get("fromBoolean").stringValue(), "1.0");
     }
 

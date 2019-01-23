@@ -27,6 +27,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.math.BigDecimal;
 import java.util.Map;
 
+import static org.ballerinalang.bre.bvm.BVM.isByteLiteral;
+
 /**
  * The {@code BDecimal} represents a decimal value in Ballerina.
  *
@@ -56,7 +58,12 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public byte byteValue() {
-        return value.byteValue();
+        long intVal = Math.round(Math.round(decimalValue().doubleValue()));
+        if (!isByteLiteral(intVal)) {
+            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                         "'decimal' value '" + value + "' cannot be converted to 'byte'");
+        }
+        return  (byte) intVal;
     }
 
     @Override

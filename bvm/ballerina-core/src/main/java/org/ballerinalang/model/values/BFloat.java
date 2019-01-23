@@ -27,6 +27,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Map;
 
+import static org.ballerinalang.bre.bvm.BVM.isByteLiteral;
+
 /**
  * The {@code BFloat} represents a float value in Ballerina.
  *
@@ -57,7 +59,17 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public byte byteValue() {
-        return (byte) this.value;
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                         "'float' value '" + value + "' cannot be converted to 'byte'");
+        }
+
+        long intVal = Math.round(value);
+        if (!isByteLiteral(intVal)) {
+            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                         "'float' value '" + value + "' cannot be converted to 'byte'");
+        }
+        return (byte) intVal;
     }
 
     @Override
