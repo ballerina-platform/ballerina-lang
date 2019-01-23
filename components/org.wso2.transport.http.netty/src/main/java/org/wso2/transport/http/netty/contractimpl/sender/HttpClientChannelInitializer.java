@@ -133,9 +133,12 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         } else {
             if (sslConfig != null) {
                 connectionAvailabilityFuture.setSSLEnabled(true);
-                Util.configureHttpPipelineForSSL(socketChannel, httpRoute.getHost(), httpRoute.getPort(), sslConfig);
+                SSLEngine sslEngine = Util
+                        .configureHttpPipelineForSSL(socketChannel, httpRoute.getHost(), httpRoute.getPort(),
+                                sslConfig);
                 clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
-                        new SslHandshakeCompletionHandlerForClient(connectionAvailabilityFuture, this, targetHandler));
+                        new SslHandshakeCompletionHandlerForClient(connectionAvailabilityFuture, this, targetHandler,
+                                sslEngine));
             } else {
                 configureHttpPipeline(clientPipeline, targetHandler);
             }

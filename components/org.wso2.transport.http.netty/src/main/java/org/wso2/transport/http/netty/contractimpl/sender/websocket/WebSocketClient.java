@@ -48,8 +48,15 @@ import org.wso2.transport.http.netty.contractimpl.websocket.DefaultClientHandsha
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 /**
  * WebSocket client for sending and receiving messages in WebSocket as a client.
@@ -133,9 +140,10 @@ public class WebSocketClient {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws SSLException {
                         if (sslConfig != null) {
-                            Util.configureHttpPipelineForSSL(socketChannel, host, port, sslConfig);
+                            SSLEngine sslEngine = Util
+                                    .configureHttpPipelineForSSL(socketChannel, host, port, sslConfig);
                             socketChannel.pipeline().addLast(Constants.SSL_COMPLETION_HANDLER,
-                                    new WebSocketClientSSLHandshakeCompletionHandler(handshakeFuture));
+                                    new WebSocketClientSSLHandshakeCompletionHandler(handshakeFuture, sslEngine));
                         } else {
                             configureHandshakePipeline(socketChannel.pipeline());
                         }
@@ -176,16 +184,22 @@ public class WebSocketClient {
      */
     private class WebSocketClientSSLHandshakeCompletionHandler extends ChannelInboundHandlerAdapter {
         private final DefaultClientHandshakeFuture clientHandshakeFuture;
+        private SSLEngine sslEngine;
 
-        private WebSocketClientSSLHandshakeCompletionHandler(DefaultClientHandshakeFuture clientHandshakeFuture) {
+        private WebSocketClientSSLHandshakeCompletionHandler(DefaultClientHandshakeFuture clientHandshakeFuture,
+                SSLEngine sslEngine) {
             this.clientHandshakeFuture = clientHandshakeFuture;
+            this.sslEngine = sslEngine;
         }
 
         @Override
-        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
+        public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
+                throws CertificateNotYetValidException, CertificateExpiredException, SSLPeerUnverifiedException {
             if (evt instanceof SslHandshakeCompletionEvent) {
                 SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
                 if (event.isSuccess() && event.cause() == null) {
+                    X509Certificate endUserCert = (X509Certificate) sslEngine.getSession().getPeerCertificates()[0];
+                    endUserCert.checkValidity(new Date());
                     configureHandshakePipeline(ctx.channel().pipeline());
                     ctx.pipeline().remove(Constants.SSL_COMPLETION_HANDLER);
                     ctx.fireChannelActive();

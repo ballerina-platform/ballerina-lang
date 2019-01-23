@@ -25,6 +25,10 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import org.wso2.transport.http.netty.contract.Constants;
 
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
@@ -57,7 +61,9 @@ public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandle
             if (event.isSuccess()) {
                 if (sslEngine.getWantClientAuth() || sslEngine.getNeedClientAuth()) {
                     try {
-                        sslEngine.getSession().getPeerCertificates();
+                        Certificate[] certs = sslEngine.getSession().getPeerCertificates();
+                        X509Certificate endUserCert = (X509Certificate) certs[0];
+                        endUserCert.checkValidity(new Date());
                         ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_PASSED);
                     } catch (SSLPeerUnverifiedException e) {
                         ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_FAILED);
