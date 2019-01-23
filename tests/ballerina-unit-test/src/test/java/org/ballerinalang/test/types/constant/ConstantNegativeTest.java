@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 57);
+        Assert.assertEquals(compileResult.getErrorCount(), 59);
 
         int index = 0;
         int offset = 1;

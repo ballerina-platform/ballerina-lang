@@ -429,13 +429,12 @@ function testDecimalConcat() returns string {
 
 // -----------------------------------------------------------
 
+const map<map<boolean>> bm2 = { "key2": bm1 };
 const map<boolean> bm1 = { "key1": true };
 
 function testSimpleBooleanConstMap() returns map<boolean> {
     return bm1;
 }
-
-const map<map<boolean>> bm2 = { "key2": bm1 };
 
 function testComplexBooleanConstMap() returns map<map<boolean>> {
     return bm2;
@@ -443,13 +442,12 @@ function testComplexBooleanConstMap() returns map<map<boolean>> {
 
 // -----------------------------------------------------------
 
+const map<map<int>> im2 = { "key2": im1 };
 const map<int> im1 = { "key1": 1 };
 
 function testSimpleIntConstMap() returns map<int> {
     return im1;
 }
-
-const map<map<int>> im2 = { "key2": im1 };
 
 function testComplexIntConstMap() returns map<map<int>> {
     return im2;
@@ -457,13 +455,12 @@ function testComplexIntConstMap() returns map<map<int>> {
 
 // -----------------------------------------------------------
 
+const map<map<byte>> bytem2 = { "key2": bytem1 };
 const map<byte> bytem1 = { "key1": 10 };
 
 function testSimpleByteConstMap() returns map<byte> {
     return bytem1;
 }
-
-const map<map<byte>> bytem2 = { "key2": bytem1 };
 
 function testComplexByteConstMap() returns map<map<byte>> {
     return bytem2;
@@ -471,13 +468,12 @@ function testComplexByteConstMap() returns map<map<byte>> {
 
 // -----------------------------------------------------------
 
+const map<map<float>> fm2 = { "key2": fm1 };
 const map<float> fm1 = { "key1": 2.0 };
 
 function testSimpleFloatConstMap() returns map<float> {
     return fm1;
 }
-
-const map<map<float>> fm2 = { "key2": fm1 };
 
 function testComplexFloatConstMap() returns map<map<float>> {
     return fm2;
@@ -485,13 +481,12 @@ function testComplexFloatConstMap() returns map<map<float>> {
 
 // -----------------------------------------------------------
 
+const map<map<decimal>> dm2 = { "key2": dm1 };
 const map<decimal> dm1 = { "key1": 100 };
 
 function testSimpleDecimalConstMap() returns map<decimal> {
     return dm1;
 }
-
-const map<map<decimal>> dm2 = { "key2": dm1 };
 
 function testComplexDecimalConstMap() returns map<map<decimal>> {
     return dm2;
@@ -499,13 +494,12 @@ function testComplexDecimalConstMap() returns map<map<decimal>> {
 
 // -----------------------------------------------------------
 
+const map<map<string>> sm2 = { "key2": sm1 };
 const map<string> sm1 = { "key1": "value1" };
 
 function testSimpleStringConstMap() returns map<string> {
     return sm1;
 }
-
-const map<map<string>> sm2 = { "key2": sm1 };
 
 function testComplexStringConstMap() returns map<map<string>> {
     return sm2;
