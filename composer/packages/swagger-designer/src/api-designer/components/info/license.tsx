@@ -1,6 +1,8 @@
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
 
+import { OpenApiContext, OpenApiContextConsumer } from "../context/open-api-context";
+
 import InlineEdit from "../utils/inline-edit";
 
 export interface OpenApiLicenseProps {
@@ -16,7 +18,34 @@ class OpenApiLicense extends React.Component<OpenApiLicenseProps, any> {
         const { license } = this.props;
 
         return (
-            <InlineEdit text={license} placeholderText="Please include appropriate license details" />
+            <OpenApiContextConsumer>
+                {(context: OpenApiContext | null) => {
+                    if (license) {
+                        return (
+                            <InlineEdit
+                                text={license}
+                                changeModel={context!.openApiJson}
+                                changeAttribute={{key: "info.license", changeValue: ""}}
+                                placeholderText="Please include apropriate license info"
+                                onInlineValueChange={context!.onInlineValueChange}
+                            />
+                        );
+                    } else {
+                        return (
+                            <InlineEdit
+                                text={{
+                                    name: "",
+                                    url: "",
+                                }}
+                                changeModel={context!.openApiJson}
+                                changeAttribute={{key: "info.license", changeValue: ""}}
+                                placeholderText="Please include apropriate license info"
+                                onInlineValueChange={context!.onInlineValueChange}
+                            />
+                        );
+                    }
+                }}
+            </OpenApiContextConsumer>
         );
     }
 }

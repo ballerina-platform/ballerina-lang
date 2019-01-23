@@ -1,6 +1,6 @@
 {
-  "name": "@ballerina/api-designer",
-  "version": "0.990.3-SNAPSHOT",
+  "name": "@ballerina/swagger-designer",
+  "version": "0.983.1-SNAPSHOT",
   "description": "",
   "main": "lib/index.js",
   "scripts": {

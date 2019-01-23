@@ -1,23 +1,34 @@
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import ReactMarkdown from "react-markdown";
-import { Form, Icon } from "semantic-ui-react";
+import { Form, Icon, Input } from "semantic-ui-react";
 
 export interface InlineEditProps {
     text?: string | Swagger.LicenseObject | Swagger.ContactObject | URL ;
     isMarkdown?: boolean;
     placeholderText?: string;
     isParagraph?: boolean;
+    changeModel: Swagger.OpenAPIObject;
+    changeAttribute: AttributeObject;
+    onInlineValueChange: (openApiJson: Swagger.OpenAPIObject) => void;
 }
 
 export interface URL {
-    link: string;
-    urlText?: string;
+    link?: string;
+    urlText: string;
+    type: string;
 }
 
 export interface InlineEditState {
     text: string | Swagger.LicenseObject | Swagger.ContactObject | URL;
     isEditing: boolean;
+    valueChanged: boolean;
+}
+
+export interface AttributeObject {
+    key: string;
+    path?: string;
+    changeValue: string;
 }
 
 class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
@@ -26,11 +37,25 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
 
         this.state = {
             isEditing: false,
-            text: this.props.text ? this.props.text : ""
+            text: this.props.text ? this.props.text : "",
+            valueChanged: false
         };
 
         this.enableEditing = this.enableEditing.bind(this);
         this.cancelEditing = this.cancelEditing.bind(this);
+        this.onValueChange = this.onValueChange.bind(this);
+        this.onDoneEditing = this.onDoneEditing.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
+    }
+
+    public componentWillReceiveProps(nextProps: InlineEditProps) {
+        const { text } = nextProps;
+
+        if (text && text !== this.state.text) {
+            this.setState({
+                text
+            });
+        }
     }
 
     public render() {
@@ -39,131 +64,156 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
 
         if (this.isContactObj(text)) {
             if (isEditing) {
+                return this.getEditorForm("contact");
+            }
+
+            if (this.isObjectEmpty(text)) {
                 return (
-                    <div></div>
-                );
-            } else {
-                return (
-                    <div></div>
+                    <div className="inline-editor contact" >
+                        <span onClick={this.enableEditing}>{placeholderText}</span>
+                    </div>
                 );
             }
+
+            return (
+                <div className="inline-editor contact">
+                    {text.email &&
+                        <span className="email" onClick={this.enableEditing}>{text.email}</span>
+                    }
+                    {text.url &&
+                        <div className="contact-link">
+                            <span onClick={this.enableEditing}>{text.name} - Website</span>
+                            <a className="activate-edit" href={text.url} target="_blank">
+                                <Icon name="linkify" />
+                            </a>
+                        </div>
+                    }
+                </div>
+            );
         }
 
         if (this.isLicenseObj(text)) {
             if (isEditing) {
+                return this.getEditorForm();
+            }
+
+            if (this.isObjectEmpty(text)) {
                 return (
-                    <div className="inline-editor editing">
-                        <Form>
-                            <Form.Group>
-                                <Form.Input id="url-link" size="mini" />
-                                <Form.Input
-                                    id="url-text"
-                                    size="mini"
-                                    placeholder="Add a meaningful link text"
-                                />
-                                <Form.Button inverted color="black" icon="check" size="mini" />
-                                <Form.Button inverted color="black" icon="close" size="mini"
-                                    onClick={this.cancelEditing} />
-                            </Form.Group>
-                        </Form>
-                    </div>
-                );
-            } else {
-                return (
-                    <div className="inline-editor url">
-                        <span onClick={this.enableEditing}>{text.name === "" ? "" : text.name}</span>
-                        <a className="activate-edit" href={text.url === "" ? "#" : text.url} target="_blank">
-                            <Icon name="linkify" />
-                        </a>
+                    <div className="inline-editor license" onClick={this.enableEditing}>
+                        <span onClick={this.enableEditing}>{placeholderText}</span>
                     </div>
                 );
             }
+
+            return (
+                <div className="inline-editor license">
+                    <span onClick={this.enableEditing}>{text.name}</span>
+                    <a className="activate-edit" href={text.url} target="_blank">
+                        <Icon name="linkify" />
+                    </a>
+                </div>
+            );
         }
 
         if (this.isURLObj(text)) {
             if (isEditing) {
+                return this.getEditorForm(text.type === "tos" ? "tos" : undefined);
+            }
+
+            if (this.isObjectEmpty(text)) {
+                return (
+                    <div className="inline-editor url" onClick={this.enableEditing}>
+                        <span onClick={this.enableEditing}>{placeholderText}</span>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="inline-editor url" onClick={this.enableEditing}>
+                    <span onClick={this.enableEditing}>{text.urlText}</span>
+                    <a className="activate-edit" href={text.link} target="_blank">
+                        <Icon name="linkify" />
+                    </a>
+                </div>
+            );
+        }
+
+        if (typeof text === "string" && isParagraph && isMarkdown) {
+
+            if (isEditing) {
                 return (
                     <div className="inline-editor editing">
+                        <textarea
+                            autoFocus
+                            placeholder={placeholderText}
+                            onBlur={this.cancelEditing}
+                            onChange={this.onValueChange}
+                            onKeyDown={this.onKeyDown}
+                        >
+                            {text}
+                        </textarea>
+                    </div>
+                );
+            }
+
+            if (text === "") {
+                return (
+                    <div className="inline-editor paragraph markdown" >
+                        <span onClick={this.enableEditing}>{placeholderText}</span>
+                    </div>
+                );
+            }
+            return (
+                <div className="inline-editor paragraph markdown" onClick={this.enableEditing}>
+                    <ReactMarkdown source={text} />
+                </div>
+            );
+        } else if (typeof text === "string" && isParagraph) {
+            return (
+                <div className="inline-editor paragraph" onClick={this.enableEditing}>
+                    <span>paragraph</span>
+                </div>
+            );
+        } else if (typeof text === "string") {
+
+            if (isEditing) {
+                return (
+                    <div className="inline-editor string editing">
                         <Form>
-                            <Form.Group>
-                                <Form.Input id="url-link" size="mini" />
-                                <Form.Button inverted color="black" icon="check" size="mini" />
-                                <Form.Button inverted color="black" icon="close" size="mini"
-                                    onClick={this.cancelEditing}/>
-                            </Form.Group>
+                            <Input
+                                transparent
+                                autoFocus
+                                placeholder={placeholderText}
+                                value={text}
+                                onBlur={this.cancelEditing}
+                                onChange={this.onValueChange}
+                                onClick={(e: any) => {e.stopPropagation(); }}
+                                onKeyDown={this.onKeyDown}
+                            />
                         </Form>
                     </div>
                 );
             }
 
-            if (text.urlText && text.urlText === "") {
-                return (
-                    <div className="inline-editor url">
-                        <span onClick={this.enableEditing}>{text.link}</span>
-                        <a className="activate-edit" href={text.link} target="_blank">
-                            <Icon name="linkify" />
-                        </a>
-                    </div>
-                );
-            } else {
-                return (
-                    <div className="inline-editor url">
-                        <span onClick={this.enableEditing}>{text.urlText}</span>
-                        <a className="activate-edit" href={text.link === "" ? "#" : text.link} target="_blank">
-                            <Icon name="linkify" />
-                        </a>
-                    </div>
-                );
-            }
-        }
-
-        if (typeof text === "string") {
-
             if (text === "") {
                 return (
-                    <div>
-                        <span>{placeholderText}</span>
+                    <div className="inline-editor string" onClick={this.enableEditing}>
+                        <span onClick={this.enableEditing}>{placeholderText}</span>
                     </div>
                 );
             }
 
-            if (isParagraph && isMarkdown) {
-                if (isEditing) {
-                    return(
-                        <div className="inline-editor editing">
-                            <textarea
-                                autoFocus
-                                placeholder={placeholderText}
-                                onBlur={this.cancelEditing}
-                            >
-                                {text}
-                            </textarea>
-                        </div>
-                    );
-                }
-                return (
-                    <div className="inline-editor markdown" onClick={this.enableEditing}>
-                        <ReactMarkdown source={text} />
-                    </div>
-                );
-            } else if (isParagraph) {
-                return (
-                    <div className="inline-editor markdown">
-                        <p>{text}</p>
-                    </div>
-                );
-            } else {
-                return (
-                    <div>
-                        <span>{text}</span>
-                    </div>
-                );
-            }
+            return (
+                <div className="inline-editor string" onClick={this.enableEditing}>
+                    <span>{text}</span>
+                </div>
+            );
         }
 
-        return(
+        return (
             <div></div>
         );
+
     }
 
     private enableEditing(e: React.MouseEvent<HTMLSpanElement>) {
@@ -176,19 +226,222 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
     private cancelEditing() {
         this.setState({
             isEditing: false
+        }, () => {
+            const { changeModel, changeAttribute } = this.props;
+            const { valueChanged } = this.state;
+
+            if (valueChanged) {
+                this.persistValueChange(changeModel, changeAttribute);
+                this.setState({
+                    valueChanged: false
+                });
+            }
         });
     }
 
+    private onDoneEditing() {
+        this.setState({
+            isEditing: false
+        }, () => {
+            const { changeModel, changeAttribute } = this.props;
+            const { valueChanged } = this.state;
+
+            debugger;
+            if (valueChanged) {
+                this.persistValueChange(changeModel, changeAttribute);
+                this.setState({
+                    valueChanged: false
+                });
+            }
+        });
+    }
+
+    private onKeyDown(e: React.KeyboardEvent) {
+        if (e.keyCode === 13) {
+            this.onDoneEditing();
+        }
+    }
+
+    private getEditorForm(type?: string) {
+        return (
+            <div className={"inline-editor editing " + type}>
+                <Form>
+                    <Form.Group>
+                        {type !== "tos" &&
+                            <Form.Input
+                                id="name"
+                                size="mini"
+                                placeholder="Name"
+                                onChange={this.onValueChange}
+                            />
+                        }
+                        <Form.Input
+                            id="url"
+                            size="mini"
+                            placeholder="URL"
+                            onChange={this.onValueChange}
+                        />
+                        {type && type === "contact" &&
+                            <Form.Input
+                                id="email"
+                                size="mini"
+                                placeholder="Email"
+                                onChange={this.onValueChange}
+                            />
+                        }
+                        <Form.Button inverted color="black" icon="check" size="mini"
+                            onClick={this.onDoneEditing}/>
+                        <Form.Button inverted color="black" icon="close" size="mini"
+                            onClick={this.cancelEditing} />
+                    </Form.Group>
+                </Form>
+            </div>
+        );
+    }
+
+    private onValueChange(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
+        let { text } = this.state;
+        const { changeAttribute } = this.props;
+        let changeDone = false;
+
+        if (this.isContactObj(text)) {
+            switch (e.target.id) {
+                case "name":
+                    text.name = e.target.value;
+                    break;
+                case "url":
+                    text.url = e.target.value;
+                    break;
+                case "email":
+                    text.email = e.target.value;
+                    break;
+                default:
+                    break;
+            }
+            changeDone = true;
+        } else if (this.isLicenseObj(text)) {
+            switch (e.target.id) {
+                case "name":
+                    text.name = e.target.value;
+                    break;
+                case "url":
+                    text.url = e.target.value;
+                    break;
+                default:
+                    break;
+            }
+            changeDone = true;
+        } else if (this.isURLObj(text)) {
+            if (text.type && text.type === "tos") {
+                text.link = e.target.value;
+            } else {
+                switch (e.target.id) {
+                    case "name":
+                        text.urlText = e.target.value;
+                        break;
+                    case "url":
+                        text.link = e.target.value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            changeDone = true;
+        } else {
+            if (changeAttribute.key === "resource.name") {
+                text = e.target.value.trim();
+                changeDone = true;
+            } else {
+                text = e.target.value;
+                changeDone = true;
+            }
+        }
+
+        this.setState({
+            text,
+            valueChanged: changeDone
+        });
+    }
+
+    private persistValueChange(model: Swagger.OpenAPIObject, attribute: AttributeObject) {
+        const { text } = this.state;
+
+        switch (attribute.key) {
+            case "info.version":
+                const version = text as string;
+                model.info.version = version;
+                break;
+            case "info.description":
+                const description = text as string;
+                model.info.description = description;
+                break;
+            case "info.termsOfService":
+                const termsObj = text as URL;
+                model.info.termsOfService = termsObj.link;
+                break;
+            case "info.license":
+                const licenseObj = text as Swagger.LicenseObject;
+                model.info.license = {
+                    name: licenseObj.name,
+                    url: licenseObj.url
+                };
+                break;
+            case "info.contact":
+                const contactObj = text as Swagger.ContactObject;
+                model.info.contact = {
+                    email: contactObj.email,
+                    name: contactObj.name,
+                    url: contactObj.url
+                };
+                break;
+            case "resource.name":
+                const pathName = text as string;
+                if (pathName !== "" && model.paths) {
+                    model.paths[pathName] = model.paths[attribute.changeValue];
+                    delete model.paths[attribute.changeValue];
+                }
+                break;
+            case "operation.description":
+                const opDescription = text as string;
+                if (opDescription !== "" && model.paths && attribute.path) {
+                    model.paths[attribute.path][attribute.changeValue].description = opDescription;
+                }
+                break;
+            case "operation.summary":
+                const opSummary = text as string;
+                if (opSummary !== "" && model.paths && attribute.path) {
+                    model.paths[attribute.path][attribute.changeValue].summary = opSummary;
+                }
+                break;
+            default:
+                break;
+        }
+
+        this.props.onInlineValueChange(model);
+    }
+
+    private isObjectEmpty(arg: Swagger.ContactObject | Swagger.LicenseObject | URL) {
+        if (this.isContactObj(arg)) {
+            return (!arg.email || arg.email === "") && (!arg.name || arg.name === "") && (!arg.url || arg.url === "");
+        } else if (this.isLicenseObj(arg)) {
+            return (!arg.name || arg.name === "") && (!arg.url || arg.url === "");
+        } else if (this.isURLObj(arg)) {
+            return (!arg.link || arg.link === "") || (!arg.urlText || arg.urlText === "");
+        } else {
+            return true;
+        }
+    }
+
     private isContactObj(arg: any): arg is Swagger.ContactObject {
-        return arg && arg.name && arg.url && arg.email;
+        return arg && arg.hasOwnProperty("name") && arg.hasOwnProperty("url") && arg.hasOwnProperty("email");
     }
 
     private isLicenseObj(arg: any): arg is Swagger.LicenseObject {
-        return arg && arg.name && arg.url;
+        return arg && arg.hasOwnProperty("url") && arg.hasOwnProperty("name");
     }
 
     private isURLObj(arg: any): arg is URL {
-        return arg && arg.link && arg.urlText;
+        return arg && arg.hasOwnProperty("link") && arg.hasOwnProperty("urlText") && arg.hasOwnProperty("type");
     }
 }
 

@@ -1,11 +1,28 @@
+import * as Swagger from "openapi3-ts";
 import * as React from "react";
 
-class OpenApiParameter extends React.Component<any, any> {
+export interface OpenApiParameterListProps {
+    parameterList: Swagger.ParameterObject[];
+}
+
+class OpenApiParameterList extends React.Component<OpenApiParameterListProps, any> {
+    constructor(props: OpenApiParameterListProps) {
+        super(props);
+    }
+
     public render() {
+        const { parameterList } = this.props;
+
         return (
-            <div></div>
+            <div>
+                    {parameterList.map((param: Swagger.ParameterObject, index: number) => {
+                        return (
+                            <div>{param.name}</div>
+                        );
+                    })}
+            </div>
         );
     }
 }
 
-export default OpenApiParameter;
+export default OpenApiParameterList;
