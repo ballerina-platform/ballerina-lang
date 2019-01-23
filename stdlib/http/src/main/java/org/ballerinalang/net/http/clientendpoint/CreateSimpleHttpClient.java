@@ -120,7 +120,7 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
         if (poolManager == null) {
             synchronized (this) {
-                if (poolManager == null) {
+                if (poolStruct.getNativeData(CONNECTION_MANAGER) == null) {
                     PoolConfiguration userDefinedPool = new PoolConfiguration();
                     populatePoolingConfig(poolStruct, userDefinedPool);
                     poolManager = new ConnectionManager(userDefinedPool);

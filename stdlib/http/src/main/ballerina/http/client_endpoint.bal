@@ -319,20 +319,6 @@ public type ProxyConfig record {
     !...;
 };
 
-# Provides configurations for throttling connections of the endpoint.
-#
-# + maxActiveConnections - Maximum number of active connections allowed for the endpoint. The default value, -1,
-#                          indicates that the number of connections are not restricted.
-# + waitTime - Maximum waiting time for a request to grab an idle connection from the client
-# + maxActiveStreamsPerConnection - Maximum number of active streams allowed per an HTTP/2 connection
-public type ConnectionThrottling record {
-    int maxActiveConnections = -1;
-    int waitTime = 60000;
-    // In order to distribute the workload among multiple connections in HTTP/2 scenario.
-    int maxActiveStreamsPerConnection = 20000;
-    !...;
-};
-
 # AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
 # + scheme - Scheme of the configuration (Basic, OAuth2, JWT etc.)

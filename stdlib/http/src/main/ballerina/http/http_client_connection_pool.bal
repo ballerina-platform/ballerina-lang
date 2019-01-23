@@ -1,10 +1,12 @@
+# Configurations for managing HTTP client connection pool.
+#
+# + maxActiveConnections - Max active connections per route(host:port). Default value is -1 which indicates unlimited.
+# + waitTimeinMillis - Maximum amount of time, the client should wait for an idle connection before it sends an error when the pool is exhausted
+# + maxActiveStreamsPerConnection - Maximum active streams per connection. This only applies to HTTP/2.
 public type PoolConfiguration record {
-    //Max active connections per route(host:port); -1 indicates //unlimited
-    int maxActiveConnections = -1;
-    //Maximum amount of time (in milliseconds) the client should wait for an idle connection before it sends an error when the //pool is exhausted
-    int waitTimeinMillis = 10000;
-    //Applies only to HTTP/2
-    int maxActiveStreamsPerConnection = 20;
+    int maxActiveConnections = config:getAsInt("b7a.http.pool.maxActiveConnections", default = -1);
+    int waitTimeinMillis = config:getAsInt("b7a.http.pool.waitTimeinMillis", default = 10000);
+    int maxActiveStreamsPerConnection = config:getAsInt("b7a.http.pool.maxActiveStreamsPerConnection", default = 20);
     ////Following two fields are useful only when you need to define different values for per route pools
     //Route? poolKey = ();
     //map<PoolConfiguration>? perRoutePoolConfigs = ();

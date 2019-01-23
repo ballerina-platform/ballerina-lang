@@ -1349,31 +1349,6 @@ public class HttpUtil {
         }
         String forwardedExtension = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_FORWARDED);
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
-
-       /* Struct connectionThrottling = clientEndpointConfig.getStructField(HttpConstants.
-                CONNECTION_THROTTLING_STRUCT_REFERENCE);
-        if (connectionThrottling != null) {
-            long maxActiveConnections = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS);
-            if (!isInteger(maxActiveConnections)) {
-                throw new BallerinaConnectorException("invalid maxActiveConnections value: "
-                        + maxActiveConnections);
-            }
-            senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
-
-            long waitTime = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
-            senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
-
-            long maxActiveStreamsPerConnection = connectionThrottling.
-                    getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
-            if (!isInteger(maxActiveStreamsPerConnection)) {
-                throw new BallerinaConnectorException("invalid maxActiveStreamsPerConnection value: "
-                        + maxActiveStreamsPerConnection);
-            }
-            senderConfiguration.getPoolConfiguration().setHttp2MaxActiveStreamsPerConnection(
-                    maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : (int) maxActiveStreamsPerConnection);
-        }*/
     }
 
     public static void populatePoolingConfig(Struct poolRecord, PoolConfiguration poolConfiguration) {
