@@ -204,50 +204,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"base64Encode(string charset \u003d utf-8)(string|error)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Encode a given string with Base64 encoding scheme.\n"
-      },
-      "sortText":"121",
-      "insertText":"base64Encode(charset \u003d ${2:\"utf-8\"})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base64Decode(string charset \u003d utf-8)(string|error)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Decode a given string with Base64 encoding scheme.\n"
-      },
-      "sortText":"121",
-      "insertText":"base64Decode(charset \u003d ${2:\"utf-8\"})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base16ToBase64Encode()(string)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Encodes a base16 encoded string to base64 encoding.\n"
-      },
-      "sortText":"121",
-      "insertText":"base16ToBase64Encode()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base64ToBase16Encode()(string)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Encodes a base64 encoded string to base16 encoding.\n"
-      },
-      "sortText":"121",
-      "insertText":"base64ToBase16Encode()",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"toByteArray(string encoding)(byte[])",
       "kind":"Function",
       "detail":"Function",
