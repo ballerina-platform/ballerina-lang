@@ -3194,6 +3194,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangExpression visitBuiltInMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod ,
                                                          List<BLangExpression> requiredArgs, List<BType> paramTypes, 
                                                          BType retType) {
+        addImportPackageDeclaration(pos, UTILS.orgName.value, UTILS.name.value, UTILS.version.value, UTILS.name.value);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BInvokableSymbol cloneSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC,
                                                             names.fromString(builtInMethod.getName()), UTILS, opType,
@@ -3208,6 +3209,19 @@ public class Desugar extends BLangNodeVisitor {
         }
         return visitBuiltInMethodInvocation(expr.pos, BLangBuiltInMethod.CLONE, Lists.of(expr),
                                             Lists.of(symTable.anydataType), symTable.anydataType);
+    }
+
+    private void addImportPackageDeclaration(DiagnosticPos pos, String orgName, String packageName, String version,
+                                             String alias) {
+        BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+        importDcl.pos = pos;
+        importDcl.pkgNameComps = Lists.of(ASTBuilderUtil.createIdentifier(pos, packageName));
+        importDcl.version = ASTBuilderUtil.createIdentifier(pos, version);
+        importDcl.orgName = ASTBuilderUtil.createIdentifier(pos, orgName);
+        importDcl.alias = ASTBuilderUtil.createIdentifier(pos, alias);
+        if (!env.enclPkg.imports.contains(importDcl)) {
+            env.enclPkg.imports.add(importDcl);
+        }
     }
 
 
