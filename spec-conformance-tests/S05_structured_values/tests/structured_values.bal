@@ -19,6 +19,24 @@ import utils;
 const string B7A_INVALID_UPDATE_REASON = "{ballerina}InvalidUpdate";
 const string IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE = "invalid reason on immutable value update";
 
+const string EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE = "exected value to not be frozen";
+const string EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE = "exected value to be frozen";
+
+const string EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE = 
+                                "expected convert to succeed since the value is of the expected shape";
+const string EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE =
+                                "expected convert to fail since the value is not of the expected shape";
+
+const string EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE = 
+                                "expected value's type to be of same type or sub type";
+const string EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
+                                "expected value's type to not be of same type or sub type";
+
+const string EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE = 
+                                "expected to be able to add a value of same type or sub type";
+const string EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
+                                "expected to not be able to add a value of type that is not same type or sub type";
+
 // Values of the container basic types are containers for other values, which are called their
 // members. Containers are mutable: the members contained in a particular container can be
 // changed. However, a container value can also be frozen at runtime or compile time, which
@@ -64,47 +82,47 @@ function testFrozenStructureMembersFrozenness() {
     int[] a1 = [1, 2, 3];
     int[] a2 = [11, 12, 13];
     int[][] a3 = [a1, [5, 6], a2];
-    test:assertFalse(a1.isFrozen(), msg = "exected value to not be frozen");
-    test:assertFalse(a2.isFrozen(), msg = "exected value to not be frozen");
-    test:assertFalse(a3.isFrozen(), msg = "exected value to not be frozen");
+    test:assertFalse(a1.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertFalse(a2.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertFalse(a3.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     _ = a3.freeze();
-    test:assertTrue(a1.isFrozen(), msg = "exected value to be frozen");
-    test:assertTrue(a2.isFrozen(), msg = "exected value to be frozen");
-    test:assertTrue(a3.isFrozen(), msg = "exected value to be frozen");
+    test:assertTrue(a1.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertTrue(a2.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertTrue(a3.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
 
     (int, boolean) a4 = (1, false);
     (float, string, boolean) a5 = (100.0, "test string 1", false);
     (anydata, int, (int, boolean)) a6 = (a5, 1, a4);
-    test:assertFalse(a4.isFrozen(), msg = "exected value to not be frozen");
-    test:assertFalse(a5.isFrozen(), msg = "exected value to not be frozen");
-    test:assertFalse(a6.isFrozen(), msg = "exected value to not be frozen");
+    test:assertFalse(a4.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertFalse(a5.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertFalse(a6.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     _ = a6.freeze();    
-    test:assertTrue(a4.isFrozen(), msg = "exected value to be frozen");
-    test:assertTrue(a5.isFrozen(), msg = "exected value to be frozen");
-    test:assertTrue(a6.isFrozen(), msg = "exected value to be frozen");
+    test:assertTrue(a4.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertTrue(a5.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertTrue(a6.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
 
     map<string|int|utils:FooObject> a7 = { one: 1, two: "two" };
     map<int|boolean> a8 = { three: 12, four: true, five: false };
     map<any> a9 = { intVal: 4, mapValOne: a7, mapValTwo: a8 };
-    test:assertFalse(a7.isFrozen(), msg = "exected value to not be frozen");
-    test:assertFalse(a8.isFrozen(), msg = "exected value to not be frozen");
-    test:assertFalse(a9.isFrozen(), msg = "exected value to not be frozen");
+    test:assertFalse(a7.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertFalse(a8.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertFalse(a9.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     var result = a9.freeze();
     if (result is map<string|int|utils:FooObject>) {
-        test:assertTrue(a7.isFrozen(), msg = "exected value to be frozen");
-        test:assertTrue(a8.isFrozen(), msg = "exected value to be frozen");        
+        test:assertTrue(a7.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
+        test:assertTrue(a8.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);        
     }
 
     utils:FooRecord a10 = { fooFieldOne: "test string 1" }; 
     utils:BarRecord a11 = { barFieldOne: 1 }; 
     utils:BazRecord a12 = { bazFieldOne: 1.0, fooRecord: a10, bazRecord: a11 };
-    test:assertFalse(a10.isFrozen(), msg = "exected value to not be frozen");
-    test:assertFalse(a11.isFrozen(), msg = "exected value to not be frozen");
-    test:assertFalse(a12.isFrozen(), msg = "exected value to not be frozen");
+    test:assertFalse(a10.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertFalse(a11.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertFalse(a12.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     _ = a12.freeze();    
-    test:assertTrue(a10.isFrozen(), msg = "exected value to be frozen");
-    test:assertTrue(a11.isFrozen(), msg = "exected value to be frozen");
-    test:assertTrue(a12.isFrozen(), msg = "exected value to be frozen");
+    test:assertTrue(a10.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertTrue(a11.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
+    test:assertTrue(a12.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
 }
 
 // Values of basic type xml can also be frozen.
@@ -120,38 +138,38 @@ function testShapeOfContainters() {
     (int|string)[] a1 = [1, 2];
     var a2 = int[].convert(a1);
     test:assertTrue(a2 is int[], 
-                    msg = "expected convert to succeed since the value is of the expected shape");
+                    msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a1[2] = "test string 1";
     a2 = int[].convert(a1);
     test:assertFalse(a2 is int[], 
-                    msg = "expected convert to fail since the value is not of the expected shape");
+                     msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 
     (float, int|string, boolean) a3 = (1.1, 1, true);
     var a4 = (float, int, boolean).convert(a3);
     test:assertTrue(a4 is (float, int, boolean), 
-                    msg = "expected convert to succeed since the value is of the expected shape");
+                    msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a3[1] = "test string 1";
     a4 = (float, int, boolean).convert(a3);
     test:assertFalse(a4 is (float, int, boolean), 
-                    msg = "expected convert to fail since the value is not of the expected shape");
+                    msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 
     map<int|boolean> a5 = { one: 1, two: 2, three: 3 };
     var a6 = map<int>.convert(a5);
     test:assertTrue(a6 is map<int>, 
-                    msg = "expected convert to succeed since the value is of the expected shape");
+                    msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a5.four = true;
     a6 = map<int>.convert(a5);
     test:assertFalse(a6 is map<int>, 
-                    msg = "expected convert to fail since the value is not of the expected shape");
+                    msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 
     utils:BazRecordThree a7 = { bazFieldOne: 1.0 };
     var a8 = utils:BazRecord.convert(a7);
     test:assertTrue(a8 is utils:BazRecord, 
-                    msg = "expected convert to succeed since the value is of the expected shape");
+                    msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a7.bazFieldOne = "1.0";
     a8 = utils:BazRecord.convert(a7);
     test:assertFalse(a8 is utils:BazRecord, 
-                    msg = "expected convert to fail since the value is not of the expected shape");
+                    msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 }
 
 // A type descriptor for a container basic type describe the shape of the container in terms of
@@ -170,65 +188,65 @@ function testContainerValueInherentType() {
     any anyVal = intVal;    
     var result = trap utils:insertMemberToArray(a1, a1.length() - 1, anyVal);
     test:assertTrue(anyVal is int|string, 
-                    msg = "expected value's type to be of same type or sub type");
+                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(result is error), 
-                    msg = "expected to be able to add a value of same type or sub type");
+                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
     result = trap utils:insertMemberToArray(a1, a1.length() - 1, anyVal);
     test:assertTrue(result is error, 
-                    msg = "expected to not be able to add a value of type that is not same type or sub type");
+                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(anyVal is int|string), 
-                    msg = "expected value's type to not be of same type or sub type");
+                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     (string|float, int) a2 = ("test string 1", 1);
     anyVal = floatVal;
     result = trap utils:insertMemberToTuple(a2, anyVal);
     test:assertTrue(anyVal is string|float, 
-                    msg = "expected value's type to be of same type or sub type");
+                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(result is error), 
-                    msg = "expected to be able to add a value of same type or sub type");
+                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
     result = trap utils:insertMemberToTuple(a2, anyVal);
     test:assertTrue(result is error, 
-                    msg = "expected to not be able to add a value of type that is not same type or sub type");
+                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(anyVal is string|float), 
-                    msg = "expected value's type to not be of same type or sub type");
+                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     map<int> a3 = { one: 1 };
     anyVal = intVal;
     result = trap utils:insertMemberToMap(a3, "two", anyVal);
     test:assertTrue(anyVal is int, 
-                    msg = "expected value's type to be of same type or sub type");
+                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(result is error), 
-                    msg = "expected to be able to add a value of same type or sub type");
+                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
     result = trap utils:insertMemberToMap(a3, "two", anyVal);
     test:assertTrue(result is error, 
-                    msg = "expected to not be able to add a value of type that is not same type or sub type");
+                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(anyVal is int), 
-                    msg = "expected value's type to not be of same type or sub type");
+                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     
     utils:FooRecord a4 = { fooFieldOne: "test string 1" };
     anyVal = "test string 2";
     result = trap utils:updateFooRecord(a4, anyVal);
     test:assertTrue(anyVal is string, 
-                    msg = "expected value's type to be of same type or sub type");
+                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(result is error), 
-                    msg = "expected to be able to add a value of same type or sub type");
+                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
     result = trap utils:updateFooRecord(a4, anyVal);
     test:assertTrue(result is error, 
-                    msg = "expected to not be able to add a value of type that is not same type or sub type");
+                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(anyVal is string), 
-                    msg = "expected value's type to not be of same type or sub type");
+                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     table<utils:BarRecord> a5 = table{};
     utils:BazRecord b1 = { bazFieldOne: 1.0 };
     result = a5.add(b1);
     test:assertTrue(result is error,
-                    msg = "expected to not be able to add a value of type that is not same type or sub type");
+                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 }

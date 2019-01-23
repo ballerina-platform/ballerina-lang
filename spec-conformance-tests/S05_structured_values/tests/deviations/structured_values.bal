@@ -78,7 +78,7 @@ function testFrozenTableUpdateBroken() {
 // Once frozen, a container value remains frozen.
 // TODO: Fix frozen table member frozenness
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testFrozenStructureMembersFrozennessBroken() {
     table<utils:BarRecord> a13 = table{};
