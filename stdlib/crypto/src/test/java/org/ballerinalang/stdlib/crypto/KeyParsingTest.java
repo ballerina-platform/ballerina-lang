@@ -44,7 +44,7 @@ public class KeyParsingTest {
                 "keyparsing-test.bal");
     }
 
-    @Test
+    @Test(description = "Check parsing encrypted private-key from a p12 file.")
     public void testParsingEncryptedPrivateKeyFromP12() {
         BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
                 + File.separator + "crypto" + File.separator + "testKeystore.p12"), new BString("ballerina"),
@@ -54,7 +54,7 @@ public class KeyParsingTest {
         Assert.assertEquals(((BMap) returnValues[0]).get("algorithm").stringValue(), "RSA");
     }
 
-    @Test
+    @Test(description = "Check parsing public-key from a p12 file.")
     public void testParsingPublicKeyFromP12() {
         BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
                 + File.separator + "crypto" + File.separator + "testKeystore.p12"), new BString("ballerina"),
@@ -64,7 +64,8 @@ public class KeyParsingTest {
         Assert.assertEquals(((BMap) returnValues[0]).get("algorithm").stringValue(), "RSA");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Check attemting to read a private key from a non-existing p12 file.",
+            expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: PKCS12 key store not found.*")
     public void testParsingEncryptedPrivateKeyFromInvalidLocation() {
         BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
@@ -73,7 +74,8 @@ public class KeyParsingTest {
         BRunUtil.invoke(compileResult, "testParsingPrivateKeyFromP12", args);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Check attemting to read a public key from a non-existing p12 file.",
+            expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: PKCS12 key store not found.*")
     public void testParsingPublicKeyFromInvalidLocation() {
         BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"

@@ -47,7 +47,7 @@ public class CryptoTest {
                 "crypto-test.bal");
     }
 
-    @Test
+    @Test(description = "Test hmac generation functions")
     public void testHmac() throws DecoderException {
         byte[] message = "Ballerina HMAC test".getBytes(StandardCharsets.UTF_8);
         byte[] key = "abcdefghijk".getBytes(StandardCharsets.UTF_8);
@@ -90,7 +90,7 @@ public class CryptoTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSHA512Hash);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test hmac generation with an empty password", expectedExceptions = BLangRuntimeException.class)
     public void testHmacNegativeInvalidKey() {
         BValue[] args = {new BValueArray("Ballerina HMAC test".getBytes(StandardCharsets.UTF_8)),
                 new BValueArray("".getBytes(StandardCharsets.UTF_8))};
@@ -99,7 +99,7 @@ public class CryptoTest {
                 "Invalid return value");
     }
 
-    @Test
+    @Test(description = "Test hashing functions")
     public void testHashing() throws DecoderException {
         byte[] expectedMd5Hash = Hex.decodeHex("3B12196DB784CD9F86CC635D32764FDF".toCharArray());
         byte[] expectedSha1Hash = Hex.decodeHex("73FBC15DB28D52C03359EDE7A7DC40B4A83DF207".toCharArray());
@@ -133,7 +133,7 @@ public class CryptoTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSha512hash);
     }
 
-    @Test(description = "Testing CRC32b generation")
+    @Test(description = "Test CRC32b generation")
     public void testCRC32() {
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
         String expectedCRC32Hash = "d37b9692";
@@ -144,7 +144,7 @@ public class CryptoTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
 
-    @Test
+    @Test(description = "Test RSA-SHA1 siging")
     public void testSignRsaSha1() throws DecoderException {
         byte[] expectedSignature = Hex.decodeHex(("70728d6d37fd83704bcb2649d93cfd20dbadb83a9d2169965d2a241795a131f" +
                 "cfdb8b1b4f35f5de3c1f6f1d71ea0c9f80e494627b4c01d6e670ae4698b774171e8a017d62847c92aa47e868c230532af" +
@@ -165,7 +165,7 @@ public class CryptoTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
-    @Test
+    @Test(description = "Test RSA-SHA256 siging")
     public void testSignRsaSha256() throws DecoderException {
         byte[] expectedSignature = Hex.decodeHex(("34477f0e0a5457ca1a95049da10d59baa33ee4fa9e1bb8be3d3c70d82b980850" +
                 "fd017a1c9984a97384736aacfe33d39ff8d63e01b952972910c86135b7558a2274c6d772f0d2fcdc0ac4aabc75f3978edb" +
@@ -186,7 +186,7 @@ public class CryptoTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
-    @Test
+    @Test(description = "Test RSA-384 siging")
     public void testSignRsaSha384() throws DecoderException {
         byte[] expectedSignature = Hex.decodeHex(("4981CC5213F384E8DB7950BF76C97AE20FA2A34244A517FC585B2381B9E88" +
                 "278E447B92F6F452332BCA65DD5D6CCE04B5AC51D92E7E820B6FB826870DFBA437BBDA7F0E5850C02F72A8644DA8382" +
@@ -207,7 +207,7 @@ public class CryptoTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
-    @Test
+    @Test(description = "Test RSA-512 siging")
     public void testSignRsaSha512() throws DecoderException {
         byte[] expectedSignature = Hex.decodeHex(("6995ba8d2382a8c4f0ed513033126b2305df419a8b105ee60483243229d2c496" +
                 "b7f670783c52068cd2b4b8c2392f2932c682f30057cb4d8d616ba3a142356b0394747b2a3642da4d23447bb997eacb086f" +
@@ -228,7 +228,7 @@ public class CryptoTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
-    @Test
+    @Test(description = "Test RSA-MD5 siging")
     public void testSignRsaMd5() throws DecoderException {
         byte[] expectedSignature = Hex.decodeHex(("457050eca794baf2149f53631f373525fbc7b40de83e0af5b03473e7b726064b" +
                 "3eb6a8b7ce48218e4adaf2b598429236192a458ad5cef1ab2f456164f2646ba57a1ce6b858403504ddc49915bf8bf34558" +
@@ -249,7 +249,7 @@ public class CryptoTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
-    @Test
+    @Test(description = "Test RSA-SHA1 siging with an invalid private key")
     public void testSignRsaSha1WithInvalidKey() {
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha1WithInvalidKey",
@@ -259,7 +259,7 @@ public class CryptoTest {
                 "invalid uninitialized key");
     }
 
-    @Test
+    @Test(description = "Test RSA-SHA256 siging with an invalid private key")
     public void testSignRsaSha256WithInvalidKey() {
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha256WithInvalidKey",
@@ -269,7 +269,7 @@ public class CryptoTest {
                 "invalid uninitialized key");
     }
 
-    @Test
+    @Test(description = "Test RSA-SHA384 siging with an invalid private key")
     public void testSignRsaSha384WithInvalidKey() {
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha384WithInvalidKey",
@@ -279,7 +279,7 @@ public class CryptoTest {
                 "invalid uninitialized key");
     }
 
-    @Test
+    @Test(description = "Test RSA-SHA512 siging with an invalid private key")
     public void testSignRsaSha512WithInvalidKey() {
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha512WithInvalidKey",
@@ -289,7 +289,7 @@ public class CryptoTest {
                 "invalid uninitialized key");
     }
 
-    @Test
+    @Test(description = "Test RSA-MD5 siging with an invalid private key")
     public void testSignRsaMd5WithInvalidKey() {
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaMd5WithInvalidKey",

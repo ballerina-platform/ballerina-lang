@@ -56,7 +56,7 @@ function testBase64ToBase16Encoding(string str) returns string|error {
 }
 
 function testByteArrayToString1(byte[] b) returns string|error {
-    return encoding:byteArrayToString(b, encoding = "UTF-8");
+    return encoding:byteArrayToString(b);
 }
 
 function testByteArrayToString2(byte[] b, string encoding) returns string|error {

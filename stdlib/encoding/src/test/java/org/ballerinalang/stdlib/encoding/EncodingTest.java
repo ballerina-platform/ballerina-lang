@@ -45,7 +45,7 @@ public class EncodingTest {
         compileResult = BCompileUtil.compile("test-src/encoding/encoding-test.bal");
     }
 
-    @Test
+    @Test(description = "Check byte array to hex encoding.")
     public void testEncodeToHex() {
         String input = "Ballerina encoding test";
         byte[] inputArray = input.getBytes(StandardCharsets.UTF_8);
@@ -57,7 +57,7 @@ public class EncodingTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
-    @Test
+    @Test(description = "Check byte array to base64 encoding.")
     public void testEncodeToBase64() {
         String input = "Ballerina encoding test";
         byte[] inputArray = input.getBytes(StandardCharsets.UTF_8);
@@ -69,7 +69,7 @@ public class EncodingTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
-    @Test
+    @Test(description = "Check hex encoded string to byte array decoding.")
     public void testDecodeFromHex() {
         String input = "42616C6C6572696E6120656E636F64696E672074657374";
         byte[] expectedValue = "Ballerina encoding test".getBytes(StandardCharsets.UTF_8);
@@ -80,7 +80,7 @@ public class EncodingTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedValue);
     }
 
-    @Test
+    @Test(description = "Check base64 encoded string to byte array decoding.")
     public void testDecodeFromBase64() {
         String input = "QmFsbGVyaW5hIGVuY29kaW5nIHRlc3Q=";
         byte[] expectedValue = "Ballerina encoding test".getBytes(StandardCharsets.UTF_8);
@@ -91,7 +91,7 @@ public class EncodingTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedValue);
     }
 
-    @Test
+    @Test(description = "Check decoding an non-hex string using hex decoding function.")
     public void testDecodeFromInvalidHex() {
         String input = "42616C6C6572696E6120656X636F64696E672074657374";
 
@@ -102,7 +102,7 @@ public class EncodingTest {
                 "input is not a valid Hex value");
     }
 
-    @Test
+    @Test(description = "Check decoding an non-base64 string using base64 decoding function.")
     public void testDecodeFromInvalidBase64() {
         String input = "QmFsbGVyaW5hIGVuY29kaW5nIHRlc#3Q=";
 
@@ -113,7 +113,7 @@ public class EncodingTest {
                 "input is not a valid Base64 value");
     }
 
-    @Test
+    @Test(description = "Check encoding a complex strings using base64.")
     public void testEncoding() throws UnsupportedEncodingException {
         String[] stringsToTest = {"Hi", "`Welcome\" \r^to^\tBallerina\\ /$TestCases$\n # ~^!!!",
                 "https://example.com/test/index.html#title1",
@@ -129,7 +129,7 @@ public class EncodingTest {
         }
     }
 
-    @Test
+    @Test(description = "Check encoding a simple strings using base64.")
     public void testBase64EncodeString() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
         BValue[] args = new BValue[]{new BString("Hello Ballerina")};
@@ -139,7 +139,7 @@ public class EncodingTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
-    @Test
+    @Test(description = "Check decoding a simple base64 encodded string.")
     public void testBase64DecodeString() throws UnsupportedEncodingException {
         byte[] expectedValue = "Hello Ballerina".getBytes("UTF-8");
         BValue[] args = new BValue[]{new BString("SGVsbG8gQmFsbGVyaW5h")};
@@ -150,7 +150,7 @@ public class EncodingTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedValue);
     }
 
-    @Test
+    @Test(description = "Check decoding a hex encoded value and re-encoding same with base64")
     public void testBase16ToBase64Encoding() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
         BValue[] args = new BValue[]{new BString("48656C6C6F2042616C6C6572696E61")};
@@ -160,7 +160,7 @@ public class EncodingTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
-    @Test
+    @Test(description = "Check decoding a base64 encoded value and re-encoding same with hex")
     public void testBase64ToBase16Encoding() {
         String expectedValue = "48656C6C6F2042616C6C6572696E61";
         BValue[] args = new BValue[]{new BString("SGVsbG8gQmFsbGVyaW5h")};
@@ -170,7 +170,7 @@ public class EncodingTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
-    @Test(description = "Get string representation of byte array 1")
+    @Test(description = "Get string representation of byte array using UTF-8 encoding using default encoding")
     public void testByteArrayToString1() throws UnsupportedEncodingException {
         String content = "This is a sample string";
 
@@ -180,7 +180,7 @@ public class EncodingTest {
         Assert.assertEquals(returns[0].stringValue(), content);
     }
 
-    @Test(description = "Get string representation of byte array 2")
+    @Test(description = "Get string representation of byte array using UTF-8 encoding")
     public void testByteArrayToString2() throws UnsupportedEncodingException {
         String content = "This is a sample string";
 
@@ -190,7 +190,7 @@ public class EncodingTest {
         Assert.assertEquals(returns[0].stringValue(), content);
     }
 
-    @Test(description = "Get string representation of byte array 3")
+    @Test(description = "Get string representation of byte array using UTF-16 encoding")
     public void testByteArrayToString3() throws UnsupportedEncodingException {
         String content = "This is a sample string";
 
