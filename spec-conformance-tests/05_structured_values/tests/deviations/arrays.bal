@@ -25,7 +25,7 @@ const int length = 3;
 // TODO: Support constant-reference-expr as array-length
 // https://github.com/ballerina-platform/ballerina-lang/issues/13162
 //@test:Config {
-//    groups: ["broken"]
+//    groups: ["deviation"]
 //}
 //function testArrayTypeDescriptorBroken() {
 //    int[] array1 = [];
@@ -43,7 +43,7 @@ const int length = 3;
 // TODO: Array member type can not be a type which has no implicit initial value
 // https://github.com/ballerina-platform/ballerina-lang/issues/13163
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 @test:Config {}
 function testArrayMemberTypesBroken() {

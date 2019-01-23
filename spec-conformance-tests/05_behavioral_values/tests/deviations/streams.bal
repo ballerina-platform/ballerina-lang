@@ -23,7 +23,7 @@ import utils;
 // TODO: disallow non-pure types as stream constraint types
 // https://github.com/ballerina-platform/ballerina-lang/issues/13203 
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testStreamConstraintBroken() {
     // the following definition should fail at compile time

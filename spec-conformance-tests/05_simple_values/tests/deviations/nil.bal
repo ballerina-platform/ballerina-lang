@@ -21,7 +21,7 @@ import utils;
 // TODO: Disallow the use of `null` with () type
 // https://github.com/ballerina-platform/ballerina-lang/issues/13169
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testNilBroken() {
     () nil = null;

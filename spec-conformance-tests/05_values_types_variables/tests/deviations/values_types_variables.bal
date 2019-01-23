@@ -19,7 +19,7 @@ import utils;
 // However, for other types of value, what is stored in the variable or member is a 
 // reference to the value; the value itself has its own separate storage.
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testNonSimpleValuesStoredInStructuresBroken() {
     table<utils:BarRecord> t1 = table{};
@@ -38,7 +38,7 @@ function testNonSimpleValuesStoredInStructuresBroken() {
 // References make it possible for distinct members of a structure to refer to values that are
 // identical, in the sense that they are stored in the same location.
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testDistinctStructureMembersReferringToSameValueBroken() {
     table<utils:BarRecord> t1 = table{};
@@ -71,7 +71,7 @@ function testDistinctStructureMembersReferringToSameValueBroken() {
 // https://github.com/ballerina-platform/ballerina-lang/issues/13172
 // https://github.com/ballerina-platform/ballerina-lang/issues/13165
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testIterableTypesBroken() {
     //    (int, string, boolean) iterableTuple = (100, "test string", true);
@@ -95,7 +95,7 @@ type Union 0|1|2;
 // TODO: Fix tuple, map, record, table, typedesc, singleton and union type implicit initial values
 // https://github.com/ballerina-platform/ballerina-lang/issues/13166
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testImplicitInitialValuesBroken() {
     (int, boolean, string)[] tupleArray = [];

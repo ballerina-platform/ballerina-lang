@@ -21,7 +21,7 @@ import utils;
 // TODO: Need to analyze updates of container values known to be frozen
 // https://github.com/ballerina-platform/ballerina-lang/issues/13188
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testFreezeOnContainerBroken() {
     utils:assertErrorReason(trap testFrozenArrayUpdateBroken(), B7A_INVALID_UPDATE_REASON, 
@@ -98,7 +98,7 @@ function testFrozenStructureMembersFrozennessBroken() {
 // TODO: Need to consider the shape of a frozen container to be its type
 // https://github.com/ballerina-platform/ballerina-lang/issues/13189
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testFrozenContainerShapeAndTypeBroken() {
     int[][] a1 = [[1, 2], [1]];

@@ -24,7 +24,7 @@ import ballerina/test;
 // TODO: Table type descriptor not implemented
 // https://github.com/ballerina-platform/ballerina-lang/issues/13170
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testTableTypeDescriptorBroken() {
 

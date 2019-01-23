@@ -25,7 +25,7 @@ import utils;
 // https://github.com/ballerina-platform/ballerina-lang/issues/13231 
 @test:Config {
     dataProvider: "brokenAnydataValueDataProvider",
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testAnydataTypeDescriptorBroken(anydata av) {
     anydata av2 = av;

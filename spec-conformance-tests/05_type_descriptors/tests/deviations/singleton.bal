@@ -37,7 +37,7 @@ map<string> strMap = {
 // type MAP_VAR_REF strMap;
 
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testSingletonTypeDesciptorsBroken() {
     // INT_POSITIVE_ONE s1 = +1;

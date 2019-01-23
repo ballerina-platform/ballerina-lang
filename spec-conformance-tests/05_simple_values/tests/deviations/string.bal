@@ -22,7 +22,7 @@ import utils;
 // TODO: Need to support string numeric escape
 // https://github.com/ballerina-platform/ballerina-lang/issues/13180
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testStringNumericEscapeBroken() {
     // string s1 = "\u0";

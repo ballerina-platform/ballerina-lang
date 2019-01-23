@@ -20,7 +20,7 @@ import ballerina/test;
 // TODO: Need to test adding errors to a default open record (not closed, no rest field)
 // https://github.com/ballerina-platform/ballerina-lang/issues/13181
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testDefaultOpenRecordWithErrorValuesBroken() {
     // string s1 = "test string 1";
