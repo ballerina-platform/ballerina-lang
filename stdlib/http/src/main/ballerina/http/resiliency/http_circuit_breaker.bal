@@ -284,7 +284,7 @@ public type CircuitBreakerClient object {
     public function getCurrentState() returns CircuitState;
 };
 
-function CircuitBreakerClient.post(string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.post(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -297,7 +297,7 @@ function CircuitBreakerClient.post(string path, RequestMessage message) returns 
     }
 }
 
-function CircuitBreakerClient.head(string path, RequestMessage message = ()) returns Response|error {
+public function CircuitBreakerClient.head(string path, RequestMessage message = ()) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -310,7 +310,7 @@ function CircuitBreakerClient.head(string path, RequestMessage message = ()) ret
     }
 }
 
-function CircuitBreakerClient.put(string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.put(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -323,7 +323,7 @@ function CircuitBreakerClient.put(string path, RequestMessage message) returns R
     }
 }
 
-function CircuitBreakerClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -336,7 +336,7 @@ function CircuitBreakerClient.execute(string httpVerb, string path, RequestMessa
     }
 }
 
-function CircuitBreakerClient.patch(string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.patch(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -349,7 +349,7 @@ function CircuitBreakerClient.patch(string path, RequestMessage message) returns
     }
 }
 
-function CircuitBreakerClient.delete(string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.delete(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -362,7 +362,7 @@ function CircuitBreakerClient.delete(string path, RequestMessage message) return
     }
 }
 
-function CircuitBreakerClient.get(string path, RequestMessage message = ()) returns Response|error {
+public function CircuitBreakerClient.get(string path, RequestMessage message = ()) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -375,7 +375,7 @@ function CircuitBreakerClient.get(string path, RequestMessage message = ()) retu
     }
 }
 
-function CircuitBreakerClient.options(string path, RequestMessage message = ()) returns Response|error {
+public function CircuitBreakerClient.options(string path, RequestMessage message = ()) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -388,7 +388,7 @@ function CircuitBreakerClient.options(string path, RequestMessage message = ()) 
     }
 }
 
-function CircuitBreakerClient.forward(string path, Request request) returns Response|error {
+public function CircuitBreakerClient.forward(string path, Request request) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -401,40 +401,40 @@ function CircuitBreakerClient.forward(string path, Request request) returns Resp
     }
 }
 
-function CircuitBreakerClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public function CircuitBreakerClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     return self.httpClient->submit(httpVerb, path, <Request>message);
 }
 
-function CircuitBreakerClient.getResponse(HttpFuture httpFuture) returns Response|error {
+public function CircuitBreakerClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient->getResponse(httpFuture);
 }
 
-function CircuitBreakerClient.hasPromise(HttpFuture httpFuture) returns boolean {
+public function CircuitBreakerClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient->hasPromise(httpFuture);
 }
 
-function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient->getNextPromise(httpFuture);
 }
 
-function CircuitBreakerClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public function CircuitBreakerClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient->getPromisedResponse(promise);
 }
 
-function CircuitBreakerClient.rejectPromise(PushPromise promise) {
+public function CircuitBreakerClient.rejectPromise(PushPromise promise) {
     return self.httpClient->rejectPromise(promise);
 }
 
-function CircuitBreakerClient.forceClose() {
+public function CircuitBreakerClient.forceClose() {
     self.currentCircuitState = CB_CLOSED_STATE;
 }
 
-function CircuitBreakerClient.forceOpen() {
+public function CircuitBreakerClient.forceOpen() {
     self.currentCircuitState = CB_OPEN_STATE;
     self.circuitHealth.lastForcedOpenTime = time:currentTime();
 }
 
-function CircuitBreakerClient.getCurrentState() returns CircuitState {
+public function CircuitBreakerClient.getCurrentState() returns CircuitState {
     return self.currentCircuitState;
 }
 
