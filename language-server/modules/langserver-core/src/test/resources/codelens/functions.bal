@@ -3,6 +3,8 @@ import ballerina/task;
 import ballerina/io;
 import ballerina/websub;
 
+http:Client client2 = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
+
 public type ObjectName object {
 
 };

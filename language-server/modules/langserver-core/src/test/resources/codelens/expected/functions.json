@@ -12,6 +12,36 @@
                 }
             },
             "command": {
+                "title": "Endpoint"
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 44,
+                    "character": 5
+                },
+                "end": {
+                    "line": 44,
+                    "character": 5
+                }
+            },
+            "command": {
+                "title": "Endpoint"
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 1
+                },
+                "end": {
+                    "line": 7,
+                    "character": 1
+                }
+            },
+            "command": {
                 "title": "Document This",
                 "command": "ADD_DOC",
                 "arguments": [
@@ -21,7 +51,7 @@
                     },
                     {
                         "argumentK": "node.line",
-                        "argumentV": "5"
+                        "argumentV": "7"
                     }
                 ]
             }
@@ -29,11 +59,11 @@
         {
             "range": {
                 "start": {
-                    "line": 9,
+                    "line": 11,
                     "character": 1
                 },
                 "end": {
-                    "line": 9,
+                    "line": 11,
                     "character": 1
                 }
             },
@@ -47,7 +77,7 @@
                     },
                     {
                         "argumentK": "node.line",
-                        "argumentV": "9"
+                        "argumentV": "11"
                     }
                 ]
             }
@@ -55,11 +85,11 @@
         {
             "range": {
                 "start": {
-                    "line": 13,
+                    "line": 15,
                     "character": 1
                 },
                 "end": {
-                    "line": 13,
+                    "line": 15,
                     "character": 1
                 }
             },
@@ -73,7 +103,7 @@
                     },
                     {
                         "argumentK": "node.line",
-                        "argumentV": "13"
+                        "argumentV": "15"
                     }
                 ]
             }
@@ -81,11 +111,11 @@
         {
             "range": {
                 "start": {
-                    "line": 17,
+                    "line": 19,
                     "character": 1
                 },
                 "end": {
-                    "line": 17,
+                    "line": 19,
                     "character": 1
                 }
             },
@@ -99,7 +129,7 @@
                     },
                     {
                         "argumentK": "node.line",
-                        "argumentV": "17"
+                        "argumentV": "19"
                     }
                 ]
             }
@@ -107,11 +137,11 @@
         {
             "range": {
                 "start": {
-                    "line": 22,
+                    "line": 24,
                     "character": 1
                 },
                 "end": {
-                    "line": 22,
+                    "line": 24,
                     "character": 1
                 }
             },
@@ -125,7 +155,7 @@
                     },
                     {
                         "argumentK": "node.line",
-                        "argumentV": "22"
+                        "argumentV": "24"
                     }
                 ]
             }
@@ -133,11 +163,11 @@
         {
             "range": {
                 "start": {
-                    "line": 26,
+                    "line": 28,
                     "character": 1
                 },
                 "end": {
-                    "line": 26,
+                    "line": 28,
                     "character": 1
                 }
             },
@@ -155,11 +185,11 @@
         {
             "range": {
                 "start": {
-                    "line": 37,
+                    "line": 39,
                     "character": 1
                 },
                 "end": {
-                    "line": 37,
+                    "line": 39,
                     "character": 1
                 }
             },
@@ -173,7 +203,7 @@
                     },
                     {
                         "argumentK": "node.line",
-                        "argumentV": "37"
+                        "argumentV": "39"
                     }
                 ]
             }
