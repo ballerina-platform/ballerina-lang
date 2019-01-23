@@ -9,7 +9,7 @@ int count = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[count] = s.length() == 2 ? (<string>s[0] + <string>s[1]) : s[0];
+    outputs[count] = s.length() == 2 ? (string.convert(s[0]) + <string>s[1]) : s[0];
     count += 1;
 }
 
