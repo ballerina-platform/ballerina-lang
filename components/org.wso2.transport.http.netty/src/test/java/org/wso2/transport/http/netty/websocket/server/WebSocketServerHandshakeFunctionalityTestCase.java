@@ -104,6 +104,56 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         Assert.assertEquals(response.getStatusText(), "Upgrade Required");
     }
 
+    @Test(description = "Tests if server responds with correct header for extension")
+    public void testExtensionSupport() throws IOException {
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+        URL url = URI.create(String.format("http://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT,
+                                           "/test")).toURL();
+        HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+        urlConn.setRequestMethod("GET");
+        urlConn.setRequestProperty("Connection", "Upgrade");
+        urlConn.setRequestProperty("Upgrade", "websocket");
+        urlConn.setRequestProperty("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==");
+        urlConn.setRequestProperty("Sec-WebSocket-Version", "13");
+
+        String deflateHeader = "permessage-deflate";
+        urlConn.setRequestProperty("Sec-WebSocket-Extensions", deflateHeader);
+        urlConn.setRequestProperty("x-handshake", "true");
+
+        Assert.assertEquals(urlConn.getResponseCode(), 101);
+        Assert.assertEquals(urlConn.getResponseMessage(), "Switching Protocols");
+        String header = urlConn.getHeaderField("Sec-WebSocket-Extensions");
+        Assert.assertNotNull(header);
+        Assert.assertEquals(header, deflateHeader);
+
+        urlConn.disconnect();
+    }
+
+
+    @Test
+    public void testExtensionNotSupportedByClient() throws URISyntaxException, InterruptedException {
+        CountDownLatch handshakeCompleteCountDownLatch = new CountDownLatch(1);
+        listener.setHandshakeCompleteCountDownLatch(handshakeCompleteCountDownLatch);
+        WebSocketTestClient testClient = createClientAndHandshake("x-handshake", null);
+        handshakeCompleteCountDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
+        testClient.sendFrameWithRSV("Hello");
+        WebSocketConnection webSocketConnection = listener.getCurrentWebSocketConnection();
+
+        Assert.assertNotNull(webSocketConnection);
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        testClient.setCountDownLatch(countDownLatch);
+        webSocketConnection.readNextFrame();
+        countDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
+        CloseWebSocketFrame closeFrame =  testClient.getReceivedCloseFrame();
+
+        Assert.assertNotNull(closeFrame);
+        Assert.assertEquals(closeFrame.statusCode(), 1002);
+
+        testClient.closeChannel();
+    }
+
+
     @Test(description = "Check whether the correct sub protocol is chosen by the server with the given sequence.")
     public void testSuccessfulSubProtocolNegotiation() throws URISyntaxException, InterruptedException {
         WebSocketTestClient testClient =
@@ -254,7 +304,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
     }
 
     private String[] sendTextMessages(WebSocketTestClient testClient, int noOfMessages) throws InterruptedException {
-        String testMsgArray[] = new String[noOfMessages];
+        String[] testMsgArray = new String[noOfMessages];
         for (int i = 0; i < noOfMessages; i++) {
             String testMsg = "testMessage" + i;
             testMsgArray[i] = testMsg;

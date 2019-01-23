@@ -69,6 +69,7 @@ public class OptionalMutualSSLTest {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
         listenerConfiguration.setVerifyClient(OPTIONAL);
+        listenerConfiguration.setTLSStoreType("JKS");
         listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
@@ -79,10 +80,9 @@ public class OptionalMutualSSLTest {
 
     private SenderConfiguration getSenderConfigs() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath("/simple-test-config/localcrt.p12"));
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        senderConfiguration.setKeyStorePass("localpwd");
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setTLSStoreType("JKS");
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;
     }

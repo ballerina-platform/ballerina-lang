@@ -227,7 +227,9 @@ public class Util {
 
     public static void setupChunkedRequest(HttpCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-        setTransferEncodingHeader(httpOutboundRequest);
+        if (httpOutboundRequest.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
+            httpOutboundRequest.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), Constants.CHUNKED);
+        }
     }
 
     /**
@@ -262,22 +264,27 @@ public class Util {
     }
 
     public static void setupContentLengthRequest(HttpCarbonMessage httpOutboundRequest, long contentLength) {
+        removeContentLengthAndTransferEncodingHeaders(httpOutboundRequest);
+        httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
+    }
+
+    public static boolean checkContentLengthAndTransferEncodingHeaderAllowance(HttpCarbonMessage httpOutboundRequest) {
+        HttpMethod method = getHttpMethod(httpOutboundRequest);
+        if (httpOutboundRequest.getProperty(Constants.NO_ENTITY_BODY) == null) {
+            return true;
+        }
+        boolean nonEntityBodyRequest = (boolean) httpOutboundRequest.getProperty(Constants.NO_ENTITY_BODY);
+        if (nonEntityBodyRequest && (HttpMethod.GET.equals(method)
+                || HttpMethod.HEAD.equals(method) || HttpMethod.OPTIONS.equals(method))) {
+            removeContentLengthAndTransferEncodingHeaders(httpOutboundRequest);
+            return false;
+        }
+        return true;
+    }
+
+    private static void removeContentLengthAndTransferEncodingHeaders(HttpCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-        if (httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) == null) {
-            httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
-        }
-    }
-
-    private static void setTransferEncodingHeader(HttpCarbonMessage httpOutboundRequest) {
-        if (httpOutboundRequest.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
-            httpOutboundRequest.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), Constants.CHUNKED);
-        }
-    }
-
-    public static boolean isEntityBodyAllowed(String method) {
-        return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
-                || method.equals(Constants.HTTP_PATCH_METHOD) || method.equals(Constants.HTTP_DELETE_METHOD);
     }
 
     /**

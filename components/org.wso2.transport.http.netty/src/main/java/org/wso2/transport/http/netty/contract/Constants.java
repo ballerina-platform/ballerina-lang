@@ -129,13 +129,11 @@ public final class Constants {
     public static final String X_FORWARDED_PROTO = "x-forwarded-proto";
 
     public static final String HEADER_VAL_100_CONTINUE = "100-continue";
+    public static final String NO_ENTITY_BODY = "NO_ENTITY_BODY";
 
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";
     public static final String HTTP_HEAD_METHOD = "HEAD";
-    public static final String HTTP_PUT_METHOD = "PUT";
-    public static final String HTTP_PATCH_METHOD = "PATCH";
-    public static final String HTTP_DELETE_METHOD = "DELETE";
 
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
@@ -183,6 +181,7 @@ public final class Constants {
     public static final String LOCALHOST = "localhost";
 
     public static final String HTTP_OBJECT_AGGREGATOR = "HTTP_OBJECT_AGGREGATOR";
+    public static final String WEBSOCKET_COMPRESSION_HANDLER = "websocket-compression-handler";
     public static final String WS_SCHEME = "ws";
     public static final String WSS_SCHEME = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
@@ -192,6 +191,7 @@ public final class Constants {
     public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
     public static final int WEBSOCKET_STATUS_CODE_PROTOCOL_ERROR = 1002;
     public static final int WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE = 1006;
+    public static final int WEBSOCKET_STATUS_CODE_INVALD_DATA = 1007;
     public static final int WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION = 1011;
     public static final int WEBSOCKET_REQUEST_SIZE = 8192;
 
