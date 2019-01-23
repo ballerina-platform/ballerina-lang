@@ -27,20 +27,3 @@ type ConnectionManager object {
 
 ConnectionManager connectionManager = new;
 PoolConfiguration globalHttpClientConnPool = connectionManager.poolConfig;
-
-function poolingSetDefaultMaxActiveConns (int n) {
-
-}
-
-function poolingSetDefaulWaitTime (int n) {
-
-}
-
-function poolingSetMaxStreamsPerConnection (int n) {
-
-}
-
-//function poolingConfigure (string hostOrIP, int port, int maxActiveConnections = -1, int waitTimeMillis = 10000, int
-//    maxStreams = 20) {
-//
-//}

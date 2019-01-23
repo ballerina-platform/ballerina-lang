@@ -29,8 +29,6 @@ public class InitGlobalPool extends BlockingNativeCallableUnit {
         BMap<String, BValue> globalPoolConfig = (BMap<String, BValue>) context
                 .getRefArgument(HttpConstants.POOL_CONFIG_INDEX);
         PoolConfiguration globalPool = new PoolConfiguration();
-        //TODO:update values ConfigRegistry.getInstance().getConfigOrDefault("b7a.http.host","0.0.0.0");
-//        populatePoolingConfig(globalPoolConfig, globalPool);
         ConnectionManager connectionManager = new ConnectionManager(globalPool);
         globalPoolConfig.addNativeData(CONNECTION_MANAGER, connectionManager);
     }
