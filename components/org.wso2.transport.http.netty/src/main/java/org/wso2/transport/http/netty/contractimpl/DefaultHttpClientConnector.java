@@ -162,7 +162,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
              * rather http connection manager create new connections and handover to the http2 connection manager
              * in case of the connection get upgraded to a HTTP/2 connection.
              */
-            final HttpRoute route = getTargetRoute(httpOutboundRequest);
+            final HttpRoute route = getTargetRoute(senderConfiguration.getScheme(), httpOutboundRequest);
             if (isHttp2) {
                 // See whether an already upgraded HTTP/2 connection is available
                 Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(route);
@@ -273,11 +273,11 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         return errorResponseFuture;
     }
 
-    private HttpRoute getTargetRoute(HttpCarbonMessage httpCarbonMessage) {
+    private HttpRoute getTargetRoute(String scheme, HttpCarbonMessage httpCarbonMessage) {
         String host = fetchHost(httpCarbonMessage);
         int port = fetchPort(httpCarbonMessage);
 
-        return new HttpRoute(host, port);
+        return new HttpRoute(scheme, host, port);
     }
 
     private int fetchPort(HttpCarbonMessage httpCarbonMessage) {
