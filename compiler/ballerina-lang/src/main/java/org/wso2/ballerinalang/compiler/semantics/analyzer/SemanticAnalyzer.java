@@ -1801,7 +1801,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case SIMPLE_VARIABLE_REF:
                 if ((((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
-                    dlog.error(expression.pos, DiagnosticCode.ONLY_CONSTANT_EXPRESSIONS_ARE_ALLOWED);
+                    dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
                 }
                 break;
             case RECORD_LITERAL_EXPR:
@@ -1811,7 +1811,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 });
                 break;
             default:
-                dlog.error(expression.pos, DiagnosticCode.ONLY_CONSTANT_EXPRESSIONS_ARE_ALLOWED);
+                dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
                 break;
         }
     }

@@ -359,7 +359,7 @@ public enum DiagnosticCode {
     CANNOT_UPDATE_CONSTANT_VALUE("cannot.update.constant.value"),
     CANNOT_ASSIGN_VALUE_TO_CONSTANT("cannot.assign.value.to.constant"),
     CANNOT_DEFINE_CONSTANT_WITH_TYPE("cannot.define.constant.with.type"),
-    ONLY_CONSTANT_EXPRESSIONS_ARE_ALLOWED("only.constant.expressions.are.allowed"),
+    EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION("expression.is.not.a.constant.expression"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
