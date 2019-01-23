@@ -121,7 +121,8 @@ public function main() returns error? {
                                                             keyPassword = "ballerina");
 
 
-     // Signing input value using different signature algorithms, and printing the signature value using Hex encoding.
+     // Signing input value using different signature algorithms, and printing the signature value
+     // using Hex encoding.
      output = check crypto:signRsaMd5(inputArr, privateKey);
      io:println("RSA-MD5 signature: " + encoding:encodeHex(output));
 
