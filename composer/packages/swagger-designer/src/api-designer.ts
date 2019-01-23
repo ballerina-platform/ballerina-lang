@@ -26,7 +26,9 @@ export default function renderAPIEditor(renderTarget: HTMLElement,
     const openApiJson = JSON.parse(oasJson);
 
     const oasVisualizer = createElement(OpenApiVisualizer, {
+        onDidChange: onOASChange,
         openApiJson
     });
+
     render(oasVisualizer, renderTarget);
 }
