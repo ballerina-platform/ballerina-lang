@@ -479,17 +479,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     listener.clearAll();
                 }
 
+                codeLensContext.put(CodeLensesProviderKeys.BLANG_PACKAGE_KEY, bLangPackage);
+                codeLensContext.put(CodeLensesProviderKeys.FILE_URI_KEY, fileUri);
+                codeLensContext.put(CodeLensesProviderKeys.DIAGNOSTIC_KEY, diagnostics);
+
                 documentCUnit.ifPresent(cUnit -> {
-                    LSContext context = new LSServiceOperationContext();
-                    context.put(CodeLensesProviderKeys.COMPILATION_UNIT_KEY, cUnit);
-                    context.put(CodeLensesProviderKeys.BLANG_PACKAGE_KEY, bLangPackage);
-                    context.put(CodeLensesProviderKeys.FILE_URI_KEY, fileUri);
-                    context.put(CodeLensesProviderKeys.DIAGNOSTIC_KEY, diagnostics);
+                    codeLensContext.put(CodeLensesProviderKeys.COMPILATION_UNIT_KEY, cUnit);
 
                     List<LSCodeLensesProvider> providers = LSCodeLensesProviderFactory.getInstance().getProviders();
                     for (LSCodeLensesProvider provider : providers) {
                         try {
-                            lenses.addAll(provider.getLenses(context));
+                            lenses.addAll(provider.getLenses(codeLensContext));
                         } catch (LSCodeLensesProviderException e) {
                             LOGGER.error("Error while retrieving lenses from: " + provider.getName());
                         }
