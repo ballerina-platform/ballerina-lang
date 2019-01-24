@@ -14,6 +14,107 @@
 // specific language governing permissions and limitations
 // under the License.
 
+extern function checkNestedTransaction() returns boolean;
+
+extern function setTransactionContext(TransactionContext trxCtx);
+
+extern function resgisterLocalParticipant(string transactionBlockId, function () committedFunc,
+                                          function () abortedFunc) returns error?;
+
+extern function resgisterRemoteParticipant(string transactionBlockId, function () committedFunc,
+                                           function () abortedFunc) returns error?;
+
+extern function notifyResourceManagerOnAbort(string transactionId, string transactionBlockId) returns error?;
+
+extern function rollbackTransaction(string transactionId, string transactionBlockId) returns error?;
+
+extern function cleanupTransactioncontext(string transactionBlockId);
+
+extern function beginTransactionBlock(string transactionBlockId, int rCnt);
+
+function beginTransactionInitiator(string transactionBlockId, int rMax, function () trxFunc, function () retryFunc,
+                                   function () committedFunc, function () abortedFunc) returns error? {
+    boolean isTrxSuccess = false;
+    int rCnt = 1;
+    // If global tx enabled, it is managed via transaction coordinator.Otherwise it is managed locally
+    // without any interaction with the transaction coordinator.
+    if (checkNestedTransaction()) {
+        // Starting a transaction within already infected transaction.
+        error err = error("dynamically nested transactions are not allowed");
+        panic err;
+    }
+    TransactionContext txnContext = check beginTransaction((), transactionBlockId, (), TWO_PHASE_COMMIT);
+    string transactionId = txnContext.transactionId;
+    setTransactionContext(trxCtx);
+    beginTransactionBlock(transactionBlockId, rMax);
+    var trxResult = ();
+    while (true) {
+        var trxResult = trap trxFunc.call();
+        if (trxResult is int) {
+            // If transaction result == -1, means it aborted.
+            if (trxResult == -1) { // abort
+                return;
+            }
+            if (trxResult == 0) { // success
+                var endSuccess = trap endTransaction(transactionId, transactionBlockId);
+                if (endSuccess is string) {
+                    if (endSuccess == OUTCOME_COMMITTED) {
+                        isTrxSuccess = true;
+                        return;
+                    }
+                }
+            }
+        }
+            rCnt=+1;
+        // retry
+        if (rCnt < rMax) {
+            rollbackTransaction(transactionId);
+            rFunc.call();
+        } else {
+            return;
+        }
+    }
+
+    if (isTrxSuccess) {
+        cFunc.call();
+    } else {
+        var abortResult = trap handleAbortTransaction(transactionId, aFunc);
+    }
+    cleanupTransactioncontext();
+    if (trxResult is error) {
+        panic trxResult;
+    }
+    if (abortResult is error) {
+        panic abortResult;
+    }
+}
+
+
+function beginLocalParticipant(string transactionBlockId, function () committedFunc, function () abortedFunc) {
+
+
+}
+
+function handleAbortTransaction(string transactionId, string transactionBlockId, 
+                                function () abortedFunc) returns error? {
+    var result = trap abortTransaction(transactionId, transactionBlockId);
+    notifyResourceManagerOnAbort(transactionId, transactionBlockId);
+    abortedFunc.call();
+    if (result is error) {
+        panic result;
+    }
+}
+
+function handleCompletedTransaction(string transactionId, string transactionBlockId,
+                                    function () abortedFunc) returns error? {
+    var result = trap endTransaction(transactionId, transactionBlockId);
+    notifyResourceManagerOnAbort(transactionId, transactionBlockId);
+    abortedFunc.call();
+    if (result is error) {
+        panic result;
+    }
+}
+
 # When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
 # If this is a new transaction (transactionId == () ), then this instance will become the initiator and will
 # create a new transaction context.
