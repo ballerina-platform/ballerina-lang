@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -42,7 +41,7 @@ import java.util.List;
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
 
 /**
- * Class to test explicitly typed expressions.
+ * Class to test numeric conversion via the type cast expression.
  *
  * @since 0.985.0
  */
@@ -53,17 +52,8 @@ public class NumericConversionTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/explicitlytyped/explicitly_typed_expr.bal");
-        resultNegative = BCompileUtil.compile(
-                "test-src/expressions/explicitlytyped/explicitly_typed_expr_negative.bal");
-    }
-
-    @Test(dataProvider = "stringAsStringTests")
-    public void testStringAsString(String functionName, String s) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BString(s)});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected strings to be the same");
+        result = BCompileUtil.compile("test-src/expressions/typecast/numeric_conversion.bal");
+        resultNegative = BCompileUtil.compile("test-src/expressions/typecast/numeric_conversion_negative.bal");
     }
 
     @Test(dataProvider = "floatAsFloatTests")
@@ -98,6 +88,17 @@ public class NumericConversionTest {
         Assert.assertSame(returns[1].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), Math.round((new BFloat(d)).floatValue()), "incorrect" +
                 " float representation as int");
+    }
+
+    @Test(dataProvider = "floatAsByteTests")
+    public void testFloatAsByte(String functionName, double d) {
+        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BFloat(d)});
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
+        Assert.assertSame(returns[1].getClass(), BByte.class);
+        Assert.assertEquals(((BByte) returns[1]).byteValue(), Math.round((new BFloat(d)).byteValue()), "incorrect" +
+                " float representation as byte");
     }
 
     @Test(dataProvider = "decimalAsFloatTests")
@@ -168,34 +169,15 @@ public class NumericConversionTest {
                 "representation as int");
     }
 
-    @Test
-    public void testBooleanAsBoolean() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanAsBoolean", new BValue[0]);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "invalid boolean representation as " +
-                "boolean");
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true, "invalid boolean representation as " +
-                "boolean");
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false, "invalid boolean representation as " +
-                "boolean");
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), false, "invalid boolean representation as " +
-                "boolean");
-    }
-
-    @Test
-    public void testBooleanInUnionAsBoolean() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanInUnionAsBoolean", new BValue[0]);
+    @Test(dataProvider = "intAsByteTests")
+    public void testIntAsByte(String functionName, int i) {
+        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BInteger(i)});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "invalid boolean representation as " +
-                "boolean");
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false, "invalid boolean representation as " +
-                "boolean");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
+        Assert.assertSame(returns[1].getClass(), BByte.class);
+        Assert.assertEquals(((BByte) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
+                "representation as byte");
     }
 
     @Test(dataProvider = "byteValues")
@@ -207,17 +189,6 @@ public class NumericConversionTest {
         Assert.assertSame(returns[1].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), (new BByte(i)).intValue(), "incorrect byte " +
                 "representation as int");
-    }
-
-    @Test(dataProvider = "intAsByteValues")
-    public void testIntAsByte(int i) {
-        BValue[] returns = BRunUtil.invoke(result, "testIntAsByte", new BValue[]{new BInteger(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be the same");
-        Assert.assertSame(returns[1].getClass(), BByte.class);
-        Assert.assertEquals(((BByte) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
-                "representation as byte");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -261,14 +232,6 @@ public class NumericConversionTest {
         if (returns[0] instanceof BError) {
             Assert.fail(((BError) returns[0]).getReason());
         }
-    }
-
-    @Test
-    public void testTypeAssertionOnRecordLiterals() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeAssertionOnRecordLiterals");
-        Assert.assertEquals(returns[0].stringValue(), "Server mode configuration");
-        Assert.assertEquals(returns[1].stringValue(), "Embedded mode configuration");
-        Assert.assertEquals(returns[2].stringValue(), "In-memory mode configuration");
     }
 
     @Test
@@ -338,62 +301,60 @@ public class NumericConversionTest {
     }
 
     @DataProvider
-    public Object[][] stringAsStringTests() {
-        String[] asStringTestFunctions = new String[]{"testStringAsString", "testStringInUnionAsString"};
-        String[] stringValues = new String[]{"a", "", "Hello, from Ballerina!"};
-        List<Object[]> result = new ArrayList<>();
-        Arrays.stream(asStringTestFunctions)
-                .forEach(func -> Arrays.stream(stringValues)
-                        .forEach(arg -> result.add(new Object[]{func, arg})));
-        return result.toArray(new Object[result.size()][]);
-    }
-
-    @DataProvider
     public Object[][] floatAsFloatTests() {
-        String[] floatAsTestFunctions = new String[]{"testFloatAsFloat", "testFloatInUnionAsFloat"};
-        return getFunctionAndArgArraysForFloat(floatAsTestFunctions);
+        String[] floatAsTestFunctions = new String[]{"testFloatAsFloat", "testFloatAsFloatInUnions"};
+        return getFunctionAndArgArraysForFloat(floatAsTestFunctions, doubleValues());
     }
 
     @DataProvider
     public Object[][] floatAsDecimalTests() {
-        String[] floatAsTestFunctions = new String[]{"testFloatAsDecimal"};
-        return getFunctionAndArgArraysForFloat(floatAsTestFunctions);
+        String[] floatAsTestFunctions = new String[]{"testFloatAsDecimal", "testFloatAsDecimalInUnions"};
+        return getFunctionAndArgArraysForFloat(floatAsTestFunctions, doubleValues());
     }
 
     @DataProvider
     public Object[][] floatAsIntTests() {
-        String[] floatAsTestFunctions = new String[]{"testFloatAsInt"};
-        return getFunctionAndArgArraysForFloat(floatAsTestFunctions);
+        String[] floatAsTestFunctions = new String[]{"testFloatAsInt", "testFloatAsIntInUnions"};
+        return getFunctionAndArgArraysForFloat(floatAsTestFunctions, doubleValues());
     }
 
-    private Object[][] getFunctionAndArgArraysForFloat(String[] floatAsTestFunctions) {
+    @DataProvider
+    public Object[][] floatAsByteTests() {
+        String[] floatAsTestFunctions = new String[]{"testFloatAsByte", "testFloatAsByteInUnions"};
+        return getFunctionAndArgArraysForFloat(floatAsTestFunctions, doubleValuesForAsByte());
+    }
+
+    private Object[][] getFunctionAndArgArraysForFloat(String[] floatAsTestFunctions, double[] values) {
         List<Object[]> result = new ArrayList<>();
         Arrays.stream(floatAsTestFunctions)
-                .forEach(func -> Arrays.stream(doubleValues())
+                .forEach(func -> Arrays.stream(values)
                         .forEach(arg -> result.add(new Object[]{func, arg})));
         return result.toArray(new Object[result.size()][]);
     }
-
 
     private double[] doubleValues() {
         return new double[]{-1234.57, 0.0, 1.5, 53456.032};
     }
 
+    private double[] doubleValuesForAsByte() {
+        return new double[]{0.99, 0.0, 1.0, 255.4};
+    }
+
     @DataProvider
     public Object[][] decimalAsFloatTests() {
-        String[] decimalAsTestFunctions = new String[]{"testDecimalAsFloat"};
+        String[] decimalAsTestFunctions = new String[]{"testDecimalAsFloat", "testDecimalAsFloatInUnions"};
         return getFunctionAndArgArraysForDecimal(decimalAsTestFunctions);
     }
 
     @DataProvider
     public Object[][] decimalAsDecimalTests() {
-        String[] decimalAsTestFunctions = new String[]{"testDecimalAsDecimal", "testDecimalInUnionAsDecimal"};
+        String[] decimalAsTestFunctions = new String[]{"testDecimalAsDecimal", "testDecimalAsDecimalInUnions"};
         return getFunctionAndArgArraysForDecimal(decimalAsTestFunctions);
     }
 
     @DataProvider
     public Object[][] decimalAsIntTests() {
-        String[] decimalAsTestFunctions = new String[]{"testDecimalAsInt"};
+        String[] decimalAsTestFunctions = new String[]{"testDecimalAsInt", "testDecimalAsIntInUnions"};
         return getFunctionAndArgArraysForDecimal(decimalAsTestFunctions);
     }
 
@@ -416,20 +377,26 @@ public class NumericConversionTest {
 
     @DataProvider
     public Object[][] intAsFloatTests() {
-        String[] intAsTestFunctions = new String[]{"testIntAsFloat"};
+        String[] intAsTestFunctions = new String[]{"testIntAsFloat", "testIntAsFloatInUnions"};
         return getFunctionAndArgArraysForInt(intAsTestFunctions);
     }
 
     @DataProvider
     public Object[][] intAsDecimalTests() {
-        String[] asIntTestFunctions = new String[]{"testIntAsDecimal", "testIntAsDecimalInUnion"};
+        String[] asIntTestFunctions = new String[]{"testIntAsDecimal", "testIntAsDecimalInUnions"};
         return getFunctionAndArgArraysForInt(asIntTestFunctions);
     }
 
     @DataProvider
     public Object[][] intAsIntTests() {
-        String[] intAsTestFunctions = new String[]{"testIntAsInt", "testIntInUnionAsInt"};
+        String[] intAsTestFunctions = new String[]{"testIntAsInt", "testIntAsIntInUnions"};
         return getFunctionAndArgArraysForInt(intAsTestFunctions);
+    }
+
+    @DataProvider
+    public Object[][] intAsByteTests() {
+        String[] intAsByteTestFunctions = new String[]{"testIntAsByte", "testIntAsByteInUnions"};
+        return getFunctionAndArgArraysForIntAsByte(intAsByteTestFunctions);
     }
 
     private Object[][] getFunctionAndArgArraysForInt(String[] intAsTestFunctions) {
@@ -440,8 +407,20 @@ public class NumericConversionTest {
         return result.toArray(new Object[result.size()][]);
     }
 
+    private Object[][] getFunctionAndArgArraysForIntAsByte(String[] intAsByteTestFunctions) {
+        List<Object[]> result = new ArrayList<>();
+        Arrays.stream(intAsByteTestFunctions)
+                .forEach(func -> Arrays.stream(intAsByteValues())
+                        .forEach(arg -> result.add(new Object[]{func, arg})));
+        return result.toArray(new Object[result.size()][]);
+    }
+
     private int[] intValues() {
         return new int[]{-123457, 0, 1, 53456032};
+    }
+
+    private int[] intAsByteValues() {
+        return new int[]{0, 1, 254, 255};
     }
 
     @DataProvider
@@ -486,16 +465,6 @@ public class NumericConversionTest {
                 {(byte) 1},
                 {(byte) 254},
                 {(byte) 255}
-        };
-    }
-
-    @DataProvider
-    public Object[][] intAsByteValues() {
-        return new Object[][]{
-                {0},
-                {1},
-                {254},
-                {255}
         };
     }
 }

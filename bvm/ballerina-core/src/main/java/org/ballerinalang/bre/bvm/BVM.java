@@ -5159,8 +5159,7 @@ public class BVM {
             case TypeTags.TUPLE_TAG:
                 return checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
-                return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
+                return checkIsUnionType(sourceType, (BUnionType) targetType, unresolvedTypes);
             case TypeTags.TABLE_TAG:
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
@@ -5172,6 +5171,8 @@ public class BVM {
                 return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
             case TypeTags.FUTURE_TAG:
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
+            case TypeTags.STREAM_TAG:
+                return checkIsStreamType(sourceType, (BStreamType) targetType, unresolvedTypes);
             default:
                 return false;
         }
@@ -5260,6 +5261,15 @@ public class BVM {
                 .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
     }
 
+    private static boolean checkIsUnionType(BType sourceType, BUnionType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) sourceType).getMemberTypes().stream()
+                    .allMatch(type -> checkIsType(type, targetType, unresolvedTypes));
+        }
+        return targetType.getMemberTypes().stream()
+                .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
+    }
+
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() != TypeTags.TABLE_TAG) {
             return false;
@@ -5318,6 +5328,14 @@ public class BVM {
         }
         return checkContraints(((BFutureType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                 unresolvedTypes);
+    }
+
+    private static boolean checkIsStreamType(BType sourceType, BStreamType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.STREAM_TAG) {
+            return false;
+        }
+        return checkContraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                               unresolvedTypes);
     }
 
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,

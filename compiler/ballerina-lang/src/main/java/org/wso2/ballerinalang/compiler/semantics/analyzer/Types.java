@@ -897,10 +897,16 @@ public class Types {
         }
 
         if (containsNumericType(targetType)) {
-            return symResolver.getNumericConversionOrCastSymbol(sourceType, targetType);
-        } else if (isAssignable(targetType, sourceType) || isAssignable(sourceType, targetType)) {
+            BSymbol symbol = symResolver.getNumericConversionOrCastSymbol(sourceType, targetType);
+            if (symbol != symTable.notFoundSymbol) {
+                return symbol;
+            }
+        }
+
+        if (isAssignable(targetType, sourceType) || isAssignable(sourceType, targetType)) {
             return symResolver.createTypeAssertionSymbol(sourceType, targetType);
         }
+
         return symTable.notFoundSymbol;
     }
 

@@ -82,7 +82,7 @@ type PersonObject object {
     }
 };
 
-function testNilAssertionPositive() returns boolean {
+function testNilCastPositive() returns boolean {
     () a = ();
     string|int|boolean? b = a;
     json c = a;
@@ -97,25 +97,25 @@ function testNilAssertionPositive() returns boolean {
     return a == f && f == g && h == g && h == i;
 }
 
-function testNilAssertionNegative() {
+function testNilCastNegative() {
     string a = "hello world";
     anydata b = a;
     () c = <()> b;
 }
 
-function testNilValueAssertionAsSimpleBasicTypeNegative() {
+function testNilValueCastAsSimpleBasicTypeNegative() {
     () a = ();
     anydata b = a;
     string c = <string> b;
 }
 
-function testNilValueAssertionAsStructuredTypeNegative() {
+function testNilValueCastAsStructuredTypeNegative() {
     () a = ();
     anydata b = a;
     map<string> c = <map<string>> b;
 }
 
-function testStringAssertionPositive() returns boolean {
+function testStringCastPositive() returns boolean {
     string a = "hello world";
     string|int|boolean b = a;
     json c = a;
@@ -130,7 +130,7 @@ function testStringAssertionPositive() returns boolean {
     return a == f && f == g && h == g && h == i;
 }
 
-function testIntAssertionPositive() returns boolean {
+function testIntCastPositive() returns boolean {
     int a = 400;
     string|int|boolean b = a;
     json c = a;
@@ -145,7 +145,7 @@ function testIntAssertionPositive() returns boolean {
     return a == f && f == g && h == g && h == i;
 }
 
-function testFloatAssertionPositive() returns boolean {
+function testFloatCastPositive() returns boolean {
     float a = 40.12301;
     string|int|boolean|float b = a;
     json c = a;
@@ -160,7 +160,7 @@ function testFloatAssertionPositive() returns boolean {
     return a == f && f == g && h == g && h == i;
 }
 
-function testDecimalAssertionPositive() returns boolean {
+function testDecimalCastPositive() returns boolean {
     decimal a = 12340.124340414;
     string|int|boolean|decimal b = a;
     json c = a;
@@ -175,7 +175,7 @@ function testDecimalAssertionPositive() returns boolean {
     return a == f && f == g && h == g && h == i;
 }
 
-function testBooleanAssertionPositive() returns boolean {
+function testBooleanCastPositive() returns boolean {
     boolean a = true;
     string|int|boolean|float b = a;
     json c = a;
@@ -203,7 +203,7 @@ function testBooleanAssertionPositive() returns boolean {
     return assertionSuccessful && a == f && f == g && h == g && h == i;
 }
 
-function testArrayAssertionPositive() returns boolean {
+function testArrayCastPositive() returns boolean {
     string[3] s = ["this is an array", "of length", "three"];
     any a = s;
     string[] s2 = <string[3]> a;
@@ -215,13 +215,13 @@ function testArrayAssertionPositive() returns boolean {
     return s === s2 && s3 === s4;
 }
 
-function testArrayAssertionNegative() {
+function testArrayCastNegative() {
     (string|int)[2] s1 = ["this is an array", "of length"];
     anydata b = s1;
     any[2] s2 = <string[2]> b;
 }
 
-function testTupleAssertionPositive() returns boolean {
+function testTupleCastPositive() returns boolean {
     (string, int, float) s = ("this is an array", 1, 3.0);
     any a = s;
     (string, int, float) s2 = <(string, int, float)> a;
@@ -233,13 +233,13 @@ function testTupleAssertionPositive() returns boolean {
     return s === s2 && s3 === s4;
 }
 
-function testTupleAssertionNegative() {
+function testTupleCastNegative() {
     (string, int|string, float) s = ("this is an array", 1, 3.0);
     any a = s;
     (string, int|string, float) s2 = <(string, int, float)> a;
 }
 
-function testJsonAssertionPositive() returns boolean {
+function testJsonCastPositive() returns boolean {
     json j = { jsonType: "object" };
     any a = j;
     json j2 = <json> a;
@@ -250,43 +250,46 @@ function testJsonAssertionPositive() returns boolean {
     return j === j2 && j === j3;
 }
 
-function testJsonAssertionNegative() {
+function testJsonCastNegative() {
     xml x = xml `text`;
     any a = x;
     json j = <json> a;
 }
 
-function testMapAssertionPositive() returns boolean {
+function testMapCastPositive() returns boolean {
     map<string> m = { mapType: "constrained", elementType: "string" };
     anydata a = m;
     map<any> m2 = <map<string>> a;
 
-    map<any> m3 = { mapType: "unconstrained", elementType: "any", elementCount: 3 };
-    any a2 = m3;
-    map<any> m4 = <map<any>> a2;
+    map<string|int> m3 = { mapType: "unconstrained", elementType: "any", elementCount: 3 };
+    map<string|int|float> m4 = <map<string|int|float>> m3;
 
-    return m === m2 && m3 === m4;
+    any a2 = m3;
+    map<any> m5 = <map<any>> a2;
+
+    return m === m2 && m3 === m4 && m3 === m5;
 }
 
-function testMapAssertionNegative() {
+function testMapCastNegative() {
     map<any> m1 = { mapType: "unconstrained", elementType: "any" };
     map<string> m2 = <map<string>> m1;
 }
 
-function testRecordAssertionPositive() returns boolean {
+function testRecordCastPositive() returns boolean {
     Employee e = { name: "Em Zee", id: 1100 };
     Person p = e;
     Employee e2 = <Employee> p;
-    return e === e2;
+    Person p2 = <Person> e;
+    return e === e2 && e2 == p2;
 }
 
-function testRecordAssertionNegative() {
+function testRecordCastNegative() {
     Employee e = { name: "Em Zee", id: 1100 };
     Person p = e;
     Lead e2 = <Lead> p;
 }
 
-function testTableAssertionPositive() returns boolean {
+function testTableCastPositive() returns boolean {
     table<TableEmployee> t1 = table {
         { key id, name },
         [
@@ -300,7 +303,7 @@ function testTableAssertionPositive() returns boolean {
     return t1 === t2;
 }
 
-function testTableAssertionNegative() {
+function testTableCastNegative() {
     table<TableEmployee> t1 = table {
         { key id, name },
         [
@@ -313,20 +316,20 @@ function testTableAssertionNegative() {
     table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
 }
 
-function testXmlAssertionPositive() returns boolean {
+function testXmlCastPositive() returns boolean {
     xml x1 = xml `<book>The Lost World</book>`;
     anydata a = x1;
     xml x2 = <xml> a;
     return x1 === x2;
 }
 
-function testXmlAssertionNegative() {
+function testXmlCastNegative() {
     string|xml x1 = "<book>The Lost World</book>";
     any a = x1;
     xml x2 = <xml> a;
 }
 
-//function testErrorAssertionPositive() returns boolean {
+//function testErrorCastPositive() returns boolean {
 //    error e1 = error("test error");
 //    anydata|error a = e1;
 //    error e2 = <error> a;
@@ -337,78 +340,78 @@ function testXmlAssertionNegative() {
 //    return e1 === e2 && e3 === e4;
 //}
 //
-//function testErrorAssertionNegative() {
+//function testErrorCastNegative() {
 //    MyError e1 = error("test my error");
 //    any|error e2 = e1;
 //    error e3 = <error> e2;
 //}
 
-function testFunctionAssertionPositive() returns boolean {
+function testFunctionCastPositive() returns boolean {
     function (string, int) returns string f = testFunc;
     any a = f;
     function (string, int) returns string f1 = <function (string, int) returns string> a;
     return f === f1;
 }
 
-function testFunctionAssertionNegative() {
+function testFunctionCastNegative() {
     function (string, int) returns string f = testFunc;
     any a = f;
     function (string) returns string f1 = <function (string) returns string> a;
 }
 
-//function testFutureAssertionPositive() returns boolean {
+//function testFutureCastPositive() returns boolean {
 //    future<int> s1 = start testFutureFunc();
 //    any a = s1;
 //    future<int> s2 = <future<int>> a;
 //    return s1 === s2;
 //}
 //
-//function testFutureAssertionNegative() {
+//function testFutureCastNegative() {
 //    future<int> s1 = start testFutureFunc();
 //    any a = s1;
 //    future<json> s2 = <future<json>> a;
 //}
 
-function testObjectAssertionPositive() returns boolean {
+function testObjectCastPositive() returns boolean {
     EmployeeObject e = new("Em Zee");
     PersonObject p = e;
     EmployeeObject e2 = <EmployeeObject> p;
     return e === e2;
 }
 
-function testObjectAssertionNegative() {
+function testObjectCastNegative() {
     EmployeeObject e = new("Em Zee");
     PersonObject p = e;
     LeadObject e2 = <LeadObject> p;
 }
 
-function testStreamAssertionPositive() returns boolean {
+function testStreamCastPositive() returns boolean {
     stream<int> s1 = new;
     any a = s1;
-    stream<any> s2 = <stream<int>> a;
+    stream<any> s2 = <stream<int|float>> a;
     return s1 === s2;
 }
 
-function testStreamAssertionNegative() {
+function testStreamCastNegative() {
     stream<int> s1 = new;
     any a = s1;
     stream<boolean> s2 = <stream<boolean>> a;
 }
 
-function testTypedescAssertionPositive() returns boolean {
+function testTypedescCastPositive() returns boolean {
     typedesc t1 = int;
     any a = t1;
     typedesc t2 = <typedesc> a;
     return t1 === t2;
 }
 
-function testTypedescAssertionNegative() {
+function testTypedescCastNegative() {
     typedesc t1 = int;
     any a = t1;
     int t2 = <int> a;
 }
 
-function testMapElementAssertionPositive() returns boolean {
+function testMapElementCastPositive() returns boolean {
     Employee e1 = { name: "Anne", id: 12495673 };
     EmployeeObject e2 = new("John");
     int iVal = 12345;
@@ -426,13 +429,13 @@ function testMapElementAssertionPositive() returns boolean {
         mapVal: strMapVal
     };
 
-    map<string> strMapValTwo = <map<string>> m.mapVal;
+    map<string|int> strMapValTwo = <map<string|int>> m.mapVal;
 
     return <Employee> m.emp1 === e1 && <EmployeeObject> m.emp2 === e2 && <int> m.intVal == iVal &&
                 <string> strMapValTwo.stringVal == sVal && bVal == <boolean> m.boolVal;
 }
 
-function testMapElementAssertionNegative() {
+function testMapElementCastNegative() {
     Employee e1 = { name: "Anne", id: 12495673 };
     EmployeeObject e2 = new("John");
     int iVal = 12345;
@@ -455,7 +458,7 @@ function testMapElementAssertionNegative() {
     map<int> strMapValTwo = <map<int>> m.mapVal;
 }
 
-function testListElementAssertionPositive() returns boolean {
+function testListElementCastPositive() returns boolean {
     Employee e1 = { name: "Anne", id: 12495673 };
     int iVal = 12345;
     int iValTwo = 2357812;
@@ -472,7 +475,7 @@ function testListElementAssertionPositive() returns boolean {
                 <string> anyArrTwo[1] == sVal && bVal == <boolean> anyArrTwo[2];
 }
 
-function testListElementAssertionNegative() {
+function testListElementCastNegative() {
     Employee e1 = { name: "Anne", id: 12495673 };
     int iVal = 12345;
     boolean bVal = true;
@@ -486,14 +489,14 @@ function testListElementAssertionNegative() {
     int iValTwo = <int> anyArrTwo[0];
 }
 
-function testOutOfOrderUnionConstraintAssertionPositive() returns boolean {
+function testOutOfOrderUnionConstraintCastPositive() returns boolean {
     map<int|string> m = { one: 1, two: "2" };
     anydata a = m;
     map<string|int> m2 = <map<string|int>> a;
     return m === m2;
 }
 
-function testOutOfOrderUnionConstraintAssertionNegative() {
+function testOutOfOrderUnionConstraintCastNegative() {
     stream<int|float> s1 = new;
     any a = s1;
     stream<boolean|EmployeeObject> s2 = <stream<boolean|EmployeeObject>> a;
@@ -505,7 +508,7 @@ function testStringAsInvalidBasicType() {
     int i = <int> a;
 }
 
-function testBroaderObjectAssertion() returns boolean {
+function testBroaderObjectCast() returns boolean {
     string name = "Em Zee";
     EmployeeObject e = new(name);
     PersonObject p = e;
@@ -513,7 +516,7 @@ function testBroaderObjectAssertion() returns boolean {
     return e === p2 && p2.name == name;
 }
 
-function testAssertionOnPotentialConversion() returns boolean {
+function testCastOnPotentialConversion() returns boolean {
     string s = "Em Zee";
     string|int|Employee u1 = s;
     string|float u2 = <string|float> u1;
@@ -536,14 +539,123 @@ function testCastToNumericType() returns boolean {
     return k == i && m == l && n == o;
 }
 
-function testAssertionPanicWithCheckTrap() returns string|int|error {
-    return check trap testFunctionAssertionNegativeHelper();
+function testCastPanicWithCheckTrap() returns string|int|error {
+    return check trap testFunctionCastNegativeHelper();
 }
 
-function testFunctionAssertionNegativeHelper() returns string|int {
-    testFunctionAssertionNegative();
+function testFunctionCastNegativeHelper() returns string|int {
+    testFunctionCastNegative();
     return "successful";
 }
+
+//////////////////////// from string ////////////////////////
+
+function testStringAsString(string s1) returns boolean {
+    string s2 = <string> s1;
+    anydata s3 = <string> getString(s1);
+
+    return s1 == s3 && s2 == s1 && s3 is string;
+}
+
+function testStringInUnionAsString(string s1) returns boolean {
+    Employee|string|int s2 = s1;
+    json s3 = s1;
+    anydata s4 = s1;
+    any s5 = s1;
+
+    string s6 = <string> s2;
+    string s7 = <string> s3;
+    string s8 = <string> s4;
+    string s9 = <string> s5;
+
+    return s1 == s6 && s7 == s6 && s7 == s8 && s9 == s8;
+}
+
+//////////////////////// from boolean ////////////////////////
+
+function testBooleanAsBoolean() returns (boolean, boolean, boolean, boolean) {
+    boolean b1 = true;
+    boolean s1 = <boolean> b1;
+    anydata a = <boolean> getBoolean(b1);
+    boolean s2 = false;
+    if (a is boolean) {
+    s2 = a;
+    }
+
+    b1 = false;
+    boolean s3 = <boolean> b1;
+    boolean s4 = <boolean> getBoolean(b1);
+
+    return (s1, s2, s3, s4);
+}
+
+function testBooleanInUnionAsBoolean() returns (boolean, boolean) {
+    boolean f1 = true;
+    Employee|string|int|boolean f2 = f1;
+    json f3 = true;
+    anydata f4 = f1;
+    any f5 = f1;
+
+    boolean s6 = <boolean> f2;
+    boolean s7 = <boolean> f3;
+    boolean s8 = <boolean> f4;
+    boolean s9 = <boolean> f5;
+
+    boolean ft1 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : false;
+
+    f1 = false;
+    f2 = f1;
+    f3 = false;
+    f4 = f1;
+    f5 = f1;
+
+    s6 = <boolean> f2;
+    s7 = <boolean> f3;
+    s8 = <boolean> f4;
+    s9 = <boolean> f5;
+
+    boolean ft2 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : true;
+
+    return(ft1, ft2);
+}
+
+function testTypeCastOnRecordLiterals() returns (string, string, string) {
+    string s1 = init(<ServerModeConfig>{});
+    string s2 = init(<EmbeddedModeConfig>{});
+    string s3 = init(<InMemoryModeConfig>{});
+    return (s1, s2, s3);
+}
+
+function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
+    if (rec is ServerModeConfig) {
+        return "Server mode configuration";
+    } else if (rec is EmbeddedModeConfig) {
+        return "Embedded mode configuration";
+    } else {
+        return "In-memory mode configuration";
+    }
+}
+
+public type InMemoryModeConfig record {
+    string name = "";
+    string username = "";
+    string password = "";
+    map<any> dbOptions = {name:"asdf"};
+    !...;
+};
+
+public type ServerModeConfig record {
+    string host = "";
+    int port = 9090;
+    *InMemoryModeConfig;
+    !...;
+};
+
+public type EmbeddedModeConfig record {
+    string path = "";
+    *InMemoryModeConfig;
+    !...;
+};
 
 function testFunc(string s, int i) returns string {
     return string.convert(i) + s;
@@ -551,4 +663,12 @@ function testFunc(string s, int i) returns string {
 
 function testFutureFunc() returns int {
     return 1;
+}
+
+function getString(string s) returns string {
+    return s;
+}
+
+function getBoolean(boolean b) returns boolean {
+    return b;
 }

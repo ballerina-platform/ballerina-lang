@@ -14,44 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//////////////////////// from string ////////////////////////
-
-function testStringAsString(string s1) returns boolean {
-    string s2 = <string> s1;
-    anydata s3 = <string> getString(s1);
-
-    return s1 == s3 && s2 == s1 && s3 is string;
-}
-
-function testStringInUnionAsString(string s1) returns boolean {
-    Employee|string|int s2 = s1;
-    json s3 = s1;
-    anydata s4 = s1;
-    any s5 = s1;
-
-    string s6 = <string> s2;
-    string s7 = <string> s3;
-    string s8 = <string> s4;
-    string s9 = <string> s5;
-
-    return s1 == s6 && s7 == s6 && s7 == s8 && s9 == s8;
-}
-
 //////////////////////// from float ////////////////////////
-function testFloatInUnionAsString(float f1) returns (boolean, string) {
-    Employee|string|float f2 = f1;
-    json f3 = f1;
-    anydata f4 = f1;
-    any f5 = f1;
-
-    string s6 = <string> f2;
-    string s7 = <string> f3;
-    string s8 = <string> f4;
-    string s9 = <string> f5;
-
-    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
-}
-
 function testFloatAsFloat(float f1) returns (boolean, float) {
     float s3 = <float> f1;
     anydata s4 = <float> getFloat(f1);
@@ -59,14 +22,14 @@ function testFloatAsFloat(float f1) returns (boolean, float) {
     return (s3 == s4 && s4 is float, s3);
 }
 
-function testFloatInUnionAsFloat(float f1) returns (boolean, float) {
+function testFloatAsFloatInUnions(float f1) returns (boolean, float) {
     Employee|string|float f2 = f1;
     json f3 = f1;
     anydata f4 = f1;
     any f5 = f1;
 
     float s6 = <float> f2;
-    float s7 = <float> f3;
+    float|boolean s7 = <float|boolean> f3;
     float s8 = <float> f4;
     float s9 = <float> f5;
 
@@ -80,11 +43,60 @@ function testFloatAsDecimal(float f1) returns (boolean, decimal) {
     return (s3 == s4 && s4 is decimal, s3);
 }
 
+function testFloatAsDecimalInUnions(float f1) returns (boolean, decimal) {
+    Employee|string|float f2 = f1;
+    json f3 = f1;
+    anydata f4 = getFloat(f1);
+    any f5 = getFloat(f1);
+
+    decimal s6 = <decimal> f2;
+    decimal|Employee s7 = <decimal|Employee> f3;
+    decimal s8 = <decimal> f4;
+    decimal s9 = <decimal> f5;
+
+    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
+}
+
 function testFloatAsInt(float f1) returns (boolean, int) {
     int s3 = <int> f1;
     anydata s4 = <int> getFloat(f1);
 
     return (s3 == s4 && s4 is int, s3);
+}
+
+function testFloatAsIntInUnions(float f1) returns (boolean, int) {
+    Employee|string|float f2 = f1;
+    json f3 = f1;
+    anydata f4 = getFloat(f1);
+    any f5 = getFloat(f1);
+
+    int s6 = <int> f2;
+    int|Employee s7 = <int|Employee> f3;
+    int s8 = <int> f4;
+    int|string s9 = <int|string> f5;
+
+    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
+}
+
+function testFloatAsByte(float f1) returns (boolean, byte) {
+    byte s3 = <byte> f1;
+    anydata s4 = <byte> getFloat(f1);
+
+    return (s3 == s4 && s4 is byte, s3);
+}
+
+function testFloatAsByteInUnions(float f1) returns (boolean, byte) {
+    Employee|string|float f2 = f1;
+    json f3 = f1;
+    anydata f4 = getFloat(f1);
+    any f5 = getFloat(f1);
+
+    byte s6 = <byte> f2;
+    byte|Employee s7 = <byte|Employee> f3;
+    byte s8 = <byte> f4;
+    byte|string s9 = <byte|string> f5;
+
+    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
 }
 
 //////////////////////// from decimal ////////////////////////
@@ -95,6 +107,20 @@ function testDecimalAsFloat(decimal f1) returns (boolean, float) {
     return (s3 == s4 && s4 is float, s3);
 }
 
+function testDecimalAsFloatInUnions(decimal f1) returns (boolean, float|Employee|boolean|string) {
+    Employee|string|decimal f2 = f1;
+    json f3 = f1;
+    anydata f4 = f1;
+    any f5 = f1;
+
+    float|string s6 = <float|string> f2;
+    float|Employee|boolean s7 = <float|Employee|boolean> f3;
+    float s8 = <float> f4;
+    float s9 = <float> f5;
+
+    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
+}
+
 function testDecimalAsDecimal(decimal f1) returns (boolean, decimal) {
     decimal s3 = <decimal> f1;
     anydata s4 = <decimal> getDecimal(f1);
@@ -102,13 +128,13 @@ function testDecimalAsDecimal(decimal f1) returns (boolean, decimal) {
     return (s3 == s4 && s4 is decimal, s3);
 }
 
-function testDecimalInUnionAsDecimal(decimal f1) returns (boolean, decimal) {
+function testDecimalAsDecimalInUnions(decimal f1) returns (boolean, decimal|string) {
     Employee|string|decimal f2 = f1;
     json f3 = f1;
     anydata f4 = f1;
     any f5 = f1;
 
-    decimal s6 = <decimal> f2;
+    decimal|string s6 = <decimal|string> f2;
     decimal s7 = <decimal> f3;
     decimal s8 = <decimal> f4;
     decimal s9 = <decimal> f5;
@@ -122,12 +148,40 @@ function testDecimalAsInt(decimal f1) returns (boolean, int) {
     return (s3 == s4 && s4 is int, s3);
 }
 
+function testDecimalAsIntInUnions(decimal f1) returns (boolean, int) {
+    Employee|string|decimal f2 = f1;
+    json f3 = f1;
+    anydata f4 = f1;
+    any f5 = f1;
+
+    int s6 = <int> f2;
+    int|string s7 = <int|string> f3;
+    int s8 = <int> f4;
+    int s9 = <int> f5;
+
+    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
+}
+
 //////////////////////// from int ////////////////////////
 function testIntAsFloat(int f1) returns (boolean, float) {
     float s3 = <float> f1;
     anydata s4 = <float> getInt(f1);
 
     return (s3 == s4 && s4 is float, s3);
+}
+
+function testIntAsFloatInUnions(int f1) returns (boolean, float) {
+    string|int|boolean f2 = f1;
+    json f3 = f1;
+    anydata f4 = f1;
+    any f5 = f1;
+
+    float s6 = <float> f2;
+    float|string s7 = <float|string> f3;
+    float|Employee|map<int> s8 = <float|Employee|map<int>> f4;
+    float s9 = <float> f5;
+
+    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
 }
 
 function testIntAsDecimal(int f1) returns (boolean, decimal) {
@@ -137,10 +191,18 @@ function testIntAsDecimal(int f1) returns (boolean, decimal) {
     return (s3 == s4 && s4 is decimal, s3);
 }
 
-function testIntAsDecimalInUnion(int f1) returns (boolean, string|decimal) {
-    string|decimal d1 = <string|decimal> f1;
-    boolean|decimal d2 = <boolean|decimal> getInt(f1);
-    return (d1 == d2 && d2 is decimal, d1);
+function testIntAsDecimalInUnions(int f1) returns (boolean, decimal) {
+    string|int|boolean f2 = f1;
+    json f3 = f1;
+    anydata f4 = f1;
+    any f5 = f1;
+
+    decimal s6 = <decimal> f2;
+    decimal|string s7 = <decimal|string> f3;
+    decimal|Employee|map<float> s8 = <decimal|Employee|map<float>> f4;
+    decimal s9 = <decimal> f5;
+
+    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
 }
 
 function testIntAsInt(int f1) returns (boolean, int) {
@@ -149,13 +211,13 @@ function testIntAsInt(int f1) returns (boolean, int) {
     return (s3 == s4 && s4 is int, s3);
 }
 
-function testIntInUnionAsInt(int f1) returns (boolean, int) {
+function testIntAsIntInUnions(int f1) returns (boolean, int|boolean) {
     Employee|string|int f2 = f1;
     json f3 = f1;
     anydata f4 = f1;
     any f5 = f1;
 
-    int s6 = <int> f2;
+    int|boolean s6 = <int|boolean> f2;
     int s7 = <int> f3;
     int s8 = <int> f4;
     int s9 = <int> f5;
@@ -163,52 +225,29 @@ function testIntInUnionAsInt(int f1) returns (boolean, int) {
     return (s7 == s6 && s7 == s8 && s9 == s8, s6);
 }
 
-//////////////////////// from boolean ////////////////////////
+function testIntAsByte(int f1) returns (boolean, byte) {
+    float|int b = f1;
+    anydata c = f1;
 
-function testBooleanAsBoolean() returns (boolean, boolean, boolean, boolean) {
-    boolean b1 = true;
-    boolean s1 = <boolean> b1;
-    anydata a = <boolean> getBoolean(b1);
-    boolean s2 = false;
-    if (a is boolean) {
-        s2 = a;
-    }
+    byte d = <byte>f1;
+    byte e = <byte>b;
+    byte f = <byte>c;
 
-    b1 = false;
-    boolean s3 = <boolean> b1;
-    boolean s4 = <boolean> getBoolean(b1);
-
-    return (s1, s2, s3, s4);
+    return (d == e && e == f, d);
 }
 
-function testBooleanInUnionAsBoolean() returns (boolean, boolean) {
-    boolean f1 = true;
-    Employee|string|int|boolean f2 = f1;
-    json f3 = true;
+function testIntAsByteInUnions(int f1) returns (boolean, byte|boolean) {
+    Employee|string|int f2 = f1;
+    json f3 = f1;
     anydata f4 = f1;
     any f5 = f1;
 
-    boolean s6 = <boolean> f2;
-    boolean s7 = <boolean> f3;
-    boolean s8 = <boolean> f4;
-    boolean s9 = <boolean> f5;
+    byte|boolean s6 = <byte|boolean> true;
+    byte s7 = <byte> f3;
+    byte s8 = <byte> f4;
+    byte s9 = <byte> f5;
 
-    boolean ft1 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : false;
-
-    f1 = false;
-    f2 = f1;
-    f3 = false;
-    f4 = f1;
-    f5 = f1;
-
-    s6 = <boolean> f2;
-    s7 = <boolean> f3;
-    s8 = <boolean> f4;
-    s9 = <boolean> f5;
-
-    boolean ft2 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : true;
-
-    return(ft1, ft2);
+    return (s7 == s6 && s7 == s8 && s9 == s8, s6);
 }
 
 function testNaNFloatAsInt() {
@@ -269,14 +308,6 @@ function testOutOfIntRangeNegativeDecimalInUnionAsInt() {
 }
 
 function testExplicitlyTypedExprForExactValues() returns error? {
-    // test from string to string
-    string s = "hello";
-    string s0 = <string> s;
-    if (s != s0) {
-        error e = error("invalid resultant value, from string to string");
-        return e;
-    }
-
     // test from float
     float f = 12.345;
     decimal fd = 12.34500000000000063948846218409017;
@@ -342,27 +373,6 @@ function testExplicitlyTypedExprForExactValues() returns error? {
         error e = error("invalid resultant value, from int to int");
         return e;
     }
-
-    // test from boolean
-    boolean b = false;
-    float boolf = 0.0;
-    decimal boold = 0.0;
-
-    boolean b4 = <boolean> b;
-    if (b4 != b) {
-        error e = error("invalid resultant value, from boolean to boolean");
-        return e;
-    }
-
-    b = true;
-    boolf = 1.0;
-    boold = 1.0;
-
-    b4 = <boolean> b;
-    if (b4 != b) {
-        error e = error("invalid resultant value, from boolean to boolean");
-        return e;
-    }
     return;
 }
 
@@ -377,67 +387,16 @@ function testByteAsInt(byte a) returns (boolean, int) {
     return (d == e && e == f, d);
 }
 
-function testIntAsByte(int a) returns (boolean, byte) {
-    float|int b = a;
-    anydata c = a;
-
-    byte d = <byte>a;
-    byte e = <byte>b;
-    byte f = <byte>c;
-
-    return (d == e && e == f, d);
-}
-
-function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
-    if (rec is ServerModeConfig) {
-        return "Server mode configuration";
-    } else if (rec is EmbeddedModeConfig) {
-        return "Embedded mode configuration";
-    } else {
-        return "In-memory mode configuration";
-    }
-}
-
-public type InMemoryModeConfig record {
-    string name = "";
-    string username = "";
-    string password = "";
-    map<any> dbOptions = {name:"asdf"};
-    !...;
-};
-
-public type ServerModeConfig record {
-    string host = "";
-    int port = 9090;
-    *InMemoryModeConfig;
-    !...;
-};
-
-public type EmbeddedModeConfig record {
-    string path = "";
-    *InMemoryModeConfig;
-    !...;
-};
-
-function testTypeAssertionOnRecordLiterals() returns (string, string, string) {
-    string s1 = init(<ServerModeConfig>{});
-    string s2 = init(<EmbeddedModeConfig>{});
-    string s3 = init(<InMemoryModeConfig>{});
-    return (s1, s2, s3);
-}
-
 function testConversionFromUnionWithNumericBasicTypes() returns boolean {
+    float f = 12.0;
+    decimal d = 110.5;
     int|boolean u1 = 12;
     float f1 = <float> u1;
-    boolean conversionSuccessful = f1 == <float> 12.0;
+    boolean conversionSuccessful = f1 == f;
 
     float|int|string u2 = <float> 110.5;
     decimal|boolean d1 = <decimal|boolean> u2;
-    return conversionSuccessful && d1 == <decimal> 110.5;
-}
-
-function getString(string s) returns string {
-    return s;
+    return conversionSuccessful && d1 == d;
 }
 
 function getFloat(float f) returns float {
@@ -450,10 +409,6 @@ function getDecimal(decimal d) returns decimal {
 
 function getInt(int i) returns int {
     return i;
-}
-
-function getBoolean(boolean b) returns boolean {
-    return b;
 }
 
 type Employee record {
