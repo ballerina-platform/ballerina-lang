@@ -96,6 +96,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeGuardSuggestions2.json", "function"},
                 {"typeGuardSuggestions3.json", "function"},
                 {"typeGuardSuggestions4.json", "function"},
+                {"typeguardDestruct1.json", "function"},
         };
     }
 }
