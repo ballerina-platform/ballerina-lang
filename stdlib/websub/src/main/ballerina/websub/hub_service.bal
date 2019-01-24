@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/crypto;
 import ballerina/http;
 import ballerina/h2;
@@ -27,15 +28,20 @@ map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 service hubService =
 @http:ServiceConfig {
-    basePath:BASE_PATH,
-    authConfig:hubServiceAuthConfig
+    basePath: BASE_PATH,
+    authConfig: {
+        authentication: {
+            enabled: config:getAsBoolean("b7a.websub.hub.serviceAuthConfig.enabled", default = false)
+        },
+        authProviders: getArray(config:getAsString("b7a.websub.hub.serviceAuthConfig.authProviders")),
+        scopes: getArray(config:getAsString("b7a.websub.hub.serviceAuthConfig.scopes"))
+    }
 }
 service {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:HUB_PATH,
-        authConfig:hubResourceAuthConfig
+        methods: ["GET"],
+        path: HUB_PATH
     }
     resource function status(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
@@ -45,8 +51,15 @@ service {
     }
 
     @http:ResourceConfig {
-        methods:["POST"],
-        path:HUB_PATH
+        methods: ["POST"],
+        path: HUB_PATH,
+        authConfig: {
+            authentication: {
+                enabled: config:getAsBoolean("b7a.websub.hub.resourceAuthConfig.enabled", default = false)
+            },
+            authProviders: getArray(config:getAsString("b7a.websub.hub.resourceAuthConfig.authProviders")),
+            scopes: getArray(config:getAsString("b7a.websub.hub.resourceAuthConfig.scopes"))
+        }
     }
     resource function hub(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
@@ -666,4 +679,16 @@ function generateKey(string topic, string callback) returns (string) {
 function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;
+}
+
+# Construct an array of groups from the comma separed group string passed
+#
+# + groupString - comma separated string of groups
+# + return - array of groups, nil if the groups string is empty/nil
+function getArray(string groupString) returns string[]? {
+    string[] groupsArr = [];
+    if (groupString.length() == 0) {
+        return ();
+    }
+    return groupString.split(",");
 }

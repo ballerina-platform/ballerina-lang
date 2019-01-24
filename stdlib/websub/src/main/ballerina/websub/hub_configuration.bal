@@ -37,8 +37,6 @@ RemotePublishConfig remotePublishConfig = {};
 boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
 http:ClientEndpointConfig? hubClientConfig = ();
-http:ListenerAuthConfig? hubServiceAuthConfig = ();
-http:ListenerAuthConfig? hubResourceAuthConfig = ();
 
 final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
 final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
