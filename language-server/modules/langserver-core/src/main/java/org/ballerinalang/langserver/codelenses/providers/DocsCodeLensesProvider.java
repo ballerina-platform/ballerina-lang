@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codelenses.providers;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProvider;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
@@ -56,6 +57,8 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
  */
 @JavaSPIService("org.ballerinalang.langserver.codelenses.LSCodeLensesProvider")
 public class DocsCodeLensesProvider implements LSCodeLensesProvider {
+    private boolean isEnabled = true;
+
     /**
      * {@inheritDoc}
      */
@@ -64,12 +67,18 @@ public class DocsCodeLensesProvider implements LSCodeLensesProvider {
         return "docs.CodeLenses";
     }
 
+    public DocsCodeLensesProvider() {
+        BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
+            isEnabled = newConfig.getCodeLens().getDocs().isEnabled();
+        });
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public boolean isEnabled() {
-        return true;
+        return isEnabled;
     }
 
     /**

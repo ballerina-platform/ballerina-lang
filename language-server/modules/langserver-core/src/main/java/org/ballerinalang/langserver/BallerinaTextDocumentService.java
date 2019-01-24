@@ -29,7 +29,6 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -457,6 +456,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
         return CompletableFuture.supplyAsync(() -> {
             List<CodeLens> lenses = new ArrayList<>();
+
+            if (!LSCodeLensesProviderFactory.getInstance().isEnabled()) {
+                // Disabled ballerina codeLens feature
+                clientCapabilities.setCodeLens(null);
+                // Skip code lenses if codeLens disabled
+                return lenses;
+            }
+
             String fileUri = params.getTextDocument().getUri();
             Path docSymbolFilePath = new LSDocument(fileUri).getPath();
             Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath);
