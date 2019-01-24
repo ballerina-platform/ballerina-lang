@@ -1,6 +1,6 @@
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Icon } from "semantic-ui-react";
+import { Button, Icon, Divider } from "semantic-ui-react";
 
 import { OpenApiContext, OpenApiContextProvider } from "./components/context/open-api-context";
 
@@ -77,12 +77,10 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
             onInlineValueChange: this.onInlineValueChange,
             openApiJson,
         };
-
-        debugger;
-
         return (
             <OpenApiContextProvider value={appContext}>
                 <OpenApiInfo info={openApiJson.info} />
+                <Divider />
                 <Button size="mini" primary icon labelPosition="left" onClick={this.handleShowOpenApiAddPath}>
                     <Icon name="plus" />
                     Add Resource
@@ -103,7 +101,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         path.methods.forEach((method: string, index: number) => {
             operations[method.toLowerCase()] = {
                 operationId: index === 0 ? resourceName : "resource" + index,
-                responses : {},
+                responses: {},
             };
         });
 
@@ -155,13 +153,13 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         operation.method.forEach((method: string, index: number) => {
             operations[method.toLowerCase()] = {
                 description: "",
-                operationId: Object.keys(operations).length === 0 ? path  : "resource" + resourceIndex,
+                operationId: Object.keys(operations).length === 0 ? path : "resource" + resourceIndex,
                 parameters: [],
-                responses : {
-                        200: {
-                            description: "OK"
-                        }
-                    },
+                responses: {
+                    200: {
+                        description: "OK"
+                    }
+                },
                 security: [],
                 summary: "",
                 tags: []
@@ -175,7 +173,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                 ...prevState.openApiJson,
                 paths: {
                     ...prevState.openApiJson.paths,
-                    [path] : operations
+                    [path]: operations
                 }
             }
         }), () => {

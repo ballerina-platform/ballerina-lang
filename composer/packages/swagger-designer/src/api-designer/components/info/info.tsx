@@ -31,7 +31,7 @@ class OpenApiInfo extends React.Component<OpenApiInfoProps, any> {
                                         changeAttribute={{key: "info.version", changeValue: ""}}
                                         text={info.version}
                                         changeModel={context!.openApiJson}
-                                        placeholderText="Please include an appropriate description."
+                                        placeholderText=" + Description"
                                         onInlineValueChange={context!.onInlineValueChange}
                                     />
                                 </Header.Subheader>
@@ -42,7 +42,7 @@ class OpenApiInfo extends React.Component<OpenApiInfoProps, any> {
                                 isMarkdown
                                 isParagraph
                                 changeModel={context!.openApiJson}
-                                placeholderText="Please include an appropriate description."
+                                placeholderText="+ Description"
                                 onInlineValueChange={context!.onInlineValueChange}
                             />
                             <InlineEdit
@@ -53,7 +53,7 @@ class OpenApiInfo extends React.Component<OpenApiInfoProps, any> {
                                 }}
                                 changeAttribute={{key: "info.termsOfService", changeValue: ""}}
                                 changeModel={context!.openApiJson}
-                                placeholderText="Please include terms of service link."
+                                placeholderText="+ Terms of service link"
                                 onInlineValueChange={context!.onInlineValueChange}
                             />
                             <OpenApiContact contact={info.contact} />
