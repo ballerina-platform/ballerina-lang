@@ -18,7 +18,7 @@
  */
 
 import * as React from "react";
-import { Accordion, AccordionTitleProps, Button, Icon } from "semantic-ui-react";
+import { Accordion, AccordionTitleProps, Button } from "semantic-ui-react";
 
 import { OpenApiContext, OpenApiContextConsumer } from "../../context/open-api-context";
 import OpenApiAddResource from "./add-resource";
@@ -123,12 +123,12 @@ class OpenApiResourceList extends React.Component<OasResourceListProps, OpenApiR
             <div className="open-api-resource-list-container">
                 <div className="action-container">
                     <Button size="mini" primary icon labelPosition="left" onClick={this.showOpenApiAddResource}>
-                        <Icon className="fw fw-add" />
+                        <i className="fw fw-add"/>
                         Add Resource
                     </Button>
                     <Button size="mini" basic icon labelPosition="left" floated="right"
                         onClick={this.expandAllResources}>
-                        <Icon className={expandAll ? "fw fw-contract" : "fw fw-expand"} />
+                        <i className={expandAll ? "fw fw-contract" : "fw fw-expand"} />
                         {expandAll || activeIndex.length === Object.keys(openApiResources).length ?
                             "Collapse All" : "Expand All"
                         }
