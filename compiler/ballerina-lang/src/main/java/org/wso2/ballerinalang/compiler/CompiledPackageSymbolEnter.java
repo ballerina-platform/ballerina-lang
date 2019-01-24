@@ -641,8 +641,6 @@ public class CompiledPackageSymbolEnter {
         BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
         int flags = dataInStream.readInt();
-
-        // Todo - remove?
         int memIndex = dataInStream.readInt();
 
         // Create constant symbol.
@@ -661,6 +659,8 @@ public class CompiledPackageSymbolEnter {
         constantSymbol.literalValueType = constantValue.type;
         constantSymbol.literalValueTypeTag = constantValue.typeTag;
 
+        // If the memory index is not equal to -1, that means we have allocated a memory location for that. So we
+        // update the varIndex of the symbol.
         if (memIndex != -1) {
             constantSymbol.varIndex = new RegIndex(memIndex, constantSymbol.literalValueType.tag);
         }

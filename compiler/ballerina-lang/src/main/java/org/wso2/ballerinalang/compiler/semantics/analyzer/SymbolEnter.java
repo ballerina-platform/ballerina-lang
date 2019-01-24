@@ -855,13 +855,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
             constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).typeTag;
         } else if (((BLangExpression) constant.value).getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-
-            // Todo - add explanation?
+            // We need to update the symbol type to noType here. Then it will be updated properly when
+            // resolving the type node in resolveConstantTypeNode().
             if (constant.typeNode != null) {
                 constant.symbol.type = symTable.noType;
             }
-            // Todo
-
             ((BLangRecordLiteral) constant.value).isConst = true;
             constantSymbol.literalValue = constant.value;
         }

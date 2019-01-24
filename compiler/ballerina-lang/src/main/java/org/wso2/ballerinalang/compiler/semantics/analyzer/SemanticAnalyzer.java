@@ -1760,26 +1760,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 typeChecker.checkExpr(literal, env, constant.symbol.type);
             }
         } else if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            // Type node is mandatory if the RHS is a record literal.
             if (constant.typeNode == null) {
                 constant.type = symTable.semanticError;
                 dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
                 return;
             }
-            // Todo
-
             constant.symbol.literalValueType = typeChecker.checkExpr(expression, env, constant.typeNode.type);
             constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
-
         } else {
             if (constant.typeNode == null) {
                 typeChecker.checkExpr(expression, env);
             } else {
                 typeChecker.checkExpr(expression, env, constant.typeNode.type);
             }
-
-            // Todo
         }
 
+        // Check nested expressions.
         checkConstantExpression(expression);
     }
 

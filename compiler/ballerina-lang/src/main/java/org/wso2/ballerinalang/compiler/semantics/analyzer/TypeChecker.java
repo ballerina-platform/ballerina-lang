@@ -755,12 +755,8 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
                 BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
-                if (constantSymbol.literalValue != null) {
-                    if (types.isAssignable(symbol.type, expType)) {
-                        actualType = symbol.type;
-                    } else {
-                        actualType = constantSymbol.literalValueType;
-                    }
+                if (types.isAssignable(symbol.type, expType)) {
+                    actualType = symbol.type;
                 } else {
                     actualType = constantSymbol.literalValueType;
                 }

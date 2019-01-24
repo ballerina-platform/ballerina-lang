@@ -783,6 +783,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
         }
 
+        // If the map literal is a constant, we need to freeze it so that it cant be updated in the runtime.
         if (mapLiteral.isConst) {
             emit(InstructionCodes.FREEZE, mapVarRegIndex, mapVarRegIndex);
         }

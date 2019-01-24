@@ -47,7 +47,7 @@ public class ConstantNegativeTest {
                 offset += 1, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
                 offset += 1, 27);
-        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 17, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 14, 5);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 1, 5);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 6, 9);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
