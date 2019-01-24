@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import utils;
 
 // A list value is a container that keeps its members in an ordered list.
 
@@ -40,11 +39,11 @@ function testBasicTypeTupleMemberOrder() {
 
 @test:Config {}
 function testRecordTupleMemberOrder() {
-    utils:FooRecord a5 = { fooFieldOne: "valueOne" };
-    utils:BarRecord a6 = { barFieldOne: 100 };
-    utils:FooRecord a7 = { fooFieldOne: "valueTwo" };
+    FooRecordEight a5 = { fooFieldOne: "valueOne" };
+    BarRecordEight a6 = { barFieldOne: 100 };
+    FooRecordEight a7 = { fooFieldOne: "valueTwo" };
 
-    (utils:FooRecord, utils:BarRecord) tuple2 = (a5, a6);
+    (FooRecordEight, BarRecordEight) tuple2 = (a5, a6);
 
     test:assertEquals(tuple2[0], a5, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
     test:assertEquals(tuple2[1], a6, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
@@ -55,11 +54,11 @@ function testRecordTupleMemberOrder() {
 
 @test:Config {}
 function testObjectTupleMemberOrder() {
-    utils:FooObject a8 = new("valueOne");
-    utils:BarObject a9 = new(200);
-    utils:FooObject a10 = new("valueTwo");
+    FooObjectEight a8 = new("valueOne");
+    BarObjectEight a9 = new(200);
+    FooObjectEight a10 = new("valueTwo");
 
-    (utils:FooObject, utils:BarObject) tuple3 = (a8, a9);
+    (FooObjectEight, BarObjectEight) tuple3 = (a8, a9);
 
     test:assertEquals(tuple3[0], a8, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
     test:assertEquals(tuple3[1], a9, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
@@ -67,3 +66,37 @@ function testObjectTupleMemberOrder() {
     tuple3[0] = a10;
     test:assertEquals(tuple3[0], a10, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
 }
+
+public type FooRecordEight record {
+    string fooFieldOne;
+    !...;
+};
+
+public type BarRecordEight record {
+    int barFieldOne;
+    !...;
+};
+
+public type FooObjectEight object {
+    public string fooFieldOne;
+    
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+    
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};
+
+public type BarObjectEight object {
+    public int barFieldOne;
+    
+    public function __init(int barFieldOne) {
+        self.barFieldOne = barFieldOne;
+    }
+    
+    public function getBarFieldOne() returns int {
+        return self.barFieldOne;
+    }
+};

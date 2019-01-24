@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-import utils;
 
 // A mapping value is a container where each member has a key, which is a string, that
 // uniquely identifies within the mapping. We use the term field to mean the member together
@@ -23,7 +22,7 @@ import utils;
 @test:Config {}
 function testRecordFieldUniqueName() {
     float newFloatVal = 2.0;
-    utils:BazRecord b1 = { bazFieldOne: 1.0 };
+    BazRecordTwelve b1 = { bazFieldOne: 1.0 };
     b1.bazFieldOne = newFloatVal;
     test:assertEquals(b1.length(), 1, msg = "expected the record to have one field");
     test:assertEquals(b1.bazFieldOne, newFloatVal, msg = "expected the field to have the updated value");
@@ -41,3 +40,7 @@ function testRecordFieldUniqueName() {
     test:assertEquals(b1.bazFieldOne, newFloatVal, msg = "expected the field to have the same value");
     test:assertEquals(b1.bazFieldTwo, integerVal, msg = "expected the field to have the updated value");
 }
+
+public type BazRecordTwelve record {
+    float bazFieldOne;
+};

@@ -78,9 +78,9 @@ function insertMemberToTuple((any, any) tuple, any member) {
 
 @test:Config {}
 function testMapFreezeOnContainer() {
-    map<string|int|utils:FooObject> a3 = { one: 1, two: "two" };
+    map<string|int|FooObjectThirteen> a3 = { one: 1, two: "two" };
     var result = a3.freeze();
-    if (result is map<string|int|utils:FooObject>) {
+    if (result is map<string|int|FooObjectThirteen>) {
         utils:assertErrorReason(trap insertMemberToMap(result, "two", 2), B7A_INVALID_UPDATE_REASON,
                                 IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
     }
@@ -97,7 +97,7 @@ function insertMemberToMap(map<any|error> mapVal, string index, any|error member
 
 @test:Config {}
 function testRecordFreezeOnContainer() {
-    utils:FooRecord a4 = { fooFieldOne: "test string 1" };
+    FooRecordThirteen a4 = { fooFieldOne: "test string 1" };
     _ = a4.freeze();
     utils:assertErrorReason(trap updateFooRecord(a4, "test string 2"), B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
@@ -107,14 +107,14 @@ function testRecordFreezeOnContainer() {
 #
 # + fooRecord - the `FooRecord` to update
 # + newFooFieldOne - the new value for `fooFieldOne`
-function updateFooRecord(utils:FooRecord fooRecord, string newFooFieldOne) {
+function updateFooRecord(FooRecordThirteen fooRecord, string newFooFieldOne) {
     fooRecord.fooFieldOne = newFooFieldOne;
 }
 
 @test:Config {}
 function testTableFreezeOnContainer() {
-    table<utils:BarRecord> a5 = table{};
-    utils:BarRecord b1 = { barFieldOne: 100 };
+    table<BarRecordThirteen> a5 = table{};
+    BarRecordThirteen b1 = { barFieldOne: 100 };
     _ = a5.freeze();
     utils:assertErrorReason(trap insertMemberToTable(a5, b1), B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
@@ -161,14 +161,14 @@ function testTupleFrozenStructureMembersFrozenness() {
 
 @test:Config {}
 function testMapFrozenStructureMembersFrozenness() {
-    map<string|int|utils:FooObject> a7 = { one: 1, two: "two" };
+    map<string|int|FooObjectThirteen> a7 = { one: 1, two: "two" };
     map<int|boolean> a8 = { three: 12, four: true, five: false };
     map<any> a9 = { intVal: 4, mapValOne: a7, mapValTwo: a8 };
     test:assertFalse(a7.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     test:assertFalse(a8.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     test:assertFalse(a9.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     var result = a9.freeze();
-    if (result is map<string|int|utils:FooObject>) {
+    if (result is map<string|int|FooObjectThirteen>) {
         test:assertTrue(a7.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
         test:assertTrue(a8.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
     }
@@ -176,9 +176,9 @@ function testMapFrozenStructureMembersFrozenness() {
 
 @test:Config {}
 function testRecordFrozenStructureMembersFrozenness() {
-    utils:FooRecord a10 = { fooFieldOne: "test string 1" };
-    utils:BarRecord a11 = { barFieldOne: 1 };
-    utils:BazRecord a12 = { bazFieldOne: 1.0, fooRecord: a10, bazRecord: a11 };
+    FooRecordThirteen a10 = { fooFieldOne: "test string 1" };
+    BarRecordThirteen a11 = { barFieldOne: 1 };
+    BazRecord a12 = { bazFieldOne: 1.0, fooRecord: a10, bazRecord: a11 };
     test:assertFalse(a10.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     test:assertFalse(a11.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     test:assertFalse(a12.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
@@ -201,11 +201,11 @@ function testFrozenXml() {
 function testArrayShapeOfContainters() {
     (int|string)[] a1 = [1, 2];
     var a2 = int[].convert(a1);
-    test:assertTrue(a2 is int[], 
+    test:assertTrue(a2 is int[],
                     msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a1[2] = "test string 1";
     a2 = int[].convert(a1);
-    test:assertFalse(a2 is int[], 
+    test:assertFalse(a2 is int[],
                      msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 }
 
@@ -235,14 +235,14 @@ function testMapShapeOfContainters() {
 
 @test:Config {}
 function testRecordShapeOfContainters() {
-    utils:BazRecordThree a7 = { bazFieldOne: 1.0 };
-    var a8 = utils:BazRecord.convert(a7);
-    test:assertTrue(a8 is utils:BazRecord,
+    BazRecordThree a7 = { bazFieldOne: 1.0 };
+    var a8 = BazRecord.convert(a7);
+    test:assertTrue(a8 is BazRecord,
                     msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a7.bazFieldOne = "1.0";
-    a8 = utils:BazRecord.convert(a7);
-    test:assertFalse(a8 is utils:BazRecord,
-                    msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
+    a8 = BazRecord.convert(a7);
+    test:assertFalse(a8 is BazRecord,
+                     msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 }
 
 // A type descriptor for a container basic type describe the shape of the container in terms of
@@ -258,18 +258,18 @@ float floatVal = 1.0;
 @test:Config {}
 function testArrayContainerValueInherentType() {
     (int|string)[] a1 = [1, "2"];
-    any anyVal = intVal;    
+    any anyVal = intVal;
     var result = trap insertMemberToArray(a1, a1.length() - 1, anyVal);
-    test:assertTrue(anyVal is int|string, 
+    test:assertTrue(anyVal is int|string,
                     msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(result is error), 
+    test:assertTrue(!(result is error),
                     msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
     result = trap insertMemberToArray(a1, a1.length() - 1, anyVal);
-    test:assertTrue(result is error, 
+    test:assertTrue(result is error,
                     msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(anyVal is int|string), 
+    test:assertTrue(!(anyVal is int|string),
                     msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
 }
@@ -312,7 +312,7 @@ function testMapContainerValueInherentType() {
 
 @test:Config {}
 function testRecordContainerValueInherentType() {
-    utils:FooRecord a4 = { fooFieldOne: "test string 1" };
+    FooRecordThirteen a4 = { fooFieldOne: "test string 1" };
     any anyVal = "test string 2";
     var result = trap updateFooRecord(a4, <string>anyVal);
     test:assertTrue(anyVal is string,
@@ -323,8 +323,8 @@ function testRecordContainerValueInherentType() {
 
 @test:Config {}
 function testTableContainerValueInherentType() {
-    table<utils:BarRecord> a5 = table{};
-    utils:BazRecord b1 = { bazFieldOne: 1.0 };
+    table<BarRecordThirteen> a5 = table{};
+    BazRecord b1 = { bazFieldOne: 1.0 };
     var result = a5.add(b1);
     test:assertTrue(result is error,
                     msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
@@ -338,12 +338,12 @@ function testRecordFrozenContainerShapeAndType() {
     var result = trap updateRecordBazField(a8, a10);
     test:assertTrue(result is error,
                     msg = "expected to not be able to add a value that violates shape");
-    test:assertTrue(!(a10 is utils:BazRecord),
+    test:assertTrue(!(a10 is BazRecord),
                     msg = "expected value's type to not be of same type or sub type");
 
     _ = a10.freeze();
     result = trap updateRecordBazField(a8, a10);
-    test:assertTrue(a10 is utils:BazRecord,
+    test:assertTrue(a10 is BazRecord,
     msg = "expected value's type to match shape after freezing");
     test:assertTrue(!(result is error),
                      msg = "expected to be able to add a frozen value that conforms to shape");
@@ -375,3 +375,37 @@ public type BazRecordFour record {
 function updateRecordBazField(record{} rec, anydata value) {
     rec.bazFieldTwo = value;
 }
+
+public type FooRecordThirteen record {
+    string fooFieldOne;
+    !...;
+};
+
+public type BarRecordThirteen record {
+    int barFieldOne;
+    !...;
+};
+
+public type FooObjectThirteen object {
+    public string fooFieldOne;
+    
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+    
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};
+
+public type BarObjectThirteen object {
+    public int barFieldOne;
+    
+    public function __init(int barFieldOne) {
+        self.barFieldOne = barFieldOne;
+    }
+    
+    public function getBarFieldOne() returns int {
+        return self.barFieldOne;
+    }
+};

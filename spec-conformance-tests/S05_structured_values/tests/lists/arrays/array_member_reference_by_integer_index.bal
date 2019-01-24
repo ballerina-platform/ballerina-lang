@@ -56,39 +56,39 @@ function testStringArrayMemberReferenceByValidIntegerIndex() {
 
 @test:Config {}
 function testRecordArrayMemberReferenceByValidIntegerIndex() {
-    utils:FooRecord a7 = { fooFieldOne: "test string 0" };
-    utils:FooRecord a8 = { fooFieldOne: "test string 1" };
-    utils:FooRecord a9 = { fooFieldOne: "test string 2" };
-    utils:FooRecord a10 = { fooFieldOne: "test string 3" };
-    utils:FooRecord[] fooRecordArray = [a7, a8, a9];
+    FooRecordFour a7 = { fooFieldOne: "test string 0" };
+    FooRecordFour a8 = { fooFieldOne: "test string 1" };
+    FooRecordFour a9 = { fooFieldOne: "test string 2" };
+    FooRecordFour a10 = { fooFieldOne: "test string 3" };
+    FooRecordFour[] fooRecordArray = [a7, a8, a9];
 
-    utils:FooRecord b7 = fooRecordArray[0];
-    utils:FooRecord b8 = fooRecordArray[1];
-    utils:FooRecord b9 = fooRecordArray[2];
+    FooRecordFour b7 = fooRecordArray[0];
+    FooRecordFour b8 = fooRecordArray[1];
+    FooRecordFour b9 = fooRecordArray[2];
 
     test:assertEquals(b7, a7, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
     test:assertEquals(b8, a8, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
     test:assertEquals(b9, a9, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "2");
 
     fooRecordArray[0] = a10;
-    utils:FooRecord b10 = fooRecordArray[0];
+    FooRecordFour b10 = fooRecordArray[0];
     test:assertEquals(b10, a10, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
 }
 
 @test:Config {}
 function testObjectArrayMemberReferenceByValidIntegerIndex() {
-    utils:FooObject a11 = new("test string 1");
-    utils:FooObject a12 = new("test string 2");
-    utils:FooObject a13 = new("test string 3");
-    utils:FooObject[] fooObjectArray = [a11, a12];
+    FooObjectFour a11 = new("test string 1");
+    FooObjectFour a12 = new("test string 2");
+    FooObjectFour a13 = new("test string 3");
+    FooObjectFour[] fooObjectArray = [a11, a12];
 
-    utils:FooObject b11 = fooObjectArray[0];
-    utils:FooObject b12 = fooObjectArray[1];
+    FooObjectFour b11 = fooObjectArray[0];
+    FooObjectFour b12 = fooObjectArray[1];
     test:assertEquals(b11, a11, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
     test:assertEquals(b12, a12, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
 
     fooObjectArray[1] = a13;
-    utils:FooObject b13 = fooObjectArray[1];
+    FooObjectFour b13 = fooObjectArray[1];
     test:assertEquals(b13, a13, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
 }
 
@@ -112,7 +112,7 @@ function testFloatArrayMemberReferenceByInvalidIntegerIndex() {
 @test:Config {}
 function testRecordArrayMemberReferenceByInvalidIntegerIndex() {
     int index = -1;
-    utils:BarRecord[] barRecordArray = [<utils:BarRecord>{ barFieldOne: 1 }, <utils:BarRecord>{ barFieldOne: 2 }];
+    BarRecordFour[] barRecordArray = [<BarRecordFour>{ barFieldOne: 1 }, <BarRecordFour>{ barFieldOne: 2 }];
     utils:assertErrorReason(trap barRecordArray[index], INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_NEGATIVE_INDEX_FAILURE_MESSAGE);
     
@@ -128,10 +128,10 @@ function testRecordArrayMemberReferenceByInvalidIntegerIndex() {
 @test:Config {}
 function testObjectArrayMemberReferenceByInvalidIntegerIndex() {
     int index = -1;
-    utils:BarObject b1 = new(1);
-    utils:BarObject b2 = new(2);
-    utils:BarObject b3 = new(3);
-    utils:BarObject[] barObjectArray = [b1, b2, b3];
+    BarObjectFour b1 = new(1);
+    BarObjectFour b2 = new(2);
+    BarObjectFour b3 = new(3);
+    BarObjectFour[] barObjectArray = [b1, b2, b3];
     utils:assertErrorReason(trap barObjectArray[index], INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_NEGATIVE_INDEX_FAILURE_MESSAGE);
     
@@ -143,3 +143,37 @@ function testObjectArrayMemberReferenceByInvalidIntegerIndex() {
     utils:assertErrorReason(trap barObjectArray[index], INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_LARGER_INDEX_FAILURE_MESSAGE);
 }
+
+public type FooRecordFour record {
+    string fooFieldOne;
+    !...;
+};
+
+public type BarRecordFour record {
+    int barFieldOne;
+    !...;
+};
+
+public type FooObjectFour object {
+    public string fooFieldOne;
+    
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+    
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};
+
+public type BarObjectFour object {
+    public int barFieldOne;
+    
+    public function __init(int barFieldOne) {
+        self.barFieldOne = barFieldOne;
+    }
+    
+    public function getBarFieldOne() returns int {
+        return self.barFieldOne;
+    }
+};

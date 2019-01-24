@@ -24,12 +24,12 @@ const string STAMP_ERROR_REASON = "{ballerina}StampError";
 @test:Config {}
 function testRecordFieldShape() {
     DefaultOpenRecord r1 = { bazFieldTwo: "test string 1", bazFieldOne: 1.0 };
-    var conversionResult = utils:BazRecordTwo.convert(r1);
-    test:assertTrue(conversionResult is utils:BazRecordTwo, msg = "expected conversion to succeed");
+    var conversionResult = BazRecordEleven.convert(r1);
+    test:assertTrue(conversionResult is BazRecordEleven, msg = "expected conversion to succeed");
 
     // change the value's shape
     r1.bazFieldTwo = 1.0;
-    conversionResult = utils:BazRecordTwo.convert(r1);
+    conversionResult = BazRecordEleven.convert(r1);
     test:assertTrue(conversionResult is error, msg = "expected conversion to fail");
     utils:assertErrorReason(conversionResult, STAMP_ERROR_REASON, 
                             "invalid reason on conversion failure due to shape mismatch");
@@ -37,11 +37,16 @@ function testRecordFieldShape() {
     // create a record without a required field,
     // but with a new field with a different name and matching value shape
     DefaultOpenRecord r2 = { bazFieldThree: "test string 3", bazFieldOne: 1.0 };
-    conversionResult = utils:BazRecordTwo.convert(r2);
+    conversionResult = BazRecordEleven.convert(r2);
     test:assertTrue(conversionResult is error, msg = "expected conversion to fail");
     utils:assertErrorReason(conversionResult, STAMP_ERROR_REASON, 
                             "invalid reason on conversion failure due to shape mismatch");
 }
 
 public type DefaultOpenRecord record {
+};
+
+public type BazRecordEleven record {
+    float bazFieldOne;
+    string bazFieldTwo;
 };

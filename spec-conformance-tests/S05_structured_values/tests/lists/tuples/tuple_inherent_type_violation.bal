@@ -56,15 +56,15 @@ function testBasicTypeTupleInherentTypeViolation() {
 
 @test:Config {}
 function testRecordTupleInherentTypeViolation() {
-    utils:FooRecord a1 = { fooFieldOne: "valueOne" };
-    utils:FooRecord a2 = { fooFieldOne: "valueTwo" };
-    (utils:FooRecord, utils:FooRecord) tuple2 = (a1, a2);
+    FooRecordSeven a1 = { fooFieldOne: "valueOne" };
+    FooRecordSeven a2 = { fooFieldOne: "valueTwo" };
+    (FooRecordSeven, FooRecordSeven) tuple2 = (a1, a2);
     (any, any) tupleWithAnyTypedMembers = tuple2;
     utils:assertPanic(function() { tupleWithAnyTypedMembers[0] = "not a FooRecord"; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 
-    (map<utils:FooRecord>, map<utils:FooRecord>) fooRecordMapTuple = (
+    (map<FooRecordSeven>, map<FooRecordSeven>) fooRecordMapTuple = (
     {
         one: { fooFieldOne: "valueOne" },
         two: { fooFieldOne: "valueTwo" }
@@ -76,7 +76,7 @@ function testRecordTupleInherentTypeViolation() {
     tupleWithAnyTypedMembers = fooRecordMapTuple;
 
     // `map<FooRecord|BarRecord>` looks like `map<FooRecord>`
-    map<utils:FooRecord|utils:BarRecord> FooRecordOrBarRecordMap = {
+    map<FooRecordSeven|BarRecordSeven> FooRecordOrBarRecordMap = {
         one: { fooFieldOne: "valueOne" },
         two: { fooFieldOne: "valueTwo" }
     };
@@ -87,15 +87,15 @@ function testRecordTupleInherentTypeViolation() {
 
 @test:Config {}
 function testObjectTupleInherentTypeViolation() {
-    utils:FooObject a3 = new("valueOne");
-    utils:FooObject a4 = new("valueTwo");
-    (utils:FooObject, utils:FooObject) tuple3 = (a3, a4);
+    FooObjectSeven a3 = new("valueOne");
+    FooObjectSeven a4 = new("valueTwo");
+    (FooObjectSeven, FooObjectSeven) tuple3 = (a3, a4);
     (any, any) tupleWithAnyTypedMembers = tuple3;
     utils:assertPanic(function() { tupleWithAnyTypedMembers[0] = "not a FooRecord"; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 
-    (map<utils:FooObject>, map<utils:FooObject>) fooObjectMapTuple = (
+    (map<FooObjectSeven>, map<FooObjectSeven>) fooObjectMapTuple = (
         {
             one: new("valueOne"),
             two: new("valueTwo")
@@ -106,11 +106,11 @@ function testObjectTupleInherentTypeViolation() {
     );
     tupleWithAnyTypedMembers = fooObjectMapTuple;
 
-    utils:FooObject f1 = new("valueOne");
-    utils:FooObject f2 = new("valueTwo");
+    FooObjectSeven f1 = new("valueOne");
+    FooObjectSeven f2 = new("valueTwo");
 
-    // `map<utils:FooObject|utils:BarObject>` looks like `map<utils:FooObject>`
-    map<utils:FooObject|utils:BarObject> FooObjectOrBarObjectMap = {
+    // `map<FooObjectSeven|BarObjectSeven>` looks like `map<FooObjectSeven>`
+    map<FooObjectSeven|BarObjectSeven> FooObjectOrBarObjectMap = {
         one: f1,
         two: f2
     };
@@ -118,3 +118,37 @@ function testObjectTupleInherentTypeViolation() {
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 }
+
+public type FooRecordSeven record {
+    string fooFieldOne;
+    !...;
+};
+
+public type BarRecordSeven record {
+    int barFieldOne;
+    !...;
+};
+
+public type FooObjectSeven object {
+    public string fooFieldOne;
+    
+    public function __init(string fooFieldOne) {
+    self.fooFieldOne = fooFieldOne;
+    }
+    
+    public function getFooFieldOne() returns string {
+    return self.fooFieldOne;
+    }
+};
+
+public type BarObjectSeven object {
+    public int barFieldOne;
+    
+    public function __init(int barFieldOne) {
+        self.barFieldOne = barFieldOne;
+    }
+    
+    public function getBarFieldOne() returns int {
+        return self.barFieldOne;
+    }
+};

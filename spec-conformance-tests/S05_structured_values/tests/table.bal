@@ -22,10 +22,10 @@ import ballerina/utils;
 // type.
 @test:Config {}
 function testTableIterable() {
-    utils:BazRecord bazRecord1 = { bazFieldOne: 1 };
-    utils:BazRecord bazRecord2 = { bazFieldOne: 2 };
-    utils:BazRecord bazRecord3 = { bazFieldOne: 3 };
-    table<utils:BazRecord> iterableTable = table{};
+    BazRecordFourteen bazRecord1 = { bazFieldOne: 1 };
+    BazRecordFourteen bazRecord2 = { bazFieldOne: 2 };
+    BazRecordFourteen bazRecord3 = { bazFieldOne: 3 };
+    table<BazRecordFourteen> iterableTable = table{};
     _ = iterableTable.add(bazRecord1);
     _ = iterableTable.add(bazRecord2);
     _ = iterableTable.add(bazRecord3);
@@ -100,3 +100,7 @@ function testTableSubtype() {
     test:assertFalse(c is table<Foo>);
     test:assertFalse(d is table<Foo>);
 }
+
+public type BazRecordFourteen record {
+    float bazFieldOne;
+};

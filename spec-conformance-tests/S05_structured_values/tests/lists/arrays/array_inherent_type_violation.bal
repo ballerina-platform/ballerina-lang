@@ -46,26 +46,26 @@ function testBasicTypeArrayInherentTypeViolation() {
 
 @test:Config {}
 function testRecordArrayInherentTypeViolation() {
-    utils:FooRecord[] fooRecordArray = [<utils:FooRecord>{ fooFieldOne: "test string 1" }];
+    FooRecordOne[] fooRecordArray = [<FooRecordOne>{ fooFieldOne: "test string 1" }];
     any[] anyArray = fooRecordArray;
-    utils:assertPanic(function() { anyArray[fooRecordArray.length() - 1] = <utils:BarRecord> { barFieldOne: 1 }; },
+    utils:assertPanic(function() { anyArray[fooRecordArray.length() - 1] = <BarRecordOne> { barFieldOne: 1 }; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 
-    map<utils:FooRecord>[] fooRecordMapArray = [
+    map<FooRecordOne>[] fooRecordMapArray = [
         {
-            one: <utils:FooRecord>{ fooFieldOne: "test string 1" }
+            one: <FooRecordOne>{ fooFieldOne: "test string 1" }
         },
         {
-            two: <utils:FooRecord>{ fooFieldOne: "test string 2" },
-            three: <utils:FooRecord>{ fooFieldOne: "test string 3" }
+            two: <FooRecordOne>{ fooFieldOne: "test string 2" },
+            three: <FooRecordOne>{ fooFieldOne: "test string 3" }
         }
     ];
     anyArray = fooRecordMapArray;
 
-    // `fooRecordOrBarRecordMap` looks like `map<utils:FooRecord>`
-    map<utils:FooRecord|utils:BarRecord> fooRecordOrBarRecordMap = {
-        one: <utils:FooRecord>{ fooFieldOne: "test string 1" }
+    // `fooRecordOrBarRecordMap` looks like `map<FooRecordOne>`
+    map<FooRecordOne|BarRecordOne> fooRecordOrBarRecordMap = {
+        one: <FooRecordOne>{ fooFieldOne: "test string 1" }
     };
     utils:assertPanic(function() { anyArray[0] = fooRecordOrBarRecordMap; },
                       INHERENT_TYPE_VIOLATION_REASON,
@@ -74,18 +74,18 @@ function testRecordArrayInherentTypeViolation() {
 
 @test:Config {}
 function testObjectArrayInherentTypeViolation() {
-    utils:FooObject f1 = new("test string 1");
-    utils:FooObject f2 = new("test string 2");
-    utils:FooObject f3 = new("test string 3");
-    utils:FooObject[] fooObjectArray = [f1, f2, f3];
+    FooObjectOne f1 = new("test string 1");
+    FooObjectOne f2 = new("test string 2");
+    FooObjectOne f3 = new("test string 3");
+    FooObjectOne[] fooObjectArray = [f1, f2, f3];
     any[] anyArray = fooObjectArray;
 
-    utils:BarObject b1 = new(1);
+    BarObjectOne b1 = new(1);
     utils:assertPanic(function() { anyArray[0] = b1; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 
-    map<utils:FooObject>[] fooObjectMapArray = [
+    map<FooObjectOne>[] fooObjectMapArray = [
         {
             one:f1,
             two: f2
@@ -96,11 +96,45 @@ function testObjectArrayInherentTypeViolation() {
     ];
     anyArray = fooObjectMapArray;
 
-    // `fooRecordOrBarObjectMap` looks like `map<utils:FooObject>`
-    map<utils:FooObject|utils:BarObject> fooRecordOrBarObjectMap = {
+    // `fooObjectOneOrBarObjectOneMap` looks like `map<FooObjectOne>`
+    map<FooObjectOne|BarObjectOne> fooObjectOneOrBarObjectOneMap = {
         one: f1
     };
-    utils:assertPanic(function() { anyArray[0] = fooRecordOrBarObjectMap; },
+    utils:assertPanic(function() { anyArray[0] = fooObjectOneOrBarObjectOneMap; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 }
+
+public type FooRecordOne record {
+    string fooFieldOne;
+    !...;
+};
+
+public type BarRecordOne record {
+    int barFieldOne;
+    !...;
+};
+
+public type FooObjectOne object {
+    public string fooFieldOne;
+
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};
+
+public type BarObjectOne object {
+    public int barFieldOne;
+
+    public function __init(int barFieldOne) {
+        self.barFieldOne = barFieldOne;
+    }
+
+    public function getBarFieldOne() returns int {
+        return self.barFieldOne;
+    }
+};

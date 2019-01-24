@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import utils;
 
 // Note also that T[n] is a subtype of T[], and that if S is a subtype of T, then S[] is a
 // subtype of T[]; this is a consequence of the definition of subtyping in terms of subset
@@ -26,12 +25,21 @@ function testArraySubType() {
     any tempArray = fixedArray;
     test:assertTrue(tempArray is int[], msg = "expected fixed length array to be subtype of growing array");
 
-    utils:BazRecordTwo bRecordTwo = { bazFieldOne: 12.0, bazFieldTwo: "fieldTwo" };
+    BazRecordSix bRecordTwo = { bazFieldOne: 12.0, bazFieldTwo: "fieldTwo" };
     any tempRecord = bRecordTwo;
-    test:assertTrue(tempRecord is utils:BazRecord, msg = "expected BazRecordTwo to be subtype of BazRecord");
+    test:assertTrue(tempRecord is BazRecordFive, msg = "expected BazRecordTwo to be subtype of BazRecord");
 
-    utils:BazRecordTwo[] bRecordTwoArray = [bRecordTwo];
+    BazRecordSix[] bRecordTwoArray = [bRecordTwo];
     any tempRecordArray = bRecordTwoArray;
-    test:assertTrue(tempRecordArray is utils:BazRecord[],
+    test:assertTrue(tempRecordArray is BazRecordFive[],
         msg = "expected BazRecordTwo[] to be subtype of BazRecord[]");
 }
+
+public type BazRecordFive record {
+    float bazFieldOne;
+};
+
+public type BazRecordSix record {
+    float bazFieldOne;
+    string bazFieldTwo;
+};

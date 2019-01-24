@@ -49,16 +49,16 @@ function testBasicTypeTupleMemberReferenceByValidIntegerIndex() {
 
 @test:Config {}
 function testRecordTupleMemberReferenceByValidIntegerIndex() {
-    utils:FooRecord a7 = { fooFieldOne: "valueOne" };
-    utils:BarRecord a8 = { barFieldOne: 100 };
-    utils:FooRecord a9 = { fooFieldOne: "valueTwo" };
-    utils:BarRecord a10 = { barFieldOne: 50 };
-    (utils:FooRecord, utils:BarRecord, utils:FooRecord, utils:BarRecord) tuple2 = (a7, a8, a9, a10);
+    FooRecordNine a7 = { fooFieldOne: "valueOne" };
+    BarRecordNine a8 = { barFieldOne: 100 };
+    FooRecordNine a9 = { fooFieldOne: "valueTwo" };
+    BarRecordNine a10 = { barFieldOne: 50 };
+    (FooRecordNine, BarRecordNine, FooRecordNine, BarRecordNine) tuple2 = (a7, a8, a9, a10);
 
-    utils:FooRecord b7 = tuple2[0];
-    utils:BarRecord b8 = tuple2[1];
-    utils:FooRecord b9 = tuple2[2];
-    utils:BarRecord b10 = tuple2[3];
+    FooRecordNine b7 = tuple2[0];
+    BarRecordNine b8 = tuple2[1];
+    FooRecordNine b9 = tuple2[2];
+    BarRecordNine b10 = tuple2[3];
 
     test:assertEquals(b7, a7, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
     test:assertEquals(b8, a8, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
@@ -68,20 +68,54 @@ function testRecordTupleMemberReferenceByValidIntegerIndex() {
 
 @test:Config {}
 function testObjectTupleMemberReferenceByValidIntegerIndex() {
-    utils:FooObject a11 = new("valueOne");
-    utils:BarObject a12 = new(200);
-    utils:FooObject a13 = new("valueTwo");
-    utils:BarObject a14 = new(180);
+    FooObjectNine a11 = new("valueOne");
+    BarObjectNine a12 = new(200);
+    FooObjectNine a13 = new("valueTwo");
+    BarObjectNine a14 = new(180);
 
-    (utils:FooObject, utils:BarObject, utils:FooObject, utils:BarObject) tuple3 = (a11, a12, a13, a14);
+    (FooObjectNine, BarObjectNine, FooObjectNine, BarObjectNine) tuple3 = (a11, a12, a13, a14);
 
-    utils:FooObject b11 = tuple3[0];
-    utils:BarObject b12 = tuple3[1];
-    utils:FooObject b13 = tuple3[2];
-    utils:BarObject b14 = tuple3[3];
+    FooObjectNine b11 = tuple3[0];
+    BarObjectNine b12 = tuple3[1];
+    FooObjectNine b13 = tuple3[2];
+    BarObjectNine b14 = tuple3[3];
 
     test:assertEquals(b11, a11, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
     test:assertEquals(b12, a12, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
     test:assertEquals(b13, a13, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "2");
     test:assertEquals(b14, a14, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "3");
 }
+
+public type FooRecordNine record {
+    string fooFieldOne;
+    !...;
+};
+
+public type BarRecordNine record {
+    int barFieldOne;
+    !...;
+};
+
+public type FooObjectNine object {
+    public string fooFieldOne;
+
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};
+
+public type BarObjectNine object {
+    public int barFieldOne;
+
+    public function __init(int barFieldOne) {
+        self.barFieldOne = barFieldOne;
+    }
+
+    public function getBarFieldOne() returns int {
+        return self.barFieldOne;
+    }
+};

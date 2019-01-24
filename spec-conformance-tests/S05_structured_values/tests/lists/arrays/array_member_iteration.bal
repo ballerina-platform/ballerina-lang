@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import utils;
 
 const string INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE = "incorrect member value found on iteration";
 
@@ -43,12 +42,12 @@ function testBasicTypeArrayMemberIteration() {
 @test:Config {}
 function testRecordArrayMemberIteration() {
     int currentIndex = 0;
-    utils:FooRecord e = { fooFieldOne: "test string 1" };
-    utils:BarRecord f = { barFieldOne: 1 };
-    (utils:FooRecord|utils:BarRecord)[] arrayThree = [e, f];
-    (utils:FooRecord|utils:BarRecord)[] arrayFour = [e, f];
+    FooRecordTwo e = { fooFieldOne: "test string 1" };
+    BarRecordTwo f = { barFieldOne: 1 };
+    (FooRecordTwo|BarRecordTwo)[] arrayThree = [e, f];
+    (FooRecordTwo|BarRecordTwo)[] arrayFour = [e, f];
 
-    foreach utils:FooRecord|utils:BarRecord value in arrayThree {
+    foreach FooRecordTwo|BarRecordTwo value in arrayThree {
         test:assertEquals(value, arrayFour[currentIndex],
                           msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);
         currentIndex = currentIndex + 1;
@@ -58,15 +57,49 @@ function testRecordArrayMemberIteration() {
 @test:Config {}
 function testObjectArrayMemberIteration() {
     int currentIndex = 0;
-    utils:FooObject g = new("test string 1");
-    utils:BarObject h = new(1);
-    utils:BarObject i = new(1);
-    (utils:FooObject|utils:BarObject)[] arrayFive = [g, h, i];
-    (utils:FooObject|utils:BarObject)[] arraySix = [g, h, i];
+    FooObjectTwo g = new("test string 1");
+    BarObjectTwo h = new(1);
+    BarObjectTwo i = new(1);
+    (FooObjectTwo|BarObjectTwo)[] arrayFive = [g, h, i];
+    (FooObjectTwo|BarObjectTwo)[] arraySix = [g, h, i];
 
-    foreach utils:FooObject|utils:BarObject value in arrayFive {
+    foreach FooObjectTwo|BarObjectTwo value in arrayFive {
         test:assertEquals(value, arraySix[currentIndex],
                           msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);
         currentIndex = currentIndex + 1;
     }
 }
+
+public type FooRecordTwo record {
+    string fooFieldOne;
+    !...;
+};
+
+public type BarRecordTwo record {
+    int barFieldOne;
+    !...;
+};
+
+public type FooObjectTwo object {
+    public string fooFieldOne;
+
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};
+
+public type BarObjectTwo object {
+    public int barFieldOne;
+
+    public function __init(int barFieldOne) {
+        self.barFieldOne = barFieldOne;
+    }
+
+    public function getBarFieldOne() returns int {
+        return self.barFieldOne;
+    }
+};

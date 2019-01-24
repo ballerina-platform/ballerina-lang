@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
+import utils;
 
 // The inherent type of a mapping value must be a mapping-type-descriptor. The
 // inherent type of a mapping value determines a type Tf

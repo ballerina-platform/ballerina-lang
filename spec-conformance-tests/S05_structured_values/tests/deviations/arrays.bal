@@ -47,5 +47,17 @@ const int length = 3;
 }
 @test:Config {}
 function testArrayMemberTypesBroken() {
-    utils:FooObject[] objectArray = []; // This should fail at compile time
+    QuxObject[] objectArray = []; // This should fail at compile time
 }
+
+public type QuxObject object {
+    public string fooFieldOne;
+
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};
