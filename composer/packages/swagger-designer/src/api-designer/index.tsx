@@ -90,7 +90,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                     <i className="fw fw-add"></i>
                     Add Resource
                 </Button>
-                <Button.Group size="mini">
+                <Button.Group floated="right" size="mini">
                     <Button type="resources" onClick={this.onExpandAll}>List Resources</Button>
                     <Button type="operations" onClick={this.onExpandAll}>List Operations</Button>
                     <Button type="all" onClick={this.onExpandAll}>
