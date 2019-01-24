@@ -79,7 +79,7 @@ public type DefaultOpenRecord record {
 // encouraged to preserve and use the order in which the fields were added.
 @test:Config {}
 function testRecordIteration() {
-    // tested in `testIterableTypes()` in `05-values-types-variables/tests/values_types_variables.bal`
+    // tested in `testIterableTypes()` in `S05-values-types-variables/tests/iterable_types.bal`
 }
 
 // record-type-descriptor :=
