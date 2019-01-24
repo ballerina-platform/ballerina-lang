@@ -902,6 +902,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
         this.pkgBuilder.addRecordBindingWS(getWS(ctx));
     }
 
