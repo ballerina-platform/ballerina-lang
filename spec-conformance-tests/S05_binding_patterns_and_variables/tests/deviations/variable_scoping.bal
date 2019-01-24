@@ -20,7 +20,7 @@ import ballerina/test;
 // TODO: allow block scope variables with the same name as module scope variables
 // https://github.com/ballerina-platform/ballerina-lang/issues/13273
 @test:Config {
-    groups: ["broken"]
+    groups: ["deviation"]
 }
 function testBlockScopeOverridingModuleScopeBroken() {
     //string s1 = "module level variable redefined";
