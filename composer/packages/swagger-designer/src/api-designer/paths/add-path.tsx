@@ -67,8 +67,8 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
             <Form size="mini" className="add-resource">
                 <Form.Field>
                     <label>Resource Name</label>
-                    <Input label='/' 
-                    placeholder="Example: users/{userId}"
+                    <Input label="/"
+                        placeholder="Example: users/{userId}"
                     value={this.state.openApiResourceObj.name}
                         onChange={(e) => {
                             this.setState({
@@ -78,8 +78,6 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                                 }
                             });
                         }}
-                    
-                    
                     />
                 </Form.Field>
                 <Form.Group inline>
@@ -95,7 +93,7 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                                         this.setState({
                                             openApiResourceObj: {
                                                 ...this.state.openApiResourceObj,
-                                                methods:  [...this.state.openApiResourceObj.methods, data.label],
+                                                methods: [...this.state.openApiResourceObj.methods, data.label],
                                             }
                                         });
                                     }
