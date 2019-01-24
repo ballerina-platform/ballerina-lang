@@ -2,17 +2,17 @@ import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import { Table } from "semantic-ui-react";
 
-export interface OpenApiParameterListProps {
-    parameterList: Swagger.ParameterObject[];
+export interface OpenApiResponseListProps {
+    responsesList: Swagger.ResponsesObject[];
 }
 
-class OpenApiParameterList extends React.Component<OpenApiParameterListProps, any> {
-    constructor(props: OpenApiParameterListProps) {
+class OpenApiResponseList extends React.Component<OpenApiResponseListProps, any> {
+    constructor(props: OpenApiResponseListProps) {
         super(props);
     }
 
     public render() {
-        const { parameterList } = this.props;
+        const { responsesList } = this.props;
 
         return (
             <Table celled>
@@ -23,22 +23,17 @@ class OpenApiParameterList extends React.Component<OpenApiParameterListProps, an
                 </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {parameterList.map((param: Swagger.ParameterObject, index: number) => {
+                    {Object.keys(responsesList).map((param: any, index: number) => {
                         return (
                             <Table.Row>
                                 <Table.Cell className="parameter-name-cell">
                                     <div className="parameter__name required">
-                                        {param.name}
-                                    </div>
-                                    <div className="parameter__type">
-                                        {param.in &&
-                                            <p><em>({param.in})</em></p>
-                                        }
+                                        {param}
                                     </div>
                                 </Table.Cell>
                                 <Table.Cell className="parameter-desc-cell">
                                     <div className="markdown">
-                                        {param.description}
+                                        {responsesList[param].description}
                                     </div>
                                 </Table.Cell>
                             </Table.Row>
@@ -50,4 +45,4 @@ class OpenApiParameterList extends React.Component<OpenApiParameterListProps, an
     }
 }
 
-export default OpenApiParameterList;
+export default OpenApiResponseList;

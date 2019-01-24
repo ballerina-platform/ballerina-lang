@@ -27,6 +27,7 @@ export interface OpenApiContext {
     onAddOpenApiParameter: (operation: Swagger.ParameterObject) => void;
     onAddOpenApiResponse: (response: Swagger.ResponseObject) => void;
     onInlineValueChange: (openApiJson: Swagger.OpenAPIObject) => void;
+    showType: string;
 }
 
 const context = React.createContext<OpenApiContext>({
@@ -43,6 +44,7 @@ const context = React.createContext<OpenApiContext>({
         openapi: "",
         paths: {}
     },
+    showType: ""
 });
 
 export const OpenApiContextProvider = context.Provider;
