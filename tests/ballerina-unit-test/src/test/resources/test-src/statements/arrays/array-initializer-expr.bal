@@ -49,9 +49,12 @@ function floatArrayInitWithInt() returns (float[]) {
 public type FiniteType "Terminating"|"NotTerminating"|"BestEffort"|"NotBestEffort";
 
 function finiteTypeArray() returns FiniteType {
-    FiniteType[]? var1 = ["Terminating"];
-    if var1 is FiniteType[] {
-        return var1[0];
+    FiniteType?[]? var1 = ["Terminating"];
+    if var1 is FiniteType?[] {
+        var temp = var1[0];
+        if (temp is FiniteType) {
+            return temp;
+        }
     }
     error e = error ("FAILED TEST");
     panic e;

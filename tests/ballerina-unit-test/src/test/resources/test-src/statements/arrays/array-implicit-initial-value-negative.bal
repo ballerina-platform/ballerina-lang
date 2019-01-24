@@ -108,3 +108,30 @@ function bar((function (FT[])) func) {
 function bar2((function (FTN[])) func) {
     _ = func.call([1]);
 }
+
+type UN int|float;
+UN[] un = [];
+
+function foo0 () returns int|float {
+    return 0;
+}
+
+function foo1 () returns UN {
+    return 0;
+}
+
+function foo2 () returns (int, float) {
+    return (0, 0.0);
+}
+
+function foo3 () returns (int[], float) {
+    return ([1], 1.0);
+}
+
+function foo4 () returns int[] {
+    return [1];
+}
+
+function foo5 (int|float param) {
+
+}
