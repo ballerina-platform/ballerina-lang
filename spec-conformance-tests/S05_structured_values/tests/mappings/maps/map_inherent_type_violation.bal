@@ -23,13 +23,16 @@ import ballerina/test;
 @test:Config {}
 function testMapInherentTypeViolation() {
     map<string> m1 = { one: "test string 1", two: "test string 2" };
-    utils:assertErrorReason(trap utils:insertMemberToMap(m1, "three", 3), INHERENT_TYPE_VIOLATION_REASON, 
-                            "invalid reason on inherent type violating map insertion");
+    map<any> anyMap = m1;
+    utils:assertPanic(function() { anyMap["three"] = 3; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      "invalid reason on inherent type violating map insertion");
 
     map<map<string>> m2 = { one: { strOne: "test string 1", strTwo: "test string 2" } };
+    anyMap = m2;
     // `m3` looks like `map<string>`
     map<string|int> m3 = { one: "test string 1", two: "test string 2" };
-    utils:assertErrorReason(trap utils:insertMemberToMap(m2, "two", m3),
-                    INHERENT_TYPE_VIOLATION_REASON, 
-                    "invalid reason on inherent type violating map insertion");
+    utils:assertPanic(function() { anyMap["two"] = m3; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      "invalid reason on inherent type violating map insertion");
 }

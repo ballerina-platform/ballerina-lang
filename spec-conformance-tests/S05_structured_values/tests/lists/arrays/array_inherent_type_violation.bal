@@ -30,7 +30,7 @@ const string INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_M
 function testBasicTypeArrayInherentTypeViolation() {
     int[] intArray = [1, 2];
     any[] anyArray = intArray;
-    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, intArray.length() - 1, "not an int"),
+    utils:assertPanic(function() { anyArray[intArray.length() - 1] = "not an int"; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 
@@ -39,7 +39,7 @@ function testBasicTypeArrayInherentTypeViolation() {
 
     // `stringOrIntArray` looks like `string[]`
     (string|int)[] stringOrIntArray = ["test string 1", "test string 2"];
-    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, stringOrIntArray),
+    utils:assertPanic(function() { anyArray[0] = stringOrIntArray; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 }
@@ -48,8 +48,7 @@ function testBasicTypeArrayInherentTypeViolation() {
 function testRecordArrayInherentTypeViolation() {
     utils:FooRecord[] fooRecordArray = [<utils:FooRecord>{ fooFieldOne: "test string 1" }];
     any[] anyArray = fooRecordArray;
-    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, fooRecordArray.length() - 1,
-                                                           <utils:BarRecord> { barFieldOne: 1 }),
+    utils:assertPanic(function() { anyArray[fooRecordArray.length() - 1] = <utils:BarRecord> { barFieldOne: 1 }; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 
@@ -68,7 +67,7 @@ function testRecordArrayInherentTypeViolation() {
     map<utils:FooRecord|utils:BarRecord> fooRecordOrBarRecordMap = {
         one: <utils:FooRecord>{ fooFieldOne: "test string 1" }
     };
-    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, fooRecordOrBarRecordMap),
+    utils:assertPanic(function() { anyArray[0] = fooRecordOrBarRecordMap; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 }
@@ -82,7 +81,7 @@ function testObjectArrayInherentTypeViolation() {
     any[] anyArray = fooObjectArray;
 
     utils:BarObject b1 = new(1);
-    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, b1),
+    utils:assertPanic(function() { anyArray[0] = b1; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 
@@ -101,7 +100,7 @@ function testObjectArrayInherentTypeViolation() {
     map<utils:FooObject|utils:BarObject> fooRecordOrBarObjectMap = {
         one: f1
     };
-    utils:assertErrorReason(trap utils:insertMemberToArray(anyArray, 0, fooRecordOrBarObjectMap),
+    utils:assertPanic(function() { anyArray[0] = fooRecordOrBarObjectMap; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 }

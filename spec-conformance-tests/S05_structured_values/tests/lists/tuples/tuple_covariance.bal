@@ -25,7 +25,8 @@ function testTupleCovariance() {
 
     test:assertEquals(sbTuple[0], "string one", msg = "expected the original value");
     test:assertEquals(sbTuple[1], true, msg = "expected the original value");
-    utils:assertErrorReason(trap utils:insertMemberToTuple(unionTuple, 1),
-                            INHERENT_TYPE_VIOLATION_REASON,
-                            INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
+
+    utils:assertPanic(function() { unionTuple[0] = 1; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 }

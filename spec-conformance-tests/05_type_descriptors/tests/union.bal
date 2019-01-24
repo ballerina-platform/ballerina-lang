@@ -36,12 +36,13 @@ function testUnionTypeDescriptors() {
 
     map<string|int> m1 = { one: sv };
     m1.two = iv;
+    map<any> anyMap = m1;
     test:assertEquals(m1.one, sv, msg = "expected value to be the assigned value");
     test:assertEquals(m1.two, iv, msg = "expected value to be the assigned value");
 
-    utils:assertErrorReason(trap utils:insertMemberToMap(m1, "three", <float> 1.0), 
-                            "{ballerina}InherentTypeViolation",
-                            "invalid error on inherent type violating map insertion");
+    utils:assertPanic(function () { anyMap["three"] = <float> 1.0; },
+                      "{ballerina}InherentTypeViolation",
+                      "invalid error on inherent type violating map insertion");
 
     FLOAT_ONE_OR_TWO fot = 1.0;
     test:assertEquals(fot, 1.0, msg = "expected variable to hold the assigned value");
@@ -51,10 +52,11 @@ function testUnionTypeDescriptors() {
 
     map<FLOAT_ONE_OR_TWO> m2 = { one: 1.0 };
     m2.two = 2.0;
+    anyMap = m2;
     test:assertEquals(m2.one, 1.0, msg = "expected value to be the assigned value");
     test:assertEquals(m2.two, 2.0, msg = "expected value to be the assigned value");
 
-    utils:assertErrorReason(trap utils:insertMemberToMap(m2, "three", <float> 3.0), 
-                            "{ballerina}InherentTypeViolation",
-                            "invalid error on inherent type violating map insertion");
+    utils:assertPanic(function () { anyMap["three"] = <float> 3.0; },
+                      "{ballerina}InherentTypeViolation",
+                      "invalid error on inherent type violating map insertion");
 }

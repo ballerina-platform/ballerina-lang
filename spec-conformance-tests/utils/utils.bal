@@ -92,6 +92,17 @@ public function assertErrorReason(any|error result, string expectedReason, strin
     }
 }
 
+# Util function to assert the occurrence of a panic, and the error reason.
+# Validates that a panic occurs and that the error has the reason specified as `expectedReason`,
+# fails with the `invalidReasonFailureMessage` string if the reasons mismatch.
+#
+# + func - the function to call
+# + expectedReason - the reason the error is expected to have
+# + invalidReasonFailureMessage - the failure message on reason mismatch
+public function assertPanic(function() returns any func, string expectedReason, string invalidReasonFailureMessage) {
+    assertErrorReason(trap func.call(), expectedReason, invalidReasonFailureMessage);
+}
+
 # Util function to add a member to an array at a specified index.
 # 
 # + array - the array to which the member should be added

@@ -24,20 +24,20 @@ import utils;
     groups: ["deviation"]
 }
 function testFreezeOnContainerBroken() {
-    utils:assertErrorReason(trap testFrozenArrayUpdateBroken(), B7A_INVALID_UPDATE_REASON, 
-                            IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+    utils:assertPanic(testFrozenArrayUpdateBroken, B7A_INVALID_UPDATE_REASON,
+                      IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 
-    utils:assertErrorReason(trap testFrozenTupleUpdateBroken(), B7A_INVALID_UPDATE_REASON, 
-                            IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+    utils:assertPanic(testFrozenTupleUpdateBroken, B7A_INVALID_UPDATE_REASON,
+                      IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 
-    utils:assertErrorReason(trap testFrozenMapUpdateBroken(), B7A_INVALID_UPDATE_REASON, 
-                            IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+    utils:assertPanic(testFrozenMapUpdateBroken, B7A_INVALID_UPDATE_REASON,
+                      IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 
-    utils:assertErrorReason(trap testFrozenRecordUpdateBroken(), B7A_INVALID_UPDATE_REASON, 
-                            IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+    utils:assertPanic(testFrozenRecordUpdateBroken, B7A_INVALID_UPDATE_REASON,
+                      IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 
-    utils:assertErrorReason(trap testFrozenTableUpdateBroken(), B7A_INVALID_UPDATE_REASON,
-                            IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+    utils:assertPanic(testFrozenTableUpdateBroken, B7A_INVALID_UPDATE_REASON,
+                      IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 }
 
 function testFrozenArrayUpdateBroken() {

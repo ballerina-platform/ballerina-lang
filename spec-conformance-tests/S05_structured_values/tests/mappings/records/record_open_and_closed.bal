@@ -47,6 +47,7 @@ function testClosedRecord() {
     utils:assertErrorReason(trap updateClosedRecordWithOneField(r1, 1), "{ballerina}KeyNotFound", 
                             "invalid reason on inherent type violating record insertion");
 }
+
 function updateClosedRecordWithOneField(record{} rec, anydata value) {
     rec.newField = value;
 }

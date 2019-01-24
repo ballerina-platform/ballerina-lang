@@ -35,10 +35,11 @@ function testOptionalTypeDescriptors() {
 
     map<string?> msn = { one: sv };
     msn.two = ();
+    map<any> anyMap = msn;
     test:assertEquals(msn.one, sv, msg = "expected value to be the assigned value");
     test:assertEquals(msn.two, (), msg = "expected value to be the assigned value");
 
-    utils:assertErrorReason(trap utils:insertMemberToMap(msn, "three", <decimal> 1.0), 
-                            "{ballerina}InherentTypeViolation",
-                            "invalid error on inherent type violating map insertion"); 
+    utils:assertPanic(function () { anyMap["three"] = <decimal> 1.0; },
+                      "{ballerina}InherentTypeViolation",
+                      "invalid error on inherent type violating map insertion");
 }

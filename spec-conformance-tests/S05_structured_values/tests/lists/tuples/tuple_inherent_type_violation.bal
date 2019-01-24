@@ -29,9 +29,9 @@ const string INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MES
 function testBasicTypeTupleInherentTypeViolation() {
     (int, int) tuple = (1, 2);
     (any, any) tupleWithAnyTypedMembers = tuple;
-    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, "not an int"),
-        INHERENT_TYPE_VIOLATION_REASON,
-        INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
+    utils:assertPanic(function() { tupleWithAnyTypedMembers[0] = "not an int"; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 
     (map<string>, map<string>) stringMapTuple = (
         {
@@ -49,9 +49,9 @@ function testBasicTypeTupleInherentTypeViolation() {
         one: "test string 1",
         two: "test string 2"
     };
-    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, stringOrIntMap),
-        INHERENT_TYPE_VIOLATION_REASON,
-        INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
+    utils:assertPanic(function() { tupleWithAnyTypedMembers[0] = stringOrIntMap; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 }
 
 @test:Config {}
@@ -60,9 +60,9 @@ function testRecordTupleInherentTypeViolation() {
     utils:FooRecord a2 = { fooFieldOne: "valueTwo" };
     (utils:FooRecord, utils:FooRecord) tuple2 = (a1, a2);
     (any, any) tupleWithAnyTypedMembers = tuple2;
-    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
-        INHERENT_TYPE_VIOLATION_REASON,
-        INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
+    utils:assertPanic(function() { tupleWithAnyTypedMembers[0] = "not a FooRecord"; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 
     (map<utils:FooRecord>, map<utils:FooRecord>) fooRecordMapTuple = (
     {
@@ -80,9 +80,9 @@ function testRecordTupleInherentTypeViolation() {
         one: { fooFieldOne: "valueOne" },
         two: { fooFieldOne: "valueTwo" }
     };
-    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, FooRecordOrBarRecordMap),
-        INHERENT_TYPE_VIOLATION_REASON,
-        INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
+    utils:assertPanic(function() { tupleWithAnyTypedMembers[0] = FooRecordOrBarRecordMap; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 }
 
 @test:Config {}
@@ -91,9 +91,9 @@ function testObjectTupleInherentTypeViolation() {
     utils:FooObject a4 = new("valueTwo");
     (utils:FooObject, utils:FooObject) tuple3 = (a3, a4);
     (any, any) tupleWithAnyTypedMembers = tuple3;
-    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, "not a FooRecord"),
-        INHERENT_TYPE_VIOLATION_REASON,
-        INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
+    utils:assertPanic(function() { tupleWithAnyTypedMembers[0] = "not a FooRecord"; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 
     (map<utils:FooObject>, map<utils:FooObject>) fooObjectMapTuple = (
         {
@@ -114,7 +114,7 @@ function testObjectTupleInherentTypeViolation() {
         one: f1,
         two: f2
     };
-    utils:assertErrorReason(trap utils:insertMemberToTuple(tupleWithAnyTypedMembers, FooObjectOrBarObjectMap),
-        INHERENT_TYPE_VIOLATION_REASON,
-        INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
+    utils:assertPanic(function() { tupleWithAnyTypedMembers[0] = FooObjectOrBarObjectMap; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE);
 }
