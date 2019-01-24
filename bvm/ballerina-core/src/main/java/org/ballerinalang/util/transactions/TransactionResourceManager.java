@@ -94,8 +94,10 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param bFunctionPointer   the function pointer for the committed function
      */
-    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
-        committedFuncRegistry.put(transactionBlockId, bFunctionPointer);
+    private void registerCommittedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
+        if (bFunctionPointer != null) {
+            committedFuncRegistry.put(transactionBlockId, bFunctionPointer);
+        }
     }
 
     /**
@@ -104,8 +106,10 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param bFunctionPointer   the function pointer for the aborted function
      */
-    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
-        abortedFuncRegistry.put(transactionBlockId, bFunctionPointer);
+    private void registerAbortedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
+        if (bFunctionPointer != null) {
+            abortedFuncRegistry.put(transactionBlockId, bFunctionPointer);
+        }
     }
 
     /**
