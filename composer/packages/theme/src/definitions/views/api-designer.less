@@ -35,6 +35,62 @@
                 border-right: 0;
                 border-top: 1px solid #e8e8e8;
                 border-bottom: 1px solid #e8e8e8;
+                box-shadow: none;
+                .path-op-container {
+                    display: inline;
+                    float: right;
+                    .get {
+                        border: 1px solid #2980b9;
+                        color: #2980b9;
+                        font-weight: 400;
+                    }
+                    .put {
+                        border: 1px solid #fca130;
+                        color: #fca130;
+                        font-weight: 400;
+                    }
+                    .post {
+                        border: 1px solid #27ae60;
+                        color: #27ae60;
+                        font-weight: 400;
+                    }
+                    .delete {
+                        border: 1px solid #f93e3e;
+                        color: #f93e3e;
+                        font-weight: 400;
+                    }
+                    .patch {
+                        border: 1px solid #8e44ad;
+                        color: #8e44ad;
+                        font-weight: 400;
+                    }
+                    .head {
+                        border: 1px solid #3F51B5;
+                        color: #3F51B5;
+                        font-weight: 400;
+                    }
+                    .options {
+                        border: 1px solid #43A047;
+                        color: #43A047;
+                        font-weight: 400;
+                    }
+                }
+                .accordion{
+                    margin-top: 0px;
+                    .title{
+                        .inline-editor.string{
+                            span{
+                                color: #727272;
+                                font-size: 13px;
+                                font-weight: 400;
+                                &:hover{
+                                    color: #333;
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
             h1 {
                 font-size: 1.4rem;
@@ -146,21 +202,21 @@
                 background-color:~"@{@{color}-api-designer-add-resource-background-color}";
                 font-size: 12px;
                 .field {
-                    label{
+                    label {
                         font-size: 14px;
-                        font-weight: 500 ;
+                        font-weight: 500;
                     }
                     .labeled {
                         border: 1px solid #ccc;
-                        .label{
+                        .label {
                             font-size: 12px;
                         }
                     }
                 }
-                .fields{
-                    label{
+                .fields {
+                    label {
                         font-size: 14px;
-                        font-weight: 400 ;
+                        font-weight: 400;
                     }
                 }
             }
@@ -187,11 +243,12 @@
             .add-operation-action {
                 margin-left: 1em !important;
                 display: inline-block !important;
-                color:~"@{@{color}-api-designer-form-button-text-color}";
-                background-color:~"@{@{color}-api-designer-form-button-background-color}";
+                color: #9e9e9e;
+                background-color: #fff;
+                border: 1px solid #ccc;
                 &:hover {
-                    background-color:~"@{@{color}-api-designer-form-button-hover-background-color}";
-                    color:~"@{@{color}-api-designer-base-text-color}";
+                    border: 1px solid #333;
+                    color: #333;
                 }
             }
             .path-op-container {	
