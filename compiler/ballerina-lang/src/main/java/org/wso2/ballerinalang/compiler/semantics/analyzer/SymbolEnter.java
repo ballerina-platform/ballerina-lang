@@ -982,6 +982,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Checks whether the given expression type is allowed as an expression in the constant.
+     *
+     * @param expression the expression which needs to be checked
+     * @return {@code true} if the given expression is allowed, {@code false} otherwise.
+     */
+    boolean isValidConstantExpression(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case LITERAL:
+            case RECORD_LITERAL_EXPR:
+                return true;
+        }
+        return false;
+    }
 
     // Private methods
 
@@ -1007,16 +1021,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
-    }
-
-    // Todo - Remove duplication inconco semantic analyzer
-    private boolean isValidConstantExpression(BLangExpression expression) {
-        switch (expression.getKind()) {
-            case LITERAL:
-            case RECORD_LITERAL_EXPR:
-                return true;
-        }
-        return false;
     }
 
     private boolean isAllowedConstantType(BConstantSymbol symbol) {

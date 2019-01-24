@@ -1731,7 +1731,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         BLangExpression expression = (BLangExpression) constant.value;
-        if (!isValidConstantExpression(expression)) {
+        if (!symbolEnter.isValidConstantExpression(expression)) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
             return;
         }
@@ -1784,16 +1784,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     // Private methods
-
-    // Todo - Remove duplication in symbol enter
-    private boolean isValidConstantExpression(BLangExpression expression) {
-        switch (expression.getKind()) {
-            case LITERAL:
-            case RECORD_LITERAL_EXPR:
-                return true;
-        }
-        return false;
-    }
 
     private void checkConstantExpression(BLangExpression expression) {
         switch (expression.getKind()) {
