@@ -132,7 +132,7 @@ function protocolCompatible(string coordinationType, UProtocol?[] participantPro
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
     foreach var p in participantProtocols {
-        UProtocol participantProtocol = <UProtocol> p;
+        UProtocol participantProtocol = p;
         foreach var validProtocol in validProtocols {
             if (protoName(participantProtocol) == validProtocol) {
                 participantProtocolIsValid = true;
