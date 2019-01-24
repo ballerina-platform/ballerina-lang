@@ -54,7 +54,7 @@ import java.security.cert.CertificateException;
         args = {
                 @Argument(name = "keyStore", type = TypeKind.RECORD, structType = Constants.KEY_STORE_RECORD),
                 @Argument(name = "keyAlias", type = TypeKind.STRING),
-                @Argument(name = "keyPassword", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @Argument(name = "keyPassword", type = TypeKind.STRING),
         },
         returnType = {
                 @ReturnType(type = TypeKind.RECORD, structType = Constants.PRIVATE_KEY_RECORD,
