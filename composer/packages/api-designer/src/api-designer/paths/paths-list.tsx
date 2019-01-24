@@ -118,7 +118,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                             <div className="path-op-container">
                                                 {Object.keys(paths[openApiResource]).map((op, opIndex) => {
                                                     return (
-                                                        <Label basic>{op}</Label>
+                                                        <Label basic className={op} >{op}</Label>
                                                     );
                                                 })}
                                             </div>
