@@ -85,15 +85,24 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                     );
                                                 }}
                                             </OpenApiContextConsumer>
-                                            <Button
-                                                title="Add operation to resource."
-                                                size="mini"
-                                                compact
-                                                className="add-operation-action"
-                                                circular
-                                                onClick={this.onAddOperationClick}
-                                            ><i className="fw fw-add"></i>
-                                            </Button>
+                                            {activeIndex.includes(index) &&
+                                                <Button
+                                                    title="Add operation to resource."
+                                                    size="mini"
+                                                    compact
+                                                    className="add-operation-action"
+                                                    circular
+                                                    onClick={this.onAddOperationClick}
+                                                ><i className="fw fw-add"></i>
+                                                </Button>
+                                            }
+                                            <div className="path-op-container">
+                                                {Object.keys(paths[openApiResource]).map((op, opIndex) => {
+                                                    return (
+                                                        <div className="op-preview">{op}</div>
+                                                    );
+                                                })}
+                                            </div>
                                         </Accordion.Title>
                                         <Accordion.Content
                                             active={activeIndex.includes(index)}>
