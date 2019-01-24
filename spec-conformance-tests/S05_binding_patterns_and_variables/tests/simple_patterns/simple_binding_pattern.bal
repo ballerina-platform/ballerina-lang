@@ -41,8 +41,13 @@ import ballerina/test;
 // error-detail-binding-pattern :=
 //    simple-binding-pattern | record-binding-pattern
 
-// TODO: Need to support error binding pattern.
+// a simple-binding-pattern matches any value; if the simple-binding-pattern consists of a variable-name
+// then it causes the matched value to be assigned to the named variable;
 @test:Config {}
-function testErrorBindingPatternBroken() {
-
+function testSimpleBindingPattern() {
+    // a simple-binding-pattern matches any value; if the simple-binding-pattern consists of a variable-name
+    // then it causes the matched value to be assigned to the named variable;
+    int a;
+    a = 5;
+    test:assertEquals(a, 5, msg = "expected simple value to be assigned to simple binding pattern");
 }

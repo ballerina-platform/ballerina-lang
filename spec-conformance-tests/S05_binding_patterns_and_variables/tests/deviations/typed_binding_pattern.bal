@@ -16,18 +16,20 @@
 import ballerina/test;
 
 // TODO: Record variable definition should work with only a single rest parameter
-@test:Config {}
-function testRecordTypedBindingPatternBroken() {
-    //BindingPattern { ...restParam2 } = bindingPattern;
-    //test:assertEquals(restParam2.field1, 11, msg = "expected record value to be destructured to variable defintions");
-    //test:assertEquals(restParam2.field2, "string4", msg =
+@test:Config {
+    groups: ["deviation"]
+}
+function testRecordTypedBindingPatternWithOnlyRestParamBroken() {
+    //BindingPattern { ...restParam } = bindingPattern;
+    //test:assertEquals(restParam.field1, 11, msg = "expected record value to be destructured to variable defintions");
+    //test:assertEquals(restParam.field2, "string4", msg =
     //    "expected record value to be destructured to variable defintions");
-    //test:assertEquals(restParam2.field3, 19.9, msg = "expected record value to be destructured to variable defintions");
-    //test:assertEquals(restParam2.var4, <decimal>18.9, msg =
+    //test:assertEquals(restParam.field3, 19.9, msg = "expected record value to be destructured to variable defintions");
+    //test:assertEquals(restParam.var4, <decimal>18.9, msg =
     //    "expected record value to be destructured to variable defintions");
-    //test:assertEquals(restParam2.var5, false, msg = "expected record value to be destructured to variable defintions");
-    //test:assertEquals(restParam2.field6, (), msg = "expected record value to be destructured to variable defintions");
+    //test:assertEquals(restParam.var5, false, msg = "expected record value to be destructured to variable defintions");
+    //test:assertEquals(restParam.field6, (), msg = "expected record value to be destructured to variable defintions");
     //expectedArray = [8, 9, 10, 11];
-    //test:assertEquals(restParam2.field7, expectedArray, msg =
+    //test:assertEquals(restParam.field7, expectedArray, msg =
     //    "expected record value to be destructured to variable defintions");
 }
