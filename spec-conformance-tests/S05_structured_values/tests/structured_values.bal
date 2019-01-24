@@ -44,41 +44,95 @@ const string EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILUR
 // values: either other frozen values or values of basic types that are always immutable. Once
 // frozen, a container value remains frozen.
 @test:Config {}
-function testFreezeOnContainer() {
+function testArrayFreezeOnContainer() {
     int[] a1 = [1, 2, 3];
     _ = a1.freeze();
-    utils:assertErrorReason(trap utils:insertMemberToArray(a1, 0, 1), B7A_INVALID_UPDATE_REASON, 
+    utils:assertErrorReason(trap insertMemberToArray(a1, 0, 1), B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+}
 
+# Util function to add a member to an array at a specified index.
+#
+# + array - the array to which the member should be added
+# + index - the index at which the member should be added
+# + member - the member to be added
+function insertMemberToArray(any[] array, int index, any member) {
+    array[index] = member;
+}
+
+@test:Config {}
+function testTupleFreezeOnContainer() {
     (int, boolean) a2 = (1, false);
     _ = a2.freeze();
-    utils:assertErrorReason(trap utils:insertMemberToTuple(a2, 2), B7A_INVALID_UPDATE_REASON, 
+    utils:assertErrorReason(trap insertMemberToTuple(a2, 2), B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+}
 
+# Util function to add a member to a tuple at the 0th index.
+#
+# + tuple - the tuple to which the member should be added
+# + member - the member to be added
+function insertMemberToTuple((any, any) tuple, any member) {
+    tuple[0] = member;
+}
+
+@test:Config {}
+function testMapFreezeOnContainer() {
     map<string|int|utils:FooObject> a3 = { one: 1, two: "two" };
     var result = a3.freeze();
     if (result is map<string|int|utils:FooObject>) {
-        utils:assertErrorReason(trap utils:insertMemberToMap(result, "two", 2), B7A_INVALID_UPDATE_REASON, 
+        utils:assertErrorReason(trap insertMemberToMap(result, "two", 2), B7A_INVALID_UPDATE_REASON,
                                 IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
     }
+}
 
+# Util function to add a member to a map with a specified key.
+#
+# + mapVal - the map to which the member should be added
+# + index - the key with which the member should be added
+# + member - the member to be added
+function insertMemberToMap(map<any|error> mapVal, string index, any|error member) {
+    mapVal[index] = member;
+}
+
+@test:Config {}
+function testRecordFreezeOnContainer() {
     utils:FooRecord a4 = { fooFieldOne: "test string 1" };
     _ = a4.freeze();
-    utils:assertErrorReason(trap utils:updateFooRecord(a4, "test string 2"), B7A_INVALID_UPDATE_REASON, 
+    utils:assertErrorReason(trap updateFooRecord(a4, "test string 2"), B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+}
 
+# Util function to update a `FooRecord`'s `fooFieldOne` field.
+#
+# + fooRecord - the `FooRecord` to update
+# + newFooFieldOne - the new value for `fooFieldOne`
+function updateFooRecord(utils:FooRecord fooRecord, string newFooFieldOne) {
+    fooRecord.fooFieldOne = newFooFieldOne;
+}
+
+@test:Config {}
+function testTableFreezeOnContainer() {
     table<utils:BarRecord> a5 = table{};
     utils:BarRecord b1 = { barFieldOne: 100 };
     _ = a5.freeze();
-    utils:assertErrorReason(trap a5.add(b1), B7A_INVALID_UPDATE_REASON,
+    utils:assertErrorReason(trap insertMemberToTable(a5, b1), B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+}
+
+# Util function to add a record to a table.
+#
+# + tableVal - the table to which the member should be added
+# + member - the member to be added
+public function insertMemberToTable(table<record{}> tableVal, record{} member) {
+    _ = tableVal.add(member);
 }
 
 // A frozen container value can refer only to immutable values:
 // either other frozen values or values of basic types that are always immutable.
 // Once frozen, a container value remains frozen.
 @test:Config {}
-function testFrozenStructureMembersFrozenness() {
+function testArrayFrozenStructureMembersFrozenness() {
     int[] a1 = [1, 2, 3];
     int[] a2 = [11, 12, 13];
     int[][] a3 = [a1, [5, 6], a2];
@@ -89,18 +143,24 @@ function testFrozenStructureMembersFrozenness() {
     test:assertTrue(a1.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
     test:assertTrue(a2.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
     test:assertTrue(a3.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
+}
 
+@test:Config {}
+function testTupleFrozenStructureMembersFrozenness() {
     (int, boolean) a4 = (1, false);
     (float, string, boolean) a5 = (100.0, "test string 1", false);
     (anydata, int, (int, boolean)) a6 = (a5, 1, a4);
     test:assertFalse(a4.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     test:assertFalse(a5.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     test:assertFalse(a6.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
-    _ = a6.freeze();    
+    _ = a6.freeze();
     test:assertTrue(a4.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
     test:assertTrue(a5.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
     test:assertTrue(a6.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
+}
 
+@test:Config {}
+function testMapFrozenStructureMembersFrozenness() {
     map<string|int|utils:FooObject> a7 = { one: 1, two: "two" };
     map<int|boolean> a8 = { three: 12, four: true, five: false };
     map<any> a9 = { intVal: 4, mapValOne: a7, mapValTwo: a8 };
@@ -110,16 +170,19 @@ function testFrozenStructureMembersFrozenness() {
     var result = a9.freeze();
     if (result is map<string|int|utils:FooObject>) {
         test:assertTrue(a7.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
-        test:assertTrue(a8.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);        
+        test:assertTrue(a8.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
     }
+}
 
-    utils:FooRecord a10 = { fooFieldOne: "test string 1" }; 
-    utils:BarRecord a11 = { barFieldOne: 1 }; 
+@test:Config {}
+function testRecordFrozenStructureMembersFrozenness() {
+    utils:FooRecord a10 = { fooFieldOne: "test string 1" };
+    utils:BarRecord a11 = { barFieldOne: 1 };
     utils:BazRecord a12 = { bazFieldOne: 1.0, fooRecord: a10, bazRecord: a11 };
     test:assertFalse(a10.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     test:assertFalse(a11.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
     test:assertFalse(a12.isFrozen(), msg = EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE);
-    _ = a12.freeze();    
+    _ = a12.freeze();
     test:assertTrue(a10.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
     test:assertTrue(a11.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
     test:assertTrue(a12.isFrozen(), msg = EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE);
@@ -133,8 +196,9 @@ function testFrozenXml() {
 
 // The shape of the members of a container value contribute to the shape of the container.
 // Mutating a member of a container can thus cause the shape of the container to change.
+
 @test:Config {}
-function testShapeOfContainters() {
+function testArrayShapeOfContainters() {
     (int|string)[] a1 = [1, 2];
     var a2 = int[].convert(a1);
     test:assertTrue(a2 is int[], 
@@ -143,32 +207,41 @@ function testShapeOfContainters() {
     a2 = int[].convert(a1);
     test:assertFalse(a2 is int[], 
                      msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
+}
 
+@test:Config {}
+function testTupleShapeOfContainters() {
     (float, int|string, boolean) a3 = (1.1, 1, true);
     var a4 = (float, int, boolean).convert(a3);
-    test:assertTrue(a4 is (float, int, boolean), 
+    test:assertTrue(a4 is (float, int, boolean),
                     msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a3[1] = "test string 1";
     a4 = (float, int, boolean).convert(a3);
-    test:assertFalse(a4 is (float, int, boolean), 
+    test:assertFalse(a4 is (float, int, boolean),
                     msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
+}
 
+@test:Config {}
+function testMapShapeOfContainters() {
     map<int|boolean> a5 = { one: 1, two: 2, three: 3 };
     var a6 = map<int>.convert(a5);
-    test:assertTrue(a6 is map<int>, 
+    test:assertTrue(a6 is map<int>,
                     msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a5.four = true;
     a6 = map<int>.convert(a5);
-    test:assertFalse(a6 is map<int>, 
+    test:assertFalse(a6 is map<int>,
                     msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
+}
 
+@test:Config {}
+function testRecordShapeOfContainters() {
     utils:BazRecordThree a7 = { bazFieldOne: 1.0 };
     var a8 = utils:BazRecord.convert(a7);
-    test:assertTrue(a8 is utils:BazRecord, 
+    test:assertTrue(a8 is utils:BazRecord,
                     msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a7.bazFieldOne = "1.0";
     a8 = utils:BazRecord.convert(a7);
-    test:assertFalse(a8 is utils:BazRecord, 
+    test:assertFalse(a8 is utils:BazRecord,
                     msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 }
 
@@ -178,75 +251,127 @@ function testShapeOfContainters() {
 // mutation that might lead to the container having a shape that is not a member of its inherent
 // type. Thus a container value belongs to a type if and only if that type is its inherent type or a
 // subset of its inherent type.
-@test:Config {}
-function testContainerValueInherentType() {
-    int intVal = 1;
-    boolean booleanVal = true;
-    float floatVal = 1.0;
+int intVal = 1;
+boolean booleanVal = true;
+float floatVal = 1.0;
 
+@test:Config {}
+function testArrayContainerValueInherentType() {
     (int|string)[] a1 = [1, "2"];
     any anyVal = intVal;    
-    var result = trap utils:insertMemberToArray(a1, a1.length() - 1, anyVal);
+    var result = trap insertMemberToArray(a1, a1.length() - 1, anyVal);
     test:assertTrue(anyVal is int|string, 
                     msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(result is error), 
                     msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
-    result = trap utils:insertMemberToArray(a1, a1.length() - 1, anyVal);
+    result = trap insertMemberToArray(a1, a1.length() - 1, anyVal);
     test:assertTrue(result is error, 
                     msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
     test:assertTrue(!(anyVal is int|string), 
                     msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
+}
+
+@test:Config {}
+function testTupleContainerValueInherentType() {
     (string|float, int) a2 = ("test string 1", 1);
-    anyVal = floatVal;
-    result = trap utils:insertMemberToTuple(a2, anyVal);
-    test:assertTrue(anyVal is string|float, 
+    any anyVal = floatVal;
+    var result = trap insertMemberToTuple(a2, anyVal);
+    test:assertTrue(anyVal is string|float,
                     msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(result is error), 
+    test:assertTrue(!(result is error),
                     msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
-    result = trap utils:insertMemberToTuple(a2, anyVal);
-    test:assertTrue(result is error, 
-                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(anyVal is string|float), 
-                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-
-    map<int> a3 = { one: 1 };
-    anyVal = intVal;
-    result = trap utils:insertMemberToMap(a3, "two", anyVal);
-    test:assertTrue(anyVal is int, 
-                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(result is error), 
-                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-
-    anyVal = booleanVal;
-    result = trap utils:insertMemberToMap(a3, "two", anyVal);
-    test:assertTrue(result is error, 
-                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(anyVal is int), 
-                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    
-    utils:FooRecord a4 = { fooFieldOne: "test string 1" };
-    anyVal = "test string 2";
-    result = trap utils:updateFooRecord(a4, anyVal);
-    test:assertTrue(anyVal is string, 
-                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(result is error), 
-                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-
-    anyVal = booleanVal;
-    result = trap utils:updateFooRecord(a4, anyVal);
-    test:assertTrue(result is error, 
-                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(anyVal is string), 
-                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-
-    table<utils:BarRecord> a5 = table{};
-    utils:BazRecord b1 = { bazFieldOne: 1.0 };
-    result = a5.add(b1);
+    result = trap insertMemberToTuple(a2, anyVal);
     test:assertTrue(result is error,
                     msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(anyVal is string|float),
+                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+}
+
+@test:Config {}
+function testMapContainerValueInherentType() {
+    map<int> a3 = { one: 1 };
+    any anyVal = intVal;
+    var result = trap insertMemberToMap(a3, "two", anyVal);
+    test:assertTrue(anyVal is int,
+                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(result is error),
+                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+
+    anyVal = booleanVal;
+    result = trap insertMemberToMap(a3, "two", anyVal);
+    test:assertTrue(result is error,
+                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(anyVal is int),
+                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+}
+
+@test:Config {}
+function testRecordContainerValueInherentType() {
+    utils:FooRecord a4 = { fooFieldOne: "test string 1" };
+    any anyVal = "test string 2";
+    var result = trap updateFooRecord(a4, <string>anyVal);
+    test:assertTrue(anyVal is string,
+                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(result is error),
+                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+}
+
+@test:Config {}
+function testTableContainerValueInherentType() {
+    table<utils:BarRecord> a5 = table{};
+    utils:BazRecord b1 = { bazFieldOne: 1.0 };
+    var result = a5.add(b1);
+    test:assertTrue(result is error,
+                    msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+}
+
+@test:Config {}
+function testRecordFrozenContainerShapeAndType() {
+    BazRecordThree a8 = { bazFieldOne: "test string 1" };
+    BazRecordFour a9 = { bazFieldOne: 1.0, bazFieldTwo: "test string 2" };
+    anydata a10 = a9;
+    var result = trap updateRecordBazField(a8, a10);
+    test:assertTrue(result is error,
+                    msg = "expected to not be able to add a value that violates shape");
+    test:assertTrue(!(a10 is utils:BazRecord),
+                    msg = "expected value's type to not be of same type or sub type");
+
+    _ = a10.freeze();
+    result = trap updateRecordBazField(a8, a10);
+    test:assertTrue(a10 is utils:BazRecord,
+    msg = "expected value's type to match shape after freezing");
+    test:assertTrue(!(result is error),
+                     msg = "expected to be able to add a frozen value that conforms to shape");
+}
+
+public type BazRecord record {
+    float bazFieldOne;
+};
+
+public type BazRecordTwo record {
+    float bazFieldOne;
+    string bazFieldTwo;
+};
+
+public type BazRecordThree record {
+    string|float bazFieldOne;
+    BazRecord bazFieldTwo?;
+};
+
+public type BazRecordFour record {
+    float|string bazFieldOne;
+    string bazFieldTwo;
+};
+
+# Util function to update a record's `bazFieldTwo` field.
+#
+# + rec - the record to update
+# + value - the new value for `bazFieldTwo`
+function updateRecordBazField(record{} rec, anydata value) {
+    rec.bazFieldTwo = value;
 }

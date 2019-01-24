@@ -24,7 +24,8 @@ import utils;
 }
 function testErrorExclusionInAnyBroken() {
     map<any> m1 = { one: a, two: b };
-    // utils:assertErrorReason(trap utils:insertMemberToMap(m1, "three", errValOne), 
-    //                         "{ballerina}InherentTypeViolation",
-    //                         "invalid reason on trying to use error as any");
+    // map<any|error> m2 = m1;
+    // utils:assertPanic(function() { m2["three"] = errValOne; },
+    //                   "{ballerina}InherentTypeViolation",
+    //                   "invalid reason on trying to use error as any");
 }

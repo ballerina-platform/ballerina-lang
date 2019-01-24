@@ -103,77 +103,54 @@ function testFrozenStructureMembersFrozennessBroken() {
 function testFrozenContainerShapeAndTypeBroken() {
     int[][] a1 = [[1, 2], [1]];
     (int|string)[] a2 = [11, 12];
-    var result = trap utils:insertMemberToArray(a1, a1.length() - 1, a2);
+    var result = trap insertMemberToArray(a1, a1.length() - 1, a2);
     test:assertTrue(result is error, 
                     msg = "expected to not be able to add a value that violates shape");
     test:assertTrue(!(a2 is int[]), 
                     msg = "expected value's type to not be of same type or sub type");
 
     _ = a2.freeze();
-    result = trap utils:insertMemberToArray(a1, a1.length() - 1, a2);
+    result = trap insertMemberToArray(a1, a1.length() - 1, a2);
     test:assertTrue(a2 is int[], 
-                    msg = "expected value's type to be match shape after freezing");
-    // test:assertTrue(!(result is error), 
+                    msg = "expected value's type to match shape after freezing");
+    // test:assertTrue(!(result is error),
     //                 msg = "expected to be able to add a frozen value that conforms to shape");
-    test:assertTrue((result is error), 
+    test:assertTrue((result is error),
                     msg = "expected to not be able to add a frozen value that conforms to shape");
 
     ((int, string), int) a3 = ((1, "test string 1"), 2);
     (int|float, string) a4 = (2, "test string 2");
-    result = trap utils:insertMemberToTuple(a3, a4);
+    result = trap insertMemberToTuple(a3, a4);
     // https://github.com/ballerina-platform/ballerina-lang/issues/13230
-    // test:assertTrue(result is error, 
+    // test:assertTrue(result is error,
     //                 msg = "expected to not be able to add a value that violates shape");
-    test:assertTrue(!(result is error), 
+    test:assertTrue(!(result is error),
                     msg = "expected to be able to add a value that violates shape");
-    test:assertTrue(!(a4 is (int, string)), 
+    test:assertTrue(!(a4 is (int, string)),
                     msg = "expected value's type to not be of same type or sub type");
 
     _ = a4.freeze();
-    result = trap utils:insertMemberToTuple(a3, a4);
-    test:assertTrue(a4 is (int, string), 
-                    msg = "expected value's type to be match shape after freezing");
-    test:assertTrue(!(result is error), 
+    result = trap insertMemberToTuple(a3, a4);
+    test:assertTrue(a4 is (int, string),
+                    msg = "expected value's type to match shape after freezing");
+    test:assertTrue(!(result is error),
                     msg = "expected to be able to add a frozen value that conforms to shape");
 
     map<map<string>|float> a5 = { one: { a: "a", bc: "b c" }, two: 1.0 };
     map<string|boolean> a6 = { three: "3", four: "4" };
     any a7 = a6;
-    result = trap utils:insertMemberToMap(a5, "three", a7);
-    test:assertTrue(result is error, 
+    result = trap insertMemberToMap(a5, "three", a7);
+    test:assertTrue(result is error,
                     msg = "expected to not be able to add a value that violates shape");
-    test:assertTrue(!(a7 is map<string>|float), 
+    test:assertTrue(!(a7 is map<string>|float),
                     msg = "expected value's type to not be of same type or sub type");
 
     _ = a7.freeze();
-    result = trap utils:insertMemberToMap(a5, "three", a7);
-    test:assertTrue(a7 is map<string>|float, 
-                    msg = "expected value's type to be match shape after freezing");
-    // test:assertTrue(!(result is error), 
+    result = trap insertMemberToMap(a5, "three", a7);
+    test:assertTrue(a7 is map<string>|float,
+                    msg = "expected value's type to match shape after freezing");
+    // test:assertTrue(!(result is error),
     //                 msg = "expected to be able to add a frozen value that conforms to shape");
-    test:assertTrue((result is error), 
-                    msg = "expected to not be able to add a frozen value that conforms to shape");
-
-    utils:BazRecordThree a8 = { bazFieldOne: "test string 1" };
-    BazRecordFour a9 = { bazFieldOne: 1.0, bazFieldTwo: "test string 2" };
-    any a10 = a9;
-    result = trap utils:updateBazRecordThree(a8, a10);
-    test:assertTrue(result is error, 
-                    msg = "expected to not be able to add a value that violates shape");
-    test:assertTrue(!(a10 is utils:BazRecord), 
-                    msg = "expected value's type to not be of same type or sub type");
-
-    _ = a10.freeze();
-    result = trap utils:updateBazRecordThree(a8, a10);
-    test:assertTrue(a10 is utils:BazRecord, 
-                    msg = "expected value's type to be match shape after freezing");
-    // test:assertTrue(!(result is error), 
-    //                 msg = "expected to be able to add a frozen value that conforms to shape");
-    test:assertTrue((result is error), 
+    test:assertTrue((result is error),
                     msg = "expected to not be able to add a frozen value that conforms to shape");
 }
-
-public type BazRecordFour record {
-    float|string bazFieldOne;
-    string bazFieldTwo;
-};
