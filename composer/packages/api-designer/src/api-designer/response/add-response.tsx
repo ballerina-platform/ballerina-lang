@@ -17,14 +17,13 @@
  *
  */
 
+import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import { Button, Form, Header, Icon, Select } from "semantic-ui-react";
 
-import { OpenApiResponse } from "../../components/parameter/add-response";
-
 export interface OpenApiAddResponseProps {
     openApiJson: any;
-    onAddResponse: (response: OpenApiResponse) => void;
+    onAddResponse: (response: Swagger.ResponseObject) => void;
     operation: string;
     resourcePath: string;
     handleClose: (isClose: boolean) => void;
@@ -32,7 +31,7 @@ export interface OpenApiAddResponseProps {
 
 export interface OpenApiAddResponseState {
     responseStatus: OpenApiResponseCode[];
-    responseObject: OpenApiResponse;
+    responseObject: Swagger.ResponseObject;
 }
 
 export interface OpenApiResponse {

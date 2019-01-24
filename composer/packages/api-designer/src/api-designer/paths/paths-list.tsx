@@ -1,6 +1,6 @@
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Accordion, AccordionTitleProps, Button } from "semantic-ui-react";
+import { Accordion, AccordionTitleProps, Button, Label } from "semantic-ui-react";
 
 import { OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
 
@@ -99,7 +99,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                             <div className="path-op-container">
                                                 {Object.keys(paths[openApiResource]).map((op, opIndex) => {
                                                     return (
-                                                        <div className="op-preview">{op}</div>
+                                                        <Label basic>{op}</Label>
                                                     );
                                                 })}
                                             </div>
