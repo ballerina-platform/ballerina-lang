@@ -1,6 +1,6 @@
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Form } from "semantic-ui-react";
+import { Button, Form, Input } from "semantic-ui-react";
 
 export interface AddOpenApiPathProps {
     onAddOpenApiPath: (resource: Swagger.PathItemObject) => void;
@@ -67,9 +67,9 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
             <Form size="mini" className="add-resource">
                 <Form.Field>
                     <label>Resource Name</label>
-                    <input
-                        placeholder="Example: /users/{userId}"
-                        value={this.state.openApiResourceObj.name}
+                    <Input label='/' 
+                    placeholder="Example: users/{userId}"
+                    value={this.state.openApiResourceObj.name}
                         onChange={(e) => {
                             this.setState({
                                 openApiResourceObj: {
@@ -78,6 +78,8 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                                 }
                             });
                         }}
+                    
+                    
                     />
                 </Form.Field>
                 <Form.Group inline>

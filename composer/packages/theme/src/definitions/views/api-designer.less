@@ -17,18 +17,14 @@
  *
  */
 
-@type    : "view";
+@type : "view";
 @element : "api-designer";
-
 @import (multiple) '../../ballerina.config';
-
 .api-designer(@color) {
-    background: ~"@{@{color}-api-designer-background-color}";
-    color: ~"@{@{color}-api-designer-base-text-color}";
-
+    background:~"@{@{color}-api-designer-background-color}";
+    color:~"@{@{color}-api-designer-base-text-color}";
     .api-container {
         padding: 25px 30px;
-
         .api-visualizer {
             .action-container {
                 margin-bottom: 1em;
@@ -36,15 +32,24 @@
             .accordion {
                 padding-bottom: .5em !important;
             }
+            h1 {
+                font-size: 1.4rem;
+                font-weight: 600;
+                .sub.header {
+                    display: inline-block;
+                    margin-left: 5px;
+                    span {
+                        padding: 0 10px;
+                    }
+                }
+            }
             .oas-header {
                 padding: 1em 0 0 0;
-
                 h1 {
                     font-weight: 300;
                     padding: 0;
                     margin: 0;
                     float: left;
-
                     span {
                         font-size: .5em;
                         padding: 0 1.5em;
@@ -68,7 +73,6 @@
             }
             .oas-details {
                 padding: 1em 0 3em 0;
-
                 p {
                     line-height: 15px;
                     color: #929292;
@@ -90,16 +94,16 @@
                 textarea,
                 .ui.selection.dropdown,
                 .ui.selection.dropdown .menu {
-                    color: ~"@{@{color}-api-designer-base-text-color}";
-                    background: ~"@{@{color}-api-designer-form-background-color}";
+                    color:~"@{@{color}-api-designer-base-text-color}";
+                    background:~"@{@{color}-api-designer-form-background-color}";
                 }
                 .ui.selection.dropdown .menu .item span {
-                    color: ~"@{@{color}-api-designer-base-text-color}";
+                    color:~"@{@{color}-api-designer-base-text-color}";
                 }
                 label {
-                    color: ~"@{@{color}-api-designer-base-text-color}";
+                    color:~"@{@{color}-api-designer-base-text-color}";
                 }
-                .ui.selection.dropdown .menu > .item {
+                .ui.selection.dropdown .menu>.item {
                     border: none;
                 }
             }
@@ -107,15 +111,13 @@
                 padding: 1em;
                 margin: 2em 1em 0;
             }
-            
             .ui.table {
-                background-color: ~"@{@{color}-api-designer-table-background-color}";
-                color: ~"@{@{color}-api-designer-table-text-color}";
+                background-color:~"@{@{color}-api-designer-table-background-color}";
+                color:~"@{@{color}-api-designer-table-text-color}";
                 border-radius: 0px;
-
-                thead tr:first-child > th {
-                    background-color:  ~"@{@{color}-api-designer-table-header-background-color}";
-                    color: ~"@{@{color}-api-designer-table-text-color}";
+                thead tr:first-child>th {
+                    background-color :~"@{@{color}-api-designer-table-header-background-color}";
+                    color:~"@{@{color}-api-designer-table-text-color}";
                 }
             }
             .ui.message {
@@ -123,69 +125,69 @@
             }
             .ui.accordion {
                 .title:not(.ui) {
-                    color: ~"@{@{color}-api-designer-base-text-color}";
+                    color:~"@{@{color}-api-designer-base-text-color}";
+                    .inline-editor {
+                        display: inline;
+                    }
                 }
             }
-
             .resource-container {
                 margin: 1em 0;
             }
-            
             .resource-container::before,
             .add-resource::before {
                 content: '';
                 display: block;
                 clear: both;
             }
-            
             .resource {
                 padding: 0;
-                color: ~"@{@{color}-api-designer-base-text-color}";
+                color:~"@{@{color}-api-designer-base-text-color}";
             }
-            
             .resource-content {
                 margin-left: 1.2em;
             }
-            
             .add-resource {
+                background: red !important;
                 margin: 1em 0;
                 padding: 1em;
-                background-color: ~"@{@{color}-api-designer-add-resource-background-color}";
+                background-color:~"@{@{color}-api-designer-add-resource-background-color}";
+                font-size: 14px;
+                .feild {
+                    background: red !important;
+                    .input {
+                        border: 1px solid #e4e4e4 !important;
+                        font-size: 12px;
+                    }
+                }
             }
-            
             .oas-resources {
                 padding: 2em 1em;
             }
-            
             .res-title {
-                color: ~"@{@{color}-api-designer-base-text-color}";
+                color:~"@{@{color}-api-designer-base-text-color}";
                 font-size: 1.2em !important;
             }
-            
             .add-operation-action {
                 margin-left: 1em !important;
                 display: inline-block !important;
-                color: ~"@{@{color}-api-designer-form-button-text-color}";
-                background-color: ~"@{@{color}-api-designer-form-button-background-color}";
-
+                color:~"@{@{color}-api-designer-form-button-text-color}";
+                background-color:~"@{@{color}-api-designer-form-button-background-color}";
                 &:hover {
-                    background-color: ~"@{@{color}-api-designer-form-button-hover-background-color}";
-                    color: ~"@{@{color}-api-designer-base-text-color}";
+                    background-color:~"@{@{color}-api-designer-form-button-hover-background-color}";
+                    color:~"@{@{color}-api-designer-base-text-color}";
                 }
             }
-
             .operation {
-                background-color: ~"@{@{color}-api-designer-operation-background-color}";
+                background-color:~"@{@{color}-api-designer-operation-background-color}";
                 margin: 0.3em 0 0 0;
-                border: 1px solid ~"@{@{color}-api-designer-operation-border-color}";
-
+                border: 1px solid~"@{@{color}-api-designer-operation-border-color}";
                 .op-title {
                     padding: 0 !important;
-                    color: ~"@{@{color}-api-designer-base-text-color}";
-                    background-color: ~"@{@{color}-api-designer-operation-title-background-color}";
-
+                    color:~"@{@{color}-api-designer-base-text-color}";
+                    background-color:~"@{@{color}-api-designer-operation-title-background-color}";
                     a {
-                        color: ~"@{@{color}-api-designer-placeholder-text-color}";
+                        color:~"@{@{color}-api-designer-placeholder-text-color}";
                     }
                     .op-method {
                         padding: .5em;
@@ -197,7 +199,7 @@
                         font-size: .8em;
                     }
                     &:hover {
-                        background-color: ~"@{@{color}-api-designer-operation-title-hover-background-color}";
+                        background-color:~"@{@{color}-api-designer-operation-title-hover-background-color}";
                     }
                 }
                 .op-summary {
@@ -214,14 +216,12 @@
                     color: #b3b3b3;
                 }
             }
-
             .op-section {
                 margin-bottom: 1.5em;
-
                 .title {
                     p {
                         display: inline-block;
-                        color: ~"@{@{color}-api-designer-base-text-color}";
+                        color:~"@{@{color}-api-designer-base-text-color}";
                     }
                     a {
                         display: inline-block;
@@ -230,108 +230,124 @@
                         cursor: pointer;
                     }
                 }
-            } 
-
+            }
             .add-operation {
                 margin: -0.6em 0 1.5em 0;
                 padding: 1em;
-                background-color: ~"@{@{color}-api-designer-add-operation-background-color}";
+                background-color:~"@{@{color}-api-designer-add-operation-background-color}";
             }
-
             .ui.button.add-operation-action {
                 border-radius: 50%;
                 padding: .58928571em;
             }
-
             .no-data {
                 padding: .7em .5em;
                 background-color: #616161;
             }
-
             .genOperationStyle(length(@Operation-Options));
             .genOperationStyle(@OperationList) when (@OperationList > 0) {
                 .genOperationStyle(@OperationList - 1);
-
                 @value: extract(@Operation-Options, @OperationList);
                 @borderColor: '@{value}-color';
-
                 .operation.@{value} .content {
                     border-left: 1px solid @@borderColor;
                 }
                 .operation.@{value} .op-title .op-method {
                     font-weight: 600;
                     color: @@borderColor;
-                    background-color: ~"@{@{color}-api-designer-operation-method-background-color}";
+                    background-color:~"@{@{color}-api-designer-operation-method-background-color}";
                     border: 1px solid @@borderColor;
                 }
-
             }
-
-            .inline-editor {
-                display: initial;
-                cursor: pointer;
-                margin-bottom: .5em;
-                user-select: none;
-
-                span {
-                    border: 1px solid rgba(204, 204, 204, 0);
-
+            .paragraph {
+                text-align: justify;
+                color: #333;
+                margin: 0 !important;
+                &:hover {
+                    background-color: #fff;
+                    color: #333;
+                    cursor: text;
+                    padding: 5px;
+                    border: 1px solid #dedede;
+                }
+                .inline-editor {
+                    margin-bottom: 0em;
                     &:hover {
-                        background-color: rgba(204, 204, 204, 0.07);
-                        border: 1px solid rgba(204, 204, 204, 0.23);
+                        background: none !important;
+                        border: 0 !important;
                     }
                 }
-                .contact .email {
+                .inline-editor {
                     display: block;
-                }
-                .ui.form {
-                    display: inherit;
-
-                    input {
-                        background: ~"@{@{color}-api-designer-form-background-color}" !important;
-                        border-bottom: 1px solid ~"@{@{color}-api-designer-form-border-color}" !important;
-                    }
-                }
-                &.no-text span {
-                    color: ~"@{@{color}-api-designer-placeholder-text-color}";
-                    
-                    &:hover {
-                        text-decoration: underline;
-                    }
-                }
-                &.editing {
-                    .ui.form button {
-                        outline: none;
-                        box-shadow: none !important;
-                        color: ~"@{@{color}-api-designer-form-button-text-color}";
-                        background-color: ~"@{@{color}-api-designer-form-button-background-color}";
-
+                    cursor: pointer;
+                    margin-bottom: .2em;
+                    user-select: none;
+                    span {
+                        border: 1px solid rgba(204, 204, 204, 0);
+                        line-height: 26px;
+                        padding: 5px;
                         &:hover {
-                            background-color: ~"@{@{color}-api-designer-form-button-hover-background-color}";
+                            color: #333;
+                            cursor: text;
+                            background: #fff;
+                            border: 1px solid #dedede !important;
                         }
                     }
-                    textarea {
-                        width: 100%;
-                        height: 10em;
-                        border: none;
-                        border-bottom: 1px solid;
+                    .inline-editor-textarea {
+                        padding: 10px !important;
+                        background: #fff;
+                        border: 1px solid #dedede !important;
+                        line-height: 20px;
+                        text-align: justify;
+                        outline: 0;
                     }
-                }
-                &.url .activate-edit {
-                    display: none;
-                }
-                &.url:hover .activate-edit {
-                    display: inline;
-                    padding: 0 1em;
-                    outline: none;
+                    .contact .email {
+                        display: block;
+                    }
+                    .ui.form {
+                        display: inherit;
+                        input {
+                            background:~"@{@{color}-api-designer-form-background-color}" !important;
+                            border: 1px solid~"@{@{color}-api-designer-form-border-color}" !important;
+                        }
+                    }
+                    &.no-text span {
+                        color:~"@{@{color}-api-designer-placeholder-text-color}";
+                        font: 12px;
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+                    &.editing {
+                        .ui.form button {
+                            outline: none;
+                            box-shadow: none !important;
+                            color:~"@{@{color}-api-designer-form-button-text-color}";
+                            background-color:~"@{@{color}-api-designer-form-button-background-color}";
+                            &:hover {
+                                background-color:~"@{@{color}-api-designer-form-button-hover-background-color}";
+                            }
+                        }
+                        textarea {
+                            width: 100%;
+                            height: 10em;
+                            border: none;
+                            border-bottom: 1px solid;
+                        }
+                    }
+                    &.url .activate-edit {
+                        display: none;
+                    }
+                    &.url:hover .activate-edit {
+                        display: inline;
+                        padding: 0 1em;
+                        outline: none;
+                    }
                 }
             }
         }
     }
-}
-
-body.api-designer {
-    .api-designer("light");
-}
-
-.loadUIOverrides();
+    body.api-designer {
+        .api-designer("light");
+    }
+    .loadUIOverrides();
