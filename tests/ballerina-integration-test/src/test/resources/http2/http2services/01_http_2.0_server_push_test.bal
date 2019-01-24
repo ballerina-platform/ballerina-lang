@@ -30,7 +30,7 @@ service frontendHttpService on frontendEP {
         }
 
         // Check whether promises exists
-        http:PushPromise[] promises = [];
+        http:PushPromise?[] promises = [];
         int promiseCount = 0;
         boolean hasPromise = backendClientEP->hasPromise(httpFuture);
         while (hasPromise) {
@@ -91,7 +91,8 @@ service frontendHttpService on frontendEP {
         io:println("Response : " + responseStringPayload);
 
         // Fetch required promised responses
-        foreach var promise in promises {
+        foreach var p in promises {
+            http:PushPromise promise = <http:PushPromise>p;
             http:Response promisedResponse = new;
             var promisedResponseResult = backendClientEP->getPromisedResponse(promise);
             if (promisedResponseResult is http:Response) {
