@@ -91,9 +91,9 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                 compact
                                                 className="add-operation-action"
                                                 circular
-                                                icon="plus"
                                                 onClick={this.onAddOperationClick}
-                                            />
+                                            ><i className="fw fw-add"></i>
+                                            </Button>
                                         </Accordion.Title>
                                         <Accordion.Content
                                             active={activeIndex.includes(index)}>
