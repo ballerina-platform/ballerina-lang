@@ -75,14 +75,14 @@ function testUnionTypeArrays() returns int {
     ParamAny para1 = { value: "Colombo" };
     ParamAny para2 = { value: 10 };
     ParamAny[] paramAnyArray = [para1, para2];
-    GlobalParam[] globalParamArray = paramAnyArray;
+    GlobalParam?[] globalParamArray = paramAnyArray;
     return globalParamArray.length();
 }
 
 
 function testUnionTypeArrayWithValueTypeArrayAssignment() returns int {
     int[] intArray = [10, 20, 30];
-    GlobalParam[] globalParamArray = intArray;
+    GlobalParam?[] globalParamArray = intArray;
     return globalParamArray.length();
 }
 

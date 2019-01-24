@@ -409,14 +409,14 @@ function testInvalidComplexMapFreeze() returns (string, boolean) {
 }
 
 function testInvalidComplexArrayFreeze() returns (string, boolean) {
-    (string|typedesc|float)[] a1 = [];
+    (string|typedesc|float)?[] a1 = [];
     typedesc p = int;
 
     a1[0] = 2.0;
     a1[1] = "hello world";
     a1[2] = p;
 
-    (string|typedesc|float)[]|error res = a1.freeze();
+    (string|typedesc|float)?[]|error res = a1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, a1.isFrozen());
 }
@@ -476,12 +476,12 @@ function testValidComplexMapFreeze() returns (string, boolean) {
 }
 
 function testValidComplexArrayFreeze() returns (string, boolean) {
-    (string|PersonObj|float)[] a1 = [];
+    (string|PersonObj|float)?[] a1 = [];
 
     a1[0] = 2.0;
     a1[1] = "hello world";
 
-    (string|PersonObj|float)[]|error res = a1.freeze();
+    (string|PersonObj|float)?[]|error res = a1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, a1.isFrozen());
 }

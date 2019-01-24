@@ -76,9 +76,9 @@ function testAnydataToRecord() returns (Foo, ClosedFoo) {
     return (convertedFoo, convertedCFoo);
 }
 
-function testAnydataToUnion() returns ValueType[] {
+function testAnydataToUnion() returns ValueType?[] {
     anydata ad = 10;
-    ValueType[] vt = [];
+    ValueType?[] vt = [];
     int i = 0;
 
     vt[i] = ad is ValueType ? ad : -1;

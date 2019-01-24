@@ -208,15 +208,15 @@ function testArrayAssertionPositive() returns boolean {
     any a = s;
     string[] s2 = <string[3]> a;
 
-    (string|int)[3] s3 = ["this is an array", "of length", "three"];
+    (string|int)?[3] s3 = ["this is an array", "of length", "three"];
     anydata b = s3;
-    (string|int)[3] s4 = <(string|int)[3]> b;
+    (string|int)?[3] s4 = <(string|int)?[3]> b;
 
     return s === s2 && s3 === s4;
 }
 
 function testArrayAssertionNegative() {
-    (string|int)[2] s1 = ["this is an array", "of length"];
+    (string|int)?[2] s1 = ["this is an array", "of length"];
     anydata b = s1;
     any[2] s2 = <string[2]> b;
 }

@@ -95,7 +95,7 @@ function testInvalidArrayAssignments() {
     Bar[] abar = [];
     ad = abar;
 
-    (function (string) returns boolean)[] afp = [];
+    (function (string) returns boolean)?[] afp = [];
     ad = afp;
 
     any[] aa = [];
@@ -104,7 +104,7 @@ function testInvalidArrayAssignments() {
     typedesc[] atd = [];
     ad = atd;
 
-    stream<any>[] ast = [];
+    stream<any>?[] ast = [];
     ad = ast;
 
     any[][] a2a = [];

@@ -374,9 +374,9 @@ public class RefEqualAndNotEqualOperationsTest {
         validateError(resultNegative, 1, "operator '!==' not defined for 'int' and 'string'", 20, 25);
         validateError(resultNegative, 2, "operator '===' not defined for 'int[2]' and 'string[2]'", 26, 21);
         validateError(resultNegative, 3, "operator '!==' not defined for 'int[2]' and 'string[2]'", 26, 34);
-        validateError(resultNegative, 4, "operator '===' not defined for 'float|int[]' and 'boolean|xml[]'", 30,
+        validateError(resultNegative, 4, "operator '===' not defined for 'float|int?[]' and 'boolean|xml?[]'", 30,
                       21);
-        validateError(resultNegative, 5, "operator '!==' not defined for 'float|int[]' and 'boolean|xml[]'", 30,
+        validateError(resultNegative, 5, "operator '!==' not defined for 'float|int?[]' and 'boolean|xml?[]'", 30,
                       34);
         validateError(resultNegative, 6, "operator '===' not defined for 'map<int>' and 'map<float>'", 38, 21);
         validateError(resultNegative, 7, "operator '!==' not defined for 'map<int>' and 'map<float>'", 38, 34);

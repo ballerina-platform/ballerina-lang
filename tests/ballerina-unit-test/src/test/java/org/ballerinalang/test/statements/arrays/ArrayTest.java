@@ -138,7 +138,7 @@ public class ArrayTest {
 
     @Test(description = "Test arrays of types without implicit initial values")
     public void testArrayImplicitInitialValues() {
-        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 6);
+        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 7);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0, "array element type 'ObjInitWithParam' " +
                 "does not have an implicit initial value, use 'ObjInitWithParam?'", 53, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, "array element type 'FT' does not have an " +
@@ -151,6 +151,8 @@ public class ArrayTest {
                 " an implicit initial value, use 'FTNUnion?'", 95, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 5, "array element type 'FT' does not have" +
                 " an implicit initial value, use 'FT?'", 104, 25);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 6, "array element type 'UN' does not have" +
+                " an implicit initial value, use 'UN?'", 113, 1);
     }
 
     @Test(description = "Test arrays of types without implicit initial values")

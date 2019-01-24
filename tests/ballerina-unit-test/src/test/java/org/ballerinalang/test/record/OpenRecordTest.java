@@ -463,7 +463,7 @@ public class OpenRecordTest {
 
         BMap person = (BMap) returns[0];
         BValueArray pets = (BValueArray) person.get("pets");
-        Assert.assertEquals(pets.getType().toString(), "Animal[]");
+        Assert.assertEquals(pets.getType().toString(), "Animal|null[]");
         Assert.assertEquals(person.stringValue(),
                 "{name:\"Foo\", age:25, pets:[{kind:\"Cat\", name:\"Miaw\"}, {kind:\"Dog\", name:\"Woof\"}]}");
     }
@@ -480,7 +480,7 @@ public class OpenRecordTest {
         BValueArray tup = (BValueArray) returns[0];
 
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(tup.getType().toString(), "Animal[]");
+        Assert.assertEquals(tup.getType().toString(), "Animal|null[]");
         Assert.assertEquals(tup.stringValue(), "[{kind:\"Cat\", name:\"Miaw\"}, {kind:\"Dog\", name:\"Woof\"}]");
 
         Assert.assertNull(returns[1]);

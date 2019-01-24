@@ -347,6 +347,6 @@ function testSafeNavigationOnFieldAccess() returns json|error {
 }
 
 function testSafeNavigationOnIndexBasedAccess() returns json|error {
-    (json|error)[] data = [getJsonValue()];
+    (json|error)?[] data = [getJsonValue()];
     return data[0]!foo;
 }

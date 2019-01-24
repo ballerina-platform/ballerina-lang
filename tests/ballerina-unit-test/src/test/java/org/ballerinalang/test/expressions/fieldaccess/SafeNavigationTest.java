@@ -66,9 +66,9 @@ public class SafeNavigationTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++, "variable 'p' is not initialized", 40, 5);
-        BAssertUtil.validateError(negativeResult, i++, "cannot infer type of the error from 'Person[]|error'", 44, 24);
+        BAssertUtil.validateError(negativeResult, i++, "cannot infer type of the error from 'Person?[]|error'", 44, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid operation: type 'Person[]|error' does not support indexing", 45, 12);
+                "invalid operation: type 'Person?[]|error' does not support indexing", 45, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error?'", 50,
                 12);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'other|error?'",

@@ -417,7 +417,7 @@ type Person12 record {
 };
 
 function testAnyRestField() returns Person12 {
-    Animal[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];
+    Animal?[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];
     Person12 p = {name:"Foo", age:25, pets:pets};
     return p;
 }
@@ -429,7 +429,7 @@ function testAnyRestFieldRHSAccess() returns any {
 }
 
 function testAnyRestFieldRHSIndexAccess() returns (any, any) {
-    Animal[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];
+    Animal?[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];
     Person12 p = {pets:pets};
     any a = p["anyField"];
     return (p["pets"], a);

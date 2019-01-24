@@ -41,7 +41,7 @@ function testErrorLiftingOnRHS() {
 }
 
 function testErrorLiftingOnArray() returns Person|error {
-    Person[]|error p = error(" ");
+    Person?[]|error p = error(" ");
     return p[0];
 }
 

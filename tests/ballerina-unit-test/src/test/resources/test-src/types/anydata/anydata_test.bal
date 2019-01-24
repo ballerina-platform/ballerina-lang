@@ -602,9 +602,9 @@ function testAnydataToTable() returns table<Employee>? {
     return convertedT;
 }
 
-function testAnydataToUnion() returns ValueType[] {
+function testAnydataToUnion() returns ValueType?[] {
     anydata ad = 10;
-    ValueType[] vt = [];
+    ValueType?[] vt = [];
     int i = 0;
 
     if (ad is ValueType) {
@@ -761,8 +761,8 @@ function testAnydataToNil() returns int? {
     return -1;
 }
 
-function testAnydataToFiniteType() returns FiniteT[] {
-    FiniteT[] ftar = [];
+function testAnydataToFiniteType() returns FiniteT?[] {
+    FiniteT?[] ftar = [];
     int i = 0;
 
     FiniteT ft = "A";
