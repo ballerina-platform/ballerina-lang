@@ -52,6 +52,14 @@ public interface HttpWsConnectorFactory {
     HttpClientConnector createHttpClientConnector(Map<String, Object> transportProperties,
             SenderConfiguration senderConfiguration);
 
+    /**
+     * Creates a client connector with a given connection manager.
+     *
+     * @param transportProperties Represents the configurations related to HTTP client
+     * @param senderConfiguration Represents the configurations related to client channel creation
+     * @param connectionManager   Manages the client pool
+     * @return the HttpClientConnector
+     */
     HttpClientConnector createHttpClientConnector(Map<String, Object> transportProperties,
         SenderConfiguration senderConfiguration, ConnectionManager connectionManager);
 

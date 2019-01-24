@@ -98,6 +98,16 @@ public class ConnectionManager {
         return http2ConnectionManager;
     }
 
+    /**
+     * Gets the client connection pool.
+     *
+     * @param httpRoute        Represents the endpoint address
+     * @param sourceHandler    Represents the source channel
+     * @param senderConfig     Represents the client configurations
+     * @param bootstrapConfig  Represents the bootstrap info related to client connection creation
+     * @param clientEventGroup Represents the eventloop group that the client channel should be bound to
+     * @return the client connection pool
+     */
     public GenericObjectPool getClientPool(HttpRoute httpRoute, SourceHandler sourceHandler,
         SenderConfiguration senderConfig, BootstrapConfiguration bootstrapConfig, EventLoopGroup clientEventGroup) {
         GenericObjectPool clientPool;
@@ -116,6 +126,16 @@ public class ConnectionManager {
         return clientPool;
     }
 
+    /**
+     * Creates the client pool if it doesn't exist in the global pool map.
+     *
+     * @param httpRoute       Represents the endpoint address
+     * @param senderConfig    Represents the client configurations
+     * @param bootstrapConfig Represents the bootstrap info related to client connection creation
+     * @param eventLoopClass  Represents the eventloop class of the client channel
+     * @param group           Represents the eventloop group that the client channel should be bound to
+     * @return the client connection pool
+     */
     private GenericObjectPool getGenericObjectPool(HttpRoute httpRoute, SenderConfiguration senderConfig,
         BootstrapConfiguration bootstrapConfig, Class eventLoopClass, EventLoopGroup group) {
         GenericObjectPool clientPool;

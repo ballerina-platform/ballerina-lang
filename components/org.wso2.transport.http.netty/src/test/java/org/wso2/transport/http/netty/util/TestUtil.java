@@ -254,6 +254,16 @@ public class TestUtil {
         return requestListener;
     }
 
+    public static DefaultHttpConnectorListener sendRequestAsyncWithGivenPort(CountDownLatch latch,
+        HttpClientConnector httpClientConnector, int port) {
+        HttpCarbonMessage httpsPostReq = TestUtil.
+            createHttpsPostReq(port, "hello", "/");
+        DefaultHttpConnectorListener requestListener = new DefaultHttpConnectorListener(latch);
+        HttpResponseFuture responseFuture = httpClientConnector.send(httpsPostReq);
+        responseFuture.setHttpConnectorListener(requestListener);
+        return requestListener;
+    }
+
     public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer) {
         for (ServerConnector httpServerConnector : serverConnectors) {
             if (!httpServerConnector.stop()) {
