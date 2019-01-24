@@ -89,6 +89,8 @@ public class LSCodeLensesProviderFactory {
 
     /**
      * Add a code lens provider.
+     *
+     * @param provider  code lens provider to register
      */
     public void register(LSCodeLensesProvider provider) {
         this.providersList.add(provider);
@@ -96,6 +98,8 @@ public class LSCodeLensesProviderFactory {
 
     /**
      * Remove code lens provider.
+     *
+     * @param provider  code lens provider to unregister
      */
     public void unregister(LSCodeLensesProvider provider) {
         this.providersList.remove(provider);

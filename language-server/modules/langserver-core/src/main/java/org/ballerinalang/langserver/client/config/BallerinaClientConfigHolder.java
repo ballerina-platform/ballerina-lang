@@ -47,6 +47,8 @@ public class BallerinaClientConfigHolder {
 
     /**
      * Register config listener.
+     *
+     * @param listener  Config change listener to register
      */
     public void register(ConfigChangeListener listener) {
         listeners.add(listener);
@@ -54,6 +56,8 @@ public class BallerinaClientConfigHolder {
 
     /**
      * Unregister config listener.
+     *
+     * @param listener  Config change listener to unregister
      */
     public void unregister(ConfigChangeListener listener) {
         listeners.remove(listener);

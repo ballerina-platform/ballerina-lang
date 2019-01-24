@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Find the endpoints visiting functions and services of a BLangCompilationUnit
+ * Find the endpoints visiting functions and services of a BLangCompilationUnit.
  *
  * @since 0.990.3
  */
