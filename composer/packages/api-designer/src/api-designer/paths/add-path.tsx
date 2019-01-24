@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,14 +17,15 @@
  *
  */
 
+import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Form } from "semantic-ui-react";
+import { Button, Form, Input } from "semantic-ui-react";
 
-export interface OpenApiAddResourceProps {
-    onDidAddResource: (resource: OpenApiResource) => void;
+export interface AddOpenApiPathProps {
+    onAddOpenApiPath: (resource: Swagger.PathItemObject) => void;
 }
 
-export interface OpenApiAddResourceState {
+export interface AddOpenApiPathState {
     openApiResourceObj: OpenApiResource;
     operationMethods: OpenApiOperationMethod[];
 }
@@ -39,8 +40,9 @@ export interface OpenApiOperationMethod {
     value: string;
 }
 
-class OpenApiAddResource extends React.Component<OpenApiAddResourceProps, OpenApiAddResourceState> {
-    constructor(props: OpenApiAddResourceProps) {
+class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPathState> {
+
+    constructor(props: AddOpenApiPathProps) {
         super(props);
 
         this.state = {
@@ -50,6 +52,9 @@ class OpenApiAddResource extends React.Component<OpenApiAddResourceProps, OpenAp
             },
             operationMethods: []
         };
+
+        this.clearFields = this.clearFields.bind(this);
+
     }
 
     public componentDidMount() {
@@ -74,19 +79,25 @@ class OpenApiAddResource extends React.Component<OpenApiAddResourceProps, OpenAp
     }
 
     public render() {
-        const { onDidAddResource } = this.props;
         const { operationMethods } = this.state;
+        const { onAddOpenApiPath } = this.props;
 
         return (
             <Form size="mini" className="add-resource">
                 <Form.Field>
                     <label>Resource Name</label>
-                    <input placeholder="Example: /users/{userId}" onChange={(e) => this.setState({
-                        openApiResourceObj: {
-                            ...this.state.openApiResourceObj,
-                            name: e.target.value
-                        }
-                    })} />
+                    <Input label="/"
+                        placeholder="Example: users/{userId}"
+                    value={this.state.openApiResourceObj.name}
+                        onChange={(e) => {
+                            this.setState({
+                                openApiResourceObj: {
+                                    ...this.state.openApiResourceObj,
+                                    name: e.target.value.replace(/^\//, "").trim()
+                                }
+                            });
+                        }}
+                    />
                 </Form.Field>
                 <Form.Group inline>
                     <label>Methods</label>
@@ -101,7 +112,7 @@ class OpenApiAddResource extends React.Component<OpenApiAddResourceProps, OpenAp
                                         this.setState({
                                             openApiResourceObj: {
                                                 ...this.state.openApiResourceObj,
-                                                methods:  [...this.state.openApiResourceObj.methods, data.label],
+                                                methods: [...this.state.openApiResourceObj.methods, data.label],
                                             }
                                         });
                                     }
@@ -110,12 +121,25 @@ class OpenApiAddResource extends React.Component<OpenApiAddResourceProps, OpenAp
                         );
                     })}
                 </Form.Group>
-                <Button size="tiny" onClick={() => {
-                    onDidAddResource(this.state.openApiResourceObj);
-                }}>Save Resource</Button>
+                <Button size="mini" onClick={() => {
+                    onAddOpenApiPath(this.state.openApiResourceObj);
+                    this.clearFields();
+                }}>Add Resource</Button>
             </Form>
         );
     }
+
+    private clearFields() {
+        this.setState({
+            openApiResourceObj: {
+                methods: [],
+                name: ""
+            },
+            operationMethods: []
+        }, () => {
+            this.populateOperationMethods();
+        });
+    }
 }
 
-export default OpenApiAddResource;
+export default AddOpenApiPath;

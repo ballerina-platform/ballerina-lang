@@ -17,18 +17,14 @@
  *
  */
 
-import { createElement } from "react";
-import { render } from "react-dom";
-import OpenApiVisualizer from "./api-designer/index";
+import * as React from "react";
 
-export default function renderAPIEditor(renderTarget: HTMLElement,
-                                        oasJson: string, onOASChange: () => void , updateView: boolean) {
-    const openApiJson = JSON.parse(oasJson);
-
-    const oasVisualizer = createElement(OpenApiVisualizer, {
-        onDidChange: onOASChange,
-        openApiJson
-    });
-
-    render(oasVisualizer, renderTarget);
+class OpenApiHeader extends React.Component<any, any> {
+    public render() {
+        return (
+            <div></div>
+        );
+    }
 }
+
+export default OpenApiHeader;

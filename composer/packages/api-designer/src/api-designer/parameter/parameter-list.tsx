@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,14 +17,12 @@
  *
  */
 
+import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import { Table } from "semantic-ui-react";
 
-import OpenApiParameter from "./parameter";
-
 export interface OpenApiParameterListProps {
-    parameterType: string;
-    parameterList: any;
+    parameterList: Swagger.ParameterObject[];
 }
 
 class OpenApiParameterList extends React.Component<OpenApiParameterListProps, any> {
@@ -33,7 +31,7 @@ class OpenApiParameterList extends React.Component<OpenApiParameterListProps, an
     }
 
     public render() {
-        const { parameterList, parameterType } = this.props;
+        const { parameterList } = this.props;
 
         return (
             <Table celled>
@@ -44,12 +42,25 @@ class OpenApiParameterList extends React.Component<OpenApiParameterListProps, an
                 </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {parameterList && Object.keys(parameterList).map((param) => {
+                    {parameterList.map((param: Swagger.ParameterObject, index: number) => {
                         return (
-                            <OpenApiParameter
-                                responseCode={parameterType === "response" ? param : ""}
-                                parameterObject={parameterList[param]}
-                            />
+                            <Table.Row>
+                                <Table.Cell className="parameter-name-cell">
+                                    <div className="parameter__name required">
+                                        {param.name}
+                                    </div>
+                                    <div className="parameter__type">
+                                        {param.in &&
+                                            <p><em>({param.in})</em></p>
+                                        }
+                                    </div>
+                                </Table.Cell>
+                                <Table.Cell className="parameter-desc-cell">
+                                    <div className="markdown">
+                                        {param.description}
+                                    </div>
+                                </Table.Cell>
+                            </Table.Row>
                         );
                     })}
                 </Table.Body>

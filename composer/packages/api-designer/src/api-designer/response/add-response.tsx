@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,14 +17,13 @@
  *
  */
 
+import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import { Button, Form, Header, Icon, Select } from "semantic-ui-react";
 
-import { OpenApiResponse } from "../../components/parameter/add-response";
-
 export interface OpenApiAddResponseProps {
     openApiJson: any;
-    onAddResponse: (response: OpenApiResponse) => void;
+    onAddResponse: (response: Swagger.ResponseObject) => void;
     operation: string;
     resourcePath: string;
     handleClose: (isClose: boolean) => void;
@@ -32,7 +31,7 @@ export interface OpenApiAddResponseProps {
 
 export interface OpenApiAddResponseState {
     responseStatus: OpenApiResponseCode[];
-    responseObject: OpenApiResponse;
+    responseObject: Swagger.ResponseObject;
 }
 
 export interface OpenApiResponse {

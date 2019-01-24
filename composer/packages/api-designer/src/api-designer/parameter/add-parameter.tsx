@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,34 +17,21 @@
  *
  */
 
+import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import { Button, Checkbox, Form, Header, Icon, Select } from "semantic-ui-react";
 
-import { OpenApiParameter } from "../../components/parameter/add-parameter";
-
 export interface OpenApiAddParameterProps {
-    openApiJson: any;
-    onAddParameter: (parameter: OpenApiParameter) => void;
+    openApiJson: Swagger.OpenAPIObject;
+    onAddParameter: (parameter: Swagger.ParameterObject) => void;
     operation: string;
     resourcePath: string;
-    handleClose: (isClose: boolean) => void;
 }
 
 export interface OpenApiAddParameterState {
     parameterIn: OpenApiParameterIn[];
     parameterType: OpenApiParameterType[];
-    parameterObj: OpenApiParameter;
-}
-
-export interface OpenApiParameter {
-    name: string;
-    parameterIn: string;
-    description: string;
-    isRequired: boolean;
-    allowedEmptyValues: boolean;
-    resourcePath: string;
-    operation: string;
-    type: string;
+    parameterObj: Swagger.ParameterObject;
 }
 
 export interface OpenApiParameterIn {
@@ -68,12 +55,13 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
             parameterObj: {
                 allowedEmptyValues: false,
                 description: "",
+                in: "path",
                 isRequired: false,
                 name: "",
                 operation: this.props.operation,
                 parameterIn: "",
                 resourcePath: this.props.resourcePath,
-                type: ""
+                type: "",
             },
             parameterType: []
         };
@@ -84,51 +72,15 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
         this.populateParamTypeField();
     }
 
-    public populateParameterInField() {
-        const paramInDefaults = ["Header", "Path", "Query", "Cookie"];
-        const paramInList: OpenApiParameterIn[] = [];
-
-        paramInDefaults.forEach((response) => {
-            paramInList.push({
-                key: response.toLowerCase(),
-                text: response,
-                value: response.toLowerCase(),
-            });
-        });
-
-        this.setState({
-            parameterIn: paramInList
-        });
-    }
-
-    public populateParamTypeField() {
-        const typeInDefaults = ["String", "Number", "Boolean"];
-        const typeList: OpenApiParameterType[] = [];
-
-        typeInDefaults.forEach((response) => {
-            typeList.push({
-                key: response.toLowerCase(),
-                text: response,
-                value: response.toLowerCase(),
-            });
-        });
-
-        this.setState({
-            parameterType: typeList
-        });
-    }
-
     public render() {
         const { parameterIn, parameterType } = this.state;
-        const { onAddParameter, handleClose } = this.props;
+        const { onAddParameter } = this.props;
 
         return (
             <Form size="mini" className="add-operation">
                 <div className="form-box">
                     <Header floated="left" as="h3">Add Parameter</Header>
-                    <Icon circular onClick={() => {
-                        handleClose(true);
-                    }} className="fw fw-delete" />
+                    <Icon circular className="fw fw-delete" />
                 </div>
                 <Form.Field>
                     <label>Name</label>
@@ -197,10 +149,43 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
                 </Form.Field>
                 <Button size="mini" onClick={() => {
                     onAddParameter(this.state.parameterObj);
-                    handleClose(true);
                 }}>Save</Button>
             </Form>
         );
+    }
+
+    private populateParameterInField() {
+        const paramInDefaults = ["Path", "Query"];
+        const paramInList: OpenApiParameterIn[] = [];
+
+        paramInDefaults.forEach((response) => {
+            paramInList.push({
+                key: response.toLowerCase(),
+                text: response,
+                value: response.toLowerCase(),
+            });
+        });
+
+        this.setState({
+            parameterIn: paramInList
+        });
+    }
+
+    private populateParamTypeField() {
+        const typeInDefaults = ["String", "Number", "Boolean"];
+        const typeList: OpenApiParameterType[] = [];
+
+        typeInDefaults.forEach((response) => {
+            typeList.push({
+                key: response.toLowerCase(),
+                text: response,
+                value: response.toLowerCase(),
+            });
+        });
+
+        this.setState({
+            parameterType: typeList
+        });
     }
 }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,84 +17,55 @@
  *
  */
 
+import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Message } from "semantic-ui-react";
-import { validate } from "swagger-parser";
-import * as Swagger from "swagger-schema-official";
+import { Button, Divider } from "semantic-ui-react";
 
-import { OpenApiOperation } from "./components/operation/add-operation";
-import { OpenApiParameter } from "./components/parameter/add-parameter";
-import { OpenApiResponse } from "./components/parameter/add-response";
-import { OpenApiResource } from "./components/resource/add-resource";
-import OpenApiResourceList from "./components/resource/resources";
-import { OpenApiContext, OpenApiContextProvider } from "./context/open-api-context";
+import { OpenApiContext, OpenApiContextProvider } from "./components/context/open-api-context";
 
-import HideComponent from "./util-components/hider";
-import InlineEdit from "./util-components/inline-edit";
+import { EVENTS } from "./components/utils/constants";
 
-export interface OasProps {
-    openApiJson: any;
-    onDidAddResource?: (resourse: OpenApiResponse | string, swagger: Swagger.Spec) => void;
-    onDidAddOperation?: (operation: OpenApiOperation, swagger: Swagger.Spec) => void;
-    onDidAddParameter?: (parameter: OpenApiParameter, swagger: Swagger.Spec) => void;
-    onDidChange?: (event: string, swaggerJson: Swagger.Spec) => void;
+import OpenApiInfo from "./components/info/info";
+import AddOpenApiPath from "./paths/add-path";
+import OpenApiPathList from "./paths/paths-list";
+
+export interface OpenApiProps {
+    openApiJson: Swagger.OpenAPIObject;
+    onDidAddResource?: (resourse: Swagger.PathItemObject | string, swagger: Swagger.OpenAPIObject) => void;
+    onDidAddOperation?: (operation: Swagger.OperationObject, swagger: Swagger.OpenAPIObject) => void;
+    onDidAddParameter?: (parameter: Swagger.ParameterObject, swagger: Swagger.OpenAPIObject) => void;
+    onDidChange?: (event: string, swaggerJson: Swagger.OpenAPIObject) => void;
 }
 
 export interface OpenApiState {
-    openApiJson: any;
-    isError: OpenApiError;
-    actionState: OpenApiActionState;
+    showOpenApiAddPath: boolean;
+    openApiJson: Swagger.OpenAPIObject;
+    showType: string;
 }
 
-export interface OpenApiActionState {
-    state: string;
-    message: string;
-}
-
-export interface OpenApiError {
-    status: boolean;
-    inline: boolean;
-    message: string;
-}
-
-enum EVENTS {
-    ADD_RESOURCE = "add_resource",
-    ADD_OPERATION  = "add_operation",
-    ADD_PARAMETER  = "add_parameter",
-    ADD_RESPONSE  = "add_response",
-    DELETE_OPERATION  = "del_operation",
-    DELETE_RESOURCE  = "del_resource",
-    DELETE_PARAMETER  = "del_parameter",
-    DELETE_RESPONSE  = "del_response",
-    ON_INLINE_CHANGE = "inline_edit"
-}
-
-/**
- * Component which will visualize a given OAS Json
- * Compatible with OAS 3.x versions
- */
-class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
-    constructor(props: OasProps) {
+class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
+    constructor(props: OpenApiProps) {
         super(props);
+
         this.state = {
-            actionState: {
-                message: "",
-                state: ""
+            openApiJson: {
+                info: {
+                    title: this.props.openApiJson.info.title,
+                    version: this.props.openApiJson.info.version
+                },
+                openapi: this.props.openApiJson.openapi,
+                paths: this.props.openApiJson.paths
             },
-            isError: {
-                inline: false,
-                message: "",
-                status: false
-            },
-            openApiJson: {}
+            showOpenApiAddPath: false,
+            showType: "all"
         };
 
-        this.onDidAddResource = this.onDidAddResource.bind(this);
-        this.onDidAddOperation = this.onDidAddOperation.bind(this);
-        this.onDidAddParameter = this.onDidAddParameter.bind(this);
-        this.onDidAddResponse = this.onDidAddResponse.bind(this);
-        this.handleMessageHide = this.handleMessageHide.bind(this);
-        this.onInlineEditChange = this.onInlineEditChange.bind(this);
+        this.handleShowOpenApiAddPath = this.handleShowOpenApiAddPath.bind(this);
+        this.onAddOpenApiPath = this.onAddOpenApiPath.bind(this);
+        this.onAddOpenApiOperation = this.onAddOpenApiOperation.bind(this);
+        this.onAddOpenApiParameter = this.onAddOpenApiParameter.bind(this);
+        this.onInlineValueChange = this.onInlineValueChange.bind(this);
+        this.onExpandAll = this.onExpandAll.bind(this);
     }
 
     public componentDidMount() {
@@ -104,46 +75,64 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
         this.setState({
             openApiJson
         });
-
-        this.validateJsonProp(openApiJson);
-        this.validateOpenApiJson(openApiJson);
     }
 
-    public componentWillReceiveProps(nextProps: OasProps) {
+    public componentWillReceiveProps(nextProps: OpenApiProps) {
         let { openApiJson } = nextProps;
         openApiJson = typeof openApiJson !== "object" ? JSON.parse(openApiJson) : openApiJson;
 
-        this.setState({
-            openApiJson
-        });
-
-        this.validateJsonProp(openApiJson);
-        this.validateOpenApiJson(openApiJson);
+        if (openApiJson !== this.state.openApiJson) {
+            this.setState({
+                openApiJson
+            });
+        }
     }
 
-    /**
-     * Event which will get triggered when a resource is added.
-     *
-     * @param addedResource Resource object which is added
-     */
-    public onDidAddResource(addedResource: OpenApiResource) {
-        const { onDidAddResource, onDidChange } = this.props;
-        const resourceName = addedResource.name.replace(" ", "");
-        const operations: { [index: string]: Swagger.Operation } = {};
+    public render() {
+        const { openApiJson } = this.props;
+        const { showOpenApiAddPath, showType } = this.state;
 
-        addedResource.methods.forEach((method, index) => {
+        const appContext: OpenApiContext = {
+            onAddOpenApiOperation: this.onAddOpenApiOperation,
+            onAddOpenApiParameter: this.onAddOpenApiParameter,
+            onAddOpenApiPath: this.onAddOpenApiPath,
+            onAddOpenApiResponse: this.onAddOpenApiResponse,
+            onInlineValueChange: this.onInlineValueChange,
+            openApiJson,
+            showType
+        };
+        return (
+            <OpenApiContextProvider value={appContext}>
+                <OpenApiInfo info={openApiJson.info} />
+                <Divider />
+                <Button size="mini" primary icon labelPosition="left" onClick={this.handleShowOpenApiAddPath}>
+                    <i className="fw fw-add icon"></i>
+                    Add Resource
+                </Button>
+                <Button.Group floated="right" size="mini">
+                    <Button type="resources" onClick={this.onExpandAll}>List Resources</Button>
+                    <Button type="operations" onClick={this.onExpandAll}>List Operations</Button>
+                    <Button type="all" onClick={this.onExpandAll}>
+                        {showType !== "collapse" ? "Collapse All" : "Expand All"}
+                    </Button>
+                </Button.Group>
+                {showOpenApiAddPath &&
+                    <AddOpenApiPath onAddOpenApiPath={appContext.onAddOpenApiPath} />
+                }
+                <OpenApiPathList showType={showType} paths={openApiJson.paths} />
+            </OpenApiContextProvider>
+        );
+    }
+
+    private onAddOpenApiPath(path: Swagger.PathItemObject) {
+        const { onDidAddResource, onDidChange } = this.props;
+        const resourceName = path.name.replace(" ", "");
+        const operations: { [index: string]: Swagger.OperationObject } = {};
+
+        path.methods.forEach((method: string, index: number) => {
             operations[method.toLowerCase()] = {
-                description: "",
                 operationId: index === 0 ? resourceName : "resource" + index,
-                parameters: [],
-                responses : {
-                        200: {
-                            description: "OK"
-                        }
-                    },
-                security: [],
-                summary: "",
-                tags: []
+                responses: {},
             };
         });
 
@@ -157,8 +146,8 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                 }
             }
         }), () => {
-
             if (this.state.openApiJson.paths["/" + resourceName]) {
+
                 if (onDidAddResource) {
                     onDidAddResource(resourceName, this.state.openApiJson);
                 }
@@ -167,25 +156,13 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                     onDidChange(EVENTS.ADD_RESOURCE, this.state.openApiJson);
                 }
 
-                this.setState({
-                    actionState: {
-                        message: "Resource : " + resourceName + " added successfully to the definition.",
-                        state: "success"
-                    }
-                });
             }
         });
     }
 
-    /**
-     *
-     * Event which will get triggered when a resource is added.
-     *
-     * @param operationsObj operations object which is added
-     */
-    public onDidAddOperation(operationsObj: OpenApiOperation) {
+    private onAddOpenApiOperation(operation: Swagger.OperationObject) {
         const { onDidAddOperation, onDidChange } = this.props;
-        const path = operationsObj.path;
+        const path = operation.path;
         const operations = this.state.openApiJson.paths[path];
         const paths = this.state.openApiJson.paths;
         let resourceIndex: number = 0;
@@ -204,16 +181,16 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
             }
         });
 
-        operationsObj.method.forEach((method, index) => {
+        operation.method.forEach((method: string, index: number) => {
             operations[method.toLowerCase()] = {
                 description: "",
-                operationId: Object.keys(operations).length === 0 ? path  : "resource" + resourceIndex,
+                operationId: Object.keys(operations).length === 0 ? path : "resource" + resourceIndex,
                 parameters: [],
-                responses : {
-                        200: {
-                            description: "OK"
-                        }
-                    },
+                responses: {
+                    200: {
+                        description: "OK"
+                    }
+                },
                 security: [],
                 summary: "",
                 tags: []
@@ -227,37 +204,58 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                 ...prevState.openApiJson,
                 paths: {
                     ...prevState.openApiJson.paths,
-                    [path] : operations
+                    [path]: operations
                 }
             }
         }), () => {
 
             if (onDidAddOperation) {
-                onDidAddOperation(operationsObj, this.state.openApiJson);
+                onDidAddOperation(operation, this.state.openApiJson);
             }
 
             if (onDidChange) {
                 onDidChange(EVENTS.ADD_OPERATION, this.state.openApiJson);
             }
 
-            const { openApiJson } = this.state;
-
-            this.setState({
-                actionState: {
-                    message: "Added operation to " + path,
-                    state: "success"
-                },
-                openApiJson
-            });
-
         });
     }
 
-    public onDidAddParameter(parameterObj: OpenApiParameter) {
+    private onExpandAll(e: any) {
+        const type = e.target.attributes.getNamedItem("type").value;
+
+        switch (type) {
+            case "resources":
+                this.setState({
+                    showType: "resources"
+                });
+                break;
+            case "operations":
+                this.setState({
+                    showType: "operations"
+                });
+                break;
+            case "all":
+                const { showType } = this.state;
+                if (showType === "all" || showType === "resources" || showType === "operations") {
+                    this.setState({
+                        showType: "collapse"
+                    });
+                } else {
+                    this.setState({
+                        showType: "all"
+                    });
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private onAddOpenApiParameter(parameter: Swagger.ParameterObject) {
         const { onDidAddParameter, onDidChange } = this.props;
         const { openApiJson } = this.state;
-        const path = parameterObj.resourcePath;
-        const method = parameterObj.operation;
+        const path = parameter.resourcePath;
+        const method = parameter.operation;
 
         if (openApiJson.paths[path][method].parameters) {
             this.setState((prevState) => ({
@@ -273,13 +271,13 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 parameters : [
                                     ...prevState.openApiJson.paths[path][method].parameters,
                                     {
-                                        allowEmptyValue: parameterObj.allowedEmptyValues,
-                                        description: parameterObj.description,
-                                        in: parameterObj.parameterIn,
-                                        isRequired: parameterObj.isRequired,
-                                        name: parameterObj.name,
+                                        allowEmptyValue: parameter.allowedEmptyValues,
+                                        description: parameter.description,
+                                        in: parameter.parameterIn,
+                                        isRequired: parameter.isRequired,
+                                        name: parameter.name,
                                         schema: {
-                                            type: parameterObj.type
+                                            type: parameter.type
                                         }
                                     }
                                 ]
@@ -290,19 +288,12 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
             }), () => {
 
                 if (onDidAddParameter) {
-                    onDidAddParameter(parameterObj, this.state.openApiJson);
+                    onDidAddParameter(parameter, this.state.openApiJson);
                 }
 
                 if (onDidChange) {
                     onDidChange(EVENTS.ADD_PARAMETER, this.state.openApiJson);
                 }
-
-                this.setState({
-                    actionState: {
-                        message: "Successfully added parameter to " + path + method,
-                        state: "success"
-                    }
-                });
 
             });
         } else {
@@ -318,13 +309,13 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 ...prevState.openApiJson.paths[path][method],
                                 parameters : [
                                     {
-                                        allowEmptyValue: parameterObj.allowedEmptyValues,
-                                        description: parameterObj.description,
-                                        in: parameterObj.parameterIn,
-                                        isRequired: parameterObj.isRequired,
-                                        name: parameterObj.name,
+                                        allowEmptyValue: parameter.allowedEmptyValues,
+                                        description: parameter.description,
+                                        in: parameter.parameterIn,
+                                        isRequired: parameter.isRequired,
+                                        name: parameter.name,
                                         schema: {
-                                            type: parameterObj.type
+                                            type: parameter.type
                                         }
                                     }
                                 ]
@@ -335,262 +326,39 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
             }), () => {
 
                 if (onDidAddParameter) {
-                    onDidAddParameter(parameterObj, this.state.openApiJson);
+                    onDidAddParameter(parameter, this.state.openApiJson);
                 }
 
                 if (onDidChange) {
                     onDidChange(EVENTS.ADD_PARAMETER, this.state.openApiJson);
                 }
 
-                this.setState({
-                    actionState: {
-                        message: "Successfully added parameter to " + path + method,
-                        state: "success"
-                    }
-                });
-
             });
         }
-
     }
 
-    /**
-     * Event which will get triggerred when a new response is added
-     *
-     * @param responseObj response object which is added
-     */
-    public onDidAddResponse(responseObj: OpenApiResponse) {
-        const { onDidAddResource, onDidChange } = this.props;
-        const path = responseObj.resourcePath;
-        const method = responseObj.operation;
+    private onAddOpenApiResponse(response: Swagger.ResponseObject) {
+        // console.log('add-response');
+    }
+
+    private onInlineValueChange(openApiJson: Swagger.OpenAPIObject) {
+        const { onDidChange } = this.props;
 
         this.setState((prevState) => ({
             ...prevState,
-            openApiJson: {
-                ...prevState.openApiJson,
-                paths: {
-                    ...prevState.openApiJson.paths,
-                    [path] : {
-                        ...prevState.openApiJson.paths[path],
-                        [method] : {
-                            ...prevState.openApiJson.paths[path][method],
-                            responses : {
-                                ...prevState.openApiJson.paths[path][method].responses,
-                                [responseObj.status] : {
-                                    description: responseObj.description
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }), () => {
-
-            if (onDidAddResource) {
-                onDidAddResource(responseObj, this.state.openApiJson);
-            }
-
-            if (onDidChange) {
-                onDidChange(EVENTS.ADD_RESPONSE, this.state.openApiJson);
-            }
-
-            this.setState({
-                actionState: {
-                    message: "Successfully added response to " + path + method,
-                    state: "success"
-                }
-            });
-
-        });
-    }
-
-    public onInlineEditChange(openApiJson: any) {
-        const { onDidChange } = this.props;
-
-        this.setState({
             openApiJson
-        }, () => {
+        }), () => {
             if (onDidChange) {
                 onDidChange(EVENTS.ON_INLINE_CHANGE, this.state.openApiJson);
             }
         });
+
     }
 
-    /**
-     * Util method to validate Open API JSON.
-     *
-     * @param json Open API JSON that needs to be validated
-     * @param onvalidattion Function to be run as a callback after validation
-     */
-    public validateOpenApiJson(json: Swagger.Spec , onvalidattion?: (validJson: any) => void) {
-        validate(json).then((validjson) => {
-            if (onvalidattion) {
-                onvalidattion(validjson);
-            }
-        }).catch((error) => {
-            this.setState({
-                isError: {
-                    inline: true,
-                    message: error.message,
-                    status: true
-                }
-            });
-        });
-    }
-
-    /**
-     * Util method to check the prop contains a json to be processed.
-     *
-     * @param json JSON String which needs to be checked for undefined
-     */
-    public validateJsonProp(json: Swagger.Spec) {
-        if (!json) {
-            this.setState({
-                isError: {
-                    inline: false,
-                    message: "Open API Specification complient JSON String is required.",
-                    status: true,
-                }
-            });
-        }
-    }
-
-    public handleMessageHide() {
+    private handleShowOpenApiAddPath() {
         this.setState({
-            actionState: {
-                message: "",
-                state: ""
-            },
-            isError: {
-                inline: false,
-                message: "",
-                status: false
-            }
+            showOpenApiAddPath: !this.state.showOpenApiAddPath
         });
-    }
-
-    public render() {
-        const { isError: { status, inline }, isError, openApiJson,
-                openApiJson: { paths, info }, actionState } = this.state;
-        const appContext: OpenApiContext = {
-            onDidAddOperation: this.onDidAddOperation,
-            onDidAddParameter: this.onDidAddParameter,
-            onDidAddResource: this.onDidAddResource,
-            onDidAddResponse: this.onDidAddResponse,
-            onInlineEditChange: this.onInlineEditChange,
-            openApiJson,
-        };
-
-        if (status && !inline) {
-            return (
-                <Message error content={isError.message} />
-            );
-        }
-
-        return (
-            <OpenApiContextProvider value={appContext}>
-                {isError.status && isError.inline &&
-                    <HideComponent hideOn={5000} callback={this.handleMessageHide}>
-                        <Message error content={isError.message} />
-                    </HideComponent>
-                }
-                {info &&
-                    <React.Fragment>
-                        <div className="oas-header">
-                            <h1>
-                                {info.title}
-                                <span>{openApiJson.host}{openApiJson.basePath}</span>
-                            </h1>
-                            <span className="version">{info.version}</span>
-                        </div>
-                        <div className="oas-details">
-                            <div className="description">
-                                <InlineEdit
-                                    isMarkdown
-                                    changeModel={openApiJson}
-                                    changeAttribute={{key: "info.description", changeValue: ""}}
-                                    inlineEditString={info.description}
-                                    placeholderString="Add a description"
-                                    isParagraph
-                                    onInlineValueChange={this.onInlineEditChange}
-                                />
-                            </div>
-                            <div>
-                                <InlineEdit
-                                    changeModel={openApiJson}
-                                    changeAttribute={{key: "info.termsOfService", changeValue: ""}}
-                                    inlineEditString={info.termsOfService}
-                                    placeholderString="Add terms of service link."
-                                    isURL={{ urlLink: info.termsOfService, urlString: info.termsOfService }}
-                                    onInlineValueChange={this.onInlineEditChange}
-                                />
-                            </div>
-                            <div>
-                                {info.license ?
-                                    <InlineEdit
-                                        changeModel={openApiJson}
-                                        changeAttribute={{key: "info.license", changeValue: ""}}
-                                        inlineEditString={info.license.url}
-                                        placeholderString="Add license link."
-                                        isURL={{ urlLink: info.license.url, urlString: info.license.name }}
-                                        onInlineValueChange={this.onInlineEditChange}
-                                    />
-                                :
-                                    <InlineEdit
-                                        changeModel={openApiJson}
-                                        changeAttribute={{key: "info.license", changeValue: ""}}
-                                        inlineEditString={""}
-                                        placeholderString="Add license link."
-                                        isURL={{ urlLink: "", urlString: "" }}
-                                        onInlineValueChange={this.onInlineEditChange}
-                                    />
-                                }
-                            </div>
-                            <div>
-                                {info.contact ?
-                                    <InlineEdit
-                                        changeModel={openApiJson}
-                                        changeAttribute={{key: "info.contact", changeValue: ""}}
-                                        inlineEditString={info.contact.url}
-                                        placeholderString="Add contact information."
-                                        isURL={{ urlLink: info.contact.url, urlString: info.contact.name }}
-                                        onInlineValueChange={this.onInlineEditChange}
-                                    />
-                                :
-                                    <InlineEdit
-                                        changeModel={openApiJson}
-                                        changeAttribute={{key: "info.contact", changeValue: ""}}
-                                        inlineEditString={""}
-                                        placeholderString="Add contact information"
-                                        isURL={{ urlLink: "", urlString: "" }}
-                                        onInlineValueChange={this.onInlineEditChange}
-                                    />
-                                }
-
-                            </div>
-                        </div>
-                    </React.Fragment>
-                }
-                {(() => {
-                    if (actionState.state === "success") {
-                        return (
-                            <HideComponent hideOn={5000} callback={this.handleMessageHide}>
-                                <Message success content={actionState.message} />
-                            </HideComponent>
-                        );
-                    } else if (actionState.state === "error") {
-                        return (
-                            <HideComponent hideOn={5000} callback={this.handleMessageHide}>
-                                <Message error content={actionState.message} />
-                            </HideComponent>
-                        );
-                    } else {
-                        return "";
-                    }
-                })()}
-                <OpenApiResourceList openApiResources={paths} />
-            </OpenApiContextProvider>
-        );
     }
 }
 
