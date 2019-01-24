@@ -83,7 +83,7 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
                     this.setState({
                         operationMethods: []
                     });
-                }}>Save</Button>
+                }}>Add</Button>
             </Form>
         );
     }

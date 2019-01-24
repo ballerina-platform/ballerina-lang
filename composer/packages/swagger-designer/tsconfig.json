@@ -1,9 +1,0 @@
-{
-    "extends": "../../configs/common.tsconfig.json",
-    "compilerOptions": {
-      "rootDirs": ["src"],
-      "outDir": "lib",
-      "allowSyntheticDefaultImports": true
-    }
-}
-  

@@ -29,6 +29,7 @@
             .action-container {
                 margin-bottom: 1em;
             }
+
             .accordion.ui.fluid.styled {
                 padding-bottom: .5em !important;
                 margin-top: 20px;
@@ -143,6 +144,10 @@
                         display: inline;
                     }
                 }
+                .path-op-container {
+                    float: right;
+                    margin-top: -5px;
+                }
             }
             .resource-container {
                 margin: 1em 0;
@@ -161,7 +166,6 @@
                 margin-left: 1.2em;
             }
             .add-resource {
-                background: red !important;
                 margin: 1em 0;
                 padding: 1em;
                 background-color:~"@{@{color}-api-designer-add-resource-background-color}";
@@ -360,7 +364,8 @@
             }
         }
     }
-    body.api-designer {
-        .api-designer("light");
-    }
-    .loadUIOverrides();
+}
+body.api-designer {
+    .api-designer("light");
+}
+.loadUIOverrides();

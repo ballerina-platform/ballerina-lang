@@ -102,7 +102,7 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                         );
                     })}
                 </Form.Group>
-                <Button size="tiny" onClick={() => {
+                <Button size="mini" onClick={() => {
                     onAddOpenApiPath(this.state.openApiResourceObj);
                     this.clearFields();
                 }}>Add Resource</Button>
