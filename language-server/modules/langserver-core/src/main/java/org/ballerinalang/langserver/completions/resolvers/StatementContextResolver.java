@@ -88,7 +88,7 @@ public class StatementContextResolver extends AbstractItemResolver {
                     List<BType> members =
                             new ArrayList<>(((BUnionType) symbolInfo.getScopeEntry().symbol.type).memberTypes);
                     String symbolName = symbolInfo.getScopeEntry().symbol.name.getValue();
-                    String label = "if - typeguard " + symbolName;
+                    String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
                     String snippet = IntStream.range(0, members.size()).mapToObj(value -> {
                         BType bType = members.get(value);

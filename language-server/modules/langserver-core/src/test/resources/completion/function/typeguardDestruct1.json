@@ -864,7 +864,7 @@
       ]
     },
     {
-      "label":"if - typeguard tGuard1",
+      "label":"tGuard1 - typeguard tGuard1",
       "kind":"Snippet",
       "detail":"Destructure the variable tGuard1 with typeguard",
       "sortText":"110",
