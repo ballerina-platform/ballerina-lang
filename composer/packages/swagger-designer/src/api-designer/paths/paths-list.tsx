@@ -11,6 +11,7 @@ import InlineEdit from "../components/utils/inline-edit";
 
 interface OpenApiPathProps {
     paths: Swagger.PathsObject;
+    showType: string;
 }
 
 interface OpenApiPathState {
@@ -29,6 +30,27 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
 
         this.onAccordionTitleClick = this.onAccordionTitleClick.bind(this);
         this.onAddOperationClick = this.onAddOperationClick.bind(this);
+    }
+
+    public componentWillReceiveProps(nextProps: OpenApiPathProps) {
+        const { paths, showType } = nextProps;
+        const activePaths: number[] = [];
+        let hideForm: boolean = this.state.showAddOperation;
+
+        if (showType === "operations" || showType === "resources" || showType === "all") {
+            Object.keys(paths).sort().map((openApiResource, index) => {
+                activePaths.push(index);
+            });
+        }
+
+        if (showType === "collapse") {
+            hideForm = false;
+        }
+
+        this.setState({
+            activeIndex: activePaths,
+            showAddOperation: hideForm
+        });
     }
 
     public render() {
@@ -83,6 +105,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                 />
                                             }
                                             <OpenApiOperation
+                                                showType={context!.showType}
                                                 path={openApiResource}
                                                 pathItem={paths[openApiResource]}
                                             />
