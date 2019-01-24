@@ -127,6 +127,7 @@ public class FormattingTest {
                 {"expectedElvisExpr.bal", "elvisExpr.bal"},
                 {"expectedErrorConstructor.bal", "errorConstructor.bal"},
                 {"expectedForever.bal", "forever.bal"},
+                {"expectedRecordLiteralExpr.bal", "recordLiteralExpr.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
