@@ -34,17 +34,9 @@ public class CommandConstants {
 
     public static final String ARG_KEY_MODULE_NAME = "module";
 
-    public static final String ARG_KEY_FUNC_NAME = "function.name";
+    public static final String ARG_KEY_SERVICE_NAME = "service.name";
 
-    public static final String ARG_KEY_FUNC_LOCATION = "function.location";
-
-    public static final String ARG_KEY_RETURN_TYPE = "function.returns";
-
-    public static final String ARG_KEY_VAR_NAME = "var.name";
-
-    public static final String ARG_KEY_RETURN_DEFAULT_VAL = "function.returns.default";
-
-    public static final String ARG_KEY_FUNC_ARGS = "function.arguments";
+    public static final String ARG_KEY_FUNCTION_NAME = "function.name";
 
     public static final String ARG_KEY_NODE_TYPE = "node.type";
 

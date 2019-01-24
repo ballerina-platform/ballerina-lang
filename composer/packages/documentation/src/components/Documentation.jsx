@@ -32,7 +32,7 @@ const Documentation = ({ docDetails }) => {
     }[kind];
 
     return (
-        <div className='documentation-block'>
+        <div className='documentation-block' id={title}>
             <div className='title'>
                 { icon && (<i className={`fw fw-fw icon ${icon}`}></i>) }{title}
                 { kind === 'Function' && '()' }
