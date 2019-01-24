@@ -330,10 +330,9 @@ public class Util {
 
             if (referenceCountedOpenSslContext != null) {
                 SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(socketChannel.alloc());
-                ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
-                sslEngine = engine;
+                sslEngine = sslHandler.engine();
                 socketChannel.pipeline().addLast(sslHandler);
-                socketChannel.pipeline().addLast(new OCSPStaplingHandler(engine));
+                socketChannel.pipeline().addLast(new OCSPStaplingHandler((ReferenceCountedOpenSslEngine) sslEngine));
             }
         } else {
             if (sslConfig.getTrustStore() != null) {
