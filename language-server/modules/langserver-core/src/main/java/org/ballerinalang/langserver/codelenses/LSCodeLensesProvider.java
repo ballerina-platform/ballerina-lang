@@ -36,7 +36,8 @@ public interface LSCodeLensesProvider {
     /**
      * Execute the Command.
      *
-     * @param context           Language Server Context.
+     * @param context           Language Server Context
+     * @return {@link List}     List of code lenses
      * @throws LSCodeLensesProviderException exception while executing the code lenses provider
      */
     List<CodeLens> getLenses(LSContext context) throws LSCodeLensesProviderException;
