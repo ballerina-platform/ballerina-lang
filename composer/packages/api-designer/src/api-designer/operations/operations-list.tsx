@@ -80,7 +80,8 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                             <Accordion.Title
                                 active={activeIndex.includes(index)}
                                 index={index}
-                                onClick={this.onAccordionTitleClick} >
+                                onClick={this.onAccordionTitleClick}
+                                className={openApiOperation} >
                                 <span className={"op-method " + openApiOperation}>{openApiOperation}</span>
                                 <OpenApiContextConsumer>
                                     {(appContext: OpenApiContext) => {
