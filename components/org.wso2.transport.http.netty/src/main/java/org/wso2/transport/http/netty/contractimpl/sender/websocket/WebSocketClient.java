@@ -199,8 +199,13 @@ public class WebSocketClient {
             if (evt instanceof SslHandshakeCompletionEvent) {
                 SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
                 if (event.isSuccess() && event.cause() == null) {
-                    X509Certificate endUserCert = (X509Certificate) sslEngine.getSession().getPeerCertificates()[0];
-                    endUserCert.checkValidity(new Date());
+                    try {
+                        X509Certificate endUserCert = (X509Certificate) sslEngine.getSession().getPeerCertificates()[0];
+                        endUserCert.checkValidity(new Date());
+                    } catch (CertificateExpiredException e) {
+                        clientHandshakeFuture
+                                .notifyError(new SSLException("Certificate expired : " + e.getMessage()), null);
+                    }
                     configureHandshakePipeline(ctx.channel().pipeline());
                     ctx.pipeline().remove(Constants.SSL_COMPLETION_HANDLER);
                     ctx.fireChannelActive();

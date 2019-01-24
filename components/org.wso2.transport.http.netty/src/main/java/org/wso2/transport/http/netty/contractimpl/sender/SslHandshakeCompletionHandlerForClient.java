@@ -24,10 +24,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import org.wso2.transport.http.netty.contract.Constants;
 
+import java.security.cert.CertificateExpiredException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 
 /**
  * A handler to check whether TLS handshake has been completed and notify the listener.
@@ -56,8 +58,14 @@ public class SslHandshakeCompletionHandlerForClient extends ChannelInboundHandle
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
-                X509Certificate endUserCert = (X509Certificate) sslEngine.getSession().getPeerCertificates()[0];
-                endUserCert.checkValidity(new Date());
+                try {
+                    X509Certificate endUserCert = (X509Certificate) sslEngine.getSession().getPeerCertificates()[0];
+                    endUserCert.checkValidity(new Date());
+                } catch (CertificateExpiredException e) {
+                    connectionAvailabilityFuture
+                            .notifyFailure(new SSLException("Certificate expired : " + e.getMessage()));
+                    ctx.close();
+                }
                 this.httpClientChannelInitializer.configureHttpPipeline(ctx.pipeline(), targetHandler);
                 connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);
             } else {
