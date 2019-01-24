@@ -1,6 +1,6 @@
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Icon, Divider } from "semantic-ui-react";
+import { Button, Divider } from "semantic-ui-react";
 
 import { OpenApiContext, OpenApiContextProvider } from "./components/context/open-api-context";
 
@@ -87,7 +87,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                 <OpenApiInfo info={openApiJson.info} />
                 <Divider />
                 <Button size="mini" primary icon labelPosition="left" onClick={this.handleShowOpenApiAddPath}>
-                    <Icon name="plus" />
+                    <i className="fw fw-add"></i>
                     Add Resource
                 </Button>
                 <Button.Group size="mini">

@@ -61,7 +61,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
             <OpenApiContextConsumer>
                 {(context: OpenApiContext | null) => {
                     return (
-                        <Accordion fluid>
+                        <Accordion fluid styled>
                             {Object.keys(paths).sort().map((openApiResource, index) => {
                                 return(
                                     <React.Fragment>
