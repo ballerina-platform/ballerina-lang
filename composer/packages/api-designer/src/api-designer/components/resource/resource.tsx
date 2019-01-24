@@ -94,7 +94,8 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         circular
                         onClick={(e) => {
                             this.handleShowAddOperation(e); }
-                        }><i className="fw fw-add"></i></Button> : ""
+                        }><i className="fw fw-add"></i>
+                        </Button> : ""
                     }
                 </Accordion.Title>
                 <Accordion.Content className="resource-content" active={isExpandAll || active} >
