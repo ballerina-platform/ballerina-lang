@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
@@ -453,9 +454,11 @@ returns error? {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
             if (SHA1.equalsIgnoreCase(hubSignatureMethod)) { //not recommended
-                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
+                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toByteArray("UTF-8"),
+                    subscriptionDetails.secret.toByteArray("UTF-8")));
             } else if (SHA256.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
+                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
+                    subscriptionDetails.secret.toByteArray("UTF-8")));
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);

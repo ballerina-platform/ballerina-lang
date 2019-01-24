@@ -242,3 +242,7 @@ function testStringTypeWithoutType() returns StringTypeWithoutType {
     StringTypeWithoutType t = "random text"; // Invalid value assignment.
     return t;
 }
+
+// -----------------------------------------------------------
+
+const int invalidNil = ();

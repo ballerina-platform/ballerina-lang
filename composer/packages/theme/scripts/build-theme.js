@@ -37,16 +37,24 @@ const generateThemes = () => {
     const themes = fs.readdirSync(themesDir);
 
     let fileWritePromises = themes.map(theme => {
-        const filePath = path.join(themesDir, theme, 'theme.less');
+        const filePath = path.join(themesDir, theme, 'index.less');
+
+        if (!fs.existsSync(filePath)) {
+            return;
+        }
+
         const options = {
+            ieCompat: true,
             compress: false,
             sourceMap: true,
+            javascriptEnabled: true,
             filename: path.resolve(filePath),
             plugins: [
                 new NpmImportPlugin({ prefix: '~' }),
                 new RewriteImportPlugin({
                     paths: {
-                        "../../theme.config": path.join(themesDir, theme, 'theme.config'),
+                        "../../theme.config": path.join(themesDir, theme, 'semantic-ui.config'),
+                        "../../ballerina.config": path.join(themesDir, theme, 'ballerina.config')
                     }
                 })
             ]

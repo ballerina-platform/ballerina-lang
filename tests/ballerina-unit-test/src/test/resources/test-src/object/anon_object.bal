@@ -131,7 +131,7 @@ public type Person object {
     public function getKind() returns string;
 };
 
-function Person.getKind() returns string {
+public function Person.getKind() returns string {
     return self.kind;
 }
 

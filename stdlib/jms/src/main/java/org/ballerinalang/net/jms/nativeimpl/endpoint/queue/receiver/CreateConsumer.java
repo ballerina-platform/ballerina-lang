@@ -29,8 +29,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -65,24 +65,25 @@ public class CreateConsumer implements NativeCallableUnit {
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         String messageSelector = context.getStringArgument(0);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           Constants.JMS_SESSION,
+                                                           JmsConstants.JMS_SESSION,
                                                            Session.class,
                                                            context);
-        Struct queueConsumerConfigBRecord = queueConsumerBObject.getStructField(Constants.CONSUMER_CONFIG);
-        String queueName = JMSUtils.getQueueName(queueConsumerConfigBRecord);
+        Struct queueConsumerConfigBRecord = queueConsumerBObject.getStructField(JmsConstants.CONSUMER_CONFIG);
+        String queueName = JmsUtils.getQueueName(queueConsumerConfigBRecord);
         BMap<String, BValue> destinationBObject = (BMap<String, BValue>) context.getNullableRefArgument(2);
-        Destination destinationObject = JMSUtils.getDestination(context, destinationBObject);
+        Destination destinationObject = JmsUtils.getDestination(context, destinationBObject);
 
-        if (JMSUtils.isNullOrEmptyAfterTrim(queueName) && destinationObject == null) {
+        if (JmsUtils.isNullOrEmptyAfterTrim(queueName) && destinationObject == null) {
             throw new BallerinaException("Queue name and destination cannot be null at the same time", context);
         }
 
         try {
             Destination queue = destinationObject != null ? destinationObject : session.createQueue(queueName);
             MessageConsumer consumer = session.createConsumer(queue, messageSelector);
-            Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_ACTIONS);
-            consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
-            consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
+            Struct consumerConnectorBObject = queueConsumerBObject.getStructField(JmsConstants.CONSUMER_ACTIONS);
+            consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);
+            consumerConnectorBObject.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
+                                                   new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error while creating queue consumer.", context, e);
         }

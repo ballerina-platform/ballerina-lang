@@ -784,11 +784,12 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   public static final TokenSet[] EXTENDS_SETS_ = new TokenSet[] {
     create_token_set_(STATIC_MATCH_IDENTIFIER_LITERAL, STATIC_MATCH_LITERALS, STATIC_MATCH_OR_EXPRESSION, STATIC_MATCH_RECORD_LITERAL,
       STATIC_MATCH_SIMPLE_LITERAL, STATIC_MATCH_TUPLE_LITERAL),
-    create_token_set_(FIELD_VARIABLE_REFERENCE, FUNCTION_INVOCATION_REFERENCE, INVOCATION_REFERENCE, MAP_ARRAY_VARIABLE_REFERENCE,
-      SIMPLE_VARIABLE_REFERENCE, TYPE_ACCESS_EXPR_INVOCATION_REFERENCE, VARIABLE_REFERENCE, XML_ATTRIB_VARIABLE_REFERENCE),
     create_token_set_(ARRAY_TYPE_NAME, GROUP_TYPE_NAME, NULLABLE_TYPE_NAME, OBJECT_TYPE_NAME,
       RECORD_TYPE_NAME, SIMPLE_TYPE_NAME, TUPLE_TYPE_NAME, TYPE_NAME,
       UNION_TYPE_NAME),
+    create_token_set_(FIELD_VARIABLE_REFERENCE, FUNCTION_INVOCATION_REFERENCE, INVOCATION_REFERENCE, MAP_ARRAY_VARIABLE_REFERENCE,
+      SIMPLE_VARIABLE_REFERENCE, STRING_FUNCTION_INVOCATION_REFERENCE, TYPE_ACCESS_EXPR_INVOCATION_REFERENCE, VARIABLE_REFERENCE,
+      XML_ATTRIB_VARIABLE_REFERENCE),
     create_token_set_(ACTION_INVOCATION_EXPRESSION, ARRAY_LITERAL_EXPRESSION, ARROW_FUNCTION_EXPRESSION, BINARY_ADD_SUB_EXPRESSION,
       BINARY_AND_EXPRESSION, BINARY_COMPARE_EXPRESSION, BINARY_DIV_MUL_MOD_EXPRESSION, BINARY_EQUAL_EXPRESSION,
       BINARY_OR_EXPRESSION, BINARY_REF_EQUAL_EXPRESSION, BITWISE_EXPRESSION, BITWISE_SHIFT_EXPRESSION,
@@ -5367,7 +5368,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|wait)
+  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|wait)
   static boolean StatementRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover")) return false;
     boolean r;
@@ -5377,7 +5378,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|wait
+  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|wait
   private static boolean StatementRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover_0")) return false;
     boolean r;
@@ -5390,6 +5391,8 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, OCTAL_INTEGER_LITERAL);
     if (!r) r = consumeToken(b, BINARY_INTEGER_LITERAL);
     if (!r) r = consumeToken(b, NULL_LITERAL);
+    if (!r) r = consumeToken(b, DECIMAL_FLOATING_POINT_NUMBER);
+    if (!r) r = consumeToken(b, HEXADECIMAL_FLOATING_POINT_LITERAL);
     if (!r) r = consumeToken(b, INT);
     if (!r) r = consumeToken(b, STRING);
     if (!r) r = consumeToken(b, FLOAT);
@@ -9255,18 +9258,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // Expression root: VariableReference
   // Operator priority table:
   // 0: POSTFIX(MapArrayVariableReference)
-  // 1: POSTFIX(InvocationReference)
-  // 2: POSTFIX(FieldVariableReference)
-  // 3: POSTFIX(XmlAttribVariableReference)
-  // 4: ATOM(FunctionInvocationReference)
-  // 5: ATOM(SimpleVariableReference)
-  // 6: ATOM(TypeAccessExprInvocationReference)
+  // 1: ATOM(StringFunctionInvocationReference)
+  // 2: POSTFIX(InvocationReference)
+  // 3: POSTFIX(FieldVariableReference)
+  // 4: POSTFIX(XmlAttribVariableReference)
+  // 5: ATOM(FunctionInvocationReference)
+  // 6: ATOM(SimpleVariableReference)
+  // 7: ATOM(TypeAccessExprInvocationReference)
   public static boolean VariableReference(PsiBuilder b, int l, int g) {
     if (!recursion_guard_(b, l, "VariableReference")) return false;
     addVariant(b, "<variable reference>");
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, "<variable reference>");
-    r = FunctionInvocationReference(b, l + 1);
+    r = StringFunctionInvocationReference(b, l + 1);
+    if (!r) r = FunctionInvocationReference(b, l + 1);
     if (!r) r = SimpleVariableReference(b, l + 1);
     if (!r) r = TypeAccessExprInvocationReference(b, l + 1);
     p = r;
@@ -9284,15 +9289,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
         r = true;
         exit_section_(b, l, m, MAP_ARRAY_VARIABLE_REFERENCE, r, true, null);
       }
-      else if (g < 1 && Invocation(b, l + 1)) {
+      else if (g < 2 && Invocation(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, INVOCATION_REFERENCE, r, true, null);
       }
-      else if (g < 2 && Field(b, l + 1)) {
+      else if (g < 3 && Field(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, FIELD_VARIABLE_REFERENCE, r, true, null);
       }
-      else if (g < 3 && XmlAttrib(b, l + 1)) {
+      else if (g < 4 && XmlAttrib(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, XML_ATTRIB_VARIABLE_REFERENCE, r, true, null);
       }
@@ -9301,6 +9306,18 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
         break;
       }
     }
+    return r;
+  }
+
+  // QUOTED_STRING_LITERAL Invocation
+  public static boolean StringFunctionInvocationReference(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "StringFunctionInvocationReference")) return false;
+    if (!nextTokenIsSmart(b, QUOTED_STRING_LITERAL)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokenSmart(b, QUOTED_STRING_LITERAL);
+    r = r && Invocation(b, l + 1);
+    exit_section_(b, m, STRING_FUNCTION_INVOCATION_REFERENCE, r);
     return r;
   }
 

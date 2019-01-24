@@ -82,8 +82,7 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
                 // suggest all the visible, defined listeners
                 List<SymbolInfo> filtered = this.filterListenerVariables(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
                 completionItems.addAll(this.getCompletionItemList(filtered, ctx));
-                CompletionItem kwNewItem = Snippet.KW_NEW.get().build(new CompletionItem(), isSnippet);
-                completionItems.add(kwNewItem);
+                completionItems.add(Snippet.KW_NEW.get().build(isSnippet));
                 break;
             }
             case ItemResolverConstants.NEW: {
@@ -97,13 +96,12 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
                 Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
                         .get(DelimiterBasedContentFilter.class)
                         .filterItems(ctx);
-                completionItems.addAll(this.getCompletionsFromEither(eitherList, ctx));
+                completionItems.addAll(this.getCompletionItemList(eitherList, ctx));
                 break;
             }
             default: {
                 // Fill the on keyword completion item
-                CompletionItem kwOnItem = Snippet.KW_ON.get().build(new CompletionItem(), isSnippet);
-                completionItems.add(kwOnItem);
+                completionItems.add(Snippet.KW_ON.get().build(isSnippet));
                 break;
             }
         }

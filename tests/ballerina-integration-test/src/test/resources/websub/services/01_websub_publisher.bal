@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
+import ballerina/runtime;
 import ballerina/websub;
 
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
@@ -137,21 +138,23 @@ service publisherTwo on publisherServiceEP {
         methods: ["POST"]
     }
     resource function notify(http:Caller caller, http:Request req) {
-        http:Response response = new;
-        response.statusCode = 202;
-        var err = caller->respond(response);
-        if (err is error) {
-            log:printError("Error responding on notify request", err = err);
-        }
-
-        err = webSubHub.publishUpdate(WEBSUB_TOPIC_THREE, {"action":"publish","mode":"internal-hub"});
+        checkSubscriberAvailability(WEBSUB_TOPIC_THREE, "http://localhost:8383/websub");
+        var err = webSubHub.publishUpdate(WEBSUB_TOPIC_THREE, {"action":"publish","mode":"internal-hub"});
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
         }
 
+        checkSubscriberAvailability(WEBSUB_TOPIC_FOUR, "http://localhost:8383/websubTwo");
         err = webSubHub.publishUpdate(WEBSUB_TOPIC_FOUR, {"action":"publish","mode":"internal-hub-two"});
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
+        }
+
+        http:Response response = new;
+        response.statusCode = 202;
+        err = caller->respond(response);
+        if (err is error) {
+            log:printError("Error responding on notify request", err = err);
         }
     }
 }
@@ -226,4 +229,26 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     }
     error e = error(websub:WEBSUB_ERROR_CODE, { message : errorMessage });
     panic e;
+}
+
+function checkSubscriberAvailability(string topic, string callback) {
+    int count = 0;
+    boolean subscriberAvailable = false;
+    while (!subscriberAvailable && count < 60) {
+        websub:SubscriberDetails[] topicDetails = webSubHub.getSubscribers(topic);
+        if (isSubscriberAvailable(topicDetails, callback)) {
+            return;
+        }
+        runtime:sleep(1000);
+        count += 1;
+    }
+}
+
+function isSubscriberAvailable(websub:SubscriberDetails[] topicDetails, string callback) returns boolean {
+    foreach var detail in topicDetails {
+        if (detail.callback == callback) {
+            return true;
+        }
+    }
+    return false;
 }

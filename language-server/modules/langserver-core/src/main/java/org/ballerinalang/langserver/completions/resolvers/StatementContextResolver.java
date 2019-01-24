@@ -22,15 +22,11 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,47 +37,39 @@ import java.util.List;
 public class StatementContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
-        Either<List<CompletionItem>, List<SymbolInfo>> itemList;
-        if (isInvocationOrInteractionOrFieldAccess(context)) {
-            itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
-            return itemList.isLeft() ? itemList.getLeft() : this.getCompletionItemList(itemList.getRight(), context);
-        } else {
-            boolean supportSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
-                    .getCompletionItem()
-                    .getSnippetSupport();
-            ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        // Add the visible static completion items
+        ArrayList<CompletionItem> completionItems = new ArrayList<>(getStaticCompletionItems(context));
+        // Add the statement templates
+        Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters.get(StatementTemplateFilter.class)
+                .filterItems(context);
+        List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
 
-            // Add the xmlns snippet
-            CompletionItem xmlns = new CompletionItem();
-            Snippet.STMT_NAMESPACE_DECLARATION.get().build(xmlns, supportSnippet);
-            completionItems.add(xmlns);
+        completionItems.addAll(this.getCompletionItemList(itemList, context));
+        filteredList.removeIf(CommonUtil.invalidSymbolsPredicate().or(attachedOrSelfKeywordFilter()));
+        completionItems.addAll(this.getCompletionItemList(filteredList, context));
+        completionItems.addAll(this.getPackagesCompletionItems(context));
+        // Now we need to sort the completion items and populate the completion items specific to the scope owner
+        // as an example, resource, action, function scopes are different from the if-else, while, and etc
+        Class itemSorter = context.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
+        ItemSorters.get(itemSorter).sortItems(context, completionItems);
 
-            // Add the var keyword
-            CompletionItem varKeyword = Snippet.KW_VAR.get().build(new CompletionItem(), supportSnippet);
-            completionItems.add(varKeyword);
+        return completionItems;
+    }
 
-            // Add the error snippet
-            CompletionItem error = Snippet.DEF_ERROR.get().build(new CompletionItem(), supportSnippet);
-            completionItems.add(error);
+    private List<CompletionItem> getStaticCompletionItems(LSServiceOperationContext context) {
+        boolean supportSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
+                .getCompletionItem()
+                .getSnippetSupport();
 
-            // Add the statement templates
-            itemList = SymbolFilters.get(StatementTemplateFilter.class).filterItems(context);
-            // Statement Template filter always populates the left of Either
-            completionItems.addAll(itemList.getLeft());
-            List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-            filteredList.removeIf(CommonUtil.invalidSymbolsPredicate());
-            filteredList.removeIf(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
-            });
-            completionItems.addAll(this.getCompletionItemList(filteredList, context));
-            completionItems.addAll(this.getPackagesCompletionItems(context));
-            // Now we need to sort the completion items and populate the completion items specific to the scope owner
-            // as an example, resource, action, function scopes are different from the if-else, while, and etc
-            Class itemSorter = context.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-            ItemSorters.get(itemSorter).sortItems(context, completionItems);
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-            return completionItems;
-        }
+        // Add the xmlns snippet
+        completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(supportSnippet));
+        // Add the var keyword
+        completionItems.add(Snippet.KW_VAR.get().build(supportSnippet));
+        // Add the error snippet
+        completionItems.add(Snippet.DEF_ERROR.get().build(supportSnippet));
+
+        return completionItems;
     }
 }

@@ -6,7 +6,9 @@ import ballerina/mime;
 // Creates an endpoint for the client.
 http:Client clientEndpoint = new("http://localhost:9090");
 
-@http:ServiceConfig { basePath: "/stream" }
+@http:ServiceConfig {
+    basePath: "/stream"
+}
 service HTTPStreamingService on new http:Listener(9090) {
 
     @http:ResourceConfig {
@@ -65,7 +67,6 @@ service HTTPStreamingService on new http:Listener(9090) {
             }
             close(payload);
             close(destinationChannel);
-
             res.setPayload("File Received!");
         } else {
             setError(res, payload);

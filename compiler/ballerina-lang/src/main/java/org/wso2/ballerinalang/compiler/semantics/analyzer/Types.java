@@ -350,6 +350,8 @@ public class Types {
                     }
                 }
                 return true;
+            } else if (source.tag == TypeTags.ARRAY) {
+                return checkTypeEquivalencyForStamping(((BArrayType) source).eType, ((BArrayType) target).eType);
             }
         } else if (target.tag == TypeTags.UNION) {
             return checkUnionEquivalencyForStamping(source, target);

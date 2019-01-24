@@ -273,7 +273,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.CLONE] = "clone";
         mnemonics[InstructionCodes.FLUSH] = "flush";
-        mnemonics[InstructionCodes.LENGTHOF] = "length_of";
+        mnemonics[InstructionCodes.LENGTH] = "length_of";
         mnemonics[InstructionCodes.WAITALL] = "wait_all";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "new_struct";
