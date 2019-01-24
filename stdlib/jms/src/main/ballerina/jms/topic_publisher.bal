@@ -57,7 +57,7 @@ public type TopicPublisher client object {
     public remote function sendTo(Destination destination, Message message) returns error?;
 };
 
-remote function TopicPublisher.sendTo(Destination destination, Message message) returns error? {
+public remote function TopicPublisher.sendTo(Destination destination, Message message) returns error? {
     var session = self.config.session;
     if (session is Session) {
         validateTopic(destination);
@@ -75,5 +75,5 @@ remote function TopicPublisher.sendTo(Destination destination, Message message) 
 public type TopicPublisherEndpointConfiguration record {
     Session? session = ();
     string? topicPattern = ();
-    !...
+    !...;
 };

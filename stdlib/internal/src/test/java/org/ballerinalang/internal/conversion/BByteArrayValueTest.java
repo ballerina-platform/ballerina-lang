@@ -24,11 +24,11 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.stdlib.common.CommonTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -38,8 +38,6 @@ import java.util.Base64;
 public class BByteArrayValueTest {
 
     private CompileResult result;
-
-    private static final String content = "This is a sample string";
 
     @BeforeClass
     public void setup() {
@@ -243,38 +241,10 @@ public class BByteArrayValueTest {
         BValueArray byteArray2 = (BValueArray) returns[1];
         BValueArray byteArray3 = (BValueArray) returns[2];
         Assert.assertEquals(bytes1.length, byteArray1.size());
-        assertJBytesWithBBytes(bytes1, byteArray1.getBytes());
+        CommonTestUtils.assertJBytesWithBBytes(bytes1, byteArray1.getBytes());
         Assert.assertEquals(bytes2.length, byteArray2.size());
-        assertJBytesWithBBytes(bytes2, byteArray2.getBytes());
         Assert.assertEquals(bytes3.length, byteArray3.size());
-        assertJBytesWithBBytes(bytes3, byteArray3.getBytes());
-    }
-
-    @Test(description = "Get string representation of byte array 1")
-    public void testByteArrayToString1() throws UnsupportedEncodingException {
-
-        BValue[] args = {new BValueArray(content.getBytes("UTF-8"))};
-        BValue[] returns = BRunUtil.invoke(result, "testByteArrayToString1", args);
-
-        Assert.assertEquals(returns[0].stringValue(), content);
-    }
-
-    @Test(description = "Get string representation of byte array 2")
-    public void testByteArrayToString2() throws UnsupportedEncodingException {
-
-        BValue[] args = {new BValueArray(content.getBytes("UTF-8")), new BString("UTF-8")};
-        BValue[] returns = BRunUtil.invoke(result, "testByteArrayToString2", args);
-
-        Assert.assertEquals(returns[0].stringValue(), content);
-    }
-
-    @Test(description = "Get string representation of byte array 3")
-    public void testByteArrayToString3() throws UnsupportedEncodingException {
-
-        BValue[] args = {new BValueArray(content.getBytes("UTF-16")), new BString("UTF-16")};
-        BValue[] returns = BRunUtil.invoke(result, "testByteArrayToString2", args);
-
-        Assert.assertEquals(returns[0].stringValue(), content);
+        CommonTestUtils.assertJBytesWithBBytes(bytes3, byteArray3.getBytes());
     }
 
     private byte[] hexStringToByteArray(String str) {
@@ -293,12 +263,6 @@ public class BByteArrayValueTest {
     private void assertJBytesWithBBytes(byte[] jBytes, BValueArray bBytes) {
         for (int i = 0; i < jBytes.length; i++) {
             Assert.assertEquals(bBytes.getByte(i), jBytes[i], "Invalid byte value returned.");
-        }
-    }
-
-    private void assertJBytesWithBBytes(byte[] jBytes, byte[] bBytes) {
-        for (int i = 0; i < jBytes.length; i++) {
-            Assert.assertEquals(bBytes[i], jBytes[i], "Invalid byte value returned.");
         }
     }
 

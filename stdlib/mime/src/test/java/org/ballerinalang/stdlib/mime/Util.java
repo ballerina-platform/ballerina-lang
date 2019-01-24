@@ -382,10 +382,4 @@ public class Util {
         Assert.assertEquals(((BMap) ((BError) returnValue).getDetails()).get(MimeConstants.MIME_ERROR_MESSAGE)
                 .stringValue(), errMsg);
     }
-
-    public static void assertJBytesWithBBytes(byte[] jBytes, byte[] bBytes) {
-        for (int i = 0; i < jBytes.length; i++) {
-            Assert.assertEquals(bBytes[i], jBytes[i], "Invalid byte value returned.");
-        }
-    }
 }

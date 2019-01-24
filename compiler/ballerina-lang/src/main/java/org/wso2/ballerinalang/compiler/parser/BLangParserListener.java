@@ -302,17 +302,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean nativeFunc = ctx.EXTERN() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
+        boolean privateFunc = ctx.PRIVATE() != null;
 
         if (ctx.Identifier() != null) {
             this.pkgBuilder
-                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
+                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc, remoteFunc,
+                            nativeFunc,
                             bodyExists, ctx.Identifier().getText());
             return;
         }
 
         boolean isReceiverAttached = ctx.typeName() != null;
 
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
                 bodyExists, isReceiverAttached, false);
     }
 
@@ -770,9 +772,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos pos = getCurrentPos(ctx);
         checkTypeValidity(typeName, pos);
 
-        if (ctx.nameReference() != null) {
-            this.pkgBuilder.addConstraintType(pos, getWS(ctx), typeName);
-        } else if (ctx.typeName() != null) {
+        if (ctx.typeName() != null) {
             this.pkgBuilder.addConstraintTypeWithTypeName(pos, getWS(ctx), typeName);
         } else {
             this.pkgBuilder.addBuiltInReferenceType(pos, getWS(ctx), typeName);
@@ -898,6 +898,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 CLOSED_REST_BINDING_PATTERN : OPEN_REST_BINDING_PATTERN);
 
         this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), restBindingPattern);
+    }
+
+    @Override
+    public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addRecordBindingWS(getWS(ctx));
     }
 
     @Override
@@ -3346,11 +3355,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
             return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 16,
                     DiagnosticCode.HEXADECIMAL_TOO_SMALL, DiagnosticCode.HEXADECIMAL_TOO_LARGE);
-        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
-            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
-            String processedNodeValue = nodeValue.toLowerCase().replace("0b", "");
-            return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 2,
-                    DiagnosticCode.BINARY_TOO_SMALL, DiagnosticCode.BINARY_TOO_LARGE);
         }
         return null;
     }

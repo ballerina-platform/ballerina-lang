@@ -26,12 +26,15 @@ object LanguageServerDefinition {
     */
   def register(definition: LanguageServerDefinition): Unit = {
     if (definition != null) {
-      allDefinitions.clear()
       allDefinitions.add(definition)
       LOG.info("Added definition for " + definition)
     } else {
       LOG.warn("Trying to add a null definition")
     }
+  }
+
+  def fromArray(arr: Array[String]): LanguageServerDefinition = {
+    UserConfigurableServerDefinition.fromArray(arr)
   }
 }
 
@@ -118,6 +121,11 @@ trait LanguageServerDefinition {
   def getInitializationOptions(uri: URI): Any = null
 
   override def toString: String = "ServerDefinition for " + ext
+
+  /**
+    * @return The array corresponding to the server definition
+    */
+  def toArray: Array[String] = throw new NotImplementedError()
 
   /**
     * Creates a StreamConnectionProvider given the working directory

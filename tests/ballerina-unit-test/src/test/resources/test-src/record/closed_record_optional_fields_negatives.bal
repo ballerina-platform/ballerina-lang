@@ -21,14 +21,14 @@ type Person record {
     string lname?;
     int age? = 999;
     Address adrs;
-    !...
+    !...;
 };
 
 type Address record {
     string street;
     string city;
     CountryCode country;
-    !...
+    !...;
 };
 
 function testNonDefReqField() {

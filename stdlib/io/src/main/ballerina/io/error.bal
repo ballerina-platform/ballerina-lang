@@ -17,5 +17,5 @@
 public type IOError record {
     string message;
     int id;
-    !...
+    !...;
 };

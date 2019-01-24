@@ -544,6 +544,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
             setVariableScopeStart(localVarInfo, varNode);
             setVariableScopeEnd(localVarInfo, varNode);
+            localVarInfo.isIdentifierLiteral = varNode.name.isLiteral;
             localVarAttrInfo.localVars.add(localVarInfo);
         } else {
             // TODO Support other variable nodes
@@ -1290,7 +1291,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case LENGTH:
                 Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-                emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
+                emit(InstructionCodes.LENGTH, iExpr.expr.regIndex, typeCPIndex, regIndex);
                 break;
             case FREEZE:
                 emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);
@@ -2168,7 +2169,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int varNameCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.type.getDesc());
         PackageVarInfo pkgVarInfo = new PackageVarInfo(varNameCPIndex, typeSigCPIndex, varSymbol.flags,
-                varSymbol.varIndex.value);
+                varSymbol.varIndex.value, varNode.name.isLiteral);
         currentPkgInfo.pkgVarInfoMap.put(varSymbol.name.value, pkgVarInfo);
 
         LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);

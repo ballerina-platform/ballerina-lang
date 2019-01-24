@@ -18,6 +18,7 @@
 import ballerina/auth;
 import ballerina/log;
 import ballerina/runtime;
+import ballerina/encoding;
 
 # Authentication cache name.
 const string AUTH_CACHE = "basic_auth_cache";
@@ -47,7 +48,7 @@ public type HttpBasicAuthnHandler object {
     public function handle(Request req) returns (boolean);
 };
 
-function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
+public function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
     // extract the header value
     var basicAuthHeader = extractBasicAuthHeaderValue(req);
     string basicAuthHeaderValue = "";
@@ -77,7 +78,7 @@ function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
     return false;
 }
 
-function HttpBasicAuthnHandler.canHandle(Request req) returns (boolean) {
+public function HttpBasicAuthnHandler.canHandle(Request req) returns (boolean) {
     var basicAuthHeader = trap req.getHeader(AUTH_HEADER);
     if (basicAuthHeader is string) {
         return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
@@ -91,7 +92,8 @@ function HttpBasicAuthnHandler.canHandle(Request req) returns (boolean) {
 # + return - A `string` tuple with the extracted username and password or `error` that occured while extracting credentials
 function extractBasicAuthCredentials(string authHeader) returns (string, string)|error {
     // extract user credentials from basic auth header
-    string decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
+    string decodedBasicAuthHeader = encoding:byteArrayToString(check
+        encoding:decodeBase64(authHeader.substring(5, authHeader.length()).trim()));
     string[] decodedCredentials = decodedBasicAuthHeader.split(":");
     if (decodedCredentials.length() != 2) {
         return handleError("Incorrect basic authentication header format");

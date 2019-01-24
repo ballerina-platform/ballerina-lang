@@ -81,24 +81,6 @@ public class BIntegerValueTest {
         Assert.assertEquals(intValue.intValue(), (-10), "Invalid int value returned.");
     }
 
-    @Test(description = "Test long(binary) value assignment")
-    public void testBinaryValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testBinaryValue", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        BInteger intValue = (BInteger) returns[0];
-        Assert.assertEquals(intValue.intValue(), 10, "Invalid int value returned.");
-    }
-
-    @Test(description = "Test negative long(binary) value assignment")
-    public void testNegativeBinaryValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testNegativeBinaryValue", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        BInteger intValue = (BInteger) returns[0];
-        Assert.assertEquals(intValue.intValue(), (-10), "Invalid int value returned.");
-    }
-
     @Test(description = "Test long value assignment from a value returned by function")
     public void testIntegerValueAssignmentByReturnValue() {
         BValue[] returns = BRunUtil.invoke(result, "testIntegerValueAssignmentByReturnValue", new BValue[]{});
@@ -133,7 +115,7 @@ public class BIntegerValueTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
-        Assert.assertEquals(intValue.intValue(), 30, "Invalid int value returned.");
+        Assert.assertEquals(intValue.intValue(), 20, "Invalid int value returned.");
     }
 
     @Test(description = "Test long value Subtraction")

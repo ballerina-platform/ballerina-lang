@@ -23,7 +23,9 @@
       "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
+      "documentation":{
+        "left":"Execute the given sql query to fetch the records and return as a new in memory table.\n"
+      },
       "sortText":"120",
       "insertText":"queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
       "insertTextFormat":"Snippet"
@@ -32,7 +34,9 @@
       "label":"TableConfig",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"TableConfig represents properties used during table initialization.\n",
+      "documentation":{
+        "left":"TableConfig represents properties used during table initialization.\n"
+      },
       "sortText":"170",
       "insertText":"TableConfig"
     },
@@ -47,7 +51,9 @@
       "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
+      "documentation":{
+        "left":"Execute the given sql query to fetch the records and return as a new in memory table.\n"
+      },
       "sortText":"120",
       "insertText":"queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
       "insertTextFormat":"Snippet"
@@ -56,7 +62,9 @@
       "label":"startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Creates the forever runtime.\n",
+      "documentation":{
+        "left":"Creates the forever runtime.\n"
+      },
       "sortText":"120",
       "insertText":"startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
       "insertTextFormat":"Snippet"

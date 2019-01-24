@@ -3,7 +3,9 @@ import ballerina/log;
 
 // The `basePath` attribute associates a path to the service.
 // When bound to a listener endpoint, the service will be accessible at the specified path.
-@http:ServiceConfig { basePath: "/foo" }
+@http:ServiceConfig {
+    basePath: "/foo"
+}
 service echo on new http:Listener(9090) {
     // When the `methods` attribute is used, it confines the resource to the HTTP methods specified.
     // In this instance, only `POST` requests are allowed.
@@ -31,7 +33,6 @@ service echo on new http:Listener(9090) {
         }
         // Reply to the client with the response.
         var result = caller->respond(res);
-
         if (result is error) {
            log:printError("Error in responding", err = result);
         }

@@ -21,9 +21,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,6 +46,8 @@ public class WorkspaceTest {
     private Endpoint serviceEndpoint;
 
     private JsonParser parser = new JsonParser();
+
+    private static final Logger log = LoggerFactory.getLogger(WorkspaceTest.class);
 
     @BeforeClass
     public void init() throws Exception {
@@ -70,6 +74,7 @@ public class WorkspaceTest {
 
     @DataProvider(name = "workspace-data-provider")
     public Object[][] workspaceSymbolDataProvider() {
+        log.info("Test workspace/symbol");
         return new Object[][] {
                 {"workspaceSymbolWithQuery.json", "test"},
                 {"workspaceSymbol.json", ""},

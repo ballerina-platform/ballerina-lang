@@ -34,7 +34,7 @@ type Manager1 object {
 
     *Employee1;
 
-    function getName() returns string {
+    public function getName() returns string {
         return self.name + " from inner function";
     }
     
@@ -45,7 +45,7 @@ type Manager1 object {
     }
 };
 
-function Manager1.getSalary() returns float {
+public function Manager1.getSalary() returns float {
     return self.salary;
 }
 
@@ -61,7 +61,7 @@ type Manager2 object {
 
     *Employee1;
 
-    function getName() returns string {
+    public function getName() returns string {
         return self.name + " from inner function";
     }
 
@@ -72,7 +72,7 @@ type Manager2 object {
     }
 };
 
-function Manager2.getSalary() returns float {
+public function Manager2.getSalary() returns float {
     return self.salary;
 }
 
@@ -100,11 +100,11 @@ type Employee2 abstract object {
     public function getSalary() returns float; 
 };
 
-function Manager3.getName() returns string {
+public function Manager3.getName() returns string {
     return self.name + " from outer function";
 }
 
-function Manager3.getSalary() returns float {
+public function Manager3.getSalary() returns float {
     return self.salary;
 }
 
@@ -131,7 +131,7 @@ type Manager4 object {
     }
 };
 
-function Manager4.getName(string greeting = "Hello") returns string {
+public function Manager4.getName(string greeting = "Hello") returns string {
     return greeting + " " + self.name;
 }
 

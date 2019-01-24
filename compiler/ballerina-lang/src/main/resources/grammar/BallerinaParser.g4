@@ -57,7 +57,7 @@ callableUnitBody
     ;
 
 functionDefinition
-    :   (PUBLIC)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC | PRIVATE)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -98,8 +98,8 @@ fieldDefinition
     ;
 
 recordRestFieldDefinition
-    :   typeName restDescriptorPredicate ELLIPSIS
-    |   sealedLiteral
+    :   typeName restDescriptorPredicate ELLIPSIS SEMICOLON
+    |   sealedLiteral SEMICOLON
     ;
 
 sealedLiteral
@@ -207,7 +207,7 @@ builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)
     |   TYPE_FUTURE (LT typeName GT)
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
-    |   TYPE_JSON (LT nameReference GT)?
+    |   TYPE_JSON
     |   TYPE_TABLE (LT typeName GT)
     |   TYPE_STREAM (LT typeName GT)
     |   SERVICE
@@ -663,7 +663,7 @@ expression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression  # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
     |	CHECK expression										            # checkedExpression
     |   expression IS typeName                                              # typeTestExpression
@@ -784,7 +784,6 @@ floatingPointLiteral
 integerLiteral
     :   DecimalIntegerLiteral
     |   HexIntegerLiteral
-    |   BinaryIntegerLiteral
     ;
 
 emptyTupleLiteral

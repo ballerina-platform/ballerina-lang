@@ -20,6 +20,8 @@ package org.ballerinalang.test.debugger;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -38,6 +40,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -206,6 +209,22 @@ public class VMDebuggerTest {
         ExpectedResults expRes = new ExpectedResults(debugPoints, 8, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
+    }
+
+    @Test(description = "Testing nested IfCondition.")
+    public void testNestedIf() {
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test_nested_if.bal", 18);
+        String file = "test_nested_if.bal";
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 18, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 20, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 21, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 29, RESUME, 1));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 4, 0, new ArrayList<>(), false);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test_nested_if.bal", breakPoints, expRes);
     }
 
     @Test(description = "Testing Step over in WhileStmt.")
@@ -429,6 +448,26 @@ public class VMDebuggerTest {
         ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 7, variables, false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
+    }
+
+    @Test(description = "Testing identifier literals")
+    public void testIdentifierLiterals() {
+        String file = "test_identifier_literals.bal";
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 7);
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 7, RESUME, 1));
+
+        List<VariableDTO> variables = new ArrayList<>();
+        variables.add(Util.createVariable("int literal $ global", "Global", new BInteger(23)));
+        variables.add(Util.createVariable("string literal $$ global", "Global", new BString("literal")));
+        variables.add(Util.createVariable("float literal $$$ local", "Local", new BFloat(34.43)));
+        variables.add(Util.createVariable("decimal literal $$$$ local", "Local",
+                new BDecimal(new BigDecimal("21.1"))));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 2, variables, false);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test_identifier_literals.bal", breakPoints, expRes);
     }
 
     @Test(description = "Test debugging when multi-packages available")
