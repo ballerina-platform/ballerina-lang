@@ -27,7 +27,8 @@ cd ${1}
 # Change skip tests based on argument
 if [ ${2} ]
 then
-    skipTest="--skiptests"
+    # skipTest="--skiptests"
+    exit 0
 fi
 
 # List of BBEs excluded from building
