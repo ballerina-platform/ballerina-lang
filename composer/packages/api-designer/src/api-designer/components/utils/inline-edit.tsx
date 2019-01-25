@@ -308,10 +308,14 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                                 onChange={this.onValueChange}
                             />
                         }
-                        <Form.Button inverted color="black" icon="check" size="mini"
-                            onClick={this.onDoneEditing} />
-                        <Form.Button inverted color="black" icon="close" size="mini"
-                            onClick={this.cancelEditing} />
+                        <Form.Button size="mini"
+                            onClick={this.onDoneEditing} >
+                            <i className="fw fw-check"></i>
+                            </Form.Button>
+                        <Form.Button size="mini"
+                            onClick={this.cancelEditing} >
+                            <i className="fw fw-close"></i>
+                            </Form.Button>
                     </Form.Group>
                 </Form>
             </div>
