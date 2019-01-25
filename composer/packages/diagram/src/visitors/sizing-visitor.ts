@@ -218,6 +218,18 @@ export const visitor: Visitor = {
         }
     },
 
+    beginVisitIf(node: If) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
+    beginVisitWhile(node: While) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
+    beginVisitForeach(node: Foreach) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
     // tslint:disable-next-line:ban-types
     endVisitFunction(node: Function) {
         if (node.lambda || !node.body) { return; }
