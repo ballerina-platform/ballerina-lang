@@ -555,6 +555,10 @@ function testConstInAnnotations() returns reflect:annotationData[] {
 map<map<string>> m4 = { "m4k": m5 };
 const map<string> m5 = { "m5k": "m5v" };
 
+function getNestedConstantMapValue() returns string {
+    return m4.m4k.m5k;
+}
+
 function updateNestedConstantMapValue() {
     m4.m4k.m5k = "m5nv";
 }
@@ -564,6 +568,9 @@ function updateNestedConstantMapValue() {
 map<string>[] a1 = [m5];
 
 function updateConstantMapValueInArray() {
-    a1[0].mk5 = "m5nv";
+    a1[0].m5k = "m5nv";
 }
 
+function getConstantMapValueInArray() returns string {
+    return a1[0].m5k;
+}

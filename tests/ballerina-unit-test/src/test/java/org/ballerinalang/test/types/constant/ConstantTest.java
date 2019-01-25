@@ -525,6 +525,14 @@ public class ConstantTest {
                 " value:{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}}");
     }
 
+    @Test
+    public void getNestedConstantMapValue() {
+        String functionName = "getNestedConstantMapValue";
+        BValue[] returns = BRunUtil.invoke(compileResult, functionName);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "m5v");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
     public void updateNestedConstantMapValue() {
@@ -535,5 +543,13 @@ public class ConstantTest {
             expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
     public void updateConstantMapValueInArray() {
         BRunUtil.invoke(compileResult, "updateConstantMapValueInArray");
+    }
+
+    @Test
+    public void getConstantMapValueInArray() {
+        String functionName = "getConstantMapValueInArray";
+        BValue[] returns = BRunUtil.invoke(compileResult, functionName);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "m5v");
     }
 }
