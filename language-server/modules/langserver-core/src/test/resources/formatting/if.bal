@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function name1 () {
  if(true){
               int a = 0;}else if(false){int b = 0;}else{
@@ -24,4 +26,13 @@ function name2() {
   if (false) {int j = 0;
   }else if(true){
  int k = 0;}else{int l = 0;}}
+}
+
+function name3() {
+    int result = 0;
+    if (result is int) {
+    } else {
+        io:println("File copy completed. The copied file could be located in " +
+        dstPath);
+    }
 }
