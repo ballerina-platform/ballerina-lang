@@ -896,6 +896,15 @@ public class Types {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
+        if (isAssignable(sourceType, targetType)) {
+            if (isValueType(sourceType)) {
+                // we reach here if the source type is a simple basic type and the target type is a union type
+                // containing the source type.
+                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+            }
+            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
         if (containsNumericType(targetType)) {
             BSymbol symbol = symResolver.getNumericConversionOrCastSymbol(sourceType, targetType);
             if (symbol != symTable.notFoundSymbol) {
@@ -903,16 +912,8 @@ public class Types {
             }
         }
 
-        if (isAssignable(sourceType, targetType)) {
-            if (isValueType(sourceType)) {
-                // we reach here if the source type is a simple basic type and the target type a valid union type.
-                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
-            }
-            return symResolver.createTypeAssertionSymbol(sourceType, targetType);
-        }
-
         if (isAssignable(targetType, sourceType)) {
-            return symResolver.createTypeAssertionSymbol(sourceType, targetType);
+            return symResolver.createTypeCastSymbol(sourceType, targetType);
         }
 
         return symTable.notFoundSymbol;

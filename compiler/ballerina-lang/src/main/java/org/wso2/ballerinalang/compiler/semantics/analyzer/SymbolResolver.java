@@ -541,7 +541,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(names.fromString(method.getName()), null, opType, null, opcode);
     }
 
-    BOperatorSymbol createTypeAssertionSymbol(BType type, BType retType) {
+    BOperatorSymbol createTypeCastSymbol(BType type, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_CAST);
@@ -571,13 +571,13 @@ public class SymbolResolver extends BLangNodeVisitor {
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
                 case TypeTags.JSON:
-                    return createTypeAssertionSymbol(sourceType, targetType);
+                    return createTypeCastSymbol(sourceType, targetType);
                 case TypeTags.UNION:
                     if (((BUnionType) sourceType).memberTypes.stream()
                             .anyMatch(memType -> types.isAssignable(memType, targetType) ||
                                     types.isAssignable(targetType, memType) ||
                                     types.isBasicNumericType(memType))) {
-                        return createTypeAssertionSymbol(sourceType, targetType);
+                        return createTypeCastSymbol(sourceType, targetType);
                     }
             }
         }
