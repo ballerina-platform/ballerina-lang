@@ -2,19 +2,18 @@ import ballerina/jms;
 import ballerina/io;
 
 // Create a queue sender
-jms:SimpleQueueSender queueSender = new({
+jms:QueueSender queueSender = new({
     initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5772'",
-    queueName: "testMbSimpleQueueReceiverProducer"
-});
+        providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5772'"
+    }, queueName = "testMbSimpleQueueReceiverProducer");
 
 public function main () {
     // Create a Text message.
-    var msg = queueSender.createTextMessage("Test Text");
+    var msg = queueSender.session.createTextMessage("Test Text");
     if (msg is jms:Message) {
          // Send the Ballerina message to the JMS provider.
          _ = queueSender->send(msg);
-    } else {
+    } else if (msg is error){
          panic msg;
     }
 

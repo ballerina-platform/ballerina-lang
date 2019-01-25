@@ -15,10 +15,7 @@ jms:Session jmsSession = new(conn, {
     });
 
 // This initializes a topic subscriber using the created session.
-listener jms:TopicSubscriber subscriberEndpoint = new({
-        session: jmsSession,
-        topicPattern: "BallerinaTopic"
-    });
+listener jms:TopicSubscriber subscriberEndpoint = new(jmsSession, topicPattern = "BallerinaTopic");
 
 // This binds the created subscriber to the listener service.
 service jmsListener on subscriberEndpoint {
