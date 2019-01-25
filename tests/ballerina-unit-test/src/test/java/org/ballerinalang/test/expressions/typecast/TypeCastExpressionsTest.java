@@ -280,7 +280,8 @@ public class TypeCastExpressionsTest {
                 {"testOutOfOrderUnionConstraintCastPositive"},
                 {"testCastToNumericType"},
                 {"testBroaderObjectCast"},
-                {"testCastOnPotentialConversion"}
+                {"testCastOnPotentialConversion"},
+                {"testSimpleTypeToUnionCastPositive"}
         };
     }
 

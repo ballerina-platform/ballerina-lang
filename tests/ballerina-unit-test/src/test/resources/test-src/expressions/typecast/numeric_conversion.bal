@@ -340,6 +340,26 @@ function testByteAsByteInUnions(byte f1) returns (boolean, byte|boolean) {
     return (s7 == s6 && s7 == s8, s6);
 }
 
+function testNaNFloatAsByte() {
+    float f = 0.0/0;
+    byte i = <byte> f;
+}
+
+function testInfiniteFloatAsByte() {
+    float f = 1.0/0;
+    byte i = <byte> f;
+}
+
+function testNaNFloatInUnionAsByte() {
+    float|boolean f = 0.0/0;
+    byte i = <byte> f;
+}
+
+function testInfiniteFloatInUnionAsByte() {
+    float|boolean f = 2.0/0;
+    byte i = <byte> f;
+}
+
 function testNaNFloatAsInt() {
     float f = 0.0/0;
     int i = <int> f;
@@ -362,6 +382,11 @@ function testOutOfIntRangeNegativeFloatAsInt() {
 
 function testNaNFloatInUnionAsInt() {
     float|int f = 0.0/0;
+    int i = <int> f;
+}
+
+function testInfiniteFloatInUnionAsInt() {
+    float|boolean f = 2.0/0;
     int i = <int> f;
 }
 

@@ -235,11 +235,60 @@ public class NumericConversionTest {
                 "representation as byte");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'int' " +
-                    "value '256' cannot be converted to 'byte'\"\\}.*")
-    public void testInvalidIntAsByte() {
-        BRunUtil.invoke(result, "testIntAsByte", new BValue[]{new BInteger(256)});
+                    "value '.*' cannot be converted to 'byte'\"\\}.*")
+    public void testInvalidIntAsByte(int i) {
+        BRunUtil.invoke(result, "testIntAsByte", new BValue[]{new BInteger(i)});
+    }
+
+    @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'int' " +
+                    "value '.*' cannot be converted to 'byte'\"\\}.*")
+    public void testInvalidIntAsByteInUnions(int i) {
+        BRunUtil.invoke(result, "testIntAsByteInUnions", new BValue[]{new BInteger(i)});
+    }
+
+    @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
+                    "value '.*' cannot be converted to 'byte'\"\\}.*")
+    public void testInvalidFloatAsByte(int i) {
+        BRunUtil.invoke(result, "testFloatAsByte", new BValue[]{new BFloat(i)});
+    }
+
+    @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
+                    "value '.*' cannot be converted to 'byte'\"\\}.*")
+    public void testInvalidFloatAsByteInUnions(int i) {
+        BRunUtil.invoke(result, "testFloatAsByteInUnions", new BValue[]{new BFloat(i)});
+    }
+
+    @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
+                    " value '.*' cannot be converted to 'byte'\"\\}.*")
+    public void testInvalidDecimalAsByte(int i) {
+        BRunUtil.invoke(result, "testDecimalAsByte", new BValue[]{new BDecimal(new BigDecimal(i))});
+    }
+
+    @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
+                    " value '.*' cannot be converted to 'byte'\"\\}.*")
+    public void testInvalidDecimalAsByteInUnions(int i) {
+        BRunUtil.invoke(result, "testDecimalAsByteInUnions", new BValue[]{new BDecimal(new BigDecimal(i))});
+    }
+
+    @Test(dataProvider = "naNFloatAsByteTests", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
+                    "value 'NaN' cannot be converted to 'byte'\"\\}.*")
+    public void testNaNFloatAsByte(String functionName) {
+        BRunUtil.invoke(result, functionName, new BValue[0]);
+    }
+
+    @Test(dataProvider = "infiniteFloatAsByteTests", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
+                    "value 'Infinity' cannot be converted to 'byte'\"\\}.*")
+    public void testInfiniteFloatAsByte(String functionName) {
+        BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "naNFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
@@ -507,6 +556,22 @@ public class NumericConversionTest {
     }
 
     @DataProvider
+    public Object[][] naNFloatAsByteTests() {
+        return new Object[][]{
+                {"testNaNFloatAsByte"},
+                {"testNaNFloatInUnionAsByte"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] infiniteFloatAsByteTests() {
+        return new Object[][]{
+                {"testInfiniteFloatAsByte"},
+                {"testInfiniteFloatInUnionAsByte"}
+        };
+    }
+
+    @DataProvider
     public Object[][] naNFloatAsIntTests() {
         return new Object[][]{
                 {"testNaNFloatAsInt"},
@@ -517,7 +582,8 @@ public class NumericConversionTest {
     @DataProvider
     public Object[][] infiniteFloatAsIntTests() {
         return new Object[][]{
-                {"testInfiniteFloatAsInt"}
+                {"testInfiniteFloatAsInt"},
+                {"testInfiniteFloatInUnionAsInt"}
         };
     }
 
@@ -538,6 +604,16 @@ public class NumericConversionTest {
                 {"testOutOfIntRangeNegativeDecimalAsInt"},
                 {"testOutOfIntRangePositiveDecimalInUnionAsInt"},
                 {"testOutOfIntRangeNegativeDecimalInUnionAsInt"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] invalidByteValues() {
+        return new Object[][]{
+                {-255},
+                {-1},
+                {256},
+                {3055},
         };
     }
 }

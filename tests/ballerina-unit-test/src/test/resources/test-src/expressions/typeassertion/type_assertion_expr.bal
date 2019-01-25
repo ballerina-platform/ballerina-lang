@@ -579,7 +579,7 @@ function testBooleanAsBoolean() returns (boolean, boolean, boolean, boolean) {
     anydata a = <boolean> getBoolean(b1);
     boolean s2 = false;
     if (a is boolean) {
-    s2 = a;
+        s2 = a;
     }
 
     b1 = false;
@@ -617,6 +617,20 @@ function testBooleanInUnionAsBoolean() returns (boolean, boolean) {
     boolean ft2 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : true;
 
     return(ft1, ft2);
+}
+
+function testSimpleTypeToUnionCastPositive() returns boolean {
+    string s = "hello world";
+    string? u1 = <string?> s;
+    boolean castSuccessful = s == u1;
+
+    anydata u2 = <boolean|float> true;
+    castSuccessful = castSuccessful && u2 == true;
+
+    int i = 3;
+    any u3 = <any> i;
+    anydata u4 = <anydata> u3;
+    return castSuccessful && u4 == i;
 }
 
 function testTypeCastOnRecordLiterals() returns (string, string, string) {
