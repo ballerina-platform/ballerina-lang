@@ -2158,12 +2158,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
-        if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL) {
-
-            constantSymbol.varIndex = getPVIndex(constantSymbol.literalValueType.tag);
-
-        } else {
-
+        if (((BLangExpression) constant.value).getKind() == NodeKind.LITERAL) {
             BLangLiteral literal = new BLangLiteral();
             literal.pos = constant.pos;
             literal.value = ((BLangLiteral) constant.value).value;
@@ -2172,8 +2167,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
             constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
+        } else {
+            constantSymbol.varIndex = getPVIndex(constantSymbol.literalValueType.tag);
         }
-
 
         if (constantSymbol.varIndex != null) {
             constantInfo.globalMemIndex = constantSymbol.varIndex.value;

@@ -1901,21 +1901,21 @@ public class Desugar extends BLangNodeVisitor {
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             if (varRefExpr.symbol.tag == SymTag.CONSTANT) {
                 BConstantSymbol symbol = (BConstantSymbol) varRefExpr.symbol;
-                // Todo - Update condition
-                if (((BConstantSymbol) varRefExpr.symbol).literalValueTypeTag != TypeTags.MAP) {
-                    // We need to get a copy of the literal value and set it as the result. Otherwise there will be
-                    // issues because registry allocation will be only done one time.
-                    BLangLiteral literal = ASTBuilderUtil
-                            .createLiteral(varRefExpr.pos, symbol.literalValueType, symbol.literalValue);
-                    literal.typeTag = symbol.literalValueTypeTag;
-                    result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
-                    return;
-                } else {
+                if (((BConstantSymbol) varRefExpr.symbol).literalValueTypeTag == TypeTags.MAP) {
                     BLangRecordLiteral literal = ASTBuilderUtil.createEmptyRecordLiteral(varRefExpr.pos,
                             symbol.literalValueType);
                     literal.isConst = true;
+                    // Todo - Create copies of all of the key-value pairs?
                     literal.keyValuePairs.addAll(((BLangRecordLiteral) symbol.literalValue).keyValuePairs);
                     literal.type = symbol.literalValueType;
+                    result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
+                    return;
+                } else {
+                    // We need to get a copy of the literal value and set it as the result. Otherwise there will be
+                    // issues because registry allocation will be only done one time.
+                    BLangLiteral literal = ASTBuilderUtil.createLiteral(varRefExpr.pos, symbol.literalValueType,
+                            symbol.literalValue);
+                    literal.typeTag = symbol.literalValueTypeTag;
                     result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
                     return;
                 }
