@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/encoding;
+
 # Represents JWT issuer configurations.
 # + keyAlias - Key alias used for signing
 # + keyPassword - Key password used for signing
@@ -60,7 +62,7 @@ function createHeader(JwtHeader header) returns (string|error) {
         headerJson = addMapToJson(headerJson, customClaims);
     }
     string headerValInString = headerJson.toString();
-    string encodedPayload = check headerValInString.base64Encode();
+    string encodedPayload = encoding:encodeBase64(headerValInString.toByteArray("UTF-8"));
     return encodedPayload;
 }
 
@@ -88,7 +90,7 @@ function createPayload(JwtPayload payload) returns (string|error) {
         payloadJson = addMapToJson(payloadJson, customClaims);
     }
     string payloadInString = payloadJson.toString();
-    return payloadInString.base64Encode();
+    return encoding:encodeBase64(payloadInString.toByteArray("UTF-8"));
 }
 
 function addMapToJson(json inJson, map<any> mapToConvert) returns (json) {

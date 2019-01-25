@@ -196,6 +196,10 @@ fi
 
 #   cd "$BALLERINA_HOME"
 
+# BALLERINA_CLASSPATH_EXT is for outsiders to additionally add
+# classpath locations, e.g. AWS Lambda function libraries.
+BALLERINA_CLASSPATH=$BALLERINA_CLASSPATH:$BALLERINA_CLASSPATH_EXT
+
 $JAVACMD \
 	-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
 	-Xms256m -Xmx1024m \

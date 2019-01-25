@@ -1,5 +1,5 @@
 import ballerina/http;
-import ballerina/log;
+import ballerina/io;
 
 public function main() {
     // Create an HTTP client to interact with a remote endpoint.
@@ -13,14 +13,14 @@ public function main() {
         var payload = resp.getTextPayload();
         if (payload is string) {
             // Log the retrieved text paylod.
-            log:printInfo(payload);
+            io:println(payload);
         } else {
             // If an error occurs while retrieving the text payload, log
             // the error.
-            log:printError(<string> payload.detail().message);
+            io:println(<string> payload.detail().message);
         }
     } else {
         // If an error occurs when getting the response, log the error.
-        log:printError(<string> resp.detail().message);
+        io:println(<string> resp.detail().message);
     }
 }

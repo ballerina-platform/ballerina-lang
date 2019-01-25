@@ -171,6 +171,14 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-test-common -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-stdlib-test-common</artifactId>
+                <version>${ballerina.version}</version>
+                <type>test-jar</type>
+            </dependency>
+
             <!-- ballerina-builtin -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -250,6 +258,27 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-crypto</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-encoding -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-encoding</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-encoding</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-encoding</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -1670,10 +1699,12 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
+                <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
+                <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
@@ -1754,10 +1785,12 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
+                <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
+                <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
@@ -1834,10 +1867,12 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
+                <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
+                <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
@@ -2255,7 +2290,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.253</transport.http.version>
+        <transport.http.version>6.0.254</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
