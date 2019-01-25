@@ -242,3 +242,15 @@ function testStringTypeWithoutType() returns StringTypeWithoutType {
     StringTypeWithoutType t = "random text"; // Invalid value assignment.
     return t;
 }
+
+// -----------------------------------------------------------
+
+const decimal decimalConst1 = 23.2;
+const decimal decimalConst2 = 12.1;
+const float floatConst = 23.2;
+
+type decimalLiteralType decimalConst1 | decimalConst2;
+
+function testAssigningFloatConstToDecimalFiniteType() {
+    decimalLiteralType d = floatConst; // Invalid value assingment.
+}
