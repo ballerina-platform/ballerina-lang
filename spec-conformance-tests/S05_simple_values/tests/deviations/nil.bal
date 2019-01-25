@@ -14,41 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-import utils;
-
-// nil-type-descriptor := ()
-// nil-literal := () | null
-@test:Config {}
-function testNilLiteral() {
-    () nil = ();
-    () nil2;
-    nil2 = ();
-    if (nil != nil2) {
-        test:assertFail(msg = "expected nil values to be equal");
-    }
-}
 
 // The nil value can also be written null, for
 // compatibility with JSON; the use of null should be restricted to JSON-related contexts.
-@test:Config {}
-function testNullLiteralWithJson() {
-    json nil = null;
-    json nil2;
+// TODO: Disallow the use of `null` with () type
+// https://github.com/ballerina-platform/ballerina-lang/issues/13169
+@test:Config {
+    groups: ["deviation"]
+}
+function testNilBroken() {
+    () nil = null;
+    () nil2;
     nil2 = null;
     if (nil != nil2) {
-        test:assertFail(msg = "expected json null/nil values to be equal");
-    }
-
-    json nil3 = ();
-    json nil4;
-    nil4 = ();
-    if (nil3 != nil4) {
-        test:assertFail(msg = "expected json null/nil values to be equal");
-    }
-
-    json nil5 = null;
-    json nil6 = ();
-    if (nil5 != nil6) {
-        test:assertFail(msg = "expected json null/nil values to be equal");
+        test:assertFail(msg = "expected nil values to be equal");
     }
 }

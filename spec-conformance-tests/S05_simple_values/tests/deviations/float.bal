@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-import utils;
 
 // floating-point-type-descriptor := float | decimal
 // floating-point-literal := DecimalFloatingPointNumber | HexFloatingPointLiteral

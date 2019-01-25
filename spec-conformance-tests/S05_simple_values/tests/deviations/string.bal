@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-import utils;
 
 // In a StringNumericEscape, CodePoint must valid Unicode code point; more precisely, it
 // must be a hexadecimal numeral denoting an integer n where 0 <= n < 0xD800 or 0xDFFF <
