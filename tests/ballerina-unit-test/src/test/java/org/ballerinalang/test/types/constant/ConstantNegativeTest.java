@@ -126,6 +126,6 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '()'", offset += 6,
                 24);
         BAssertUtil.validateError(compileResult, index, "incompatible types: expected '23.2|12.1', found 'float'",
-                offset += 13, 28);
+                offset += 11, 28);
     }
 }
