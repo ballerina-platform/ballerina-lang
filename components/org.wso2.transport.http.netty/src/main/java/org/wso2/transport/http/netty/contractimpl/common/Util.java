@@ -317,9 +317,10 @@ public class Util {
      * @param port port of the connection
      * @throws SSLException if any error occurs in the SSL connection
      */
-    public static void configureHttpPipelineForSSL(SocketChannel socketChannel, String host, int port,
+    public static SSLEngine configureHttpPipelineForSSL(SocketChannel socketChannel, String host, int port,
             SSLConfig sslConfig) throws SSLException {
         LOG.debug("adding ssl handler");
+        SSLEngine sslEngine = null;
         ChannelPipeline pipeline = socketChannel.pipeline();
         SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
         if (sslConfig.isOcspStaplingEnabled()) {
@@ -329,12 +330,11 @@ public class Util {
 
             if (referenceCountedOpenSslContext != null) {
                 SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(socketChannel.alloc());
-                ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
+                sslEngine = sslHandler.engine();
                 socketChannel.pipeline().addLast(sslHandler);
-                socketChannel.pipeline().addLast(new OCSPStaplingHandler(engine));
+                socketChannel.pipeline().addLast(new OCSPStaplingHandler((ReferenceCountedOpenSslEngine) sslEngine));
             }
         } else {
-            SSLEngine sslEngine;
             if (sslConfig.getTrustStore() != null) {
                 sslHandlerFactory.createSSLContextFromKeystores();
                 sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled(),
@@ -348,6 +348,7 @@ public class Util {
                         sslEngine, sslConfig.getCacheValidityPeriod(), sslConfig.getCacheSize()));
             }
         }
+        return sslEngine;
     }
 
     private static SSLEngine getSslEngineForCerts(SocketChannel socketChannel, String host, int port,

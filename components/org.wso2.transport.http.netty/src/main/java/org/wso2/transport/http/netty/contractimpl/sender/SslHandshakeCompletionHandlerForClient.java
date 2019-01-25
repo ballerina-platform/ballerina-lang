@@ -24,6 +24,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import org.wso2.transport.http.netty.contract.Constants;
 
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
+
 /**
  * A handler to check whether TLS handshake has been completed and notify the listener.
  */
@@ -32,12 +39,15 @@ public class SslHandshakeCompletionHandlerForClient extends ChannelInboundHandle
     private ConnectionAvailabilityFuture connectionAvailabilityFuture;
     private HttpClientChannelInitializer httpClientChannelInitializer;
     private TargetHandler targetHandler;
+    private SSLEngine sslEngine;
 
-    public SslHandshakeCompletionHandlerForClient(ConnectionAvailabilityFuture connectionAvailabilityFuture,
-            HttpClientChannelInitializer httpClientChannelInitializer, TargetHandler targetHandler) {
+    SslHandshakeCompletionHandlerForClient(ConnectionAvailabilityFuture connectionAvailabilityFuture,
+            HttpClientChannelInitializer httpClientChannelInitializer, TargetHandler targetHandler,
+            SSLEngine sslEngine) {
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
         this.httpClientChannelInitializer = httpClientChannelInitializer;
         this.targetHandler = targetHandler;
+        this.sslEngine = sslEngine;
     }
 
     @Override
@@ -48,6 +58,14 @@ public class SslHandshakeCompletionHandlerForClient extends ChannelInboundHandle
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
+                try {
+                    X509Certificate endUserCert = (X509Certificate) sslEngine.getSession().getPeerCertificates()[0];
+                    endUserCert.checkValidity(new Date());
+                } catch (CertificateExpiredException e) {
+                    connectionAvailabilityFuture
+                            .notifyFailure(new SSLException("Certificate expired : " + e.getMessage()));
+                    ctx.close();
+                }
                 this.httpClientChannelInitializer.configureHttpPipeline(ctx.pipeline(), targetHandler);
                 connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);
             } else {
