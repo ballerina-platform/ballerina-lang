@@ -6,10 +6,10 @@
 public type PoolConfiguration record {
     int maxActiveConnections = config:getAsInt("b7a.http.pool.maxActiveConnections", default = -1);
     int waitTimeinMillis = config:getAsInt("b7a.http.pool.waitTimeinMillis", default = 10000);
-    int maxActiveStreamsPerConnection = config:getAsInt("b7a.http.pool.maxActiveStreamsPerConnection", default = 20);
+    int maxActiveStreamsPerConnection = config:getAsInt("b7a.http.pool.maxActiveStreamsPerConnection", default = 50);
 };
 
-//This is a hack to get the global map initialized, without involving locking
+//This is a hack to get the global map initialized, without involving locking.
 type ConnectionManager object {
     public PoolConfiguration poolConfig = {};
     public function __init() {
