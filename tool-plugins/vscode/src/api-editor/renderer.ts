@@ -64,7 +64,6 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
 
             function drawAPIEditor() {
                 if(updatedJSON === '') {
-                    console.log('------------- redraw -----------')
                     getSwaggerJson(docUri, selectedService).then((response)=>{
                         try {
                             let width = window.innerWidth - 6;
@@ -75,9 +74,7 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
                         }
                     })
                 } else {
-                    console.log('------------ update ------------')
-                    console.log(updatedJSON);
-                    ballerinaComposer.renderAPIEditor(document.getElementById("api-visualizer"), updatedJSON, onDidJsonChange);
+                    ballerinaComposer.renderAPIEditor(document.getElementById("api-visualizer"), JSON.parse(updatedJSON), onDidJsonChange);
                 }
                 
             }

@@ -123,30 +123,6 @@ public extern function string.findAll(string regex) returns string[]|error;
 #            Error will be returned if there exist a syntax error in pattern.
 public extern function string.matches(string regex) returns boolean|error;
 
-# Encode a given string with Base64 encoding scheme.
-#
-# + charset - Charset to be used
-# + return - Return an encoded string.
-#            error will be returned in case of errors.
-public extern function string.base64Encode(string charset = "utf-8") returns string|error;
-
-# Decode a given string with Base64 encoding scheme.
-#
-# + charset - Charset to be used
-# + return - Return a decoded string.
-#            error will be returned in case of errors.
-public extern function string.base64Decode(string charset = "utf-8") returns string|error;
-
-# Encodes a base16 encoded string to base64 encoding.
-#
-# + return - the encoded string.
-public extern function string.base16ToBase64Encode() returns string;
-
-# Encodes a base64 encoded string to base16 encoding.
-#
-# + return - the encoded string.
-public extern function string.base64ToBase16Encode() returns string;
-
 # Converts string to a byte array.
 #
 # + encoding - Encoding to be used in the conversion

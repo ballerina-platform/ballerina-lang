@@ -30,7 +30,7 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams } from "vscode-languageclient";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel } from '../utils/index';
@@ -151,6 +151,12 @@ export class BallerinaExtension {
                 params.affectsConfiguration('ballerina.allowExperimental') ||
                 params.affectsConfiguration('ballerina.debugLog')) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
+            }
+            if (params.affectsConfiguration('ballerina')) {
+                const args: DidChangeConfigurationParams = {
+                    settings: workspace.getConfiguration('ballerina'),
+                };
+                this.langClient!.sendNotification("workspace/didChangeConfiguration", args);
             }
         });
 

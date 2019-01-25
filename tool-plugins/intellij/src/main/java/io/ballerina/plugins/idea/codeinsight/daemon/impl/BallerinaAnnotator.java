@@ -31,6 +31,7 @@ import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCompletePackageName;
+import io.ballerina.plugins.idea.psi.BallerinaConstantDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFloatingPointLiteral;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
@@ -44,6 +45,7 @@ import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTableColumn;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
+import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaXmlItem;
 import io.ballerina.plugins.idea.psi.reference.BallerinaPackageNameReference;
 import org.jetbrains.annotations.NotNull;
@@ -176,7 +178,8 @@ public class BallerinaAnnotator implements Annotator {
                     || elementType == BallerinaTypes.TRIPLE_BACKTICK_MARKDOWN_END) {
                 annotateInlineCode(element, holder);
             } else if (elementType == BallerinaTypes.IDENTIFIER) {
-                if (parent instanceof BallerinaGlobalVariableDefinition) {
+                if (parent instanceof BallerinaGlobalVariableDefinition
+                        || parent instanceof BallerinaConstantDefinition) {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
                 } else if (parent instanceof BallerinaTableColumn) {
@@ -206,6 +209,9 @@ public class BallerinaAnnotator implements Annotator {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
                 // Highlights Service names.
                 } else if (parent instanceof BallerinaServiceDefinition) {
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
+                // Highlights Worker names.
+                } else if (parent instanceof BallerinaWorkerDefinition) {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
                 }
             }

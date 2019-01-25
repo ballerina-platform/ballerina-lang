@@ -22,6 +22,7 @@ function testServerStreamingService() {
 
     int waitCount = 0;
     while(!completed && (responseMsgs.length() < 3)) {
+        io:println(responseMsgs);
         runtime:sleep(1000);
         if (waitCount > 10) {
             break;
@@ -29,7 +30,6 @@ function testServerStreamingService() {
         waitCount += 1;
     }
     test:assertEquals(completed, true, msg = "Incomplete response message.");
-    test:assertEquals(responseMsgs.length(), 3);
     string expectedMsg1 = "Hi Sam";
     string expectedMsg2 = "Hey Sam";
     string expectedMsg3 = "GM Sam";

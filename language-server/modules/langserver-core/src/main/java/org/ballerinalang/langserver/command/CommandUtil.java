@@ -391,7 +391,7 @@ public class CommandUtil {
 
         private String argumentV;
 
-        CommandArgument(String argumentK, String argumentV) {
+        public CommandArgument(String argumentK, String argumentV) {
             this.argumentK = argumentK;
             this.argumentV = argumentV;
         }
