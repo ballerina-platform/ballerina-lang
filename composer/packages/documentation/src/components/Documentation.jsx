@@ -31,19 +31,34 @@ const Documentation = ({ docDetails }) => {
         'RecordType': 'fw-record'
     }[kind];
 
+    const renderfunctionHeader = (name, parameters) => {
+        const params = parameters.map((param) => {
+            return param.name;
+        });
+
+        return (
+            <div className='title'>
+                {name}
+                ( <span className='parameters'>{ params.toString().replace(',', ', ') }</span> )
+            </div>
+        );
+    }
+
     const renderReturnParameters = () => {
         return (
             <div>
                 {returnParameter && returnParameter.type !== 'nil' && (
                     <div className='return-details'>
                         { returnParameter.type && 
-                            <div>
+                            <span>
                                 <strong>return:</strong> <span className='type'>{returnParameter.type}</span>
-                            </div>
+                            </span>
                         }
-                        <div className='return-description'>
-                            { <Description source={returnParameter.description || ''} /> }
-                        </div>
+                        { returnParameter.description && 
+                            <span className='return-description inline-paragraph'>
+                                ~ { <Description source={returnParameter.description || ''} /> }
+                            </span>
+                        }
                     </div>
                 )}
             </div>
@@ -73,19 +88,26 @@ const Documentation = ({ docDetails }) => {
             { icon && (<i className={`fw fw-fw icon ${icon}`}></i>) }
             <List.Content>
                 <List.Header>
-                    <div className='title'>
-                        {title}
-                        { kind === 'Function' && '()' }
-                        { valueType !== '' &&
-                            (<span className='value-type'>[<span className='type'>{valueType}</span>]</span>)
-                        }
-                        { kind === 'Service' && (
-                            <span className='service-type'><span className='type'>service</span></span>
-                        )}
-                        { kind === 'ObjectType' && (
-                            <span className='object-type'>{'{'}<span className='type'>object</span>{'}'}</span>
-                        )}
-                    </div>
+                    { kind === 'Function' && renderfunctionHeader(title, Object.entries(parameters).map(
+                            function(entry) {
+                                return entry[1];
+                            })
+                        )
+                    }
+                    { kind !== 'Function' && (
+                        <div className='title'>
+                            {title}
+                            { valueType !== '' &&
+                                (<span className='value-type'>[<span className='type'>{valueType}</span>]</span>)
+                            }
+                            { kind === 'Service' && (
+                                <span className='service-type'><span className='type'>service</span></span>
+                            )}
+                            { kind === 'ObjectType' && (
+                                <span className='object-type'>{'{'}<span className='type'>object</span>{'}'}</span>
+                            )}
+                        </div>
+                    )}
                 </List.Header>
                 <List.Description>
                     <Description source={description} className='description' />
@@ -142,7 +164,7 @@ const Documentation = ({ docDetails }) => {
                         </Table>
                     )}
                     {(kind === 'RecordType' && paramNames.length > 0) && (
-                        <Grid className='records-list'>
+                        <Grid className='params-list'>
                             {
                                 paramNames.map((param) => {
                                     const { name, type, defaultValue, description } = parameters[param];
@@ -152,7 +174,7 @@ const Documentation = ({ docDetails }) => {
                         </Grid>
                     )}
                     {(kind === 'Function' && paramNames.length > 0) && (
-                        <Grid className='records-list'>
+                        <Grid className='params-list'>
                             {
                                 paramNames.map((param) => {
                                     const { name, type, description } = parameters[param];
@@ -172,12 +194,12 @@ const Documentation = ({ docDetails }) => {
                                     <i className='fw fw-fw icon fw-function'></i>
                                     <List.Content>
                                         <List.Header>
-                                            <div className='title'>{name}{'()'}</div>
+                                            { renderfunctionHeader(name, functionParameters) }
                                         </List.Header>
                                         <List.Description>
                                             <Description source={description} />
                                             {functionParameters.length > 0 && (
-                                                <Grid className='records-list'>
+                                                <Grid className='params-list'>
                                                     {
                                                         functionParameters.map((param) => {
                                                             const { name, type, description } = param;

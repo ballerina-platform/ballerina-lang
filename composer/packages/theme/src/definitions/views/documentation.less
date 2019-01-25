@@ -35,12 +35,10 @@
             .parameter {
                 color: ~"@{@{color}-documentation-parameter-text-color}";
             }
-
             .type {
                 color: ~"@{@{color}-documentation-type-text-color}";
                 font-style: italic;
             }
-
             .title {
                 font-size: @documentation-title-font-size;
                 margin-bottom: 5px;
@@ -49,7 +47,6 @@
                 .icon {
                     margin-right: 3px;
                 }
-        
                 .object-type,
                 .service-type,
                 .value-type {
@@ -57,13 +54,17 @@
                     font-style: italic;
                     margin-left: 5px;
                 }
+                .parameters {
+                    color: ~"@{@{color}-documentation-parameter-text-color}";
+                    font-style: italic;
+                    font-size: calc(@documentation-title-font-size - 2px);
+                }
             }
 
             .description {
                 font-size: 15px;
             }
-
-            .ui.grid.records-list {
+            .ui.grid.params-list {
                 background-color: ~"@{@{color}-documentation-records-container-background-color}";
                 padding: @documentation-records-container-padding;
                 margin: @documentation-records-container-margin;
@@ -72,7 +73,6 @@
                     padding: @documentation-records-padding;
                 }
             }
-
             .return-details {
                 strong {
                     font-weight: 600;
@@ -81,7 +81,6 @@
                     font-style: italic;
                 }
             }
-            
             code {
                 background: #E0E1E2;
                 border: none;
@@ -90,7 +89,6 @@
                 font-family: monospace, monospace;
                 font-size: 0.9em;
             }
-
             .ui.table {
                 thead th {
                     font-weight: 500;
@@ -101,7 +99,6 @@
                 }
             }
         }
-
         .ui.list.tree-show-line {
             .item > .content > .list {
                 margin-top: 0.5rem;
@@ -111,12 +108,11 @@
                     width: 100%;
                 }
             }
-
             .item:not(:last-child) > .content > .list {
+                // TODO: Add treeview lines
                 // background: url(data:image/gif;base64,R0lGODlhCQACAIAAAMzMzP///yH5BAEAAAEALAAAAAAJAAIAAAIEjI9pUAA7) 0 0 repeat-y;
             }
         }
-
         .__added {
             animation: added_animate 3s;
             animation-fill-mode: forwards;
