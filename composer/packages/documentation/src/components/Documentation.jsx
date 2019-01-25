@@ -37,8 +37,14 @@ const Documentation = ({ docDetails }) => {
                 {returnParameter && returnParameter.type !== 'nil' && (
                     <div className='return-details'>
                         <div>----------------------------------</div>
-                        {returnParameter.type && <div><strong>return:</strong> <span className='type'>{returnParameter.type}</span></div>}
-                        <div className='return-description'>{<Description source={returnParameter.description || ''} />}</div>
+                        { returnParameter.type && 
+                            <div>
+                                <strong>return:</strong> <span className='type'>{returnParameter.type}</span>
+                            </div>
+                        }
+                        <div className='return-description'>
+                            { <Description source={returnParameter.description || ''} /> }
+                        </div>
                     </div>
                 )}
             </div>
@@ -52,7 +58,11 @@ const Documentation = ({ docDetails }) => {
                     <span className='parameter'>{name} </span>:
                 </Grid.Column>
                 <Grid.Column mobile={16} tablet={13} computer={13}>
-                    <div><span className='type'>{type.trim()}</span>{ description && (<span className='inline-paragraph'> ~ {<Description source={description} />}</span>)}</div>
+                    <div><span className='type'>{type.trim()}</span>
+                        { description && (
+                            <span className='inline-paragraph'> ~ {<Description source={description} />}</span>
+                        )}
+                    </div>
                     { defaultValue && (<div>Default Value : {defaultValue}</div>)}
                 </Grid.Column>
             </Grid.Row>
@@ -70,8 +80,12 @@ const Documentation = ({ docDetails }) => {
                         { valueType !== '' &&
                             (<span className='value-type'>[<span className='type'>{valueType}</span>]</span>)
                         }
-                        { kind === 'Service' && (<span className='service-type'><span className='type'>service</span></span>)}
-                        { kind === 'ObjectType' && (<span className='object-type'>{'{'}<span className='type'>object</span>{'}'}</span>)}
+                        { kind === 'Service' && (
+                            <span className='service-type'><span className='type'>service</span></span>
+                        )}
+                        { kind === 'ObjectType' && (
+                            <span className='object-type'>{'{'}<span className='type'>object</span>{'}'}</span>
+                        )}
                     </div>
                 </List.Header>
                 <List.Description>
