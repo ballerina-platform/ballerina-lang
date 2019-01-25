@@ -102,6 +102,13 @@ public class ArrayTest {
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");
         Assert.assertEquals(((BInteger) returnVals[1]).intValue(), 3, "Length didn't match");
     }
+
+    @Test()
+    public void testArrayStringRepresentationWithANilElement() {
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testArrayWithNilElement");
+        String str = returnVals[0].stringValue();
+        Assert.assertEquals(str,"[\"abc\", \"d\", (), \"s\"]");
+    }
     
     @Test
     public void testArrayToString() {

@@ -222,6 +222,14 @@ public class BMapValueTest {
         Assert.assertEquals(mapString, "{\"key1\":\"Element 1\", \"key2\":\"Element 2\", \"key3\":\"Element 3\"}");
     }
 
+    @Test(description = "Test string representations of a map with a nil value", dependsOnMethods = "testGrammar")
+    public void testMapStringRepresentation() {
+        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapStringRepresentation", new BValue[0]);
+        BMap<String, BRefType<?>> m = (BMap) returnVals[0];
+        String mapString = m.stringValue();
+        Assert.assertEquals(mapString, "{\"key1\":\"Element 1\", \"key2\":\"Element 2\", \"key3\":()}");
+    }
+
     @Test
     public  void testBMapOrder() {
         BMap<String, BRefType> map = new BMap<>();
