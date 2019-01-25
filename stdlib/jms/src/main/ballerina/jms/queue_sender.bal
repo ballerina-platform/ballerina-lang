@@ -18,30 +18,35 @@ import ballerina/log;
 
 # JMS QueueSender Endpoint
 #
-# + config - Used to store configurations related to a JMS QueueSender
+# + session - Session of the queue sender
 public type QueueSender client object {
 
-    public QueueSenderEndpointConfiguration config = {};
+    public Session? session;
 
     # Initialize the QueueSender endpoint
     #
-    # + c - Configurations related to the QueueSender endpoint
-    public function __init(QueueSenderEndpointConfiguration c) {
-        self.config = c;
-        var session = c.session;
-        if (session is Session) {
-            var queueName = c.queueName;
-            if (queueName is string) {
-                self.initQueueSender(session);
-            } else {
-                log:printInfo("Message producer not properly initialized for queue");
-            }
+    # + c - The JMS Session object or Configurations related to the receiver
+    # + queueName - Name of the target queue
+    public function __init(Session|SenderEndpointConfiguration c, string? queueName = ()) {
+        if (c is Session) {
+            self.session = c;
         } else {
-            log:printInfo("Message producer not properly initialized for queue");
+            Connection conn = new({
+                    initialContextFactory: c.initialContextFactory,
+                    providerUrl: c.providerUrl,
+                    connectionFactoryName: c.connectionFactoryName,
+                    properties: c.properties
+                });
+            self.session = new Session(conn, {
+                    acknowledgementMode: c.acknowledgementMode
+                });
+        }
+        if (queueName is string) {
+            self.initQueueSender(self.session, queueName);
         }
     }
 
-    extern function initQueueSender(Session session, Destination? destination = ());
+    extern function initQueueSender(Session? session, string|Destination dest);
 
     # Sends a message to the JMS provider
     #
@@ -54,26 +59,9 @@ public type QueueSender client object {
     # + destination - Destination used for the message sender
     # + message - Message to be sent to the JMS provider
     # + return - Error if sending to the given destination fails
-    public remote function sendTo(Destination destination, Message message) returns error?;
-};
-
-remote function QueueSender.sendTo(Destination destination, Message message) returns error? {
-    var session = self.config.session;
-    if (session is Session) {
+    public remote function sendTo(Destination destination, Message message) returns error? {
         validateQueue(destination);
-        self.initQueueSender(session, destination = destination);
-    } else {
-        log:printInfo("Message producer not properly initialized for queue " + destination.destinationName);
+        self.initQueueSender(self.session, destination);
+        return self->send(message);
     }
-    return self->send(message);
-}
-
-# Configurations related to a QueueSender object
-#
-# + session - JMS session object used to create the consumer
-# + queueName - Name of the target queue
-public type QueueSenderEndpointConfiguration record {
-    Session? session = ();
-    string? queueName = ();
-    !...;
 };

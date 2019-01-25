@@ -106,7 +106,9 @@ public int counter = 1;
 // Mock a service outage by stopping/starting this service.
 // This should run separately from the `circuitBreakerDemo` service.
 
-@http:ServiceConfig { basePath: "/hello" }
+@http:ServiceConfig {
+    basePath: "/hello"
+}
 service helloWorld on new http:Listener(8080) {
     @http:ResourceConfig {
         methods: ["GET"],

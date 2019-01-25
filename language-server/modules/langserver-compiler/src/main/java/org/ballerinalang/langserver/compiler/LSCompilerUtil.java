@@ -27,6 +27,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -142,6 +143,10 @@ public class LSCompilerUtil {
 
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);
+
+        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+            ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).clearAll();
+        }
 
         Path sourceRootPath = document.getSourceRootPath();
         if (isBallerinaProject(document.getSourceRoot(), document.getURIString())) {

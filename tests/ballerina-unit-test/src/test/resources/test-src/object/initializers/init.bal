@@ -13,7 +13,7 @@ public type employee object {
 
 };
 
-function employee.getAge() {
+public function employee.getAge() {
     self.age = 12;
 }
 
@@ -27,6 +27,6 @@ public type student object {
 
 };
 
-function student.getAge() {
+public function student.getAge() {
     self.age = 20;
 }

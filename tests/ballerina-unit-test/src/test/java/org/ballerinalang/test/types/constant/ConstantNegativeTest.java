@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 57);
+        Assert.assertEquals(compileResult.getErrorCount(), 58);
 
         int index = 0;
         int offset = 1;
@@ -123,6 +123,8 @@ public class ConstantNegativeTest {
                 " 'string'", offset += 11, 28);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina rocks', found " +
                 "'string'", offset += 9, 31);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '()'", offset += 6,
+                24);
         BAssertUtil.validateError(compileResult, index, "incompatible types: expected '23.2|12.1', found 'float'",
                 offset += 13, 28);
     }

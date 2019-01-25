@@ -18,6 +18,10 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
                             ballerinaComposer.renderDocPreview(astJson, el);
                         }
                         break;
+                    case 'scroll':
+                        const anchor = event.data.anchor;
+                        location.href = "#" + anchor;
+                        break;
                 }
             });
 

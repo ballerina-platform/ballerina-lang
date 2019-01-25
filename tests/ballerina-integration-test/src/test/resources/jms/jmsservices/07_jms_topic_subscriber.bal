@@ -16,10 +16,7 @@ jms:Session jmsSession6 = new (conn6, {
     });
 
 // Initialize a Queue consumer using the created session.
-listener jms:TopicSubscriber topicSubscriber6 = new({
-    session: jmsSession6,
-    topicPattern: "testDurableTopicSubscriberPublisher6"
-});
+listener jms:TopicSubscriber topicSubscriber6 = new(jmsSession6, topicPattern = "testDurableTopicSubscriberPublisher6");
 
 // Bind the created consumer to the listener service.
 service jmsListener6 on topicSubscriber6 {

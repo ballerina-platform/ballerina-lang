@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
+import ballerina/encoding;
 
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
@@ -311,7 +312,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
             string username = config.auth.username ?: "";
             string password = config.auth.password ?: "";
             string str = username + ":" + password;
-            string token = check str.base64Encode();
+            string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
         } else if (scheme == OAUTH2) {
             string accessToken = config.auth.accessToken ?: "";
@@ -383,7 +384,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
         }
         if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
             string clientIdSecret = clientId + ":" + clientSecret;
-            refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
+            refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
+                    encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
         } else {
             textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
         }

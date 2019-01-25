@@ -4,11 +4,12 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
+    "copy-less": "copyfiles -f src/**/*.less lib/api-designer/components/style/",
     "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run lint",
     "clean": "composer pkg:clean",
     "lint": "composer pkg:lint",
-    "build": "composer pkg:build",
+    "build": "npm run copy-less && composer pkg:build",
     "test": "echo \"No tests specified\"",
     "coverage": "composer pkg:test:coverage",
     "watch": "composer pkg:watch",
@@ -23,6 +24,7 @@
   "dependencies": {
     "@types/swagger-parser": "^4.0.2",
     "js-yaml": "^3.12.0",
+    "openapi3-ts": "^1.1.0",
     "react-markdown": "^4.0.4",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.83.0",

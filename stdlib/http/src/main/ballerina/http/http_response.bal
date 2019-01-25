@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/time;
 
 # Represents an HTTP response.
@@ -225,27 +226,27 @@ public type Response object {
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-function Response.hasHeader(string headerName) returns boolean {
+public function Response.hasHeader(string headerName) returns boolean {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-function Response.getHeader(string headerName) returns string {
+public function Response.getHeader(string headerName) returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-function Response.addHeader(string headerName, string headerValue) {
+public function Response.addHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
-function Response.getHeaders(string headerName) returns (string[]) {
+public function Response.getHeaders(string headerName) returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
-function Response.setHeader(string headerName, string headerValue) {
+public function Response.setHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 
@@ -255,113 +256,113 @@ function Response.setHeader(string headerName, string headerValue) {
     }
 }
 
-function Response.removeHeader(string key) {
+public function Response.removeHeader(string key) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
 
-function Response.removeAllHeaders() {
+public function Response.removeAllHeaders() {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeAllHeaders();
 }
 
-function Response.getHeaderNames() returns string[] {
+public function Response.getHeaderNames() returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
 
-function Response.setContentType(string contentType) {
+public function Response.setContentType(string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(mime:CONTENT_TYPE, contentType);
 }
 
-function Response.getContentType() returns string {
+public function Response.getContentType() returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
 
-function Response.getJsonPayload() returns json|error {
+public function Response.getJsonPayload() returns json|error {
     return self.getEntity()!getJson();
 }
 
-function Response.getXmlPayload() returns xml|error {
+public function Response.getXmlPayload() returns xml|error {
     return self.getEntity()!getXml();
 }
 
-function Response.getTextPayload() returns string|error {
+public function Response.getTextPayload() returns string|error {
     return self.getEntity()!getText();
 }
 
-function Response.getPayloadAsString() returns string|error {
+public function Response.getPayloadAsString() returns string|error {
     return self.getEntity()!getBodyAsString();
 }
 
-function Response.getBinaryPayload() returns byte[]|error {
+public function Response.getBinaryPayload() returns byte[]|error {
     return self.getEntity()!getByteArray();
 }
 
-function Response.getByteChannel() returns io:ReadableByteChannel|error {
+public function Response.getByteChannel() returns io:ReadableByteChannel|error {
     return self.getEntity()!getByteChannel();
 }
 
-function Response.getBodyParts() returns mime:Entity[]|error {
+public function Response.getBodyParts() returns mime:Entity[]|error {
     return self.getEntity()!getBodyParts();
 }
 
-function Response.setETag(json|xml|string|byte[] payload) {
-    string etag = crypto:crc32(payload);
+public function Response.setETag(json|xml|string|byte[] payload) {
+    string etag = crypto:crc32b(payload);
     self.setHeader(ETAG, etag);
 }
 
-function Response.setLastModified() {
+public function Response.setLastModified() {
     time:Time currentT = time:currentTime();
-    string lastModified = currentT.format(time:TIME_FORMAT_RFC_1123);
+    string lastModified = time:format(currentT, time:TIME_FORMAT_RFC_1123);
     self.setHeader(LAST_MODIFIED, lastModified);
 }
 
-function Response.setJsonPayload(json payload, string contentType = "application/json") {
+public function Response.setJsonPayload(json payload, string contentType = "application/json") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Response.setXmlPayload(xml payload, string contentType = "application/xml") {
+public function Response.setXmlPayload(xml payload, string contentType = "application/xml") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Response.setTextPayload(string payload, string contentType = "text/plain") {
+public function Response.setTextPayload(string payload, string contentType = "text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Response.setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
+public function Response.setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteArray(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Response.setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
+public function Response.setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBodyParts(bodyParts, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Response.setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
+public function Response.setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Response.setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
+public function Response.setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Response.setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
+public function Response.setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
     if (payload is string) {
         self.setTextPayload(payload);
     } else if (payload is xml) {

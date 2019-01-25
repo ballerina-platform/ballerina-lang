@@ -55,10 +55,10 @@ public class TopLevelResolver extends AbstractItemResolver {
         } else if (poppedTokens.size() >= 1 && this.isAccessModifierToken(poppedTokens.get(0))) {
             // Provides completions after public keyword
             completionItems.addAll(this.addTopLevelItems(ctx));
-            completionItems.addAll(this.populateBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+            completionItems.addAll(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else if (poppedTokens.size() >= 1 && poppedTokens.get(0).equals(ItemResolverConstants.EXTERN_KEYWORD)) {
             // Completion after the extern keyword. Only the signature of function should suggest
-            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(new CompletionItem(), snippetSupport));
+            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(snippetSupport));
         } else if (resolver == null || resolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
             completionItems.addAll(getGlobalVarDefCompletions(ctx, poppedTokens, resolver));
         } else {
@@ -70,7 +70,7 @@ public class TopLevelResolver extends AbstractItemResolver {
     }
 
     private CompletionItem getStaticItem(Snippet snippet, boolean isSnippet) {
-        return snippet.get().build(new CompletionItem(), isSnippet);
+        return snippet.get().build(isSnippet);
     }
 
     /**
@@ -115,7 +115,7 @@ public class TopLevelResolver extends AbstractItemResolver {
 
         if (poppedTokens.size() < 2) {
             completionItems.addAll(this.addTopLevelItems(context));
-            completionItems.addAll(this.populateBasicTypes(context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+            completionItems.addAll(this.getBasicTypes(context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else if (itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
             completionItems.addAll(itemResolver.resolveItems(context));
         }

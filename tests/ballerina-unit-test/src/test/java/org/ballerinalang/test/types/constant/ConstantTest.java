@@ -47,6 +47,18 @@ public class ConstantTest {
     }
 
     @Test
+    public void testNilWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithoutType");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testNilWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithType");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
     public void testConstWithTypeInReturn() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeInReturn");
         Assert.assertNotNull(returns[0]);

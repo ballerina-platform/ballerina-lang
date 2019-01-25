@@ -18,30 +18,35 @@ import ballerina/log;
 
 # JMS TopicPublisher endpoint
 #
-# + config - Used to store configurations related to JMS TopicPublisher
+# + session - Session of the topic publisher
 public type TopicPublisher client object {
 
-    public TopicPublisherEndpointConfiguration config = {};
+    public Session? session;
 
     # Initialize the TopicPublisher endpoint
     #
-    # + c - Configurations related to the TopicPublisher endpoint
-    public function __init(TopicPublisherEndpointConfiguration c) {
-        self.config = c;
-        var session = c.session;
-        if (session is Session) {
-            var topicPattern = c.topicPattern;
-            if (topicPattern is string) {
-                self.initTopicPublisher(session);
-            } else {
-                log:printInfo("Topic publisher is not properly initialized for the topic");
-            }
+    # + c - The JMS Session object or Configurations related to the receiver
+    # + topicPattern - Topic name pattern
+    public function __init(Session|SenderEndpointConfiguration c, string? topicPattern = ()) {
+        if (c is Session) {
+            self.session = c;
         } else {
-            log:printInfo("Topic publisher is not properly initialized for the topic");
+            Connection conn = new({
+                    initialContextFactory: c.initialContextFactory,
+                    providerUrl: c.providerUrl,
+                    connectionFactoryName: c.connectionFactoryName,
+                    properties: c.properties
+                });
+            self.session = new Session(conn, {
+                    acknowledgementMode: c.acknowledgementMode
+                });
+        }
+        if (topicPattern is string) {
+            self.initTopicPublisher(self.session, topicPattern);
         }
     }
 
-    public extern function initTopicPublisher(Session session, Destination? destination = ());
+    public extern function initTopicPublisher(Session? session, string|Destination dest);
 
     # Sends a message to the JMS provider
     #
@@ -54,26 +59,9 @@ public type TopicPublisher client object {
     # + destination - Destination used for the message sender
     # + message - Message to be sent to the JMS provider
     # + return - Error upon failure to send the message to the JMS provider
-    public remote function sendTo(Destination destination, Message message) returns error?;
-};
-
-remote function TopicPublisher.sendTo(Destination destination, Message message) returns error? {
-    var session = self.config.session;
-    if (session is Session) {
+    public remote function sendTo(Destination destination, Message message) returns error? {
         validateTopic(destination);
-        self.initTopicPublisher(session, destination = destination);
-    } else {
-        log:printInfo("Session is (), Topic publisher is not properly initialized");
+        self.initTopicPublisher(self.session, destination);
+        return self->send(message);
     }
-    return self->send(message);
-}
-
-# Configuration related to the TopicPublisher endpoint
-#
-# + session - Session object used to create TopicPublisher
-# + topicPattern - Topic name pattern
-public type TopicPublisherEndpointConfiguration record {
-    Session? session = ();
-    string? topicPattern = ();
-    !...;
 };

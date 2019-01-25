@@ -83,7 +83,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
         } else if (this.isInvocationOrInteractionOrFieldAccess(context)) {
             Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
-            completionItems.addAll(this.getCompletionsFromEither(eitherList, context));
+            completionItems.addAll(this.getCompletionItemList(eitherList, context));
         } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
             context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
@@ -93,8 +93,9 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
                     .resolveItems(context);
         } else {
             fillTypes(context, completionItems);
-            fillInitializerSignature(completionItems, isSnippet);
-            fillFunctionSignature(completionItems, isSnippet);
+            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(isSnippet));
+            completionItems.add(Snippet.DEF_FUNCTION.get().build(isSnippet));
+            completionItems.add(Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(isSnippet));
         }
 
         return completionItems;
@@ -106,22 +107,6 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
-    }
-    
-    private void fillFunctionSignature(List<CompletionItem> completionItems, boolean snippetCapability) {
-        CompletionItem functionSignatureItem = new CompletionItem();
-        Snippet.DEF_FUNCTION_SIGNATURE.get().build(functionSignatureItem, snippetCapability);
-        completionItems.add(functionSignatureItem);
-        
-        CompletionItem functionItem = new CompletionItem();
-        Snippet.DEF_FUNCTION.get().build(functionItem, snippetCapability);
-        completionItems.add(functionItem);
-    }
-    
-    private void fillInitializerSignature(List<CompletionItem> completionItems, boolean snippetCapability) {
-        CompletionItem constructorItem = new CompletionItem();
-        Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(constructorItem, snippetCapability);
-        completionItems.add(constructorItem);
     }
     
     private void fillObjectReferences(List<CompletionItem> completionItems, List<String> poppedTokens, LSContext ctx) {

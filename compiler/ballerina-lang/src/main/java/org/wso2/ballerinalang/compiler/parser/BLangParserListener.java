@@ -302,17 +302,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean nativeFunc = ctx.EXTERN() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
+        boolean privateFunc = ctx.PRIVATE() != null;
 
         if (ctx.Identifier() != null) {
             this.pkgBuilder
-                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
+                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc, remoteFunc,
+                            nativeFunc,
                             bodyExists, ctx.Identifier().getText());
             return;
         }
 
         boolean isReceiverAttached = ctx.typeName() != null;
 
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
                 bodyExists, isReceiverAttached, false);
     }
 
@@ -900,6 +902,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
         this.pkgBuilder.addRecordBindingWS(getWS(ctx));
     }
 
