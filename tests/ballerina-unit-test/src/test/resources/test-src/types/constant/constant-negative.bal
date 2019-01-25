@@ -253,3 +253,11 @@ string sValue = "ballerina";
 function getValue() returns string {
     return "ballerina";
 }
+
+// -----------------------------------------------------------
+
+const map<string> m3 = { "m3k": "m3v" };
+
+function updateConstantMapValue() {
+    m3.m3k = "m3nv";
+}

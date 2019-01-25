@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 55);
+        Assert.assertEquals(compileResult.getErrorCount(), 56);
 
         int index = 0;
         int offset = 1;
@@ -117,6 +117,7 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '()'",
                 offset += 6, 24);
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", offset += 4, 33);
-        BAssertUtil.validateError(compileResult, index, "expression is not a constant expression", offset += 1, 33);
+        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", offset += 1, 33);
+        BAssertUtil.validateError(compileResult, index, "cannot update constant value", offset += 12, 5);
     }
 }

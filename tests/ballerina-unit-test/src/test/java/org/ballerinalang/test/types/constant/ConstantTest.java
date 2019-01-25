@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -522,5 +523,17 @@ public class ConstantTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{name:\"testAnnotation\", moduleName:\"\", moduleVersion:\"\"," +
                 " value:{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}}");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
+    public void updateNestedConstantMapValue() {
+        BRunUtil.invoke(compileResult, "updateNestedConstantMapValue");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
+    public void updateConstantMapValueInArray() {
+        BRunUtil.invoke(compileResult, "updateConstantMapValueInArray");
     }
 }
