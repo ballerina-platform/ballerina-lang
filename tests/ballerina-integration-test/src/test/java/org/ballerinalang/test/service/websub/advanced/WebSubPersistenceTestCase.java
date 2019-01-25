@@ -119,7 +119,6 @@ public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
         notificationAfterLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
-
     @AfterClass
     private void teardown() throws Exception {
         webSubSubscriber.shutdownServer();

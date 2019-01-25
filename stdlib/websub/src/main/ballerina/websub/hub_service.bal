@@ -31,10 +31,9 @@ service hubService =
     basePath: BASE_PATH,
     authConfig: {
         authentication: {
-            enabled: config:getAsBoolean("b7a.websub.hub.serviceAuthConfig.enabled", default = false)
+            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", default = false)
         },
-        authProviders: getArray(config:getAsString("b7a.websub.hub.serviceAuthConfig.authProviders")),
-        scopes: getArray(config:getAsString("b7a.websub.hub.serviceAuthConfig.scopes"))
+        scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
     }
 }
 service {
@@ -52,14 +51,7 @@ service {
 
     @http:ResourceConfig {
         methods: ["POST"],
-        path: HUB_PATH,
-        authConfig: {
-            authentication: {
-                enabled: config:getAsBoolean("b7a.websub.hub.resourceAuthConfig.enabled", default = false)
-            },
-            authProviders: getArray(config:getAsString("b7a.websub.hub.resourceAuthConfig.authProviders")),
-            scopes: getArray(config:getAsString("b7a.websub.hub.resourceAuthConfig.scopes"))
-        }
+        path: HUB_PATH
     }
     resource function hub(http:Caller httpCaller, http:Request request) {
         http:Response response = new;

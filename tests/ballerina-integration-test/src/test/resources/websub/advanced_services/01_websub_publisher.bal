@@ -23,6 +23,25 @@ import ballerina/websub;
 const string WEBSUB_PERSISTENCE_TOPIC_ONE = "http://one.persistence.topic.com";
 const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
 
+http:AuthProvider basicAuthProvider = {
+    scheme: "basic",
+    authStoreProvider: "config"
+};
+
+http:ServiceEndpointConfiguration hubListenerConfig = {
+    authProviders: [basicAuthProvider],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        },
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
+    }
+};
+
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
 listener http:Listener publisherServiceEP = new http:Listener(8080);
@@ -134,7 +153,8 @@ function startWebSubHub() returns websub:WebSubHub {
         poolOptions: { maximumPoolSize: 5 }
     });
     websub:HubPersistenceStore hpo = new websub:H2HubPersistenceStore(h2Client);
-    var result = websub:startHub(new http:Listener(9191), hubConfiguration = { hubPersistenceStore: hpo });
+    var result = websub:startHub(new http:Listener(9191, config =  hubListenerConfig),
+                                    hubConfiguration = { hubPersistenceStore: hpo });
     if (result is websub:WebSubHub) {
         return result;
     } else {
