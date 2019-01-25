@@ -10,13 +10,18 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
-    counter += 1;
+    foreach var entry in s {
+        outputs[counter] = entry;
+        counter += 1;
+    }
 }
 
 @test:Config
 function testFunc() {
     // Invoke the main function.
     main();
-    test:assertEquals(outputs[0], "Error occurred: Account with ID: 24 is not found");
+    test:assertEquals(outputs[0], "Error: ");
+    test:assertEquals(outputs[1], "Account Not Found");
+    test:assertEquals(outputs[2], ", Account ID: ");
+    test:assertEquals(outputs[3], -1);
 }

@@ -1,4 +1,4 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run error_handling.bal
-Error occurred: Account with ID: 24 is not found, accountID: 24
+Error: Account Not Found, Account ID: -1
