@@ -509,6 +509,13 @@ public class ConstantTest {
     }
 
     @Test
+    public void testComplexConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"k3\":{\"k2\":{\"k1\":\"v1\"}}}");
+    }
+
+    @Test
     public void testConstInAnnotations() {
         String functionName = "testConstInAnnotations";
         BValue[] returns = BRunUtil.invoke(compileResult, functionName);

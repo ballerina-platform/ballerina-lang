@@ -509,6 +509,20 @@ function testComplexStringConstMap() returns map<map<string>> {
 
 // -----------------------------------------------------------
 
+const map<map<map<string>>> m3 = { "k3": m2 };
+
+const map<map<string>> m2 = { "k2": m1 };
+
+const map<string> m1 = { "k1": sVal };
+
+const sVal = "v1";
+
+function testComplexConstMap() returns map<map<map<string>>> {
+    return m3;
+}
+
+// -----------------------------------------------------------
+
 const sConst = "Ballerina";
 const iConst = 100;
 const map<string> mConst = { "mKey": "mValue" };
