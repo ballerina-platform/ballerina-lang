@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-import utils;
 
 int a = 1;
 string b = "test string 1";
@@ -26,13 +25,13 @@ boolean e = true;
 (int|boolean)[] g = [a, e];
 (string, float, decimal) h = (b, c, d);
 
-map<string|utils:FooRecord|utils:FooObject> i = {
+map<string|FooRecord|FooObject> i = {
     one: j,
     two: b,
     three: p
 };
-utils:FooRecord j = { fooFieldOne: b };
-table<utils:BazRecord> k = table{};
+FooRecord j = { fooFieldOne: b };
+table<BazRecord> k = table{};
 xml l = xml `<book>The Lost World</book>`;
 error errValOne = error("error reason one");
 error errValTwo = error("error reason two");
@@ -43,7 +42,7 @@ map<error> m = {
 
 function (int x) returns int n = getIncrementedInt;
 future<int> o = start getIncrementedInt(a);
-utils:FooObject p = new(b);
+FooObject p = new(b);
 service q = service {
     resource function mockResource() {
     }
@@ -108,3 +107,24 @@ function anyValueDataProvider() returns (any[][]) {
         [z]
     ];
 }
+
+public type FooRecord record {
+    string fooFieldOne;
+    !...;
+};
+
+public type BazRecord record {
+    float bazFieldOne;
+};
+
+public type FooObject object {
+    public string fooFieldOne;
+
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};

@@ -14,31 +14,38 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-import utils;
 
-byte b0 = 0;
-byte b1 = 1;
-byte b254 = 254;
-byte b255 = 255;
+// json-type-descriptor := json
+// json means  () | boolean | int | float | decimal | string | json[] | map<json>
+json[] jsonArray = [a, b, c];
+map<json> jsonMap = {
+    one: a,
+    two: b,
+    three: jsonArray
+};
+json jsonObject = {
+    one: a,
+    two: b,
+    three: jsonArray
+};
 
-map<byte> byteMap = {};
-
-// byte-type-descriptor := byte
-
-// The byte type is an abbreviation for a union of the int values in the range 0 to 255 inclusive.
 @test:Config {
-    dataProvider: "byteValueDataProvider"
+    dataProvider: "jsonValueDataProvider"
 }
-function testByteTypeDescriptor(byte bVal) {
-    byte bVal2 = bVal;
-    test:assertEquals(bVal2, bVal, msg = "expected variable to hold the assigned value");
+function testJsonTypeDescriptor(json jVal) {
+    json jVal2 = jVal;
+    test:assertEquals(jVal2, jVal, msg = "expected variable to hold the assigned value");
 }
 
-function byteValueDataProvider() returns (byte[][]) {
+function jsonValueDataProvider() returns (json[][]) {
     return [
-        [b0],
-        [b1],
-        [b254],
-        [b255]
+        [a],
+        [b],
+        [c],
+        [d],
+        [e],
+        [f],
+        [jsonArray],
+        [jsonObject]
     ];
 }

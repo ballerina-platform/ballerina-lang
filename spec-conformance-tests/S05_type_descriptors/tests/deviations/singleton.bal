@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-import utils;
 
 // A singleton type is a type containing a single shape. A singleton type is described 
 // using an compile-time constant expression for a single value: the type contains the 

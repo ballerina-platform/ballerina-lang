@@ -14,27 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-import utils;
 
-// Thus the type anydata|error is the supertype of all pure types. The type anydata is equivalent to the union
-
-// () | boolean | int | float | decimal | string
-// | (anydata|error)[] | map<anydata|error>
-// | xml | table
-// TODO: allow (anydata|error)[] and map<anydata|error> as anydata
-// https://github.com/ballerina-platform/ballerina-lang/issues/13231 
+// json means  () | boolean | int | float | decimal | string | json[] | map<json>
+// TODO: allow map<json> as json
+// https://github.com/ballerina-platform/ballerina-lang/issues/13232
 @test:Config {
-    dataProvider: "brokenAnydataValueDataProvider",
+    dataProvider: "brokenJsonValueDataProvider",
     groups: ["deviation"]
 }
-function testAnydataTypeDescriptorBroken(anydata av) {
-    anydata av2 = av;
-    test:assertEquals(av2, av, msg = "expected variable to hold the assigned value");
+function testJsonTypeDescriptorBroken(json jv) {
+    json jv2 = jv;
+    test:assertEquals(jv2, jv, msg = "expected variable to hold the assigned value");
 }
 
-function brokenAnydataValueDataProvider() returns (anydata[][]) {
+function brokenJsonValueDataProvider() returns (json[][]) {
     return [
-        // [anydataOrErrorArray],
-        // [anydataOrErrorMap]
+        // [jsonMap]
     ];
 }
