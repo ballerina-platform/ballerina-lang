@@ -19,7 +19,7 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Accordion, AccordionTitleProps } from "semantic-ui-react";
+import { Accordion, AccordionTitleProps, Button } from "semantic-ui-react";
 
 import { OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
 
@@ -122,9 +122,17 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                 <div className="op-section">
                                     <div className="title">
                                         <p>Parameters</p>
-                                        <a onClick={() => {
-                                            this.handleShowAddParameter(index);
-                                        }} >Add Parameter</a>
+                                        <Button
+                                            title="Add operation to resource."
+                                            size="mini"
+                                            compact
+                                            className="add-operation-action"
+                                            circular
+                                            onClick={() => {
+                                                this.handleShowAddParameter(index);
+                                            }}
+                                        ><i className="fw fw-add"></i>
+                                        </Button>
                                     </div>
                                     {showAddParameter.includes(index) &&
                                         <OpenApiContextConsumer>

@@ -34,7 +34,7 @@ class OpenApiParameterList extends React.Component<OpenApiParameterListProps, an
         const { parameterList } = this.props;
 
         return (
-            <Table celled>
+            <Table basic="very" celled collapsing>
                 <Table.Header>
                 <Table.Row>
                     <Table.HeaderCell>Name</Table.HeaderCell>
@@ -55,7 +55,7 @@ class OpenApiParameterList extends React.Component<OpenApiParameterListProps, an
                                         }
                                     </div>
                                 </Table.Cell>
-                                <Table.Cell className="parameter-desc-cell">
+                                <Table.Cell>
                                     <div className="markdown">
                                         {param.description}
                                     </div>
