@@ -60,17 +60,17 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public boolean hasImplicitInitialValue() {
-        BAttachedFunction initializerFunc = ((BObjectTypeSymbol) this.tsymbol).initializerFunc;
-        if (initializerFunc == null) {
-            // No __init function found.
-            return true;
-        }
-        BInvokableType initFuncType = initializerFunc.type;
-        boolean noParams = initFuncType.paramTypes.isEmpty();
-        boolean nilReturn = initFuncType.retType.tag == TypeTags.NIL;
+        if (this.tsymbol instanceof BObjectTypeSymbol) { // To please the FindBugs warning, BC_UNCONFIRMED_CAST
+            BAttachedFunction initializerFunc = ((BObjectTypeSymbol) this.tsymbol).initializerFunc;
+            if (initializerFunc == null) {
+                // No __init function found.
+                return true;
+            }
+            BInvokableType initFuncType = initializerFunc.type;
+            boolean noParams = initFuncType.paramTypes.isEmpty();
+            boolean nilReturn = initFuncType.retType.tag == TypeTags.NIL;
 
-        if (noParams && nilReturn) {
-            return true;
+            return noParams && nilReturn;
         }
         return false;
     }
