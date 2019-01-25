@@ -1756,10 +1756,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // codegen when retrieving the default value.
         BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
         for (BLangExpression literal : typeNode.valueSpace) {
+            // If the expected type of the constant is decimal, check type for the literals in the value space.
             if (literal.type.tag == TypeTags.FLOAT && constant.symbol.literalValueType.tag == TypeTags.DECIMAL) {
-                literal.type = constant.symbol.literalValueType;
+                typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
             }
-            typeChecker.checkExpr(literal, env, constant.symbol.type);
         }
     }
 

@@ -571,7 +571,8 @@ public class CompiledPackageSymbolEnter {
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = decimalEntry.getValue();
-                litExpr.typeTag = TypeTags.DECIMAL;
+                // Type tag of the literal is float
+                litExpr.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
@@ -586,7 +587,7 @@ public class CompiledPackageSymbolEnter {
                 throw new BLangCompilerException("unknown default value type " + typeDesc);
         }
 
-        litExpr.type = symTable.getTypeFromTag(litExpr.typeTag);
+        litExpr.type = getBTypeFromDescriptor(typeDesc);
 
         finiteType.valueSpace.add(litExpr);
     }
@@ -695,7 +696,8 @@ public class CompiledPackageSymbolEnter {
                 valueCPIndex = documentDataStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = decimalEntry.getValue();
-                literal.typeTag = TypeTags.DECIMAL;
+                // Type tag of the literal is float
+                literal.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = documentDataStream.readInt();
@@ -707,7 +709,7 @@ public class CompiledPackageSymbolEnter {
                 // Todo - Allow json and xml.
                 throw new RuntimeException("unknown constant value type " + typeDesc);
         }
-        literal.type = symTable.getTypeFromTag(literal.typeTag);
+        literal.type = getBTypeFromDescriptor(typeDesc);
         return literal;
     }
 
