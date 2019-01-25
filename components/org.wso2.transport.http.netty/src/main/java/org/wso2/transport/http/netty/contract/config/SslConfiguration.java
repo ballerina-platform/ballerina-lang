@@ -63,7 +63,7 @@ public class SslConfiguration {
             sslConfig.setNeedClientAuth(true);
         } else if (OPTIONAL.equalsIgnoreCase(verifyClient)) {
             sslConfig.setWantClientAuth(true);
-        } else {
+        } else if (!verifyClient.isEmpty()) {
             LOG.warn("Received an unidentified configuration for sslVerify client. "
                     + "Hence client verification will be disabled which is the default configuration.");
         }
