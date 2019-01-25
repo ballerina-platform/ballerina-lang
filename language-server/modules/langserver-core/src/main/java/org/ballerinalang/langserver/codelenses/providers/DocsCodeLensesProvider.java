@@ -91,18 +91,18 @@ public class DocsCodeLensesProvider implements LSCodeLensesProvider {
         String fileUri = context.get(CodeLensesProviderKeys.FILE_URI_KEY);
         BLangPackage bLangPackage = context.get(CodeLensesProviderKeys.BLANG_PACKAGE_KEY);
         for (TopLevelNode topLevelNode : cUnit.getTopLevelNodes()) {
-            addDocLenses(lenses, fileUri, bLangPackage, topLevelNode);
+            addDocLenses(lenses, fileUri, bLangPackage, topLevelNode, context);
         }
         return lenses;
     }
 
     private void addDocLenses(List<CodeLens> lenses, String fileUri, BLangPackage bLangPackage,
-                              TopLevelNode topLevelNode) {
+                              TopLevelNode topLevelNode, LSContext context) {
         Pair<String, String> node = resolveTopLevelType(topLevelNode);
         String nodeType = node.getLeft();
         String nodeName = node.getRight();
         DocAttachmentInfo info = getDocumentationEditForNodeByPosition(
-                nodeType, bLangPackage, topLevelNode.getPosition().getStartLine() - 1);
+                nodeType, bLangPackage, topLevelNode.getPosition().getStartLine() - 1, context);
         boolean isDocumentable = (info != null);
         Class<? extends TopLevelNode> aTopLeveNodeClass = topLevelNode.getClass();
         if (topLevelNode instanceof AnnotatableNode &&
