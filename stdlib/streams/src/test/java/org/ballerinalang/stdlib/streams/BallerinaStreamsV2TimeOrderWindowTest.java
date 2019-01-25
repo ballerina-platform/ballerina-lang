@@ -34,11 +34,12 @@ import org.testng.annotations.Test;
  * @since 0.990.2
  */
 public class BallerinaStreamsV2TimeOrderWindowTest {
-    private CompileResult result;
+    private CompileResult result, result2;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streamingv2-time-order-window-test.bal");
+        result2 = BCompileUtil.compile("test-src/streamingv2-time-order-window-test2.bal");
     }
 
     @Test(description = "Test timeOrder window query")
@@ -64,5 +65,26 @@ public class BallerinaStreamsV2TimeOrderWindowTest {
 
         Assert.assertEquals(employee3.get("name").stringValue(), "Amal");
         Assert.assertEquals(((BInteger) employee3.get("sumAge")).intValue(), 125);
+    }
+
+    @Test(description = "Test timeOrder window query with dropOlderEvents enabled")
+    public void testExternalTimeQuery2() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startTimeOrderWindowTest2");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("name").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee0.get("sumAge")).intValue(), 30);
+
+        Assert.assertEquals(employee1.get("name").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee1.get("sumAge")).intValue(), 75);
+
+        Assert.assertEquals(employee2.get("name").stringValue(), "Amal");
+        Assert.assertEquals(((BInteger) employee2.get("sumAge")).intValue(), 125);
     }
 }
