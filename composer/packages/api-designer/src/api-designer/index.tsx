@@ -101,6 +101,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
             openApiJson,
             showType
         };
+
         return (
             <OpenApiContextProvider value={appContext}>
                 <OpenApiInfo info={openApiJson.info} />
@@ -110,11 +111,9 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                     Add Resource
                 </Button>
                 <Button.Group floated="right" size="mini">
-                    <Button type="resources" onClick={this.onExpandAll}>List Resources</Button>
-                    <Button type="operations" onClick={this.onExpandAll}>List Operations</Button>
-                    <Button type="all" onClick={this.onExpandAll}>
-                        {showType !== "collapse" ? "Collapse All" : "Expand All"}
-                    </Button>
+                    <Button type="all" onClick={this.onExpandAll}>List Resources</Button>
+                    <Button type="resources" onClick={this.onExpandAll}>List Operations</Button>
+                    <Button type="operations" onClick={this.onExpandAll}>Expand All</Button>
                 </Button.Group>
                 {showOpenApiAddPath &&
                     <AddOpenApiPath onAddOpenApiPath={appContext.onAddOpenApiPath} />
@@ -235,16 +234,9 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                 });
                 break;
             case "all":
-                const { showType } = this.state;
-                if (showType === "all" || showType === "resources" || showType === "operations") {
-                    this.setState({
-                        showType: "collapse"
-                    });
-                } else {
-                    this.setState({
-                        showType: "all"
-                    });
-                }
+                this.setState({
+                    showType: "collapse"
+                });
                 break;
             default:
                 break;
