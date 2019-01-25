@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -287,8 +288,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getCastOperator(sourceType, targetType);
     }
 
-    BSymbol resolveTypeCastOrAssertionOperator(BType sourceType, BType targetType) {
-        return types.getTypeAssertionOperator(sourceType, targetType);
+    BSymbol resolveTypeCastOrAssertionOperator(BLangTypeConversionExpr conversionExpr, BType sourceType,
+                                               BType targetType) {
+        return types.getTypeAssertionOperator(conversionExpr, sourceType, targetType);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,

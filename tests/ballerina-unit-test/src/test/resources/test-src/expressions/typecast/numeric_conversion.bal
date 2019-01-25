@@ -162,6 +162,26 @@ function testDecimalAsIntInUnions(decimal f1) returns (boolean, int) {
     return (s7 == s6 && s7 == s8 && s9 == s8, s6);
 }
 
+function testDecimalAsByte(decimal f1) returns (boolean, byte) {
+    byte s3 = <byte> f1;
+    anydata s4 = <byte> getDecimal(f1);
+    return (s3 == s4 && s4 is byte, s3);
+}
+
+function testDecimalAsByteInUnions(decimal f1) returns (boolean, byte) {
+    Employee|string|decimal f2 = f1;
+    json f3 = f1;
+    anydata f4 = f1;
+    any f5 = f1;
+
+    byte|Employee s6 = <byte|Employee> f2;
+    byte|string s7 = <byte|string> f3;
+    byte s8 = <byte> f4;
+    byte s9 = <byte> f5;
+
+    return (s7 == s6 && s7 == s8 && s9 == s8, s9);
+}
+
 //////////////////////// from int ////////////////////////
 function testIntAsFloat(int f1) returns (boolean, float) {
     float s3 = <float> f1;
@@ -226,14 +246,9 @@ function testIntAsIntInUnions(int f1) returns (boolean, int|boolean) {
 }
 
 function testIntAsByte(int f1) returns (boolean, byte) {
-    float|int b = f1;
-    anydata c = f1;
-
-    byte d = <byte>f1;
-    byte e = <byte>b;
-    byte f = <byte>c;
-
-    return (d == e && e == f, d);
+    byte s3 = <byte> f1;
+    anydata s4 = <byte> getInt(f1);
+    return (s3 == s4 && s4 is byte, s3);
 }
 
 function testIntAsByteInUnions(int f1) returns (boolean, byte|boolean) {
@@ -242,12 +257,87 @@ function testIntAsByteInUnions(int f1) returns (boolean, byte|boolean) {
     anydata f4 = f1;
     any f5 = f1;
 
-    byte|boolean s6 = <byte|boolean> true;
+    byte|boolean s6 = <byte|boolean> f2;
     byte s7 = <byte> f3;
     byte s8 = <byte> f4;
     byte s9 = <byte> f5;
 
     return (s7 == s6 && s7 == s8 && s9 == s8, s6);
+}
+
+//////////////////////// from byte ////////////////////////
+function testByteAsFloat(byte f1) returns (boolean, float) {
+    float s3 = <float> f1;
+    anydata s4 = <float> getByte(f1);
+
+    return (s3 == s4 && s4 is float, s3);
+}
+
+function testByteAsFloatInUnions(byte f1) returns (boolean, float) {
+    string|byte|boolean f2 = f1;
+    anydata f3 = f1;
+    any f4 = f1;
+
+    float s6 = <float> f2;
+    float|string s7 = <float|string> f3;
+    float|Employee|map<int> s8 = <float|Employee|map<int>> f4;
+
+    return (s7 == s6 && s7 == s8, s6);
+}
+
+function testByteAsDecimal(byte f1) returns (boolean, decimal) {
+    decimal s3 = <decimal> f1;
+    anydata s4 = <decimal> getByte(f1);
+
+    return (s3 == s4 && s4 is decimal, s3);
+}
+
+function testByteAsDecimalInUnions(byte f1) returns (boolean, decimal) {
+    string|byte f2 = f1;
+    anydata f3 = f1;
+    any f4 = f1;
+
+    decimal s6 = <decimal> f2;
+    decimal|string s7 = <decimal|string> f3;
+    decimal|Employee|map<float> s8 = <decimal|Employee|map<float>> f4;
+
+    return (s7 == s6 && s7 == s8, s6);
+}
+
+function testByteAsInt(byte f1) returns (boolean, int) {
+    int s3 = <int> f1;
+    anydata s4 = <int> getByte(f1);
+    return (s3 == s4 && s4 is int, s3);
+}
+
+function testByteAsIntInUnions(byte f1) returns (boolean, int|boolean) {
+    Employee|byte f2 = f1;
+    anydata f3 = f1;
+    any f4 = f1;
+
+    int|boolean s6 = <int|boolean> f2;
+    int s7 = <int> f3;
+    int s8 = <int> f4;
+
+    return (s7 == s6 && s7 == s8, s6);
+}
+
+function testByteAsByte(byte f1) returns (boolean, byte) {
+    byte s3 = <byte> f1;
+    anydata s4 = <byte> getByte(f1);
+    return (s3 == s4 && s4 is byte, s3);
+}
+
+function testByteAsByteInUnions(byte f1) returns (boolean, byte|boolean) {
+    Employee|string|byte f2 = f1;
+    anydata f3 = f1;
+    any f4 = f1;
+
+    byte|boolean s6 = <byte|boolean> f2;
+    byte s7 = <byte> f3;
+    byte s8 = <byte> f4;
+
+    return (s7 == s6 && s7 == s8, s6);
 }
 
 function testNaNFloatAsInt() {
@@ -311,6 +401,7 @@ function testExplicitlyTypedExprForExactValues() returns error? {
     // test from float
     float f = 12.345;
     decimal fd = 12.34500000000000063948846218409017;
+    byte fb = 12;
 
     float f1 = <float> f;
     if (f1 != f) {
@@ -327,6 +418,12 @@ function testExplicitlyTypedExprForExactValues() returns error? {
     int i1 = <int> f;
     if (i1 != 12) {
         error e = error("invalid resultant value, from float to int");
+        return e;
+    }
+
+    byte b1 = <byte> f;
+    if (b1 != fb) {
+        error e = error("invalid resultant value, from float to byte");
         return e;
     }
 
@@ -351,10 +448,17 @@ function testExplicitlyTypedExprForExactValues() returns error? {
         return e;
     }
 
+    byte b2 = <byte> d;
+    if (b2 != fb) {
+        error e = error("invalid resultant value, from decimal to byte");
+        return e;
+    }
+
     // test from int
-    int i = 12345;
-    float intf = 12345.0;
-    decimal intd = 12345;
+    int i = 123;
+    float intf = 123.0;
+    decimal intd = 123.0;
+    byte intb = 123;
 
     float f3 = <float> i;
     if (f3 != intf) {
@@ -373,18 +477,43 @@ function testExplicitlyTypedExprForExactValues() returns error? {
         error e = error("invalid resultant value, from int to int");
         return e;
     }
+
+    byte b3 = <byte> i;
+    if (b3 != intb) {
+        error e = error("invalid resultant value, from int to byte");
+        return e;
+    }
+
+    // test from byte
+    byte b = 255;
+    float bytef = 255.0;
+    decimal byted = 255.0;
+    int bytei = 255;
+
+    float f4 = <float> b;
+    if (f4 != bytef) {
+        error e = error("invalid resultant value, from byte to float");
+        return e;
+    }
+
+    decimal d4 = <decimal> b;
+    if (d4 != byted) {
+        error e = error("invalid resultant value, from byte to decimal");
+        return e;
+    }
+
+    int i4 = <int> b;
+    if (i4 != bytei) {
+        error e = error("invalid resultant value, from byte to int");
+        return e;
+    }
+
+    byte b4 = <byte> b;
+    if (b4 != b) {
+        error e = error("invalid resultant value, from byte to byte");
+        return e;
+    }
     return;
-}
-
-function testByteAsInt(byte a) returns (boolean, int) {
-    float|byte b = a;
-    anydata c = a;
-
-    int d = <int>a;
-    int e = <int>b;
-    int f = <int>c;
-
-    return (d == e && e == f, d);
 }
 
 function testConversionFromUnionWithNumericBasicTypes() returns boolean {
@@ -409,6 +538,10 @@ function getDecimal(decimal d) returns decimal {
 
 function getInt(int i) returns int {
     return i;
+}
+
+function getByte(byte b) returns byte {
+    return b;
 }
 
 type Employee record {

@@ -2770,9 +2770,9 @@ public class BVM {
             case InstructionCodes.BI2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BDecimal(
-                        (new BigDecimal(sf.intRegs[i], MathContext.DECIMAL128)).setScale(1,
-                                                                                          BigDecimal.ROUND_HALF_EVEN));
+                sf.refRegs[j] = new BDecimal((new BigDecimal(Byte.toUnsignedInt((byte) sf.intRegs[i]),
+                                                             MathContext.DECIMAL128))
+                                                     .setScale(1, BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.F2I:
                 i = operands[0];

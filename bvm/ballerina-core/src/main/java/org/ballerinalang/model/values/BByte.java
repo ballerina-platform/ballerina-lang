@@ -57,7 +57,8 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public BigDecimal decimalValue() {
-        return (new BigDecimal(value, MathContext.DECIMAL128)).setScale(1, BigDecimal.ROUND_HALF_EVEN);
+        return (new BigDecimal(Byte.toUnsignedInt(value), MathContext.DECIMAL128))
+                .setScale(1, BigDecimal.ROUND_HALF_EVEN);
     }
 
     @Override

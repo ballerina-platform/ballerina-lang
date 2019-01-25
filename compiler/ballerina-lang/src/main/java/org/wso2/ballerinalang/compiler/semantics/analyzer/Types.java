@@ -890,7 +890,7 @@ public class Types {
         return symResolver.resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
     }
 
-    BSymbol getTypeAssertionOperator(BType sourceType, BType targetType) {
+    BSymbol getTypeAssertionOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
@@ -903,7 +903,15 @@ public class Types {
             }
         }
 
-        if (isAssignable(targetType, sourceType) || isAssignable(sourceType, targetType)) {
+        if (isAssignable(sourceType, targetType)) {
+            if (isValueType(sourceType)) {
+                // we reach here if the source type is a simple basic type and the target type a valid union type.
+                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+            }
+            return symResolver.createTypeAssertionSymbol(sourceType, targetType);
+        }
+
+        if (isAssignable(targetType, sourceType)) {
             return symResolver.createTypeAssertionSymbol(sourceType, targetType);
         }
 
