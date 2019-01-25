@@ -36,7 +36,6 @@ const Documentation = ({ docDetails }) => {
             <div>
                 {returnParameter && returnParameter.type !== 'nil' && (
                     <div className='return-details'>
-                        <div>----------------------------------</div>
                         { returnParameter.type && 
                             <div>
                                 <strong>return:</strong> <span className='type'>{returnParameter.type}</span>
@@ -91,7 +90,7 @@ const Documentation = ({ docDetails }) => {
                 <List.Description>
                     <Description source={description} className='description' />
                     { renderReturnParameters() }
-                    {(kind !== 'RecordType' && paramNames.length > 0) && (
+                    {(kind !== 'RecordType' && kind !== 'Function' && paramNames.length > 0) && (
                         <Table celled compact className='parameters'>
                             <Table.Header>
                                 <Table.Row>
@@ -152,6 +151,16 @@ const Documentation = ({ docDetails }) => {
                             }
                         </Grid>
                     )}
+                    {(kind === 'Function' && paramNames.length > 0) && (
+                        <Grid className='records-list'>
+                            {
+                                paramNames.map((param) => {
+                                    const { name, type, description } = parameters[param];
+                                    return renderParameters(name, type, '', description);
+                                })
+                            }
+                        </Grid>
+                    )}
                 </List.Description>
                 {(kind == 'ObjectType' && paramNames.length > 0) &&
                     paramNames.map((param) => {
@@ -171,7 +180,6 @@ const Documentation = ({ docDetails }) => {
                                                 <Grid className='records-list'>
                                                     {
                                                         functionParameters.map((param) => {
-                                                            console.log(param);
                                                             const { name, type, description } = param;
                                                             return renderParameters(name, type, '', description)
                                                         })
