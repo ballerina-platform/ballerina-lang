@@ -50,38 +50,43 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
      * {@inheritDoc}
      */
     @Override
-    public Object execute(LSContext context) throws LSCommandExecutorException {
+    public Object execute(LSContext ctx) throws LSCommandExecutorException {
         String nodeType = "";
         String documentUri;
         int line = 0;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
-        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-            if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_DOC_URI)) {
-                documentUri = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-                textDocumentIdentifier.setUri(documentUri);
-                context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-            } else if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_NODE_TYPE)) {
-                nodeType = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-            } else if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_NODE_LINE)) {
-                line = Integer.parseInt(((JsonObject) arg).get(ARG_VALUE).getAsString());
+        for (Object arg : ctx.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            switch (((JsonObject) arg).get(ARG_KEY).getAsString()) {
+                case CommandConstants.ARG_KEY_DOC_URI:
+                    documentUri = ((JsonObject) arg).get(ARG_VALUE).getAsString();
+                    textDocumentIdentifier.setUri(documentUri);
+                    ctx.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+                    break;
+                case CommandConstants.ARG_KEY_NODE_TYPE:
+                    nodeType = ((JsonObject) arg).get(ARG_VALUE).getAsString();
+                    break;
+                case CommandConstants.ARG_KEY_NODE_LINE:
+                    line = Integer.parseInt(((JsonObject) arg).get(ARG_VALUE).getAsString());
+                    break;
+                default:
+                    break;
             }
         }
 
-        BLangPackage bLangPackage = null;
+        BLangPackage bLangPackage;
         try {
-            WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-            bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                      LSCustomErrorStrategy.class, false);
+            WorkspaceDocumentManager documentManager = ctx.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            LSCompiler lsCompiler = ctx.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+            bLangPackage = lsCompiler.getBLangPackage(ctx, documentManager, false, LSCustomErrorStrategy.class, false);
         } catch (LSCompilerException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
 
-        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+        String relativeSourcePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        ctx.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
 
-        DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNodeByPosition(nodeType, srcOwnerPkg, line);
+        DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNodeByPosition(nodeType, srcOwnerPkg, line, ctx);
 
         if (docAttachmentInfo == null) {
             return new Object();
@@ -90,7 +95,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
         Range range = new Range(docAttachmentInfo.getDocStartPos(), docAttachmentInfo.getDocStartPos());
 
         return applySingleTextEdit(docAttachmentInfo.getDocAttachment(), range, textDocumentIdentifier,
-                                   context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                                   ctx.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
     /**
