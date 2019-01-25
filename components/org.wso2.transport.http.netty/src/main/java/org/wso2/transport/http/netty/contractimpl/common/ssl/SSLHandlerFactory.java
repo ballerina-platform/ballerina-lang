@@ -139,9 +139,6 @@ public class SSLHandlerFactory {
             engine.setNeedClientAuth(true);
         } else if (wantClientAuth) {
             engine.setWantClientAuth(true);
-        } else {
-            LOG.warn("Received an unidentified configuration for sslVerifyClient. "
-                    + "Hence client verification will be disabled which is the default configuration.");
         }
         return addCommonConfigs(engine);
     }
