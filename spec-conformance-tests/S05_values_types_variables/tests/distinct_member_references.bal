@@ -38,9 +38,9 @@ function testDistinctTupleMembersReferringToSameValue() {
 
 @test:Config {}
 function testDistinctMapMembersReferringToSameValue() {
-    utils:FooObject f2 = new("test string 2");
-    utils:FooObject f3 = new("test string 3");
-    map<utils:FooObject> s4 = { one: f2, two: f3, three: f2 };
+    FooObject f2 = new("test string 2");
+    FooObject f3 = new("test string 3");
+    map<FooObject> s4 = { one: f2, two: f3, three: f2 };
     test:assertTrue(s4.one === s4.three, msg = EXPECTED_VALUES_TO_BE_AT_SAME_LOCATION_FAILURE_MESSAGE);
 }
 

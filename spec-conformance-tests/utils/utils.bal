@@ -15,69 +15,7 @@
 // under the License.
 import ballerina/test;
 
-public type FooRecord record {
-    string fooFieldOne;
-    !...;
-};
-
-public type BarRecord record {
-    int barFieldOne;
-    !...;
-};
-
-public type BazRecord record {
-    float bazFieldOne;
-};
-
-public type BazRecordTwo record {
-    float bazFieldOne;
-    string bazFieldTwo;
-};
-
-public type BazRecordThree record {
-    string|float bazFieldOne;
-    BazRecord bazFieldTwo?;
-};
-
-public type FooObject object {
-    public string fooFieldOne;
-
-    public function __init(string fooFieldOne) {
-        self.fooFieldOne = fooFieldOne;
-    }
-
-    public function getFooFieldOne() returns string {
-        return self.fooFieldOne;
-    }
-};
-
-public type BarObject object {
-    public int barFieldOne;
-
-    public function __init(int barFieldOne) {
-        self.barFieldOne = barFieldOne;
-    }
-
-    public function getBarFieldOne() returns int {
-        return self.barFieldOne;
-    }
-};
-
-public type BazObject object {
-    public BarObject bazFieldOne;
-    public BarObject? bazFieldTwo = ();
-    public BazObject? bazFieldThree = ();
-
-    public function __init(BarObject bazFieldOne) {
-        self.bazFieldOne = bazFieldOne;
-    }
-
-    public function getBazFieldOne() returns BarObject {
-        return self.bazFieldOne;
-    }
-};
-
-# Util function expected to be used with the result of a trapped expression. 
+# Util function expected to be used with the result of a trapped expression.
 # Validates that `result` is of type `error` and that the error has the reason specified as `expectedReason`,
 # and fails with the `invalidReasonFailureMessage` string if the reasons mismatch.
 # 

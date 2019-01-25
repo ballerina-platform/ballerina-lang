@@ -53,22 +53,22 @@ function testFrozenTupleUpdateBroken() {
 }
 
 function testFrozenMapUpdateBroken() {
-    map<string|int|utils:FooObject> a3 = { one: 1, two: "two" };
+    map<string|int|FooObjectThirteen> a3 = { one: 1, two: "two" };
     var result = a3.freeze();
-    if (result is map<string|int|utils:FooObject>) {
+    if (result is map<string|int|FooObjectThirteen>) {
         result.two = 2;
     }
 }
 
 function testFrozenRecordUpdateBroken() {
-    utils:FooRecord a4 = { fooFieldOne: "test string 1" };
+    FooRecordThirteen a4 = { fooFieldOne: "test string 1" };
     _ = a4.freeze();
     a4.fooFieldOne = "test string update";
 }
 
 function testFrozenTableUpdateBroken() {
-    table<utils:BarRecord> a5 = table{};
-    utils:BarRecord b1 = { barFieldOne: 100 };
+    table<BarRecordThirteen> a5 = table{};
+    BarRecordThirteen b1 = { barFieldOne: 100 };
     _ = a5.freeze();
     _ = a5.add(b1);
 }
@@ -81,9 +81,9 @@ function testFrozenTableUpdateBroken() {
     groups: ["deviation"]
 }
 function testFrozenStructureMembersFrozennessBroken() {
-    table<utils:BarRecord> a13 = table{};
+    table<BarRecordThirteen> a13 = table{};
     test:assertFalse(a13.isFrozen(), msg = "exected value to not be frozen");
-    utils:BarRecord a14 = { barFieldOne: 100 };
+    BarRecordThirteen a14 = { barFieldOne: 100 };
     _ = a13.add(a14);
     _ = a13.freeze();
     test:assertTrue(a13.isFrozen(), msg = "exected value to be frozen");
