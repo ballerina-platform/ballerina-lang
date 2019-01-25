@@ -30,8 +30,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamTimeOrderTest = new;
-stream<TeacherOutput > outputStreamTimeOrderTest = new;
+stream<Teacher> inputStreamTimeOrderTest2 = new;
+stream<TeacherOutput > outputStreamTimeOrderTest2 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startTimeOrderWindowTest2() returns (TeacherOutput[]) {
@@ -49,9 +49,9 @@ function startTimeOrderWindowTest2() returns (TeacherOutput[]) {
 
     testTimeOrderWindow();
 
-    outputStreamTimeOrderTest.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    outputStreamTimeOrderTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach var t in teachers {
-        inputStreamTimeOrderTest.publish(t);
+        inputStreamTimeOrderTest2.publish(t);
     }
 
     int count = 0;
@@ -67,11 +67,11 @@ function startTimeOrderWindowTest2() returns (TeacherOutput[]) {
 
 function testTimeOrderWindow() {
     forever {
-        from inputStreamTimeOrderTest window timeOrder(inputStreamTimeOrderTest.timestamp, 1000, true)
-        select inputStreamTimeOrderTest.name, sum(inputStreamTimeOrderTest.age) as sumAge
+        from inputStreamTimeOrderTest2 window timeOrder(inputStreamTimeOrderTest2.timestamp, 1000, true)
+        select inputStreamTimeOrderTest2.name, sum(inputStreamTimeOrderTest2.age) as sumAge
         => (TeacherOutput [] teachers) {
             foreach var t in teachers {
-                outputStreamTimeOrderTest.publish(t);
+                outputStreamTimeOrderTest2.publish(t);
             }
         }
     }
