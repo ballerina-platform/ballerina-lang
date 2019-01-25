@@ -1,3 +1,5 @@
+import ballerina/reflect;
+
 const nameWithoutType = "Ballerina";
 const string nameWithType = "Ballerina";
 
@@ -503,4 +505,33 @@ function testSimpleStringConstMap() returns map<string> {
 
 function testComplexStringConstMap() returns map<map<string>> {
     return sm2;
+}
+
+// -----------------------------------------------------------
+
+const sConst = "Ballerina";
+const iConst = 100;
+const map<string> mConst = { "mKey": "mValue" };
+
+public type TestConfig record {
+    string s;
+    int i;
+    map<string> m;
+    !...;
+};
+
+public annotation<function> testAnnotation TestConfig;
+
+
+@testAnnotation {
+    s: sConst,
+    i: iConst,
+    m: mConst
+}
+function testFunction() {
+
+}
+
+function testConstInAnnotations() returns reflect:annotationData[] {
+    return reflect:getFunctionAnnotations(testFunction);
 }

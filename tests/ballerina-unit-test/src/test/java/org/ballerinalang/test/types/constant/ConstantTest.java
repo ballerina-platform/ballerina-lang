@@ -507,4 +507,13 @@ public class ConstantTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"key2\":{\"key1\":\"value1\"}}");
     }
+
+    @Test
+    public void testConstInAnnotations() {
+        String functionName = "testConstInAnnotations";
+        BValue[] returns = BRunUtil.invoke(compileResult, functionName);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"testAnnotation\", moduleName:\"\", moduleVersion:\"\"," +
+                " value:{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}}");
+    }
 }
