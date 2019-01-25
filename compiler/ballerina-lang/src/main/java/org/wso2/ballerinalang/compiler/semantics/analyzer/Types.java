@@ -1553,6 +1553,40 @@ public class Types {
                         if (((BLangLiteral) memberLiteral).value == null) {
                             return literalExpr.value == null;
                         } else {
+                            // Check the literal value and the literal's type's tag (There will be different tags for
+                            // decimal and float types)
+                            return (((BLangLiteral) memberLiteral).value.equals(literalExpr.value) &&
+                                    ((BLangLiteral) memberLiteral).type.tag == literalExpr.typeTag);
+                        }
+                    });
+            return foundMember;
+        }
+        return false;
+    }
+
+    /**
+     * This method checks the typeTag of the literal along with the literal value to check the assignability.
+     * Unlike {@link #isAssignableToFiniteType(BType, BLangLiteral)} method, here we check the literal's typeTag
+     * rather than checking the literal's type's tag. This allows us to assign a float literal directly to a finite
+     * type that consists of a corresponding decimal value. Use this method when we assign a BLangLiteral directly to
+     * a finite type.
+     *
+     * @param type        expected BType
+     * @param literalExpr literal expression
+     * @return returns true if assignable, false otherwise
+     */
+    boolean isLiteralAssignableToFiniteType(BType type,
+                                            BLangLiteral literalExpr) {
+        if (type.tag == TypeTags.FINITE) {
+            BFiniteType expType = (BFiniteType) type;
+            boolean foundMember = expType.valueSpace
+                    .stream()
+                    .anyMatch(memberLiteral -> {
+                        if (((BLangLiteral) memberLiteral).value == null) {
+                            return literalExpr.value == null;
+                        } else {
+                            // Check the literal value and the literal typeTag (For both decimal and float,
+                            // literal typeTag would be that of the float type)
                             return (((BLangLiteral) memberLiteral).value.equals(literalExpr.value) &&
                                     ((BLangLiteral) memberLiteral).typeTag == literalExpr.typeTag);
                         }

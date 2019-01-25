@@ -289,7 +289,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (this.expType.tag == TypeTags.FINITE) {
             BFiniteType expType = (BFiniteType) this.expType;
-            boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);
+            boolean foundMember = types.isLiteralAssignableToFiniteType(expType, literalExpr);
             if (foundMember) {
                 types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                 resultType = literalType;
@@ -299,8 +299,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BUnionType unionType = (BUnionType) this.expType;
             boolean foundMember = unionType.memberTypes
                     .stream()
-                    .map(memberType -> types.isAssignableToFiniteType(memberType, literalExpr))
-                    .anyMatch(foundType -> foundType);
+                    .anyMatch(memberType -> types.isLiteralAssignableToFiniteType(memberType, literalExpr));
             if (foundMember) {
                 types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                 resultType = literalType;
