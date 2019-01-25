@@ -143,8 +143,6 @@ public class BalFileGenerationUtils {
             while ((length = in.read(buffer)) > -1) {
                 fos.write(buffer, 0, length);
             }
-            fos.close();
-            in.close();
         } catch (IOException e) {
             String msg = "Error while downloading the file: " + file.getName();
             throw new BalGenToolException(msg, e);

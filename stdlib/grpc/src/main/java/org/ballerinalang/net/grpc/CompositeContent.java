@@ -89,6 +89,10 @@ public class CompositeContent {
 
     public ByteBuf readBuffer(int length) {
         ByteBuf buffer = buffers.peek();
+        if (buffer == null) {
+            readableBytes = 0;
+            throw new RuntimeException("Error while reading inbound data from buffer. The buffer queue is empty");
+        }
         if (buffer.readableBytes() > length) {
             readableBytes -= length;
             return buffer.readBytes(length);
@@ -137,7 +141,7 @@ public class CompositeContent {
      */
     private void advanceBufferIfNecessary() {
         ByteBuf buffer = buffers.peek();
-        if (buffer.readableBytes() == 0 && buffer.refCnt() != 0) {
+        if (buffer != null && buffer.readableBytes() == 0 && buffer.refCnt() != 0) {
             buffers.remove().release();
         }
     }

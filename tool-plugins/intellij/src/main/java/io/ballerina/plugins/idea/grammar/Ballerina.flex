@@ -75,7 +75,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 
 DECIMAL_INTEGER_LITERAL = {DecimalNumeral}
 HEX_INTEGER_LITERAL = {HexNumeral}
-BINARY_INTEGER_LITERAL = {BinaryNumeral}
 
 DecimalNumeral = 0 | {NonZeroDigit} {Digits}?
 Digits = {Digit}+
@@ -90,10 +89,6 @@ DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digits}
 
 HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
-
-BinaryNumeral = 0 [bB] {BinaryDigits}
-BinaryDigits = {BinaryDigit}+
-BinaryDigit = [01]
 
 HexadecimalFloatingPointLiteral =  {HexIndicator} {HexFloatingPointNumber}
 HexIndicator = 0 [xX]
@@ -388,7 +383,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "join"                                      { return JOIN; }
     "json"                                      { return JSON; }
 
-    "lengthof"                                  { return LENGTHOF; }
     "limit"                                     { return LIMIT; }
     "listener"                                  { return LISTENER; }
     "lock"                                      { return LOCK; }
@@ -548,7 +542,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {BOOLEAN_LITERAL}                           { return BOOLEAN_LITERAL; }
     {DECIMAL_INTEGER_LITERAL}                   { return DECIMAL_INTEGER_LITERAL; }
     {HEX_INTEGER_LITERAL}                       { return HEX_INTEGER_LITERAL; }
-    {BINARY_INTEGER_LITERAL}                    { return BINARY_INTEGER_LITERAL; }
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
     {SYMBOLIC_STRING_LITERAL}                   { return SYMBOLIC_STRING_LITERAL; }
 

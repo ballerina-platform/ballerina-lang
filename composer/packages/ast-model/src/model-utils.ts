@@ -88,6 +88,30 @@ export function isWorker(node: ASTNode) {
     return false;
 }
 
+export function isWorkerFuture(node: ASTNode) {
+    if (ASTKindChecker.isVariableDef(node)) {
+        if (ASTKindChecker.isVariable((node as VariableDef).variable)) {
+            const initialExp = ((node as VariableDef).variable as Variable).initialExpression;
+
+            if (initialExp === undefined) {
+                return false;
+            }
+
+            if (ASTKindChecker.isInvocation(initialExp)) {
+                const exp = (initialExp as Invocation).expression;
+                if (exp === undefined) {
+                    return false;
+                }
+                if (ASTKindChecker.isSimpleVariableRef(exp)) {
+                    const simpleVarName: string = (exp as SimpleVariableRef).variableName.value;
+                    return /^0.*/.test(simpleVarName);
+                }
+            }
+        }
+    }
+    return false;
+}
+
 export function isValidObjectType(node: ASTNode): boolean {
     if (ASTKindChecker.isTypeDefinition(node)) {
         const typeDefinition = node as TypeDefinition;

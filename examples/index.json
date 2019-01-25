@@ -502,6 +502,10 @@
             {
                 "name": "Secured Client With OAuth2",
                 "url": "secured-client-with-oauth2"
+            },
+            {
+                "name": "Cryptographic Operations",
+                "url": "crypto"
             }
         ]
     },
