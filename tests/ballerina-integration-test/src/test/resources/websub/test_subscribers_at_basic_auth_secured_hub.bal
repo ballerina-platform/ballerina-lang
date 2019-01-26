@@ -78,6 +78,26 @@ service websubSubscriberTwo on websubEP {
 service websubSubscriberThree on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by Two: " + payload.toString());
+        io:println("WebSub Notification Received by Three: " + payload.toString());
+    }
+}
+
+@websub:SubscriberServiceConfig {
+    path: "/websubFour",
+    subscribeOnStartUp: true,
+    resourceUrl: "http://localhost:8080/publisherThree/discover",
+    leaseSeconds: 1200,
+    subscriptionClientConfig: {
+        auth: {
+            scheme: http:BASIC_AUTH,
+            username: "tom",
+            password: "1234"
+        }
+    }
+}
+service websubSubscriberFour on websubEP {
+    resource function onNotification (websub:Notification notification) returns error? {
+        json payload = check notification.getJsonPayload();
+        io:println("WebSub Notification Received by Four: " + payload.toString());
     }
 }

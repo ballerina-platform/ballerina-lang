@@ -28,8 +28,11 @@ import org.testng.annotations.Test;
 import java.io.File;
 
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_JSON;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_XML;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_INTERNAL;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_REMOTE;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL_THREE;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdate;
 
 /**
@@ -54,14 +57,21 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
             "Subscription Request failed at Hub[https://localhost:9191/websub/hub], for Topic[http://one.persistence" +
                     ".topic.com]: Error in request: Mode[subscribe] at Hub[https://localhost:9191/websub/hub] - " +
                     "Authorization failure ";
+    private static final String INTENT_VERIFICATION_SUBSCRIBER_FOUR_LOG = "ballerina: Intent Verification agreed - " +
+            "Mode [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [1200]";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
             "WebSub Notification Received by One: {\"mode\":\"internal\", \"content_type\":\"json\"}";
+    private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
+            "WebSub Notification Received by Four: {\"mode\":\"remote\", \"content_type\":\"xml\"}";
 
     private LogLeecher intentVerificationLogLeecherOne = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG);
     private LogLeecher intentVerificationLogLeecherTwo = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG);
     private LogLeecher intentVerificationLogLeecherThree = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_THREE_LOG);
+    private LogLeecher intentVerificationLogLeecherFour = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_FOUR_LOG);
     private LogLeecher internalHubNotificationLogLeecherOne =
             new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
+    private LogLeecher internalHubNotificationLogLeecherTwo =
+            new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
@@ -72,7 +82,9 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addErrorLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addErrorLogLeecher(intentVerificationLogLeecherThree);
+        webSubSubscriber.addLogLeecher(intentVerificationLogLeecherFour);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
+        webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
 
         webSubSubscriber.startServer(subscriberBal, new String[0], new int[]{8484});
     }
@@ -82,12 +94,15 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         intentVerificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
         intentVerificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
         intentVerificationLogLeecherThree.waitForText(LOG_LEECHER_TIMEOUT);
+        intentVerificationLogLeecherFour.waitForText(LOG_LEECHER_TIMEOUT);
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL_THREE, HUB_MODE_REMOTE, CONTENT_TYPE_XML);
     }
 
     @Test(dependsOnMethods = "testDiscoveryAndIntentVerification")
     public void testContentReceipt() throws BallerinaTestException {
         internalHubNotificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
+        internalHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @AfterClass

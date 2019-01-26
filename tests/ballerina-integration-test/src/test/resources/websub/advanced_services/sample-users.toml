@@ -12,6 +12,6 @@ scopes="scope1"
 password="xyz"
 scopes="scope2"
 
-
-
-
+["b7a.users.peter"]
+password="pqr"
+scopes="scope1"

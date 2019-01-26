@@ -22,6 +22,7 @@ import ballerina/websub;
 
 const string WEBSUB_PERSISTENCE_TOPIC_ONE = "http://one.persistence.topic.com";
 const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
+const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 
 http:AuthProvider basicAuthProvider = {
     scheme: "basic",
@@ -46,6 +47,14 @@ websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
 listener http:Listener publisherServiceEP = new http:Listener(8080);
 
+websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, config = {
+    auth: {
+        scheme: http:BASIC_AUTH,
+        username: "peter",
+        password: "pqr"
+    }
+});
+
 service publisher on publisherServiceEP {
     @http:ResourceConfig {
         methods: ["GET", "HEAD"]
@@ -64,9 +73,9 @@ service publisher on publisherServiceEP {
         methods: ["POST"]
     }
     resource function notify(http:Caller caller, http:Request req) {
-        var res = req.getJsonPayload();
-        if (res is error) {
-            panic res;
+        var payload = req.getJsonPayload();
+        if (payload is error) {
+            panic payload;
         }
 
         http:Response response = new;
@@ -75,7 +84,7 @@ service publisher on publisherServiceEP {
             log:printError("Error responding on notify request", err = err);
         }
 
-        err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_ONE, <json> res);
+        err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_ONE, untaint <json> payload);
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
         }
@@ -100,9 +109,9 @@ service publisherTwo on publisherServiceEP {
         methods: ["POST"]
     }
     resource function notify(http:Caller caller, http:Request req) {
-        var res = req.getJsonPayload();
-        if (res is error) {
-            panic res;
+        var payload = req.getJsonPayload();
+        if (payload is error) {
+            panic payload;
         }
 
         http:Response response = new;
@@ -111,9 +120,44 @@ service publisherTwo on publisherServiceEP {
             log:printError("Error responding on notify request", err = err);
         }
 
-        err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_TWO, <json> res);
+        err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_TWO, untaint <json> payload);
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
+        }
+    }
+}
+
+service publisherThree on publisherServiceEP {
+    @http:ResourceConfig {
+        methods: ["GET", "HEAD"]
+    }
+    resource function discover(http:Caller caller, http:Request req) {
+        http:Response response = new;
+        // Add a link header indicating the hub and topic
+        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
+        var err = caller->accepted(message = response);
+        if (err is error) {
+            log:printError("Error responding on discovery", err = err);
+        }
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    resource function notify(http:Caller caller, http:Request req) {
+        var payload = req.getJsonPayload();
+        if (payload is error) {
+            panic payload;
+        }
+        var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, untaint <json> payload);
+        if (err is error) {
+            log:printError("Error publishing update remotely", err = err);
+        }
+
+        http:Response response = new;
+        err = caller->accepted(message = response);
+        if (err is error) {
+            log:printError("Error responding on notify request", err = err);
         }
     }
 }
@@ -141,6 +185,10 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
     if (err is error) {
         log:printError("Error registering topic", err = err);
     }
+    err = internalHub.registerTopic(WEBSUB_TOPIC_ONE);
+    if (err is error) {
+        log:printError("Error registering topic", err = err);
+    }
     return internalHub;
 }
 
@@ -154,7 +202,7 @@ function startWebSubHub() returns websub:WebSubHub {
     });
     websub:HubPersistenceStore hpo = new websub:H2HubPersistenceStore(h2Client);
     var result = websub:startHub(new http:Listener(9191, config =  hubListenerConfig),
-                                    hubConfiguration = { hubPersistenceStore: hpo });
+                                    hubConfiguration = { remotePublish : { enabled : true }, hubPersistenceStore: hpo });
     if (result is websub:WebSubHub) {
         return result;
     } else {
