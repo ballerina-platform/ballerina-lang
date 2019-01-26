@@ -22,17 +22,17 @@ import utils;
     groups: ["deviation"]
 }
 function testNonSimpleValuesStoredInStructuresBroken() {
-    table<utils:BarRecord> t1 = table{};
-    utils:BarRecord b4 = { barFieldOne: 100 };
+    table<QuuzRecord> t1 = table{};
+    QuuzRecord b4 = { quuzFieldOne: 100 };
     _ = t1.add(b4);
-    b4.barFieldOne = I;
+    b4.quuzFieldOne = I;
     
-    utils:BarRecord b5;
-    foreach utils:BarRecord barRecord in t1 {
+    QuuzRecord b5;
+    foreach QuuzRecord barRecord in t1 {
         b5 = barRecord;
     }
-    // test:assertEquals(b5.barFieldOne, I, msg = "expected table member to have been updated");
-    test:assertEquals(b5.barFieldOne, 100, msg = "expected table member to not have been updated");
+    // test:assertEquals(b5.quuzFieldOne, I, msg = "expected table member to have been updated");
+    test:assertEquals(b5.quuzFieldOne, 100, msg = "expected table member to not have been updated");
 }
 
 // References make it possible for distinct members of a structure to refer to values that are
@@ -41,17 +41,17 @@ function testNonSimpleValuesStoredInStructuresBroken() {
     groups: ["deviation"]
 }
 function testDistinctStructureMembersReferringToSameValueBroken() {
-    table<utils:BarRecord> t1 = table{};
-    utils:BarRecord b4 = { barFieldOne: 100 };
-    utils:BarRecord b5 = { barFieldOne: 200 };
+    table<QuuzRecord> t1 = table{};
+    QuuzRecord b4 = { quuzFieldOne: 100 };
+    QuuzRecord b5 = { quuzFieldOne: 200 };
     _ = t1.add(b4);
     _ = t1.add(b5);
     _ = t1.add(b4);
     
-    utils:BarRecord? b6 = ();
-    utils:BarRecord? b7 = ();
+    QuuzRecord? b6 = ();
+    QuuzRecord? b7 = ();
     int count = 0;
-    foreach utils:BarRecord barRecord in t1 {
+    foreach QuuzRecord barRecord in t1 {
         if (count == 0) {
             b6 = barRecord;
         }
@@ -60,7 +60,7 @@ function testDistinctStructureMembersReferringToSameValueBroken() {
         }
         count += 1;
     }
-    test:assertTrue(b6 is utils:BarRecord, msg = "expected values to be at the same location");
+    test:assertTrue(b6 is QuuzRecord, msg = "expected values to be at the same location");
     // test:assertTrue(b6 === b7, msg = "expected values to be at the same location");
     test:assertFalse(b6 === b7, msg = "expected values to not be at the same location");
 }
@@ -108,12 +108,12 @@ function testImplicitInitialValuesBroken() {
     map<any> expectedMap = {};
     test:assertEquals(mapArray[0], (), msg = "expected implicit initial value of map to be {}");
 
-    utils:FooRecord[] fooRecordArray = [];
-    fooRecordArray[1] = { fooFieldOne: "valueOne" };
-    test:assertEquals(fooRecordArray[0], (),
-        msg = "expected implicit initial value of FooRecord to { fooFieldOne: \"\" }");
+    QuuxRecord[] quuxRecordArray = [];
+    quuxRecordArray[1] = { quuxFieldOne: "valueOne" };
+    test:assertEquals(quuxRecordArray[0], (),
+        msg = "expected implicit initial value of QuuxRecord to be { quuxFieldOne: \"\" }");
 
-    table<utils:BarRecord>[] tableArray = [];
+    table<QuuzRecord>[] tableArray = [];
     tableArray[1] = table{};
     test:assertEquals(tableArray[0], (), msg = "expected implicit initial value of string to be an empty string");
 
@@ -130,3 +130,13 @@ function testImplicitInitialValuesBroken() {
     unionArray2[1] = 2;
     test:assertEquals(unionArray2[0], (), msg = "expected implicit initial value of this union should be 0");
 }
+
+public type QuuzRecord record {
+    int quuzFieldOne;
+    !...;
+};
+
+public type QuuxRecord record {
+    string quuxFieldOne;
+    !...;
+};

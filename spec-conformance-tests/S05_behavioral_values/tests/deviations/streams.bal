@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-import utils;
 
 // A value of type stream<T> is a distributor for values of type T: 
 // when a value v of type T is put into the stream, 
@@ -27,5 +26,17 @@ import utils;
 }
 function testStreamConstraintBroken() {
     // the following definition should fail at compile time
-    stream<utils:FooObject> s = new;
+    stream<FooObject> s = new;
 }
+
+public type FooObject object {
+    public string fooFieldOne;
+
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};
