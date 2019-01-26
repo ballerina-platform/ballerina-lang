@@ -24,6 +24,6 @@ import ballerina/test;
 // length of the list will first increase the length of the list to i + 1, with the newly added
 // members of the array having the implicit initial value of T
 @test:Config {}
-function testInitialImplicitValueOfArrays() {
-    // tested in 05-values-types-variables#testImplicitInitialValues
+function testImplicitInitialValueOfArrays() {
+    // tested in S05_values_types_variables/implicit_initial_value.bal
 }
