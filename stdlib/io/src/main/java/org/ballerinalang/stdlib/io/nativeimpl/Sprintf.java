@@ -118,8 +118,6 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 's':
                             if (ref != null) {
                                 result.append(String.format("%" + padding + "s", ref.stringValue()));
-                            } else {
-                                result.append("()");
                             }
                             break;
                         case '%':

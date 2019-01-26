@@ -355,7 +355,7 @@ public class IOPrintTest {
     @Test
     public void testSprintfForNilInputString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintfNilString");
-        Assert.assertTrue(returns[0].stringValue().equals("()"));
+        Assert.assertTrue(returns[0].stringValue().isEmpty());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

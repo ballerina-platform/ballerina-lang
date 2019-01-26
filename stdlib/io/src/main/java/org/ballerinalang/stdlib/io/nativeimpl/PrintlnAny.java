@@ -50,8 +50,6 @@ public class PrintlnAny extends BlockingNativeCallableUnit {
                 final BValue bValue = result.getBValue(i);
                 if (bValue != null) {
                     content.append(bValue.stringValue());
-                } else {
-                    content.append("()");
                 }
             }
             out.println(content);
