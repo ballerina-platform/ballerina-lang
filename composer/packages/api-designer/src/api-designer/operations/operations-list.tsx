@@ -2,7 +2,7 @@
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ * Version 2.0 (the "License"Parameters); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -19,7 +19,7 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Accordion, AccordionTitleProps, Button } from "semantic-ui-react";
+import { Accordion, AccordionTitleProps, Button, Divider } from "semantic-ui-react";
 
 import { OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
 
@@ -101,7 +101,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                     }}
                                 </OpenApiContextConsumer>
                             </Accordion.Title>
-                            <Accordion.Content active={activeIndex.includes(index)}>
+                            <Accordion.Content active={activeIndex.includes(index)} className={openApiOperation}>
                                 <OpenApiContextConsumer>
                                     {(appContext: OpenApiContext) => {
                                         return (
@@ -134,6 +134,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                         ><i className="fw fw-add"></i>
                                         </Button>
                                     </div>
+                                    <Divider />
                                     {showAddParameter.includes(index) &&
                                         <OpenApiContextConsumer>
                                             {(appContext: OpenApiContext) => {
