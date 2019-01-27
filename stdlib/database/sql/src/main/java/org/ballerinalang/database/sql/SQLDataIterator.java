@@ -74,16 +74,6 @@ public class SQLDataIterator extends TableIterator {
     private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
     private String sourceDatabase;
 
-    public SQLDataIterator(Calendar utcCalendar, BStructureType structType, StructureTypeInfo timeStructInfo,
-                           StructureTypeInfo zoneStructInfo, TableResourceManager rm,
-                           ResultSet rs, List<ColumnDefinition> columnDefs, String databaseProductName) {
-        super(rm, rs, structType, columnDefs);
-        this.utcCalendar = utcCalendar;
-        this.timeStructInfo = timeStructInfo;
-        this.zoneStructInfo = zoneStructInfo;
-        this.sourceDatabase = databaseProductName;
-    }
-
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructureType structType, StructureTypeInfo timeStructInfo,
             StructureTypeInfo zoneStructInfo, String databaseProductName) {
@@ -132,7 +122,7 @@ public class SQLDataIterator extends TableIterator {
     @Override
     public BMap<String, BValue> generateNext() {
         if (this.type == null) {
-            throw new BallerinaException("the expected struct type is not specified in action");
+            throw new BallerinaException("the expected record type is not specified in the remote function");
         }
         BMap<String, BValue> bStruct = new BMap<>(this.type);
         int index = 0;
