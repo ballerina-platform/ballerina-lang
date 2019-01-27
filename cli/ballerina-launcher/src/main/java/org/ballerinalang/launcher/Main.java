@@ -28,11 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -43,8 +41,6 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.util.BLangConstants.COLON;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * This class executes a Ballerina program.
@@ -258,35 +254,7 @@ public class Main {
             VMOptions.getInstance().addOptions(vmOptions);
 
             String programArg = argList.get(0);
-            String functionName = MAIN_FUNCTION_NAME;
-            Path sourcePath;
-
-            String potentialPath = new File(programArg).getPath();
-            String resolvedPotentialFilePath =
-                    sourceRootPath.toString().concat(potentialPath.startsWith(File.separator) ? potentialPath :
-                                                  File.separator.concat(potentialPath));
-            if (new File(potentialPath).exists() || new File(resolvedPotentialFilePath).exists()) {
-                sourcePath = Paths.get(programArg);
-            } else if (programArg.contains(COLON)) {
-                // could be <SOURCE>:<FUNCTION_NAME>
-                int splitIndex = getSourceFunctionSplitIndex(sourceRootPath.toString(), programArg);
-                if (splitIndex == -1) {
-                    throw LauncherUtils.createLauncherException("ballerina source does not exist '" + programArg + "'");
-                }
-
-                sourcePath = Paths.get(programArg.substring(0, splitIndex));
-                functionName = programArg.substring(splitIndex + 1);
-
-                if (functionName.isEmpty() || programArg.endsWith(COLON)) {
-                    throw LauncherUtils.createUsageExceptionWithHelp("expected function name after final ':'");
-                }
-            } else {
-                try {
-                    sourcePath = Paths.get(programArg);
-                } catch (InvalidPathException e) {
-                    throw LauncherUtils.createLauncherException("ballerina source does not exist '" + programArg + "'");
-                }
-            }
+            Path sourcePath = Paths.get(programArg);
 
             // Filter out the list of arguments given to the ballerina program.
             // TODO: 7/26/18 improve logic with positioned param
@@ -299,9 +267,8 @@ public class Main {
             }
 
             // Normalize the source path to remove './' or '.\' characters that can appear before the name
-            LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), functionName, runtimeParams,
-                    configFilePath, programArgs, offline, observeFlag, printReturn, siddhiRuntimeFlag,
-                    experimentalFlag);
+            LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), runtimeParams, configFilePath, programArgs,
+                                     offline, observeFlag, printReturn, siddhiRuntimeFlag, experimentalFlag);
         }
 
         @Override
@@ -334,55 +301,6 @@ public class Main {
 
         @Override
         public void setSelfCmdParser(CommandLine selfCmdParser) {
-        }
-
-        /**
-         * Retrieve the position of the colon to split at to separate source path and the name of the function to run if
-         * specified.
-         *
-         * Returns the index of the colon, on which when split, the first part is a valid path and the second could
-         * correspond to the function.
-         *
-         * @param sourceRootPath the path to the source root
-         * @param programArg     the program argument specified
-         * @return  the index of the colon to split at
-         */
-        private int getSourceFunctionSplitIndex(String sourceRootPath, String programArg) {
-            String[] programArgConstituents = programArg.split(COLON);
-            boolean startsWithSeparator = programArg.startsWith(File.separator);
-            int index = programArgConstituents.length - 1;
-
-            String potentialFunction = programArgConstituents[index];
-            String potentialPath = programArg.replace(COLON.concat(potentialFunction), "");
-            if (new File(potentialPath).exists()) {
-                return potentialPath.length();
-            } else {
-                String resolvedPotentialFilePath = sourceRootPath.concat(startsWithSeparator ? potentialPath :
-                                                                                 File.separator.concat(potentialPath));
-                if (new File(resolvedPotentialFilePath).exists()) {
-                    return potentialPath.length();
-                }
-            }
-            index--;
-
-            while (index != -1) {
-                potentialFunction = programArgConstituents[index].concat(COLON).concat(potentialFunction);
-                potentialPath = programArg.replace(COLON.concat(potentialFunction), "");
-
-                if (new File(potentialPath).exists()) {
-                    return potentialPath.length();
-                } else {
-                    String resolvedPotentialFilePath =
-                            sourceRootPath.concat(startsWithSeparator ? potentialPath :
-                                                          File.separator.concat(potentialPath));
-                    if (new File(resolvedPotentialFilePath).exists()) {
-                        return potentialPath.length();
-                    }
-                }
-
-                index--;
-            }
-            return index;
         }
     }
 

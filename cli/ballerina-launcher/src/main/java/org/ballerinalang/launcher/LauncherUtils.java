@@ -70,7 +70,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -83,21 +82,20 @@ public class LauncherUtils {
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
                                   String configFilePath, String[] args, boolean offline, boolean observeFlag) {
-        runProgram(sourceRootPath, sourcePath, MAIN_FUNCTION_NAME, runtimeParams, configFilePath, args, offline,
-                observeFlag, false, false, true);
+        runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag,
+                   false, false, true);
     }
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
-                                  Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, boolean printReturn) {
-        runProgram(sourceRootPath, sourcePath, functionName, runtimeParams, configFilePath, args, offline, observeFlag,
-                printReturn, false, true);
+    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
+                                  String configFilePath, String[] args, boolean offline, boolean observeFlag,
+                                  boolean printReturn) {
+        runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag,
+                   printReturn, false, true);
     }
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
-                                  Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, boolean printReturn, boolean siddhiRuntimeFlag,
-                                  boolean experimentalFlag) {
+    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
+                                  String configFilePath, String[] args, boolean offline, boolean observeFlag,
+                                  boolean printReturn, boolean siddhiRuntimeFlag, boolean experimentalFlag) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -142,13 +140,12 @@ public class LauncherUtils {
 
         // If a function named main is expected to be the entry point but such a function does not exist and there is
         // no service entry point either, throw an error
-        if ((MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable())
-                && !programFile.isServiceEPAvailable()) {
+        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
             throw createLauncherException("'" + programFile.getProgramFilePath()
                                                   + "' does not contain a main function or a service");
         }
 
-        boolean runServicesOnly = MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable();
+        boolean runServicesOnly = !programFile.isMainEPAvailable();
 
         // Load launcher listeners
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
@@ -160,15 +157,15 @@ public class LauncherUtils {
             }
             runServices(programFile);
         } else {
-            runMain(programFile, functionName, args, printReturn);
+            runMain(programFile, args, printReturn);
         }
         BLangProgramRunner.resumeStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
     }
 
-    public static void runMain(ProgramFile programFile, String functionName, String[] args, boolean printReturn) {
+    public static void runMain(ProgramFile programFile, String[] args, boolean printReturn) {
         try {
-            BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, functionName, args);
+            BValue[] entryFuncResult = BLangProgramRunner.runMainFunc(programFile, args);
             if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1 && entryFuncResult[0] != null) {
                 outStream.print(entryFuncResult[0].stringValue());
             }
