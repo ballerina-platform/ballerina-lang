@@ -16,15 +16,10 @@
 
 extern function cleanupTransactionContext(string transactionBlockId);
 
-function runTransaction(function trxFunc) returns int|error {
+function runTransaction(function () trxFunc) returns int|error {
     trxFunc.call();
     return 0;
 }
-
-var foo = function (function trxFunc) returns returns int|error {
-    trxFunc.call();
-        return 0;
-    };
 
 function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int|error trxFunc,
                                    function () retryFunc, function () committedFunc, function () abortedFunc) 
@@ -58,7 +53,7 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
         rollbackResult = ();
         trxResult = trap trxFunc.call();
         if (trxResult is int) {
-            if (trxResult == 0)) {
+            if (trxResult == 0) {
                 var endSuccess = trap endTransaction(transactionId, transactionBlockId);
                 if (endSuccess is string) {
                     if (endSuccess == OUTCOME_COMMITTED) {

@@ -39,7 +39,7 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
         args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
         returnType =  {@ReturnType(type = TypeKind.VOID)}
 )
-public class notifyResourceManagerOnAbort extends BlockingNativeCallableUnit {
+public class NotifyResourceManagerOnAbort extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
         String transactionBlockId = ctx.getStringArgument(0);

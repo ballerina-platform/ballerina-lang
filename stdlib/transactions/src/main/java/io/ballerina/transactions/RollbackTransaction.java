@@ -34,15 +34,14 @@ import org.ballerinalang.util.transactions.TransactionLocalContext;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "transactions",
-        functionName = "cleanupTransactionContext",
+        functionName = "rollbackTransaction",
         args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
         returnType =  {@ReturnType(type = TypeKind.VOID)}
 )
-public class cleanupTransactionContext extends BlockingNativeCallableUnit {
+public class RollbackTransaction extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
         String transactionBlockId = ctx.getStringArgument(0);
-        transactionLocalContext.onTransactionEnd(transactionBlockId);
-        ctx.getStrand().removeLocalTransactionContext();
+        transactionLocalContext.rollbackTransaction(transactionBlockId);
     }
 }

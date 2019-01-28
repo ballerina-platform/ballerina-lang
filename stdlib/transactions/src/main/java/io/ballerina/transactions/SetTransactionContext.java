@@ -21,9 +21,12 @@ package io.ballerina.transactions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 /**
@@ -32,17 +35,18 @@ import org.ballerinalang.util.transactions.TransactionLocalContext;
  * @since 0.991.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "transactions",
-        functionName = "notifyRemoteParticipantOnFailure",
-        returnType =  {@ReturnType(type = TypeKind.VOID)}
+        orgName = "ballerina", packageName = "transactions",
+        functionName = "setTransactionContext",
+        args = {@Argument(name = "transactionContext", type = TypeKind.MAP)},
+        returnType = {@ReturnType(type = TypeKind.VOID)}
 )
-public class notifyRemoteParticipantOnFailure extends BlockingNativeCallableUnit {
+public class SetTransactionContext extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
-        TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
-        if (transactionLocalContext == null) {
-            return;
-        }
-        transactionLocalContext.notifyLocalRemoteParticipantFailure();
+        BMap<String, BValue> txDataStruct = (BMap<String, BValue>) ctx.getRefArgument(0);
+        String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
+        String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
+        String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
+        ctx.getStrand().setLocalTransactionContext(TransactionLocalContext.createTransactionParticipantLocalCtx
+                (globalTransactionId, url, protocol));
     }
 }

@@ -133,11 +133,17 @@ public class TransactionLocalContext {
     public boolean onTransactionFailed(Strand context, String transactionBlockId) {
         if (isRetryPossible(context, transactionBlockId)) {
             transactionContextStore.clear();
-            transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
+            transactionResourceManager.endXATransaction(globalTransactionId, transactionBlockId);
             return false;
         } else {
             return true;
         }
+    }
+
+
+    public void rollbackTransaction(String transactionBlockId) {
+        transactionContextStore.clear();
+        transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
     }
 
     public void notifyLocalParticipantFailure() {

@@ -47,7 +47,7 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
                 @Argument(name = "abortedFunc", type = TypeKind.FUNCTION)},
         returnType = { @ReturnType(type = TypeKind.MAP) }
 )
-public class registerRemoteParticipant extends BlockingNativeCallableUnit {
+public class RegisterRemoteParticipant extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
 
         TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();

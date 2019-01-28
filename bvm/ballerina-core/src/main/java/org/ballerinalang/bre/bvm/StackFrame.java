@@ -68,7 +68,7 @@ public class StackFrame {
     public ObserverContext observerContext;
 
     // Indicate this frame belong to a transaction participant
-    TransactionParticipantType trxParticipant;
+    public TransactionParticipantType trxParticipant;
 
     // RefReg index of returning error value of the frame, -1 if not returning error
     int errorRetReg = -1;
@@ -106,7 +106,10 @@ public class StackFrame {
         this.workerSendInChannels = workerSendInChannels;
     }
 
-    enum TransactionParticipantType {
+    /**
+     * Transaction participant types.
+     */
+    public enum TransactionParticipantType {
         LOCAL_PARTICIPANT,
         REMOTE_PARTICIPANT,
         NON_PARTICIPANT

@@ -49,7 +49,7 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
         },
         returnType = { @ReturnType(type = TypeKind.MAP) }
 )
-public class registerLocalParticipant extends BlockingNativeCallableUnit {
+public class RegisterLocalParticipant extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
 
         TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
@@ -59,7 +59,6 @@ public class registerLocalParticipant extends BlockingNativeCallableUnit {
             return;
         }
         String transactionBlockId = ctx.getStringArgument(0);
-        boolean isRemote = ctx.getBooleanArgument(0);
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         BFunctionPointer fpCommitted = (BFunctionPointer) ctx.getRefArgument(0);
         BFunctionPointer fpAborted = (BFunctionPointer) ctx.getRefArgument(1);

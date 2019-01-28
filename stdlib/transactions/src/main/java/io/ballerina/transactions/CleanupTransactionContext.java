@@ -34,15 +34,15 @@ import org.ballerinalang.util.transactions.TransactionLocalContext;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "transactions",
-        functionName = "notifyLocalParticipantOnFailure",
+        functionName = "cleanupTransactionContext",
+        args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
         returnType =  {@ReturnType(type = TypeKind.VOID)}
 )
-public class notifyLocalParticipantOnFailure extends BlockingNativeCallableUnit {
+public class CleanupTransactionContext extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
-        if (transactionLocalContext == null) {
-            return;
-        }
-        transactionLocalContext.notifyLocalParticipantFailure();
+        String transactionBlockId = ctx.getStringArgument(0);
+        transactionLocalContext.onTransactionEnd(transactionBlockId);
+        ctx.getStrand().removeLocalTransactionContext();
     }
 }
