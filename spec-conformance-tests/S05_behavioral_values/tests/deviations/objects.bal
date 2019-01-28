@@ -18,6 +18,7 @@ import ballerina/test;
 // If object-type-quals contains the keyword client, then the object type is a client
 // object type. A client object type may have remote methods; other objects types must not.
 // TODO: Can not declare client object without remote methods
+// https://github.com/ballerina-platform/ballerina-lang/issues/13209
 //type ClientObject client object {
 //
 //};
@@ -26,6 +27,7 @@ import ballerina/test;
 // But the fields and methods of an object are in separate namespaces, so it is possible for an
 // object to have a field and a method with the same name.
 // TODO: Same name field and method should be allowed
+// https://github.com/ballerina-platform/ballerina-lang/issues/13340
 //type DeviationObject object {
 //    float sameNameFieldAndMethod = 12.1;
 //
@@ -38,6 +40,7 @@ import ballerina/test;
 // access is unrestricted; private means that access is restricted to the same object; if no
 // visibility is specified explicitly, then access is restricted to the same module.
 // TODO: Accessing private methods from inside the object type descriptor is not working.
+// https://github.com/ballerina-platform/ballerina-lang/issues/13186
 //type AccessingPrivateMethodsBroken object {
 //    private function privateMethod() returns string {
 //        return "Success";
@@ -58,6 +61,7 @@ import ballerina/test;
 // __init returns an error, it means that initialization of the object failed. The __init method
 // can declare parameters in the same way as any other method.
 // TODO: Init method of objects should be able to return a subset of error|().
+// https://github.com/ballerina-platform/ballerina-lang/issues/13342
 //type InitMethodInObject object {
 //    public function __init() returns error? {
 //
@@ -66,6 +70,7 @@ import ballerina/test;
 
 // object-field-descriptor := [visibility-qual] type-descriptor field-name ;
 // TODO: Object fields should not be able to be initialized with a default value.
+// https://github.com/ballerina-platform/ballerina-lang/issues/13341
 type NormalObjectBroken object {
     string fieldOne = "string value"; // Should fail at compile time
 };
@@ -74,6 +79,7 @@ type NormalObjectBroken object {
 // potentially uninitialized. A field is potentially uninitialized at some point if it is a field of a type
 // that does not have an implicit initial value and it is not definitely assigned at that point.
 // TODO: Object fields not initialized in __init() should take its implicit initial value.
+// https://github.com/ballerina-platform/ballerina-lang/issues/13341
 //type NormalObject2Broken object {
 //    string fieldOne;
 //    int[] fieldTwo;
