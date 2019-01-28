@@ -30,24 +30,4 @@ public interface Expression extends Node {
     BType getType();
 
     void setType(BType type);
-
-    void setOffset(int offset);
-
-    boolean isMultiReturnExpr();
-
-    /**
-     * Get Temporary Location of the stack frame of the expression.
-     *
-     * @return temporary offset in the stack frame.
-     */
-    int getTempOffset();
-
-    /**
-     * Set Temporary Location in stack frame for storing expression result.
-     *
-     * @param tempOffset calculated temporary offset.
-     */
-    void setTempOffset(int tempOffset);
-
-    boolean hasTemporaryValues();
 }

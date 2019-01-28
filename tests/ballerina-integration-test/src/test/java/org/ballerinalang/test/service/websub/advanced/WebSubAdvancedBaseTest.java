@@ -37,11 +37,13 @@ public class WebSubAdvancedBaseTest extends BaseTest {
 
     @BeforeGroups(value = "websub-test", alwaysRun = true)
     public void init() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{8080};
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                                          "websub").getAbsolutePath();
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                          File.separator + "websub" + File.separator + "advanced_services" +
+                                          File.separator + "01_websub_publisher.bal").getAbsolutePath();
         publisherServerInstance = new BServerInstance(balServer);
-        publisherServerInstance.startServer(balFile, "advanced_services", requiredPorts);
+        String confPath = (new File("src/test/resources/websub/advanced_services/sample-users.toml")).getAbsolutePath();
+        String[] publisherArgs = {"-c", confPath};
+        publisherServerInstance.startServer(balFile, publisherArgs, new int[]{8080});
     }
 
     @AfterGroups(value = "websub-test")
