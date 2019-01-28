@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -74,6 +75,33 @@ public class BasicAsyncOperationsTest {
     @Test
     public void testAsyncNonNativeBasic6() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic6", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+    public void testAsyncNonNativeBasic7() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic7", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+    public void testAsyncNonNativeBasic8() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic8", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testAsyncNonNativeBasic9() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic9", new BValue[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+    public void testAsyncNonNativeBasic10() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic10", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
