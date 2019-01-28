@@ -11,6 +11,7 @@ function isOrdinaryStatement(node: ASTNode): boolean {
         && !ASTKindChecker.isWorkerSend(node)
         && !ASTKindChecker.isWorkerSyncSend(node)
         && !ASTUtil.isWorker(node)
+        && !ASTUtil.isWorkerFuture(node)
         && !ASTUtil.isWorkerReceive(node)
         && !ASTUtil.isActionInvocation(node);
 }
