@@ -21,11 +21,11 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
+import org.ballerinalang.net.grpc.ServiceResource;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
@@ -39,9 +39,9 @@ import java.util.Map;
  */
 public class StreamingServerCallHandler extends ServerCallHandler {
 
-    private final Map<String, Resource> resourceMap;
+    private final Map<String, ServiceResource> resourceMap;
 
-    public StreamingServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource>
+    public StreamingServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, Map<String, ServiceResource>
             resourceMap) {
         super(methodDescriptor);
         this.resourceMap = resourceMap;
@@ -55,35 +55,35 @@ public class StreamingServerCallHandler extends ServerCallHandler {
     }
 
     public StreamObserver invoke(StreamObserver responseObserver) {
-        Resource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
+        ServiceResource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
-        Executor.submit(onOpen, callback, null, null, computeMessageParams
+        Executor.submit(onOpen.getResource(), callback, null, null, computeMessageParams
                 (onOpen, null, responseObserver));
 
         return new StreamObserver() {
             @Override
             public void onNext(Message value) {
-                Resource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
+                ServiceResource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
-                Executor.submit(onMessage, callback, null, null, computeMessageParams
-                        (onMessage, value, responseObserver));
+                Executor.submit(onMessage.getResource(), callback, null, null, computeMessageParams(onMessage, value,
+                        responseObserver));
             }
 
             @Override
             public void onError(Message error) {
-                Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
+                ServiceResource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
                 onErrorInvoke(onError, responseObserver, error);
             }
 
             @Override
             public void onCompleted() {
-                Resource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
+                ServiceResource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
                 if (onCompleted == null) {
                     String message = "Error in listener service definition. onError resource does not exists";
                     throw new ServerRuntimeException(message);
                 }
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onCompleted, callback, null, null, computeMessageParams
+                Executor.submit(onCompleted.getResource(), callback, null, null, computeMessageParams
                         (onCompleted, null, responseObserver));
             }
         };
