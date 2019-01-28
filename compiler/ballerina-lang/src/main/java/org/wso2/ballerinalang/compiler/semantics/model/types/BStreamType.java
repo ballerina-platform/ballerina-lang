@@ -58,7 +58,7 @@ public class BStreamType extends BBuiltInRefType implements ConstrainedType {
 
     @Override
     public boolean hasImplicitInitialValue() {
-        return false;
+        return true;
     }
 
     @Override
