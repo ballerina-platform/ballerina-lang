@@ -25,9 +25,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.socket.tcp.SelectorDispatcher;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
-import org.ballerinalang.stdlib.socket.tcp.SocketService;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +37,6 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 
 /**
  * 'close' method implementation of the socket caller action.
@@ -70,12 +67,6 @@ public class Close extends BlockingNativeCallableUnit {
             // This need to handle to support multiple client close.
             if (client != null && Boolean.getBoolean(client.toString())) {
                 SelectorManager.getInstance().stop();
-            }
-            SocketService socketService = (SocketService) clientEndpoint.getNativeData(SOCKET_SERVICE);
-            // Check whether client has the attached callback service.
-            // ResourceMap shouldn't be null if callback service attached.
-            if (socketService != null && socketService.getResources() != null) {
-                SelectorDispatcher.invokeOnClose(socketService);
             }
         } catch (IOException e) {
             log.error("Unable to close the connection", e);

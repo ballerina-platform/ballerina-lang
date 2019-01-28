@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -32,11 +31,8 @@ import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
-import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ACCEPT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CLOSE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CONNECT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ERROR;
 import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_READ_READY;
@@ -65,16 +61,14 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         int resourceCount = 0;
-        int mandatoryResourceCount = 4;
+        int mandatoryResourceCount = 3;
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         for (BLangFunction resource : resources) {
             resourceCount += validate(serviceNode.getName().getValue(), resource, this.diagnosticLog);
         }
         if (resourceCount != mandatoryResourceCount) {
-            String errorMsg = "Service needs to have all 4 resources "
-                    + "[(%s (Listener) or %s (CallBackService)), %s, %s, %s].";
-            String msg = String.format(errorMsg, RESOURCE_ON_ACCEPT, RESOURCE_ON_CONNECT, RESOURCE_ON_READ_READY,
-                    RESOURCE_ON_CLOSE, RESOURCE_ON_ERROR);
+            String errorMsg = "Service needs to have all 3 resources [%s, %s, %s].";
+            String msg = String.format(errorMsg, RESOURCE_ON_CONNECT, RESOURCE_ON_READ_READY, RESOURCE_ON_ERROR);
             diagnosticLog.logDiagnostic(ERROR, serviceNode.getPosition(), msg);
         }
     }
@@ -83,16 +77,11 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
         int resourceCount = 0;
         switch (resource.getName().getValue()) {
             case RESOURCE_ON_CONNECT:
-            case RESOURCE_ON_ACCEPT:
                 validateOnAccept(serviceName, resource, diagnosticLog);
                 resourceCount++;
                 break;
             case RESOURCE_ON_READ_READY:
                 validateOnReadReady(serviceName, resource, diagnosticLog);
-                resourceCount++;
-                break;
-            case RESOURCE_ON_CLOSE:
-                validateOnClose(serviceName, resource, diagnosticLog);
                 resourceCount++;
                 break;
             case RESOURCE_ON_ERROR:
@@ -113,10 +102,7 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
-        BType caller = readReadyParams.get(0).type;
-        if (OBJECT.equals(caller.getKind()) && caller instanceof BStructureType) {
-            validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
-        }
+        validateEndpointCaller(serviceName, resource, diagnosticLog, readReadyParams);
         BType error = readReadyParams.get(1).getTypeNode().type;
         if (RECORD.equals(error.getKind()) && error instanceof BRecordType) {
             if (!"error".equals(error.tsymbol.toString())) {
@@ -130,30 +116,14 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
 
     private void validateOnReadReady(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
         final List<BLangSimpleVariable> readReadyParams = resource.getParameters();
-        if (readReadyParams.size() != 2) {
+        if (readReadyParams.size() != 1) {
             String msg = String
-                    .format(INVALID_RESOURCE_SIGNATURE + "Parameters should be a 'socket:Caller' and 'byte[]'",
+                    .format(INVALID_RESOURCE_SIGNATURE + "Parameters should be a 'socket:Caller'",
                             resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
-        BType caller = readReadyParams.get(0).type;
-        if (OBJECT.equals(caller.getKind()) && caller instanceof BStructureType) {
-            validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
-        }
-        BType content = readReadyParams.get(1).getTypeNode().type;
-        if (ARRAY.equals(content.getKind()) && content instanceof BArrayType) {
-            if (!"byte".equals(((BArrayType) content).eType.tsymbol.toString())) {
-                String msg = String.format(INVALID_RESOURCE_SIGNATURE + "Second parameter should be a byte[]",
-                        resource.getName().getValue(), serviceName);
-                diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
-            }
-        }
-        validateReturns(resource, diagnosticLog);
-    }
-
-    private void validateOnClose(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
-        validateOnAccept(serviceName, resource, diagnosticLog);
+        validateEndpointCaller(serviceName, resource, diagnosticLog, readReadyParams);
         validateReturns(resource, diagnosticLog);
     }
 
@@ -165,10 +135,7 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
-        BType caller = acceptParams.get(0).type;
-        if (OBJECT.equals(caller.getKind()) && caller instanceof BStructureType) {
-            validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
-        }
+        validateEndpointCaller(serviceName, resource, diagnosticLog, acceptParams);
         validateReturns(resource, diagnosticLog);
     }
 
@@ -185,6 +152,14 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
             String msg = String.format(INVALID_RESOURCE_SIGNATURE + "The parameter should be a 'socket:Caller'",
                     resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
+        }
+    }
+
+    private void validateEndpointCaller(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog,
+            List<BLangSimpleVariable> params) {
+        BType caller = params.get(0).type;
+        if (OBJECT.equals(caller.getKind()) && caller instanceof BStructureType) {
+            validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
         }
     }
 }

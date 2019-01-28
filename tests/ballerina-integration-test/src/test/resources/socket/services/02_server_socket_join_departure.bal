@@ -20,28 +20,32 @@ import ballerina/socket;
 listener socket:Listener server = new(61598);
 
 int joinee = 0;
-int leavers = 0;
 
 service echoServer on server {
-    resource function onAccept(socket:Caller caller) {
+    resource function onConnect(socket:Caller caller) {
         joinee = joinee + 1;
         io:println("Join: ", joinee);
     }
 
-    resource function onReadReady(socket:Caller caller, byte[] content) {
-        io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
-        io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
-        var str = characterChannel.read(20);
-        if (str is string) {
-            io:println(untaint str);
-        } else if (str is error) {
-            io:println("Error: ", str.detail().message);
+    resource function onReadReady(socket:Caller caller) {
+        var result = caller->read();
+        if (result is (byte[], int)) {
+            var (content, length) = result;
+            if (length > 0) {
+                io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
+                io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+                var str = characterChannel.read(20);
+                if (str is string) {
+                    io:println(untaint str);
+                } else if (str is error) {
+                    io:println("Error: ", str.detail().message);
+                }
+            } else {
+                io:println("Client close: ", caller.remotePort);
+            }
+        } else if (result is error) {
+            io:println(result);
         }
-    }
-
-    resource function onClose(socket:Caller caller) {
-        leavers = leavers + 1;
-        io:println("Leave: " + leavers);
     }
 
     resource function onError(socket:Caller caller, error er) {

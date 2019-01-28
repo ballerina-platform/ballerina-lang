@@ -47,6 +47,7 @@ import java.nio.file.Paths;
 public class ServerSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
+    private static final int SERVER_PORT = 59152;
     private CompileResult normalServer;
     private Path testResourceRoot;
 
@@ -66,9 +67,11 @@ public class ServerSocketTest {
 
     @Test(description = "Check echo server")
     public void testSeverEcho() {
-        try (SocketChannel socketChannel = SocketChannel.open()) {
+        SocketChannel socketChannel = null;
+        try {
+            socketChannel = SocketChannel.open();
             socketChannel.configureBlocking(true);
-            socketChannel.connect(new InetSocketAddress("localhost", 59152));
+            socketChannel.connect(new InetSocketAddress("localhost", SERVER_PORT));
             ByteBuffer buf = ByteBuffer.allocate(64);
             String welcomeMsg = "Hello Ballerina\n";
             buf.put(welcomeMsg.getBytes(StandardCharsets.UTF_8));
@@ -80,11 +83,17 @@ public class ServerSocketTest {
             socketChannel.read(buf);
             Assert.assertEquals(new String(SocketUtils.getByteArrayFromByteBuffer(buf), StandardCharsets.UTF_8),
                     welcomeMsg);
-            Thread.sleep(1);
         } catch (IOException e) {
             Assert.fail(e.getMessage(), e);
-        } catch (InterruptedException e) {
-            // Do nothing.
+        } finally {
+            if (socketChannel != null) {
+                try {
+                    socketChannel.close();
+                    Thread.sleep(500);
+                } catch (IOException | InterruptedException e) {
+                    // Do nothing.
+                }
+            }
         }
     }
 
@@ -112,7 +121,7 @@ public class ServerSocketTest {
         for (int retryCount = initialRetryCount; retryCount < numberOfRetries && !isConnected; retryCount++) {
             try {
                 //Attempts to establish a connection with the server
-                temporarySocketConnection = new Socket("localhost", 59152);
+                temporarySocketConnection = new Socket("localhost", SERVER_PORT);
                 isConnected = true;
             } catch (IOException e) {
                 log.error("Error occurred while establishing a connection with test server", e);

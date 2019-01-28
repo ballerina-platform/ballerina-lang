@@ -21,17 +21,23 @@ listener socket:Listener server = new(59152);
 
 service echoServer on server {
 
-    resource function onAccept(socket:Caller caller) {
+    resource function onConnect(socket:Caller caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    resource function onReadReady(socket:Caller caller, byte[] content) {
-        _ = caller->write(content);
-        io:println("Server write");
-    }
-
-    resource function onClose(socket:Caller caller) {
-        io:println("Leave: ", caller.remotePort);
+    resource function onReadReady(socket:Caller caller) {
+        var result = caller->read();
+        if (result is (byte[], int)) {
+            var (content, length) = result;
+            if (length > 0) {
+                _ = caller->write(content);
+                io:println("Server write");
+            } else {
+                io:println("Client close: ", caller.remotePort);
+            }
+        } else if (result is error) {
+            io:println(result);
+        }
     }
 
     resource function onError(socket:Caller caller, error er) {
