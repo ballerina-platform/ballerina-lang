@@ -14,50 +14,51 @@
 // specific language governing permissions and limitations
 // under the License.
 
-extern function checkNestedTransaction() returns boolean;
-
-extern function setTransactionContext(TransactionContext trxCtx);
-
-extern function resgisterLocalParticipant(string transactionBlockId, function () committedFunc,
-                                          function () abortedFunc) returns TransactionContext;
-
-extern function resgisterRemoteParticipant(string transactionBlockId, function () committedFunc,
-                                           function () abortedFunc) returns TransactionContext;
-
-extern function notifyResourceManagerOnAbort(string transactionId, string transactionBlockId) returns error?;
-
-extern function rollbackTransaction(string transactionId, string transactionBlockId) returns error?;
-
 extern function cleanupTransactionContext(string transactionBlockId);
 
-extern function getTransactionContext(string transactionBlockId);
+function runTransaction(function trxFunc) returns int|error {
+    trxFunc.call();
+    return 0;
+}
 
-function beginTransactionInitiator(string transactionBlockId, int rMax, function () trxFunc, function () retryFunc,
-                                   function () committedFunc, function () abortedFunc) returns error? {
+var foo = function (function trxFunc) returns returns int|error {
+    trxFunc.call();
+        return 0;
+    };
+
+function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int|error trxFunc,
+                                   function () retryFunc, function () committedFunc, function () abortedFunc) 
+             returns error? {
     boolean isTrxSuccess = false;
     int rCnt = 1;
+    if (rMax < 0) {
+        error err = error("invalid transaction retry count");
+        panic err;
+    }
     // If global tx enabled, it is managed via transaction coordinator.Otherwise it is managed locally
     // without any interaction with the transaction coordinator.
-    if (checkNestedTransaction()) {
+    if (isNestedTransaction()) {
         // Starting a transaction within already infected transaction.
         error err = error("dynamically nested transactions are not allowed");
         panic err;
     }
-    TransactionContext txnContext = check beginTransaction((), transactionBlockId, (), TWO_PHASE_COMMIT);
+    TransactionContext txnContext = check beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
     string transactionId = txnContext.transactionId;
-    setTransactionContext(trxCtx);
-    var trxResult = ();
+    setTransactionContext(txnContext);
+    int|error trxResult = -1;
+    error? abortResult = ();
+    error? committedResult = ();
+    error? retryResult = ();
+    error? rollbackResult = ();
     while (true) {
-        var trxResult = trap trxFunc.call();
+        trxResult = -1;
+        abortResult = ();
+        committedResult = ();
+        retryResult = ();
+        rollbackResult = ();
+        trxResult = trap trxFunc.call();
         if (trxResult is int) {
-            // If transaction result == -1, means it aborted.
-            if (trxResult == -1) { // abort
-                return;
-            }
-            if (trxResult == 1) { // retry
-                var result = trap abortTransaction(transactionId, transactionBlockId);
-            }
-            if (trxResult == 0) { // success
+            if (trxResult == 0)) {
                 var endSuccess = trap endTransaction(transactionId, transactionBlockId);
                 if (endSuccess is string) {
                     if (endSuccess == OUTCOME_COMMITTED) {
@@ -66,43 +67,60 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
                     }
                 }
             }
+             if (trxResult == 1) { // retry
+                abortResult = trap abortTransaction(transactionId, transactionBlockId);
+            }
+            // If transaction result == -1, means it aborted.
+            if (trxResult == -1) { // abort
+                return;
+            }
         }
-        rCnt=+1;
+        rCnt = +1;
         // retry
         if (rCnt < rMax) {
-            rollbackTransaction(transactionId);
-            rFunc.call();
+            rollbackResult = trap rollbackTransaction(transactionBlockId);
+            retryResult = trap retryFunc.call();
         } else {
             return;
         }
     }
-
     if (isTrxSuccess) {
-        cFunc.call();
+        committedResult = trap committedFunc.call();
     } else {
-        var abortResult = trap handleAbortTransaction(transactionId, aFunc);
+        abortResult = trap handleAbortTransaction(transactionId, transactionBlockId, abortedFunc);
     }
-    cleanupTransactionContext();
+    cleanupTransactionContext(transactionBlockId);
     if (trxResult is error) {
         panic trxResult;
     }
+    if (committedResult is error) {
+        panic committedResult;
+    }
     if (abortResult is error) {
         panic abortResult;
+    }
+    if (retryResult is error) {
+        panic retryResult;
+    }
+    if (rollbackResult is error) {
+        panic rollbackResult;
     }
 }
 
 
 function beginLocalParticipant(string transactionBlockId, function () committedFunc,
                                function () abortedFunc, function () trxFunc) returns error|any {
-    TransactionContext txnContext = getTransactionContext(transactionBlockId);
-    if (txnContext != ()) {
-        resgisterLocalParticipant(transactionBlockId, committedFunc, abortedFunc);
-        TransactionContext txnContext = check beginTransaction(txnContext.transactionId, transactionBlockId,
+    TransactionContext? txnContext = registerLocalParticipant(transactionBlockId, committedFunc, abortedFunc);
+    if (txnContext is TransactionContext) {
+        TransactionContext|error returnContext = check beginTransaction(txnContext.transactionId, transactionBlockId,
             txnContext.registerAtURL, txnContext.coordinationType);
-        string transactionId = txnContext.transactionId;
+        if (returnContext is error) {
+            notifyLocalParticipantOnFailure();
+            panic returnContext;
+        }
         var result = trap trxFunc.call();
         if (result is error) {
-            notifyLocalParticipantFailure(transactionBlockId, txnContext.transactionId);
+            notifyLocalParticipantOnFailure();
             panic result;
         }
         return result;
@@ -112,15 +130,17 @@ function beginLocalParticipant(string transactionBlockId, function () committedF
 
 function beginRemoteParticipant(string transactionBlockId, function () committedFunc,
                                 function () abortedFunc, function () trxFunc) returns error|any {
-    TransactionContext txnContext = getTransactionContext(transactionBlockId);
-    if (txnContext != ()) {
-        resgisterRemoteParticipant(transactionBlockId, committedFunc, abortedFunc);
-        TransactionContext txnContext = check beginTransaction(txnContext.transactionId, transactionBlockId,
+    TransactionContext? txnContext = registerRemoteParticipant(transactionBlockId, committedFunc, abortedFunc);
+    if (txnContext is TransactionContext) {
+        TransactionContext|error returnContext = check beginTransaction(txnContext.transactionId, transactionBlockId,
             txnContext.registerAtURL, txnContext.coordinationType);
-        string transactionId = txnContext.transactionId;
+        if (returnContext is error) {
+            notifyRemoteParticipantOnFailure();
+            panic returnContext;
+        }
         var result = trap trxFunc.call();
         if (result is error) {
-            notifyRemoteParticipantFailure(transactionBlockId, txnContext.transactionId);
+            notifyRemoteParticipantOnFailure();
             panic result;
         }
         return result;
@@ -128,10 +148,10 @@ function beginRemoteParticipant(string transactionBlockId, function () committed
     return trxFunc.call();
 }
 
-function handleAbortTransaction(string transactionId, string transactionBlockId, 
+function handleAbortTransaction(string transactionId, string transactionBlockId,
                                 function () abortedFunc) returns error? {
     var result = trap abortTransaction(transactionId, transactionBlockId);
-    notifyResourceManagerOnAbort(transactionId, transactionBlockId);
+    notifyResourceManagerOnAbort(transactionBlockId);
     abortedFunc.call();
     if (result is error) {
         panic result;
@@ -141,7 +161,7 @@ function handleAbortTransaction(string transactionId, string transactionBlockId,
 function handleCompletedTransaction(string transactionId, string transactionBlockId,
                                     function () abortedFunc) returns error? {
     var result = trap endTransaction(transactionId, transactionBlockId);
-    notifyResourceManagerOnAbort(transactionId, transactionBlockId);
+    notifyResourceManagerOnAbort(transactionBlockId);
     abortedFunc.call();
     if (result is error) {
         panic result;
@@ -290,3 +310,22 @@ extern function abortResourceManagers(string transactionId, string transactionBl
 #
 # + return - A string representing the ID of the current transaction.
 public extern function getCurrentTransactionId() returns string;
+
+extern function isNestedTransaction() returns boolean;
+
+extern function setTransactionContext(TransactionContext transactionContext);
+                
+extern function registerLocalParticipant(string transactionBlockId, function () committedFunc,
+                                          function () abortedFunc);
+
+
+extern function registerRemoteParticipant(string transactionBlockId, function () committedFunc,
+                                          function () abortedFunc);
+
+extern function notifyLocalParticipantOnFailure();
+
+extern function notifyRemoteParticipantOnFailure();
+
+extern function notifyResourceManagerOnAbort(string transactionBlockId);
+
+extern function rollbackTransaction(string transactionBlockId) returns error?;
