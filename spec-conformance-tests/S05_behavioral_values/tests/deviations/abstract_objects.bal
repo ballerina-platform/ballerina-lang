@@ -19,7 +19,8 @@ import ballerina/test;
 // object-type-quals object { object-member-descriptor* }
 // object-type-quals := [abstract] [client] | [client] abstract
 // object-member-descriptor := object-field-descriptor | object-method | object-type-reference
-//// TODO: Keyword abstract should be allowed after client keyword
+// TODO: Keyword abstract should be allowed after client keyword
+// https://github.com/ballerina-platform/ballerina-lang/issues/13346
 //type AbstractObject client abstract object {
 //
 //};
@@ -34,6 +35,7 @@ function testImplicitInitialValueOfAbstractObjectBroken() {
 
 // An abstract object type descriptor must not contain a method-defn.
 // TODO: Usage of extern keyword within abstract methods should be restricted.
+// https://github.com/ballerina-platform/ballerina-lang/issues/13344
 //type AbstractObjectBroken abstract object {
 //    extern function testField();
 //};
