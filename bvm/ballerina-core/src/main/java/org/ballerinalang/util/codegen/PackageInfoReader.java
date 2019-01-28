@@ -1323,7 +1323,7 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.LENGTHOF:
+                case InstructionCodes.LENGTH:
                 case InstructionCodes.STAMP:
                 case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:

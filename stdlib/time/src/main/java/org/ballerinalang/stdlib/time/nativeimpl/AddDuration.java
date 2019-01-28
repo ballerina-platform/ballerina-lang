@@ -23,10 +23,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
 
 /**
  * Add given durations to the time.
@@ -36,15 +33,15 @@ import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "addDuration",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina/time"),
         args = {@Argument(name = "years", type = TypeKind.INT),
                 @Argument(name = "months", type = TypeKind.INT),
                 @Argument(name = "days", type = TypeKind.INT),
                 @Argument(name = "hours", type = TypeKind.INT),
                 @Argument(name = "minutes", type = TypeKind.INT),
                 @Argument(name = "seconds", type = TypeKind.INT),
-                @Argument(name = "milliseconds", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "Time",
+                @Argument(name = "milliseconds", type = TypeKind.INT),
+                @Argument(name = "time", type = TypeKind.RECORD)},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time",
                                   structPackage = "ballerina/time")},
         isPublic = true
 )

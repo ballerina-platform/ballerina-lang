@@ -1,9 +1,22 @@
 import ballerina/test;
 import ballerina/io;
 import ballerina/http;
+import ballerina/runtime;
+
+any[] outputs = [];
+int counter = 0;
 
 function startService() {
     //serviceStarted = test:startServices("join-multiple-streams");
+}
+
+@test:Mock {
+    moduleName: "ballerina/io",
+    functionName: "println"
+}
+public function mockPrint(any... s) {
+    outputs[counter] = s[0];
+    counter += 1;
 }
 
 @test:Config {
@@ -41,6 +54,12 @@ function testFunc() {
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
+
+    runtime:sleep(10000);
+
+    string out = "ALERT!! : Material usage is higher than the expected limit for material : Teak , usage difference (%) : 50.0";
+    test:assertEquals(outputs.length(), 1);
+    test:assertEquals(outputs[0], out);
 }
 
 function stopService() {

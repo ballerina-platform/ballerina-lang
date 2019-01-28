@@ -23,7 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,16 +46,16 @@ public class SendActionHandler {
 
         Struct queueSenderBObject = BallerinaAdapter.getReceiverObject(context);
         MessageProducer messageProducer = BallerinaAdapter.getNativeObject(queueSenderBObject,
-                                                                           Constants.JMS_PRODUCER_OBJECT,
+                                                                           JmsConstants.JMS_PRODUCER_OBJECT,
                                                                            MessageProducer.class,
                                                                            context);
         SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(queueSenderBObject,
-                                                                             Constants.SESSION_CONNECTOR_OBJECT,
+                                                                             JmsConstants.SESSION_CONNECTOR_OBJECT,
                                                                              SessionConnector.class,
                                                                              context);
         BMap<String, BValue> messageBObject = ((BMap<String, BValue>) context.getRefArgument(1));
         Message message = BallerinaAdapter.getNativeObject(messageBObject,
-                                                           Constants.JMS_MESSAGE_OBJECT,
+                                                           JmsConstants.JMS_MESSAGE_OBJECT,
                                                            Message.class,
                                                            context);
 

@@ -18,6 +18,7 @@
 import ballerina/auth;
 import ballerina/log;
 import ballerina/runtime;
+import ballerina/encoding;
 
 # Authentication cache name.
 const string AUTH_CACHE = "basic_auth_cache";
@@ -91,7 +92,8 @@ public function HttpBasicAuthnHandler.canHandle(Request req) returns (boolean) {
 # + return - A `string` tuple with the extracted username and password or `error` that occured while extracting credentials
 function extractBasicAuthCredentials(string authHeader) returns (string, string)|error {
     // extract user credentials from basic auth header
-    string decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
+    string decodedBasicAuthHeader = encoding:byteArrayToString(check
+        encoding:decodeBase64(authHeader.substring(5, authHeader.length()).trim()));
     string[] decodedCredentials = decodedBasicAuthHeader.split(":");
     if (decodedCredentials.length() != 2) {
         return handleError("Incorrect basic authentication header format");

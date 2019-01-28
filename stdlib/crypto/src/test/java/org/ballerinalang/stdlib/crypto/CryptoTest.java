@@ -16,22 +16,23 @@
 
 package org.ballerinalang.stdlib.crypto;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.stdlib.crypto.util.HashUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.zip.CRC32;
 
 /**
  * Test cases for ballerina.crypto native functions.
@@ -42,144 +43,259 @@ public class CryptoTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/crypto-test.bal");
+        compileResult = BCompileUtil.compile("test-src" + File.separator + "crypto" + File.separator +
+                "crypto-test.bal");
     }
 
-    @Test
-    public void testHmac() {
-        String messageString = "Ballerina HMAC test";
-        BString message = new BString(messageString);
-        String keyString = "abcdefghijk";
-        BString key = new BString(keyString);
-        BString hexKey = new BString(HashUtils.toHexString(keyString.getBytes(StandardCharsets.UTF_8)));
-        BString base64Key = new BString(
-                new String(java.util.Base64.getEncoder().encode(keyString.getBytes(StandardCharsets.UTF_8)),
-                        StandardCharsets.UTF_8));
+    @Test(description = "Test hmac generation functions")
+    public void testHmac() throws DecoderException {
+        byte[] message = "Ballerina HMAC test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = "abcdefghijk".getBytes(StandardCharsets.UTF_8);
 
-        String expectedMD5Hash = "3D5AC29160F2905A5C8153597798A4C1";
-        String expectedSHA1Hash = "13DD8D54D0EB702EDC6E8EDCAF616837D3A51499";
-        String expectedSHA256Hash = "2651203E18BF0088D3EF1215022D147E2534FD4BAD5689C9E5F12436E9758B15";
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {message, key};
+        byte[] expectedMD5Hash = Hex.decodeHex("3D5AC29160F2905A5C8153597798A4C1".toCharArray());
+        byte[] expectedSHA1Hash = Hex.decodeHex("13DD8D54D0EB702EDC6E8EDCAF616837D3A51499".toCharArray());
+        byte[] expectedSHA256Hash = Hex
+                .decodeHex("2651203E18BF0088D3EF1215022D147E2534FD4BAD5689C9E5F12436E9758B15".toCharArray());
+        byte[] expectedSHA384Hash = Hex.decodeHex(("c27a281dffed3d4d176646d7261e9f6268a3d40a237cd274fc2f5970f637f1c" +
+                "bc20a3835d7b7aa7401308737f23a9bf7").toCharArray());
+        byte[] expectedSHA512Hash = Hex.decodeHex(("78d99bf3e5277fc893af6cd6b0487c33ed3abc4f956fdd1fada302f135b012a" +
+                "3c71cadaaeb462e51ff281202bdfa8807719b91f69742c3f71f036c469ac5b918").toCharArray());
+
+        BValue[] args = {messageValue, keyValue};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmacWithMD5", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedMD5Hash);
 
-        args = new BValue[]{message, key};
+        args = new BValue[]{messageValue, keyValue};
         returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA1", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSHA1Hash);
 
-        args = new BValue[]{message, key};
+        args = new BValue[]{messageValue, keyValue};
         returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA256", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSHA256Hash);
 
-        args = new BValue[]{message, hexKey};
-        returnValues = BRunUtil.invoke(compileResult, "testHmacHexKeyMD5", args);
+        args = new BValue[]{messageValue, keyValue};
+        returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA384", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSHA384Hash);
 
-        args = new BValue[]{message, base64Key};
-        returnValues = BRunUtil.invoke(compileResult, "testHmacBase64KeyMD5", args);
+        args = new BValue[]{messageValue, keyValue};
+        returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA512", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5Hash);
-
-        args = new BValue[]{message, hexKey};
-        returnValues = BRunUtil.invoke(compileResult, "testHmacHexKeySHA1", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1Hash);
-
-        args = new BValue[]{message, base64Key};
-        returnValues = BRunUtil.invoke(compileResult, "testHmacBase64KeySHA1", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1Hash);
-
-        args = new BValue[]{message, hexKey};
-        returnValues = BRunUtil.invoke(compileResult, "testHmacHexKeySHA256", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
-
-        args = new BValue[]{message, base64Key};
-        returnValues = BRunUtil.invoke(compileResult, "testHmacBase64KeySHA256", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSHA512Hash);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test hmac generation with an empty password", expectedExceptions = BLangRuntimeException.class)
     public void testHmacNegativeInvalidKey() {
-        BValue[] args = {new BString("Ballerina HMAC test"), new BString("")};
+        BValue[] args = {new BValueArray("Ballerina HMAC test".getBytes(StandardCharsets.UTF_8)),
+                new BValueArray("".getBytes(StandardCharsets.UTF_8))};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA1", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
     }
 
-    @Test
-    public void testHashing() {
-        String expectedMD5Hash = "A65F8F7B0A397271B93BEE395E72BA14";
-        String expectedSHA1Hash = "189AF447E0D338DDD5EDB01E8CC0C899402DA4AF";
-        String expectedSHA256Hash = "5AF499F2E770D43DB7F769F8742BA77DA713949EDCD233477DEF4509AEBBB44C";
+    @Test(description = "Test hashing functions")
+    public void testHashing() throws DecoderException {
+        byte[] expectedMd5Hash = Hex.decodeHex("3B12196DB784CD9F86CC635D32764FDF".toCharArray());
+        byte[] expectedSha1Hash = Hex.decodeHex("73FBC15DB28D52C03359EDE7A7DC40B4A83DF207".toCharArray());
+        byte[] expectedSha256Hash = Hex
+                .decodeHex("68F6CA0B55B55099331BF4EAA659B8BDC94FBDCE2F54D94FD90DA8240797A5D7".toCharArray());
+        byte[] expectedSha384Hash = Hex.decodeHex(("F00B4A8C67B38E7E32FF8B1AB570345743878F7ADED9B5FA02518DDD84E16CBC" +
+                "A344AF42CB60A1FD5C48C5FEDCFF7F24").toCharArray());
+        byte[] expectedSha512hash = Hex.decodeHex(("1C9BED7C87E7D17BA07ADD67F59B4A29AFD2B046409B65429E77D0CEE53A33C5" +
+                "E26731DC1CB091FAADA8C5D6433CB1544690804CC046A55D6AFED8BE0B901062").toCharArray());
 
-        BValue[] args = {new BString("Ballerina Hash test")};
+        BValue[] args = {new BValueArray("Ballerina test".getBytes(StandardCharsets.UTF_8))};
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithMD5", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedMd5Hash);
 
         returnValues = BRunUtil.invoke(compileResult, "testHashWithSHA1", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSha1Hash);
 
         returnValues = BRunUtil.invoke(compileResult, "testHashWithSHA256", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSha256Hash);
+
+        returnValues = BRunUtil.invoke(compileResult, "testHashWithSHA384", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSha384Hash);
+
+        returnValues = BRunUtil.invoke(compileResult, "testHashWithSHA512", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSha512hash);
     }
 
-    @Test(description = "Testing CRC32 generation for strings")
-    public void testCRC32ForText() {
-        String payload = "Ballerina CRC32 Hash Test";
-        String expectedCRC32Hash = "e1ad4853";
+    @Test(description = "Test CRC32b generation")
+    public void testCRC32() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        String expectedCRC32Hash = "d37b9692";
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForText",
-                new BValue[]{new BString(payload)});
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32b",
+                new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
 
-    @Test(description = "Testing CRC32 generation for blobs")
-    public void testCRC32ForBinary() {
-        String payload = "Ballerina CRC32 Hash Test for Blob";
-        String expectedCRC32Hash = "f3638b7f";
+    @Test(description = "Test RSA-SHA1 siging")
+    public void testSignRsaSha1() throws DecoderException {
+        byte[] expectedSignature = Hex.decodeHex(("70728d6d37fd83704bcb2649d93cfd20dbadb83a9d2169965d2a241795a131f" +
+                "cfdb8b1b4f35f5de3c1f6f1d71ea0c9f80e494627b4c01d6e670ae4698b774171e8a017d62847c92aa47e868c230532af" +
+                "9fc3a681387eead94578d2287674940df2e2f4a28f59688257254dfaab81c17617357ae05b42898412136abed116d6b86" +
+                "eab68ff4ace029b67c7e4c5784a9bad00129b69d5afb6a89cb596cad56e8c98a1642eab87cb337980cc987708800e62a4" +
+                "27c6f61828437d5491549b05025e9a98bf27825dc6002068678dde1e7d365407881b2b1a4d4e522a53f69e5b43202299e" +
+                "02f7840f8991b8c335b0332b3b4bd658030ec3007f6f36c190b8663d3b746")
+                .toCharArray());
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForBinary",
-                new BValue[]{new BValueArray(payload.
-                        getBytes(StandardCharsets.UTF_8))});
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha1",
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
-    @Test(description = "Testing CRC32 generation for JSON")
-    public void testCRC32ForJSON() {
-        String payload = "{\"name\":{\"fname\":\"Jack\", \"lname\":\"Taylor\"}, \"state\":\"CA\", \"age\":20}";
+    @Test(description = "Test RSA-SHA256 siging")
+    public void testSignRsaSha256() throws DecoderException {
+        byte[] expectedSignature = Hex.decodeHex(("34477f0e0a5457ca1a95049da10d59baa33ee4fa9e1bb8be3d3c70d82b980850" +
+                "fd017a1c9984a97384736aacfe33d39ff8d63e01b952972910c86135b7558a2274c6d772f0d2fcdc0ac4aabc75f3978edb" +
+                "d4aabd17d6447fb88e83b055bbff24d8212125b760c8bf88e9e4908645434f53a2ab0e3d5517c8e3241d8ebabbc767e7d9" +
+                "24b5481621831f3a63e06c393c9378d782406705cd8823e12d3b4042a3cb738b8a8bb5731ff2934394c928c4262d130af6" +
+                "6a2b507fc538bd16bccabc2f3b95137370dcca31e80866533bf445cf7f63aec6a9fa596333abb3a59d9b327891c7e6016e" +
+                "0c11ef2a0d32088d4683d915005c9dcc8137611e5bff9dc4a5db6f87")
+                .toCharArray());
 
-        CRC32 crc = new CRC32();
-        crc.update(payload.getBytes());
-        String expectedCRC32Hash = Long.toHexString(crc.getValue());
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForJSON",
-                new BValue[]{JsonParser.parse(payload)});
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha256",
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
-    @Test(description = "Testing CRC32 generation for XML")
-    public void testCRC32ForXML() {
-        String payload = "<foo>hello</foo>";
-        String expectedCRC32Hash = "748efc2";
+    @Test(description = "Test RSA-384 siging")
+    public void testSignRsaSha384() throws DecoderException {
+        byte[] expectedSignature = Hex.decodeHex(("4981CC5213F384E8DB7950BF76C97AE20FA2A34244A517FC585B2381B9E88" +
+                "278E447B92F6F452332BCA65DD5D6CCE04B5AC51D92E7E820B6FB826870DFBA437BBDA7F0E5850C02F72A8644DA8382" +
+                "237E8C1ABD50A4BAEE179C8C838EA4AC53D2223B3C57D7D463A8E1BBFFC43F3F3C44494850377A8668E156B2D23B6E0" +
+                "D8132632E3D79D68A391F619EF2E1E986A455F8F27092C66029C98D001A81FFE3E4B00991E7F0C0141D0635275544FC" +
+                "5BF70A40C12B7BC765F6209C9640A60B9E978AD8DEC551983F5773A72327DF1A6256BEB8DF50A03F89443123E1354A9" +
+                "EF7D8F8BF0659E1D6B77916B4AEEC79989AFDAA2F5B8983DE476C1A0FFBB2B647DE449E")
+                .toCharArray());
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForXML",
-                new BValue[]{new BXMLItem(payload)});
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha384",
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+    }
+
+    @Test(description = "Test RSA-512 siging")
+    public void testSignRsaSha512() throws DecoderException {
+        byte[] expectedSignature = Hex.decodeHex(("6995ba8d2382a8c4f0ed513033126b2305df419a8b105ee60483243229d2c496" +
+                "b7f670783c52068cd2b4b8c2392f2932c682f30057cb4d8d616ba3a142356b0394747b2a3642da4d23447bb997eacb086f" +
+                "173b4045ee8ee014e1e667e34522defb7a4ac1b5b3f175d40a409d947d562fcf7b2b2631d273751a0f8c658bd8c1d1d23a" +
+                "0dbe685b15e13abf45f998114577c85a6478d915a445645a6360944e4962c56bee79d2363931c77f8040c620692debc747" +
+                "4c1e62d9d4b0b39fa664b8c3a32155c7c1966ef3d55993ad8f7f3bf4d929cf047ab91344facefeba944b043e1e31496753" +
+                "9cb2e6e669ec3352073a8933a2a0cac6056b4997b3628132f7a7e553")
+                .toCharArray());
+
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha512",
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+    }
+
+    @Test(description = "Test RSA-MD5 siging")
+    public void testSignRsaMd5() throws DecoderException {
+        byte[] expectedSignature = Hex.decodeHex(("457050eca794baf2149f53631f373525fbc7b40de83e0af5b03473e7b726064b" +
+                "3eb6a8b7ce48218e4adaf2b598429236192a458ad5cef1ab2f456164f2646ba57a1ce6b858403504ddc49915bf8bf34558" +
+                "0366bd9f7d1d777572fcacd3aa935267af6cf5dc988668b8cea0f57cd0e286658f0ca7c060d7a68b6330bc590b6db59489" +
+                "aa676b1c539e5bb0116c64a963f8a03789b9fd7e689bac5576eea15d93d45be3547aef7c7dc26251dfa7bdf23b47c6a346" +
+                "ae3603c158cbd32ff9298df71f930cebdda8564199e948f1ac03173e9f9d425240c7f99857d5f469dd0b23c0248b4fa42e" +
+                "67145ec0e6e8abfc3f7f10122cc278b5469eb970034483839f290eec")
+                .toCharArray());
+
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaMd5",
+                new BValue[]{new BValueArray(payload),
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+    }
+
+    @Test(description = "Test RSA-SHA1 siging with an invalid private key")
+    public void testSignRsaSha1WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha1WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test(description = "Test RSA-SHA256 siging with an invalid private key")
+    public void testSignRsaSha256WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha256WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test(description = "Test RSA-SHA384 siging with an invalid private key")
+    public void testSignRsaSha384WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha384WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test(description = "Test RSA-SHA512 siging with an invalid private key")
+    public void testSignRsaSha512WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha512WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test(description = "Test RSA-MD5 siging with an invalid private key")
+    public void testSignRsaMd5WithInvalidKey() {
+        byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaMd5WithInvalidKey",
+                new BValue[]{new BValueArray(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
     }
 }

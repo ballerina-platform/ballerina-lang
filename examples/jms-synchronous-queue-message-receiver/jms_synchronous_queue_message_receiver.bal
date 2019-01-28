@@ -14,10 +14,7 @@ jms:Session jmsSession = new(jmsConnection, {
     });
 
 // This initializes a queue receiver on top of the created sessions.
-listener jms:QueueReceiver queueReceiver = new({
-        session: jmsSession,
-        queueName: "MyQueue"
-    });
+listener jms:QueueReceiver queueReceiver = new(jmsSession, queueName = "MyQueue");
 
 public function main() {
     jms:QueueReceiverCaller caller = queueReceiver.getCallerActions();

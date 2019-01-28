@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.compiler;
 
-import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
@@ -124,12 +123,7 @@ public class LSCompiler {
         CompilerContext context = prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                                         true, documentManager, phase);
 
-        // In order to capture the syntactic errors, need to go through the default error strategy
-        context.put(DefaultErrorStrategy.class, null);
         BLangPackage bLangPackage = null;
-        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-            ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).clearAll();
-        }
         boolean isProjectDir = (LSCompilerUtil.isBallerinaProject(sourceRoot, filePath.toUri().toString()));
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;

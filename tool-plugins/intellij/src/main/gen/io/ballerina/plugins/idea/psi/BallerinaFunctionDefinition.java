@@ -51,6 +51,9 @@ public interface BallerinaFunctionDefinition extends BallerinaNamedElement, Ball
   PsiElement getFunction();
 
   @Nullable
+  PsiElement getPrivate();
+
+  @Nullable
   PsiElement getPublic();
 
   @Nullable

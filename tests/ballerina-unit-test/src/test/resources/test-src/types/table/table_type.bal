@@ -38,6 +38,16 @@ type ResultSetTestAlias record {
     int DT2INT_TYPE;
 };
 
+type ResultClosed record {
+    int INT_TYPE;
+    int LONG_TYPE;
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+    boolean BOOLEAN_TYPE;
+    string STRING_TYPE;
+    !...;
+};
+
 type ResultObject record {
     byte[] BLOB_TYPE;
     string CLOB_TYPE;
@@ -648,8 +658,8 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
 
     time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
 
-    time:Timezone zoneValue = { zoneId: "UTC" };
-    time:Time timeStruct = new(51323000, zoneValue);
+    time:TimeZone zoneValue = { id: "UTC" };
+    time:Time timeStruct = { time: 51323000, zone: zoneValue };
 
     time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
     time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
@@ -1664,6 +1674,41 @@ function testJoinQueryWithCursorTable() returns error? {
     t2.close();
     testDB.stop();
     return e;
+}
+
+function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns (int, int, float, float, boolean,
+     string) {
+     h2:Client testDB = new({
+             path: "./target/tempdb/",
+             name: "TEST_DATA_TABLE_H2",
+             username: "SA",
+             password: "",
+             poolOptions: { maximumPoolSize: 1 }
+         });
+
+     int i = -1;
+     int l = -1;
+     float f = -1;
+     float d = -1;
+     boolean b = false;
+     string s = "";
+     var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
+                   boolean_type, string_type from DataTable WHERE row_id = 1", ResultClosed);
+     if (dtRet is table<ResultClosed>) {
+         while (dtRet.hasNext()) {
+             var rs = dtRet.getNext();
+             if (rs is ResultClosed) {
+                 i = rs.INT_TYPE;
+                 l = rs.LONG_TYPE;
+                 f = rs.FLOAT_TYPE;
+                 d = rs.DOUBLE_TYPE;
+                 b = rs.BOOLEAN_TYPE;
+                 s = rs.STRING_TYPE;
+             }
+         }
+     }
+     testDB.stop();
+     return (i, l, f, d, b, s);
 }
 
 function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {

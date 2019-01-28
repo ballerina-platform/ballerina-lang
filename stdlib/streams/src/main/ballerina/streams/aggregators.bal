@@ -34,28 +34,32 @@ public type Sum object {
     }
 
     public function process(anydata value, EventType eventType) returns anydata {
-        if (value is int) {
-            if (eventType == "CURRENT") {
-                self.iSum += value;
-            } else if (eventType == "EXPIRED"){
-                self.iSum -= value;
-            } else if (eventType == "RESET"){
-                self.iSum = 0;
+
+            if (value is int) {
+                if (eventType == "CURRENT") {
+                    self.iSum += value;
+                } else if (eventType == "EXPIRED"){
+                    self.iSum -= value;
+                } else if (eventType == "RESET"){
+                    self.iSum = 0;
+                }
+                return self.iSum;
+            } else if (value is float) {
+                if (eventType == "CURRENT") {
+                    self.fSum += value;
+                } else if (eventType == "EXPIRED"){
+                    self.fSum -= value;
+                } else if (eventType == "RESET"){
+                    self.fSum = 0.0;
+                }
+                return self.fSum;
+            } else if (value is ()) {
+                //do nothing
+            } else {
+                error e = error("Unsupported attribute type found");
+                panic e;
             }
-            return self.iSum;
-        } else if (value is float) {
-            if (eventType == "CURRENT") {
-                self.fSum += value;
-            } else if (eventType == "EXPIRED"){
-                self.fSum -= value;
-            } else if (eventType == "RESET"){
-                self.fSum = 0.0;
-            }
-            return self.fSum;
-        } else {
-            error e = error("Unsupported attribute type found");
-            panic e;
-        }
+
     }
 
     public function copy() returns Aggregator {
@@ -101,6 +105,8 @@ public type Average object {
                 self.sum = 0.0;
                 self.count = 0;
             }
+        } else if (value is ()) {
+            //do nothing
         } else {
             error e = error("Unsupported attribute type found");
             panic e;
@@ -158,7 +164,7 @@ public type DistinctCount object {
     }
 
     public function process(anydata value, EventType eventType) returns anydata {
-        string key = crypto:crc32(value);
+        string key = crypto:crc32b(value);
         if (eventType == "CURRENT") {
             int preVal = self.distinctValues[key] ?: 0;
             preVal += 1;
@@ -237,7 +243,7 @@ public type Max object {
                 self.iMax = ();
             }
             return self.iMax;
-        } else if (value is float){
+        } else if (value is float) {
             if (eventType == "CURRENT") {
                 self.fMaxQueue.resetToRear();
                 while (self.fMaxQueue.hasPrevious()) {
@@ -273,6 +279,8 @@ public type Max object {
                 self.fMax = ();
             }
             return self.fMax;
+        } else if (value is ()) {
+            //do nothing
         } else {
             error e = error("Unsupported attribute type found");
             panic e;
@@ -373,6 +381,8 @@ public type Min object {
                 self.fMin = ();
             }
             return self.fMin;
+        } else if (value is ()) {
+            //do nothing
         } else {
             error e = error("Unsupported attribute type found");
             panic e;
@@ -409,6 +419,8 @@ public type StdDev object {
             fVal = <float>value;
         } else if (value is float) {
             fVal = value;
+        } else if (value is ()) {
+            fVal = 0.0;
         } else {
             error e = error("Unsupported attribute type found");
             panic e;
@@ -500,6 +512,8 @@ public type MaxForever object {
                 }
             }
             return self.fMax;
+        } else if (value is ()) {
+            //do nothing
         } else {
             error e = error("Unsupported attribute type found");
             panic e;
@@ -549,6 +563,8 @@ public type MinForever object {
 
             }
             return self.fMin;
+        } else if (value is ()) {
+            //do nothing
         } else {
             error e = error("Unsupported attribute type found");
             panic e;

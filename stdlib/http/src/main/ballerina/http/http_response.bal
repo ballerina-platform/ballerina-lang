@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/time;
 
 # Represents an HTTP response.
@@ -309,13 +310,13 @@ public function Response.getBodyParts() returns mime:Entity[]|error {
 }
 
 public function Response.setETag(json|xml|string|byte[] payload) {
-    string etag = crypto:crc32(payload);
+    string etag = crypto:crc32b(payload);
     self.setHeader(ETAG, etag);
 }
 
 public function Response.setLastModified() {
     time:Time currentT = time:currentTime();
-    string lastModified = currentT.format(time:TIME_FORMAT_RFC_1123);
+    string lastModified = time:format(currentT, time:TIME_FORMAT_RFC_1123);
     self.setHeader(LAST_MODIFIED, lastModified);
 }
 
