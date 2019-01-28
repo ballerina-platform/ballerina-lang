@@ -214,10 +214,9 @@ public class TransactionResourceManager {
      *
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
-     * @param isRetryAttempt     whether this is a retry attempt
      * @return the status of the abort operation
      */
-    public boolean notifyAbort(String transactionId, String transactionBlockId, boolean isRetryAttempt) {
+    public boolean notifyAbort(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -305,7 +304,7 @@ public class TransactionResourceManager {
 
     void rollbackTransaction(String transactionId, String transactionBlockId) {
         endXATransaction(transactionId, transactionBlockId);
-        notifyAbort(transactionId, transactionBlockId, true);
+        notifyAbort(transactionId, transactionBlockId);
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId, String gTransactionId) {

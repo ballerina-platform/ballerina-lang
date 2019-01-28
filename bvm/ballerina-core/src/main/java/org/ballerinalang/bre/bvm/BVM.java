@@ -3473,7 +3473,7 @@ public class BVM {
         TransactionUtils.notifyTransactionAbort(strand, transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId);
         TransactionResourceManager.getInstance()
-                .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId, false);
+                .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
     }
 
     private static void transactionFailedEnd(Strand strand, String transactionBlockId,
