@@ -28,7 +28,12 @@ public class BXMLAttributesType extends BType implements NoType {
     public BXMLAttributesType(int tag) {
         super(tag, null);
     }
-    
+
+    @Override
+    public boolean hasImplicitInitialValue() {
+        return false;
+    }
+
     @Override
     public TypeKind getKind() {
         return TypeKind.XML_ATTRIBUTES;

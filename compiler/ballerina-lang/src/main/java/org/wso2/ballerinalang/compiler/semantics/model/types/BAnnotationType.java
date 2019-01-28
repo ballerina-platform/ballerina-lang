@@ -41,4 +41,9 @@ public class BAnnotationType extends BType {
     public String toString() {
         return this.tsymbol.toString();
     }
+
+    @Override
+    public boolean hasImplicitInitialValue() {
+        return false;
+    }
 }
