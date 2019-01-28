@@ -6,7 +6,6 @@ import ballerina/test;
 function testFunc() returns error? {
     // Invoking the main function
     http:Client httpEndpoint = new("http://localhost:9090");
-    // Check whether the server is started
     json payload = { name: "sanFrancisco" };
     json payload2 = { name: "london" };
 
