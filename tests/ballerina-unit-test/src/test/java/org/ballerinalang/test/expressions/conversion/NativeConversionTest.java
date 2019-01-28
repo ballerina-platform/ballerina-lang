@@ -243,9 +243,9 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> personStruct = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", parent:null, age:25, " 
+        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", parent:(), age:25, "
                 + "address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, info:{\"status\":\"single\"}, a:\"any " 
-                + "value\", marks:[87, 94, 72], score:5.67, alive:true, children:null}");
+                + "value\", marks:[87, 94, 72], score:5.67, alive:true, children:()}");
     }
 
     @Test(description = "Test converting a map with missing field to a struct")
@@ -254,7 +254,7 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> personStruct = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", parent:null, age:25, a:\"any value\", " 
+        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", parent:(), age:25, a:\"any value\", "
                 + "address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, " 
                 + "marks:[87, 94, 72], score:5.67, alive:true}");
     }
@@ -287,7 +287,7 @@ public class NativeConversionTest {
     public void testJsonToStructWithMissingOptionalFields() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStructWithMissingOptionalFields");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\", parent:null, age:25, " 
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\", parent:(), age:25, "
                 + "address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, info:{\"status\":\"single\"}, a:\"any " 
                 + "value\", marks:[87, 94, 72], score:5.67, alive:true}");
     }

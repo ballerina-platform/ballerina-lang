@@ -136,7 +136,7 @@ public class ClosedRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "getStruct");
         Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"\", adrs:{}, age:25, " +
                 "family:{spouse:\"\", noOfChildren:0, children:[]}, parent:{name:\"bbb\", lname:\"ccc\", " +
-                "adrs:{}, age:50, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:null}}");
+                "adrs:{}, age:50, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:()}}");
     }
 
     @Test
@@ -144,11 +144,11 @@ public class ClosedRecordTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/sealed_record_literals.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
         Assert.assertEquals(returns[0].stringValue(), "{dptName:\"\", employees:[], manager:" +
-                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}}");
+                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:()}}");
 
         returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
         Assert.assertEquals(returns[0].stringValue(),
-                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}");
+                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:()}");
     }
 
     @Test
@@ -174,7 +174,7 @@ public class ClosedRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructWithRecordKeyword");
 
         Assert.assertEquals(returns[0].stringValue(), "{name:\"John\", lname:\"Doe\", address:{\"country\":\"USA\", " +
-                "\"state\":\"CA\"}, age:25, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:null, " +
+                "\"state\":\"CA\"}, age:25, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:(), " +
                 "designation:\"Software Engineer\"}");
     }
 
