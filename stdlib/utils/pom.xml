@@ -54,9 +54,9 @@
                         <java.util.logging.manager>org.ballerinalang.logging.BLogManager</java.util.logging.manager>
                         <ballerina.home>${project.build.directory}</ballerina.home>
                     </systemPropertyVariables>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
+                    <!--<suiteXmlFiles>-->
+                        <!--<suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>-->
+                    <!--</suiteXmlFiles>-->
                 </configuration>
             </plugin>
             <plugin>
