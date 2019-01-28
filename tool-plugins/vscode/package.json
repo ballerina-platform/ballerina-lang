@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "0.990.3-SNAPSHOT",
+    "version": "0.990.3",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -248,6 +248,7 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
+        "update-version": "node ./scripts/update-version.js",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package"
