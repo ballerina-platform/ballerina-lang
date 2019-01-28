@@ -81,7 +81,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         SSLConfig sslConfig = listenerConfig.getListenerSSLConfig();
         serverConnectorBootstrap.addSecurity(sslConfig);
         if (sslConfig != null) {
-            setSslContext(serverConnectorBootstrap, sslConfig);
+            setSslContext(serverConnectorBootstrap, sslConfig, listenerConfig);
         }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
@@ -107,7 +107,8 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
     }
 
-    private void setSslContext(ServerConnectorBootstrap serverConnectorBootstrap, SSLConfig sslConfig) {
+    private void setSslContext(ServerConnectorBootstrap serverConnectorBootstrap, SSLConfig sslConfig,
+            ListenerConfiguration listenerConfig) {
         try {
             SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
             serverConnectorBootstrap.addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());
@@ -117,8 +118,17 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             serverConnectorBootstrap.addSslHandlerFactory(sslHandlerFactory);
             if (sslConfig.getKeyStore() != null) {
                 serverConnectorBootstrap.addKeystoreSslContext(sslHandlerFactory.createSSLContextFromKeystores());
+                if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
+                    serverConnectorBootstrap
+                            .addHttp2SslContext(sslHandlerFactory.createHttp2TLSContextForServer(sslConfig));
+                }
             } else {
-                serverConnectorBootstrap.addCertAndKeySslContext(sslHandlerFactory.createHttpTLSContextForServer());
+                if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
+                    serverConnectorBootstrap
+                            .addHttp2SslContext(sslHandlerFactory.createHttp2TLSContextForServer(sslConfig));
+                } else {
+                    serverConnectorBootstrap.addCertAndKeySslContext(sslHandlerFactory.createHttpTLSContextForServer());
+                }
             }
         } catch (SSLException e) {
             throw new RuntimeException("Failed to create ssl context from given certs and key", e);

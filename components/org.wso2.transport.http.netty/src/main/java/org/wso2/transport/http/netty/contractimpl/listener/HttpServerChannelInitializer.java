@@ -85,6 +85,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLConfig sslConfig;
     private SSLHandlerFactory sslHandlerFactory;
     private SSLContext keystoreSslContext;
+    private SslContext keystoreHttp2SslContext;
     private SslContext certAndKeySslContext;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
@@ -107,18 +108,18 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         if (http2Enabled) {
             if (sslHandlerFactory != null) {
-                SslContext sslCtx = sslHandlerFactory.createHttp2TLSContextForServer(ocspStaplingEnabled);
+                //SslContext sslCtx = sslHandlerFactory.createHttp2TLSContextForServer(ocspStaplingEnabled);
                 if (ocspStaplingEnabled) {
                     OCSPResp response = getOcspResponse();
 
-                    ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) sslCtx;
+                    ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) keystoreHttp2SslContext;
                     SslHandler sslHandler = context.newHandler(ch.alloc());
 
                     ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
                     engine.setOcspResponse(response.getEncoded());
                     ch.pipeline().addLast(sslHandler, new Http2PipelineConfiguratorForServer(this));
                 } else {
-                    serverPipeline.addLast(sslCtx.newHandler(ch.alloc()),
+                    serverPipeline.addLast(keystoreHttp2SslContext.newHandler(ch.alloc()),
                                            new Http2PipelineConfiguratorForServer(this));
                 }
             } else {
@@ -300,6 +301,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     void setKeystoreSslContext(SSLContext sslContext) {
         this.keystoreSslContext = sslContext;
+    }
+
+    void setHttp2SslContext(SslContext sslContext) {
+        this.keystoreHttp2SslContext = sslContext;
     }
 
     void setCertandKeySslContext(SslContext sslContext) {

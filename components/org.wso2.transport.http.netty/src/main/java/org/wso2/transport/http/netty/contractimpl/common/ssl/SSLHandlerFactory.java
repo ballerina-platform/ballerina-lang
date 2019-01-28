@@ -221,11 +221,11 @@ public class SSLHandlerFactory {
      * This method will provide netty ssl context which supports HTTP2 over TLS using.
      * Application Layer Protocol Negotiation (ALPN)
      *
-     * @param enableOcsp whether ocsp is enabled or not (true/false)
+     * @param sslConfig whether ocsp is enabled or not (true/false)
      * @return instance of {@link SslContext}
      * @throws SSLException if any error occurred during building SSL context.
      */
-    public SslContext createHttp2TLSContextForServer(boolean enableOcsp) throws SSLException {
+    public SslContext createHttp2TLSContextForServer(SSLConfig sslConfig) throws SSLException {
 
         // If listener configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
@@ -241,7 +241,7 @@ public class SSLHandlerFactory {
         setCiphers(sslContextBuilder, ciphers);
         setSslProtocol(sslContextBuilder);
         setAlpnConfigs(sslContextBuilder);
-        setOcspStapling(sslContextBuilder, enableOcsp);
+        setOcspStapling(sslContextBuilder, sslConfig.isOcspStaplingEnabled());
 
         return sslContextBuilder.build();
     }

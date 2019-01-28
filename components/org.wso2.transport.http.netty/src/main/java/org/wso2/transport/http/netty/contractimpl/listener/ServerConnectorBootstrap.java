@@ -132,6 +132,14 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setKeystoreSslContext(sslContext);
     }
 
+    public void addHttp2SslContext(SslContext sslContext) {
+        httpServerChannelInitializer.setHttp2SslContext(sslContext);
+    }
+
+    public void addCertAndKeyHttp2SslContext(SslContext sslContext) {
+        httpServerChannelInitializer.setHttp2SslContext(sslContext);
+    }
+
     public void addCertAndKeySslContext(SslContext sslContext) {
         httpServerChannelInitializer.setCertandKeySslContext(sslContext);
     }
