@@ -20,12 +20,11 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 /**
  * All the expressions should extend {@code AbstractExpression}
  * <p>
- * Provides the common behaviour of expressions.
+ * Provides the common behavior of expressions.
  *
  * @since 0.8.0
  */
@@ -33,13 +32,6 @@ public abstract class AbstractExpression implements Expression {
     protected NodeLocation location;
     protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected BType type;
-
-    protected boolean multipleReturnsAvailable;
-    protected int offset;
-
-    // Non-Blocking Implementation related fields.
-    protected int tempOffset;
-    private boolean isTempOffsetSet = false;
 
     public AbstractExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.location = location;
@@ -54,18 +46,6 @@ public abstract class AbstractExpression implements Expression {
         this.type = type;
     }
 
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public boolean isMultiReturnExpr() {
-        return multipleReturnsAvailable;
-    }
-
-    public void setMultiReturnAvailable(boolean multiReturnsAvailable) {
-        this.multipleReturnsAvailable = multiReturnsAvailable;
-    }
-
     @Override
     public NodeLocation getNodeLocation() {
         return location;
@@ -78,25 +58,5 @@ public abstract class AbstractExpression implements Expression {
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
         return whiteSpaceDescriptor;
-    }
-
-    @Override
-    public int getTempOffset() {
-        return tempOffset;
-    }
-
-    @Override
-    public void setTempOffset(int index) {
-        if (isTempOffsetSet && index != tempOffset) {
-            throw new FlowBuilderException("Internal Error. Attempt to Overwrite tempOffset. current :" + tempOffset +
-                    ", new :" + index);
-        }
-        isTempOffsetSet = true;
-        this.tempOffset = index;
-    }
-
-    @Override
-    public boolean hasTemporaryValues() {
-        return isTempOffsetSet;
     }
 }
