@@ -1806,9 +1806,9 @@ public type HoppingWindow object {
     public StreamEvent? resetEvent;
     public task:Timer? timer;
     public boolean isStart;
-    public function (StreamEvent[])? nextProcessPointer;
+    public function (StreamEvent?[])? nextProcessPointer;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
@@ -1847,13 +1847,12 @@ public type HoppingWindow object {
     public function invokeProcess() returns error? {
         map<anydata> data = {};
         StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
+        StreamEvent?[] timerEventWrapper = [timerEvent];
         self.process(timerEventWrapper);
         return ();
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList outputStreamEvents = new();
         if (self.isStart) {
             self.timer = new
@@ -1903,9 +1902,9 @@ public type HoppingWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (StreamEvent[])) {
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
             if (outputStreamEvents.getSize() != 0) {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 outputStreamEvents.resetToFront();
                 while (outputStreamEvents.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(outputStreamEvents.next());
@@ -1947,7 +1946,7 @@ public type HoppingWindow object {
     }
 };
 
-public function hopping(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function hopping(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     HoppingWindow hoppingWindow = new(nextProcessPointer, windowParameters);
     return hoppingWindow;

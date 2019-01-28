@@ -81,13 +81,11 @@ public type MergeSort object {
 
         int k = iBegin;
         while (k < iEnd) {
-            StreamEvent a_i = <StreamEvent>a[i];
-            StreamEvent a_j = <StreamEvent>a[j];
-            if (i < iMiddle && (j >= iEnd || self.sortFunc(a_i, a_j, 0) < 0)) {
-                b[k] = a_i;
+            if (i < iMiddle && (j >= iEnd || self.sortFunc(<StreamEvent>a[i], <StreamEvent>a[j], 0) < 0)) {
+                b[k] = <StreamEvent>a[i];
                 i = i + 1;
             } else {
-                b[k] = a_j;
+                b[k] = <StreamEvent>a[j];
                 j = j + 1;
             }
             k += 1;
