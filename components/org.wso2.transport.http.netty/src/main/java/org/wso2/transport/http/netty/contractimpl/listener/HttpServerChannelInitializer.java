@@ -108,7 +108,6 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         if (http2Enabled) {
             if (sslHandlerFactory != null) {
-                //SslContext sslCtx = sslHandlerFactory.createHttp2TLSContextForServer(ocspStaplingEnabled);
                 if (ocspStaplingEnabled) {
                     OCSPResp response = getOcspResponse();
 
