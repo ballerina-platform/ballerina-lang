@@ -5,7 +5,7 @@
 # + maxActiveStreamsPerConnection - Maximum active streams per connection. This only applies to HTTP/2.
 public type PoolConfiguration record {
     int maxActiveConnections = config:getAsInt("b7a.http.pool.maxActiveConnections", default = -1);
-    int waitTimeinMillis = config:getAsInt("b7a.http.pool.waitTimeinMillis", default = 10000);
+    int waitTimeinMillis = config:getAsInt("b7a.http.pool.waitTimeinMillis", default = 60000);
     int maxActiveStreamsPerConnection = config:getAsInt("b7a.http.pool.maxActiveStreamsPerConnection", default = 50);
 };
 
