@@ -20,10 +20,10 @@
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import ReactMarkdown from "react-markdown";
-import { Form, Icon, Input } from "semantic-ui-react";
+import { Form, Input } from "semantic-ui-react";
 
 export interface InlineEditProps {
-    text?: string | Swagger.LicenseObject | Swagger.ContactObject | URL ;
+    text?: string | Swagger.LicenseObject | Swagger.ContactObject | URL;
     isMarkdown?: boolean;
     placeholderText?: string;
     isParagraph?: boolean;
@@ -103,7 +103,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                         <div className="contact-link">
                             <span onClick={this.enableEditing}>{text.name} - Website</span>
                             <a className="activate-edit" href={text.url} target="_blank">
-                                <Icon name="linkify" />
+                                <i className="fw fw-uri"></i>
                             </a>
                         </div>
                     }
@@ -128,7 +128,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                 <div className="inline-editor license">
                     <span onClick={this.enableEditing}>{text.name}</span>
                     <a className="activate-edit" href={text.url} target="_blank">
-                        <Icon name="linkify" />
+                        <i className="fw fw-uri"></i>
                     </a>
                 </div>
             );
@@ -151,7 +151,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                 <div className="inline-editor url" onClick={this.enableEditing}>
                     <span onClick={this.enableEditing}>{text.urlText}</span>
                     <a className="activate-edit" href={text.link} target="_blank">
-                        <Icon name="linkify" />
+                        <i className="fw fw-uri"></i>
                     </a>
                 </div>
             );
@@ -207,7 +207,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                                 value={text}
                                 onBlur={this.cancelEditing}
                                 onChange={this.onValueChange}
-                                onClick={(e: any) => {e.stopPropagation(); }}
+                                onClick={(e: any) => { e.stopPropagation(); }}
                                 onKeyDown={this.onKeyDown}
                             />
                         </Form>
@@ -308,10 +308,14 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                                 onChange={this.onValueChange}
                             />
                         }
-                        <Form.Button inverted color="black" icon="check" size="mini"
-                            onClick={this.onDoneEditing}/>
-                        <Form.Button inverted color="black" icon="close" size="mini"
-                            onClick={this.cancelEditing} />
+                        <Form.Button size="mini"
+                            onClick={this.onDoneEditing} >
+                            <i className="fw fw-check"></i>
+                            </Form.Button>
+                        <Form.Button size="mini"
+                            onClick={this.cancelEditing} >
+                            <i className="fw fw-close"></i>
+                            </Form.Button>
                     </Form.Group>
                 </Form>
             </div>
