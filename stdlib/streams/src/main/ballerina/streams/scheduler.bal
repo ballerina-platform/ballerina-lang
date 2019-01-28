@@ -80,7 +80,7 @@ public type Scheduler object {
 
         if (first != ()) {
             self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                function (error e) {io:println("Error occured", e.reason());}, <int>first - currentTime);
+                function (error e) {io:println("Error occured: ", e.reason());}, <int>first - currentTime);
             _ = self.timer.start();
         } else {
             lock {
@@ -88,7 +88,7 @@ public type Scheduler object {
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
                     self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                        function (error e) {io:println("Error occured", e.reason());}, 0);
+                        function (error e) {io:println("Error occured: ", e.reason());}, 0);
                     _ = self.timer.start();
                 }
             }
