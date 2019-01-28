@@ -541,8 +541,20 @@ public class ConstantTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
+    public void updateNestedConstantMapValue2() {
+        BRunUtil.invoke(compileResult, "updateNestedConstantMapValue2");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
     public void updateConstantMapValueInArray() {
         BRunUtil.invoke(compileResult, "updateConstantMapValueInArray");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
+    public void updateConstantMapValueInArray2() {
+        BRunUtil.invoke(compileResult, "updateConstantMapValueInArray2");
     }
 
     @Test
@@ -551,5 +563,17 @@ public class ConstantTest {
         BValue[] returns = BRunUtil.invoke(compileResult, functionName);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "m5v");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
+    public void updateReturnedConstantMap() {
+        BRunUtil.invoke(compileResult, "updateReturnedConstantMap");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
+    public void updateReturnedConstantMap2() {
+        BRunUtil.invoke(compileResult, "updateReturnedConstantMap2");
     }
 }

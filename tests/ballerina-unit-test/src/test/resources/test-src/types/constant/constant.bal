@@ -563,6 +563,10 @@ function updateNestedConstantMapValue() {
     m4.m4k.m5k = "m5nv";
 }
 
+function updateNestedConstantMapValue2() {
+    m4.m4k.newKey = "newValue";
+}
+
 // -----------------------------------------------------------
 
 map<string>[] a1 = [m5];
@@ -571,6 +575,26 @@ function updateConstantMapValueInArray() {
     a1[0].m5k = "m5nv";
 }
 
+function updateConstantMapValueInArray2() {
+    a1[0].newKey = "newValue";
+}
+
 function getConstantMapValueInArray() returns string {
     return a1[0].m5k;
+}
+
+// -----------------------------------------------------------
+
+function updateReturnedConstantMap() {
+    map<string> m = getMap();
+    m.m5k = "m5kn";
+}
+
+function updateReturnedConstantMap2() {
+    map<string> m = getMap();
+    m.newKey = "newValue";
+}
+
+function getMap() returns map<string> {
+    return m5;
 }
