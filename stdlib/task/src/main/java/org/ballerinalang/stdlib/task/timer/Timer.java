@@ -29,6 +29,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_SEPARATOR;
+
 /**
  * Represents a timer.
  */
@@ -69,14 +71,16 @@ public class Timer {
      * @param ctx               The ballerina context.
      * @param delay             The initial delay.
      * @param interval          The interval between two task executions.
+     * @param serviceId         Name of the service attached to the listener
      * @throws SchedulingException if cannot create the scheduler
      */
-    public Timer(Context ctx, long delay, long interval) throws SchedulingException {
+    public Timer(Context ctx, long delay, long interval, String serviceId) throws SchedulingException {
 
         if (delay < 0 || interval < 0) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
         }
-
+        StringBuilder taskId = new StringBuilder(id).append(FIELD_SEPARATOR).append(serviceId);
+        this.id = taskId.toString();
         TaskRegistry.getInstance().addTimer(this);
     }
 

@@ -76,7 +76,7 @@ public class Register extends BlockingNativeCallableUnit {
                 delay = ((BInteger) configurations.get(FIELD_NAME_DELAY)).intValue();
             }
             try {
-                Timer timer = new Timer(context, delay, interval);
+                Timer timer = new Timer(context, delay, interval, service.getName());
             } catch (SchedulingException e) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
             }
