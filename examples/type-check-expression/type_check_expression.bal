@@ -24,7 +24,7 @@ public function main() {
     if (x is Student) {
         io:println("Alex is a student");
     } else {
-        io:println("Alex is a student");
+        io:println("Alex is not a student");
     }
 
     // Type of `x` is `Student`. But it is structurally equivalent to `Person`. 
@@ -49,7 +49,7 @@ type Person record {
 
 type Student record {
     string name;
-    int age;
+    int age = 0;
 };
 
 type Vehicle record {
