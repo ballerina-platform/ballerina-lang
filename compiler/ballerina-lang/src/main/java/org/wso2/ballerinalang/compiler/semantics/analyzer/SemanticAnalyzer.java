@@ -1766,7 +1766,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
                 return;
             }
-            constant.symbol.literalValueType = typeChecker.checkExpr(expression, env, constant.typeNode.type);
+            constant.symbol.type = constant.symbol.literalValueType =
+                    typeChecker.checkExpr(expression, env, constant.typeNode.type);
             constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
         } else {
             if (constant.typeNode == null) {
