@@ -57,10 +57,27 @@ public class Timer {
         final Runnable schedulerFunc = () -> {
             callTriggerFunction(ctx, onTriggerFunction, onErrorFunction);
         };
-        
+
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
         TaskRegistry.getInstance().addTimer(this);
         //BLangScheduler.workerCountUp();
+    }
+
+    /**
+     * Triggers the timer.
+     *
+     * @param ctx               The ballerina context.
+     * @param delay             The initial delay.
+     * @param interval          The interval between two task executions.
+     * @throws SchedulingException if cannot create the scheduler
+     */
+    public Timer(Context ctx, long delay, long interval) throws SchedulingException {
+
+        if (delay < 0 || interval < 0) {
+            throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
+        }
+
+        TaskRegistry.getInstance().addTimer(this);
     }
 
     /**

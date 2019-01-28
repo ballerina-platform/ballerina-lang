@@ -22,8 +22,10 @@ under the License.
 <suite name="ballerina-test-suite">
     <!-- Ballerina task Test Cases. -->
     <test name="ballerina-task-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.stdlib.task"/>
-        </packages>
+        <classes>
+            <!--<class name="org.ballerinalang.stdlib.task.AppointmentTest" />
+            <class name="org.ballerinalang.stdlib.task.TimerTest" />-->
+            <class name="org.ballerinalang.stdlib.task.ListenerTest" />
+        </classes>
     </test>
 </suite>
