@@ -79,7 +79,7 @@
 @light-api-designer-form-background-color: @white;
 @dark-api-designer-form-background-color: #484848;
 
-@light-api-designer-form-button-background-color: #E0E1E2;
+@light-api-designer-form-button-background-color: #888;
 @dark-api-designer-form-button-background-color: #3e3e3e;
 @light-api-designer-form-button-hover-background-color: darken(@light-api-designer-form-button-background-color, 3%);
 @dark-api-designer-form-button-hover-background-color: darken(@dark-api-designer-form-button-background-color, 3%);

@@ -20,7 +20,7 @@ import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
 /**
  * Initializes the global pool.
  *
- * @since 0.990.3
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",

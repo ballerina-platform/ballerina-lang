@@ -263,6 +263,27 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-encoding -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-encoding</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-encoding</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-encoding</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
             <!-- ballerina-h2 -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1683,6 +1704,7 @@
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
+                <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
@@ -1768,6 +1790,7 @@
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
+                <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
@@ -1849,6 +1872,7 @@
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
+                <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
@@ -2266,7 +2290,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.255-SNAPSHOT</transport.http.version>
+        <transport.http.version>6.0.259-SNAPSHOT</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>

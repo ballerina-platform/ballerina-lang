@@ -60,6 +60,7 @@ public class HttpConstants {
     public static final String TO = "TO";
     public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
     public static final String HTTP_VERSION = "HTTP_VERSION";
+    public static final String MUTUAL_SSL_RESULT = "MUTUAL_SSL_HANDSHAKE_RESULT";
     public static final String LISTENER_PORT = "LISTENER_PORT";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
@@ -193,6 +194,7 @@ public class HttpConstants {
     public static final String TRANSPORT_PUSH_PROMISE = "transport_push_promise";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String HTTP_SESSION = "http_session";
+    public static final String MUTUAL_SSL_HANDSHAKE_RECORD = "MutualSslHandshake";
 
     public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
     public static final String CIPHERS = "ciphers";
@@ -224,6 +226,8 @@ public class HttpConstants {
     public static final String REQUEST_CACHE_CONTROL_FIELD = "cacheControl";
     public static final String REQUEST_REUSE_STATUS_FIELD = "dirtyRequest";
     public static final String REQUEST_NO_ENTITY_BODY_FIELD = "noEntityBody";
+    public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD = "mutualSslHandshake";
+    public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS = "status";
 
     //Response struct field names
     public static final String RESPONSE_STATUS_CODE_FIELD = "statusCode";

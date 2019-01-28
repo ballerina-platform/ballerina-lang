@@ -24,9 +24,6 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaIntegerLiteral extends BallerinaCompositeElement {
 
   @Nullable
-  PsiElement getBinaryIntegerLiteral();
-
-  @Nullable
   PsiElement getDecimalIntegerLiteral();
 
   @Nullable

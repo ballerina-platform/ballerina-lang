@@ -37,7 +37,7 @@ import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 /**
  * Test connection pool configurations.
  *
- * @since 0.990.3
+ * @since 0.995.0
  */
 public class ConnectionPoolTest {
     private CompileResult compileResult;

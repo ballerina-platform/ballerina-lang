@@ -40,7 +40,7 @@ function updateWebView(ast: BallerinaAST, docUri: Uri): void {
 	}
 }
 
-function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): void {
+function showDocs(context: ExtensionContext, langClient: ExtendedLangClient, nodeName: string): void {
 	const didChangeDisposable = workspace.onDidChangeTextDocument(
 		_.debounce((e: TextDocumentChangeEvent) => {
 			if (activeEditor && (e.document === activeEditor.document) &&
@@ -73,6 +73,7 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): vo
 
 	if (previewPanel) {
 		previewPanel.reveal(ViewColumn.Two, true);
+		scrollToTitle(previewPanel, nodeName);
 		return;
 	}
 	// Create and show a new webview
@@ -106,6 +107,9 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): vo
 		.then((resp) => {
 			if (resp.ast) {
 				updateWebView(resp.ast, editor.document.uri);
+				if (previewPanel) {
+					scrollToTitle(previewPanel, nodeName);
+				}
 			}
 		});
 	});
@@ -120,7 +124,7 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): vo
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 	let context = <ExtensionContext>ballerinaExtInstance.context;
 	let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-	const docsRenderDisposable = commands.registerCommand('ballerina.showDocs', () => {
+	const docsRenderDisposable = commands.registerCommand('ballerina.showDocs', nodeNameArg => {
 		return ballerinaExtInstance.onReady()
 			.then(() => {
 				const { experimental } = langClient.initializeResult!.capabilities;
@@ -130,7 +134,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 					ballerinaExtInstance.showMessageServerMissingCapability();
 					return {};
 				}
-				showDocs(context, langClient);
+				showDocs(context, langClient, (nodeNameArg) ? nodeNameArg.argumentV : "");
 			})
 			.catch((e) => {
 				if (!ballerinaExtInstance.isValidBallerinaHome()) {
@@ -142,4 +146,13 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	});
 
 	context.subscriptions.push(docsRenderDisposable);
+}
+
+function scrollToTitle(previewPanel:WebviewPanel, anchorId: string){
+	if (previewPanel && anchorId) {
+		previewPanel.webview.postMessage({
+			command: 'scroll',
+			anchor: anchorId
+		});
+	}
 }

@@ -32,6 +32,7 @@ function testBidiStreamingService() {
 
     int waitCount = 0;
     while(!received) {
+        io:println(responseMsg);
         runtime:sleep(1000);
         if (waitCount > 10) {
             break;
