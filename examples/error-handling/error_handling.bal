@@ -5,7 +5,7 @@ type AccountNotFoundErrorData record {
     int accountID;
 };
 
-// User-defined `error` types can be introduced based on the `error` basic type.
+// User-defined `error` types can be introduced based on the `error` type.
 // The `reason` type descriptor (a subtype of `string`), and optionally a `detail`
 // type descriptor (a subtype of `record {}` or `map<anydata>`) need to be specified.
 type AccountNotFoundError error<string, AccountNotFoundErrorData>;
