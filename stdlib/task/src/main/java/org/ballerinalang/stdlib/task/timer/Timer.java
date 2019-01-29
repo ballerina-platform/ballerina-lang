@@ -19,24 +19,29 @@
 package org.ballerinalang.stdlib.task.timer;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.TaskExecutor;
-import org.ballerinalang.stdlib.task.TaskIdGenerator;
 import org.ballerinalang.stdlib.task.TaskRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_SEPARATOR;
+import static org.ballerinalang.stdlib.task.TaskConstants.RESOURCE_ON_TRIGGER;
+import static org.ballerinalang.stdlib.task.TaskIdGenerator.generate;
 
 /**
  * Represents a timer.
  */
 public class Timer {
-    private String id = TaskIdGenerator.generate();
+    private String id = generate();
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private ArrayList<Service> serviceList = new ArrayList<>();
+    private long interval, delay;
+
 
     /**
      * Triggers the timer.
@@ -46,7 +51,7 @@ public class Timer {
      * @param interval          The interval between two task executions.
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
-     * @throws SchedulingException if cannot create the scheduler
+     * @throws SchedulingException if cannot create the scheduler.
      */
     public Timer(Context ctx, long delay, long interval,
                  FunctionInfo onTriggerFunction,
@@ -66,21 +71,24 @@ public class Timer {
     }
 
     /**
-     * Triggers the timer.
+     * Creates a Timer object.
      *
-     * @param ctx               The ballerina context.
-     * @param delay             The initial delay.
-     * @param interval          The interval between two task executions.
-     * @param serviceId         Name of the service attached to the listener
-     * @throws SchedulingException if cannot create the scheduler
+     * @param context               The ballerina context.
+     * @param delay                 The initial delay.
+     * @param interval              The interval between two task executions.
+     * @param service               Service attached to the listener.
+     * @throws SchedulingException if cannot create the scheduler.
      */
-    public Timer(Context ctx, long delay, long interval, String serviceId) throws SchedulingException {
+    public Timer(Context context, long delay, long interval, Service service) throws SchedulingException {
 
         if (delay < 0 || interval < 0) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
         }
-        StringBuilder taskId = new StringBuilder(id).append(FIELD_SEPARATOR).append(serviceId);
-        this.id = taskId.toString();
+
+        this.interval = interval;
+        this.delay = delay;
+        this.serviceList.add(service);
+
         TaskRegistry.getInstance().addTimer(this);
     }
 
@@ -96,6 +104,18 @@ public class Timer {
         TaskExecutor.execute(parentCtx, onTriggerFunction, onErrorFunction);
     }
 
+    /**
+     * Calls the onTrigger and onError functions.
+     *
+     * @param parentCtx         The ballerina context.
+     * @param onTriggerFunction The main function which will be triggered by the task.
+     * @param onErrorFunction   The function which will be triggered in the error situation.
+     */
+    private static void callTriggerFunction(Context parentCtx, FunctionInfo onTriggerFunction,
+                                            FunctionInfo onErrorFunction, Service service) {
+        TaskExecutor.execute(parentCtx, onTriggerFunction, onErrorFunction, service);
+    }
+
     public String getId() {
         return id;
     }
@@ -104,5 +124,30 @@ public class Timer {
         //BLangScheduler.workerCountDown();
         executorService.shutdown();
         TaskRegistry.getInstance().remove(id);
+    }
+
+    public void addService(Service service) {
+        this.serviceList.add(service);
+    }
+
+    public ArrayList<Service> getServices() {
+        return this.serviceList;
+    }
+
+    public void runServices(Context context) {
+        final Runnable schedulerFunc = () -> {
+            for (Service service : serviceList) {
+                FunctionInfo onTriggerFunction, onErrorFunction;
+                if (RESOURCE_ON_TRIGGER.equals(service.getResources()[0].getName())) {
+                    onTriggerFunction = service.getResources()[0].getResourceInfo();
+                    onErrorFunction = service.getResources()[1].getResourceInfo();
+                } else {
+                    onErrorFunction = service.getResources()[0].getResourceInfo();
+                    onTriggerFunction = service.getResources()[1].getResourceInfo();
+                }
+                callTriggerFunction(context, onTriggerFunction, onErrorFunction, service);
+            }
+        };
+        executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
     }
 }

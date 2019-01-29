@@ -25,11 +25,16 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.listener.api.TaskServerConnector;
+import org.ballerinalang.stdlib.task.listener.impl.TaskServerConnectorImpl;
 
 import static org.ballerinalang.stdlib.task.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
+import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 
 /**
  * Native function to start the service attached to the listener.
@@ -49,6 +54,12 @@ public class Start extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
-        System.out.println("Test");
+        String taskId = task.get(TIMER_TASK_ID_FIELD).stringValue();
+        TaskServerConnector serverConnector = new TaskServerConnectorImpl(context, taskId);
+        try {
+            serverConnector.start();
+        } catch (SchedulingException e) {
+            context.setReturnValues(createError(context, e.getMessage()));
+        }
     }
 }

@@ -25,10 +25,12 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.TaskRegistry;
 import org.ballerinalang.stdlib.task.timer.Timer;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -43,7 +45,7 @@ import static org.ballerinalang.stdlib.task.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
-import static org.ballerinalang.stdlib.task.Utils.getCronExpressionFromAppointmentRecord;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
  * Native function to attach a service to the listener.
@@ -75,14 +77,23 @@ public class Register extends BlockingNativeCallableUnit {
             if (Objects.nonNull(configurations.get(FIELD_NAME_DELAY))) {
                 delay = ((BInteger) configurations.get(FIELD_NAME_DELAY)).intValue();
             }
+
             try {
-                Timer timer = new Timer(context, delay, interval, service.getName());
+                Timer timer;
+                if (Objects.nonNull(task.get(TIMER_TASK_ID_FIELD))) {
+                    timer = TaskRegistry.getInstance().getTimer(task.get(TIMER_TASK_ID_FIELD).stringValue());
+                    timer.addService(service);
+                } else {
+                    timer = new Timer(context, delay, interval, service);
+                    task.put(TIMER_TASK_ID_FIELD, new BString(timer.getId()));
+                }
             } catch (SchedulingException e) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
             }
 
         } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
-            String cronExpression = getCronExpressionFromAppointmentRecord(configurations);
+            /*String cronExpression = getCronExpressionFromAppointmentRecord(configurations);
+            cronExpression.trim();*/
         }
     }
 }

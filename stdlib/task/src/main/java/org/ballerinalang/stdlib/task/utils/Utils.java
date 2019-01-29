@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -43,9 +43,13 @@ import static org.ballerinalang.stdlib.task.TaskConstants.TASK_ERROR_MESSAGE;
 import static org.ballerinalang.stdlib.task.TaskConstants.TASK_ERROR_RECORD;
 
 /**
- * Utility functions used in ballerina task module
+ * Utility functions used in ballerina task module.
  */
 public class Utils {
+    private Utils() {
+        // Do nothing.
+    }
+
     public static BError createError(Context context, String message) {
         BMap<String, BValue> taskErrorRecord = createTaskErrorRecord(context);
         taskErrorRecord.put(TASK_ERROR_MESSAGE, new BString(message));

@@ -22,6 +22,7 @@ import org.ballerinalang.stdlib.task.timer.Timer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Maintains timers and appointments (Appointment support will be available in the future).
@@ -51,6 +52,14 @@ public class TaskRegistry {
         String taskId = timer.getId();
         checkDuplicateTask(taskId);
         timers.put(taskId, timer);
+    }
+
+    public Timer getTimer(String serviceTaskId) throws SchedulingException {
+        if (Objects.nonNull(timers.get(serviceTaskId))) {
+            return timers.get(serviceTaskId);
+        } else {
+            throw new SchedulingException("Timer not available for the service");
+        }
     }
 
     public void addAppointment(Appointment appointment) {

@@ -18,17 +18,14 @@
  */
 package org.ballerinalang.stdlib.task;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
 public class ListenerTest {
-    private static final Log log = LogFactory.getLog(AppointmentTest.class);
-
     @Test(description = "Tests running an appointment and stopping it")
     public void testListenerTimer() {
         CompileResult compileResult = BCompileUtil.compile("listener-test-src/listener_timer_service.bal");
@@ -37,13 +34,15 @@ public class ListenerTest {
 
     @Test(description = "Tests a timer listener with inline configurations")
     public void testListenerTimerInlineConfigs() {
-        CompileResult compileResult = BCompileUtil.compile("listener-test-src/listener_timer_service_inline_configs.bal");
+        CompileResult compileResult = BCompileUtil.compile(
+                "listener-test-src/listener_timer_service_inline_configs.bal");
         BServiceUtil.runService(compileResult);
     }
 
     @Test(description = "Tests a timer listener without delay field")
     public void testListenerTimerWithoutDelay() {
-        CompileResult compileResult = BCompileUtil.compile("listener-test-src/listener_timer_service_without_delay.bal");
+        CompileResult compileResult = BCompileUtil.compile(
+                "listener-test-src/listener_timer_service_without_delay.bal");
         BServiceUtil.runService(compileResult);
     }
 
@@ -53,7 +52,15 @@ public class ListenerTest {
             expectedExceptionsMessageRegExp = ".*Task scheduling configuration is invalid.*"
     )
     public void testListenerTimerNegativeValues() {
-        CompileResult compileResult = BCompileUtil.compile("listener-test-src/listener_timer_service_negative_values.bal");
+        CompileResult compileResult = BCompileUtil.compile(
+                "listener-test-src/listener_timer_service_negative_values.bal");
         BServiceUtil.runService(compileResult);
+    }
+
+    @Test(description = "Tests a timer listener without delay field")
+    public void testListenerTimerDynamicService() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "listener-test-src/listener_timer_dynamic_service.bal");
+        BRunUtil.invoke(compileResult, "main");
     }
 }

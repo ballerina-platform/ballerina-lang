@@ -22,9 +22,12 @@ task:TimerConfiguration configuration = {
     delay: 1000
 };
 
-listener task:Listener timer = new(configuration);
+public function main() {
+    task:Listener timer = new(configuration);
+    var result = timer.__attach(timerService, {});
+}
 
-service timerService on timer {
+service timerService = service {
     resource function onTrigger() {
         io:println("Triggering");
     }
@@ -32,4 +35,4 @@ service timerService on timer {
     resource function onError() {
         io:println("Error occurred");
     }
-}
+};

@@ -54,6 +54,7 @@ public type Listener object {
 
     private TimerConfiguration|AppointmentConfiguration listenerConfiguration;
     private string taskId;
+    private boolean isRunning;
 
     public function __init(TimerConfiguration|AppointmentConfiguration configs) {
         self.listenerConfiguration = configs;
