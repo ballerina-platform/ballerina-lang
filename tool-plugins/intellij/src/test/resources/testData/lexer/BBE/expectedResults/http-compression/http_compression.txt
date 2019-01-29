@@ -163,7 +163,7 @@ LINE_COMMENT ('// value indicated in Accept-Encoding request header. When partic
 WHITE_SPACE ('\n')
 LINE_COMMENT ('// value is "identity", encoding is done using "gzip" scheme.')
 WHITE_SPACE ('\n')
-LINE_COMMENT ('// By default ballerina compresses any MIME type unless certain types are mentioned under "contentTypes".')
+LINE_COMMENT ('// By default Ballerina compresses any MIME type unless they are mentioned under `contentTypes`.')
 WHITE_SPACE ('\n')
 LINE_COMMENT ('// Compression can be constrained to certain MIME types by specifying them as an array of MIME types.')
 WHITE_SPACE ('\n')
