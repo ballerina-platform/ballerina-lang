@@ -1380,7 +1380,7 @@ public class HttpUtil {
                                                                 CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION));
     }
 
-    public static boolean isInteger(long val) {
+    private static boolean isInteger(long val) {
         return (int) val == val;
     }
 
