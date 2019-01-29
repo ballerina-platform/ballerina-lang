@@ -1,5 +1,5 @@
 import ballerina/http;
-import ballerina/log;
+import ballerina/io;
 import ballerina/math;
 import ballerina/transactions;
 
@@ -15,14 +15,13 @@ service InitiatorService on new http:Listener(8080) {
     }
     resource function init(http:Caller conn, http:Request req) {
         http:Response res = new;
-        log:printInfo("Initiating transaction...");
+        io:println("Initiating transaction...");
 
         // When the `transaction` statement starts, a distributed transaction context is created.
         transaction {
 
             // Print the current transaction ID
-            log:printInfo("Started transaction: " +
-                             transactions:getCurrentTransactionId());
+            io:println("Started transaction: " + transactions:getCurrentTransactionId());
 
             // When a participant is called, the transaction context is propagated, and that participant
             // gets infected and joins the distributed transaction.
@@ -39,17 +38,16 @@ service InitiatorService on new http:Listener(8080) {
             // and depending on the joint outcome, either a `notify commit` or
             // `notify abort` will be sent to the participants.
         } committed {
-            log:printInfo("Initiated transaction committed");
+            io:println("Initiated transaction committed");
         } aborted {
-            log:printInfo("Initiated transaction aborted");
+            io:println("Initiated transaction aborted");
         }
 
         var result = conn->respond(res);
         if (result is error) {
-            log:printError("Could not send response back to client",
-                            err = result);
+            io:println("Could not send response back to client");
         } else {
-            log:printInfo("Sent response back to client");
+            io:println("Sent response back to client");
         }
     }
 }
@@ -62,7 +60,7 @@ function callBusinessService() returns boolean {
     http:Request req = new;
     req.setJsonPayload(bizReq);
     var result = participantEP->post("", req);
-    log:printInfo("Got response from bizservice");
+    io:println("Got response from bizservice");
     if (result is error) {
         return false;
     }  else {
