@@ -52,7 +52,8 @@ public class BServerInstance implements BServer {
     private Process process;
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
-    private ConcurrentHashSet<LogLeecher> tmpLeechers = new ConcurrentHashSet<>();
+    private ConcurrentHashSet<LogLeecher> tmpInfoLeechers = new ConcurrentHashSet<>();
+    private ConcurrentHashSet<LogLeecher> tmpErrorLeechers = new ConcurrentHashSet<>();
     private int[] requiredPorts;
 
     public BServerInstance(BalServer balServer) throws BallerinaTestException {
@@ -297,10 +298,23 @@ public class BServerInstance implements BServer {
      */
     public void addLogLeecher(LogLeecher leecher) {
         if (serverInfoLogReader == null) {
-            tmpLeechers.add(leecher);
+            tmpInfoLeechers.add(leecher);
             return;
         }
         serverInfoLogReader.addLeecher(leecher);
+    }
+
+    /**
+     * Add a Leecher that listens to error stream.
+     *
+     * @param leecher The Leecher instance
+     */
+    public void addErrorLogLeecher(LogLeecher leecher) {
+        if (serverErrorLogReader == null) {
+            tmpErrorLeechers.add(leecher);
+            return;
+        }
+        serverErrorLogReader.addLeecher(leecher);
     }
 
     /**
@@ -309,7 +323,8 @@ public class BServerInstance implements BServer {
     public void removeAllLeechers() {
         serverInfoLogReader.removeAllLeechers();
         serverErrorLogReader.removeAllLeechers();
-        tmpLeechers.forEach(logLeecher -> tmpLeechers.remove(logLeecher));
+        tmpInfoLeechers.forEach(logLeecher -> tmpInfoLeechers.remove(logLeecher));
+        tmpErrorLeechers.forEach(logLeecher -> tmpErrorLeechers.remove(logLeecher));
     }
 
     /**
@@ -354,9 +369,10 @@ public class BServerInstance implements BServer {
             process = processBuilder.start();
 
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
-            tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
+            tmpInfoLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
             serverInfoLogReader.start();
             serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
+            tmpErrorLeechers.forEach(leacher -> serverErrorLogReader.addLeecher(leacher));
             serverErrorLogReader.start();
             log.info("Waiting for port " + agentPort + " to open");
             Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 2, false, agentHost);
