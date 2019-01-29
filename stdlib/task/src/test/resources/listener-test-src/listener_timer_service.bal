@@ -22,11 +22,17 @@ task:TimerConfiguration configuration = {
     delay: 1000
 };
 
+int count = 0;
+
 listener task:Listener timer = new(configuration);
+
+function getCount() returns int {
+    return count;
+}
 
 service timerService on timer {
     resource function onTrigger() {
-        io:println("Triggering");
+        count = count + 1;
     }
 
     resource function onError() {
