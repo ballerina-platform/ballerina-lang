@@ -44,6 +44,8 @@ import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.Connection
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketClientConnector;
 
 import java.util.Map;
+
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 
 import static org.wso2.transport.http.netty.contract.Constants.PIPELINING_THREAD_COUNT;
@@ -117,10 +119,12 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
             serverConnectorBootstrap.addSslHandlerFactory(sslHandlerFactory);
             if (sslConfig.getKeyStore() != null) {
-                serverConnectorBootstrap.addKeystoreSslContext(sslHandlerFactory.createSSLContextFromKeystores());
+                SSLContext sslContext = sslHandlerFactory.createSSLContextFromKeystores();
                 if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
                     serverConnectorBootstrap
                             .addHttp2SslContext(sslHandlerFactory.createHttp2TLSContextForServer(sslConfig));
+                } else {
+                    serverConnectorBootstrap.addKeystoreSslContext(sslContext);
                 }
             } else {
                 if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
