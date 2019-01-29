@@ -148,6 +148,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
         </dependency>
         <dependency>
@@ -491,6 +495,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -674,6 +684,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -762,6 +778,7 @@
                                 ballerina-task,
                                 ballerina-time,
                                 ballerina-transactions,
+                                ballerina-utils,
                                 ballerina-websub,
                                 ballerina-privacy,
                                 <!-- other dependencies -->
@@ -933,6 +950,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-transactions-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-utils-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
