@@ -51,9 +51,10 @@ service publisher on publisherServiceEP {
     }
 
     @http:ResourceConfig {
-        methods: ["POST"]
+        methods: ["POST"],
+        path: "/notify/{subscriber}"
     }
-    resource function notify(http:Caller caller, http:Request req) {
+    resource function notify(http:Caller caller, http:Request req, string subscriber) {
         remoteRegisterTopic();
         string mode = "";
         string contentType = "";
@@ -70,6 +71,14 @@ service publisher on publisherServiceEP {
         var err = caller->respond(response);
         if (err is error) {
             log:printError("Error responding on notify request", err = err);
+        }
+
+        if (subscriber == "8181") {
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8181/websub");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8181/websubTwo");
+        } else if (subscriber == "8282") {
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8282/websub");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8282/websubTwo");
         }
 
         if (mode == "internal") {
