@@ -100,8 +100,8 @@
         <lang.elementManipulator forClass="io.ballerina.plugins.idea.psi.BallerinaCompletePackageName"
                                  implementationClass="io.ballerina.plugins.idea.psi.manipulator.BallerinaPackageManipulator"/>
 
-        <codeInsight.parameterInfo language="Ballerina"
-                                   implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>
+        <!--<codeInsight.parameterInfo language="Ballerina"-->
+                                   <!--implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>-->
 
         <spellchecker.support language="Ballerina"
                               implementationClass="io.ballerina.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
