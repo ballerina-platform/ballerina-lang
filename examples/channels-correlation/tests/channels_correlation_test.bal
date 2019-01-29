@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 import ballerina/http;
 
 function startService() {
@@ -10,10 +9,7 @@ function startService() {
     after: "stopService"
 }
 function testFunc() {
-    // Invoking the main function
     http:Client httpEndpoint = new("http://localhost:9090");
-    // Check whether the server is started
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
     http:Request req = new;
     json message = {"message":"message to channel"};
 

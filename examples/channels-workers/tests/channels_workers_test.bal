@@ -21,8 +21,6 @@ function testFunc() {
     // Invoking the main function
     main();
     string[] expected = [];
-
-
     expected[0] = "w1 Waiting for a message...";
     expected[1] = "Sent message from w2";
     expected[2] = "w1 Waiting for a null key message...";
@@ -34,7 +32,6 @@ function testFunc() {
 }
 
 function testExist(string text) returns boolean {
-
     foreach var i in 0...5 {
         string out = string.convert(outputs[i]);
         if (out.contains(text)) {
@@ -43,5 +40,4 @@ function testExist(string text) returns boolean {
     }
 
     return false;
-
 }
