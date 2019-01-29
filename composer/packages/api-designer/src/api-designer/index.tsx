@@ -123,10 +123,15 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         );
     }
 
-    private onAddOpenApiPath(path: Swagger.PathItemObject) {
+    private onAddOpenApiPath(path: Swagger.PathItemObject, onAdd: (state: boolean) => void) {
         const { onDidAddResource, onDidChange } = this.props;
         const resourceName = path.name.replace(" ", "");
         const operations: { [index: string]: Swagger.OperationObject } = {};
+
+        if (resourceName === "") {
+            onAdd(false);
+            return;
+        }
 
         path.methods.forEach((method: string, index: number) => {
             let opName = resourceName;
@@ -154,6 +159,8 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         }), () => {
             if (this.state.openApiJson.paths["/" + resourceName]) {
 
+                onAdd(true);
+
                 if (onDidAddResource) {
                     onDidAddResource(resourceName, this.state.openApiJson);
                 }
@@ -162,6 +169,8 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                     onDidChange(EVENTS.ADD_RESOURCE, this.state.openApiJson);
                 }
 
+            } else {
+                onAdd(false);
             }
         });
     }

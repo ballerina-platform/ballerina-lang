@@ -19,15 +19,16 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Form, Input } from "semantic-ui-react";
+import { Button, Form, Input, Label, Transition } from "semantic-ui-react";
 
 export interface AddOpenApiPathProps {
-    onAddOpenApiPath: (resource: Swagger.PathItemObject) => void;
+    onAddOpenApiPath: (path: Swagger.PathItemObject, onAdd: (state: boolean) => void) => void;
 }
 
 export interface AddOpenApiPathState {
     openApiResourceObj: OpenApiResource;
     operationMethods: OpenApiOperationMethod[];
+    showState: ShowState;
 }
 
 export interface OpenApiResource {
@@ -40,6 +41,11 @@ export interface OpenApiOperationMethod {
     value: string;
 }
 
+export interface ShowState {
+    show: boolean;
+    state: string;
+}
+
 class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPathState> {
 
     constructor(props: AddOpenApiPathProps) {
@@ -50,10 +56,16 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                 methods: [],
                 name: ""
             },
-            operationMethods: []
+            operationMethods: [],
+            showState: {
+                show: false,
+                state: ""
+            }
         };
 
         this.clearFields = this.clearFields.bind(this);
+        this.onAddPath = this.onAddPath.bind(this);
+        this.onShowMessage = this.onShowMessage.bind(this);
 
     }
 
@@ -79,7 +91,7 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
     }
 
     public render() {
-        const { operationMethods } = this.state;
+        const { operationMethods, showState } = this.state;
         const { onAddOpenApiPath } = this.props;
 
         return (
@@ -122,11 +134,43 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                     })}
                 </Form.Group>
                 <Button size="mini" onClick={() => {
-                    onAddOpenApiPath(this.state.openApiResourceObj);
+                    onAddOpenApiPath(this.state.openApiResourceObj, this.onAddPath);
                     this.clearFields();
                 }}>Add Resource</Button>
+                <Transition visible={showState.show && showState.state === "successful"}
+                    onComplete={this.onShowMessage} animation="scale" duration={500}>
+                    <Label color="green">
+                        successfully added the path.
+                    </Label>
+                </Transition>
+                <Transition visible={showState.show && showState.state === "error"}
+                    onComplete={this.onShowMessage} animation="scale" duration={500}>
+                    <Label color="red">
+                        Error occured while adding path.
+                    </Label>
+                </Transition>
             </Form>
         );
+    }
+
+    private onAddPath(state: boolean) {
+        this.setState({
+            showState: {
+                show: true,
+                state: state ? "successful" : "error"
+            }
+        });
+    }
+
+    private onShowMessage() {
+        setTimeout(() => {
+            this.setState({
+                showState: {
+                    show: false,
+                    state: ""
+                }
+            });
+        } , 1500);
     }
 
     private clearFields() {
