@@ -268,7 +268,6 @@ public interface InstructionCodes {
 
     int FLUSH = 207;
 
-    int LENGTH = 208;
     int WAITALL = 209;
 
     int NEWSTRUCT = 210;
