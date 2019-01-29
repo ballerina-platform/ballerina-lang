@@ -1957,12 +1957,12 @@ public type TimeOrderWindow object {
     public int timeInMillis;
     public any[] windowParameters;
     public LinkedList expiredEventQueue;
-    public function (StreamEvent[])? nextProcessPointer;
+    public function (StreamEvent?[])? nextProcessPointer;
     public string timestamp;
     public boolean dropOlderEvents;
     public MergeSort mergeSort;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMillis = 0;
@@ -2004,17 +2004,18 @@ public type TimeOrderWindow object {
             panic err;
         }
 
-        (function (map<anydata>) returns anydata)[] fieldFuncs = [function (map<anydata> x) returns anydata {
+        (function (map<anydata>) returns anydata)?[] fieldFuncs = [function (map<anydata> x) returns anydata {
             return x[self.timestamp];
         }];
         string[] sortTypes = [ASCENDING];
         self.mergeSort = new(fieldFuncs, sortTypes);
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         lock {
-            foreach var event in streamEvents {
+            foreach var e in streamEvents {
+                StreamEvent event = <StreamEvent> e;
                 streamEventChunk.addLast(event);
             }
 
@@ -2049,7 +2050,7 @@ public type TimeOrderWindow object {
                         self.expiredEventQueue.addLast(clonedEvent);
                     }
 
-                    StreamEvent[] events = [];
+                    StreamEvent?[] events = [];
                     self.expiredEventQueue.resetToFront();
 
                     while (self.expiredEventQueue.hasNext()) {
@@ -2059,7 +2060,8 @@ public type TimeOrderWindow object {
 
                     self.mergeSort.topDownMergeSort(events);
                     self.expiredEventQueue.clear();
-                    foreach var event in events {
+                    foreach var e in events {
+                        StreamEvent event = <StreamEvent> e;
                         self.expiredEventQueue.addLast(event);
                     }
                 }
@@ -2068,9 +2070,9 @@ public type TimeOrderWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (StreamEvent[])) {
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
             if (streamEventChunk.getSize() != 0) {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 streamEventChunk.resetToFront();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
@@ -2117,7 +2119,7 @@ public type TimeOrderWindow object {
     }
 };
 
-public function timeOrder(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function timeOrder(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
 
     TimeOrderWindow timeOrderWindow = new(nextProcessPointer, windowParameters);
