@@ -79,9 +79,13 @@ public type Scheduler object {
         currentTime = time:currentTime().time;
 
         if (first != ()) {
-            self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                function (error e) {io:println("Error occured: ", e.reason());}, <int>first - currentTime);
-            _ = self.timer.start();
+            if (<int>first - currentTime <= 0) {
+                _ = self.wrapperFunc();
+            } else {
+                self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
+                    function (error e) {io:println("Error occured", e.reason());}, <int>first - currentTime);
+                _ = self.timer.start();
+            }
         } else {
             lock {
                 self.running = false;
