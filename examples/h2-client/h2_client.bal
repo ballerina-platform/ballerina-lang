@@ -34,8 +34,7 @@ public function main() {
         io:println("\nConvert the table into json");
         var jsonConversionRet = json.convert(selectRet);
         if (jsonConversionRet is json) {
-            io:print("JSON: ");
-            io:println(io:sprintf("%s", jsonConversionRet));
+            io:println("JSON: ", io:sprintf("%s", jsonConversionRet));
         } else {
             io:println("Error in table to json conversion");
         }
