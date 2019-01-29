@@ -23,8 +23,8 @@ public type PackageParser object {
         var visibility = self.parseVisibility();
         var typeTag = self.reader.readInt8();
         if(typeTag != self.typeParser.TYPE_TAG_INVOKABL_TYPE){
-            error err = { message: "Illegal function signature type tag" + typeTag };
-            throw err;
+            error err = error("Illegal function signature type tag" + typeTag);
+            panic err;
         }
         var sig = self.typeParser.parseInvokableType();
         var argsCount = self.reader.readInt32();

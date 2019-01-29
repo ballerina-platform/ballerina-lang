@@ -14,22 +14,23 @@ public function serialize(BType bType) returns string {
     } else if (bType == "string"){
         return "string";
     }
-    match (bType){
-        BUnionType bUnionType => return serializeTypes(bUnionType.members, "|");
-        BInvokableType bInvokableType => return "function (" + serializeTypes(bInvokableType.paramTypes, ",") +
-                                                ") returns " + serialize(bInvokableType.retType);
-        BArrayType bArrayType => return serialize(bArrayType.eType) + "[]";
-        any _ => {}
+    if (bType is BUnionType) {
+        return serializeTypes(bType.members, "|");
+    } else if (bType is BInvokableType) {
+        return "function (" + serializeTypes(bType.paramTypes, ",") +
+                                                    ") returns " + serialize(bType.retType);
+    } else if (bType is BArrayType) {
+        return serialize(bType.eType) + "[]";
     }
 
-    error err = { message: "Unsupported type serializtion " };
-    throw err;
+    error err = error("Unsupported type serializtion ");
+    panic err;
 }
 
 function serializeTypes(BType[] bTypes, string delimiter) returns string {
     var result = "";
     boolean first = true;
-    foreach bType in bTypes {
+    foreach var bType in bTypes {
         if (!first){
             result = result + delimiter;
         }

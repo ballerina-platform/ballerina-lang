@@ -12,54 +12,55 @@ public type TypeParser object {
     public int TYPE_TAG_ARRAY = 11;
     public int TYPE_TAG_INVOKABL_TYPE = 12;
 
-    public new(reader) {
+    public function __init(BirChannelReader reader) {
+        self.reader = reader;
     }
 
     public function parseType() returns BType {
-        var typeTag = reader.readInt8();
-        if (typeTag == TYPE_TAG_NIL ){
+        var typeTag = self.reader.readInt8();
+        if (typeTag == self.TYPE_TAG_NIL ){
             return "()";
-        } else if (typeTag == TYPE_TAG_INT){
+        } else if (typeTag == self.TYPE_TAG_INT){
             return "int";
-        } else if (typeTag == TYPE_TAG_BYTE){
+        } else if (typeTag == self.TYPE_TAG_BYTE){
             return "byte";
-        } else if (typeTag == TYPE_TAG_FLOAT){
+        } else if (typeTag == self.TYPE_TAG_FLOAT){
             return "float";
-        } else if (typeTag == TYPE_TAG_STRING){
+        } else if (typeTag == self.TYPE_TAG_STRING){
             return "string";
-        } else if (typeTag == TYPE_TAG_BOOLEAN){
+        } else if (typeTag == self.TYPE_TAG_BOOLEAN){
             return "boolean";
-        } else if (typeTag == TYPE_TAG_UNION){
-            return parseUnionType();
-        } else if (typeTag == TYPE_TAG_ARRAY){
-            return parseArrayType();
-        } else if (typeTag == TYPE_TAG_INVOKABL_TYPE){
-            return parseInvokableType();
+        } else if (typeTag == self.TYPE_TAG_UNION){
+            return self.parseUnionType();
+        } else if (typeTag == self.TYPE_TAG_ARRAY){
+            return self.parseArrayType();
+        } else if (typeTag == self.TYPE_TAG_INVOKABL_TYPE){
+            return self.parseInvokableType();
         }
-        error err = { message: "Unknown type tag :" + typeTag };
-        throw err;
+        error err = error("Unknown type tag :" + typeTag);
+        panic err;
     }
 
     function parseArrayType() returns BArrayType {
-        return { eType:parseType() };
+        return { eType:self.parseType() };
     }
 
     function parseUnionType() returns BUnionType {
-        return { members:parseTypes() };
+        return { members:self.parseTypes() };
     }
 
     function parseInvokableType() returns BInvokableType {
-        return { paramTypes:parseTypes(), retType: parseType() };
+        return { paramTypes:self.parseTypes(), retType: self.parseType() };
     }
 
     function parseTypes() returns BType[] {
-        int count = reader.readInt32();
-        int i;
+        int count = self.reader.readInt32();
+        int i = 0;
 
         BType[] types = [];
         while (i < count) {
-            types[lengthof types] = parseType();
-            i++;
+            types[types.length()] = self.parseType();
+            i = i + 1;
         }
         return types;
     }
