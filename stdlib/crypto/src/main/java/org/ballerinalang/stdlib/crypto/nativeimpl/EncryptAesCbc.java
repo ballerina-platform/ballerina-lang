@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,28 +30,39 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 
 /**
  * Extern function ballerina.crypto:signRsaMd5.
  *
  * @since 0.991.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "signRsaMd5", isPublic = true)
-public class SignRsaMd5 extends BlockingNativeCallableUnit {
+@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "encryptAesCbc", isPublic = true)
+public class EncryptAesCbc extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BValue inputBValue = context.getRefArgument(0);
-        BMap<String, BValue> privateKey = (BMap<String, BValue>) context.getRefArgument(1);
         byte[] input = ((BValueArray) inputBValue).getBytes();
-        try {
-            context.setReturnValues(new BValueArray(CryptoUtils.sign(context, "MD5withRSA",
-                    (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
-        } catch (InvalidKeyException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
+        BValue keyBValue = context.getRefArgument(1);
+        byte[] key = ((BValueArray) keyBValue).getBytes();
+        String padding = context.getRefArgument(2).stringValue();
+        BValue ivBValue = context.getNullableRefArgument(3);
+        byte[] iv = null;
+        if (ivBValue != null) {
+            iv = ((BValueArray) ivBValue).getBytes();
         }
+        CryptoUtils.aesEncryptDecrypt(context, CryptoUtils.CipherMode.ENCRYPT, Constants.CBC, padding, key, input, iv,
+                -1);
     }
 }

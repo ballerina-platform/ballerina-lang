@@ -17,8 +17,37 @@
 # The key algorithms supported by crypto module.
 public type KeyAlgorithm RSA;
 
+# The key algorithms supported by crypto module.
+public type Mode CBC|ECB|GCM;
+
+public type Padding NONE|PKCS5|OAEP;
+
 # The `RSA` algorithm
 public const RSA = "RSA";
+
+# The `AES` algorithm
+public const AES = "AES";
+
+# The `CBC` cypher mode
+public const CBC = "CBC";
+
+# The `ECB` cypher mode
+public const ECB = "ECB";
+
+# The `GCM` cypher mode
+public const GCM = "GCM";
+
+# No padding
+public const NONE = "NONE";
+
+# The `PKCS1` padding mode
+public const PKCS1 = "PKCS1";
+
+# The `PKCS5` padding mode
+public const PKCS5 = "PKCS5";
+
+# The `OAEP` padding mode
+public const OAEP = "OAEP";
 
 # Record for providing key store related configurations.
 #
@@ -138,21 +167,21 @@ public extern function crc32b(any input) returns (string);
 # Returns RSA-MD5 based signature value for the given data.
 #
 # + input - The content to be signed
-# + privateKey - Private key used for signing.
+# + privateKey - Private key used for signing
 # + return - The generated signature or error if private key is invalid
 public extern function signRsaMd5(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
 # Returns RSA-SHA1 based signature value for the given data.
 #
 # + input - The content to be signed
-# + privateKey - Private key used for signing.
+# + privateKey - Private key used for signing
 # + return - The generated signature or error if private key is invalid
 public extern function signRsaSha1(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
 # Returns RSA-SHA256 based signature value for the given data.
 #
 # + input - The content to be signed
-# + privateKey - Private key used for signing.
+# + privateKey - Private key used for signing
 # + return - The generated signature or error if private key is invalid
 public extern function signRsaSha256(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
@@ -166,7 +195,7 @@ public extern function signRsaSha384(byte[] input, PrivateKey privateKey) return
 # Returns RSA-SHA512 based signature value for the given data.
 #
 # + input - The content to be signed
-# + privateKey - Private key used for signing.
+# + privateKey - Private key used for signing
 # + return - The generated signature or error if private key is invalid
 public extern function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
@@ -185,3 +214,81 @@ returns PrivateKey|error;
 # + keyAlias - Key alias
 # + return - Reference to the public key or error if private key was unreadable
 public extern function decodePublicKey(KeyStore? keyStore = (), string? keyAlias = ()) returns PublicKey|error;
+
+# Returns RSA encrypted value for the given data.
+#
+# + mode - The cypher mode
+# + padding - The padding
+# + input - The content to be encrypted
+# + key - Private or public key used for encryption
+# + iv - Initialization vector
+# + return - Encrypted data or error if key is invalid
+public extern function encryptRsa(Mode mode = "CBC", Padding padding = "PKCS5", byte[] input, PrivateKey|PublicKey key,
+                                  byte[]? iv = ()) returns byte[]|error;
+
+# Returns AES CBC encrypted value for the given data.
+#
+# + padding - The padding
+# + input - The content to be encrypted
+# + key - Encryption key
+# + iv - Initialization vector
+# + return - Encrypted data or error if key is invalid
+public extern function encryptAesCbc(Padding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = ())
+returns byte[]|error;
+
+# Returns AES ECB encrypted value for the given data.
+#
+# + padding - The padding
+# + input - The content to be encrypted
+# + key - Encryption key
+# + return - Encrypted data or error if key is invalid
+public extern function encryptAesEcb(Padding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error;
+
+# Returns AES GCM encrypted value for the given data.
+#
+# + padding - The padding
+# + input - The content to be encrypted
+# + key - Encryption key
+# + iv - Initialization vector
+# + return - Encrypted data or error if key is invalid
+public extern function encryptAesGcm(Padding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = (),
+                                     int? tagSize = 128) returns byte[]|error;
+
+# Returns RSA decrypted value for the given RSA encrypted data.
+#
+# + mode - The cypher mode
+# + padding - The padding
+# + input - The content to be decrypted
+# + key - Private or public key used for encryption
+# + iv - Initialization vector
+# + return - Decrypted data or error if key is invalid
+public extern function decryptRsa(Mode mode = "CBC", Padding padding = "PKCS5", byte[] input, PrivateKey|PublicKey key,
+                                  byte[]? iv = ()) returns byte[]|error;
+
+# Returns AES CBC decrypted value for the given AES CBC encrypted data.
+#
+# + padding - The padding
+# + input - The content to be decrypted
+# + key - Encryption key
+# + iv - Initialization vector
+# + return - Decrypted data or error if key is invalid
+public extern function decryptAesCbc(Padding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = ())
+returns byte[]|error;
+
+# Returns AES ECB decrypted value for the given AES ECB encrypted data.
+#
+# + padding - The padding
+# + input - The content to be decrypted
+# + key - Encryption key
+# + return - Decrypted data or error if key is invalid
+public extern function decryptAesEcb(Padding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error;
+
+# Returns AES GCM decrypted value for the given AES GCM encrypted data.
+#
+# + padding - The padding
+# + input - The content to be decrypted
+# + key - Encryption key
+# + iv - Initialization vector
+# + return - Decrypted data or error if key is invalid
+public extern function decryptAesGcm(Padding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = (),
+                                     int? tagSize = 128) returns byte[]|error;
