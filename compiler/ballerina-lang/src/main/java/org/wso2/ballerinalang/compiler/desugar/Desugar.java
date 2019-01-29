@@ -3216,6 +3216,15 @@ public class Desugar extends BLangNodeVisitor {
                                             Lists.of(symTable.anydataType), symTable.anydataType);
     }
 
+    private BLangExpression createLengthInvocation(BLangExpression expr) {
+        if (expr.type.tag == TypeTags.STRING) {
+            return visitBuiltInMethodInvocation(expr.pos, BLangBuiltInMethod.STRING_LENGTH, Lists.of(expr),
+                                                Lists.of(symTable.stringType), symTable.intType);
+        }
+        return visitBuiltInMethodInvocation(expr.pos, BLangBuiltInMethod.LENGTH, Lists.of(expr),
+                                            Lists.of(symTable.anydataType), symTable.intType);
+    }
+
     private void visitFreezeBuiltInMethodInvocation(BLangInvocation iExpr) {
         if (types.isValueType(iExpr.expr.type)) {
             if (iExpr.builtInMethod == BLangBuiltInMethod.FREEZE) {
