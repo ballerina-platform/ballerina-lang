@@ -1155,7 +1155,8 @@ public class SQLDatasourceUtils {
     }
 
     public static BMap<String, BValue> createServerBasedDBClient(Context context, String dbType,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions,
+            org.ballerinalang.connector.api.Struct globalPoolOptions) {
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
@@ -1163,35 +1164,42 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
+        if (poolOptions == null) {
+            poolOptions = globalPoolOptions;
+        }
         String jdbcUrl = constructJDBCURL(dbType, host, port, name, username, password, urlOptions);
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withHostOrPath(host).withPort(port)
                 .withJdbcUrl(jdbcUrl).withPoolOptions(poolOptions).withUsername(username).withPassword(password).withDbName(name)
                 .withUrlOptions(urlOptions).build();
-        return createSQLClient(context, sqlDatasourceParams, clientEndpointConfig);
+        return createSQLClient(context, sqlDatasourceParams, poolOptions);
     }
 
     public static BMap<String, BValue> createSQLDBClient(Context context,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig) {
+            org.ballerinalang.connector.api.Struct clientEndpointConfig,
+            org.ballerinalang.connector.api.Struct globalPoolOptions) {
         String url = clientEndpointConfig.getStringField(Constants.EndpointConfig.URL);
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
-        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
+        org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+        if (poolOptions == null) {
+            poolOptions = globalPoolOptions;
+        }
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("").withPoolOptions(options)
-                .withPoolOptions(options).withJdbcUrl(url).withHostOrPath("").withPort(0).withUsername(username)
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("").withPoolOptions(poolOptions)
+                .withPoolOptions(poolOptions).withJdbcUrl(url).withHostOrPath("").withPort(0).withUsername(username)
                 .withPassword(password).withDbName("").withUrlOptions("").withDbOptionsMap(dbOptions).build();
 
-        return createSQLClient(context, sqlDatasourceParams, clientEndpointConfig);
+        return createSQLClient(context, sqlDatasourceParams, poolOptions);
     }
 
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions,
+            org.ballerinalang.connector.api.Struct globalPoolOptions) {
         String modeRecordType = clientEndpointConfig.getName();
         String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
@@ -1210,13 +1218,15 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
+        if (poolOptions == null) {
+            poolOptions = globalPoolOptions;
+        }
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
         String jdbcUrl = constructJDBCURL(dbType, hostOrPath, port, name, username, password, urlOptions);
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptions).withJdbcUrl(jdbcUrl)
                 .withDbType(dbType).withHostOrPath(hostOrPath).withPort(port).withUsername(username)
                 .withPassword(password).withDbName(name).withUrlOptions(urlOptions).build();
-        return createSQLClient(context, sqlDatasourceParams, clientEndpointConfig);
+        return createSQLClient(context, sqlDatasourceParams, poolOptions);
     }
 
     private static String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
@@ -1326,8 +1336,8 @@ public class SQLDatasourceUtils {
 
     private static BMap<String, BValue> createSQLClient(Context context,
             SQLDatasource.SQLDatasourceParams sqlDatasourceParams,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig) {
-        Map<String, SQLDatasource> hikariDatasourceMap = createPoolMapIfNotExists(clientEndpointConfig);
+            org.ballerinalang.connector.api.Struct poolOptions) {
+        Map<String, SQLDatasource> hikariDatasourceMap = createPoolMapIfNotExists(poolOptions);
         SQLDatasource sqlDatasource = createDataSourceIfNotExists(hikariDatasourceMap, sqlDatasourceParams);
         BMap<String, BValue> sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
@@ -1335,16 +1345,15 @@ public class SQLDatasourceUtils {
         return sqlClient;
     }
 
-    private static Map<String, SQLDatasource> createPoolMapIfNotExists(org.ballerinalang.connector.api.Struct clientEndpointConfig) {
-        final org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-        Map<String, SQLDatasource> hikariDatasourceMap = (Map<String, SQLDatasource>) poolOptions.getNativeData("PoolMap");
+    private static Map<String, SQLDatasource> createPoolMapIfNotExists(final org.ballerinalang.connector.api.Struct poolOptions) {
+        Map<String, SQLDatasource> hikariDatasourceMap = (Map<String, SQLDatasource>) poolOptions.getNativeData(Constants.POOL_MAP_KEY);
+        // map could be null only in a local pool creation scenario
         if (hikariDatasourceMap == null) {
             synchronized (poolOptions) {
-                hikariDatasourceMap = (Map<String, SQLDatasource>) poolOptions.getNativeData("PoolMap");
+                hikariDatasourceMap = (Map<String, SQLDatasource>) poolOptions.getNativeData(Constants.POOL_MAP_KEY);
                 if (hikariDatasourceMap == null) {
                     hikariDatasourceMap = new ConcurrentHashMap<>();
-                    poolOptions.addNativeData("PoolMap", hikariDatasourceMap);
+                    poolOptions.addNativeData(Constants.POOL_MAP_KEY, hikariDatasourceMap);
                 }
             }
         }

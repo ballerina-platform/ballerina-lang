@@ -50,6 +50,8 @@ public class CreateClient extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> configBStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
+        BMap<String, BValue> globalPoolOptionsBStruct = (BMap<String, BValue>) context.getRefArgument(1);
+        Struct globalPoolOptions = BLangConnectorSPIUtil.toStruct(globalPoolOptionsBStruct);
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         String urlOptions = "";
         if (dbOptions != null) {
@@ -58,7 +60,8 @@ public class CreateClient extends BlockingNativeCallableUnit {
                             Constants.JDBCUrlSeparators.MYSQL_SEPARATOR, dbOptions);
         }
         BMap<String, BValue> sqlClient = SQLDatasourceUtils
-                .createServerBasedDBClient(context, Constants.DBTypes.MYSQL, clientEndpointConfig, urlOptions);
+                .createServerBasedDBClient(context, Constants.DBTypes.MYSQL, clientEndpointConfig, urlOptions,
+                        globalPoolOptions);
         context.setReturnValues(sqlClient);
     }
 }

@@ -71,14 +71,7 @@ public type Client client object {
 
     # Gets called when the H2 client is instantiated.
     public function __init(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig c) {
-        match c {
-            var { poolOptions } => {}
-            var configWithoutPoolOptions => {
-                record { any...; } genericRecord = configWithoutPoolOptions;
-                genericRecord.poolOptions = sql:globalPoolContainer.getGlobalPoolConfig();
-            }
-        }
-        self.sqlClient = createClient(c);
+        self.sqlClient = createClient(c, sql:globalPoolContainer.getGlobalPoolConfig());
     }
 
     # The call operation implementation for H2 Client to invoke stored procedures/functions.
@@ -152,4 +145,4 @@ public type Client client object {
     }
 };
 
-extern function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config) returns sql:Client;
+extern function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client;

@@ -207,4 +207,6 @@ public final class Constants {
     public static final String PARAMETER_VALUE_FIELD = "value";
     public static final String PARAMETER_DIRECTION_FIELD = "direction";
     public static final String PARAMETER_RECORD_TYPE_FIELD = "recordType";
+
+    public static final String POOL_MAP_KEY = "PoolMap";
 }
