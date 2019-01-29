@@ -54,7 +54,7 @@ public class BLangVMErrors {
     private static final String MSG_CALL_FAILED = "call failed";
     private static final String MSG_CALL_CANCELLED = "call cancelled";
     public static final String STRUCT_GENERIC_ERROR = "error";
-    private static final String NULL_REF_EXCEPTION = "NullReferenceException";
+    public static final String NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String STRUCT_CALL_STACK_ELEMENT = "CallStackElement";
     public static final String TRANSACTION_ERROR = "TransactionError";
     public static final String ERROR_MESSAGE_FIELD = "message";
