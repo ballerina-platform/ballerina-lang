@@ -32,5 +32,5 @@ function testFunc() {
                    (outputs[1] == "sum of squares of first 10000000 positive numbers = 1291990006563070912")) {
         assert = true;
     }
-    test:assertTrue(true);
+    test:assertTrue(assert);
 }
