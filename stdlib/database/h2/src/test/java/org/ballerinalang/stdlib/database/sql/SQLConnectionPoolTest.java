@@ -42,7 +42,7 @@ public class SQLConnectionPoolTest {
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB2_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
     }
     @Test
-    public void testGlobalConnectionPool() {
+    public void testGlobalConnectionPoolSingleDestination() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestination");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         String name1 = "[{\"FIRSTNAME\":\"Peter\"}]";

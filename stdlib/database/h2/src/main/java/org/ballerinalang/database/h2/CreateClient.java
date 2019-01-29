@@ -41,7 +41,8 @@ import java.util.Map;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "h2",
         functionName = "createClient",
-        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ClientEndpointConfiguration")},
+        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ClientEndpointConfiguration"),
+        @Argument(name = "globalPoolOptions", type = TypeKind.RECORD, structType = "PoolOptions")},
         isPublic = true
 )
 public class CreateClient extends BlockingNativeCallableUnit {
@@ -50,6 +51,8 @@ public class CreateClient extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> configBStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
+        BMap<String, BValue> globalPoolOptionsBStruct = (BMap<String, BValue>) context.getRefArgument(1);
+        Struct globalPoolOptions = BLangConnectorSPIUtil.toStruct(globalPoolOptionsBStruct);
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         String urlOptions = "";
         if (!dbOptions.isEmpty()) {
@@ -57,7 +60,8 @@ public class CreateClient extends BlockingNativeCallableUnit {
                     Constants.JDBCUrlSeparators.H2_SEPARATOR, dbOptions);
         }
         BMap<String, BValue> sqlClient = SQLDatasourceUtils
-                .createMultiModeDBClient(context, Constants.DBTypes.H2, clientEndpointConfig, urlOptions);
+                .createMultiModeDBClient(context, Constants.DBTypes.H2, clientEndpointConfig, urlOptions,
+                        globalPoolOptions);
         context.setReturnValues(sqlClient);
     }
 }
