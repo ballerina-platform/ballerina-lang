@@ -1,26 +1,29 @@
 import { ASTNode } from "@ballerina/ast-model";
 import classNames from "classnames";
 import * as React from "react";
+import { Popup } from "semantic-ui-react";
 import { DiagramContext } from "../../diagram/index";
 
 export const SourceLinkedLabel: React.StatelessComponent<{
-        x: number,
-        y: number,
-        target: ASTNode,
-        text: string,
-        className?: string
-    }> = ({
-        x,
-        y,
-        text,
-        className,
-        target
-    }) => {
+    x: number,
+    y: number,
+    target: ASTNode,
+    fullText?: string,
+    text: string,
+    className?: string,
+}> = ({
+    x,
+    y,
+    text,
+    fullText,
+    className,
+    target
+}) => {
 
-        return (
+        const labelComponent = (
             <DiagramContext.Consumer>{({ langClient, docUri }) => (
                 <text
-                    {...{ x, y}}
+                    {...{ x, y }}
                     className={classNames(className, "source-linked-label")}
                     onClick={() => {
                         if (langClient) {
@@ -52,5 +55,23 @@ export const SourceLinkedLabel: React.StatelessComponent<{
                 </text>)
             }
             </DiagramContext.Consumer>
+        );
+
+        return (
+            <g>
+                {fullText &&
+                    <Popup
+                        trigger={
+                            <g>
+                                {labelComponent}
+                            </g>
+                        }
+                        content={fullText}
+                        size="mini"
+                        inverted
+                    />
+                }
+                {!fullText && labelComponent}
+            </g>
         );
     };

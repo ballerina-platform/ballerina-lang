@@ -53,9 +53,12 @@ service helloWorld15 on echo15 {
         path: "/"
     }
     resource function sayHello(http:Caller caller, http:Request req) {
+
         http:Response res = new;
-        res.setTextPayload("hello world");
-        _ = caller->respond( res);
+        if (req.mutualSslHandshake["status"] == "passed") {
+            res.setTextPayload("hello world");
+        }
+        _ = caller->respond(res);
         io:println("successful");
     }
 }

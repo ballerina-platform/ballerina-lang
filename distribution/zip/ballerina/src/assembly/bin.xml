@@ -103,6 +103,7 @@
                 <include>org.ballerinalang:ballerina-builtin:jar</include>
                 <include>org.ballerinalang:ballerina-config-api:jar</include>
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
+                <include>org.ballerinalang:ballerina-encoding:jar</include>
                 <include>org.ballerinalang:ballerina-file:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-h2:jar</include>

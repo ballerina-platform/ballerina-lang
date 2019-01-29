@@ -57,6 +57,10 @@ public type Scheduler object {
         }
     }
 
+    public function wrapperFunc() {
+        _ = self.sendTimerEvents();
+    }
+
     public function sendTimerEvents() returns error? {
         any? first = self.toNotifyQueue.getFirst();
         int currentTime = time:currentTime().time;

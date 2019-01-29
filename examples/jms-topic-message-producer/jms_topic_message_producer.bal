@@ -14,10 +14,7 @@ jms:Session jmsSession = new(jmsConnection, {
     });
 
 // This initializes a queue sender on top of the the created session.
-jms:TopicPublisher topicPublisher = new({
-        session: jmsSession,
-        topicPattern: "BallerinaTopic"
-    });
+jms:TopicPublisher topicPublisher = new(jmsSession, topicPattern = "BallerinaTopic");
 
 public function main() {
     // This creates a Text message.
