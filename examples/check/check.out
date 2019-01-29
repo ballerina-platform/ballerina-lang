@@ -3,3 +3,5 @@
 $ ballerina run check.bal
 12
 {ballerina}ConversionError {"message":"'string' cannot be converted to 'int'"}
+120
+{ballerina}ConversionError {"message":"'string' cannot be converted to 'int'"}
