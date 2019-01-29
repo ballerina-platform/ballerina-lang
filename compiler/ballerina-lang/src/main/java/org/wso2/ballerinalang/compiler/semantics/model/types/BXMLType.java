@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 /**
@@ -32,5 +33,10 @@ public class BXMLType extends BBuiltInRefType {
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
     }
 }

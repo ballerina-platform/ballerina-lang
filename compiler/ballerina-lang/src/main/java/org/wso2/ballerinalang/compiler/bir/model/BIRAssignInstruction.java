@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
-
 /**
  * An instruction that stores the result in another location.
  * <p>
@@ -28,5 +26,5 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
  */
 public interface BIRAssignInstruction extends BIRInstruction {
 
-    BIRVarRef getLhsOperand();
+    BIROperand getLhsOperand();
 }
