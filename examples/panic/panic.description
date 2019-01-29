@@ -1,8 +1,8 @@
-// In Ballerina, panic means something unexpected has occured
-// (something that should not have occurred during the normal operation). A panic causes
-// the call stack to be unwound until a matching catcher is found.
-
-// Ballerina encourages developers NOT to use `panic` for handling program related
-// errors such as `header not found`, `data mismatched` errors, etc.). However, 
-// `Connection Closed/Timeout` and `OutOfMemory` errors can be used in an error situation 
-// where it could not handle the error by itself, such as when accessing a `Null` reference. 
+// In Ballerina, panic indicates abnormal completions, and usually implies that something unexpected has occurred
+// (i.e., something that should not have occurred during the normal operation). A panic causes
+// the call stack to unwind until it is trapped.
+//
+// Ballerina discourages the use of `panic` to handle program-related
+// errors such as `header not found`, `data mismatch` errors, etc.). However,
+// `panic` can be used in scenarios such as `Connection Closed/Timeout` and `OutOfMemory`
+// in which the program cannot handle the error by itself.
