@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>0.990.1</version>
+    <version>0.990.3</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -10,7 +10,9 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Minor bug fixes and stability improvements.</li>
+        <li>Ballerina code folding support.</li>
+        <li>Spellchecking support.</li>
+        <li>Minor bug fixes and improvements.</li>
       </ul>
     ]]>
     </change-notes>
