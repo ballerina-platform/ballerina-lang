@@ -42,12 +42,14 @@ import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 public class ConnectionPoolTest {
     private CompileResult compileResult;
 
-    @BeforeClass public void setup() {
+    @BeforeClass
+    public void setup() {
         String sourceFilePath = "test-src/connection-pool/client-connection-pool.bal";
         compileResult = BCompileUtil.compileAndSetup(sourceFilePath);
     }
 
-    @Test public void testGlobalPoolConfig() {
+    @Test
+    public void testGlobalPoolConfig() {
         BValue[] returns = BRunUtil.invokeStateful(compileResult, "testGlobalPoolConfig");
         Assert.assertEquals(returns.length, 3);
         verifyResults((BMap<String, BValue>) returns[0]);
@@ -55,22 +57,24 @@ public class ConnectionPoolTest {
         verifyResults((BMap<String, BValue>) returns[2]);
     }
 
-    @Test public void testSharedConfig() {
+    @Test
+    public void testSharedConfig() {
         BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSharedConfig");
         Assert.assertEquals(returns.length, 2);
         ConnectionManager connectionManager1 = verifyPoolConfig(returns[0]);
         ConnectionManager connectionManager2 = verifyPoolConfig(returns[1]);
         Assert.assertEquals(connectionManager1, connectionManager2,
-                "Both the clients should have same connection manager");
+                            "Both the clients should have same connection manager");
     }
 
-    @Test public void testPoolPerClient() {
+    @Test
+    public void testPoolPerClient() {
         BValue[] returns = BRunUtil.invokeStateful(compileResult, "testPoolPerClient");
         Assert.assertEquals(returns.length, 2);
         ConnectionManager connectionManager1 = verifyPoolConfig(returns[0]);
         ConnectionManager connectionManager2 = verifyPoolConfig(returns[1]);
         Assert.assertNotEquals(connectionManager1, connectionManager2,
-                "Both the clients should have their own connection manager");
+                               "Both the clients should have their own connection manager");
     }
 
     private void verifyResults(BMap<String, BValue> client) {
