@@ -18,9 +18,6 @@
 
 package org.ballerinalang.util.exceptions;
 
-import org.ballerinalang.model.Node;
-import org.ballerinalang.model.NodeLocation;
-
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -35,23 +32,6 @@ public class BLangExceptionHelper {
         throw new SemanticException(errorMessage);
     }
 
-    public static void throwSemanticError(Node node, SemanticErrors semanticError, Object... params) {
-        NodeLocation nodeLocation = node.getNodeLocation();
-        //todo NodeLocation toString with below
-        String location = nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
-
-        String errorMsg = MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
-        throw new SemanticException(location + errorMsg);
-    }
-
-    public static String constructSemanticError(NodeLocation nodeLocation, SemanticErrors semanticError,
-            Object... params) {
-        String location = nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
-        String errorMsg = MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
-        return  location + errorMsg;
-
-    }
-
     public static BallerinaException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
         //todo change below exception to BLangRuntimeException later, for the time being using BallerinaException
@@ -64,19 +44,7 @@ public class BLangExceptionHelper {
         return new BallerinaException(reason, errorDetail);
     }
 
-    public static SemanticException getSemanticError(NodeLocation nodeLocation, SemanticErrors semanticError,
-                                                     Object... params) {
-        String location = nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
-
-        String errorMsg = MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
-        return new SemanticException(location + errorMsg);
-    }
-
     public static String getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {
         return MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
-    }
-    
-    public static String getErrorMessage(SemanticErrors semanticError, Object... params) {
-        return MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
     }
 }

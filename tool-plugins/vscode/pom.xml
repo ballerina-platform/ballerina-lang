@@ -140,6 +140,22 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>update-version</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>update-version</argument>
+                                <argument>--</argument>
+                                <argument>${project.version}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -245,31 +261,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>${maven.replacer.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>replace-version</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <includes>
-                        <include>${basedir}/package.json</include>
-                    </includes>
-                    <replacements>
-                        <replacement>
-                            <token>"version": "(.*?)",</token>
-                            <value>"version": "${project.version}",</value>
-                        </replacement>
-                    </replacements>
-                </configuration>
             </plugin>
         </plugins>
     </build>

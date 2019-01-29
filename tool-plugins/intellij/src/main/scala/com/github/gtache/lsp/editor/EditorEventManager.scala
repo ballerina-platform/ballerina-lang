@@ -213,8 +213,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                 val builder = StringBuilder.newBuilder
                 builder.append("<html>")
                 scalaSignatures.take(activeSignatureIndex).foreach(sig => builder.append(sig.getLabel).append("<br>"))
-                builder.append("<b>").append(scalaSignatures(activeSignatureIndex).getLabel
-                  .replace(activeParameter, "<font color=\"yellow\">" + activeParameter + "</font>")).append("</b>")
+                builder.append("<b>").append(scalaSignatures(activeSignatureIndex).getLabel).append("</b>")
                 scalaSignatures.drop(activeSignatureIndex + 1).foreach(sig => builder.append("<br>").append(sig.getLabel))
                 builder.append("</html>")
                 invokeLater(() => currentHint = createAndShowEditorHint(editor, builder.toString(), point, HintManager.UNDER, HintManager.HIDE_BY_OTHER_HINT))
