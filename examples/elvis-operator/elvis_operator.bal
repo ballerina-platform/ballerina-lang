@@ -4,7 +4,7 @@ public function main() {
     string|() x = ();
 
     // If you need to get the `string` value of x, and if the value of x is `nil`, you may want
-    // to assign a known value. This is how you can do it via the type-guard.
+    // to assign a value. This is how you can do it via the type-guard.
     string output = x is string ? "value is string: " + x : "value is nil";
     io:println("The output from the type-guard: " + output);
 
