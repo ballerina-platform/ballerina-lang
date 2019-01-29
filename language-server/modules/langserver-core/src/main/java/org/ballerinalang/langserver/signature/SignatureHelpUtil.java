@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
+import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -325,8 +326,10 @@ public class SignatureHelpUtil {
         }
 
         void setSignatureDescription(String signatureDescription, LSContext signatureContext) {
-            List<String> documentationFormat = signatureContext.get(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY)
-                    .getSignatureInformation().getDocumentationFormat();
+            SignatureInformationCapabilities capabilities = signatureContext
+                    .get(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY).getSignatureInformation();
+            List<String> documentationFormat = capabilities != null ? capabilities.getDocumentationFormat()
+                    : new ArrayList<>();
             if (documentationFormat != null
                     && !documentationFormat.isEmpty()
                     && documentationFormat.get(0).equals(CommonUtil.MARKDOWN_MARKUP_KIND)) {
