@@ -25,6 +25,7 @@ task:TimerConfiguration configuration = {
 public function main() {
     task:Listener timer = new(configuration);
     var result = timer.__attach(timerService, {});
+    result = timer.__start();
 }
 
 service timerService = service {
