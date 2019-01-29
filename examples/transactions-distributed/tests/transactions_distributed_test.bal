@@ -1,16 +1,18 @@
 import ballerina/test;
-import ballerina/io;
+import ballerina/log;
 
-any[] outputs = [];
+string[] outputs = [];
 int count = 0;
 
 @test:Mock {
-    moduleName: "ballerina/io",
-    functionName: "println"
+    moduleName: "ballerina/log",
+    functionName: "printInfo"
 }
-public function mockPrint(any... s) {
-    outputs[count] = string.convert(s[0]);
-    count += 1;
+public function mockLogInfo(string | (function() returns (string)) msg) {
+    if (msg is string) {
+        outputs[count] = msg;
+        count += 1;
+    }
 }
 
 function initiateTrx() {
@@ -29,25 +31,18 @@ function testFunc() {
     initiateTrx();
 
     test:assertEquals(outputs[0], "Initiating transaction...");
-
-    string out1 = <string> outputs[1];
-    test:assertTrue(out1.hasPrefix("Started transaction:"));
-
-    test:assertEquals(outputs[2], "Received update stockquote request");
-
-    string out3 = <string> outputs[3];
-    test:assertTrue(out3.hasPrefix("Joined transaction: "));
-
-    string out4 = <string> outputs[4];
-    test:assertTrue(out4.hasPrefix("Update stock quote request received."));
-
-    test:assertEquals(outputs[5], "Sent response back to initiator");
-    test:assertEquals(outputs[6], "Got response from bizservice");
-
-    string out7 = <string> outputs[7];
-    test:assertTrue(out7.hasPrefix("Participated transaction:"));
-    test:assertTrue(out7.hasSuffix("committed"));
-
-    test:assertEquals(outputs[8], "Initiated transaction committed");
-    test:assertEquals(outputs[9], "Sent response back to client");
+    test:assertTrue(<boolean> outputs[1].matches("Created transaction: .*"));
+    test:assertTrue(<boolean> outputs[2].matches("Started transaction: .*"));
+    test:assertTrue(<boolean> outputs[3].matches("Registered local participant: .*"));
+    test:assertEquals(outputs[4], "Received update stockquote request");
+    test:assertTrue(<boolean> outputs[5].matches("Joined transaction: .*"));
+    test:assertTrue(<boolean> outputs[6].matches("Update stock quote request received.\n.*"));
+    test:assertEquals(outputs[7], "Sent response back to initiator");
+    test:assertEquals(outputs[8], "Got response from bizservice");
+    test:assertTrue(<boolean> outputs[9].matches("Running 2-phase commit for transaction: .*"));
+    test:assertTrue(<boolean> outputs[10].matches("Preparing local participant: .*"));
+    test:assertTrue(<boolean> outputs[11].matches("Local participant: .* prepared"));
+    test:assertTrue(<boolean> outputs[12].matches("Participated transaction: .* committed"));
+    test:assertEquals(outputs[13], "Initiated transaction committed");
+    test:assertEquals(outputs[14], "Sent response back to client");
 }

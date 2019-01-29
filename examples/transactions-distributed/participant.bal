@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/io;
+import ballerina/log;
 import ballerina/transactions;
 
 // This service is a participant in the distributed transaction. It will get
@@ -18,7 +19,7 @@ service ParticipantService on new http:Listener(8889) {
         onabort:printParticipantAbort
     }
     resource function updateStockQuote(http:Caller conn, http:Request req) {
-        io:println("Received update stockquote request");
+        log:printInfo("Received update stockquote request");
         http:Response res = new;
 
         // At the beginning of the `transaction` statement, since a transaction
@@ -26,7 +27,7 @@ service ParticipantService on new http:Listener(8889) {
         // initiator as a participant.
 
         // Print the current transaction ID
-        io:println("Joined transaction: " +
+        log:printInfo("Joined transaction: " +
                        transactions:getCurrentTransactionId());
 
         var updateReq = untaint req.getJsonPayload();
@@ -36,7 +37,7 @@ service ParticipantService on new http:Listener(8889) {
                             symbol:%s, price:%s",
                             updateReq.symbol,
                             updateReq.price);
-            io:println(msg);
+            log:printInfo(msg);
 
             json jsonRes = { "message": "updating stock" };
             res.statusCode = http:OK_200;
@@ -44,14 +45,15 @@ service ParticipantService on new http:Listener(8889) {
         } else {
             res.statusCode = http:INTERNAL_SERVER_ERROR_500;
             res.setPayload(updateReq.reason());
-            io:println("Payload error occurred!");
+            log:printError("Payload error occurred!", err = updateReq);
         }
 
         var result = conn->respond(res);
         if (result is error) {
-            io:println("Could not send response back to initiator");
+            log:printError("Could not send response back to initiator",
+                                 err = result);
         } else {
-            io:println("Sent response back to initiator");
+            log:printInfo("Sent response back to initiator");
         }
     }
 }
@@ -59,11 +61,11 @@ service ParticipantService on new http:Listener(8889) {
 // The participant function that will get called when the distributed
 // transaction is aborted
 function printParticipantAbort(string transactionId) {
-    io:println("Participated transaction: " + transactionId + " aborted");
+    log:printInfo("Participated transaction: " + transactionId + " aborted");
 }
 
 // The participant function that will get called when the distributed
 // transaction is committed
 function printParticipantCommit(string transactionId) {
-    io:println("Participated transaction: " + transactionId + " committed");
+    log:printInfo("Participated transaction: " + transactionId + " committed");
 }
