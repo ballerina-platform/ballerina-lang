@@ -2,7 +2,7 @@
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ * Version 2.0 (the "License"Parameters); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -19,7 +19,7 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Accordion, AccordionTitleProps } from "semantic-ui-react";
+import { Accordion, AccordionTitleProps, Button, Divider } from "semantic-ui-react";
 
 import { OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
 
@@ -37,7 +37,7 @@ interface OpenApiOperationProp {
 }
 
 interface OpenApiOperationState {
-    activeIndex: number[];
+    activeOpIndex: number[];
     showAddParameter: number[];
 }
 
@@ -46,7 +46,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
         super(props);
 
         this.state = {
-            activeIndex: [],
+            activeOpIndex: [],
             showAddParameter: []
         };
 
@@ -64,13 +64,13 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
         }
 
         this.setState({
-            activeIndex: activeOperations
+            activeOpIndex: activeOperations
         });
     }
 
     public render() {
         const { pathItem, path } = this.props;
-        const { activeIndex, showAddParameter } = this.state;
+        const { activeOpIndex, showAddParameter } = this.state;
 
         return (
             <Accordion>
@@ -78,10 +78,11 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                     return(
                         <React.Fragment>
                             <Accordion.Title
-                                active={activeIndex.includes(index)}
+                                active={activeOpIndex.includes(index)}
                                 index={index}
-                                onClick={this.onAccordionTitleClick} >
-                                <span className="op-method">{openApiOperation}</span>
+                                onClick={this.onAccordionTitleClick}
+                                className={openApiOperation} >
+                                <span className={"op-method " + openApiOperation}>{openApiOperation}</span>
                                 <OpenApiContextConsumer>
                                     {(appContext: OpenApiContext) => {
                                         return (
@@ -100,7 +101,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                     }}
                                 </OpenApiContextConsumer>
                             </Accordion.Title>
-                            <Accordion.Content active={activeIndex.includes(index)}>
+                            <Accordion.Content active={activeOpIndex.includes(index)} className={openApiOperation}>
                                 <OpenApiContextConsumer>
                                     {(appContext: OpenApiContext) => {
                                         return (
@@ -121,10 +122,19 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                 <div className="op-section">
                                     <div className="title">
                                         <p>Parameters</p>
-                                        <a onClick={() => {
-                                            this.handleShowAddParameter(index);
-                                        }} >Add Parameter</a>
+                                        <Button
+                                            title="Add operation to resource."
+                                            size="mini"
+                                            compact
+                                            className="add-operation-action"
+                                            circular
+                                            onClick={() => {
+                                                this.handleShowAddParameter(index);
+                                            }}
+                                        ><i className="fw fw-add"></i>
+                                        </Button>
                                     </div>
+                                    <Divider />
                                     {showAddParameter.includes(index) &&
                                         <OpenApiContextConsumer>
                                             {(appContext: OpenApiContext) => {
@@ -179,11 +189,11 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
 
     private onAccordionTitleClick(e: React.MouseEvent, titleProps: AccordionTitleProps) {
         const { index } = titleProps;
-        const { activeIndex } = this.state;
+        const { activeOpIndex } = this.state;
 
         this.setState({
-            activeIndex: !activeIndex.includes(Number(index)) ?
-                [...this.state.activeIndex, Number(index)] : this.state.activeIndex.filter((i) => i !== index)
+            activeOpIndex: !activeOpIndex.includes(Number(index)) ?
+                [...this.state.activeOpIndex, Number(index)] : this.state.activeOpIndex.filter((i) => i !== index)
         });
     }
 }

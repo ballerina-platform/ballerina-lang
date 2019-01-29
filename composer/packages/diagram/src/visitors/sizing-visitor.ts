@@ -218,6 +218,18 @@ export const visitor: Visitor = {
         }
     },
 
+    beginVisitIf(node: If) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
+    beginVisitWhile(node: While) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
+    beginVisitForeach(node: Foreach) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
     // tslint:disable-next-line:ban-types
     endVisitFunction(node: Function) {
         if (node.lambda || !node.body) { return; }
@@ -301,9 +313,9 @@ export const visitor: Visitor = {
             // hide empty return stmts in resources
             if (node.resource) {
                 returnViewState.hidden =
-                        returnStmt.noExpressionAvailable
+                    returnStmt.noExpressionAvailable
                     || (ASTKindChecker.isLiteral(returnStmt.expression)
-                    && (returnStmt.expression as Literal).emptyParantheses === true);
+                        && (returnStmt.expression as Literal).emptyParantheses === true);
             }
         });
 
@@ -311,7 +323,7 @@ export const visitor: Visitor = {
         // and doesn't have any return statements
         if (!node.resource && returnStatements.length === 0) {
             const isNilType = (target: ASTNode) => ASTKindChecker.isValueType(target)
-                            && (target as ValueType).typeKind === "nil";
+                && (target as ValueType).typeKind === "nil";
 
             // case one: returns () or no return type declaration
             viewState.implicitReturn.hidden = !(isNilType(node.returnTypeNode)
@@ -329,7 +341,9 @@ export const visitor: Visitor = {
         let height = 0;
         viewState.bBox.w = config.statement.width;
         node.statements.forEach((element) => {
-            if (ASTUtil.isWorker(element)) { return; }
+            if (ASTUtil.isWorker(element) ||
+                ASTKindChecker.isReturn(element)
+            ) { return; }
             viewState.bBox.w = (viewState.bBox.w < element.viewState.bBox.w)
                 ? element.viewState.bBox.w : viewState.bBox.w;
             viewState.bBox.leftMargin = (viewState.bBox.leftMargin < element.viewState.bBox.leftMargin)
