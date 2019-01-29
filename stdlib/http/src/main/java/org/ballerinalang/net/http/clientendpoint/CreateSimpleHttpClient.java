@@ -94,12 +94,11 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
 
         populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
         ConnectionManager poolManager;
-        Struct userDefinedPoolConfig = clientEndpointConfig.getStructField(HttpConstants.
-                USER_DEFINED_POOL_CONFIG);
+        BMap<String, BValue> userDefinedPoolConfig = (BMap<String, BValue>) configBStruct.get(
+                HttpConstants.USER_DEFINED_POOL_CONFIG);
 
         if (userDefinedPoolConfig == null) {
-            Struct globalPool = BLangConnectorSPIUtil.toStruct(globalPoolConfig);
-            poolManager = getConnectionManager(globalPool);
+            poolManager = getConnectionManager(globalPoolConfig);
         } else {
             poolManager = getConnectionManager(userDefinedPoolConfig);
         }
@@ -107,16 +106,16 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration, poolManager);
         BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
-                                                                                      HTTP_PACKAGE_PATH,
-                                                                                      HTTP_CLIENT, urlString,
-                                                                                      clientEndpointConfig);
+                                                                              HTTP_PACKAGE_PATH,
+                                                                              HTTP_CLIENT, urlString,
+                                                                              clientEndpointConfig);
         httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         configBStruct.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         context.setReturnValues((httpClient));
     }
 
-    private ConnectionManager getConnectionManager(Struct poolStruct) {
+    private ConnectionManager getConnectionManager(BMap<String, BValue> poolStruct) {
         ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
         if (poolManager == null) {
             synchronized (this) {

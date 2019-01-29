@@ -116,6 +116,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSI
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.COLON;
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
@@ -1345,11 +1346,12 @@ public class HttpUtil {
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
         long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
-        if (timeoutMillis < 0 || !isInteger(timeoutMillis)) {
-            throw new BallerinaConnectorException("invalid idle timeout: " + timeoutMillis);
+        if (timeoutMillis < 0) {
+            senderConfiguration.setSocketIdleTimeout(0);
+        } else {
+            senderConfiguration.setSocketIdleTimeout(
+                    validateConfig(timeoutMillis, HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT));
         }
-        senderConfiguration.setSocketIdleTimeout((int) timeoutMillis);
-
         String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
                 .getStringValue();
         senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
@@ -1362,30 +1364,34 @@ public class HttpUtil {
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 
-    public static void populatePoolingConfig(Struct poolRecord, PoolConfiguration poolConfiguration) {
-        long maxActiveConnections = poolRecord
-                .getIntField(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS);
-        if (!isInteger(maxActiveConnections)) {
-            throw new BallerinaConnectorException("invalid maxActiveConnections value: "
-                    + maxActiveConnections);
-        }
-        poolConfiguration.setMaxActivePerPool((int) maxActiveConnections);
+    public static void populatePoolingConfig(BMap<String, BValue> poolRecord, PoolConfiguration poolConfiguration) {
+        long maxActiveConnections = ((BInteger) poolRecord
+                .get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS)).intValue();
+        poolConfiguration.setMaxActivePerPool(
+                validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
 
-        long waitTime = poolRecord.getIntField(HttpConstants.CONNECTION_POOLING_WAIT_TIME);
+        long waitTime = ((BInteger) poolRecord.get(HttpConstants.CONNECTION_POOLING_WAIT_TIME)).intValue();
         poolConfiguration.setMaxWaitTime(waitTime);
 
-        long maxActiveStreamsPerConnection = poolRecord.
-                getIntField(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
-        if (!isInteger(maxActiveStreamsPerConnection)) {
-            throw new BallerinaConnectorException("invalid maxActiveStreamsPerConnection value: "
-                    + maxActiveStreamsPerConnection);
-        }
+        long maxActiveStreamsPerConnection = ((BInteger) poolRecord.
+                get(CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION)).intValue();
         poolConfiguration.setHttp2MaxActiveStreamsPerConnection(
-                maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : (int) maxActiveStreamsPerConnection);
+                maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : validateConfig(maxActiveStreamsPerConnection,
+                                                                CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION));
     }
 
     public static boolean isInteger(long val) {
         return (int) val == val;
+    }
+
+    private static int validateConfig(long value, String configName) {
+        try {
+            return Math.toIntExact(value);
+        } catch (ArithmeticException e) {
+            log.warn("The value set for the configuration needs to be less than {}. The " + configName +
+                             "value is set to {}", Integer.MAX_VALUE);
+            return Integer.MAX_VALUE;
+        }
     }
 
     /**

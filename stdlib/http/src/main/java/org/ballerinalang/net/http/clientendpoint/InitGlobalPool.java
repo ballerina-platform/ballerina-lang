@@ -2,8 +2,6 @@ package org.ballerinalang.net.http.clientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -27,7 +25,7 @@ import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
         functionName = "initGlobalPool",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "ConnectionManager", structPackage = "ballerina"
                 + "/http"),
-        args = { @Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolConfiguration")},
+        args = {@Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolConfiguration")},
         isPublic = true
 )
 public class InitGlobalPool extends BlockingNativeCallableUnit {
@@ -36,9 +34,8 @@ public class InitGlobalPool extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> globalPoolConfig = (BMap<String, BValue>) context
                 .getRefArgument(HttpConstants.POOL_CONFIG_INDEX);
-        Struct globalPoolRecord = BLangConnectorSPIUtil.toStruct(globalPoolConfig);
         PoolConfiguration globalPool = new PoolConfiguration();
-        populatePoolingConfig(globalPoolRecord, globalPool);
+        populatePoolingConfig(globalPoolConfig, globalPool);
         ConnectionManager connectionManager = new ConnectionManager(globalPool);
         globalPoolConfig.addNativeData(CONNECTION_MANAGER, connectionManager);
     }
