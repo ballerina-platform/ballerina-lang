@@ -18,7 +18,7 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoke the main function.
     main();
-    test:assertEquals(outputs[0], "{age:0, name:\"\", parent:null}");
-    test:assertEquals(outputs[1], "{age:0, name:\"\", parent:null}");
-    test:assertEquals(outputs[2], "{age:0, name:\"\", parent:null}");
+    test:assertEquals(outputs[0], "{age:0, name:\"\", parent:()}");
+    test:assertEquals(outputs[1], "{age:0, name:\"\", parent:()}");
+    test:assertEquals(outputs[2], "{age:0, name:\"\", parent:()}");
 }
