@@ -31,7 +31,7 @@ public type ClientEndpointConfig record {
     string name = "";
     string username = "";
     string password = "";
-    sql:PoolOptions poolOptions = {};
+    sql:PoolOptions poolOptions?;
     map<any> dbOptions = {};
     !...;
 };
@@ -47,7 +47,9 @@ public type Client client object {
 
     # Gets called when the MySQL client is instantiated.
     public function __init(ClientEndpointConfig c) {
-        self.config = c;
+        if (c["poolOptions"] is ()) {
+            c.poolOptions = sql:globalPoolContainer.getGlobalPoolConfig();
+        }
         self.sqlClient = createClient(c);
     }
 
