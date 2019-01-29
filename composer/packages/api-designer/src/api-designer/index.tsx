@@ -57,7 +57,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                 paths: this.props.openApiJson.paths
             },
             showOpenApiAddPath: false,
-            showType: "all"
+            showType: ""
         };
 
         this.handleShowOpenApiAddPath = this.handleShowOpenApiAddPath.bind(this);
@@ -129,8 +129,15 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         const operations: { [index: string]: Swagger.OperationObject } = {};
 
         path.methods.forEach((method: string, index: number) => {
+            let opName = resourceName;
+            opName = opName.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, "");
+
+            if (resourceName.match(/\d+/g) !== null) {
+                opName = "resource" + opName;
+            }
+
             operations[method.toLowerCase()] = {
-                operationId: index === 0 ? resourceName : "resource" + index,
+                operationId: index === 0 ? opName : "resource" + index,
                 responses: {},
             };
         });
