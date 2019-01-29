@@ -3221,7 +3221,12 @@ public class Desugar extends BLangNodeVisitor {
             }
             return;
         }
-        result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+        BType retType = symTable.anydataType;
+        if (iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN) {
+            retType = symTable.booleanType;
+        }
+        result = visitBuiltInMethodInvocation(iExpr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
+                Lists.of(symTable.anydataType), retType);
     }
 
     private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {

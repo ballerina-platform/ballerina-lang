@@ -19,3 +19,15 @@
 # + value - Value to be cloned
 # + return - Clone of the given value
 extern function clone(anydata value) returns anydata;
+
+# Freeze a given value.
+#
+# + value - Value to be frozen
+# + return - Frozen value
+extern function freeze(anydata value) returns anydata;
+
+# Check freeze status of given value
+#
+# + value - Value to check freeze status
+# + return - True for a frozen value
+extern function isFrozen(anydata value) returns boolean;

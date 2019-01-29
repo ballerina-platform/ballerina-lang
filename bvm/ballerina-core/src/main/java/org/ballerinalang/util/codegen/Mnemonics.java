@@ -97,9 +97,6 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.STAMP] = "stamp";
 
-        mnemonics[InstructionCodes.FREEZE] = "freeze";
-        mnemonics[InstructionCodes.IS_FROZEN] = "is_frozen";
-
         mnemonics[InstructionCodes.ERROR] = "error";
         mnemonics[InstructionCodes.PANIC] = "panic";
         mnemonics[InstructionCodes.REASON] = "reason";
