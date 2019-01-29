@@ -49,3 +49,9 @@ extern function detail(error value) returns anydata;
 # + collection - Data collection
 # + iterator - Iterator for the given data
 extern function iterate(any data) returns any;
+
+# Get length of given value.
+#
+# + value - Value to get the length
+# + return - Length of the given value
+extern function length(anydata value) returns int;
