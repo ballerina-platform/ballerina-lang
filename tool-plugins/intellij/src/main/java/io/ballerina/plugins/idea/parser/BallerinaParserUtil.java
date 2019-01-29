@@ -77,7 +77,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                     // {sqlType:sql:Type.INTEGER, value:xmlDataArray};
                     IElementType rawLookup2;
                     do {
-                        rawLookup2 = builder.rawLookup(--steps);
+                        rawLookup2 = builder.rawLookup(steps--);
                         if (isWhiteSpaceOrComment(rawLookup2)) {
                             continue;
                         }
@@ -120,7 +120,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 ) {
                             IElementType rawLookup3;
                             do {
-                                rawLookup3 = builder.rawLookup(--steps);
+                                rawLookup3 = builder.rawLookup(steps--);
                                 if (isWhiteSpaceOrComment(rawLookup3)) {
                                     continue;
                                 }

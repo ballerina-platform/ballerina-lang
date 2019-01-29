@@ -78,7 +78,7 @@ object DocumentUtils {
     computableReadAction(() => {
       val line = pos.getLine
       val doc = editor.getDocument
-      val lineText = doc.getText(DocumentUtil.getLineTextRange(doc, line))
+      val lineText = doc.getText(DocumentUtil.getLineTextRange(doc, min(line,editor.getDocument.getLineCount-1)))
       val lineTextForPosition = lineText.substring(0, min(lineText.length, pos.getCharacter))
       val tabs = StringUtil.countChars(lineTextForPosition, '\t')
       val tabSize = editor.getSettings.getTabSize(editor.getProject)

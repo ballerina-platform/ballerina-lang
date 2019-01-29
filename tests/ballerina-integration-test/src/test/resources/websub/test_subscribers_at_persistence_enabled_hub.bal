@@ -26,7 +26,14 @@ listener websub:Listener websubEP = new websub:Listener(8383);
     subscribeOnStartUp: true,
     resourceUrl: "http://localhost:8080/publisher/discover",
     leaseSeconds: 3600,
-    secret: "Kslk30SNF2AChs2"
+    secret: "Kslk30SNF2AChs2",
+    subscriptionClientConfig: {
+        auth: {
+            scheme: http:BASIC_AUTH,
+            username: "tom",
+            password: "1234"
+        }
+    }
 }
 service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
@@ -39,7 +46,14 @@ service websubSubscriber on websubEP {
     path: "/websubTwo",
     subscribeOnStartUp: true,
     resourceUrl: "http://localhost:8080/publisherTwo/discover",
-    leaseSeconds: 1200
+    leaseSeconds: 1200,
+    subscriptionClientConfig: {
+        auth: {
+            scheme: http:BASIC_AUTH,
+            username: "tom",
+            password: "1234"
+        }
+    }
 }
 service websubSubscriberTwo on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {

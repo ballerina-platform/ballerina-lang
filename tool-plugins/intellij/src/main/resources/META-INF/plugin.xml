@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>0.990.1</version>
+    <version>0.990.3</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -10,7 +10,9 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Minor bug fixes and stability improvements.</li>
+        <li>Ballerina code folding support.</li>
+        <li>Spellchecking support.</li>
+        <li>Minor bug fixes and improvements.</li>
       </ul>
     ]]>
     </change-notes>
@@ -94,14 +96,14 @@
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="io.ballerina.plugins.idea.marker.BallerinaTypeFunctionMarker"/>
 
-        <lang.findUsagesProvider language="Ballerina"
-                                 implementationClass="io.ballerina.plugins.idea.usage.BallerinaFindUsageProvider"/>
+        <!--<lang.findUsagesProvider language="Ballerina"-->
+                                 <!--implementationClass="io.ballerina.plugins.idea.usage.BallerinaFindUsageProvider"/>-->
 
         <lang.elementManipulator forClass="io.ballerina.plugins.idea.psi.BallerinaCompletePackageName"
                                  implementationClass="io.ballerina.plugins.idea.psi.manipulator.BallerinaPackageManipulator"/>
 
-        <codeInsight.parameterInfo language="Ballerina"
-                                   implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>
+        <!--<codeInsight.parameterInfo language="Ballerina"-->
+                                   <!--implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>-->
 
         <spellchecker.support language="Ballerina"
                               implementationClass="io.ballerina.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
@@ -113,8 +115,8 @@
                    implementationClass="io.ballerina.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
 
         <!--refactoring-->
-        <lang.refactoringSupport language="Ballerina"
-                                 implementationClass="io.ballerina.plugins.idea.refactoring.BallerinaRefactoringSupport"/>
+        <!--<lang.refactoringSupport language="Ballerina"-->
+                                 <!--implementationClass="io.ballerina.plugins.idea.refactoring.BallerinaRefactoringSupport"/>-->
 
         <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
@@ -259,11 +261,8 @@
         <!--<action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"/>-->
         <!--<action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"/>-->
         <!--<action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog" use-shortcut-of="ShowReformatFileDialog"/>-->
-        <!--<action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>-->
-        <!--</action>-->
-        <!--<action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction">-->
-            <!--<keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/>-->
-        <!--</action>-->
+        <action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/> </action>
+        <action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction"><keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/></action>
     </actions>
 
     <application-components>

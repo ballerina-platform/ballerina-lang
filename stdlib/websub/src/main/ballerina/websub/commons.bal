@@ -500,7 +500,7 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration? hub
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
                                     default = hubConfiguration.topicRegistrationRequired ?: true);
 
-    // reset the hubUrl once the other parameters are set. if url is an empty strung, create hub url with listener
+    // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
     hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];

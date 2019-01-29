@@ -43,6 +43,7 @@ import org.eclipse.lsp4j._
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException
 
 import scala.collection.mutable
+import scala.util.Properties
 
 object EditorEventManager {
   private val HOVER_TIME_THRES: Long = EditorSettingsExternalizable.getInstance().getQuickDocOnMouseOverElementDelayMillis * 1000000
@@ -212,8 +213,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                 val builder = StringBuilder.newBuilder
                 builder.append("<html>")
                 scalaSignatures.take(activeSignatureIndex).foreach(sig => builder.append(sig.getLabel).append("<br>"))
-                builder.append("<b>").append(scalaSignatures(activeSignatureIndex).getLabel
-                  .replace(activeParameter, "<font color=\"yellow\">" + activeParameter + "</font>")).append("</b>")
+                builder.append("<b>").append(scalaSignatures(activeSignatureIndex).getLabel).append("</b>")
                 scalaSignatures.drop(activeSignatureIndex + 1).foreach(sig => builder.append("<br>").append(sig.getLabel))
                 builder.append("</html>")
                 invokeLater(() => currentHint = createAndShowEditorHint(editor, builder.toString(), point, HintManager.UNDER, HintManager.HIDE_BY_OTHER_HINT))
@@ -1201,33 +1201,34 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     * @return The runnable
     */
   def getEditsRunnable(version: Int = Int.MaxValue, edits: Iterable[TextEdit], name: String = "Apply LSP edits"): Runnable = {
-    if (version >= this.version) {
-      val document = editor.getDocument
-      if (document.isWritable) {
-        () => {
-          edits.foreach(edit => {
-            val text = edit.getNewText
-            val range = edit.getRange
-            val start = DocumentUtils.LSPPosToOffset(editor, range.getStart)
-            val end = DocumentUtils.LSPPosToOffset(editor, range.getEnd)
-            if (text == "" || text == null) {
-              document.deleteString(start, end)
-            } else if (end - start <= 0) {
-              document.insertString(start, text)
-            } else {
-              document.replaceString(start, end, text)
-            }
-          })
-          saveDocument()
-        }
-      } else {
-        LOG.warn("Document is not writable")
-        null
+    val document = editor.getDocument
+    if (document.isWritable) {
+      () => {
+        edits.foreach(edit => {
+          val text = sanitizeText(edit.getNewText)
+          val range = edit.getRange
+          val start = DocumentUtils.LSPPosToOffset(editor, range.getStart)
+          val end = DocumentUtils.LSPPosToOffset(editor, range.getEnd)
+          if (text == "" || text == null) {
+            document.deleteString(start, end)
+          } else if (end - start <= 0) {
+            document.insertString(start, text)
+          } else {
+            document.replaceString(start, end, text)
+          }
+        })
+        saveDocument()
       }
     } else {
-      LOG.warn("Edit version " + version + " is older than current version " + this.version)
+      LOG.warn("Document is not writable")
       null
     }
+  }
+
+  private def sanitizeText(str: String): String = {
+      val WIN_SEPARATOR = "\r\n"
+      val LINUX_SEPARATOR =  "\n"
+      if(str.contains(WIN_SEPARATOR)) str.replace(WIN_SEPARATOR,Properties.lineSeparator) else str.replace(LINUX_SEPARATOR,Properties.lineSeparator)
   }
 
   private def saveDocument(): Unit = {
