@@ -108,20 +108,18 @@ public class ConnectionManager {
      * @param clientEventGroup Represents the eventloop group that the client channel should be bound to
      * @return the client connection pool
      */
-    public GenericObjectPool getClientPool(HttpRoute httpRoute, SourceHandler sourceHandler,
-        SenderConfiguration senderConfig, BootstrapConfiguration bootstrapConfig, EventLoopGroup clientEventGroup) {
+    public GenericObjectPool getClientConnectionPool(HttpRoute httpRoute, SourceHandler sourceHandler,
+                                                     SenderConfiguration senderConfig,
+                                                     BootstrapConfiguration bootstrapConfig,
+                                                     EventLoopGroup clientEventGroup) {
         GenericObjectPool clientPool;
-        EventLoopGroup group;
-        Class eventLoopClass;
         if (sourceHandler != null) {
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
-            group = ctx.channel().eventLoop();
-            eventLoopClass = ctx.channel().getClass();
-            clientPool = getGenericObjectPool(httpRoute, senderConfig, bootstrapConfig, eventLoopClass, group);
+            clientPool = getGenericObjectPool(httpRoute, senderConfig, bootstrapConfig, ctx.channel().getClass(),
+                                              ctx.channel().eventLoop());
         } else {
-            eventLoopClass = NioSocketChannel.class;
-            group = clientEventGroup;
-            clientPool = getGenericObjectPool(httpRoute, senderConfig, bootstrapConfig, eventLoopClass, group);
+            clientPool = getGenericObjectPool(httpRoute, senderConfig, bootstrapConfig, NioSocketChannel.class,
+                                              clientEventGroup);
         }
         return clientPool;
     }

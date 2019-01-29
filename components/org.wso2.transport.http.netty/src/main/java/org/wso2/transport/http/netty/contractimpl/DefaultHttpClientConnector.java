@@ -178,8 +178,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             }
 
             if (clientConnectionPool == null) {
-                clientConnectionPool = connectionManager.getClientPool(route, srcHandler, senderConfiguration,
-                    bootstrapConfig, clientEventGroup);
+                clientConnectionPool = connectionManager.getClientConnectionPool(route, srcHandler, senderConfiguration,
+                                                                                 bootstrapConfig, clientEventGroup);
             }
 
             TargetChannel targetChannel = (TargetChannel) clientConnectionPool.borrowObject();
