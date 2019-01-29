@@ -27,7 +27,7 @@ public type InMemoryConfig record {
     string name;
     string username;
     string password;
-    sql:PoolOptions poolOptions = {};
+    sql:PoolOptions poolOptions?;
     map<any> dbOptions = {};
     !...;
 };
@@ -71,6 +71,13 @@ public type Client client object {
 
     # Gets called when the H2 client is instantiated.
     public function __init(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig c) {
+        match c {
+            var { poolOptions } => {}
+            var configWithoutPoolOptions => {
+                record { any...; } genericRecord = configWithoutPoolOptions;
+                genericRecord.poolOptions = sql:globalPoolContainer.getGlobalPoolConfig();
+            }
+        }
         self.sqlClient = createClient(c);
     }
 

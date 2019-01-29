@@ -43,6 +43,20 @@ public type PoolOptions record {
     !...;
 };
 
+public type GlobalPoolContainer object {
+     public PoolOptions poolConfig = {};
+     public function __init() {
+         self.initGlobalPoolContainer(self.poolConfig);
+     }
+     extern function initGlobalPoolContainer(PoolOptions poolConfig);
+
+     public function getGlobalPoolConfig() returns PoolOptions {
+        return self.poolConfig;
+     }
+};
+
+public final GlobalPoolContainer globalPoolContainer = new;
+
 # The SQL Datatype of the parameter.
 #
 # VARCHAR - Small, variable length character string

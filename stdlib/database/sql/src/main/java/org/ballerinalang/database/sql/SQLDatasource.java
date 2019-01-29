@@ -32,7 +32,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -136,18 +135,12 @@ public class SQLDatasource implements BValue {
             //Set username password
             config.setUsername(sqlDatasourceParams.username);
             config.setPassword(sqlDatasourceParams.password);
-            //Set URL
-            if (sqlDatasourceParams.jdbcUrl.isEmpty()) {
-                sqlDatasourceParams.jdbcUrl = constructJDBCURL(sqlDatasourceParams.dbType,
-                        sqlDatasourceParams.hostOrPath, sqlDatasourceParams.port, sqlDatasourceParams.dbName,
-                        sqlDatasourceParams.username, sqlDatasourceParams.password, sqlDatasourceParams.urlOptions);
-            }
             //Set optional properties
-            if (sqlDatasourceParams.options != null) {
-                boolean isXA = sqlDatasourceParams.options.getBooleanField(Constants.Options.IS_XA);
+            if (sqlDatasourceParams.poolOptions != null) {
+                boolean isXA = sqlDatasourceParams.poolOptions.getBooleanField(Constants.Options.IS_XA);
                 BMap<String, BRefType<?>> dataSourceConfigMap = populatePropertiesMap(sqlDatasourceParams.dbOptionsMap);
 
-                String dataSourceClassName = sqlDatasourceParams.options
+                String dataSourceClassName = sqlDatasourceParams.poolOptions
                         .getStringField(Constants.Options.DATASOURCE_CLASSNAME);
                 if (isXA && dataSourceClassName.isEmpty()) {
                     dataSourceClassName = getXADatasourceClassName(sqlDatasourceParams.dbType,
@@ -160,38 +153,38 @@ public class SQLDatasource implements BValue {
                 } else {
                     config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
                 }
-                String connectionInitSQL = sqlDatasourceParams.options
+                String connectionInitSQL = sqlDatasourceParams.poolOptions
                         .getStringField(Constants.Options.CONNECTION_INIT_SQL);
                 if (!connectionInitSQL.isEmpty()) {
                     config.setConnectionInitSql(connectionInitSQL);
                 }
 
-                int maximumPoolSize = (int) sqlDatasourceParams.options
+                int maximumPoolSize = (int) sqlDatasourceParams.poolOptions
                         .getIntField(Constants.Options.MAXIMUM_POOL_SIZE);
                 if (maximumPoolSize != -1) {
                     config.setMaximumPoolSize(maximumPoolSize);
                 }
-                long connectionTimeout = sqlDatasourceParams.options.getIntField(Constants.Options.CONNECTION_TIMEOUT);
+                long connectionTimeout = sqlDatasourceParams.poolOptions.getIntField(Constants.Options.CONNECTION_TIMEOUT);
                 if (connectionTimeout != -1) {
                     config.setConnectionTimeout(connectionTimeout);
                 }
-                long idleTimeout = sqlDatasourceParams.options.getIntField(Constants.Options.IDLE_TIMEOUT);
+                long idleTimeout = sqlDatasourceParams.poolOptions.getIntField(Constants.Options.IDLE_TIMEOUT);
                 if (idleTimeout != -1) {
                     config.setIdleTimeout(idleTimeout);
                 }
-                int minimumIdle = (int) sqlDatasourceParams.options.getIntField(Constants.Options.MINIMUM_IDLE);
+                int minimumIdle = (int) sqlDatasourceParams.poolOptions.getIntField(Constants.Options.MINIMUM_IDLE);
                 if (minimumIdle != -1) {
                     config.setMinimumIdle(minimumIdle);
                 }
-                long maxLifetime = sqlDatasourceParams.options.getIntField(Constants.Options.MAX_LIFE_TIME);
+                long maxLifetime = sqlDatasourceParams.poolOptions.getIntField(Constants.Options.MAX_LIFE_TIME);
                 if (maxLifetime != -1) {
                     config.setMaxLifetime(maxLifetime);
                 }
-                long validationTimeout = sqlDatasourceParams.options.getIntField(Constants.Options.VALIDATION_TIMEOUT);
+                long validationTimeout = sqlDatasourceParams.poolOptions.getIntField(Constants.Options.VALIDATION_TIMEOUT);
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }
-                boolean autoCommit = sqlDatasourceParams.options.getBooleanField(Constants.Options.AUTOCOMMIT);
+                boolean autoCommit = sqlDatasourceParams.poolOptions.getBooleanField(Constants.Options.AUTOCOMMIT);
                 config.setAutoCommit(autoCommit);
 
                 if (dataSourceConfigMap != null) {
@@ -254,89 +247,6 @@ public class SQLDatasource implements BValue {
         dataSourceConfigMap.put(Constants.USER, new BString(username));
         dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
         return dataSourceConfigMap;
-    }
-
-    private String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
-            String password, String dbOptions) {
-        StringBuilder jdbcUrl = new StringBuilder();
-        dbType = dbType.toUpperCase(Locale.ENGLISH);
-        hostOrPath = hostOrPath.replaceAll("/$", "");
-        switch (dbType) {
-        case Constants.DBTypes.MYSQL:
-            if (port <= 0) {
-                port = Constants.DefaultPort.MYSQL;
-            }
-            jdbcUrl.append("jdbc:mysql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.SQLSERVER:
-            if (port <= 0) {
-                port = Constants.DefaultPort.SQLSERVER;
-            }
-            jdbcUrl.append("jdbc:sqlserver://").append(hostOrPath).append(":").append(port).append(";databaseName=")
-                    .append(dbName);
-            break;
-        case Constants.DBTypes.ORACLE:
-            if (port <= 0) {
-                port = Constants.DefaultPort.ORACLE;
-            }
-            jdbcUrl.append("jdbc:oracle:thin:").append(username).append("/").append(password).append("@")
-                    .append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.SYBASE:
-            if (port <= 0) {
-                port = Constants.DefaultPort.SYBASE;
-            }
-            jdbcUrl.append("jdbc:sybase:Tds:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.POSTGRESQL:
-            if (port <= 0) {
-                port = Constants.DefaultPort.POSTGRES;
-            }
-            jdbcUrl.append("jdbc:postgresql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.IBMDB2:
-            if (port <= 0) {
-                port = Constants.DefaultPort.IBMDB2;
-            }
-            jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.HSQLDB_SERVER:
-            if (port <= 0) {
-                port = Constants.DefaultPort.HSQLDB_SERVER;
-            }
-            jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
-                    .append(dbName);
-            break;
-        case Constants.DBTypes.HSQLDB_FILE:
-            jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
-            break;
-        case Constants.DBTypes.H2_SERVER:
-            if (port <= 0) {
-                port = Constants.DefaultPort.H2_SERVER;
-            }
-            jdbcUrl.append("jdbc:h2:tcp:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.H2_FILE:
-            jdbcUrl.append("jdbc:h2:file:").append(hostOrPath).append(File.separator).append(dbName);
-            break;
-        case Constants.DBTypes.H2_MEMORY:
-            jdbcUrl.append("jdbc:h2:mem:").append(dbName);
-            break;
-        case Constants.DBTypes.DERBY_SERVER:
-            if (port <= 0) {
-                port = Constants.DefaultPort.DERBY_SERVER;
-            }
-            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.DERBY_FILE:
-            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(File.separator).append(dbName);
-            break;
-        default:
-            throw new BallerinaException("cannot generate url for unknown database type : " + dbType);
-        }
-        // Set peer address
-        peerAddress = hostOrPath + ":" + port;
-        return dbOptions.isEmpty() ? jdbcUrl.toString() : jdbcUrl.append(dbOptions).toString();
     }
 
     private String getXADatasourceClassName(String dbType, String url, String userName, String password) {
@@ -441,7 +351,7 @@ public class SQLDatasource implements BValue {
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
     protected static class SQLDatasourceParams {
-         private Struct options;
+         private Struct poolOptions;
          private String jdbcUrl;
          private String dbType;
          private String hostOrPath;
@@ -453,7 +363,7 @@ public class SQLDatasource implements BValue {
          private Map dbOptionsMap;
 
         private SQLDatasourceParams(SQLDatasourceParamsBuilder builder) {
-            this.options = builder.options;
+            this.poolOptions = builder.poolOptions;
             this.jdbcUrl = builder.jdbcUrl;
             this.dbType = builder.dbType;
             this.hostOrPath = builder.hostOrPath;
@@ -464,13 +374,17 @@ public class SQLDatasource implements BValue {
             this.urlOptions = builder.urlOptions;
             this.dbOptionsMap = builder.dbOptionsMap;
         }
+
+        public String getJdbcUrl() {
+            return jdbcUrl;
+        }
     }
 
     /**
      * Builder class for SQLDatasourceParams class.
      */
     public static class SQLDatasourceParamsBuilder {
-        private Struct options;
+        private Struct poolOptions;
         private String jdbcUrl;
         private String dbType;
         private String hostOrPath;
@@ -529,8 +443,8 @@ public class SQLDatasource implements BValue {
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withOptions(Struct options) {
-            this.options = options;
+        public SQLDatasourceParamsBuilder withPoolOptions(Struct options) {
+            this.poolOptions = options;
             return this;
         }
 
