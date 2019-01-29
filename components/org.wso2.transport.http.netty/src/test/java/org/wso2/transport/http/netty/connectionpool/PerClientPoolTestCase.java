@@ -50,8 +50,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
- * Test that when two different clients have the same route with their own pools that they do not share
- * one another's pool among them.
+ * Test that when two different clients have the same route with their own pools that they do not share one another's
+ * pool among them.
  *
  * @since 6.0.256
  */
@@ -64,7 +64,8 @@ public class PerClientPoolTestCase {
     private ServerConnector serverConnector;
     private HttpServer httpServer;
 
-    @BeforeClass public void setup() {
+    @BeforeClass
+    public void setup() {
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
 
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
@@ -82,7 +83,8 @@ public class PerClientPoolTestCase {
         }
     }
 
-    @Test public void testPerClientConnectionPool() {
+    @Test
+    public void testPerClientConnectionPool() {
         try {
             Future<String> requestOneResponse;
             Future<String> requestTwoResponse;
@@ -101,7 +103,8 @@ public class PerClientPoolTestCase {
         }
     }
 
-    @AfterClass public void cleanUp() throws ServerConnectorException {
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
         try {
             serverConnector.stop();
             httpServer.shutdown();
@@ -115,7 +118,8 @@ public class PerClientPoolTestCase {
 
         private String response;
 
-        @Override public String call() throws Exception {
+        @Override
+        public String call() throws Exception {
             try {
                 URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
                 HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);

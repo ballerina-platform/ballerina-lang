@@ -44,8 +44,8 @@ import static org.wso2.transport.http.netty.util.TestUtil.sendRequestAsync;
 import static org.wso2.transport.http.netty.util.TestUtil.sendRequestAsyncWithGivenPort;
 
 /**
- * Test that when two different clients have the same route with different schemes that they do not share the
- * connection pool, even though they have the same connection manager.
+ * Test that when two different clients have the same route with different schemes that they do not share the connection
+ * pool, even though they have the same connection manager.
  *
  * @since 6.0.256
  */
@@ -59,7 +59,8 @@ public class SameRouteWithDifferentSchemeTestCase {
     private HttpClientConnector httpsClientConnector;
     private HttpWsConnectorFactory connectorFactory;
 
-    @BeforeClass public void setup() {
+    @BeforeClass
+    public void setup() {
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
         httpsServer = TestUtil.startHttpsServer(TestUtil.HTTPS_SERVER_PORT, new SendChannelIDServerInitializer(5000));
 
@@ -76,7 +77,8 @@ public class SameRouteWithDifferentSchemeTestCase {
             .createHttpClientConnector(new HashMap<>(), senderConfigurationForHttps, sharedConnectionManager);
     }
 
-    @Test public void testPoolWithDifferentSchemes() {
+    @Test
+    public void testPoolWithDifferentSchemes() {
         try {
             CountDownLatch requestOneLatch = new CountDownLatch(1);
             CountDownLatch requestTwoLatch = new CountDownLatch(1);
@@ -85,7 +87,8 @@ public class SameRouteWithDifferentSchemeTestCase {
             String responseOne = TestUtil.waitAndGetStringEntity(requestOneLatch, responseListener1);
 
             DefaultHttpConnectorListener responseListener2 = sendRequestAsyncWithGivenPort(requestTwoLatch,
-                httpsClientConnector, TestUtil.HTTPS_SERVER_PORT);
+                                                                                           httpsClientConnector,
+                                                                                           TestUtil.HTTPS_SERVER_PORT);
             String responseTwo = TestUtil.waitAndGetStringEntity(requestTwoLatch, responseListener2);
 
             assertNotEquals(responseOne, responseTwo);
@@ -94,7 +97,8 @@ public class SameRouteWithDifferentSchemeTestCase {
         }
     }
 
-    @AfterClass public void cleanUp() {
+    @AfterClass
+    public void cleanUp() {
         try {
             httpServer.shutdown();
             httpsServer.shutdown();
