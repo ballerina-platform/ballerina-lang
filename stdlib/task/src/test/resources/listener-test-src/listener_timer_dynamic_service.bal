@@ -28,12 +28,18 @@ public function main() {
     result = timer.__start();
 }
 
+int count = 0;
+
+function getCount() returns int {
+    return count;
+}
+
 service timerService = service {
     resource function onTrigger() {
-        io:println("Triggering");
+        count = count + 1;
     }
 
     resource function onError() {
-        io:println("Error occurred");
+        count = count - 1;
     }
 };

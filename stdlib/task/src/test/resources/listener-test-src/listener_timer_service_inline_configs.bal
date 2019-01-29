@@ -18,12 +18,18 @@ import ballerina/task;
 
 listener task:Listener timer = new({ interval: 2000, delay: 1000 });
 
+int count = 0;
+
+function getCount() returns int {
+    return count;
+}
+
 service timerService on timer {
     resource function onTrigger() {
-
+        count = count + 1;
     }
 
     resource function onError() {
-
+        count = count - 1;
     }
 }

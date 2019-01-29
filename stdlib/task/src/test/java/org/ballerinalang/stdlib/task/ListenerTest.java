@@ -26,14 +26,36 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
 public class ListenerTest {
-    @Test(description = "Tests running an appointment and stopping it")
+    ByteArrayOutputStream out;
+    @BeforeClass
+    public void setupStreams() {
+        out = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(out));
+    }
+
+    @Test(description = "Tests a dynamic timer")
+    public void testListenerTimerDynamicService() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "listener-test-src/listener_timer_dynamic_service.bal");
+        BRunUtil.invoke(compileResult, "main");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BInteger);
+            return (((BInteger) count[0]).intValue() == 4);
+        });
+    }
+
+    @Test(description = "Tests running an timer as a service")
     public void testListenerTimer() {
         CompileResult compileResult = BCompileUtil.compile("listener-test-src/listener_timer_service.bal");
         BServiceUtil.runService(compileResult);
@@ -50,17 +72,16 @@ public class ListenerTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "listener-test-src/listener_timer_service_inline_configs.bal");
         BServiceUtil.runService(compileResult);
-    }
-
-    @Test(description = "Tests a timer listener without delay field")
-    public void testListenerTimerWithoutDelay() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/listener_timer_service_without_delay.bal");
-        BServiceUtil.runService(compileResult);
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BInteger);
+            return (((BInteger) count[0]).intValue() == 4);
+        });
     }
 
     @Test(
-            description = "Tests a timer listener with inline configurations",
+            description = "Tests a timer listener with negative delay and interval values",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*Task scheduling configuration is invalid.*"
     )
@@ -71,9 +92,9 @@ public class ListenerTest {
     }
 
     @Test(description = "Tests a timer listener without delay field")
-    public void testListenerTimerDynamicService() {
+    public void testListenerTimerWithoutDelay() {
         CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/listener_timer_dynamic_service.bal");
-        BRunUtil.invoke(compileResult, "main");
+                "listener-test-src/listener_timer_service_without_delay.bal");
+        BServiceUtil.runService(compileResult);
     }
 }

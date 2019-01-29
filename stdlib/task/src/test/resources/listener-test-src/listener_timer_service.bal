@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/task;
-import ballerina/io;
 
 task:TimerConfiguration configuration = {
     interval: 2000,
@@ -36,6 +35,6 @@ service timerService on timer {
     }
 
     resource function onError() {
-        io:println("Error occurred");
+        count = count - 1;
     }
 }
