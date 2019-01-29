@@ -300,7 +300,7 @@ class LanguageServerWrapperImpl(val serverDefinition: LanguageServerDefinition, 
         //workspaceClientCapabilities.setDidChangeConfiguration(new DidChangeConfigurationCapabilities)
         workspaceClientCapabilities.setDidChangeWatchedFiles(new DidChangeWatchedFilesCapabilities)
         workspaceClientCapabilities.setExecuteCommand(new ExecuteCommandCapabilities)
-        workspaceClientCapabilities.setWorkspaceEdit(new WorkspaceEditCapabilities(true))
+        workspaceClientCapabilities.setWorkspaceEdit(new WorkspaceEditCapabilities)
         workspaceClientCapabilities.setSymbol(new SymbolCapabilities)
         workspaceClientCapabilities.setWorkspaceFolders(false)
         workspaceClientCapabilities.setConfiguration(false)
