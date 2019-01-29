@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -623,11 +622,15 @@ public class PackageInfoReader {
         // Read and ignore flags
         dataInStream.readInt();
 
+        // Read memory index
         int globalMemIndex = dataInStream.readInt();
+
+        // Read identifier kind flag
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
 
         BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, globalMemIndex, type);
+                sigCPIndex, globalMemIndex, type, isIdentifierLiteral);
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
@@ -1071,11 +1074,13 @@ public class PackageInfoReader {
         int scopeStartLineNumber = dataInStream.readInt();
         int scopeEndLineNumber = dataInStream.readInt();
 
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
+
         UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
 
         BType type = getBTypeFromDescriptor(packageInfo, typeSigCPEntry.getValue());
         LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
-                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber);
+                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber, isIdentifierLiteral);
         int attchmntIndexesLength = dataInStream.readShort();
         int[] attachmentIndexes = new int[attchmntIndexesLength];
         for (int i = 0; i < attchmntIndexesLength; i++) {
@@ -1318,7 +1323,7 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.LENGTHOF:
+                case InstructionCodes.LENGTH:
                 case InstructionCodes.STAMP:
                 case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
@@ -1433,9 +1438,12 @@ public class PackageInfoReader {
                     BType syncSendType = getParamTypes(packageInfo, syncSigCPEntry.getValue())[0];
                     int exprIndex = codeStream.readInt();
                     int syncSendIndex = codeStream.readInt();
+                    WorkerDataChannelInfo syncChannelInfo = syncChannelRefCPEntry.getWorkerDataChannelInfo();
+                    boolean channelSendInSameStrand =
+                            syncChannelInfo.getSource().equals(BLangConstants.DEFAULT_WORKER_NAME);
                     packageInfo.addInstruction(new Instruction.InstructionWRKSyncSend(opcode, syncChannelRefCPIndex,
-                            syncChannelRefCPEntry.getWorkerDataChannelInfo(), syncSigCPIndex, syncSendType, exprIndex
-                            , syncSendIndex));
+                            syncChannelInfo, syncSigCPIndex, syncSendType, exprIndex
+                            , syncSendIndex, channelSendInSameStrand));
                     break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
@@ -1966,11 +1974,6 @@ public class PackageInfoReader {
         @Override
         public BType getConstrainedType(char typeChar, BType constraint) {
             switch (typeChar) {
-                case 'J':
-                    if (constraint == null) {
-                        return BTypes.typeJSON;
-                    }
-                    return new BJSONType(constraint);
                 case 'D':
                     if (constraint == null) {
                         return BTypes.typeTable;

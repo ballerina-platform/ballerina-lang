@@ -7,7 +7,7 @@ type RecordOne record {
 type RecordTwo record {
     string var1;
     int var2;
-    !...
+    !...;
 };
 
 type RecordThree record {
@@ -34,28 +34,31 @@ public function main() {
     matchWithTypeGuard(true);
 }
 
-// This method uses structured record match patterns with different fields. The given match expression will
+// This method uses structured record match patterns with different fields. The given `match` expression will
 // be checked for "isLike" relationship and will be matched at runtime.
 function basicMatch(any a) {
     match a {
-        // This pattern checks for a mapping value with three fields `var1`, `var2` and `var3` and types will be any in the pattern block.
+        // This pattern checks for a mapping value with three fields `var1`, `var2` and `var3` and types will
+        // be `any` in the pattern block.
         var {var1, var2, var3} => io:println("Matched with three vars : "
                     + io:sprintf("%s", var1) + ", "
                     + io:sprintf("%s", var2) + ", " + io:sprintf("%s", var3));
-        // This pattern checks for a mapping value with three fields `var1`, `var2` and types will be any in the pattern block.
+        // This pattern checks for a mapping value with two fields `var1`, `var2` and types will be `any` in
+        // the pattern block.
         var {var1, var2} => io:println("Matched with two vars : "
                     + io:sprintf("%s", var1) + ", " + io:sprintf("%s", var2));
-        // This pattern checks for a mapping value with three fields `var1` and type will be any in the pattern block.
+        // This pattern checks for a mapping value with single field `var1` and type will be `any` in the pattern block.
         var {var1} => io:println("Matched with single var : "
                     + io:sprintf("%s", var1));
     }
 }
 
 // Following method uses structured record match patterns with different fields along with a type guards. The given
-// match expression will be checked for "isLike" relationship and also it will check the type guard present for a
+// `match` expression will be checked for "isLike" relationship and also it will check the type guard present for a
 // successful match.
 function matchWithTypeGuard(any matchExpr) {
-    // All the patterns except the last one will check for a mapping value with two fields `var1` and `var2` with a given type guard.
+    // All the patterns except the last one will check for a mapping value with two fields `var1` and `var2`
+    // with a given type guard.
     match matchExpr {
         // This pattern will only match if `var2` is of type `string`.
         var {var1, var2} if var2 is string =>
@@ -76,7 +79,8 @@ function matchWithTypeGuard(any matchExpr) {
         var {var1, var2} if (var1 is string && var2 is RecordTwo) =>
                io:println("Matched with string and RecordTwo typeguard : "
                           + io:sprintf("%s", var2.var1));
-        // A pattern with a single identifier can be used as the last match pattern and all values will be matched to this
+        // A pattern with a single identifier can be used as the last match pattern and all values will
+        // be matched to this
         var x => io:println("Matched with Default");
     }
 }

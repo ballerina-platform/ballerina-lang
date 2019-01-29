@@ -58,7 +58,7 @@ public function testBidiStreaming() returns string {
     }
     io:println(msgs);
     if (msgs[0] == "Sam: Hi" || msgs[1] == "Sam: GM") {
-        response = "Success: received vaild responses from server";
+        response = "Success: received valid responses from server";
     } else {
         response = "Failed: invaild response from server";
     }

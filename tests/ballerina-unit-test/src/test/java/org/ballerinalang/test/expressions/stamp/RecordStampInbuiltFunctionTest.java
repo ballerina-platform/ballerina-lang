@@ -588,4 +588,3 @@ public class RecordStampInbuiltFunctionTest {
                             "incompatible stamp operation: 'Employee' value cannot be stamped as 'Teacher'");
     }
 }
-

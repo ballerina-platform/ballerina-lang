@@ -2,21 +2,10 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/test;
 
-boolean serviceStarted;
-
-function startService() {
-    //serviceStarted = test:startServices("content-based-routing");
-}
-
-@test:Config {
-    before: "startService",
-    after: "stopService"
-}
-function testFunc() {
+@test:Config
+function testFunc() returns error? {
     // Invoking the main function
-    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
-    // Chck whether the server is started
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
+    http:Client httpEndpoint = new("http://localhost:9090");
     json payload = { name: "sanFrancisco" };
     json payload2 = { name: "london" };
 
@@ -40,27 +29,22 @@ function testFunc() {
     req.setJsonPayload(payload);
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->post("/cbr/route", req);
-    match response {
-        http:Response resp => {
-            var jsonRes = check resp.getJsonPayload();
-            test:assertEquals(jsonRes, response1);
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response is http:Response) {
+        var jsonRes = check response.getJsonPayload();
+        test:assertEquals(jsonRes, response1);
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     http:Request req2 = new;
     req2.setJsonPayload(payload2);
     // Send a GET request to the specified endpoint
     var respnc = httpEndpoint->post("/cbr/route", req2);
-    match respnc {
-        http:Response resp => {
-            var jsonRes = check resp.getJsonPayload();
-            test:assertEquals(jsonRes, response2);
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (respnc is http:Response) {
+        var jsonRes = check respnc.getJsonPayload();
+        test:assertEquals(jsonRes, response2);
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
-}
-
-function stopService() {
-    //test:stopServices("content-based-routing");
+    return;
 }

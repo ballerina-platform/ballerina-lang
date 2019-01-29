@@ -48,7 +48,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -704,6 +703,10 @@ public class CompiledPackageSymbolEnter {
                 literal.value = stringCPEntry.getValue();
                 literal.typeTag = TypeTags.STRING;
                 break;
+            case TypeDescriptor.SIG_NULL:
+                literal.value = null;
+                literal.typeTag = TypeTags.NIL;
+                break;
             default:
                 // Todo - Allow json and xml.
                 throw new RuntimeException("unknown constant value type " + typeDesc);
@@ -717,6 +720,9 @@ public class CompiledPackageSymbolEnter {
         String typeSig = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
         int memIndex = dataInStream.readInt();
+
+        // Read and ignore identifier kind flag
+        dataInStream.readBoolean();
 
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
@@ -946,6 +952,8 @@ public class CompiledPackageSymbolEnter {
         dataInStream.readInt();
         dataInStream.readInt();
         dataInStream.readInt();
+        // Read and ignore identifier kind flag
+        dataInStream.readBoolean();
 
         int attchmntIndexesLength = dataInStream.readShort();
         for (int i = 0; i < attchmntIndexesLength; i++) {
@@ -1176,11 +1184,6 @@ public class CompiledPackageSymbolEnter {
         @Override
         public BType getConstrainedType(char typeChar, BType constraint) {
             switch (typeChar) {
-                case 'J':
-                    if (constraint == null) {
-                        return symTable.jsonType;
-                    }
-                    return new BJSONType(TypeTags.JSON, constraint, symTable.jsonType.tsymbol);
                 case 'D':
                     if (constraint == null) {
                         return symTable.tableType;

@@ -37,7 +37,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -252,7 +254,7 @@ public class BValueArray extends BNewArray implements Serializable {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
         if (type.getTag() == TypeTags.TUPLE_TAG) {
 
             if (elementType != null && isBasicType(elementType)) {
@@ -267,7 +269,7 @@ public class BValueArray extends BNewArray implements Serializable {
                         memberType = BVM.resolveMatchingTypeForUnion(arrayValues[i], memberType);
                         ((BTupleType) type).getTupleTypes().set(i, memberType);
                     }
-                    arrayValues[i].stamp(memberType);
+                    arrayValues[i].stamp(memberType, unresolvedValues);
                 }
             }
         } else if (type.getTag() == TypeTags.JSON_TAG) {
@@ -281,21 +283,21 @@ public class BValueArray extends BNewArray implements Serializable {
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
-                    arrayValues[i].stamp(BVM.resolveMatchingTypeForUnion(arrayValues[i], type));
+                    arrayValues[i].stamp(BVM.resolveMatchingTypeForUnion(arrayValues[i], type), unresolvedValues);
                 }
             }
             type = new BArrayType(type);
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (BVM.checkIsLikeType(this, memberType)) {
-                    this.stamp(memberType);
+                if (BVM.checkIsLikeType(this, memberType, new ArrayList<>())) {
+                    this.stamp(memberType, unresolvedValues);
                     type = memberType;
                     break;
                 }
             }
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
             type = BVM.resolveMatchingTypeForUnion(this, type);
-            this.stamp(type);
+            this.stamp(type, unresolvedValues);
         } else {
             BType arrayElementType = ((BArrayType) type).getElementType();
 
@@ -318,7 +320,7 @@ public class BValueArray extends BNewArray implements Serializable {
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
-                    arrayValues[i].stamp(arrayElementType);
+                    arrayValues[i].stamp(arrayElementType, unresolvedValues);
                 }
             }
         }

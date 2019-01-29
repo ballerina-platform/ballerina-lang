@@ -1,6 +1,6 @@
 import {
-    ASTUtil, Function as FunctionNode, Lambda,
-    Variable, VariableDef, VisibleEndpoint
+    ASTUtil, Function as FunctionNode, Identifier,
+    Lambda, Literal, Variable, VariableDef, VisibleEndpoint
 } from "@ballerina/ast-model";
 import { BallerinaEndpoint } from "@ballerina/lang-service";
 import * as React from "react";
@@ -21,7 +21,6 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
     const { model } = props;
     const viewState: FunctionViewState = model.viewState;
     if (model.lambda || model.body === undefined) { return <g />; }
-
     return (
         <Panel model={viewState} title={model.name.value}
             icon={viewState.icon} astModel={model}>
@@ -69,8 +68,16 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                             if (model.resource && index === 0) {
                                 return;
                             }
-                            param = param as Variable;
-                            return " " + param.name.value;
+                            const defaultable = param.defaultable;
+                            const name: Identifier = defaultable
+                                ? ((param as VariableDef).variable as Variable).name
+                                : (param as Variable).name;
+                            const value: any = defaultable
+                                ? (((param as VariableDef).variable as Variable).initialExpression as Literal).value
+                                : undefined;
+                            return defaultable
+                                    ? " " + name.value + " = " + value
+                                    : " " + name.value;
                         }).toString()
                     }
                 />
@@ -80,7 +87,7 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                 .filter((element) => element.viewState.visible)
                 .map((element: VisibleEndpoint) => {
                     return <LifeLine title={element.name} icon="endpoint"
-                        model={element.viewState.bBox} astModel={!element.caller ? element : undefined} />;
+                        model={element.viewState.bBox} astModel={element.caller ? model.parameters[0] : element } />;
                 })
             }
             <DiagramContext.Consumer>
@@ -93,9 +100,16 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                             }
                         }}
                         onAddWorker={() => {
-                            if (model.body && ast) {
-                                ASTUtil.addWorkerToBlock(model.body, ast);
+                            if (!(model.body && ast)) {
+                                return;
                             }
+                            let nextWorkerIndex: number = model.body.statements.length;
+                            model.body.statements.forEach((statement, i) => {
+                                if (ASTUtil.isWorkerFuture(statement)) {
+                                    nextWorkerIndex = i + 1;
+                                }
+                            });
+                            ASTUtil.addWorkerToBlock(model.body, ast, nextWorkerIndex);
                         }}
                     />
                 )}

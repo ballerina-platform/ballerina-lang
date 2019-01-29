@@ -116,6 +116,7 @@ export class DiagramConfig {
         },
         leftMargin: STATEMENT_HEIGHT,
         leftMarginDefault: 60,
+        paddingTop: STATEMENT_HEIGHT / 4,
         rightMargin: STATEMENT_HEIGHT,
         whileGap: STATEMENT_HEIGHT,
     };

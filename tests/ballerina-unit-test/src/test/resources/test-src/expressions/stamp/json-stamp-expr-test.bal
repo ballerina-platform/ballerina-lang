@@ -19,7 +19,7 @@ type Student record {
     string status;
     string batch;
     string school;
-    !...
+    !...;
 };
 
 type Employee record {
@@ -33,7 +33,7 @@ type Person record {
     string status;
     string batch;
     string school;
-    !...
+    !...;
 };
 
 type Teacher record {
@@ -96,50 +96,6 @@ function stampJSONToMapV2() returns map<anydata>|error {
     return mapValue;
 }
 
-function stampConstraintJSONToAnydata() returns anydata {
-    json<Student> student = { name: "John" };
-    student.status = "Single";
-    student.batch = "LK2014";
-    student.school = "Hindu College";
-
-    anydata anydataValue = anydata.stamp(student);
-
-    return anydataValue;
-}
-
-function stampConstraintJSONToJSON() returns json {
-    json<Student> student = { name: "John" };
-    student.status = "Single";
-    student.batch = "LK2014";
-    student.school = "Hindu College";
-
-    json jsonValue  = json.stamp(student);
-
-    return jsonValue;
-}
-
-function stampConstraintJSONToConstraintJSON() returns json<Person>|error {
-    json<Student> student = { name: "Jon" };
-    student.status = "Single";
-    student.batch = "LK2014";
-    student.school = "Hindu College";
-
-    json<Person>|error jsonValue = json<Person>.stamp(student);
-
-    return jsonValue;
-}
-
-function stampConstraintJSONToConstraintMapV2() returns map<any>|error {
-    json<Student> student = { name: "Jon" };
-    student.status = "Single";
-    student.batch = "LK2014";
-    student.school = "Hindu College";
-
-    map<anydata>|error mapValue = map<anydata>.stamp(student);
-
-    return mapValue;
-}
-
 function stampJSONArrayToConstraintArray() returns Student []|error{
     json employeeArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
                             { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
@@ -179,7 +135,7 @@ function stampJSONArrayWithNullToAnydataArray() returns anydata []|error{
 
 type Foo record{
     string [] a;
-    !...
+    !...;
 };
 
 function stampJSONToRecordWithArray() returns Foo|error {
@@ -207,7 +163,7 @@ function stampJSONToMapNegative() returns map<string>|error {
 
 type StringArray record {
     string[]? a;
-    !...
+    !...;
 };
 
 function stampNullJSONToArrayNegative() returns StringArray|error {

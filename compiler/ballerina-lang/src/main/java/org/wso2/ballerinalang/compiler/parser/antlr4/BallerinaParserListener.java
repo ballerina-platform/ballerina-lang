@@ -1278,6 +1278,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code stringFunctionInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringFunctionInvocationReference(BallerinaParser.StringFunctionInvocationReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code stringFunctionInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringFunctionInvocationReference(BallerinaParser.StringFunctionInvocationReferenceContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#field}.
 	 * @param ctx the parse tree
 	 */
@@ -2555,26 +2567,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStreamingAction(BallerinaParser.StreamingActionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#setClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterSetClause(BallerinaParser.SetClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#setClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitSetClause(BallerinaParser.SetClauseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#setAssignmentClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#setAssignmentClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#streamingInput}.
 	 * @param ctx the parse tree

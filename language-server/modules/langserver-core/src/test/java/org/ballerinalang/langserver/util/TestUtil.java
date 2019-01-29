@@ -24,8 +24,10 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
+import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
@@ -37,6 +39,8 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.SignatureHelpCapabilities;
+import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
@@ -51,6 +55,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -60,6 +65,8 @@ import java.util.concurrent.ExecutionException;
 public class TestUtil {
 
     private static final String HOVER = "textDocument/hover";
+
+    private static final String CODELENS = "textDocument/codeLens";
 
     private static final String COMPLETION = "textDocument/completion";
 
@@ -76,6 +83,8 @@ public class TestUtil {
     private static final String CODE_ACTION = "textDocument/codeAction";
 
     private static final String FORMATTING = "textDocument/formatting";
+
+    private static final String IMPLEMENTATION = "textDocument/implementation";
 
     private static final String DOCUMENT_SYMBOL = "textDocument/documentSymbol";
 
@@ -100,6 +109,20 @@ public class TestUtil {
     }
 
     /**
+     * Get the textDocument/codeLens response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static String getCodeLensesResponse(String filePath, Endpoint serviceEndpoint) {
+        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
+        CodeLensParams codeLensParams = new CodeLensParams(identifier);
+        CompletableFuture result = serviceEndpoint.request(CODELENS, codeLensParams);
+        return getResponseString(result);
+    }
+
+    /**
      * Get the textDocument/completion response.
      *
      * @param filePath          Path of the Bal file
@@ -108,7 +131,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getCompletionResponse(String filePath, Position position, Endpoint endpoint) {
-        CompletableFuture result = endpoint.request(COMPLETION, getTextDocumentPositionParams(filePath, position));
+        CompletableFuture result = endpoint.request(COMPLETION, getCompletionParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -238,6 +261,20 @@ public class TestUtil {
     }
 
     /**
+     * Get the Goto implementation response.
+     *
+     * @param serviceEndpoint   Language Server Service endpoint
+     * @param filePath          File path to evaluate
+     * @param position          Cursor position
+     * @return {@link CompletableFuture}    Response completable future
+     */
+    public static String getGotoImplementationResponse(Endpoint serviceEndpoint, String filePath, Position position) {
+        TextDocumentPositionParams positionParams = getTextDocumentPositionParams(filePath, position);
+        CompletableFuture completableFuture = serviceEndpoint.request(IMPLEMENTATION, positionParams);
+        return getResponseString(completableFuture);
+    }
+
+    /**
      * Open a document.
      *
      * @param serviceEndpoint Language Server Service Endpoint
@@ -281,8 +318,16 @@ public class TestUtil {
         ClientCapabilities capabilities = new ClientCapabilities();
         TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
         CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+        SignatureHelpCapabilities signatureHelpCapabilities = new SignatureHelpCapabilities();
+        SignatureInformationCapabilities sigInfoCapabilities =
+                new SignatureInformationCapabilities(Arrays.asList("markdown", "plaintext"));
+
+        signatureHelpCapabilities.setSignatureInformation(sigInfoCapabilities);
         completionCapabilities.setCompletionItem(new CompletionItemCapabilities(true));
+
         textDocumentClientCapabilities.setCompletion(completionCapabilities);
+        textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+
         capabilities.setTextDocument(textDocumentClientCapabilities);
         params.setCapabilities(capabilities);
         endpoint.request("initialize", params);
@@ -341,6 +386,14 @@ public class TestUtil {
         positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
 
         return positionParams;
+    }
+
+    private static CompletionParams getCompletionParams(String filePath, Position position) {
+        CompletionParams completionParams = new CompletionParams();
+        completionParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        completionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        return completionParams;
     }
 
     private static String getResponseString(CompletableFuture completableFuture) {

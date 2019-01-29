@@ -272,8 +272,10 @@ public interface InstructionCodes {
     int RNEWARRAY = 205;
 
     int CLONE = 206;
+
     int FLUSH = 207;
-    int LENGTHOF = 208;
+
+    int LENGTH = 208;
     int WAITALL = 209;
 
     int NEWSTRUCT = 210;

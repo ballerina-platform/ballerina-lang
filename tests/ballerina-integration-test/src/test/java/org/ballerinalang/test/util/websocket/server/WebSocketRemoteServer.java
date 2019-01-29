@@ -39,9 +39,15 @@ public final class WebSocketRemoteServer {
     private final int port;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
+    private boolean sslEnabled = false;
 
     public WebSocketRemoteServer(int port) {
         this.port = port;
+    }
+
+    public WebSocketRemoteServer(int port, boolean sslEnabled) {
+        this.port = port;
+        this.sslEnabled = sslEnabled;
     }
 
     public void run() throws InterruptedException, BallerinaTestException {
@@ -53,7 +59,7 @@ public final class WebSocketRemoteServer {
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new WebSocketRemoteServerInitializer());
+                .childHandler(new WebSocketRemoteServerInitializer(sslEnabled));
         bootstrap.bind(port).sync();
     }
 

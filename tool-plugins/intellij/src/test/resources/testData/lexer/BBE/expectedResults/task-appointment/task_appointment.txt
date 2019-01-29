@@ -452,7 +452,7 @@ QUOTED_STRING_LITERAL ('"Stopping Appointment#1 cleanup task since it\n         
 ) (')')
 ; (';')
 WHITE_SPACE ('\n\n        ')
-LINE_COMMENT ('// This is how you cancel an appointment.')
+LINE_COMMENT ('// This is how you `cancel` an appointment.')
 WHITE_SPACE ('\n        ')
 identifier ('appointment1')
 . ('.')

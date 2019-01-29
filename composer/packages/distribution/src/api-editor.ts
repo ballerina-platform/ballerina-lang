@@ -1,3 +1,3 @@
-import "@ballerina/theme";
+import "@ballerina/font";
 
 export * from "@ballerina/api-designer";

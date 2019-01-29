@@ -16,7 +16,7 @@
 
 type Person1 record {
     string name;
-    !...
+    !...;
 };
 
 type AnotherPerson record {
@@ -32,7 +32,7 @@ function testMissingRequiredField1() {
 type Person2 record {
     string name;
     int age?;
-    !...
+    !...;
 };
 
 function testMissingRequiredField2() {
@@ -44,7 +44,7 @@ type Person3 record {
     string name;
     int age;
     map<any> address;
-    !...
+    !...;
 };
 
 function testMismatchingRestField1() {

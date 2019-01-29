@@ -12,5 +12,5 @@ function testUndeclaredAttributeAccess() {
 type Department record {
     string dptName = "";
     int count = 0;
-    !...
+    !...;
 };

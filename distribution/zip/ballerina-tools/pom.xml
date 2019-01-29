@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.990.1-SNAPSHOT</version>
+        <version>0.990.3-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -59,6 +59,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-crypto</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-encoding</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -202,6 +208,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-privacy</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-llvm</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -229,10 +241,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>swagger-to-ballerina-generator</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-codegen</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-codegen</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>protobuf-ballerina</artifactId>
@@ -385,6 +397,7 @@
                                 ballerina-cache,
                                 ballerina-config-api,
                                 ballerina-crypto,
+                                ballerina-encoding,
                                 ballerina-file,
                                 ballerina-grpc,
                                 ballerina-h2,
@@ -408,6 +421,7 @@
                                 ballerina-time,
                                 ballerina-transactions,
                                 ballerina-websub,
+                                ballerina-privacy,
                                 ballerina-llvm,
                                 ballerina-bir,
                                 <!-- other artifacts -->
@@ -467,6 +481,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-crypto-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-encoding-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
@@ -582,6 +601,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-websub-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

@@ -24,6 +24,7 @@ import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -39,9 +40,8 @@ public class SafeStrandCallback extends StrandCallback {
     private CallbackWaitHandler callbackWaitHandler;
 
     SafeStrandCallback(BType retType, WDChannels parentChannels, ChannelDetails[] sendIns) {
-        super(retType, sendIns);
+        super(retType, sendIns, parentChannels);
         this.callbackWaitHandler = new CallbackWaitHandler();
-        this.parentChannels = parentChannels;
     }
 
     @Override
@@ -50,26 +50,31 @@ public class SafeStrandCallback extends StrandCallback {
             this.callbackWaitHandler.dataLock.lock();
             super.signal();
 
-            if (this.callbackWaitHandler.waitingStrand == null) {
+            if (this.callbackWaitHandler.waitingStrands.isEmpty()) {
                 return;
             }
-            if (this.callbackWaitHandler.waitingStrand.strandWaitHandler.waitCompleted) {
-                return;
-            }
-            if (this.callbackWaitHandler.waitForAll) {
-                List<WaitMultipleCallback> callbackList = new ArrayList<>();
-                callbackList.add(new WaitMultipleCallback(this.callbackWaitHandler.keyReg, this));
-                if (WaitCallbackHandler.handleReturnInWaitMultiple(this.callbackWaitHandler.waitingStrand,
-                        this.callbackWaitHandler.retReg, callbackList)) {
-                    BVMScheduler.stateChange(this.callbackWaitHandler.waitingStrand, State.PAUSED, State.RUNNABLE);
-                    BVMScheduler.schedule(this.callbackWaitHandler.waitingStrand);
+
+            for (WaitingStrandInfo strandInfo : this.callbackWaitHandler.waitingStrands) {
+                if (strandInfo.waitingStrand.strandWaitHandler.waitCompleted) {
+                    continue;
                 }
-                return;
-            }
-            if (WaitCallbackHandler.handleReturnInWait(this.callbackWaitHandler.waitingStrand,
-                    this.callbackWaitHandler.expType, this.callbackWaitHandler.retReg, this)) {
-                BVMScheduler.stateChange(this.callbackWaitHandler.waitingStrand, State.PAUSED, State.RUNNABLE);
-                BVMScheduler.schedule(this.callbackWaitHandler.waitingStrand);
+
+                if (strandInfo.waitForAll) {
+                    List<WaitMultipleCallback> callbackList = new ArrayList<>();
+                    callbackList.add(new WaitMultipleCallback(strandInfo.keyReg, this));
+                    if (WaitCallbackHandler.handleReturnInWaitMultiple(strandInfo.waitingStrand,
+                            strandInfo.retReg, callbackList)) {
+                        BVMScheduler.stateChange(strandInfo.waitingStrand, State.PAUSED, State.RUNNABLE);
+                        BVMScheduler.schedule(strandInfo.waitingStrand);
+                    }
+                    continue;
+                }
+
+                if (WaitCallbackHandler.handleReturnInWait(strandInfo.waitingStrand,
+                        strandInfo.expType, strandInfo.retReg, this)) {
+                    BVMScheduler.stateChange(strandInfo.waitingStrand, State.PAUSED, State.RUNNABLE);
+                    BVMScheduler.schedule(strandInfo.waitingStrand);
+                }
             }
         } finally {
             this.callbackWaitHandler.dataLock.unlock();
@@ -84,6 +89,10 @@ public class SafeStrandCallback extends StrandCallback {
         errStream.println("error: " + BLangVMErrors.getPrintableStackTrace(error));
     }
 
+    public void setErrorForCancelledFuture(BError error) {
+        super.setError(error);
+    }
+
     void acquireDataLock() {
         this.callbackWaitHandler.dataLock.lock();
     }
@@ -93,11 +102,8 @@ public class SafeStrandCallback extends StrandCallback {
     }
 
     void configureWaitHandler(Strand waitingStrand, boolean waitForAll, BType expType, int retReg, int keyReg) {
-        this.callbackWaitHandler.waitingStrand = waitingStrand;
-        this.callbackWaitHandler.waitForAll = waitForAll;
-        this.callbackWaitHandler.expType = expType;
-        this.callbackWaitHandler.retReg = retReg;
-        this.callbackWaitHandler.keyReg = keyReg;
+        WaitingStrandInfo strandInfo = new WaitingStrandInfo(waitingStrand, waitForAll, expType, retReg, keyReg);
+        this.callbackWaitHandler.waitingStrands.add(strandInfo);
     }
 
     /**
@@ -105,16 +111,11 @@ public class SafeStrandCallback extends StrandCallback {
      */
     public static class CallbackWaitHandler {
         private Lock dataLock;
-        Strand waitingStrand;
-        boolean waitForAll;
-        BType expType;
-        int retReg;
-
-        //WaitForAll
-        int keyReg;
+        List<WaitingStrandInfo> waitingStrands;
 
         public CallbackWaitHandler() {
             dataLock = new ReentrantLock();
+            waitingStrands = new LinkedList<>();
         }
     }
 
@@ -136,6 +137,34 @@ public class SafeStrandCallback extends StrandCallback {
 
         public SafeStrandCallback getCallback() {
             return callback;
+        }
+    }
+
+    /**
+     * This class holds info of a waiting strand for a particular future.
+     */
+    public static class WaitingStrandInfo {
+        Strand waitingStrand;
+        boolean waitForAll;
+        BType expType;
+        int retReg;
+
+        //WaitForAll
+        int keyReg;
+
+        public WaitingStrandInfo(Strand waitingStrand, boolean waitForAll, BType expType, int retReg) {
+            this.waitingStrand = waitingStrand;
+            this.waitForAll = waitForAll;
+            this.expType = expType;
+            this.retReg = retReg;
+        }
+
+        public WaitingStrandInfo(Strand waitingStrand, boolean waitForAll, BType expType, int retReg, int keyReg) {
+            this.waitingStrand = waitingStrand;
+            this.waitForAll = waitForAll;
+            this.expType = expType;
+            this.retReg = retReg;
+            this.keyReg = keyReg;
         }
     }
 

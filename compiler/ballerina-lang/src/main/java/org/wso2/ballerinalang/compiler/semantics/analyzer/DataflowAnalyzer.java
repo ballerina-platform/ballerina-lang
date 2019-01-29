@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -182,6 +183,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -241,7 +243,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+        // Rearrange the top level nodes so that global variables come on top
+        List<TopLevelNode> sortedListOfNodes = new ArrayList<>(pkgNode.globalVars);
+        pkgNode.topLevelNodes.forEach(topLevelNode -> {
+            if (!sortedListOfNodes.contains(topLevelNode)) {
+                sortedListOfNodes.add(topLevelNode);
+            }
+        });
+        sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
@@ -829,11 +839,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
-            objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
+            if (objectTypeNode.initFunction.body == null) {
+                // if the __init() function is defined as an outside function definition
+                Optional<BLangFunction> outerFuncDef =
+                        objectEnv.enclPkg.functions.stream()
+                                .filter(f -> f.symbol.name.equals((objectTypeNode.initFunction).symbol.name))
+                                .findFirst();
+                outerFuncDef.ifPresent(bLangFunction -> objectTypeNode.initFunction = bLangFunction);
+            }
+
+            if (objectTypeNode.initFunction.body != null) {
+                objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
+            }
         }
 
-        if (!anonymousModelHelper.isAnonymousType(objectTypeNode.symbol) &&
-                !Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
+        if (!Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
             Stream.concat(objectTypeNode.fields.stream(), objectTypeNode.referencedFields.stream())
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {

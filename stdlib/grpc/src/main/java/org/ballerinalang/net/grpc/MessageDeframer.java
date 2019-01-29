@@ -74,7 +74,7 @@ public class MessageDeframer implements Closeable {
     private boolean compressedFlag;
     private CompositeContent nextFrame;
     private CompositeContent unprocessed = new CompositeContent();
-    private boolean inDelivery = false;
+    private volatile boolean inDelivery = false;
 
     private boolean closeWhenComplete = false;
 
@@ -167,7 +167,7 @@ public class MessageDeframer implements Closeable {
     }
 
     private boolean isStalled() {
-        return unprocessed.readableBytes() == 0;
+        return unprocessed == null || unprocessed.readableBytes() == 0;
     }
 
     /**

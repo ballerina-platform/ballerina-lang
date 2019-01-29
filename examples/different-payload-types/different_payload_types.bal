@@ -28,15 +28,15 @@ service actionService on new http:Listener(9090) {
         response = clientEP->post("/echo", "Sample Text");
         handleResponse(response);
 
-        //POST remote function with xml as payload.
+        //POST remote function with `xml` as payload.
         response = clientEP->post("/echo", xml `<yy>Sample Xml</yy>`);
         handleResponse(response);
 
-        //POST remote function with json as payload.
+        //POST remote function with `json` as payload.
         response = clientEP->post("/echo", { name: "apple", color: "red" });
         handleResponse(response);
 
-        //POST remote function with byte array as payload.
+        //POST remote function with `byte[]` as payload.
         string textVal = "Sample Text";
         byte[] binaryValue = textVal.toByteArray("UTF-8");
         response = clientEP->post("/echo", binaryValue);
@@ -45,12 +45,12 @@ service actionService on new http:Listener(9090) {
         //Get a byte channel to a given file.
         io:ReadableByteChannel bChannel = io:openReadableFile("./files/logo.png");
 
-        //POST remote function with byte channel as payload. Xince the file path is static
+        //POST remote function with byte channel as payload. Since the file path is static
         //`untaint` is used to denote that the byte channel is trusted .
         response = clientEP->post("/image", untaint bChannel);
         handleResponse(response);
 
-        //Create a json body part.
+        //Create a JSON body part.
         mime:Entity part1 = new;
         part1.setJson({ "name": "Jane" });
 
@@ -160,7 +160,6 @@ function handleResponse(http:Response|error response) {
         //Print the content type of the received data.
         if (response.hasHeader("content-type")) {
             string baseType = getBaseType(response.getContentType());
-
             if (mime:TEXT_PLAIN == baseType) {
                 var payload = response.getTextPayload();
                 if (payload is string) {

@@ -75,7 +75,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 
 DECIMAL_INTEGER_LITERAL = {DecimalNumeral}
 HEX_INTEGER_LITERAL = {HexNumeral}
-BINARY_INTEGER_LITERAL = {BinaryNumeral}
 
 DecimalNumeral = 0 | {NonZeroDigit} {Digits}?
 Digits = {Digit}+
@@ -90,10 +89,6 @@ DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digits}
 
 HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
-
-BinaryNumeral = 0 [bB] {BinaryDigits}
-BinaryDigits = {BinaryDigit}+
-BinaryDigit = [01]
 
 HexadecimalFloatingPointLiteral =  {HexIndicator} {HexFloatingPointNumber}
 HexIndicator = 0 [xX]
@@ -173,10 +168,6 @@ STRING_TEMPLATE_LITERAL_END = "`"
 DEPRECATED = "deprecated"
 DEPRECATED_TEMPLATE_START = {DEPRECATED} {WHITE_SPACE}* {LEFT_BRACE}
 
-// Todo - Need to add spaces between braces?
-// Note - This is used in checkExpressionEnd() function.
-DOCUMENTATION_TEMPLATE_ATTRIBUTE_END = {RIGHT_BRACE} {RIGHT_BRACE}
-
 EXPRESSION_START = "{{"
 EXPRESSION_END = "}}"
 
@@ -254,20 +245,10 @@ RETURN_PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCU
 DOCUMENTATION_SPACE = [ ]
 
 // MARKDOWN_DOCUMENTATION_MODE
-DEFINITION_REFERERNCE = {REFERENCE_TYPE} {DOCUMENTATION_SPACE}+
-REFERENCE_TYPE = {TYPE}|{SERVICE}|{VARIABLE}|{VAR}|{ANNOTATION}|{MODULE}|{FUNCTION}|{PARAMETER}
-MARKDOWN_DOCUMENTATION_TEXT = {DOCUMENTATION_TEXT_CHARACTER}+
+MARKDOWN_DOCUMENTATION_TEXT = ({DOCUMENTATION_TEXT_CHARACTER} | {DOCUMENTATION_ESCAPED_CHARACTERS})+
 DOCUMENTATION_TEXT_CHARACTER =  [^`\n] | '\\' {BACKTICK}
 DOCUMENTATION_ESCAPED_CHARACTERS = {DOCUMENTATION_SPACE}
 MARKDOWN_DOCUMENTATION_LINE_END = [\n]
-TYPE = "type"
-SERVICE = "service"
-VARIABLE = "variable"
-VAR = "var"
-ANNOTATION = "annotation"
-MODULE = "module"
-FUNCTION = "function"
-PARAMETER = "parameter"
 HASH = "#"
 ADD = "+"
 SUB = "-"
@@ -402,7 +383,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "join"                                      { return JOIN; }
     "json"                                      { return JSON; }
 
-    "lengthof"                                  { return LENGTHOF; }
     "limit"                                     { return LIMIT; }
     "listener"                                  { return LISTENER; }
     "lock"                                      { return LOCK; }
@@ -562,7 +542,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {BOOLEAN_LITERAL}                           { return BOOLEAN_LITERAL; }
     {DECIMAL_INTEGER_LITERAL}                   { return DECIMAL_INTEGER_LITERAL; }
     {HEX_INTEGER_LITERAL}                       { return HEX_INTEGER_LITERAL; }
-    {BINARY_INTEGER_LITERAL}                    { return BINARY_INTEGER_LITERAL; }
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
     {SYMBOLIC_STRING_LITERAL}                   { return SYMBOLIC_STRING_LITERAL; }
 

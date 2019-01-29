@@ -16,10 +16,10 @@ public type userPFoo object {
     public function getAge () returns (int);
 };
 
-function userPFoo.getName () returns (string) {
+public function userPFoo.getName () returns (string) {
     return self.name + ":userPFoo";
 }
 
-function userPFoo.getAge () returns (int) {
+public function userPFoo.getAge () returns (int) {
     return self.age;
 }

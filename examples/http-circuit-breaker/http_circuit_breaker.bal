@@ -8,7 +8,7 @@ import ballerina/runtime;
 // the backend until the `resetTime`.
 http:Client backendClientEP = new("http://localhost:8080", config = {
         // Circuit breaker configuration options that control the
-        // behavior of the Ballerina circuit breaker
+        // behavior of the Ballerina circuit breaker.
         circuitBreaker: {
             // Failure calculation window. This is how long Ballerina
             // circuit breaker keeps the statistics for the operations.
@@ -40,7 +40,7 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // When this threshold exceeds, the circuit trips.
             // This is the ratio between failures and total requests
             //  and the ratio is considered only within the configured
-            // `RollingWindow`
+            // `RollingWindow`.
             failureThreshold: 0.2,
 
             // The time period (in milliseconds) to wait before
@@ -74,7 +74,7 @@ service circuitbreaker on new http:Listener(9090) {
 
         var backendResponse = backendClientEP->forward("/hello", request);
 
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
@@ -102,11 +102,13 @@ service circuitbreaker on new http:Listener(9090) {
 
 public int counter = 1;
 
-// This sample service is used to mock connection timeouts and service outages. 
+// This sample service is used to mock connection timeouts and service outages.
 // Mock a service outage by stopping/starting this service.
 // This should run separately from the `circuitBreakerDemo` service.
 
-@http:ServiceConfig { basePath: "/hello" }
+@http:ServiceConfig {
+    basePath: "/hello"
+}
 service helloWorld on new http:Listener(8080) {
     @http:ResourceConfig {
         methods: ["GET"],
@@ -122,7 +124,7 @@ service helloWorld on new http:Listener(8080) {
             var result = caller->respond("Hello World!!!");
             if (result is error) {
                log:printError("Error sending response from mock service",
-                               err = result);
+                                err = result);
             }
         } else if (counter % 5 == 3) {
             counter = counter + 1;

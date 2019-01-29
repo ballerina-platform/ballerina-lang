@@ -204,7 +204,7 @@ public class ConfigRegistry {
             try {
                 value = configEntries.get(key);
                 if (value instanceof String) {
-                    return Boolean.parseBoolean((String) value);
+                    return Boolean.parseBoolean(resolveStringValue((String) value));
                 }
                 return (Boolean) value;
             } catch (ClassCastException e) {
@@ -238,7 +238,7 @@ public class ConfigRegistry {
             try {
                 value = configEntries.get(key);
                 if (value instanceof String) {
-                    return Long.parseLong((String) value);
+                    return Long.parseLong(resolveStringValue((String) value));
                 }
                 return (Long) value;
             } catch (ClassCastException | NumberFormatException e) {
@@ -272,7 +272,7 @@ public class ConfigRegistry {
             try {
                 value = configEntries.get(key);
                 if (value instanceof String) {
-                    return Double.parseDouble((String) value);
+                    return Double.parseDouble(resolveStringValue((String) value));
                 } else if (value instanceof Long) {
                     return (Long) value;
                 }

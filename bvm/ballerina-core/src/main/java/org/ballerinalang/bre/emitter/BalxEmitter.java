@@ -17,13 +17,17 @@
 */
 package org.ballerinalang.bre.emitter;
 
+import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
+import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
@@ -230,10 +234,27 @@ public class BalxEmitter {
                 println(tabs + "}");
                 break;
             case ERROR_TABLE:
+                ErrorTableAttributeInfo errAttr = (ErrorTableAttributeInfo) attr;
+                println(" {");
+                for (ErrorTableEntry ete : errAttr.getErrorTableEntriesList()) {
+                    println(tabs + "\t" + "ipFrom " + tabs + "\t" + "ipTo " +
+                            tabs + "\t" + "ipTarget " + tabs + "\t" + "regIndex " + tabs + "\t" + ete.toString());
+                }
+                println(tabs + "}");
+                break;
+            case LINE_NUMBER_TABLE_ATTRIBUTE:
+                LineNumberTableAttributeInfo lineInfo = (LineNumberTableAttributeInfo) attr;
+                println(" {");
+                for (LineNumberInfo lineNumberInfo : lineInfo.getLineNumberInfoEntries()) {
+                    println(tabs + "\t" + "fileName - " + lineNumberInfo.getFileName() +
+                            tabs + "\t" + "lineNumber - " + lineNumberInfo.getLineNumber() +
+                            tabs + "\t" + "ip - " + lineNumberInfo.getIp());
+                }
+                println(tabs + "}");
+                break;
             case TAINT_TABLE:
             case ANNOTATIONS_ATTRIBUTE:
             case DEFAULT_VALUE_ATTRIBUTE:
-            case LINE_NUMBER_TABLE_ATTRIBUTE:
             case PARAMETER_DEFAULTS_ATTRIBUTE:
             case DOCUMENT_ATTACHMENT_ATTRIBUTE:
             case PARAMETER_ANNOTATIONS_ATTRIBUTE:

@@ -22,7 +22,7 @@ type Age record {
 type ClosedAge record {
     int age;
     string format;
-    !...
+    !...;
 };
 
 type Person record {
@@ -30,7 +30,7 @@ type Person record {
     boolean married;
     Age age;
     (string, int) extra?;
-    !...
+    !...;
 };
 
 type Person2 record {
@@ -38,7 +38,7 @@ type Person2 record {
     boolean married;
     ClosedAge age;
     (string, int) extra?;
-    !...
+    !...;
 };
 
 function testUndefinedSymbol() {
@@ -121,3 +121,12 @@ function testUnknownFields() {
     any unknown2;
     {name, married, age: {age, format, unknown1}, unknown2} = p; // unknown fields
 }
+
+type UserData1 record {
+    *Data;
+};
+
+type UserData2 record {
+    int index;
+    *Data;
+};

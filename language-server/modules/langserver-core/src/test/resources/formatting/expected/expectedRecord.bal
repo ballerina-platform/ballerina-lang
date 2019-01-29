@@ -27,13 +27,13 @@ type RecordName5 record {
 public type RecordName6 record {
     int a = 0;
     string s;
-    !...
+    !...;
 };
 
 public type RecordName7 record {
     int a = 0;
     string s;
-    string...
+    string...;
 };
 
 type RecordName8 record {
@@ -60,4 +60,12 @@ function name1() {
             } hgt;
         } hgs;
     } sdd;
+}
+
+function name2() {
+    json msg = {
+        "response": {
+            "name": "main resource"
+        }
+    };
 }

@@ -133,6 +133,8 @@ import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
+    public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
+
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
     public static final String FILE_SEPARATOR = File.separator;
@@ -142,6 +144,10 @@ public class CommonUtil {
     public static final boolean LS_DEBUG_ENABLED;
 
     public static final String BALLERINA_HOME;
+
+    public static final String PLAIN_TEXT_MARKUP_KIND = "plaintext";
+
+    public static final String MARKDOWN_MARKUP_KIND = "markdown";
 
     static {
         String debugLogStr = System.getProperty("ballerina.debugLog");
@@ -156,20 +162,20 @@ public class CommonUtil {
      * Get the package URI to the given package name.
      *
      * @param pkgName        Name of the package that need the URI for
-     * @param currentPkgPath String URI of the current package
+     * @param pkgPath String URI of the current package
      * @param currentPkgName Name of the current package
      * @return String URI for the given path.
      */
-    public static String getPackageURI(String pkgName, String currentPkgPath, String currentPkgName) {
+    public static String getPackageURI(String pkgName, String pkgPath, String currentPkgName) {
         String newPackagePath;
         // If current package path is not null and current package is not default package continue,
         // else new package path is same as the current package path.
-        if (currentPkgPath != null && !currentPkgName.equals(".")) {
-            int indexOfCurrentPkgName = currentPkgPath.lastIndexOf(currentPkgName);
+        if (pkgPath != null && !currentPkgName.equals(".")) {
+            int indexOfCurrentPkgName = pkgPath.lastIndexOf(currentPkgName);
             if (indexOfCurrentPkgName >= 0) {
-                newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
+                newPackagePath = pkgPath.substring(0, indexOfCurrentPkgName);
             } else {
-                newPackagePath = currentPkgPath;
+                newPackagePath = pkgPath;
             }
 
             if (pkgName.equals(".")) {
@@ -178,7 +184,7 @@ public class CommonUtil {
                 newPackagePath = Paths.get(newPackagePath, pkgName).toString();
             }
         } else {
-            newPackagePath = currentPkgPath;
+            newPackagePath = pkgPath;
         }
         return newPackagePath;
     }
@@ -441,7 +447,8 @@ public class CommonUtil {
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
         List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
         Optional currentPkgImport = imports.stream()
-                .filter(bLangImportPackage -> bLangImportPackage.symbol.pkgID.equals(packageID))
+                .filter(bLangImportPackage -> bLangImportPackage.symbol != null
+                        && bLangImportPackage.symbol.pkgID.equals(packageID))
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
         if (!currentPkgImport.isPresent()) {
@@ -506,6 +513,22 @@ public class CommonUtil {
         });
 
         return returnList;
+    }
+
+    /**
+     * Populate the given map with the completion item.
+     *
+     * @param map               ID to completion item map
+     * @param id                pkg id in index
+     * @param completionItem    completion item to populate
+     */
+    public static void populateIdCompletionMap(HashMap<Integer, ArrayList<CompletionItem>> map, int id,
+                                         CompletionItem completionItem) {
+        if (map.containsKey(id)) {
+            map.get(id).add(completionItem);
+        } else {
+            map.put(id, new ArrayList<>(Collections.singletonList(completionItem)));
+        }
     }
 
     /**
@@ -783,6 +806,12 @@ public class CommonUtil {
             SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT.get(), bType,
                     ItemResolverConstants.ITR_COUNT_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(itrForEach, itrMap, itrFilter, itrCount));
+            
+            if (bType.tag == TypeTags.TABLE) {
+                SymbolInfo itrSelect = getIterableOpSymbolInfo(Snippet.ITR_SELECT.get(), bType,
+                        ItemResolverConstants.ITR_SELECT_LABEL, context);
+                symbolInfoList.add(itrSelect);
+            }
 
             if (aggregateFunctionsAllowed(bType)) {
                 SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN.get(), bType,
@@ -835,6 +864,14 @@ public class CommonUtil {
             SymbolInfo isInfinite = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_INFINITE.get(), bType,
                     ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(isNaN, isFinite, isInfinite));
+        }
+        
+        if (bType.tag == TypeTags.ERROR) {
+            SymbolInfo detail = getIterableOpSymbolInfo(Snippet.BUILTIN_DETAIL.get(), bType,
+                    ItemResolverConstants.BUILTIN_DETAIL_LABEL, context);
+            SymbolInfo reason = getIterableOpSymbolInfo(Snippet.BUILTIN_REASON.get(), bType,
+                    ItemResolverConstants.BUILTIN_REASON_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(detail, reason));
         }
     }
 

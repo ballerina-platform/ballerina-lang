@@ -65,7 +65,7 @@ function testClosureWithCasting() returns float {
 type Person record {
    string name;
     int age;
-    !...
+    !...;
 };
 
 function testRecordTypeWithArrowExpr() returns Person {
@@ -192,4 +192,21 @@ function testArrowExprWithNoArgumentsAndClosure() returns string {
     string closureVar = "Closure Text";
     function () returns string lambda = () => "Some Text " + packageVar + " " + closureVar;
     return lambda.call();
+}
+
+function testArrowExprInBracedExpr() returns string {
+    function () returns string lambda = (() => "Some Text");
+    return lambda.call();
+}
+
+int gVar = 100;
+
+function testArrowExprWithNoReturn() returns int {
+    function (int) lambda = integerVar => incrementInt(integerVar);
+    lambda.call(20);
+    return gVar;
+}
+
+function incrementInt(int x) {
+    gVar += x;
 }

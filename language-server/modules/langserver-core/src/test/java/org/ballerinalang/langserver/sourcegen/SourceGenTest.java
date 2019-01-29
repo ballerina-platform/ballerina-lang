@@ -25,6 +25,8 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerI
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -55,6 +57,7 @@ public class SourceGenTest {
             .toAbsolutePath();
     private List<File> ballerinaTestResources;
     private Endpoint serviceEndpoint;
+    private static final Logger log = LoggerFactory.getLogger(SourceGenTest.class);
 
     @BeforeClass
     public void loadExampleFiles() throws IOException {
@@ -62,8 +65,7 @@ public class SourceGenTest {
         this.ballerinaTestResources = getBallerinaUnitTestFiles();
     }
 
-    @Test(description = "Source gen test suit for formatting source gen", dataProvider = "unitTestFiles",
-            enabled = false)
+    @Test(description = "Source gen test suit for formatting source gen", dataProvider = "unitTestFiles")
     public void formattingSourceGenTests(File file) {
         LSServiceOperationContext formatContext = new LSServiceOperationContext();
         try {
@@ -96,6 +98,7 @@ public class SourceGenTest {
 
     @DataProvider
     public Object[] unitTestFiles() {
+        log.info("Test Source Gen");
         return this.ballerinaTestResources.toArray();
     }
 
@@ -115,18 +118,30 @@ public class SourceGenTest {
         private String[] ignoredFiles = {"grpc_bidirectional_streaming_client.bal", "compensate-stmt.bal",
                 "function-with-two-rest-params.bal", "redundant-compression-config.bal", "symbolic-string-test.bal",
                 "identifier-literal-success.bal", "entity-body-with-charset-test.bal",
-                "taintchecking/annotations/lambda.bal", "high_loc.bal", "test_objects.bal",
-                "lang/annotations/variable-as-attribute-value.bal", "lang/annotations/constant-as-attribute-value.bal",
-                "lang/annotations/multityped-attribute-array.bal", "lang/annotations/default-values.bal",
-                "lang/annotations/lang.annotations.pkg.first/annotation.bal", "structs/struct-equivalency.bal",
-                "lang/annotations/wrongly-attached-annot.bal", "structs/eq/eq1.bal", "structs/req/eq2.bal",
-                "lang/annotations/lang.annotations.foo/annotations.bal", "structs/req2/eq2.bal",
-                "lang/annotations/attribute-value-type-mismatch.bal", "structs/org.foo.attached_funcs/funcs.bal",
-                "lang/annotations/lang.annotations.doc1/doc-annotation.bal", "structs/eq2/eq2.bal",
-                "workers/fork-join-some-map.bal", "services/session/http-session-test.bal",
-                "streamingv2-aggregation-groupby-test.bal", "streamingv2-aggregation-test.bal",
-                "streamingv2-external-window-test.bal", "streamingv2-aggregation-with-groupby-test.bal",
-                "not-enough-args-to-return-3.bal", "too-many-args-to-return-1.bal"};
+                "taintchecking" + File.separator + "annotations" + File.separator + "lambda.bal", "high_loc.bal",
+                "test_objects.bal", "lang" + File.separator + "annotations" + File.separator +
+                "variable-as-attribute-value.bal", "lang" + File.separator + "annotations" + File.separator +
+                "constant-as-attribute-value.bal", "lang" + File.separator + "annotations" + File.separator +
+                "multityped-attribute-array.bal", "lang" + File.separator + "annotations" + File.separator +
+                "default-values.bal", "lang" + File.separator + "annotations" + File.separator +
+                "lang.annotations.pkg.first" + File.separator + "annotation.bal", "structs" + File.separator +
+                "struct-equivalency.bal", "lang" + File.separator + "annotations" + File.separator +
+                "wrongly-attached-annot.bal", "structs" + File.separator + "eq" + File.separator + "eq1.bal",
+                "structs" + File.separator + "req" + File.separator + "eq2.bal", "lang" + File.separator +
+                "annotations" + File.separator + "lang.annotations.foo" + File.separator + "annotations.bal",
+                "structs" + File.separator + "req2" + File.separator + "eq2.bal", "lang" + File.separator +
+                "annotations" + File.separator + "attribute-value-type-mismatch.bal", "structs" + File.separator +
+                "org.foo.attached_funcs" + File.separator + "funcs.bal", "lang" + File.separator + "annotations" +
+                File.separator + "lang.annotations.doc1" + File.separator + "doc-annotation.bal", "structs" +
+                File.separator + "eq2" + File.separator + "eq2.bal", "workers" + File.separator +
+                "fork-join-some-map.bal", "services" + File.separator + "session" + File.separator +
+                "http-session-test.bal", "streamingv2-aggregation-groupby-test.bal",
+                "streamingv2-aggregation-test.bal", "streamingv2-external-window-test.bal",
+                "streamingv2-aggregation-with-groupby-test.bal", "not-enough-args-to-return-3.bal",
+                "too-many-args-to-return-1.bal", "file_ops.bal", "valid-service.bal", "match_stmt_basic.bal",
+                "checkpoint.bal", "http_load_balancer_test.bal", "content_based_routing_test.bal", "http_cors_test.bal",
+                "header_based_routing_test.bal", "http_compression_test.bal", "http_access_logs_test.bal",
+                "immutable_values_test.bal", "trap_error_test.bal", "http_redirects_test.bal"};
 
         FileVisitor(List<File> ballerinaFiles) {
             this.files = ballerinaFiles;

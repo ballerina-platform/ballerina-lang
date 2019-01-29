@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
@@ -65,8 +65,8 @@ public class PullModuleExecutor implements LSCommandExecutor {
             String moduleName = "";
             String documentUri = "";
             for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-                String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
-                String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
+                String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
+                String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
                 if (argKey.equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
                     moduleName = argVal;
                 } else if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
@@ -141,13 +142,13 @@ public type IntentVerificationRequest object {
 
 };
 
-function IntentVerificationRequest.buildSubscriptionVerificationResponse(string expectedTopic)
+public function IntentVerificationRequest.buildSubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
 }
 
-function IntentVerificationRequest.buildUnsubscriptionVerificationResponse(string expectedTopic)
+public function IntentVerificationRequest.buildUnsubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
@@ -231,9 +232,11 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string generatedSignature = "";
 
     if (method.equalsIgnoreCase(SHA1)) {
-        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
+        generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toByteArray("UTF-8"),
+            secret.toByteArray("UTF-8")));
     } else if (method.equalsIgnoreCase(SHA256)) {
-        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
+        generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
+            secret.toByteArray("UTF-8")));
     } else {
         map<any> errorDetail = { message : "Unsupported signature method: " + method };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -429,7 +432,7 @@ public type SubscriptionChangeRequest record {
     string callback = "";
     int leaseSeconds = 0;
     string secret = "";
-    !...
+    !...;
 };
 
 # Record representing subscription/unsubscription details if a subscription/unsubscription request is successful.
@@ -441,7 +444,7 @@ public type SubscriptionChangeResponse record {
     string hub = "";
     string topic = "";
     http:Response response;
-    !...
+    !...;
 };
 
 /////////////////////////////////////////////////////////////
@@ -457,6 +460,7 @@ public type SubscriptionChangeResponse record {
 # + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
 #               `http(s)://localhost:{port}/websub/hub` if unspecified
 # + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
+# + hubPersistenceStore - The `HubPersistenceStore` to use to persist hub data
 public type HubConfiguration record {
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -464,7 +468,8 @@ public type HubConfiguration record {
     boolean topicRegistrationRequired = true;
     string publicUrl?;
     http:ClientEndpointConfig clientConfig?;
-    !...
+    HubPersistenceStore hubPersistenceStore?;
+    !...;
 };
 
 # Record representing remote publishing allowance.
@@ -476,7 +481,7 @@ public type HubConfiguration record {
 public type RemotePublishConfig record {
     boolean enabled = false;
     RemotePublishMode mode = PUBLISH_MODE_DIRECT;
-    !...
+    !...;
 };
 
 # Starts up the Ballerina Hub.
@@ -495,10 +500,14 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration? hub
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
                                     default = hubConfiguration.topicRegistrationRequired ?: true);
 
-    // reset the hubUrl once the other parameters are set. if url is an empty strung, create hub url with listener
+    // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
     hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
+    hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
+    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+        hubPersistenceEnabled = true;
+    }
 
     startHubService(hubServiceListener);
     return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl, hubServiceListener);
@@ -555,13 +564,13 @@ public type WebSubHub object {
     public extern function getSubscribers(string topic) returns SubscriberDetails[];
 };
 
-function WebSubHub.stop() returns boolean {
+public function WebSubHub.stop() returns boolean {
     // TODO: return error
     var stopResult = self.hubHttpListener.__stop();
     return stopHubService(self.hubUrl) && !(stopResult is error);
 }
 
-function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+public function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
         map<any> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
@@ -594,7 +603,7 @@ function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:Readabl
     return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
-function WebSubHub.registerTopic(string topic) returns error? {
+public function WebSubHub.registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
         map<any> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -603,7 +612,7 @@ function WebSubHub.registerTopic(string topic) returns error? {
     return registerTopicAtHub(topic);
 }
 
-function WebSubHub.unregisterTopic(string topic) returns error? {
+public function WebSubHub.unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
         map<any> errorDetail = { message : "Remote topic unregistration not allowed/not required at the Hub" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -628,20 +637,20 @@ public function addWebSubLinkHeader(http:Response response, string[] hubs, strin
     response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
 }
 
-# Record to represent Subscription Details retrieved from the database.
+# Record to represent persisted Subscription Details retrieved.
 #
 # + topic - The topic for which the subscription is added
 # + callback - The callback specified for the particular subscription
 # + secret - The secret to be used for authenticated content distribution
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
-type SubscriptionDetails record {
+public type SubscriptionDetails record {
     string topic = "";
     string callback = "";
     string secret = "";
     int leaseSeconds = 0;
     int createdAt = 0;
-    !...
+    !...;
 };
 
 function retrieveSubscriberServiceAnnotations(service serviceType) returns SubscriberServiceConfiguration? {
@@ -666,7 +675,7 @@ function retrieveSubscriberServiceAnnotations(service serviceType) returns Subsc
 type WebSubContent record {
     string|xml|json|byte[]|io:ReadableByteChannel payload = "";
     string contentType = "";
-    !...
+    !...;
 };
 
 function isSuccessStatusCode(int statusCode) returns boolean {
@@ -682,7 +691,7 @@ public type HubStartedUpError record {
     string message = "";
     error? cause = ();
     WebSubHub startedUpHub;
-    !...
+    !...;
 };
 
 # Record to represent Subscriber Details.
@@ -694,7 +703,7 @@ public type SubscriberDetails record {
     string callback = "";
     int leaseSeconds = 0;
     int createdAt = 0;
-    !...
+    !...;
 };
 
 type WebSubError record {

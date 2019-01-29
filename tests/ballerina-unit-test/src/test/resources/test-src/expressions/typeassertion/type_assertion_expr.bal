@@ -34,13 +34,13 @@ type Person record {
 type TableEmployee record {
     int id;
     string name;
-    !...
+    !...;
 };
 
 type TableEmployeeTwo record {
     int id;
     string name;
-    !...
+    !...;
 };
 
 type EmployeeObject object {
@@ -484,6 +484,19 @@ function testListElementAssertionNegative() {
     any a = t1[2];
     any[] anyArrTwo = <any[]> a;
     int iValTwo = <int> anyArrTwo[0];
+}
+
+function testOutOfOrderUnionConstraintAssertionPositive() returns boolean {
+    map<int|string> m = { one: 1, two: "2" };
+    anydata a = m;
+    map<string|int> m2 = <map<string|int>> a;
+    return m === m2;
+}
+
+function testOutOfOrderUnionConstraintAssertionNegative() {
+    stream<int|float> s1 = new;
+    any a = s1;
+    stream<float|json> s2 = <stream<float|json>> a;
 }
 
 function testStringAsInvalidBasicType() {

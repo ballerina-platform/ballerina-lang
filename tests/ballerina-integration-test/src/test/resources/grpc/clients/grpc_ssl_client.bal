@@ -14,15 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
 
-function testUnarySecuredBlockingWithCerts(string path) returns (string) {
+function testUnarySecuredBlockingWithCerts() returns (string) {
     grpcMutualSslServiceBlockingClient helloWorldBlockingEp = new ("https://localhost:9317", config = {
         secureSocket:{
-            keyFile: path + "/private.key",
-            certFile: path + "/public.crt",
-            trustedCertFile: path + "/public.crt"
+            keyFile: config:getAsString("client.certificate.key"),
+            certFile: config:getAsString("client.public.cert"),
+            trustedCertFile: config:getAsString("client.public.cert")
         }
     });
 

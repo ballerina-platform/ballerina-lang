@@ -67,6 +67,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
@@ -83,19 +84,20 @@ public class LauncherUtils {
     public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
                                   String configFilePath, String[] args, boolean offline, boolean observeFlag) {
         runProgram(sourceRootPath, sourcePath, MAIN_FUNCTION_NAME, runtimeParams, configFilePath, args, offline,
-                observeFlag, false, true);
+                observeFlag, false, false, true);
     }
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
                                   boolean offline, boolean observeFlag, boolean printReturn) {
         runProgram(sourceRootPath, sourcePath, functionName, runtimeParams, configFilePath, args, offline, observeFlag,
-                printReturn, true);
+                printReturn, false, true);
     }
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, boolean printReturn, boolean experimentalFlag) {
+                                  boolean offline, boolean observeFlag, boolean printReturn, boolean siddhiRuntimeFlag,
+                                  boolean experimentalFlag) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -107,12 +109,13 @@ public class LauncherUtils {
             programFile = BLangProgramLoader.read(sourcePath);
         } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
-            programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline, experimentalFlag);
+            programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline, siddhiRuntimeFlag,
+                    experimentalFlag);
         } else if (Files.isDirectory(sourceRootPath)) {
             if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                throw createLauncherException("did you mean to run the module ? If so, either run from the project " +
-                                              "folder or use --sourceroot to specify the project path and run the " +
-                                              "module");
+                throw createLauncherException("you are trying to run a module that is not inside " +
+                        "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                        "project and then run the module.");
             }
             if (Files.exists(fullPath)) {
                 if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
@@ -131,7 +134,7 @@ public class LauncherUtils {
                 throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
                                                       "project. Try running 'ballerina run <module-name>'");
             }
-            programFile = compile(sourceRootPath, sourcePath, offline, experimentalFlag);
+            programFile = compile(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag);
         } else {
             throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX
                                                   + " files can be used with the 'ballerina run' command.");
@@ -311,6 +314,40 @@ public class LauncherUtils {
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(OFFLINE, Boolean.toString(offline));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage entryPkgNode = compiler.compile(sourcePath.toString());
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPkgNode);
+        if (programFile == null) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
+
+        ProgramFile progFile = getExecutableProgram(programFile);
+        progFile.setProgramFilePath(sourcePath);
+        return progFile;
+    }
+
+    /**
+     * Compile and get the executable program file.
+     *
+     * @param sourceRootPath Path to the source root
+     * @param sourcePath Path to the source from the source root
+     * @param offline Should the build call remote repos
+     * @param siddhiRuntimeFlag Flag to enable siddhi runtime based stream processing
+     * @param enableExpFeatures Flag indicating to enable the experimental feature
+     * @return Executable program
+     */
+    public static ProgramFile compile(Path sourceRootPath, Path sourcePath, boolean offline,
+                                      boolean siddhiRuntimeFlag, boolean enableExpFeatures) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(OFFLINE, Boolean.toString(offline));
+        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         // compile

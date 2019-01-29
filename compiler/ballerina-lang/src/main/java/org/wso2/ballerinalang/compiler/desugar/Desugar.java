@@ -1430,7 +1430,7 @@ public class Desugar extends BLangNodeVisitor {
         ifNode.body = rewrite(ifNode.body, env);
 
         if (ifNode.elseStmt != null && ifNode.elseStmt.getKind() == NodeKind.BLOCK) {
-            defineTypeGuards(ifNode.pos, ifNode.elseTypeGuards, (BLangBlockStmt) ifNode.elseStmt);
+            defineTypeGuards(ifNode.elseStmt.pos, ifNode.elseTypeGuards, (BLangBlockStmt) ifNode.elseStmt);
         }
         ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
         result = ifNode;
@@ -2465,7 +2465,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr = rewriteExpr(workerSendNode.expr);
+        List<BLangExpression> list = Lists.of(rewriteExpr(workerSendNode.expr));
+        workerSendNode.expr = appendCloneMethod(workerSendNode.expr.pos, list);
         if (workerSendNode.keyExpr != null) {
             workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
         }
@@ -2474,7 +2475,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        syncSendExpr.expr = rewriteExpr(syncSendExpr.expr);
+        List<BLangExpression> list = Lists.of(rewriteExpr(syncSendExpr.expr));
+        syncSendExpr.expr = appendCloneMethod(syncSendExpr.expr.pos, list);
         result = syncSendExpr;
     }
 
@@ -3033,72 +3035,134 @@ public class Desugar extends BLangNodeVisitor {
     private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
         switch (iExpr.builtInMethod) {
             case IS_NAN:
-                BOperatorSymbol notEqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                        OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
-                BLangBinaryExpr binaryExprNaN = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
-                                                                             symTable.booleanType,
-                                                                             OperatorKind.NOT_EQUAL, notEqSymbol);
-                result = rewriteExpr(binaryExprNaN);
+                if (iExpr.expr.type.tag == TypeTags.FLOAT) {
+                    BOperatorSymbol notEqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
+                    BLangBinaryExpr binaryExprNaN = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.NOT_EQUAL,
+                                                                                    notEqSymbol);
+                    result = rewriteExpr(binaryExprNaN);
+                } else {
+                    BOperatorSymbol greaterEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.GREATER_EQUAL, symTable.decimalType, symTable.decimalType);
+                    BOperatorSymbol lessThanSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.LESS_THAN, symTable.decimalType, symTable.decimalType);
+                    BOperatorSymbol orSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.OR, symTable.booleanType, symTable.booleanType);
+                    BOperatorSymbol notSymbol = (BOperatorSymbol) symResolver.resolveUnaryOperator(
+                            iExpr.pos, OperatorKind.NOT, symTable.booleanType);
+                    BLangLiteral literalZero = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.decimalType, "0");
+                    // v >= 0
+                    BLangBinaryExpr binaryExprLHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, literalZero,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.GREATER_EQUAL,
+                                                                                    greaterEqualSymbol);
+                    // v < 0
+                    BLangBinaryExpr binaryExprRHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, literalZero,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.LESS_THAN,
+                                                                                    lessThanSymbol);
+                    // v >= 0 || v < 0
+                    BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprLHS,
+                                                                                    binaryExprRHS,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.OR, orSymbol);
+                    // Final expression: !(v >= 0 || v < 0)
+                    BLangUnaryExpr finalExprNaN = ASTBuilderUtil.createUnaryExpr(iExpr.pos, binaryExpr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.NOT, notSymbol);
+                    result = rewriteExpr(finalExprNaN);
+                }
                 break;
             case IS_FINITE:
-                BOperatorSymbol equalSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
-                                                                                                  symTable.floatType,
-                                                                                                  symTable.floatType);
-                BOperatorSymbol notEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                        OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
-                BOperatorSymbol andEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                        OperatorKind.AND, symTable.booleanType, symTable.booleanType);
-                // v==v
-                BLangBinaryExpr binaryExprLHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.EQUAL, equalSymbol);
-                // v != positive_infinity
-                BLangLiteral posInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                          Double.POSITIVE_INFINITY);
-                BLangBinaryExpr nestedLHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, posInfLiteral, iExpr.expr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.NOT_EQUAL, notEqualSymbol);
+                if (iExpr.expr.type.tag == TypeTags.FLOAT) {
+                    BOperatorSymbol equalSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.EQUAL, symTable.floatType, symTable.floatType);
+                    BOperatorSymbol notEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
+                    BOperatorSymbol andEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.AND, symTable.booleanType, symTable.booleanType);
+                    // v==v
+                    BLangBinaryExpr binaryExprLHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, equalSymbol);
+                    // v != positive_infinity
+                    BLangLiteral posInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                                    Double.POSITIVE_INFINITY);
+                    BLangBinaryExpr nestedLHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, posInfLiteral,
+                                                                                    iExpr.expr, symTable.booleanType,
+                                                                                    OperatorKind.NOT_EQUAL,
+                                                                                    notEqualSymbol);
 
-                // v != negative_infinity
-                BLangLiteral negInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                          Double.NEGATIVE_INFINITY);
-                BLangBinaryExpr nestedRHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, negInfLiteral, iExpr.expr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.NOT_EQUAL, notEqualSymbol);
-                // v != positive_infinity && v != negative_infinity
-                BLangBinaryExpr binaryExprRHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, nestedLHSExpr, nestedRHSExpr,
-                                                                                symTable.booleanType, OperatorKind.AND,
-                                                                                andEqualSymbol);
-                // Final expression : v==v && v != positive_infinity && v != negative_infinity
-                BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprLHS, binaryExprRHS,
-                                                                             symTable.booleanType, OperatorKind.AND,
-                                                                             andEqualSymbol);
-                result = rewriteExpr(binaryExpr);
+                    // v != negative_infinity
+                    BLangLiteral negInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                                    Double.NEGATIVE_INFINITY);
+                    BLangBinaryExpr nestedRHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, negInfLiteral,
+                                                                                    iExpr.expr, symTable.booleanType,
+                                                                                    OperatorKind.NOT_EQUAL,
+                                                                                    notEqualSymbol);
+                    // v != positive_infinity && v != negative_infinity
+                    BLangBinaryExpr binaryExprRHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, nestedLHSExpr,
+                                                                                    nestedRHSExpr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.AND, andEqualSymbol);
+                    // Final expression : v==v && v != positive_infinity && v != negative_infinity
+                    BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprLHS,
+                                                                                    binaryExprRHS, symTable.booleanType,
+                                                                                    OperatorKind.AND, andEqualSymbol);
+                    result = rewriteExpr(binaryExpr);
+                } else {
+                    BOperatorSymbol isEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.EQUAL, symTable.decimalType, symTable.decimalType);
+                    // v == v
+                    BLangBinaryExpr finalExprFinite = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, isEqualSymbol);
+                    result = rewriteExpr(finalExprFinite);
+                }
                 break;
             case IS_INFINITE:
-                BOperatorSymbol eqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
-                                                                                                  symTable.floatType,
-                                                                                                  symTable.floatType);
-                BOperatorSymbol orSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR,
-                                                                                               symTable.booleanType,
-                                                                                               symTable.booleanType);
-                // v == positive_infinity
-                BLangLiteral posInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                          Double.POSITIVE_INFINITY);
-                BLangBinaryExpr binaryExprPosInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, posInflitExpr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.EQUAL, eqSymbol);
-                // v == negative_infinity
-                BLangLiteral negInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                          Double.NEGATIVE_INFINITY);
-                BLangBinaryExpr binaryExprNegInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, negInflitExpr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.EQUAL, eqSymbol);
-                // v == positive_infinity || v == negative_infinity
-                BLangBinaryExpr binaryExprInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprPosInf,
-                                                                                binaryExprNegInf, symTable.booleanType,
-                                                                                OperatorKind.OR, orSymbol);
-                result = rewriteExpr(binaryExprInf);
+                if (iExpr.expr.type.tag == TypeTags.FLOAT) {
+                    BOperatorSymbol eqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.EQUAL, symTable.floatType, symTable.floatType);
+                    BOperatorSymbol orSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.OR, symTable.booleanType, symTable.booleanType);
+                    // v == positive_infinity
+                    BLangLiteral posInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                                    Double.POSITIVE_INFINITY);
+                    BLangBinaryExpr binaryExprPosInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr,
+                                                                                    posInflitExpr, symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, eqSymbol);
+                    // v == negative_infinity
+                    BLangLiteral negInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                                    Double.NEGATIVE_INFINITY);
+                    BLangBinaryExpr binaryExprNegInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr,
+                                                                                    negInflitExpr, symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, eqSymbol);
+                    // v == positive_infinity || v == negative_infinity
+                    BLangBinaryExpr binaryExprInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprPosInf,
+                                                                                    binaryExprNegInf,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.OR, orSymbol);
+                    result = rewriteExpr(binaryExprInf);
+                } else {
+                    BLangLiteral literalZero = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.decimalType, "0");
+                    BLangLiteral literalOne = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.decimalType, "1");
+                    BOperatorSymbol isEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.EQUAL, symTable.decimalType, symTable.decimalType);
+                    BOperatorSymbol divideSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.DIV, symTable.decimalType, symTable.decimalType);
+                    // 1/v
+                    BLangBinaryExpr divideExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, literalOne, iExpr.expr,
+                                                                                    symTable.decimalType,
+                                                                                    OperatorKind.DIV, divideSymbol);
+                    // Final expression: 1/v == 0
+                    BLangBinaryExpr finalExprInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, divideExpr, literalZero,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, isEqualSymbol);
+                    result = rewriteExpr(finalExprInf);
+                }
                 break;
             case CLONE:
                 if (types.isValueType(iExpr.expr.type)) {
@@ -3115,7 +3179,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (iExpr.symbol.kind == SymbolKind.CAST_OPERATOR) {
                     BCastOperatorSymbol symbol = (BCastOperatorSymbol) iExpr.symbol;
                     BInvokableType type = (BInvokableType) symbol.type;
-                    result = createTypeCastExpr(visitConvertCloneMethod(iExpr.pos, iExpr.requiredArgs),
+                    result = createTypeCastExpr(appendCloneMethod(iExpr.pos, iExpr.requiredArgs),
                                                 type.paramTypes.get(1), symbol);
                 } else if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
                     result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
@@ -3299,7 +3363,7 @@ public class Desugar extends BLangNodeVisitor {
 
     }
 
-    private BLangExpression visitConvertCloneMethod(DiagnosticPos pos, List<BLangExpression> requiredArgs) {
+    private BLangExpression appendCloneMethod(DiagnosticPos pos, List<BLangExpression> requiredArgs) {
         BLangExpression sourceExpression = requiredArgs.get(0);
         if (types.isValueType(sourceExpression.type)) {
             return sourceExpression;
@@ -3330,7 +3394,7 @@ public class Desugar extends BLangNodeVisitor {
         //This won't analyse if else blocks etc to see whether return statements are present
         BLangBlockStmt blockStmt = invokableNode.body;
         if (invokableNode.workers.size() == 0 &&
-                invokableNode.returnTypeNode.type == this.symTable.nilType
+                invokableNode.symbol.type.getReturnType().isNullable()
                 && (blockStmt.stmts.size() < 1 ||
                 blockStmt.stmts.get(blockStmt.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
 
@@ -3817,6 +3881,10 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression expression) {
 
         BLangBinaryExpr binaryExpr;
+        if (NodeKind.BRACED_TUPLE_EXPR == expression.getKind() && ((BLangBracedOrTupleExpr) expression).isBracedExpr) {
+            return createBinaryExpression(pos, varRef, ((BLangBracedOrTupleExpr) expression).expressions.get(0));
+        }
+
         if (NodeKind.BINARY_EXPR == expression.getKind()) {
             binaryExpr = (BLangBinaryExpr) expression;
             BLangExpression lhsExpr = createBinaryExpression(pos, varRef, binaryExpr.lhsExpr);

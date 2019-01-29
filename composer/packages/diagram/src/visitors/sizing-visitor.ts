@@ -3,7 +3,8 @@ import {
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
     Foreach, Function, If, Invocation, Lambda, Literal, Match,
     MatchStaticPatternClause, ObjectType, Panic, Return, Service,
-    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
+    TypeDefinition, UnionTypeNode, UserDefinedType, ValueType, Variable, VariableDef, VisibleEndpoint,
+    Visitor, While, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -195,6 +196,38 @@ export const visitor: Visitor = {
                 viewState.client = new ViewState();
             }
         }
+
+        // make endpoints, which are defined in function, visible
+        if (node.VisibleEndpoints && node.body) {
+            const varDefStmts = node.body.statements.filter(ASTKindChecker.isVariableDef);
+            node.VisibleEndpoints.forEach((visibleEndpoint) => {
+                const epDef = varDefStmts.find((varDefStmt) => {
+                    const varDef = varDefStmt as VariableDef;
+                    const variable = varDef.variable as Variable;
+                    const variableTypeNode = variable.typeNode as UserDefinedType;
+                    return variable.name.value === visibleEndpoint.name
+                        && variableTypeNode.packageAlias.value === visibleEndpoint.pkgAlias
+                        && variableTypeNode.typeName.value === visibleEndpoint.typeName;
+                });
+                if (epDef) {
+                    (visibleEndpoint.viewState as EndpointViewState).visible = true;
+                    // link position info of var def stmt to make revealPosition work
+                    visibleEndpoint.position = epDef.position;
+                }
+            });
+        }
+    },
+
+    beginVisitIf(node: If) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
+    beginVisitWhile(node: While) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
+    beginVisitForeach(node: Foreach) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
     },
 
     // tslint:disable-next-line:ban-types
@@ -280,11 +313,27 @@ export const visitor: Visitor = {
             // hide empty return stmts in resources
             if (node.resource) {
                 returnViewState.hidden =
-                        returnStmt.noExpressionAvailable
+                    returnStmt.noExpressionAvailable
                     || (ASTKindChecker.isLiteral(returnStmt.expression)
-                    && (returnStmt.expression as Literal).emptyParantheses === true);
+                        && (returnStmt.expression as Literal).emptyParantheses === true);
             }
         });
+
+        // show an implicit return line for functions with return type nil
+        // and doesn't have any return statements
+        if (!node.resource && returnStatements.length === 0) {
+            const isNilType = (target: ASTNode) => ASTKindChecker.isValueType(target)
+                && (target as ValueType).typeKind === "nil";
+
+            // case one: returns () or no return type declaration
+            viewState.implicitReturn.hidden = !(isNilType(node.returnTypeNode)
+                // case two: returns a union type which wraps nil
+                || (ASTKindChecker.isUnionTypeNode(node.returnTypeNode)
+                    && (node.returnTypeNode as UnionTypeNode).memberTypeNodes.find(isNilType) !== undefined));
+            viewState.implicitReturn.client = client;
+            viewState.implicitReturn.bBox.h = config.statement.height;
+            viewState.implicitReturn.bBox.w = config.statement.width;
+        }
     },
 
     endVisitBlock(node: Block) {
@@ -292,7 +341,9 @@ export const visitor: Visitor = {
         let height = 0;
         viewState.bBox.w = config.statement.width;
         node.statements.forEach((element) => {
-            if (ASTUtil.isWorker(element)) { return; }
+            if (ASTUtil.isWorker(element) ||
+                ASTKindChecker.isReturn(element)
+            ) { return; }
             viewState.bBox.w = (viewState.bBox.w < element.viewState.bBox.w)
                 ? element.viewState.bBox.w : viewState.bBox.w;
             viewState.bBox.leftMargin = (viewState.bBox.leftMargin < element.viewState.bBox.leftMargin)

@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/theme",
-  "version": "0.983.1-SNAPSHOT",
+  "version": "0.990.3-SNAPSHOT",
   "description": "Theme for web components of Ballerina Tooling.",
   "keywords": [
     "ballerina",
@@ -10,10 +10,10 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "build": "",
-    "test": "",
-    "test-coverage": "",
-    "watch": ""
+    "build": "node scripts/build-theme.js",
+    "test": "echo \"Error: no test specified\"",
+    "test-coverage": "echo \"Error: no test coverage specified\"",
+    "watch": "watch \"npm run build\" src"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
@@ -21,6 +21,6 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
-    "@ballerina/font": "^0.983.1-SNAPSHOT"
+    "@ballerina/font": "^0.990.3-SNAPSHOT"
   }
 }

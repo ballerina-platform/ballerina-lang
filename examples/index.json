@@ -189,6 +189,10 @@
                 "url": "records"
             },
             {
+                "name": "Anonymous Records",
+                "url": "anonymous-records"
+            },
+            {
                 "name": "Optional Fields",
                 "url": "record-optional-fields"
             },
@@ -223,6 +227,10 @@
                 "url": "abstract-objects"
             },
             {
+                "name": "Anonymous Objects",
+                "url": "anonymous-objects"
+            },
+            {
                 "name": "Object Type Reference",
                 "url": "object-type-reference"
             }
@@ -232,7 +240,12 @@
         "title": "Value/Type Operations",
         "column": 1,
         "category": "Language concepts",
-        "samples": [{
+        "samples": [
+            {
+                "name": "Compound Assignment Operators",
+                "url": "compound-assignment-operators"
+            },
+            {
                 "name": "Equality",
                 "url": "equality"
             },
@@ -281,10 +294,6 @@
             {
                 "name": "JSON Arrays",
                 "url": "json-arrays"
-            },
-            {
-                "name": "Constrained JSON",
-                "url": "constrained-json"
             },
             {
                 "name": "JSON/Record/Map Conversion",
@@ -363,8 +372,8 @@
                 "url": "panic"
             },
             {
-                "name": "Trap Error",
-                "url": "trap-error"
+                "name": "Trap",
+                "url": "trap"
             }
         ]
     },
@@ -425,6 +434,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "JSON to CSV Transform",
+                "url": "json-csv"
             }
         ]
     },
@@ -493,6 +506,10 @@
             {
                 "name": "Secured Client With OAuth2",
                 "url": "secured-client-with-oauth2"
+            },
+            {
+                "name": "Cryptographic Operations",
+                "url": "crypto"
             }
         ]
     },
@@ -585,12 +602,12 @@
                 "url": "http-trace-logs"
             },
             {
-                "name": "Basic HTTPS Listener Client",
-                "url": "basic-https-listener-client"
-            },
-            {
                 "name": "HTTPS Listener",
                 "url": "https-listener"
+            },
+            {
+                "name": "Basic HTTPS Listener Client",
+                "url": "basic-https-listener-client"
             },
             {
                 "name": "Mutual SSL",
@@ -871,7 +888,7 @@
             },
             {
                 "name": "Simple Durable Topic Subscriber",
-                "url": "jms-durable-topic-message-subscriber"
+                "url": "jms-simple-durable-topic-message-subscriber"
             },
             {
                 "name": "Queue Receiver",
@@ -899,7 +916,7 @@
             },
             {
                 "name": "Durable Topic Subscriber",
-                "url": "jms-simple-durable-topic-message-subscriber"
+                "url": "jms-durable-topic-message-subscriber"
             },
             {
                 "name": "Transactional Queue Producer",
@@ -916,6 +933,16 @@
         ]
     },
     {
+        "title": "Socket",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "TCP Socket Basic Example",
+                "url": "tcp-socket-listener-client"
+            }
+        ]
+    },
+    {
         "title": "Streams",
         "column": 0,
         "category": "Experimental features",
@@ -924,20 +951,24 @@
                 "url": "streams"
             },
             {
-                "name": "Join Mutiple Streams",
-                "url": "join-multiple-streams"
+              "name": "Simple Filtering",
+              "url": "simple-filtering"
+            },
+            {
+              "name": "Projection",
+              "url": "projection"
             },
             {
                 "name": "Temporal Aggregations",
                 "url": "temporal-aggregations-and-windows"
             },
             {
-                "name": "Identify Patterns",
-                "url": "identify-patterns"
+                "name": "Join Mutiple Streams",
+                "url": "join-multiple-streams"
             },
             {
-                "name": "Identify Trends",
-                "url": "identify-trends"
+              "name": "Join Tables and Streams",
+              "url": "join-tables-and-streams"
             }
         ]
     },

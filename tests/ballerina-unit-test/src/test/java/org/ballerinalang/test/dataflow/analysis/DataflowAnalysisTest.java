@@ -33,7 +33,7 @@ public class DataflowAnalysisTest {
     @Test(description = "Test uninitialized variables")
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 48);
+        Assert.assertEquals(result.getErrorCount(), 53);
         int i = 0;
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 53, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 70, 12);
@@ -83,5 +83,10 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 555, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 557, 5);
         BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 585, 12);
+        BAssertUtil.validateError(result, i++, "variable 'fa' is not initialized", 611, 13);
+        BAssertUtil.validateError(result, i++, "variable 'fb' is not initialized", 612, 13);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'b'", 620, 5);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 621, 5);
+        BAssertUtil.validateError(result, i, "uninitialized field 's'", 631, 14);
     }
 }

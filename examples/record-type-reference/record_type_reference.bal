@@ -3,7 +3,7 @@ import ballerina/io;
 type Person record {
     string name;
     int age = 25;
-    !...
+    !...;
 };
 
 type Employee record {
@@ -11,7 +11,7 @@ type Employee record {
     *Person;
     string company?;
     string designation;
-    !...
+    !...;
 };
 
 type Manager record {
@@ -24,8 +24,8 @@ type Manager record {
 
 public function main() {
     // `Employee` has all the fields of `Person`.
-    Employee john = { name:" John Doe", designation:" Software Engineer" };
-    Employee jane = { name:" Jane Doe", designation: "UX Engineer" };
+    Employee john = { name: "John Doe", designation: "Software Engineer" };
+    Employee jane = { name: "Jane Doe", designation: "UX Engineer" };
 
     // Type referencing copies the fields, including their properties
     // (e.g., type, default value, optional status). As it can be seen
