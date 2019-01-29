@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -33,21 +34,28 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
     protected final BLangDiagnosticLog dlog;
     protected SymbolTable symTable;
+    protected Types types;
 
-    public BIterableTypeVisitor(BLangDiagnosticLog dlog, SymbolTable symTable) {
+    public BIterableTypeVisitor(BLangDiagnosticLog dlog, SymbolTable symTable, Types types) {
         this.dlog = dlog;
         this.symTable = symTable;
+        this.types = types;
     }
 
     @Override
     public List<BType> visit(BType type, Operation op) {
         dlog.error(op.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, op.collectionType);
-        return Lists.of(symTable.errType);
+        return Lists.of(symTable.semanticError);
+    }
+
+    @Override
+    public List<BType> visit(BSemanticErrorType type, Operation op) {
+        return Lists.of(symTable.semanticError);
     }
 
     @Override
     public List<BType> visit(BErrorType type, Operation op) {
-        return Lists.of(symTable.errType);
+        return Lists.of(symTable.semanticError);
     }
 
     /* Following  types are not iterable and will be handler at BType visitor */
@@ -63,7 +71,17 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
     }
 
     @Override
-    public List<BType> visit(BStructType type, Operation op) {
+    public List<BType> visit(BAnydataType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
+    @Override
+    public List<BType> visit(BObjectType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
+    @Override
+    public List<BType> visit(BRecordType type, Operation op) {
         return visit((BType) type, op);
     }
 
@@ -83,16 +101,6 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
     }
 
     @Override
-    public List<BType> visit(BConnectorType type, Operation op) {
-        return visit((BType) type, op);
-    }
-
-    @Override
-    public List<BType> visit(BEnumType type, Operation op) {
-        return visit((BType) type, op);
-    }
-
-    @Override
     public List<BType> visit(BInvokableType type, Operation op) {
         return visit((BType) type, op);
     }
@@ -107,9 +115,24 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         return visit((BType) type, op);
     }
 
+    @Override
+    public List<BType> visit(BFiniteType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
+    @Override
+    public List<BType> visit(BServiceType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
+    @Override
+    public List<BType> visit(BJSONType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
     /* Util functions */
 
-    protected void logTooMayVariablesError(Operation op) {
+    protected void logTooManyVariablesError(Operation op) {
         dlog.error(op.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, op.collectionType);
     }
 
@@ -124,8 +147,8 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
      */
     public abstract static class TerminalOperationTypeChecker extends BIterableTypeVisitor {
 
-        public TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
-            super(dlog, symTable);
+        public TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable, Types types) {
+            super(dlog, symTable, types);
         }
 
         @Override
@@ -134,12 +157,14 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         }
 
         @Override
-        public List<BType> visit(BXMLType t, Operation operation) {
-            return Lists.of(calculateType(operation, t));
+        public List<BType> visit(BRecordType t, Operation operation) {
+            // Need to pass the inferred field type of the record here since this type is used in the foreach vars
+            // in the desugared code.
+            return Lists.of(calculateType(operation, types.inferRecordFieldType(t)));
         }
 
         @Override
-        public List<BType> visit(BJSONType t, Operation operation) {
+        public List<BType> visit(BXMLType t, Operation operation) {
             return Lists.of(calculateType(operation, t));
         }
 

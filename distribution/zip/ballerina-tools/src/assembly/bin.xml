@@ -26,13 +26,14 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}
+                ${project.build.directory}/lib
             </directory>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
+            <fileMode>0444</fileMode>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-composer-web-zip/ballerina-composer-web-${project.version}
+                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
@@ -42,37 +43,43 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
-        <!--<fileSet>-->
-            <!--<directory>-->
-                <!--${project.build.directory}/api-docs-->
-            <!--</directory>-->
-            <!--<outputDirectory>docs/api</outputDirectory>-->
-        <!--</fileSet>-->
-        <!-- TODO remove below and find a better solution later -->
         <fileSet>
             <directory>
-                ../../../composer/samples
+                ${project.build.directory}/api-docs
             </directory>
-            <outputDirectory>resources/composer/samples</outputDirectory>
+            <outputDirectory>docs/ballerina</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../../../examples
+            </directory>
+            <outputDirectory>examples</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina/
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <!-- Lang-Server specific files -->
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/lib
+            </directory>
+            <outputDirectory>lib/tools/lang-server/lib</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/resources
+            </directory>
+            <outputDirectory>lib/tools/lang-server/resources</outputDirectory>
         </fileSet>
     </fileSets>
 
     <files>
         <file>
             <source>bin/version.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>bin/composer</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>755</fileMode>
-        </file>
-        <file>
-            <source>bin/composer.bat</source>
-            <outputDirectory>bin/</outputDirectory>
+            <outputDirectory>lib/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
@@ -83,7 +90,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>README</source>
+            <source>README.md</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
@@ -95,32 +102,16 @@
             <fileMode>644</fileMode>
         </file>
 
-        <!-- Composer specific files -->
+        <!-- Lang-Server specific files -->
         <file>
-            <source>
-                ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/netty-transports.yml
-            </source>
-            <outputDirectory>resources/composer/services</outputDirectory>
+            <source>resources/language-server-launcher.sh</source>
+            <outputDirectory>lib/tools/lang-server/launcher/</outputDirectory>
             <filtered>true</filtered>
-            <fileMode>644</fileMode>
+            <fileMode>755</fileMode>
         </file>
         <file>
-            <source>
-                ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/deployment.yaml
-            </source>
-            <outputDirectory>resources/composer/services</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>${project.build.directory}/extracted-distributions/composer-server-distribution-jar/composer-logging.properties</source>
-            <outputDirectory>resources/composer/conf</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>conf/composer-config.yml</source>
-            <outputDirectory>resources/composer/conf</outputDirectory>
+            <source>resources/language-server-launcher.bat</source>
+            <outputDirectory>lib/tools/lang-server/launcher/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
@@ -130,9 +121,22 @@
         <dependencySet>
             <outputDirectory>bre/lib</outputDirectory>
             <includes>
+                <!-- LLVM related jars-->
+                <include>org.ballerinalang:ballerina-llvm:jar</include>
+                <include>org.ballerinalang:ballerina-backend-llvm:jar</include>
+                <include>org.bytedeco.javacpp-presets:llvm-platform:jar</include>
+                <include>org.bytedeco.javacpp-presets:llvm:jar</include>
+                <include>org.bytedeco:javacpp:jar</include>
+
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
+                <!--
+                    Keeping lang-server compiler under bre as this is being used
+                    in ballerina swagger CLI tools
+                 -->
+                <include>org.ballerinalang:language-server-compiler:jar</include>
+                <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
                 <include>org.ballerinalang:ballerina-codegen:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
@@ -143,13 +147,14 @@
             </includes>
             <unpack>false</unpack>
         </dependencySet>
-
-        <!-- Composer specific artifacts -->
+        <!-- Lang-Server specific jars -->
         <dependencySet>
-            <outputDirectory>resources/composer/services</outputDirectory>
+            <outputDirectory>lib/tools/lang-server/lib</outputDirectory>
             <includes>
-                <include>org.ballerinalang:composer-server-distribution:jar</include>
+                <include>org.ballerinalang:language-server-core:jar</include>
+                <include>org.ballerinalang:language-server-stdio-launcher:jar</include>
             </includes>
+            <unpack>false</unpack>
         </dependencySet>
     </dependencySets>
 </assembly>

@@ -17,15 +17,14 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.WorkerData;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.Map;
 
@@ -36,15 +35,11 @@ import java.util.Map;
  */
 public interface Context {
 
-    WorkerExecutionContext getParentWorkerExecutionContext();
+    Strand getStrand();
 
     CallableUnitInfo getCallableUnitInfo();
 
-    WorkerData getLocalWorkerData();
-
-    DebugContext getDebugContext();
-
-    void setDebugContext(DebugContext debugContext);
+    StackFrame getDataFrame();
 
     Object getProperty(String key);
 
@@ -58,13 +53,13 @@ public interface Context {
 
     boolean isInTransaction();
 
-    BStruct getError();
+    BError getError();
 
-    void setError(BStruct error);
+    void setError(BError error);
 
     ProgramFile getProgramFile();
 
-    LocalTransactionInfo getLocalTransactionInfo();
+    TransactionLocalContext getLocalTransactionInfo();
 
     long getIntArgument(int index);
 
@@ -76,14 +71,13 @@ public interface Context {
 
     boolean getBooleanArgument(int index);
 
-    byte[] getBlobArgument(int index);
-
     BValue getRefArgument(int index);
 
     BValue getNullableRefArgument(int index);
 
-    void setReturnValues(BValue... values);
+    //TODO fix this method signature to set one BValue
+    void setReturnValues(BValue... value);
 
-    BValue[] getReturnValues();
+    BValue getReturnValue();
 
 }

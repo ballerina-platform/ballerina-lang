@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.langserver.compiler;
 
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.Vocabulary;
+import org.ballerinalang.model.elements.PackageID;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -30,6 +30,7 @@ import java.util.List;
 
 /**
  * Text Document Service context keys for the completion operation context.
+ *
  * @since 0.95.5
  */
 public class DocumentServiceKeys {
@@ -37,26 +38,22 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<TextDocumentPositionParams> POSITION_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> FILE_NAME_KEY
+    public static final LSContext.Key<String> RELATIVE_FILE_PATH_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<CompilerContext> COMPILER_CONTEXT_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<TokenStream> TOKEN_STREAM_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<Vocabulary> VOCABULARY_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<Integer> TOKEN_INDEX_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<SymbolTable> SYMBOL_TABLE_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<List<SymbolInformation>> SYMBOL_LIST_KEY
+    public static final LSContext.Key<List<Either<SymbolInformation, DocumentSymbol>>> SYMBOL_LIST_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<String> CURRENT_PACKAGE_NAME_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<PackageID> CURRENT_PACKAGE_ID_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<LSContext> OPERATION_META_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<BLangPackage> CURRENT_BLANG_PACKAGE_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> SYMBOL_QUERY
             = new LSContext.Key<>();
 }

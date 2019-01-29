@@ -59,15 +59,23 @@ public class FunctionCallCPEntry implements ConstantPoolEntry {
 
     @Override
     public int hashCode() {
-        int[] combined = new int[argRegs.length + retRegs.length];
-        System.arraycopy(argRegs, 0, combined, 0, argRegs.length);
-        System.arraycopy(retRegs, 0, combined, argRegs.length, retRegs.length);
-        return Arrays.hashCode(combined);
+        int result = flags;
+        result = 31 * result + Arrays.hashCode(argRegs);
+        result = 31 * result + Arrays.hashCode(retRegs);
+        return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj instanceof FunctionCallCPEntry && Arrays.equals(argRegs, ((FunctionCallCPEntry) obj).argRegs)
-                && Arrays.equals(retRegs, ((FunctionCallCPEntry) obj).retRegs);
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FunctionCallCPEntry that = (FunctionCallCPEntry) o;
+        return flags == that.flags &&
+               Arrays.equals(argRegs, that.argRegs) &&
+               Arrays.equals(retRegs, that.retRegs);
     }
 }

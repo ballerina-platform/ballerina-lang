@@ -21,7 +21,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,14 +44,16 @@ public enum ItemSorters {
             new ServiceContextItemSorter()),
     STATEMENT_CONTEXT_ITEM_SORTER(StatementContextItemSorter.class,
             new StatementContextItemSorter()),
-    TRANSFORMER_CONTEXT_ITEM_SORTER(BLangTransformer.class,
-            new TransformerContextItemSorter()),
     VAR_DEF_CONTEXT_ITEM_SORTER(BallerinaParser.VariableDefinitionStatementContext.class,
+            new VariableDefContextItemSorter()),
+    GLOBAL_VAR_DEF_CONTEXT_ITEM_SORTER(BallerinaParser.GlobalVariableDefinitionContext.class,
             new VariableDefContextItemSorter()),
     CONDITIONAL_STMT_CONTEXT_ITEM_SORTER(ConditionalStatementItemSorter.class,
             new ConditionalStatementItemSorter()),
     MATCH_STMT_CONTEXT_ITEM_SORTER(MatchContextItemSorter.class,
-            new MatchContextItemSorter());
+                                   new MatchContextItemSorter()),
+    ACTION_AND_FIELD_ITEM_SORTER(ActionAndFieldAccessContextItemSorter.class,
+                                 new ActionAndFieldAccessContextItemSorter());
     
     private final Class context;
     private final CompletionItemSorter itemSorter;
@@ -77,7 +78,7 @@ public enum ItemSorters {
      * @param context - context class to extract the relevant item sorter
      * @return {@link CompletionItemSorter} - Item sorter for the given context
      */
-    public static CompletionItemSorter getSorterByClass(Class context) {
+    public static CompletionItemSorter get(Class context) {
         if (!resolverMap.containsKey(context)) {
             return resolverMap.get(DefaultItemSorter.class);
         }

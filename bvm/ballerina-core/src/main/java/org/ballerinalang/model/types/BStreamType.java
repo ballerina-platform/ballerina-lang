@@ -32,11 +32,13 @@ public class BStreamType extends BType {
     /**
      * Creates a {@code BStreamType} which represents the stream type.
      *
-     * @param typeName  string name of the type
-     * @param pkgPath   package path
+     * @param typeName   string name of the type
+     * @param constraint the type by which this stream is constrained
+     * @param pkgPath    package path
      */
-    BStreamType(String typeName, String pkgPath) {
+    BStreamType(String typeName, BType constraint, String pkgPath) {
         super(typeName, pkgPath, BStream.class);
+        this.constraint = constraint;
     }
 
     public BStreamType(BType constraint) {
@@ -59,16 +61,34 @@ public class BStreamType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        if (constraint == null) {
-            return new TypeSignature(TypeSignature.SIG_STREAM);
+    public int getTag() {
+        return TypeTags.STREAM_TAG;
+    }
+
+    @Override
+    public String toString() {
+        if (constraint == BTypes.typeAny) {
+            return super.toString();
         } else {
-            return new TypeSignature(TypeSignature.SIG_STREAM, constraint.getPackagePath(), constraint.getName());
+            return "stream" + "<" + constraint.getName() + ">";
         }
     }
 
     @Override
-    public int getTag() {
-        return TypeTags.STREAM_TAG;
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BStreamType)) {
+            return false;
+        }
+
+        BStreamType other = (BStreamType) obj;
+        if (constraint == other.constraint) {
+            return true;
+        }
+
+        if (constraint == null || other.constraint == null) {
+            return false;
+        }
+
+        return constraint.equals(other.constraint);
     }
 }

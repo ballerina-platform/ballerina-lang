@@ -26,7 +26,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
  */
 public interface FieldBasedAccessNode extends VariableReferenceNode {
 
-    VariableReferenceNode getExpression();
+    ExpressionNode getExpression();
 
     IdentifierNode getFieldName();
 }

@@ -28,6 +28,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
+import org.ballerinalang.swagger.utils.CodegenUtils;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -80,6 +81,11 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
     }
 
     @Override
+    public BallerinaOpenApi buildContext(OpenAPI definition, OpenAPI openAPI) throws BallerinaOpenApiException {
+        return buildContext(definition);
+    }
+
+    @Override
     public BallerinaOpenApi getDefaultValue() {
         return null;
     }
@@ -93,21 +99,25 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
      * @throws BallerinaOpenApiException when context building fails
      */
     private void setPaths(OpenAPI openAPI) throws BallerinaOpenApiException {
-        if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
+        if (openAPI.getPaths() == null) {
             return;
         }
 
         this.paths = new LinkedHashSet<>();
         Paths pathList = openAPI.getPaths();
         for (Map.Entry<String, PathItem> path : pathList.entrySet()) {
-            BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue());
-            balPath.getOperations().forEach(operation -> {
-                if (operation.getValue().getOperationId() == null) {
-                    String pathName = path.getKey().substring(1); // need to drop '/' prefix from the key, ex:'/path'
-                    String operationId = operation.getKey() + StringUtils.capitalize(pathName);
-                    operation.getValue().setOperationId(operationId);
-                }
-            });
+            BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue(), openAPI);
+            if (balPath.isNoOperationsForPath()) {
+                balPath.setResourceName(path.getKey());
+            } else {
+                balPath.getOperations().forEach(operation -> {
+                    if (operation.getValue().getOperationId() == null) {
+                        String pathName = path.getKey().substring(1); //need to drop '/' prefix from the key, ex:'/path'
+                        String operationId = operation.getKey() + StringUtils.capitalize(pathName);
+                        operation.getValue().setOperationId(CodegenUtils.normalizeForBIdentifier(operationId));
+                    }
+                });
+            }
             paths.add(new AbstractMap.SimpleEntry<>(path.getKey(), balPath));
         }
     }
@@ -125,10 +135,16 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         }
 
         schemaMap = openAPI.getComponents().getSchemas();
-        for (Map.Entry entry : schemaMap.entrySet()) {
+        for (Map.Entry<String, Schema> entry : schemaMap.entrySet()) {
             try {
-                BallerinaSchema schema = new BallerinaSchema().buildContext((Schema) entry.getValue());
-                schemas.add(new AbstractMap.SimpleEntry<>((String) entry.getKey(), schema));
+                BallerinaSchema schema = new BallerinaSchema().buildContext(entry.getValue(), openAPI);
+
+                // If schema type has not been set, set the type with Schema name
+                if (StringUtils.isEmpty(schema.getType())) {
+                    schema.setType(entry.getKey());
+                }
+
+                schemas.add(new AbstractMap.SimpleEntry<>(entry.getKey(), schema));
             } catch (BallerinaOpenApiException e) {
                 // Ignore exception and try to build next schema. No need to break the flow for a failure of one schema.
             }
@@ -159,7 +175,8 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
                 BallerinaServer balServer = new BallerinaServer().buildContext(server);
                 servers.add(balServer);
             } catch (BallerinaOpenApiException e) {
-                // Ignore the exception and move to other servers
+                // Ignore the exception, set default value for this server and move forward
+                servers.add(new BallerinaServer().getDefaultValue());
             }
         });
     }

@@ -17,19 +17,18 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
+import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
-import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
+import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
 /**
  * This class contains utilities to execute Ballerina main and service programs.
  *
@@ -51,46 +50,38 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
-        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
-
-        // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
-
-        BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
+        BVMExecutor.initProgramFile(programFile);
     }
 
-    public static void runMain(ProgramFile programFile, String[] args) {
-        if (!programFile.isMainEPAvailable()) {
+    public static void resumeStates(ProgramFile programFile) {
+        new Thread(new RecoveryTask(programFile)).start();
+    }
+
+    public static BValue[] runEntryFunc(ProgramFile programFile, String functionName, String[] args) {
+        BValue[] entryFuncResult;
+        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
-        PackageInfo mainPkgInfo = programFile.getEntryPackage();
-        if (mainPkgInfo == null) {
-            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
+        PackageInfo entryPkgInfo = programFile.getEntryPackage();
+        if (entryPkgInfo == null) {
+            throw new BallerinaException("entry module not found in  '" + programFile.getProgramFilePath() + "'");
         }
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
-        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
-
-        FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
+        FunctionInfo functionInfo = getEntryFunctionInfo(entryPkgInfo, functionName);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
+            entryFuncResult = BVMExecutor.executeEntryFunction(programFile, functionInfo,
+                    extractEntryFuncArgs(functionInfo, args));
         } finally {
-            if (debugger.isDebugEnabled()) {
-                debugger.notifyExit();
+            if (!programFile.isServiceEPAvailable()) {
+                if (debugger.isDebugEnabled()) {
+                    debugger.notifyExit();
+                }
+                BVMExecutor.stopProgramFile(programFile);
             }
-            BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
         }
-    }
-
-    private static BValue[] extractMainArgs(String[] args) {
-        BStringArray arrayArgs = new BStringArray();
-        for (int i = 0; i < args.length; i++) {
-            arrayArgs.add(i, args[i]);
-        }
-        return new BValue[] {arrayArgs};
+        return entryFuncResult;
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
@@ -101,22 +92,19 @@ public class BLangProgramRunner {
         }
     }
 
-    public static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
-        String errorMsg = "main function not found in  '" +
-                mainPkgInfo.getProgramFile().getProgramFilePath() + "'";
+    public static FunctionInfo getEntryFunctionInfo(PackageInfo entryPkgInfo, String functionName) {
+        String errorMsg = "'" + functionName + "' function not found in '"
+                            + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
 
-        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
-        if (mainFuncInfo == null) {
-            throw new BallerinaException(errorMsg);
+        FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(functionName);
+        if (functionInfo == null) {
+            throw new BLangUsageException(errorMsg);
         }
 
-        BType[] paramTypes = mainFuncInfo.getParamTypes();
-        BType[] retParamTypes = mainFuncInfo.getRetParamTypes();
-        BArrayType argsType = new BArrayType(BTypes.typeString);
-        if (paramTypes.length != 1 || !paramTypes[0].equals(argsType) || retParamTypes.length != 0) {
-            throw new BallerinaException(errorMsg);
+        if (!functionInfo.isPublic()) {
+            throw new BLangUsageException("non public function '" + functionName + "' not allowed as entry function");
         }
 
-        return mainFuncInfo;
+        return functionInfo;
     }
 }

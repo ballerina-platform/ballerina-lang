@@ -1,10 +1,9 @@
-package functionmocktest.pkg;
 
 import ballerina/test;
 import ballerina/io;
 
 @test:Mock {
-    packageName : "functionmocktest2.pkg" ,
+    moduleName : "functionmocktest2.pkg" ,
     functionName : "intAdd"
 }
 public function mockIntAdd (int a, int b) returns (int) {

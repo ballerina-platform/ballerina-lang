@@ -100,7 +100,7 @@ public class TestStore extends AbstractRecordTable {
     }
 
     /**
-     * Try updating the records if they exist else add the records
+     * Try updating the records if they exist else add the records.
      *
      * @param updateCondition              the compiledCondition against which records should be matched for update
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
@@ -126,7 +126,7 @@ public class TestStore extends AbstractRecordTable {
     }
 
     /**
-     * Compiles the expression in a set clause
+     * Compiles the expression in a set clause.
      *
      * @param expressionBuilder helps visiting the conditions in order to compile the condition
      * @return compiled expression that can be used for matching events in find, contains, delete, update and

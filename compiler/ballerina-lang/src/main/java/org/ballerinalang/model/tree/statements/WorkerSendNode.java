@@ -29,9 +29,9 @@ public interface WorkerSendNode extends StatementNode {
 
     ExpressionNode getExpression();
 
+    ExpressionNode getKeyExpression();
+
     IdentifierNode getWorkerName();
 
     void setWorkerName(IdentifierNode identifierNode);
-
-    boolean isForkJoinedSend();
 }

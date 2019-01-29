@@ -30,7 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-
+/**
+ * Testcase for pattern queries which contain within clause.
+ */
 public class WithinPatternTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WithinPatternTestCase.class);

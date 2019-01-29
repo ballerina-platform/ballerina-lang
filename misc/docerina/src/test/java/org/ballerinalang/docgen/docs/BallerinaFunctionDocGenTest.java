@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.IOException;
@@ -56,13 +56,13 @@ public class BallerinaFunctionDocGenTest {
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
 
-            BLangPackage doc = docsMap.get(".").bLangPackage;
+            BLangPackage doc = docsMap.get("helloWorld.bal").bLangPackage;
             Collection<BLangFunction> functions = doc.getFunctions();
             Assert.assertEquals(functions.size(), 1);
 
             BLangFunction function = functions.iterator().next();
-            Assert.assertEquals(((BLangVariable) function.getRestParameters()).type.tag, TypeTags.ARRAY);
-            BArrayType argsType = (BArrayType) ((BLangVariable) function.getRestParameters()).type;
+            Assert.assertEquals(((BLangSimpleVariable) function.getRestParameters()).type.tag, TypeTags.ARRAY);
+            BArrayType argsType = (BArrayType) ((BLangSimpleVariable) function.getRestParameters()).type;
             Assert.assertEquals(argsType.eType.tag, TypeTags.STRING);
         } catch (IOException e) {
             Assert.fail();
@@ -75,13 +75,12 @@ public class BallerinaFunctionDocGenTest {
     public void testABalWithMultipleFunctions() {
         try {
             Map<String, PackageDoc> docsMap =
-                    BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot,
-                                                                           "balWith2Functions.bal");
+                    BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, "balWith2Functions.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
 
-            BLangPackage doc = docsMap.get(".").bLangPackage;
+            BLangPackage doc = docsMap.get("balWith2Functions.bal").bLangPackage;
             Collection<BLangFunction> functions = doc.getFunctions();
             Assert.assertEquals(functions.size(), 2);
 
@@ -109,7 +108,7 @@ public class BallerinaFunctionDocGenTest {
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
 
-            BLangPackage doc = docsMap.get(".").bLangPackage;
+            BLangPackage doc = docsMap.get("natives.bal").bLangPackage;
             Collection<BLangFunction> functions = doc.getFunctions();
             Assert.assertEquals(functions.size(), 1);
 

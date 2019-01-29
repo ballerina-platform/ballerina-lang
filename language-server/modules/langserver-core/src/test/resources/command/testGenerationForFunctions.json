@@ -1,0 +1,258 @@
+{
+    "cases": [
+        {
+            "arguments": {
+                "node.line": 3,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnInt",
+                    "testReturnIntDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 7,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnIntArray",
+                    "testReturnIntArrayDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 11,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnTuple",
+                    "testReturnTupleDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 15,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnUnion",
+                    "testReturnUnionDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 19,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnMap",
+                    "testReturnMapDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 24,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnConstrainedMap",
+                    "testReturnConstrainedMapDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 29,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnBoolean",
+                    "testReturnBooleanDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 34,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnXml",
+                    "testReturnXmlDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 39,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnJson",
+                    "testReturnJsonDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 44,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testFunctionPointerAsParam",
+                    "testFunctionPointerAsParamDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 49,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnOptionalError",
+                    "testReturnOptionalErrorDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 53,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnOptionalAny",
+                    "testReturnOptionalAnyDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 57,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log",
+                    "ballerina/task"
+                ],
+                "globals": [],
+                "functions": [
+                    "testComplexInput",
+                    "testComplexInputDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 61,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log",
+                    "ballerina/http"
+                ],
+                "globals": [],
+                "functions": [
+                    "testComplexReturnType",
+                    "testComplexReturnTypeDataProvider"
+                ],
+                "services": []
+            }
+        }
+    ]
+}

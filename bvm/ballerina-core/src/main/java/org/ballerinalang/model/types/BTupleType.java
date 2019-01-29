@@ -34,7 +34,7 @@ public class BTupleType extends BType {
     /**
      * Create a {@code BUnionType} which represents the union type.
      *
-     * @param typeList
+     * @param typeList of the tuple type
      */
     public BTupleType(List<BType> typeList) {
         super(null, null, BValue.class);
@@ -54,12 +54,6 @@ public class BTupleType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null;
-    }
-
-    @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_TUPLE,
-                tupleTypes.stream().map(BType::getSig).collect(Collectors.toList()));
     }
 
     @Override

@@ -1,0 +1,109 @@
+{
+    "ws": [
+        {
+            "ws": "\n\n",
+            "i": 0,
+            "text": "function",
+            "static": true
+        },
+        {
+            "ws": " ",
+            "i": 2,
+            "text": "test",
+            "static": false
+        },
+        {
+            "ws": "",
+            "i": 3,
+            "text": "(",
+            "static": true
+        },
+        {
+            "ws": "",
+            "i": 4,
+            "text": ")",
+            "static": true
+        },
+        {
+            "ws": " ",
+            "i": 6,
+            "text": "{",
+            "static": true
+        },
+        {
+            "ws": "\n    \n",
+            "i": 10,
+            "text": "}",
+            "static": true
+        }
+    ],
+    "position": {
+        "startColumn": 1,
+        "startLine": 1,
+        "endColumn": 1,
+        "endLine": 3
+    },
+    "id": "caec350a-f718-49e1-9bac-d623ac13758f",
+    "workers": [],
+    "returnTypeAnnotationAttachments": [],
+    "name": {
+        "position": {
+            "startColumn": 10,
+            "startLine": 1,
+            "endColumn": 10,
+            "endLine": 1
+        },
+        "id": "827b3e9f-abbd-478b-a0be-fcaf6be8aa41",
+        "literal": false,
+        "value": "test",
+        "kind": "Identifier",
+        "valueWithBar": "test"
+    },
+    "annotationAttachments": [],
+    "returnTypeNode": {
+        "position": {
+            "startColumn": 10,
+            "startLine": 1,
+            "endColumn": 15,
+            "endLine": 1
+        },
+        "id": "9dbea97a-4688-4c75-9197-9dccc0422fc0",
+        "symbolType": [
+            "null"
+        ],
+        "typeKind": "nil",
+        "grouped": false,
+        "nullable": false,
+        "kind": "ValueType"
+    },
+    "defaultableParameters": [],
+    "deprecatedAttachments": [],
+    "endpointNodes": [],
+    "body": {
+        "id": "87d4fe9d-94dc-4bda-9421-cadaee2c7616",
+        "statements": [],
+        "kind": "Block"
+    },
+    "parameters": [],
+    "kind": "Function",
+    "public": false,
+    "private": false,
+    "native": false,
+    "final": false,
+    "attached": false,
+    "lambda": false,
+    "parallel": false,
+    "connector": false,
+    "deprecated": false,
+    "readonly": false,
+    "function_final": false,
+    "interface": false,
+    "required": false,
+    "record": false,
+    "compensate": false,
+    "abstract": false,
+    "optional": false,
+    "testable": false,
+    "constant": false,
+    "allParams": []
+}

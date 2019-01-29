@@ -41,4 +41,9 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
      * during the code generation phase of the compiler.
      */
     public RegIndex regIndex;
+
+    /**
+     * Indicates whether the expression has already been type checked.
+     */
+    public boolean typeChecked;
 }

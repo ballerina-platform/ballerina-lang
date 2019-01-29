@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for logical pattern queries.
+ */
 public class LogicalPatternTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(LogicalPatternTestCase.class);

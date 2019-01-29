@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.langserver.compiler.common.modal;
 
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class which contains Ballerina model and Diagnostic information.
@@ -30,16 +31,22 @@ public class BallerinaFile {
     private BLangPackage bLangPackage = null;
     private List<Diagnostic> diagnostics = null;
     private boolean isBallerinaProject = false;
+    private CompilerContext compilerContext;
 
-    public List<Diagnostic> getDiagnostics() {
-        if (diagnostics != null) {
-            diagnostics.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()));
-        }
+    public Optional<List<Diagnostic>> getDiagnostics() {
+        Optional<List<Diagnostic>> diagnostics = Optional.ofNullable(this.diagnostics);
+        diagnostics.ifPresent(
+                diag -> diag.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()))
+        );
         return diagnostics;
     }
 
-    public BLangPackage getBLangPackage() {
-        return bLangPackage;
+    public Optional<BLangPackage> getBLangPackage() {
+        return Optional.ofNullable(bLangPackage);
+    }
+
+    public CompilerContext getCompilerContext() {
+        return compilerContext;
     }
 
     public void setBLangPackage(BLangPackage bLangPackage) {
@@ -52,6 +59,10 @@ public class BallerinaFile {
 
     public void setBallerinaProject(boolean ballerinaProject) {
         isBallerinaProject = ballerinaProject;
+    }
+
+    public void setCompilerContext(CompilerContext compilerContext) {
+        this.compilerContext = compilerContext;
     }
 
     public boolean isBallerinaProject() {

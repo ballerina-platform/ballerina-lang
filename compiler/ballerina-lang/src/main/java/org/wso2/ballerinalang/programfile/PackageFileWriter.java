@@ -19,12 +19,9 @@ package org.wso2.ballerinalang.programfile;
 
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * Dump Ballerina {@code PackageFile} model (BALO) to a file.
@@ -33,39 +30,14 @@ import java.nio.file.Path;
  */
 public class PackageFileWriter {
 
-    public static void writePackage(PackageFile packageFile, Path packageFilePath) throws IOException {
-        BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(packageFilePath));
-        writePackage(packageFile, bos);
-    }
-
-    public static void writePackage(PackageFile packageFile, OutputStream programOutStream) throws IOException {
-        DataOutputStream dataOutStream = null;
-        try {
-            dataOutStream = new DataOutputStream(programOutStream);
-
+    public static byte[] writePackage(PackageFile packageFile) throws IOException {
+        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
+        try (DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS)) {
             dataOutStream.writeInt(PackageFile.MAGIC_VALUE);
-            dataOutStream.writeShort(packageFile.langVersion);
+            dataOutStream.writeShort(PackageFile.LANG_VERSION);
 
-            PackageInfoWriter.writeCP(dataOutStream, packageFile.getConstPoolEntries());
-            PackageInfo packageInfo = packageFile.packageInfo;
-            dataOutStream.writeInt(packageInfo.nameCPIndex);
-
-            // Emit package dependencies
-            dataOutStream.writeShort(packageInfo.importPkgInfoSet.size());
-            for (ImportPackageInfo importPkgInfo : packageInfo.importPkgInfoSet) {
-                dataOutStream.writeInt(importPkgInfo.nameCPIndex);
-            }
-
-            PackageInfoWriter.writePackageInfo(dataOutStream, packageInfo);
-            PackageInfoWriter.writeAttributeInfoEntries(dataOutStream, packageFile.getAttributeInfoEntries());
-
-            dataOutStream.flush();
-            dataOutStream.close();
-        } finally {
-            if (dataOutStream != null) {
-                dataOutStream.close();
-            }
+            dataOutStream.write(packageFile.pkgBinaryContent);
+            return byteArrayOS.toByteArray();
         }
-
     }
 }

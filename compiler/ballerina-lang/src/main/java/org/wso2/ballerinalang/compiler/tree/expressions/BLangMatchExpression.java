@@ -23,10 +23,10 @@ import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -62,18 +62,18 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
     }
 
     /**
-     * {@code BLangMatchExprPatternClause} represents a pattern inside a type switch expression
+     * {@code BLangMatchExprPatternClause} represents a pattern inside a type switch expression.
      *
      * @since 0.970.0
      */
     public static class BLangMatchExprPatternClause extends BLangNode implements MatchExpressionPatternNode {
 
-        public BLangVariable variable;
+        public BLangSimpleVariable variable;
         public BLangExpression expr;
 
         // This field is used to capture types that are matched to this pattern.
-        public Set<BType> matchedTypesDirect = new HashSet<>();
-        public Set<BType> matchedTypesIndirect = new HashSet<>();
+        public Set<BType> matchedTypesDirect = new LinkedHashSet<>();
+        public Set<BType> matchedTypesIndirect = new LinkedHashSet<>();
 
         @Override
         public NodeKind getKind() {
@@ -81,7 +81,7 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
         }
 
         @Override
-        public BLangVariable getVariableNode() {
+        public BLangSimpleVariable getVariableNode() {
             return variable;
         }
 

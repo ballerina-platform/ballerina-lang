@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @since Dec 23, 2015
+ * Testcase for external time batch window queries.
  */
 public class ExternalTimeBatchWindowTestCase {
 

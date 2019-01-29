@@ -1,0 +1,48 @@
+{
+    "position": {
+        "line": 4,
+        "character": 10
+    },
+    "newName": "newFunc1",
+    "expected": [
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 6,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function main(string... args) {\r\n    pkg1:newFunc1();\r\n}"
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 7,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function func2(){\r\n    io:println(\"func2...\");\r\n    pkg1:newFunc1();\r\n}"
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 5,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/io;\r\n\r\npublic function newFunc1(){\r\n    io:println(\"func1...\");\r\n}"
+        }
+    ]
+}

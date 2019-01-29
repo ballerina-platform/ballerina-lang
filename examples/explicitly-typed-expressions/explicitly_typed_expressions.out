@@ -1,0 +1,6 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
+$ ballerina run explicitly_typed_expressions.bal
+45
+1
+true

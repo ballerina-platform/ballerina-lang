@@ -238,10 +238,10 @@ public class AnnotationAttachment implements Node {
             throw new IllegalAccessError("annotation contains multiple attributes");
         }
         
-        BValue listeralVal = attributeNameValPairs.values().toArray(new AnnotationAttributeValue[0])[0]
+        BValue literalVal = attributeNameValPairs.values().toArray(new AnnotationAttributeValue[0])[0]
                 .getLiteralValue();
-        if (listeralVal != null) {
-            return listeralVal.stringValue();
+        if (literalVal != null) {
+            return literalVal.stringValue();
         }
         
         return null;

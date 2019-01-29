@@ -1,0 +1,9 @@
+["b7a.users"]
+
+["b7a.users.generalUser1"]
+password="password"
+scopes="scope1"
+
+["b7a.users.generalUser2"]
+password="password"
+scopes="scope2"

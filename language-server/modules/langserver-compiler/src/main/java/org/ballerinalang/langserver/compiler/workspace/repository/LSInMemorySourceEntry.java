@@ -17,21 +17,23 @@
 */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceEntry;
+import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * LSInMemorySourceEntry.
  */
-class LSInMemorySourceEntry extends FileSystemSourceEntry {
+class LSInMemorySourceEntry extends FileSystemSourceInput {
 
     private WorkspaceDocumentManager documentManager;
-    LSInMemorySourceEntry(Path path, PackageID pkgId, WorkspaceDocumentManager documentManager) {
-        super(path, pkgId);
+    LSInMemorySourceEntry(Path path, Path root, PackageID pkgId, WorkspaceDocumentManager documentManager) {
+        super(path, root.resolve(Paths.get(pkgId.name.value)));
         this.documentManager = documentManager;
     }
 
@@ -39,9 +41,9 @@ class LSInMemorySourceEntry extends FileSystemSourceEntry {
     public byte[] getCode() {
         try {
             return documentManager.getFileContent(this.getPath()).getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException | WorkspaceDocumentException e) {
             throw new RuntimeException("Error in loading package source entry '" + getPath() +
-                    "': " + e.getMessage(), e);
+                                               "': " + e.getMessage(), e);
         }
     }
 }

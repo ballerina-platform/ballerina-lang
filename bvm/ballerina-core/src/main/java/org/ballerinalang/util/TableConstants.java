@@ -43,6 +43,7 @@ public class TableConstants {
     static final String PRIMARY_KEY = ",PRIMARY KEY (";
     static final String INDEX = "IDX_";
     static final String SQL_CREATE_INDEX = "CREATE INDEX ";
+    public static final String SQL_COUNT = "SELECT COUNT(*) FROM ";
 
     static final String SQL_TYPE_BIGINT = "BIGINT";
     static final String SQL_TYPE_DOUBLE = "DOUBLE";

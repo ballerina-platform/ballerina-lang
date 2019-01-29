@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for MinForever aggregation.
+ */
 public class MinForeverAggregatorExtensionTestCase {
     private static final Logger log = LoggerFactory.getLogger(MinForeverAggregatorExtensionTestCase.class);
     private volatile int count;

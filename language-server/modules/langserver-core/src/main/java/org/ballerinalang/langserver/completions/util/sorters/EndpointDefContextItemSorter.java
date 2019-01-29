@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public class EndpointDefContextItemSorter extends CompletionItemSorter {
     @Override
     public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
         this.setPriorities(completionItems);
-        BLangVariable bLangVariable = (BLangVariable) ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+        BLangSimpleVariable bLangVariable = (BLangSimpleVariable) ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         if (!(bLangVariable.typeNode instanceof BLangEndpointTypeNode)) {
             return;
         }

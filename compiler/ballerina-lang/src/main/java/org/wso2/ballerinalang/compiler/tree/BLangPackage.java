@@ -18,69 +18,65 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.ObjectNode;
-import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.StructNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
-import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 /**
  * @since 0.94
  */
 public class BLangPackage extends BLangNode implements PackageNode {
+
     public List<BLangCompilationUnit> compUnits;
-    public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangEndpoint> globalEndpoints;
-    public List<BLangVariable> globalVars;
+    public List<BLangConstant> constants;
+    public List<BLangSimpleVariable> globalVars;
     public List<BLangService> services;
-    public List<BLangConnector> connectors;
     public List<BLangFunction> functions;
-    public List<BLangStruct> structs;
-    public List<BLangObject> objects;
     public List<BLangTypeDefinition> typeDefinitions;
-    public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
-    public List<BLangRecord> records;
     public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
-    public List<BLangTransformer> transformers;
     public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
+    public List<BLangTestablePackage> testablePkgs;
+    // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
+    public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
 
     public PackageID packageID;
     public BPackageSymbol symbol;
-    public PackageRepository packageRepository;
+    public Set<Flag> flagSet;
 
     // TODO Revisit these instance variables
-    public Path loadedFilePath;
-    public boolean loadedFromProjectDir;
+    public BDiagnosticCollector diagCollector;
+
     public RepoHierarchy repos;
 
     public BLangPackage() {
@@ -88,21 +84,19 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.imports = new ArrayList<>();
         this.xmlnsList = new ArrayList<>();
         this.globalEndpoints = new ArrayList<>();
+        this.constants = new ArrayList<>();
         this.globalVars = new ArrayList<>();
         this.services = new ArrayList<>();
-        this.connectors = new ArrayList<>();
         this.functions = new ArrayList<>();
-        this.structs = new ArrayList<>();
-        this.objects = new ArrayList<>();
-        this.records = new ArrayList<>();
         this.typeDefinitions = new ArrayList<>();
-        this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
-        this.transformers = new ArrayList<>();
 
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
+        this.diagCollector = new BDiagnosticCollector();
+        this.testablePkgs = new ArrayList<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
     @Override
@@ -131,7 +125,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<BLangVariable> getGlobalVariables() {
+    public List<BLangConstant> getConstants() {
+        return constants;
+    }
+
+    @Override
+    public List<BLangSimpleVariable> getGlobalVariables() {
         return globalVars;
     }
 
@@ -141,23 +140,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<BLangConnector> getConnectors() {
-        return connectors;
-    }
-
-    @Override
     public List<BLangFunction> getFunctions() {
         return functions;
-    }
-
-    @Override
-    public List<BLangStruct> getStructs() {
-        return structs;
-    }
-
-    @Override
-    public List<BLangObject> getObjects() {
-        return objects;
     }
 
     @Override
@@ -166,23 +150,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<? extends EnumNode> getEnums() {
-        return enums;
-    }
-
-    @Override
     public List<BLangAnnotation> getAnnotations() {
         return annotations;
-    }
-
-    @Override
-    public List<? extends TransformerNode> getTransformers() {
-        return transformers;
-    }
-
-    @Override
-    public List<BLangRecord> getRecords() {
-        return records;
     }
 
     @Override
@@ -202,8 +171,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void addGlobalVariable(VariableNode globalVar) {
-        this.globalVars.add((BLangVariable) globalVar);
+    public void addGlobalVariable(SimpleVariableNode globalVar) {
+        this.globalVars.add((BLangSimpleVariable) globalVar);
         this.topLevelNodes.add(globalVar);
     }
 
@@ -214,33 +183,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void addConnector(ConnectorNode connector) {
-        this.connectors.add((BLangConnector) connector);
-        this.topLevelNodes.add(connector);
-    }
-
-    @Override
     public void addFunction(FunctionNode function) {
         this.functions.add((BLangFunction) function);
         this.topLevelNodes.add(function);
-    }
-
-    @Override
-    public void addStruct(StructNode struct) {
-        this.structs.add((BLangStruct) struct);
-        this.topLevelNodes.add(struct);
-    }
-
-    @Override
-    public void addObject(ObjectNode object) {
-        this.objects.add((BLangObject) object);
-        this.topLevelNodes.add(object);
-    }
-
-    @Override
-    public void addEnum(EnumNode enumNode) {
-        this.enums.add((BLangEnum) enumNode);
-        this.topLevelNodes.add(enumNode);
     }
 
     @Override
@@ -250,35 +195,81 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void addTransformer(TransformerNode transformer) {
-        this.transformers.add((BLangTransformer) transformer);
-        this.topLevelNodes.add(transformer);
-    }
-
-    @Override
-    public void addRecord(RecordNode recordNode) {
-        this.records.add((BLangRecord) recordNode);
-        this.topLevelNodes.add(recordNode);
-    }
-
-    @Override
     public void addTypeDefinition(TypeDefinition typeDefinition) {
         this.typeDefinitions.add((BLangTypeDefinition) typeDefinition);
         this.topLevelNodes.add(typeDefinition);
     }
 
-    @Override
-    public void setPackageDeclaration(PackageDeclarationNode pkgDecl) {
-        this.pkgDecl = (BLangPackageDeclaration) pkgDecl;
+    /**
+     * Add testable package to package list.
+     *
+     * @param testablePkg testable package node
+     */
+    public void addTestablePkg(BLangTestablePackage testablePkg) {
+        this.testablePkgs.add(testablePkg);
     }
 
-    @Override
-    public PackageDeclarationNode getPackageDeclaration() {
-        return pkgDecl;
+    /**
+     * Get the testable package list.
+     *
+     * @return testable package list
+     */
+    public List<BLangTestablePackage> getTestablePkgs() {
+        return testablePkgs;
     }
 
+    /**
+     * Get testable package from the list.
+     *
+     * @return testable package
+     */
+    public BLangTestablePackage getTestablePkg() {
+        return testablePkgs.stream().findAny().get();
+    }
+
+    /**
+     * Checks if the package contains a testable package.
+     *
+     * @return true it testable package exists else false
+     */
+    public boolean containsTestablePkg() {
+        return testablePkgs.stream().findAny().isPresent();
+    }
     @Override
     public NodeKind getKind() {
         return NodeKind.PACKAGE;
+    }
+
+    /**
+     * Get flags.
+     *
+     * @return flags of the package
+     */
+    public Set<Flag> getFlags() {
+        return flagSet;
+    }
+    /**
+     * This class collect diagnostics.
+     *
+     * @since 0.970.0
+     */
+    public static class BDiagnosticCollector {
+        private int errorCount;
+        private List<BDiagnostic> diagnostics;
+
+        public BDiagnosticCollector() {
+            this.diagnostics = new ArrayList<>();
+        }
+
+        public void addDiagnostic(BDiagnostic diagnostic) {
+            this.diagnostics.add(diagnostic);
+            if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+                this.errorCount++;
+            }
+        }
+
+        public boolean hasErrors() {
+            return this.errorCount > 0;
+        }
     }
 }

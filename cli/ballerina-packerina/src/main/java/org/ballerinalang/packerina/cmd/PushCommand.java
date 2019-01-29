@@ -17,16 +17,15 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.PushUtils;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.packerina.cmd.Constants.PUSH_COMMAND;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -34,41 +33,39 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@Parameters(commandNames = "push", commandDescription = "pushes a package source and binaries available" +
-        "locally to ballerina central,")
+@CommandLine.Command(name = PUSH_COMMAND, description = "push modules and binaries available locally to "
+        + "Ballerina Central")
 public class PushCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
-    private JCommander parentCmdParser;
 
-    @Parameter(arity = 1)
+    @CommandLine.Parameters
     private List<String> argList;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
-    private String javaDebugPort;
-
-    @Parameter(names = "--debug", hidden = true)
+    @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
-    @Parameter(names = "--repository", hidden = true)
+    @CommandLine.Option(names = "--repository", hidden = true)
     private String repositoryHome;
+
+    @CommandLine.Option(names = {"--sourceroot"},
+            description = "path to the directory containing source files and modules")
+    private String sourceRoot;
+
+    @CommandLine.Option(names = {"--no-build"}, description = "skip building before pushing")
+    private boolean noBuild;
+
+    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+    private boolean experimentalFlag;
 
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "push");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PUSH_COMMAND);
             outStream.println(commandUsageInfo);
             return;
-        }
-
-        if (argList == null || argList.size() == 0) {
-            throw new BLangCompilerException("No package given");
-        }
-
-        if (argList.size() > 1) {
-            throw new BLangCompilerException("too many arguments");
         }
 
         // Enable remote debugging
@@ -76,32 +73,37 @@ public class PushCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
-        String packageName = argList.get(0);
-        PushUtils.pushPackages(packageName, repositoryHome);
+        if (argList == null || argList.size() == 0) {
+            PushUtils.pushAllPackages(sourceRoot, repositoryHome, noBuild, experimentalFlag);
+        } else if (argList.size() == 1) {
+            String packageName = argList.get(0);
+            PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild, experimentalFlag);
+        } else {
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+        }
         Runtime.getRuntime().exit(0);
     }
 
     @Override
     public String getName() {
-        return "push";
+        return PUSH_COMMAND;
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("push packages to the ballerina central repository");
+        out.append("push modules to the ballerina central repository");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina push <package-name> \n");
+        out.append("  ballerina push <module-name> \n");
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }

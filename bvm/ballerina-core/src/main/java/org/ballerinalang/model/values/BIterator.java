@@ -17,8 +17,12 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@code {@link BIterator}} represents a Iterator of a Ballerina {@code {@link BCollection}}.
@@ -28,12 +32,11 @@ import org.ballerinalang.model.types.BTypes;
 public interface BIterator extends BRefType {
 
     /**
-     * Get the array of BValues for next element for given argument arity.
+     * Get the array of BValues for next element.
      *
-     * @param arity Number of arguments
-     * @return array of BValues for next element for given argument arity
+     * @return array of BValues for next element
      */
-    BValue[] getNext(int arity);
+    BValue getNext();
 
     /**
      * Checks collection has a next value.
@@ -55,7 +58,12 @@ public interface BIterator extends BRefType {
     }
 
     @Override
-    default BValue copy() {
+    default void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+
+    }
+
+    @Override
+    default BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 

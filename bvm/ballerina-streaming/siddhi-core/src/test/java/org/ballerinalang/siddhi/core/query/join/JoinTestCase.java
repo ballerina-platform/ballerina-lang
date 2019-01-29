@@ -34,6 +34,9 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for stream joins.
+ */
 public class JoinTestCase {
     private static final Logger log = LoggerFactory.getLogger(JoinTestCase.class);
     private AtomicInteger inEventCount;

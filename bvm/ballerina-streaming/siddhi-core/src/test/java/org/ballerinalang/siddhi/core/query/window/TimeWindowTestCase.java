@@ -29,6 +29,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for time window queries.
+ */
 public class TimeWindowTestCase {
     private int inEventCount;
     private int removeEventCount;

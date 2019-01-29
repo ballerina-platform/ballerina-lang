@@ -1,0 +1,173 @@
+{
+  "position": {
+    "startColumn": 5,
+    "startLine": 25,
+    "endColumn": 6,
+    "endLine": 27
+  },
+  "id": "08149989-5477-441f-93d6-41a39d9c0bed",
+  "variable": {
+    "position": {
+      "startColumn": 5,
+      "startLine": 25,
+      "endColumn": 6,
+      "endLine": 27
+    },
+    "id": "77f5dfc4-6ef7-4e77-84cd-8f30ae135d15",
+    "symbolType": [
+      "other"
+    ],
+    "name": {
+      "id": "5f7b8527-9346-4d7e-8cf3-349876f19022",
+      "literal": false,
+      "value": "0workerName",
+      "kind": "Identifier",
+      "valueWithBar": "0workerName"
+    },
+    "deprecatedAttachments": [],
+    "annotationAttachments": [],
+    "initialExpression": {
+      "position": {
+        "startColumn": 5,
+        "startLine": 25,
+        "endColumn": 6,
+        "endLine": 27
+      },
+      "id": "b6f1fc3c-5132-4e58-9dc1-beecfda01754",
+      "symbolType": [
+        "other"
+      ],
+      "functionNode": {
+        "ws": [
+          {
+            "ws": "\n    ",
+            "i": 158,
+            "text": "worker",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 160,
+            "text": "workerName",
+            "static": false
+          },
+          {
+            "ws": " ",
+            "i": 162,
+            "text": "{",
+            "static": true
+          },
+          {
+            "ws": "\n        \n    ",
+            "i": 167,
+            "text": "}",
+            "static": true
+          }
+        ],
+        "position": {
+          "startColumn": 5,
+          "startLine": 25,
+          "endColumn": 6,
+          "endLine": 27
+        },
+        "id": "5f19b13b-13be-40bd-85dc-3e994892f1dd",
+        "VisibleEndpoints": [],
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+          "position": {
+            "startColumn": 5,
+            "startLine": 25,
+            "endColumn": 6,
+            "endLine": 27
+          },
+          "id": "6d760338-9270-4ddb-a872-0ae504fcecbe",
+          "literal": false,
+          "value": "$lambda$0",
+          "kind": "Identifier",
+          "valueWithBar": "$lambda$0"
+        },
+        "annotationAttachments": [],
+        "returnTypeNode": {
+          "position": {
+            "startColumn": 5,
+            "startLine": 25,
+            "endColumn": 6,
+            "endLine": 27
+          },
+          "id": "02541705-05c3-48a2-9b70-65b2bc89dc61",
+          "symbolType": [
+            "null"
+          ],
+          "typeKind": "nil",
+          "grouped": false,
+          "nullable": false,
+          "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+          "id": "66be9bb3-b2d4-47d0-b57d-10e23c4da1d4",
+          "statements": [],
+          "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [],
+        "kind": "Function",
+        "public": false,
+        "private": false,
+        "remote": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": true,
+        "worker": true,
+        "parallel": false,
+        "listener": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "required": false,
+        "record": false,
+        "compensate": false,
+        "abstract": false,
+        "optional": false,
+        "testable": false,
+        "client": false,
+        "resource": false,
+        "service": false,
+        "constant": false,
+        "allParams": []
+      },
+      "kind": "Lambda",
+      "isExpression": true
+    },
+    "kind": "Variable",
+    "public": false,
+    "private": false,
+    "remote": false,
+    "native": false,
+    "final": true,
+    "attached": false,
+    "lambda": false,
+    "worker": true,
+    "parallel": false,
+    "listener": false,
+    "deprecated": false,
+    "readonly": false,
+    "function_final": false,
+    "interface": false,
+    "required": false,
+    "record": false,
+    "compensate": false,
+    "abstract": false,
+    "optional": false,
+    "testable": false,
+    "client": false,
+    "resource": false,
+    "service": false,
+    "constant": false
+  },
+  "kind": "VariableDef"
+}

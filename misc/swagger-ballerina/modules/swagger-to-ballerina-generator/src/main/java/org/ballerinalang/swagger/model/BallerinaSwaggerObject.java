@@ -16,6 +16,7 @@
 
 package org.ballerinalang.swagger.model;
 
+import io.swagger.v3.oas.models.OpenAPI;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 
 /**
@@ -33,6 +34,18 @@ public interface BallerinaSwaggerObject<C, D> {
      * @throws BallerinaOpenApiException on error when parsing the Open Api definition
      */
     C buildContext(D definition) throws BallerinaOpenApiException;
+
+    /**
+     * Build the Ballerina context model {@code C} for Open API definition/component in {@code D}.
+     * <p>{@link OpenAPI} definition {@code openApi} can be used to access the parent context
+     * helpful for building the current context</p>
+     *
+     * @param definition Open Api definition or component
+     * @param openAPI parent openApi object model
+     * @return parsed context model {@code C} of Open Api definition/component {@code D}
+     * @throws BallerinaOpenApiException on error when parsing the Open Api definition
+     */
+    C buildContext(D definition, OpenAPI openAPI) throws BallerinaOpenApiException;
 
     /**
      * Retrieve the default value for this type.

@@ -1,0 +1,5 @@
+// Ballerina supports Observability out of the box, and Metrics is one of the three important aspect of the
+// Observability. To observe Ballerina code, the `--observe` flag should be given when starting the service.
+// The developers can define and use metrics to measure their own logic. A counter is one type of metric that is
+// supported by default in Ballerina, and it is a cumulative metric that represents a single monotonically increasing
+// counter whose value can only increase or be reset to zero.

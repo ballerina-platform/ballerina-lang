@@ -33,6 +33,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase to validate multi client distributed sink.
+ */
 public class MultiClientDistributedSinkTestCase {
     private static final Logger log = LoggerFactory.getLogger(MultiClientDistributedSinkTestCase.class);
     private AtomicInteger topic1Count = new AtomicInteger(0);

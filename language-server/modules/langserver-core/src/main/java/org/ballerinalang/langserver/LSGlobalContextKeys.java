@@ -17,6 +17,8 @@ package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.index.LSIndexImpl;
 
 /**
  * Language Server Global Context Keys.
@@ -24,8 +26,16 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
  * @since 0.970.0
  */
 public class LSGlobalContextKeys {
+    
+    private LSGlobalContextKeys() {
+    }
+
     public static final LSContext.Key<WorkspaceDocumentManager> DOCUMENT_MANAGER_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<DiagnosticsHelper> DIAGNOSTIC_HELPER_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<LSIndexImpl> LS_INDEX_KEY
             = new LSContext.Key<>();
 }

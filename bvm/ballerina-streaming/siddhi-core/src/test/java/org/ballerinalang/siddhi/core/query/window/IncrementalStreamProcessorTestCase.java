@@ -22,6 +22,9 @@ import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for incremental stream processor queries.
+ */
 public class IncrementalStreamProcessorTestCase {
 
     @Test

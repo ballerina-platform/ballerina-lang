@@ -1,0 +1,40 @@
+#Run the following curl command to run the client.
+$ curl -v -d "TEST 100 CONTINUE" http://localhost:9090/hello -H 'Expect:100-continue' -H 'Content-Type: text/plain'
+*   Trying 127.0.0.1...
+* Connected to localhost (127.0.0.1) port 9090 (#0)
+> POST /hello HTTP/1.1
+> Host: localhost:9090
+> User-Agent: curl/7.58.0
+> Accept: */*
+> Expect:100-continue
+> Content-Length: 17
+> Content-Type: text/plain
+>
+< HTTP/1.1 100 Continue
+* We are completely uploaded and fine
+< HTTP/1.1 200 OK
+< content-type: text/plain
+< content-length: 13
+<
+Hello World!
+* Connection #0 to host localhost left intact
+
+# Use the following client to invoke the service using an unsupported media type. Service is supposed to ignore
+# the payload if the content type does not matched.
+$ curl -v -d '{"TEST":"100 CONTINUE"}' http://localhost:9090/hello -H 'Expect:100-continue' -H 'Content-Type: application/json'
+* Connected to localhost (127.0.0.1) port 9090 (#0)
+> POST /hello HTTP/1.1
+> Host: localhost:9090
+> User-Agent: curl/7.58.0
+> Accept: */*
+> Expect:100-continue
+> Content-Type: application/json
+> Content-Length: 25
+>
+< HTTP/1.1 417 Expectation Failed
+< content-type: text/plain
+< content-length: 20
+* HTTP error before end of send, stop sending
+<
+* Closing connection 0
+Unprocessable Entity

@@ -18,10 +18,7 @@
 
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-
-import java.util.List;
 
 /**
  * Represents TypeDefinition Top Level Node interface.
@@ -31,10 +28,6 @@ public interface TypeDefinition extends AnnotatableNode, DocumentableNode, TopLe
     IdentifierNode getName();
 
     void setName(IdentifierNode name);
-
-    List<? extends ExpressionNode> getValueSet();
-
-    void addValue(ExpressionNode value);
 
     TypeNode getTypeNode();
 

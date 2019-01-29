@@ -19,7 +19,6 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
  * @since 0.965.0
@@ -34,7 +33,11 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  */
 public interface WithinClause extends Node {
 
-    void setWithinTimePeriod(ExpressionNode expr);
+    String getTimeScale();
 
-    ExpressionNode getWithinTimePeriod();
+    void setTimeScale(String timeScale);
+
+    String getTimeDurationValue();
+
+    void setTimeDurationValue(String timeDurationValue);
 }

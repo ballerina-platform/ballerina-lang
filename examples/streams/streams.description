@@ -1,0 +1,5 @@
+// The `stream` type represents a stream of values, where the constraint type of the stream defines the type of values
+// accepted by the stream. Functions allowed on a stream include publishing values to the stream and/or subscribing
+// to the stream to receive values that are published to the stream.
+// Ballerina Streams is an experimental feature, and requires setting the `--experimental` option when compiling
+// Ballerina files which have streaming constructs.

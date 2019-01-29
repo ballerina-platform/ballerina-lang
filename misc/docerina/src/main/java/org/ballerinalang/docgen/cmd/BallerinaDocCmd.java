@@ -18,67 +18,71 @@
 
 package org.ballerinalang.docgen.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * doc command for ballerina which generates documentation for Ballerina packages.
+ * doc command for ballerina which generates documentation for Ballerina modules.
  */
-@Parameters(commandNames = "doc", commandDescription = "generate Ballerina API documentation")
+@CommandLine.Command(name = "doc", description = "generate Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
-    private final PrintStream err = System.err;
 
-    private JCommander parentCmdParser;
-
-    @Parameter(arity = 1, description = "either the path to the directories where Ballerina source files reside or a "
-            + "path to a Ballerina file which does not belong to a package")
+    @CommandLine.Parameters(description = "either the path to the directories where Ballerina source files reside or"
+            + " a path to a Ballerina file which does not belong to a module")
     private List<String> argList;
 
-    @Parameter(names = { "--output", "-o" },
-            description = "path to the output directory where the API documentation will be written to", hidden = false)
+    @CommandLine.Option(names = {"--output", "-o"},
+            description = "path to the output directory where the API documentation will be written to")
     private String outputDir;
 
-    @Parameter(names = { "--template", "-t" },
-            description = "path to a custom templates directory to be used for API documentation generation",
-            hidden = false)
+    @CommandLine.Option(names = {"--template", "-t"},
+            description = "path to a custom templates directory to be used for API documentation generation")
     private String templatesDir;
 
-    @Parameter(names = { "--exclude", "-e" },
-            description = "a comma separated list of package names to be filtered from the documentation",
-            hidden = false)
+    @CommandLine.Option(names = {"--exclude"}, description = "a comma separated list of module names to be "
+            + "filtered from the documentation")
     private String packageFilter;
 
-    @Parameter(names = { "--native", "-n" },
-            description = "read the source as native ballerina code", hidden = false)
+    @CommandLine.Option(names = {"--native", "-n"}, description = "read the source as native ballerina code")
     private boolean nativeSource;
 
-    @Parameter(names = { "--verbose", "-v" },
-            description = "enable debug level logs", hidden = false)
+    @CommandLine.Option(names = "-e", description = "Ballerina environment parameters")
+    private Map<String, String> runtimeParams = new HashMap<>();
+
+    @CommandLine.Option(names = {"--config", "-c"}, description = "path to the Docerina configuration file")
+    private String configFilePath;
+
+    @CommandLine.Option(names = {"--verbose", "-v"}, description = "enable debug level logs")
     private boolean debugEnabled;
 
-    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    @CommandLine.Option(names = {"--sourceroot"},
+            description = "path to the directory containing source files and modules")
     private String sourceRoot;
 
-    @Parameter(names = { "--help", "-h" }, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
+
+    @CommandLine.Option(names = {"--offline"}, hidden = true)
+    private boolean offline;
 
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "doc");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo("doc");
             out.println(commandUsageInfo);
             return;
         }
@@ -97,15 +101,15 @@ public class BallerinaDocCmd implements BLauncherCmd {
             System.setProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, templatesDir);
         }
 
+        try {
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, null);
+        } catch (IOException e) {
+            throw new RuntimeException("failed to read the specified configuration file: " + configFilePath, e);
+        }
 
         String[] sources = argList.toArray(new String[argList.size()]);
-        try {
-            BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
-                    sources);
-        } catch (Throwable e) {
-            err.println(ExceptionUtils.getStackTrace(e));
-            System.exit(1);
-        }
+        BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
+                offline, sources);
     }
 
     @Override
@@ -122,20 +126,19 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder stringBuilder) {
         stringBuilder
-                .append("ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedpackages] [-v]"
+                .append("ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedmodules] [-v]"
                         + System.lineSeparator())
                 .append("  sourcepath:" + System.lineSeparator())
                 .append("  Paths to the directories where Ballerina source files reside or a path to"
                         + System.lineSeparator())
-                .append("  a Ballerina file which does not belong to a package" + System.lineSeparator());
+                .append("  a Ballerina file which does not belong to a module" + System.lineSeparator());
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }

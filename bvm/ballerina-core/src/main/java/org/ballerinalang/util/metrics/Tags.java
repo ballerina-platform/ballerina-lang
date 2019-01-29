@@ -29,7 +29,7 @@ public class Tags {
     }
 
     /**
-     * Populate tags from key/value pairs
+     * Populate tags from key/value pairs.
      *
      * @param tags      An existing set of {@link Tag Tags}.
      * @param keyValues Must be an even number of arguments representing key/value pairs of tags.
@@ -47,7 +47,7 @@ public class Tags {
     }
 
     /**
-     * Populate tags from another collection of tags
+     * Populate tags from another collection of tags.
      *
      * @param existingTags An existing set of {@link Tag Tags}.
      * @param tags         A collection of {@link Tag Tags}
@@ -57,7 +57,7 @@ public class Tags {
     }
 
     /**
-     * Populate tags from a key/value pair
+     * Populate tags from a key/value pair.
      *
      * @param tags  An existing set of {@link Tag Tags}.
      * @param key   The tag key.
@@ -68,7 +68,7 @@ public class Tags {
     }
 
     /**
-     * Populate tags from a map of key/value pairs
+     * Populate tags from a map of key/value pairs.
      *
      * @param tags    An existing set of {@link Tag Tags}.
      * @param tagsMap A map of key value pairs to be used as tags

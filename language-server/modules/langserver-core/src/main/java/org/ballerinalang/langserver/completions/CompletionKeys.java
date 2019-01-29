@@ -17,17 +17,30 @@
 */
 package org.ballerinalang.langserver.completions;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.AnnotationNodeKind;
+import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachmentMetaInfo;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.tree.Node;
+import org.eclipse.lsp4j.CompletionCapabilities;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Text Document Service context keys for the completion operation context.
+ *
  * @since 0.95.5
  */
 public class CompletionKeys {
+
+    private CompletionKeys() {
+    }
+
     public static final LSContext.Key<BLangNode> SYMBOL_ENV_NODE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY
@@ -36,7 +49,7 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<BLangNode> PREVIOUS_NODE_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<BLangNode> NEXT_NODE_KEY
+    public static final LSContext.Key<AnnotationNodeKind> NEXT_NODE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> LOOP_COUNT_KEY
             = new LSContext.Key<>();
@@ -46,12 +59,16 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> INVOCATION_STATEMENT_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> ATTACHMENT_POINT_NODE_TYPE_KEY
+    public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
             = new LSContext.Key<>();
-    
-    // Meta context Keys
-    public static final LSContext.Key<Boolean> META_CONTEXT_IS_ENDPOINT_KEY
+    public static final LSContext.Key<Stack<Token>> FORCE_CONSUMED_TOKENS_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> META_CONTEXT_ENDPOINT_NAME_KEY
+    public static final LSContext.Key<TokenStream> TOKEN_STREAM_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<CompletionCapabilities> CLIENT_CAPABILITIES_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<AnnotationAttachmentMetaInfo> ANNOTATION_ATTACHMENT_META_KEY
             = new LSContext.Key<>();
 }

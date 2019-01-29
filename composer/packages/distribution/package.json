@@ -1,0 +1,29 @@
+{
+  "name": "@ballerina/distribution",
+  "version": "0.990.3-SNAPSHOT",
+  "description": "",
+  "main": "build/composer.js",
+  "scripts": {
+    "clean": "composer pkg:clean",
+    "lint": "composer pkg:lint",
+    "prebuild": "npm run clean && npm run lint",
+    "test": "echo \"Error: no test specified\"",
+    "test-coverage": "echo \"Error: no test specified\"",
+    "build": "composer pkg:build:webpack",
+    "watch": "composer pkg:watch:webpack"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@ballerina/ballerina-by-examples": "^0.990.3-SNAPSHOT",
+    "@ballerina/diagram": "^0.990.3-SNAPSHOT",
+    "@ballerina/documentation": "^0.990.3-SNAPSHOT",
+    "@ballerina/font": "^0.990.3-SNAPSHOT",
+    "@ballerina/theme": "^0.990.3-SNAPSHOT",
+    "@ballerina/tracing": "^0.990.3-SNAPSHOT",
+    "@ballerina/api-designer" : "^0.990.3-SNAPSHOT"
+  },
+  "devDependencies": {
+    "@ballerina/composer-cli": "^0.990.3-SNAPSHOT"
+  }
+}

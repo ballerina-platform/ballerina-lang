@@ -28,9 +28,11 @@ public class DefaultValue {
 
     public int valueCPIndex = -1;
     public long intValue;
+    public byte byteValue;
     public double floatValue;
     public String stringValue;
     public boolean booleanValue;
+    public String decimalValue;
 
     public DefaultValue(int typeDescCPIndex, String desc) {
         this.typeDescCPIndex = typeDescCPIndex;

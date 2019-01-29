@@ -1,6 +1,6 @@
 ## Setting up Ballerina SDK
 
-### 1) When creating a new Ballerina project
+### 1) When Creating a New Ballerina Project
 
 1) Go to **File -> New -> Project** and select **Ballerina** project and select **Next**.
 
@@ -22,7 +22,7 @@ If the Ballerina SDK was not configured previously, you can add a new Ballerina 
 
 ![alt text](images/Figure-1-2.png)
 
-### 2) After creating a Ballerina project
+### 2) After Creating a Ballerina Project
 
 1) Go to **File -> Project Structure** and select **Project** tab. If you have previously added the Ballerina SDK, you can select the SDK from the drop down menu.
 
@@ -41,3 +41,6 @@ If a Ballerina SDK is not added previously, you can add a new SDK by selecting t
 ![alt text](images/Figure-2-3.png)
 
 4) Select **OK** or **Apply** to save changes.
+
+  >**NOTE:** A restart request will pop-up after applying added/changed project SDK and please continue by choosing 
+  `Continue` to restart IDEA and apply the SDK changes.

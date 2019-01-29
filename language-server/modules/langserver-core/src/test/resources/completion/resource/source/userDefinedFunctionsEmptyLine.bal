@@ -1,7 +1,7 @@
 import ballerina/http;
 
-service<http> service1 {
-    resource echo1 (http:Connection conn, http:Request inRequest) {
+service serviceName on new http:Listener(8080) {
+    resource function newResource(http:Caller caller, http:Request request) {
         
     }
 }

@@ -23,8 +23,8 @@ package org.ballerinalang.toml.model;
  * @since 0.964
  */
 public class Settings {
-    private Proxy proxy;
-    private Central central;
+    private Proxy proxy = new Proxy();
+    private Central central = new Central();
 
     /**
      * Get the proxy configuration object.

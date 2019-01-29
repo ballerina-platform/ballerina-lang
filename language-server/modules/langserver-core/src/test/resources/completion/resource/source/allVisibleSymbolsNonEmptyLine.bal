@@ -1,13 +1,12 @@
 import ballerina/http;
 
-@final
-int const1 = 0;
 
-@final
-string const2 = "test const";
+final int const1 = 0;
 
-service<http:Service> hello {
-    sayHello (endpoint client, http:Request request) {
+const string const2 = "test const";
+
+service serviceName on new http:Listener(8080) {
+    resource function newResource(http:Caller caller, http:Request request) {
         int var1 = 12;
         int var2 = 123;
         v

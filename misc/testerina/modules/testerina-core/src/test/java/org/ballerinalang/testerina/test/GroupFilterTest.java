@@ -21,6 +21,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -39,7 +40,6 @@ public class GroupFilterTest {
 
     @Test
     public void singleGroupFilterTest() {
-        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g1");
@@ -52,7 +52,6 @@ public class GroupFilterTest {
 
     @Test
     public void multipleGroupFilterTest() {
-        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g2");
@@ -63,7 +62,6 @@ public class GroupFilterTest {
 
     @Test
     public void specifyNonExistingGroupTest() {
-        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g10");
@@ -75,7 +73,6 @@ public class GroupFilterTest {
 
     @Test
     public void groupFilterWithFailuresTest() {
-        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g5");
@@ -89,7 +86,6 @@ public class GroupFilterTest {
 
     @Test
     public void noGroupFiltersTest() {
-        cleanup();
         BTestRunner testRunner = new BTestRunner();
         testRunner.runTest(sourceRoot, filePaths, null);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 4);
@@ -100,11 +96,10 @@ public class GroupFilterTest {
     // Tests group exclude filters
     @Test
     public void excludeSingleGroupTest() {
-        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g5");
-        testRunner.runTest(sourceRoot, filePaths, groupList, false);
+        testRunner.runTest(sourceRoot, filePaths, groupList, false, Boolean.TRUE);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
@@ -112,12 +107,11 @@ public class GroupFilterTest {
 
     @Test
     public void excludeMultipleGroupsTest() {
-        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g4");
         groupList.add("g5");
-        testRunner.runTest(sourceRoot, filePaths, groupList, false);
+        testRunner.runTest(sourceRoot, filePaths, groupList, false, Boolean.TRUE);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 3);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
@@ -125,16 +119,16 @@ public class GroupFilterTest {
 
     @Test
     public void excludeNonExistingGroupTest() {
-        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g10");
-        testRunner.runTest(sourceRoot, filePaths, groupList, false);
+        testRunner.runTest(sourceRoot, filePaths, groupList, false, Boolean.TRUE);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 1);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
     }
 
+    @AfterMethod
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());

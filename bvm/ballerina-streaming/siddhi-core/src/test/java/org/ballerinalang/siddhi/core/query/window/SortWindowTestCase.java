@@ -35,6 +35,9 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for sort window queries.
+ */
 public class SortWindowTestCase {
     private static final Logger log = LoggerFactory.getLogger(SortWindowTestCase.class);
     private int inEventCount;

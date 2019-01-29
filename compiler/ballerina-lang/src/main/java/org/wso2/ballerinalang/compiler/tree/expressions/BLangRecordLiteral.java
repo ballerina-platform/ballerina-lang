@@ -19,15 +19,16 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
 
@@ -41,15 +42,15 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
  */
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
 
-    /**
-     * The identifier of this node.
-     */
-    public BLangIdentifier name;
-
     public List<BLangRecordKeyValue> keyValuePairs;
 
     public BLangRecordLiteral() {
         keyValuePairs = new ArrayList<>();
+    }
+
+    public BLangRecordLiteral(BType type) {
+        keyValuePairs = new ArrayList<>();
+        this.type = type;
     }
 
     @Override
@@ -69,7 +70,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
     @Override
     public String toString() {
-        return keyValuePairs.toString();
+        return " {" + keyValuePairs.stream()
+                .map(BLangRecordKeyValue::toString)
+                .collect(Collectors.joining(",")) + "}";
     }
 
     /**
@@ -101,6 +104,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public void accept(BLangNodeVisitor visitor) {
 
         }
+
+        @Override
+        public String toString() {
+            return key + ((valueExpr != null) ? ": " + valueExpr : "");
+        }
     }
 
     /**
@@ -128,6 +136,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public void accept(BLangNodeVisitor visitor) {
 
         }
+
+        @Override
+        public String toString() {
+            return expr.toString();
+        }
     }
 
     /**
@@ -136,12 +149,12 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      * @since 0.94
      */
     public static class BLangStructLiteral extends BLangRecordLiteral {
-        public BStructSymbol.BAttachedFunction initializer;
+        public BAttachedFunction initializer;
 
         public BLangStructLiteral(List<BLangRecordKeyValue> keyValuePairs, BType structType) {
             this.keyValuePairs = keyValuePairs;
             this.type = structType;
-            this.initializer = ((BStructSymbol) structType.tsymbol).initializerFunc;
+            this.initializer = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
         }
 
         @Override
@@ -193,9 +206,31 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangStreamLiteral extends BLangRecordLiteral {
 
-        public BLangStreamLiteral(BType streamType, BLangIdentifier name) {
+        public String streamName;
+
+        public BLangStreamLiteral(BType streamType, String streamName) {
             this.type = streamType;
-            this.name = name;
+            this.streamName = streamName;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * This class represents a channel type literal expression.
+     *
+     * @since 0.982.0
+     */
+    public static class BLangChannelLiteral extends BLangRecordLiteral {
+
+        public String channelName;
+
+        public BLangChannelLiteral(BType channelType, String channelName) {
+            this.type = channelType;
+            this.channelName = channelName;
         }
 
         @Override

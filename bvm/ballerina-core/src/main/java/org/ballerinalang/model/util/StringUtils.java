@@ -22,6 +22,9 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 
 /**
  * Common utility methods used for String manipulation.
@@ -72,5 +75,18 @@ public class StringUtils {
             }
         }
         return result;
+    }
+
+    public static String getStringFromInputStream(InputStream inputStream, String charset) {
+        StringBuilder textBuilder = new StringBuilder();
+        try (Reader reader = new InputStreamReader(inputStream, Charset.forName(charset))) {
+            int character;
+            while ((character = reader.read()) != -1) {
+                textBuilder.append((char) character);
+            }
+        } catch (IOException e) {
+            throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
+        }
+        return textBuilder.toString();
     }
 }

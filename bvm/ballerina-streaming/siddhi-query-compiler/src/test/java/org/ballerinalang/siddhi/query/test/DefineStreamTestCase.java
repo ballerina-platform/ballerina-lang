@@ -27,7 +27,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
- * Stream definition testing testcase
+ * Stream definition testing testcase.
  */
 public class DefineStreamTestCase {
 

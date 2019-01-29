@@ -61,6 +61,10 @@ public class Instruction {
         public Operand(int value) {
             this.value = value;
         }
+
+        public int getValue() {
+            return value;
+        }
     }
 
     /**

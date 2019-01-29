@@ -41,6 +41,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for aggregation queries.
+ */
 public class AggregationTestCase {
 
     private static final Logger LOG = LoggerFactory.getLogger(AggregationTestCase.class);

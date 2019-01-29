@@ -19,22 +19,27 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BClosure;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
 import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class responsible on holding Siddhi App runtimes and related stream objects.
@@ -73,7 +78,7 @@ public class StreamingRuntimeManager {
 
     public void addCallback(String streamId, BFunctionPointer functionPointer, SiddhiAppRuntime siddhiAppRuntime) {
 
-        BType[] parameters = functionPointer.value().getFunctionInfo().getParamTypes();
+        BType[] parameters = functionPointer.value().getParamTypes();
 
         // Create an array list with closure var values
         List<BValue> closureArgs = new ArrayList<>();
@@ -81,7 +86,7 @@ public class StreamingRuntimeManager {
             closureArgs.add(closure.value());
         }
 
-        BStructType structType = (BStructType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
+        BStructureType structType = (BStructureType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
         if (!(parameters[parameters.length - 1] instanceof BArrayType)) {
             throw new BallerinaException("incompatible function: inline function needs to be a function accepting"
                     + " an object array");
@@ -90,29 +95,32 @@ public class StreamingRuntimeManager {
         siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+                BValueArray outputArray = new BValueArray(new BMapType(structType));
+                int j = 0;
                 for (Event event : events) {
-                    AtomicInteger intVarIndex = new AtomicInteger(-1);
-                    AtomicInteger floatVarIndex = new AtomicInteger(-1);
-                    AtomicInteger boolVarIndex = new AtomicInteger(-1);
-                    AtomicInteger stringVarIndex = new AtomicInteger(-1);
-                    BStruct output = new BStruct(structType);
+                    // Here it is assumed that an event data will contain all the fields
+                    // of the record. Otherwise, some fields will be missing from the record value.
+                    BMap<String, BValue> output = new BMap<String, BValue>(structType);
+                    Iterator<String> fieldNamesIterator = structType.getFields().keySet().iterator();
                     for (Object field : event.getData()) {
-                        if (field instanceof Long) {
-                            output.setIntField(intVarIndex.incrementAndGet(), (Long) field);
-                        } else if (field instanceof Double) {
-                            output.setFloatField(floatVarIndex.incrementAndGet(), (Double) field);
+                        if (field instanceof Long || field instanceof Integer) {
+                            output.put(fieldNamesIterator.next(), new BInteger(((Number) field).longValue()));
+                        } else if (field instanceof Double || field instanceof Float) {
+                            output.put(fieldNamesIterator.next(), new BFloat(((Number) field).doubleValue()));
                         } else if (field instanceof Boolean) {
-                            output.setBooleanField(boolVarIndex.incrementAndGet(), (Integer) field);
+                            output.put(fieldNamesIterator.next(), new BBoolean(((Boolean) field)));
                         } else if (field instanceof String) {
-                            output.setStringField(stringVarIndex.incrementAndGet(), (String) field);
+                            output.put(fieldNamesIterator.next(), new BString((String) field));
                         }
                     }
-                    List<BValue> argsList = new ArrayList<>();
-                    argsList.addAll(closureArgs);
-                    argsList.add(output);
-                    BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(),
-                            argsList.toArray(new BValue[argsList.size()]));
+                    outputArray.add(j, output);
+                    j++;
                 }
+                List<BValue> argsList = new ArrayList<>();
+                argsList.addAll(closureArgs);
+                argsList.add(outputArray);
+                BVMExecutor.executeFunction(functionPointer.value().getPackageInfo().getProgramFile(),
+                        functionPointer.value(), argsList.toArray(new BValue[0]));
             }
         });
     }

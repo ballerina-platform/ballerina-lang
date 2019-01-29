@@ -126,14 +126,10 @@ function testAssertFalse () {
 // Assert Fail
 @test:Config
 function testAssertFail1 () {
-    try {
-        // I'm expecting a error
-        error err = {};
-        test:assertFail(msg = "Exception Never occured");
+    // I'm expecting a error
+    error err = error("");
+    _ = trap test:assertFail(msg = "Exception Never occured");
 
-    } catch (error e) {
-        // Do more assertions
-    }
 }
 
 // Assert Fail

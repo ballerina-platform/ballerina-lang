@@ -17,17 +17,13 @@
  */
 package org.ballerinalang.protobuf.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
-import org.ballerinalang.protobuf.BalGenerationConstants;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
-import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,174 +36,200 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
+import static org.ballerinalang.protobuf.BalGenerationConstants.BUILD_COMMAND_NAME;
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
-import static org.ballerinalang.protobuf.BalGenerationConstants.FILE_SEPARATOR;
+import static org.ballerinalang.protobuf.BalGenerationConstants.META_LOCATION;
 import static org.ballerinalang.protobuf.BalGenerationConstants.NEW_LINE_CHARACTER;
-import static org.ballerinalang.protobuf.BalGenerationConstants.PLUGIN_PROTO_FILEPATH;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_URL_SUFFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_COMPILER_DIRECTORY;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_GOOGLE_DIRECTORY;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_PROTOBUF_DIRECTORY;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.delete;
+import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.downloadFile;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.grantPermission;
-import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
 
 /**
  * Class to implement "grpc" command for ballerina.
  * Ex: ballerina grpc  --proto_path (proto-file-path)  --exe_path (protoc-executor-path)
  */
-@Parameters(commandNames = "grpc", commandDescription = "DescriptorGenerate connector/service using protobuf " +
-        "definition")
+@CommandLine.Command(
+        name = "grpc",
+        description = "generate Ballerina gRPC client stub for gRPC service for a given gRPC protoc " +
+                "definition.")
 public class GrpcCmd implements BLauncherCmd {
     private static final Logger LOG = LoggerFactory.getLogger(GrpcCmd.class);
     
     private static final PrintStream outStream = System.out;
-    private static final PrintStream errStream = System.err;
     
-    private JCommander parentCmdParser;
+    private CommandLine parentCmdParser;
     
-    @Parameter(names = {"--proto_path"},
-            description = "Path of the .proto file",
+    @CommandLine.Option(names = {"--input"},
+            description = "Input .proto file",
             required = true
     )
     private String protoPath;
-    
-    @Parameter(names = {"--bal_out"},
-            description = "output location of .bal file"
+
+    @CommandLine.Option(names = {"--mode"},
+            description = "Ballerina source [service or client]"
     )
-    private String balOutPath = "";
-    
-    @Parameter(names = {"--exe_path"},
-            description = "Full path of the .exe file"
+    private String mode = "stub";
+
+    @CommandLine.Option(names = {"--output"},
+            description = "Generated Ballerina source files location"
     )
-    private String exePath;
+    private String balOutPath;
     
-    @Parameter(names = {"--protoc_version"},
-            description = "Full path of the .exe file"
-    )
+    private String protocExePath;
+    
     private String protocVersion = "3.4.0";
     
-    @Parameter(names = {"-h", "--help"}, hidden = true)
+    @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
     
-    @Parameter(names = "--debug", hidden = true)
+    @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
-    
-    @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
-    private String javaDebugPort;
-    
+
     @Override
     public void execute() {
-        
-        File protoFile = new File(protoPath);
-        if (!protoFile.isFile() || !protoFile.exists() || EMPTY_STRING.equals(protoPath) ||
-                !protoPath.contains(".proto")) {
-            String errorMessage = "Invalid proto file location. Please input valid profile location.";
-            errStream.println(errorMessage);
-            throw new BalGenToolException(errorMessage);
+        // check input protobuf file path
+        if (protoPath == null || !protoPath.toLowerCase(Locale.ENGLISH).endsWith(PROTO_SUFFIX)) {
+            String errorMessage = "Invalid proto file path. Please input valid proto file location.";
+            outStream.println(errorMessage);
+            return;
         }
-        
+        if (!Files.isReadable(Paths.get(protoPath))) {
+            String errorMessage = "Provided service proto file is not readable. Please input valid proto file " +
+                    "location.";
+            outStream.println(errorMessage);
+            return;
+        }
+
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND_NAME);
             outStream.println(commandUsageInfo);
             return;
         }
+        // download protoc executor.
         try {
             downloadProtocexe();
-        } catch (BalGenToolException e) {
-            LOG.error("Error while generating protoc executable. ", e);
-            throw new BalGenToolException("Error while generating protoc executable. ", e);
+        } catch (IOException | BalGenToolException e) {
+            String errorMessage = "Error while generating protoc executable. " + e.getMessage();
+            LOG.error("Error while generating protoc executable.", e);
+            outStream.println(errorMessage);
+            return;
         }
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        String descriptorPath = BalGenerationConstants.META_LOCATION + getProtoFileName() + "-descriptor.desc";
-        File descFile = generateDescTempFolder(descriptorPath);
+        // read root/dependent file descriptors.
+        File descFile = createTempDirectory();
         StringBuilder msg = new StringBuilder();
         LOG.debug("Initializing the ballerina code generation.");
-        List<String> protoFiles = readProperties(classLoader);
-        for (String file : protoFiles) {
-            try {
-                exportResource(file, classLoader);
-            } catch (Exception e) {
-                msg.append("Error extracting resource file ").append(file).append(NEW_LINE_CHARACTER);
-                outStream.println(msg.toString());
-                LOG.error("Error exacting resource file " + file, e);
-            }
-        }
-        msg.append("Successfully generated initial files.").append(NEW_LINE_CHARACTER);
-        byte[] root = BalFileGenerationUtils.getProtoByteArray(this.exePath, this.protoPath, descFile
-                .getAbsolutePath());
-        LOG.debug("Successfully generated root descriptor.");
-        List<byte[]> dependant;
-        dependant = org.ballerinalang.protobuf.cmd.DescriptorsGenerator.generatedependentDescriptor
-                (descriptorPath, this.protoPath, new ArrayList<>(), exePath, classLoader);
-        LOG.debug("Successfully generated dependent descriptor.");
-        //Path balPath = Paths.get(balOutPath);
+        byte[] root;
+        Set<byte[]> dependant;
         try {
-            BallerinaFileBuilder ballerinaFileBuilder;
-            // By this user can generate stub at different location
-            if (EMPTY_STRING.equals(balOutPath)) {
-                ballerinaFileBuilder = new BallerinaFileBuilder(dependant);
-            } else {
-                ballerinaFileBuilder = new BallerinaFileBuilder(dependant, balOutPath);
+            ClassLoader classLoader = this.getClass().getClassLoader();
+            List<String> protoFiles = readProperties(classLoader);
+            for (String file : protoFiles) {
+                try {
+                    exportResource(file, classLoader);
+                } catch (Exception e) {
+                    msg.append("Error extracting resource file ").append(file).append(NEW_LINE_CHARACTER);
+                    LOG.error("Error extracting resource file ", e);
+                }
             }
-            ballerinaFileBuilder.setRootDescriptor(root);
-            ballerinaFileBuilder.build();
+            if (msg.toString().isEmpty()) {
+                outStream.println("Successfully extracted library files.");
+            } else {
+                outStream.println(msg.toString());
+                return;
+            }
+            try {
+                root = DescriptorsGenerator.generateRootDescriptor(this.protocExePath, new File(protoPath)
+                        .getAbsolutePath(), descFile.getAbsolutePath());
+            } catch (BalGenToolException e) {
+                String errorMessage = "Error occurred when generating proto descriptor. " + e.getMessage();
+                LOG.error("Error occurred when generating proto descriptor.", e);
+                outStream.println(errorMessage);
+                return;
+            }
+            if (root.length == 0) {
+                String errorMsg = "Error occurred when generating proto descriptor.";
+                LOG.error(errorMsg);
+                outStream.println(errorMsg);
+                return;
+            }
+            LOG.debug("Successfully generated root descriptor.");
+            try {
+                dependant = DescriptorsGenerator.generateDependentDescriptor(this.protocExePath, new File(protoPath)
+                                .getAbsolutePath(), descFile.getAbsolutePath());
+            } catch (BalGenToolException e) {
+                String errorMessage = "Error occurred when generating dependent proto descriptor. " + e.getMessage();
+                LOG.error(errorMessage, e);
+                outStream.println(errorMessage);
+                return;
+            }
+            LOG.debug("Successfully generated dependent descriptor.");
+        } finally {
+            //delete temporary meta files
+            File tempDir = new File(TMP_DIRECTORY_PATH);
+            delete(new File(tempDir, META_LOCATION));
+            delete(new File(tempDir, TEMP_GOOGLE_DIRECTORY));
+            LOG.debug("Successfully deleted temporary files.");
+        }
+        // generate ballerina stub based on descriptor values.
+        BallerinaFileBuilder ballerinaFileBuilder;
+        // If user provides output directory, generate service stub inside output directory.
+        if (balOutPath == null) {
+            ballerinaFileBuilder = new BallerinaFileBuilder(root, dependant);
+        } else {
+            ballerinaFileBuilder = new BallerinaFileBuilder(root, dependant, balOutPath);
+        }
+        try {
+            ballerinaFileBuilder.build(this.mode);
         } catch (BalGenerationException e) {
             LOG.error("Error generating ballerina file.", e);
-            msg.append("Error generating ballerina file.").append(NEW_LINE_CHARACTER);
+            msg.append("Error generating ballerina file.").append(e.getMessage()).append(NEW_LINE_CHARACTER);
             outStream.println(msg.toString());
+            return;
         }
         msg.append("Successfully generated ballerina file.").append(NEW_LINE_CHARACTER);
-        //delete temporary meta files
-        delete(new File("desc_gen"));
-        delete(new File("google"));
-        LOG.debug("Successfully deleted temporary files.");
         outStream.println(msg.toString());
     }
     
     /**
-     * Generate the meta folder which needed for intermediate processing.
+     * Create meta temp directory which needed for intermediate processing.
      *
-     * @param descriptorPath proto descriptor path
      * @return Temporary Created meta file.
      */
-    private File generateDescTempFolder(String descriptorPath) {
-        File descFile = new File(descriptorPath);
-        String path = descFile.getAbsolutePath().substring(0, descFile.getAbsolutePath()
-                .lastIndexOf(BalGenerationConstants.FILE_SEPARATOR));
-        File folderPath = new File(path);
-        try {
-            if (!folderPath.exists() && !folderPath.mkdirs()) {
-                throw new IllegalStateException("Couldn't create dir: " + descFile);
-            }
-            descriptorPath = descFile.getAbsolutePath();
-            byte data[] = new byte[0];
-            Path file = Paths.get(descriptorPath);
-            Files.write(file, data);
-        } catch (IOException e) {
-            throw new BalGenToolException("Error creating " + descriptorPath + " file.", e);
+    private File createTempDirectory() {
+        File parent = new File(TMP_DIRECTORY_PATH);
+        File metadataHome = new File(parent, META_LOCATION);
+        if (!metadataHome.exists() && !metadataHome.mkdir()) {
+            throw new IllegalStateException("Couldn't create dir: " + metadataHome);
         }
-        
-        File targetFile = new File(PLUGIN_PROTO_FILEPATH);
-        File parent1 = targetFile.getParentFile();
-        File parent2 = targetFile.getParentFile().getParentFile();
-        File parent3 = targetFile.getParentFile().getParentFile().getParentFile();
-        if (!parent1.exists() && !parent1.mkdirs()) {
-            throw new IllegalStateException("Couldn't create dir: " + parent1);
-        }
-        if (!parent2.exists() && !parent2.mkdirs()) {
-            throw new IllegalStateException("Couldn't create dir: " + parent2);
-        }
-        if (!parent3.exists() && !parent3.mkdirs()) {
-            throw new IllegalStateException("Couldn't create dir: " + parent3);
-        }
-        return descFile;
+        File googleHome = new File(parent, TEMP_GOOGLE_DIRECTORY);
+        createTempDirectory(googleHome);
+        File protobufHome = new File(googleHome, TEMP_PROTOBUF_DIRECTORY);
+        createTempDirectory(protobufHome);
+        File compilerHome = new File(protobufHome, TEMP_COMPILER_DIRECTORY);
+        createTempDirectory(compilerHome);
+        return new File(metadataHome, getProtoFileName() + "-descriptor.desc");
     }
-    
+
+    private void createTempDirectory(File dirName) {
+        if (!dirName.exists() && !dirName.mkdir()) {
+            throw new IllegalStateException("Couldn't create dir: " + dirName);
+        }
+    }
+
     /**
      * Export a resource embedded into a Jar file to the local file path.
      *
@@ -215,7 +237,8 @@ public class GrpcCmd implements BLauncherCmd {
      */
     private static void exportResource(String resourceName, ClassLoader classLoader) {
         try (InputStream initialStream = classLoader.getResourceAsStream(resourceName);
-             OutputStream resStreamOut = new FileOutputStream(resourceName.replace("stdlib", "protobuf"))) {
+             OutputStream resStreamOut = new FileOutputStream(new File(TMP_DIRECTORY_PATH, resourceName.replace
+                     ("stdlib", "protobuf")))) {
             if (initialStream == null) {
                 throw new BalGenToolException("Cannot get resource \"" + resourceName + "\" from Jar file.");
             }
@@ -232,39 +255,33 @@ public class GrpcCmd implements BLauncherCmd {
     /**
      * Download the protoc executor.
      */
-    private void downloadProtocexe() {
-        if (exePath == null) {
-            outStream.println("Downloading proc executor ...");
-            exePath = "protoc-" + org.ballerinalang.protobuf.cmd.OSDetector.getDetectedClassifier() + ".exe";
-            File exeFile = new File(exePath);
-            exePath = exeFile.getAbsolutePath(); // if file already exists will do nothing
-            if (!exeFile.isFile()) {
+    private void downloadProtocexe() throws IOException {
+        if (protocExePath == null) {
+            String protocFilename = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
+            File protocExeFile = new File(TMP_DIRECTORY_PATH, protocFilename);
+            protocExePath = protocExeFile.getAbsolutePath(); // if file already exists will do nothing
+            if (!protocExeFile.exists()) {
+                outStream.println("Downloading protoc executor file - " + protocFilename);
+                String protocDownloadurl = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/protoc-" + protocVersion
+                        + "-" + OSDetector.getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
+                File tempDownloadFile = new File(TMP_DIRECTORY_PATH,
+                        "protoc-" + OSDetector.getDetectedClassifier() + ".exe.download");
                 try {
-                    boolean newFile = exeFile.createNewFile();
-                    if (newFile) {
-                        LOG.debug("Successfully created new protoc exe file" + exePath);
-                    }
-                } catch (IOException e) {
-                    throw new BalGenToolException("Exception occurred while creating new file for protoc exe. ", e);
-                }
-                String url = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/" +
-                        "protoc-" + protocVersion + "-" + org.ballerinalang.protobuf.cmd.OSDetector
-                        .getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
-                try {
-                    saveFile(new URL(url), exePath);
-                    File file = new File(exePath);
+                    downloadFile(new URL(protocDownloadurl), tempDownloadFile);
+                    Files.move(tempDownloadFile.toPath(), protocExeFile.toPath());
                     //set application user permissions to 455
-                    grantPermission(file);
-                } catch (IOException e) {
-                    throw new BalGenToolException("Exception occurred while writing protoc executable to file. ", e);
+                    grantPermission(protocExeFile);
+                } catch (BalGenToolException e) {
+                    Files.deleteIfExists(Paths.get(protocExePath));
+                    throw e;
                 }
-                outStream.println("Download successfully completed!");
+                outStream.println("Download successfully completed. Executor file path - " + protocExeFile.getPath());
             } else {
-                grantPermission(exeFile);
-                outStream.println("Continue with existing protoc executor.");
+                grantPermission(protocExeFile);
+                outStream.println("Continue with existing protoc executor file at " + protocExeFile.getPath());
             }
         } else {
-            outStream.println("Pre-Downloaded descriptor detected ...");
+            outStream.println("Continue with provided protoc executor file at " + protocExePath);
         }
     }
     
@@ -276,30 +293,28 @@ public class GrpcCmd implements BLauncherCmd {
     
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generates ballerina grRPC client stub for gRPC service").append(System.lineSeparator());
+        out.append("Generates ballerina gRPC client stub for gRPC service").append(System.lineSeparator());
         out.append("for a given grpc protoc definition").append(System.lineSeparator());
         out.append(System.lineSeparator());
     }
     
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        
-        stringBuilder.append("  ballerina " + COMPONENT_IDENTIFIER + " --proto_path <<proto-file-path>>  --exe_path " +
-                "<<protoc-executor-path>> \n");
+        stringBuilder.append("  ballerina " + COMPONENT_IDENTIFIER + " --input chat.proto\n");
     }
     
     private String getProtoFileName() {
-        String[] arr = protoPath.split(FILE_SEPARATOR);
-        return arr[arr.length - 1].replace(".proto", "");
+        File file = new File(protoPath);
+        return file.getName().replace(PROTO_SUFFIX, EMPTY_STRING);
     }
     
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(CommandLine parentCmdParser) {
         this.parentCmdParser = parentCmdParser;
     }
     
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     
     }
     
@@ -324,14 +339,11 @@ public class GrpcCmd implements BLauncherCmd {
     public void setBalOutPath(String balOutPath) {
         this.balOutPath = balOutPath;
     }
-    
-    public void setExePath(String exePath) {
-        this.exePath = exePath;
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
-    
-    public void setProtocVersion(String protocVersion) {
-        this.protocVersion = protocVersion;
-    }
+
 }
 
 

@@ -30,6 +30,9 @@ import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for defined aggregation.
+ */
 public class DefineAggregationTestCase {
     @Test
     public void testDefineAggregationWithTimeRage() {

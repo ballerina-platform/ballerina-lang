@@ -17,10 +17,17 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.bre.bvm.BVMScheduler;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.bre.bvm.Strand.State;
+import org.ballerinalang.bre.bvm.StrandCallback.CallbackStatus;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Ballerina value for the callable "future" type.
@@ -28,14 +35,14 @@ import org.ballerinalang.model.types.BTypes;
 public class BCallableFuture implements BFuture {
 
     private String callableName;
+
+    private Strand strand;
     
-    private AsyncInvocableWorkerResponseContext respCtx;
-    
-    public BCallableFuture(String callableName, AsyncInvocableWorkerResponseContext respCtx) {
+    public BCallableFuture(String callableName, Strand strand) {
         this.callableName = callableName;
-        this.respCtx = respCtx;
+        this.strand = strand;
     }
-    
+
     @Override
     public String stringValue() {
         return "callable future: " + this.callableName;
@@ -47,28 +54,44 @@ public class BCallableFuture implements BFuture {
     }
 
     @Override
-    public BValue copy() {
-        return new BCallableFuture(this.callableName, this.respCtx);
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+
     }
 
     @Override
-    public WorkerResponseContext value() {
-        return this.respCtx;
+    public BValue copy(Map<BValue, BValue> refs) {
+        return new BCallableFuture(this.callableName, this.strand);
+    }
+
+    @Override
+    public Strand value() {
+        return this.strand;
     }
 
     @Override
     public boolean cancel() {
-        return this.respCtx.cancel();
+        if (this.isDone()) {
+            return false;
+        }
+        //TODO double check below logic, current frame may be already dropped.
+        /* only non-native workers can be cancelled */
+        StackFrame currentFrame = strand.currentFrame;
+        if (currentFrame != null &&  currentFrame.callableUnitInfo.isNative()) {
+            return false;
+        }
+        BVMScheduler.stateChange(strand, State.RUNNABLE, State.TERMINATED);
+        strand.aborted = true;
+        return true;
     }
 
     @Override
     public boolean isDone() {
-        return this.respCtx.isDone();
+        return strand.respCallback.getStatus() != CallbackStatus.NOT_RETURNED;
     }
 
     @Override
     public boolean isCancelled() {
-        return this.respCtx.isCancelled();
+        return strand.aborted;
     }
 
 }

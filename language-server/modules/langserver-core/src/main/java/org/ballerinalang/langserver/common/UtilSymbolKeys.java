@@ -27,29 +27,49 @@ public class UtilSymbolKeys {
 
     public static final String CLOSE_BRACE_KEY = "}";
 
-    public static final String OPEN_BRACKET_KEY = "(";
+    public static final String OPEN_PARENTHESES_KEY = "(";
 
-    public static final String CLOSE_BRACKET_KEY = ")";
-
-    public static final String NOT_FOUND_TYPE = "><";
+    public static final String CLOSE_PARENTHESES_KEY = ")";
 
     public static final String PKG_DELIMITER_KEYWORD = ":";
 
     public static final String DOT_SYMBOL_KEY = ".";
 
+    public static final String COMMA_SYMBOL_KEY = ",";
+
     public static final String ANNOTATION_START_SYMBOL_KEY = "@";
 
     public static final String SEMI_COLON_SYMBOL_KEY = ";";
 
-    public static final String ACTION_INVOCATION_SYMBOL_KEY = "->";
+    public static final String RIGHT_ARROW_SYMBOL_KEY = "->";
+
+    public static final String LEFT_ARROW_SYMBOL_KEY = "<-";
+
+    public static final String BANG_SYMBOL_KEY = "!";
+
+    public static final String EQUAL_SYMBOL_KEY = "=";
+
+    public static final String GT_SYMBOL_KEY = ">";
+
+    public static final String LT_SYMBOL_KEY = "<";
+
+    public static final String OBJECT_REFERENCE_SYMBOL_KEY = "*";
+
+    public static final String DOLLAR_SYMBOL_KEY = "$";
     // End non letter symbol keys
 
 
     public static final String ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN = "%params%";
-    
-    public static final String ANON_STRUCT_CHECKER = "$anon";
 
-    public static final String CREATE_KEYWORD_KEY = "create";
+    public static final String ITR_OP_LAMBDA_KEY_REPLACE_TOKEN = "%key%";
+
+    public static final String ITR_OP_LAMBDA_VALUE_REPLACE_TOKEN = "%value%";
+
+    public static final String ACTION_KEYWORD_KEY = "action";
+
+    public static final String ANY_KEYWORD_KEY = "any";
+    
+    public static final String CONNECTOR_KEYWORD_KEY = "connector";
 
     public static final String ENDPOINT_KEYWORD_KEY = "endpoint";
 
@@ -59,19 +79,21 @@ public class UtilSymbolKeys {
 
     public static final String SERVICE_KEYWORD_KEY = "service";
 
-    public static final String CONNECTOR_KEYWORD_KEY = "connector";
+    public static final String OBJECT_KEYWORD_KEY = "object";
 
-    public static final String ACTION_KEYWORD_KEY = "action";
+    public static final String RECORD_KEYWORD_KEY = "record";
 
-    public static final String ENUM_KEYWORD_KEY = "enum";
+    public static final String SELF_KEYWORD_KEY = "self";
 
-    public static final String TRANSFORMER_KEYWORD_KEY = "transformer";
-
-    public static final String STRUCT_KEYWORD_KEY = "struct";
-
-    public static final String MATCH_KEYWORD_KEY = "match";
-    
     public static final String NEW_KEYWORD_KEY = "new";
     
     public static final String IMPORT_KEYWORD_KEY = "import";
+    
+    public static final String LISTENER_KEYWORD_KEY = "listener";
+
+    public static final String SLASH_KEYWORD_KEY = "/";
+    
+    public static final String BALLERINA_KW = "ballerina";
+    
+    public static final String BUILTIN_KW = "builtin";
 }

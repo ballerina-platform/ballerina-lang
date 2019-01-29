@@ -51,7 +51,7 @@ import javax.tools.StandardLocation;
  * @since 0.94
  */
 @SupportedAnnotationTypes({ "org.ballerinalang.annotation.JavaSPIService",
-        "org.ballerinalang.annotation.natives.BallerinaFunction" })
+        "org.ballerinalang.natives.annotations.BallerinaFunction" })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedOptions({ "nativeEntityProviderPackage", "nativeEntityProviderClass" })
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
@@ -125,7 +125,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         NativeFunctionCodeDef def = new NativeFunctionCodeDef();
         def.org = func.orgName();
         def.pkg = func.packageName();
-        if (func.receiver().type() == TypeKind.STRUCT) {
+        if (func.receiver().type() == TypeKind.OBJECT) {
             def.name = func.receiver().structType() + "." + func.functionName();
         } else {
             def.name = func.functionName();

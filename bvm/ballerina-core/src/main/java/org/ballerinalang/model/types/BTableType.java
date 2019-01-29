@@ -58,15 +58,6 @@ public class BTableType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        if (constraint == null) {
-            return new TypeSignature(TypeSignature.SIG_TABLE);
-        } else {
-            return new TypeSignature(TypeSignature.SIG_TABLE, constraint.getPackagePath(), constraint.getName());
-        }
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.TABLE_TAG;
     }
@@ -78,5 +69,23 @@ public class BTableType extends BType {
         } else {
             return super.toString() + "<" + constraint.getName() + ">";
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BTableType)) {
+            return false;
+        }
+
+        BTableType other = (BTableType) obj;
+        if (constraint == other.constraint) {
+            return true;
+        }
+
+        if (constraint == null || other.constraint == null) {
+            return false;
+        }
+
+        return constraint.equals(other.constraint);
     }
 }

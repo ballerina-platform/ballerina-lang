@@ -88,7 +88,7 @@ public abstract class Source implements Snapshotable {
                               SiddhiAppContext siddhiAppContext);
 
     /**
-     * Get produced event class types
+     * Get produced event class types.
      *
      * @return Array of classes that will be produced by the source,
      * null or empty array if it can produce any type of class.

@@ -47,7 +47,11 @@ public class MetricId {
         } else {
             this.tags = Collections.emptySet();
         }
-        this.description = description;
+        if (description == null) {
+            this.description = "";
+        } else {
+            this.description = description;
+        }
         // Compute hash here as this Id is immutable
         this.hashCode = Objects.hash(name, tags);
     }

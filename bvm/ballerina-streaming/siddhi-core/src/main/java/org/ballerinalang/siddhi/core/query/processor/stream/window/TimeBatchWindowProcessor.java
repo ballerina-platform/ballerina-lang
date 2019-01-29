@@ -94,6 +94,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     private SiddhiAppContext siddhiAppContext;
     private boolean isStartTimeEnabled = false;
     private long startTime = 0;
+    private ExpressionExecutor windowTimeExpressionExecutor;
 
     public void setTimeInMilliSeconds(long timeInMilliSeconds) {
         this.timeInMilliSeconds = timeInMilliSeconds;
@@ -132,10 +133,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                             attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
-                throw new SiddhiAppValidationException("Time window should have constant parameter attribute but " +
-                        "found a dynamic attribute " +
-                        attributeExpressionExecutors[0].getClass().
-                                getCanonicalName());
+                windowTimeExpressionExecutor = attributeExpressionExecutors[0];
             }
         } else if (attributeExpressionExecutors.length == 2) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
@@ -152,10 +150,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                             attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
-                throw new SiddhiAppValidationException("Time window should have constant parameter attribute but " +
-                        "found a dynamic attribute " +
-                        attributeExpressionExecutors[0].getClass()
-                                .getCanonicalName());
+                windowTimeExpressionExecutor = attributeExpressionExecutors[0];
             }
             // start time
             isStartTimeEnabled = true;
@@ -180,6 +175,16 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                            StreamEventCloner streamEventCloner) {
         synchronized (this) {
             if (nextEmitTime == -1) {
+                if (windowTimeExpressionExecutor != null) {
+                    if (windowTimeExpressionExecutor.getReturnType() == Attribute.Type.INT) {
+                        timeInMilliSeconds = (Integer) windowTimeExpressionExecutor.
+                                execute(streamEventChunk.getFirst());
+
+                    } else if (windowTimeExpressionExecutor.getReturnType() == Attribute.Type.LONG) {
+                        timeInMilliSeconds = (Long) windowTimeExpressionExecutor.execute(streamEventChunk.getFirst());
+                    }
+                }
+
                 long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
                 if (isStartTimeEnabled) {
                     nextEmitTime = getNextEmitTime(currentTime);

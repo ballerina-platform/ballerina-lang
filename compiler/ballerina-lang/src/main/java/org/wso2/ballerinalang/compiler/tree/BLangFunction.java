@@ -19,10 +19,10 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
 import java.util.LinkedHashMap;
@@ -35,27 +35,32 @@ import java.util.Set;
  */
 public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
-    public BLangVariable receiver;
+    public BLangSimpleVariable receiver;
 
     //TODO remove this and use ATTACHED flag instead
     // TODO remove when removing struct
     public boolean attachedFunction;
     public boolean attachedOuterFunction;
+    public boolean objInitFunction;
 
     public boolean interfaceFunction;
-
-    public BLangBlockStmt enclBlockStmt;
 
     public Set<BVarSymbol> closureVarSymbols =  new LinkedHashSet<>();
 
     public Map<BSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
 
-    public VariableNode getReceiver() {
+    public BInvokableSymbol originalFuncSymbol;
+
+    public boolean isTypeChecked = false;
+
+    public LinkedHashSet<String> sendsToThis = new LinkedHashSet<>();
+
+    public SimpleVariableNode getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(VariableNode receiver) {
-        this.receiver = (BLangVariable) receiver;
+    public void setReceiver(SimpleVariableNode receiver) {
+        this.receiver = (BLangSimpleVariable) receiver;
     }
 
     @Override

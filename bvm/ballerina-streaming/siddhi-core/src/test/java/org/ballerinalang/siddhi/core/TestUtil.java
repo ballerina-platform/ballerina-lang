@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Util class for testcases.
+ */
 public class TestUtil {
 
     private TestUtil() {

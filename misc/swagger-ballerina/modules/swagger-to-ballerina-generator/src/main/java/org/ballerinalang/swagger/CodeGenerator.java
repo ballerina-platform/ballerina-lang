@@ -28,6 +28,7 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.model.BallerinaOpenApi;
 import org.ballerinalang.swagger.model.GenSrcFile;
@@ -55,7 +56,7 @@ public class CodeGenerator {
 
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
-     * Generated source will be written to a ballerina package at {@code outPath}
+     * Generated source will be written to a ballerina module at {@code outPath}
      * <p>Method can be user for generating Ballerina mock services and clients</p>
      *
      * @param type           Output type. Following types are supported
@@ -101,6 +102,13 @@ public class CodeGenerator {
             throws IOException, BallerinaOpenApiException {
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
 
+        if (api == null) {
+            throw new BallerinaOpenApiException("Couldn't read the definition from file: " + definitionPath);
+        }
+        if (StringUtils.isEmpty(api.getInfo().getTitle())) {
+            api.getInfo().setTitle(GeneratorConstants.UNTITLED_SERVICE);
+        }
+
         // modelPackage is not in use at the moment. All models will be written into same package as other src files.
         // Therefore value set to modelPackage is ignored here
         BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
@@ -129,10 +137,10 @@ public class CodeGenerator {
      * @param templateName Name of the parent template to be used
      * @param outPath      Destination path for writing the resulting source file
      * @throws IOException when file operations fail
-     * @deprecated This method is now deprecated. Use {@link #generate(GenType, String)} and implement a
-     * file write functionality your self, if you need to customize file writing steps.
-     * Otherwise use {{@link #generate(GenType, String, String)}} to directly write generated sources
-     * to a ballerina package.
+     * @deprecated This method is now deprecated. Use {@link #generate(GeneratorConstants.GenType, String) generate}
+     * and implement a file write functionality your self, if you need to customize file writing steps.
+     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String) generate}
+     * to directly write generated source to a ballerina module.
      */
     @Deprecated
     public void writeBallerina(Object object, String templateDir, String templateName, String outPath)
@@ -155,6 +163,7 @@ public class CodeGenerator {
     }
 
     private Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
+        defaultTemplateDir = defaultTemplateDir.replaceAll("\\\\", "/");
         String templatesDirPath = System.getProperty(GeneratorConstants.TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
@@ -170,8 +179,12 @@ public class CodeGenerator {
             if (param0 == null) {
                 throw new IllegalArgumentException("found 'null', expected 'string'");
             }
-            if (object != null && object.toString().equals(param0.toString())) {
-                result = options.fn(options.context);
+            if (object != null) {
+                if (object.toString().equals(param0.toString())) {
+                    result = options.fn(options.context);
+                } else {
+                    result = options.inverse();
+                }
             } else {
                 result = null;
             }
@@ -222,11 +235,12 @@ public class CodeGenerator {
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String srcFile = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_") + ".bal";
 
+        // Generate ballerina service and resources.
         String mainContent = getContent(context, GeneratorConstants.DEFAULT_CLIENT_DIR,
                 GeneratorConstants.CLIENT_TEMPLATE_NAME);
         sourceFiles.add(new GenSrcFile(GenFileType.GEN_SRC, srcPackage, srcFile, mainContent));
 
-        // Generate ballerina structs
+        // Generate ballerina records to represent schemas.
         String schemaContent = getContent(context, GeneratorConstants.DEFAULT_MODEL_DIR,
                 GeneratorConstants.SCHEMA_TEMPLATE_NAME);
         sourceFiles.add(new GenSrcFile(GenFileType.MODEL_SRC, srcPackage, GeneratorConstants.SCHEMA_FILE_NAME,
@@ -252,21 +266,21 @@ public class CodeGenerator {
         String srcFile = concatTitle + ".bal";
         String implFile = concatTitle + "_impl.bal";
 
+        // Generate ballerina service and resources with endpoints.
         String mainContent = getContent(context, GeneratorConstants.DEFAULT_MOCK_DIR,
                 GeneratorConstants.MOCK_TEMPLATE_NAME);
         sourceFiles.add(new GenSrcFile(GenFileType.GEN_SRC, srcPackage, srcFile, mainContent));
 
-        // Generate ballerina structs
+        // Generate ballerina records for schemas.
         String schemaContent = getContent(context, GeneratorConstants.DEFAULT_MODEL_DIR,
                 GeneratorConstants.SCHEMA_TEMPLATE_NAME);
         sourceFiles.add(new GenSrcFile(GenFileType.MODEL_SRC, srcPackage, GeneratorConstants.SCHEMA_FILE_NAME,
                 schemaContent));
 
-        // Generate resource implementation source
+        // Generate resource implementation source.
         String implContent = getContent(context, GeneratorConstants.DEFAULT_MOCK_DIR,
                 GeneratorConstants.IMPL_TEMPLATE_NAME);
         sourceFiles.add(new GenSrcFile(GenFileType.IMPL_SRC, srcPackage, implFile, implContent));
-
 
         return sourceFiles;
     }

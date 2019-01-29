@@ -1,9 +1,8 @@
 package org.wso2.ballerinalang.compiler.packaging;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.repository.PackageSourceEntry;
 
 import java.util.List;
 
@@ -12,10 +11,10 @@ import java.util.List;
  */
 public class GenericPackageSource implements PackageSource {
     private final PackageID pkgId;
-    private final List<PackageSourceEntry> sourceFiles;
+    private final List<CompilerInput> sourceFiles;
     private final RepoHierarchy hierarchy;
 
-    public GenericPackageSource(PackageID pkgId, List<PackageSourceEntry> sourceFiles, RepoHierarchy hierarchy) {
+    public GenericPackageSource(PackageID pkgId, List<CompilerInput> sourceFiles, RepoHierarchy hierarchy) {
         this.pkgId = pkgId;
         this.sourceFiles = sourceFiles;
         this.hierarchy = hierarchy;
@@ -23,17 +22,12 @@ public class GenericPackageSource implements PackageSource {
 
     @Override
     public Kind getKind() {
-        return null;
+        return Kind.SOURCE;
     }
 
     @Override
     public String getName() {
         return pkgId.getName().value;
-    }
-
-    @Override
-    public PackageRepository getPackageRepository() {
-        return null;
     }
 
     @Override
@@ -52,12 +46,12 @@ public class GenericPackageSource implements PackageSource {
     }
 
     @Override
-    public PackageSourceEntry getPackageSourceEntry(String name) {
+    public CompilerInput getPackageSourceEntry(String name) {
         return null;
     }
 
     @Override
-    public List<PackageSourceEntry> getPackageSourceEntries() {
+    public List<CompilerInput> getPackageSourceEntries() {
         return sourceFiles;
     }
 

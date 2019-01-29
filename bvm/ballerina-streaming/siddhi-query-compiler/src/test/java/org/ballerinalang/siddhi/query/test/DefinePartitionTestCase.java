@@ -26,7 +26,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
- * Partition testing testcase
+ * Partition testing testcase.
  */
 public class DefinePartitionTestCase {
     @Test

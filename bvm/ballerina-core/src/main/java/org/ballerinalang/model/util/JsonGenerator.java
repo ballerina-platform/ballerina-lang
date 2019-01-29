@@ -17,12 +17,24 @@
  */
 package org.ballerinalang.model.util;
 
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BStreamingJSON;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.Map.Entry;
 
 /**
  * This class represents the functionality to generate the JSON constructs to be written out
@@ -86,7 +98,7 @@ public class JsonGenerator {
     private void processStartLevel() throws IOException {
         if (!this.fieldActive) {
             if (this.getLevelInit(this.currentLevel)) {
-                this.writer.write(',');
+                this.writer.write(", ");
             } else {
                 this.setLevelInit(this.currentLevel, true);
             }
@@ -104,7 +116,7 @@ public class JsonGenerator {
     
     private void processFieldInit() throws IOException {
         if (this.getLevelInit(this.currentLevel)) {
-            this.writer.write(',');
+            this.writer.write(", ");
         } else {
             this.setLevelInit(this.currentLevel, true);
         }
@@ -117,7 +129,7 @@ public class JsonGenerator {
             return;
         }
         if (this.getLevelInit(this.currentLevel)) {
-            this.writer.write(',');
+            this.writer.write(", ");
         } else {
             this.setLevelInit(this.currentLevel, true);
         }
@@ -232,7 +244,12 @@ public class JsonGenerator {
         this.processValueInit();
         this.writer.write(Double.toString(value));
     }
-    
+
+    public void writeNumber(BigDecimal value) throws IOException {
+        this.processValueInit();
+        this.writer.write(value.toString());
+    }
+
     public void writeBoolean(boolean value) throws IOException {
         this.processValueInit();
         this.writer.write(Boolean.toString(value));
@@ -256,5 +273,52 @@ public class JsonGenerator {
     public void flush() throws IOException {
         this.writer.flush();
     }
-    
+
+    public void serialize(BValue json) throws IOException {
+        if (json == null) {
+            this.writeNull();
+            return;
+        }
+
+        switch (json.getType().getTag()) {
+            case TypeTags.ARRAY_TAG:
+                if (json instanceof BStreamingJSON) {
+                    ((BStreamingJSON) json).serialize(this);
+                    break;
+                }
+                this.writeStartArray();
+                BValueArray jsonArray = (BValueArray) json;
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    this.serialize(jsonArray.getBValue(i));
+                }
+                this.writeEndArray();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                this.writeBoolean(((BBoolean) json).booleanValue());
+                break;
+            case TypeTags.FLOAT_TAG:
+                this.writeNumber(((BFloat) json).floatValue());
+                break;
+            case TypeTags.DECIMAL_TAG:
+                this.writeNumber(((BDecimal) json).decimalValue());
+                break;
+            case TypeTags.INT_TAG:
+                this.writeNumber(((BInteger) json).intValue());
+                break;
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+                this.startObject();
+                for (Entry<String, BValue> entry : ((BMap<String, BValue>) json).getMap().entrySet()) {
+                    this.writeFieldName(entry.getKey());
+                    serialize(entry.getValue());
+                }
+                this.endObject();
+                break;
+            case TypeTags.STRING_TAG:
+                this.writeString(json.stringValue());
+                break;
+            default:
+                break;
+        }
+    }
 }

@@ -1,0 +1,11 @@
+// This is the service definition for the bidirectional streaming scenario.
+syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+service Chat {
+	rpc chat (stream ChatMessage)
+			returns (stream google.protobuf.StringValue);
+}
+message ChatMessage {
+	string name = 1;
+	string message = 2;
+}

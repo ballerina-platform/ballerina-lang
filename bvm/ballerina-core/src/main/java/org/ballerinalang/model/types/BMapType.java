@@ -83,11 +83,6 @@ public class BMapType extends BType implements BIndexedType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_MAP, constraint.getSig());
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.MAP_TAG;
     }

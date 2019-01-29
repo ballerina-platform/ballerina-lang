@@ -9,7 +9,7 @@ To begin, read the [Overview](lang-overview.md). You can then read through the f
 - [Resources](resources.md)
 - [Functions](functions.md)
 - [Connectors](connectors.md)
-- [Actions](actions.md)
+- [Remote Functions](remote-functions.md)
 - [Workers](workers.md)
 - [Types and Variables](types-variables.md)
 - [Statements](statements.md)

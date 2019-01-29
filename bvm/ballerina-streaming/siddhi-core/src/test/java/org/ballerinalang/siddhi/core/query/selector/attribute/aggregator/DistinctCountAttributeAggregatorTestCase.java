@@ -28,6 +28,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for distinct attribute aggregator.
+ */
 public class DistinctCountAttributeAggregatorTestCase {
     private static final Logger log = LoggerFactory.getLogger(DistinctCountAttributeAggregatorTestCase.class);
     private volatile int count;

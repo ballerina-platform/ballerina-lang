@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.util;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * This file contains a list of constant values used by Ballerina Compiler and the Bytecode interpreter.
  *
@@ -25,13 +28,16 @@ package org.ballerinalang.util;
 public class BLangConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 17;
+    public static final short VERSION_NUMBER = 26;
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
-    public static final String CONSTRUCTOR_FUNCTION_SUFFIX = "new";
+    public static final String CONSTRUCTOR_FUNCTION_SUFFIX = "__init";
     public static final String START_FUNCTION_SUFFIX = ".<start>";
     public static final String STOP_FUNCTION_SUFFIX = ".<stop>";
+    public static final String TEST_INIT_FUNCTION_SUFFIX = ".<testinit>";
+    public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
+    public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>";
 
     public static final String BLANG_SRC_FILE_EXT = "bal";
     public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;
@@ -42,14 +48,13 @@ public class BLangConstants {
     public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "balo";
     public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;
 
-    // int, float, string, boolean, blob, reference type
-    public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;
+    // int, float, string, boolean, decimal, reference type
+    public static final int NO_OF_VAR_TYPE_CATEGORIES = 5;
     public static final int INT_OFFSET = 0;
     public static final int FLOAT_OFFSET = 1;
     public static final int STRING_OFFSET = 2;
     public static final int BOOL_OFFSET = 3;
-    public static final int BLOB_OFFSET = 4;
-    public static final int REF_OFFSET = 5;
+    public static final int REF_OFFSET = 4;
 
     public static final String USER_REPO_ENV_KEY = "BALLERINA_REPOSITORY";
     public static final String USER_REPO_DEFAULT_DIRNAME = ".ballerina";
@@ -60,11 +65,29 @@ public class BLangConstants {
 
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
 
+    public static final String ORG_NAME_SEPARATOR = "/";
     public static final String USER_HOME = "user.home";
-    
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String BALLERINA_PACKAGE_PREFIX = "ballerina" + ORG_NAME_SEPARATOR;
+    public static final String BALLERINA_BUILTIN_PKG = BALLERINA_PACKAGE_PREFIX + "builtin";
+    public static final String BALLERINA_RUNTIME_PKG = BALLERINA_PACKAGE_PREFIX + "runtime";
+
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
     
     // Empty value for string
     public static final String STRING_EMPTY_VALUE = "";
+
+    public static final Integer BBYTE_MIN_VALUE = 0;
+    public static final Integer BBYTE_MAX_VALUE = 255;
+    public static final double BINT_MAX_VALUE_DOUBLE_RANGE_MAX = 9223372036854775807.5;
+    public static final double BINT_MIN_VALUE_DOUBLE_RANGE_MIN = -9223372036854775807.6;
+    public static final BigDecimal BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX = new BigDecimal("9223372036854775807.5",
+                                                                                         MathContext.DECIMAL128);
+    public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775807.6",
+                                                                                         MathContext.DECIMAL128);
+
+    public static final String COLON = ":";
+
+    public static final String DEFAULT_WORKER_NAME = "default";
 }

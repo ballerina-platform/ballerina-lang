@@ -32,6 +32,9 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for pattern queries within partition.
+ */
 public class PatternPartitionTestCase {
     private static final Logger log = LoggerFactory.getLogger(PatternPartitionTestCase.class);
     private AtomicInteger inEventCount;

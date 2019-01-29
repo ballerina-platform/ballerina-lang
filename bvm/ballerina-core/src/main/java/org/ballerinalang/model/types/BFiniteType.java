@@ -19,11 +19,8 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -31,15 +28,11 @@ import java.util.Set;
  */
 public class BFiniteType extends BType {
 
-    public Set<BType> memberTypes;
-    public List<TypeRefCPEntry> memberCPEntries;
     public Set<BValue> valueSpace;
 
     public BFiniteType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BValue.class);
-        this.memberTypes = new HashSet<>();
-        this.valueSpace = new HashSet<>();
-        this.memberCPEntries = new ArrayList<>();
+        this.valueSpace = new LinkedHashSet<>();
     }
 
     @Override
@@ -50,12 +43,6 @@ public class BFiniteType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null;
-    }
-
-    @Override
-    public TypeSignature getSig() {
-        String packagePath = (pkgPath == null) ? "." : pkgPath;
-        return new TypeSignature(TypeSignature.SIG_FINITE_TYPE, packagePath, typeName);
     }
 
     @Override

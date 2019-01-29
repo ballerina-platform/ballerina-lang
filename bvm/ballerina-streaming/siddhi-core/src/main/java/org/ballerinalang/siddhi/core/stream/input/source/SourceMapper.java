@@ -87,7 +87,7 @@ public abstract class SourceMapper implements SourceEventListener {
             attributeMappingList, ConfigReader configReader, SiddhiAppContext siddhiAppContext);
 
     /**
-     * Support classes that the source-mapper can consume for mapping processing (used for validation purposes)
+     * Support classes that the source-mapper can consume for mapping processing (used for validation purposes).
      *
      * @return Supported event classes that mapper can process.
      */

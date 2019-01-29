@@ -36,6 +36,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for table joins with logical conditions.
+ */
+
 public class LogicalTableTestCase {
     private static final Logger log = LoggerFactory.getLogger(LogicalTableTestCase.class);
     private AtomicInteger inEventCount = new AtomicInteger(0);

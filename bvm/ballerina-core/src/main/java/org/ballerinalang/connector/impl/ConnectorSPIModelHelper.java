@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.connector.impl;
 
+import org.ballerinalang.bre.bvm.GlobalMemoryArea;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -38,26 +37,27 @@ public class ConnectorSPIModelHelper {
 
     private static final String ANNOTATION_DATA = "$annotation_data";
 
-    public static ServiceImpl createService(ProgramFile programFile, ServiceInfo serviceInfo) {
-        ServiceImpl service = new ServiceImpl(serviceInfo);
+    public static ServiceImpl createService(ProgramFile programFile, ServiceInfo serviceInfo, BMap serviceValue) {
+        ServiceImpl service = new ServiceImpl(serviceInfo, serviceValue);
         processAnnotations(serviceInfo.getPackagePath(), programFile, service);
         Arrays.stream(serviceInfo.getResourceInfoEntries()).forEach(resourceInfo -> {
-            ResourceImpl resource = new ResourceImpl(resourceInfo.getName(), resourceInfo);
+            ResourceImpl resource = new ResourceImpl(resourceInfo.getName(), service, resourceInfo);
+            resource.setService(service);
             processAnnotations(resourceInfo.getPkgPath(), programFile, resource);
             service.addResource(resource.getName(), resource);
         });
         return service;
     }
 
-    public static StructImpl createStruct(BStruct struct) {
+    public static StructImpl createStruct(BMap<String, BValue> struct) {
         return new StructImpl(struct);
     }
 
     public static BMap getAnnotationVariable(String pkgPath, ProgramFile programFile) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         PackageVarInfo annotationData = packageInfo.getPackageVarInfo(ANNOTATION_DATA);
-        final LockableStructureType globalMemoryBlock = programFile.getGlobalMemoryBlock();
-        return (BMap) globalMemoryBlock.getRefField(annotationData.getGlobalMemIndex());
+        final GlobalMemoryArea globalMemArea = programFile.globalMemArea;
+        return (BMap) globalMemArea.getRefField(packageInfo.pkgIndex, annotationData.getGlobalMemIndex());
     }
 
     private static void processAnnotations(String pkgPath, ProgramFile programFile, AnnotatableNode annotatableNode) {
@@ -70,8 +70,8 @@ public class ConnectorSPIModelHelper {
             return;
         }
         BMap<String, BValue> annotationMap = (BMap<String, BValue>) map;
-        for (String key : annotationMap.keySet()) {
-            final BStruct annotationData = (BStruct) annotationMap.get(key);
+        for (String key : annotationMap.keys()) {
+            final BMap<String, BValue> annotationData = (BMap<String, BValue>) annotationMap.get(key);
             StructImpl struct = null;
             if (annotationData != null) {
                 struct = new StructImpl(annotationData);

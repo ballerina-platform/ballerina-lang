@@ -18,7 +18,7 @@
 package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
 import java.util.Map;
@@ -33,24 +33,24 @@ public interface DebugClientHandler {
     /**
      * Called when adding a context.
      *
-     * @param ctx to be added to the map.
+     * @param strand to be added to the map.
      */
-    void addWorkerContext(WorkerExecutionContext ctx);
+    void addStrand(Strand strand);
 
     /**
      * Method to get worker context given the workerId.
      *
-     * @param workerId of the thread.
+     * @param strandId of the thread.
      * @return  worker context.
      */
-    WorkerExecutionContext getWorkerContext(String workerId);
+    Strand getStrand(String strandId);
 
     /**
      * Method to get all worker contexts.
      *
      * @return methodContext map.
      */
-    Map<String, WorkerExecutionContext> getAllWorkerContexts();
+    Map<String, Strand> getAllStrands();
 
     /**
      * Method to set web socket channel required for communication.
@@ -83,6 +83,13 @@ public interface DebugClientHandler {
      * @param message to send to the client.
      */
     void notifyHalt(MessageDTO message);
+
+    /**
+     * Send the results of an expression to the client after evaluating it.
+     *
+     * @param message results to be sent to the client.
+     */
+    void sendExpressionResults(MessageDTO message);
 
     /**
      * Send a custom message to the client.

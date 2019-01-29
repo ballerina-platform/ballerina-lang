@@ -1,0 +1,35 @@
+{
+  "position": {
+    "line": 5,
+    "character": 20
+  },
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "get(string path)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "The `get()` function can be used to send HTTP GET requests to HTTP endpoints."
+            }
+          },
+          "parameters": [
+            {
+              "label": "path",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "Request path"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "jsonrpc": "2.0"
+  }
+}

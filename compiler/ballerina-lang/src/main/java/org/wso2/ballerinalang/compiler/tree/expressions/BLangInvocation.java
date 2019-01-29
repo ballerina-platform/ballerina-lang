@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -50,6 +51,9 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public IterableContext iContext;
     public boolean actionInvocation;
     public boolean async;
+    /* Cached values for Built-in function invocation */
+    public boolean builtinMethodInvocation;
+    public BLangBuiltInMethod builtInMethod;
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.
@@ -75,7 +79,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     }
 
     @Override
-    public BLangVariableReference getExpression() {
+    public BLangExpression getExpression() {
         return expr;
     }
 
@@ -136,6 +140,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             this.restArgs = parent.restArgs;
             this.regIndex = parent.regIndex;
             this.symbol = parent.symbol;
+            this.async = parent.async;
             this.expr = varRef;
             this.type = parent.type;
         }
@@ -204,29 +209,23 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     }
 
     /**
-     * @since 0.94.2
+     * @since 0.983.0
      */
-    public static class BLangTransformerInvocation extends BLangInvocation {
+    public static class BLangBuiltInMethodInvocation extends BLangInvocation {
 
-        public BLangTransformerInvocation(DiagnosticPos pos,
-                                          List<BLangExpression> requiredArgs,
-                                          BSymbol symbol,
-                                          BType type) {
-            this.pos = pos;
-            this.requiredArgs = requiredArgs;
-            this.symbol = symbol;
-            this.type = type;
-        }
-
-        public BLangTransformerInvocation(DiagnosticPos pos,
-                                          List<BLangExpression> requiredArgs,
-                                          List<BLangExpression> namedArgs,
-                                          List<BLangExpression> restArgs,
-                                          BSymbol symbol,
-                                          BType type) {
-            this(pos, requiredArgs, symbol, type);
-            this.namedArgs = namedArgs;
-            this.restArgs = restArgs;
+        public BLangBuiltInMethodInvocation(BLangInvocation iExpr, BLangBuiltInMethod builtInFunction) {
+            this.expr = iExpr.expr;
+            this.type = iExpr.type;
+            this.pkgAlias = iExpr.pkgAlias;
+            this.name = iExpr.name;
+            this.pos = iExpr.pos;
+            this.requiredArgs = iExpr.requiredArgs;
+            this.namedArgs = iExpr.namedArgs;
+            this.restArgs = iExpr.restArgs;
+            this.async = iExpr.async;
+            this.builtInMethod = builtInFunction;
+            this.impConversionExpr = iExpr.impConversionExpr;
+            this.symbol = iExpr.symbol;
         }
 
         @Override

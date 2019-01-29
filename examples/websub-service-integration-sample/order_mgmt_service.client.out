@@ -1,0 +1,2 @@
+// Invoke the service via "curl" to place an order, after starting up the subscriber service.
+$ curl -X POST -d '{ "Order": { "ID": "1001", "Name": "XYZ" } }' "http://localhost:9090/ordermgt/order" -H "Content-Type:application/json"

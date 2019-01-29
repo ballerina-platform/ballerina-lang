@@ -1,0 +1,10 @@
+int|string value;
+
+match value {
+    int <spot></spot> => {
+        <spot></spot>
+    }
+    string <spot></spot> => {
+        <spot></spot>
+    }
+}

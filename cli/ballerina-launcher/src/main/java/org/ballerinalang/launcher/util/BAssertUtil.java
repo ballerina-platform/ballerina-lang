@@ -26,6 +26,10 @@ import org.testng.Assert;
  * @since 0.94
  */
 public class BAssertUtil {
+
+    private static final String CARRIAGE_RETURN_CHAR = "\\r";
+    private static final String EMPTY_STRING = "";
+
     /**
      * Assert an error.
      *
@@ -36,10 +40,11 @@ public class BAssertUtil {
      * @param expectedErrCol  Expected column number of the error
      */
     public static void validateError(CompileResult result, int errorIndex, String expectedErrMsg, int expectedErrLine,
-                                     int expectedErrCol) {
+            int expectedErrCol) {
         Diagnostic diag = result.getDiagnostics()[errorIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
-        Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
+        Assert.assertEquals(diag.getMessage().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+                expectedErrMsg.replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "incorrect error message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().getStartColumn(), expectedErrCol, "incorrect column position:");
     }
@@ -52,8 +57,7 @@ public class BAssertUtil {
      * @param expectedErrLine Expected line number of the error
      * @param expectedErrCol  Expected column number of the error
      */
-    public static void validateError(CompileResult result, int errorIndex, int expectedErrLine,
-                                     int expectedErrCol) {
+    public static void validateError(CompileResult result, int errorIndex, int expectedErrLine, int expectedErrCol) {
         Diagnostic diag = result.getDiagnostics()[errorIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
@@ -63,23 +67,23 @@ public class BAssertUtil {
     /**
      * Validate if given text is contained in the error message.
      *
-     * @param result          Result from compilation
-     * @param errorIndex      Index of the error in the result
-     * @param expectedPartOfErrMsg  Expected part of error message
+     * @param result               Result from compilation
+     * @param errorIndex           Index of the error in the result
+     * @param expectedPartOfErrMsg Expected part of error message
      */
     public static void validateErrorMessageOnly(CompileResult result, int errorIndex, String expectedPartOfErrMsg) {
         Diagnostic diag = result.getDiagnostics()[errorIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
-        Assert.assertTrue(diag.getMessage().contains(expectedPartOfErrMsg), '\'' + expectedPartOfErrMsg
-                + "' is not contained in error message '" + diag.getMessage() + '\'');
+        Assert.assertTrue(diag.getMessage().contains(expectedPartOfErrMsg),
+                '\'' + expectedPartOfErrMsg + "' is not contained in error message '" + diag.getMessage() + '\'');
     }
 
     /**
      * Validate if at least one in the given list of texts is contained in the error message.
      *
-     * @param result          Result from compilation
-     * @param errorIndex      Index of the error in the result
-     * @param expectedPartsOfErrMsg  Array of expected parts of error message
+     * @param result                Result from compilation
+     * @param errorIndex            Index of the error in the result
+     * @param expectedPartsOfErrMsg Array of expected parts of error message
      */
     public static void validateErrorMessageOnly(CompileResult result, int errorIndex, String[] expectedPartsOfErrMsg) {
         Diagnostic diag = result.getDiagnostics()[errorIndex];
@@ -91,8 +95,8 @@ public class BAssertUtil {
                 break;
             }
         }
-        Assert.assertTrue(contains, "None of given strings is contained in the error message '"
-                + diag.getMessage() + '\'');
+        Assert.assertTrue(contains,
+                "None of given strings is contained in the error message '" + diag.getMessage() + '\'');
     }
 
     /**
@@ -105,7 +109,7 @@ public class BAssertUtil {
      * @param expectedWarnCol  Expected column number of the warning
      */
     public static void validateWarning(CompileResult result, int warningIndex, String expectedWarnMsg,
-                                       int expectedWarnLine, int expectedWarnCol) {
+            int expectedWarnLine, int expectedWarnCol) {
         Diagnostic diag = result.getDiagnostics()[warningIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.WARNING, "incorrect diagnostic type");
         Assert.assertEquals(diag.getMessage(), expectedWarnMsg, "incorrect warning message:");

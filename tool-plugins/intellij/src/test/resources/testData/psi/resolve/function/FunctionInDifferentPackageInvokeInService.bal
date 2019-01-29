@@ -1,8 +1,8 @@
-import org.test;
+import org/test;
+import ballerina/http;
 
-service<http> test {
-
-    resource test (message m) {
+service hello on new http:Listener(9090) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         test:/*ref*/fun();
     }
 }

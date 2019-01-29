@@ -18,64 +18,36 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
-import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
-import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
+import org.ballerinalang.langserver.completions.resolvers.StatementContextResolver;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
+import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parser rule based statement context resolver.
  */
-public class ParserRuleStatementContextResolver extends AbstractItemResolver {
+public class ParserRuleStatementContextResolver extends StatementContextResolver {
     @Override
-    @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ArrayList<SymbolInfo> filteredSymbols = new ArrayList<>();
 
-        if (isInvocationOrFieldAccess(completionContext)) {
-            filteredSymbols.addAll(SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
-                    .filterItems(completionContext));
-        } else {
-            filteredSymbols.addAll(SymbolFilters.getFilterByClass(ConnectorInitExpressionItemFilter.class)
-                    .filterItems(completionContext));
-            filteredSymbols.addAll(this.removeInvalidStatementScopeSymbols(completionContext
-                    .get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-            completionItems.addAll(SymbolFilters.getFilterByClass(StatementTemplateFilter.class)
-                    .filterItems(completionContext));
+        if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+            Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters
+                    .get(DelimiterBasedContentFilter.class).filterItems(context);
+            completionItems.addAll(this.getCompletionItemList(itemList, context));
+            ItemSorters.get(ActionAndFieldAccessContextItemSorter.class).sortItems(context, completionItems);
 
-            CompletionItem xmlns = new CompletionItem();
-            xmlns.setLabel(ItemResolverConstants.XMLNS);
-            xmlns.setInsertText(Snippet.NAMESPACE_DECLARATION.toString());
-            xmlns.setInsertTextFormat(InsertTextFormat.Snippet);
-            xmlns.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-            completionItems.add(xmlns);
-
-            CompletionItem varKeyword = new CompletionItem();
-            varKeyword.setInsertText(Snippet.VAR_KEYWORD_SNIPPET.toString());
-            varKeyword.setLabel(ItemResolverConstants.VAR_KEYWORD);
-            varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-            completionItems.add(varKeyword);
+            return completionItems;
         }
 
-        this.populateCompletionItemList(filteredSymbols, completionItems);
-        
-        // Now we need to sort the completion items and populate the completion items specific to the scope owner
-        // as an example, resource, action, function scopes are different from the if-else, while, and etc
-        Class itemSorter = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-        ItemSorters.getSorterByClass(itemSorter).sortItems(completionContext, completionItems);
-
-        return completionItems;
+        return super.resolveItems(context);
     }
 }
 

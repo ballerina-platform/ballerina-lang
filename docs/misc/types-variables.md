@@ -252,7 +252,7 @@ If the accessed field does not exist, in the case of a struct there will be a co
 
 ### Type: `table`
 
-The `table` type is used to hold tabular data, such as those returned from an SQL database queries, and provides cursor-based access to the data. In the current release, values of this type can only be created as the return value of certain actions of the SQL data connector (for details, see the `ballerina.data.sql` package).
+The `table` type is used to hold tabular data, such as those returned from an SQL database queries, and provides cursor-based access to the data. In the current release, values of this type can only be created as the return value of certain remote functions of the SQL data connector (for details, see the `ballerina.data.sql` package).
 
 ## Iterators
 Iterators are defined using the iterator constructor `~` as follows:

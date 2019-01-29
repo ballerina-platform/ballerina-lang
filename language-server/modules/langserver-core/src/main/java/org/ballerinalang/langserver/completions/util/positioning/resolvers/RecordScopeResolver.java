@@ -19,14 +19,15 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
@@ -36,46 +37,41 @@ import java.util.List;
  */
 public class RecordScopeResolver extends CursorPositionResolver {
     /**
-     * Check whether the cursor is positioned before the given node start.
-     *
-     * @param nodePosition      Position of the node
-     * @param node              Node
-     * @param treeVisitor       {@link TreeVisitor} current tree visitor instance
-     * @param completionContext Completion operation context
-     * @return {@link Boolean}      Whether the cursor is before the node start or not
+     * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSServiceOperationContext completionContext) {
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+                                      BLangNode node, BSymbol bSymbol) {
         Node recordNode = treeVisitor.getBlockOwnerStack().peek();
-        if (!recordNode.getKind().equals(NodeKind.RECORD)) {
+        if (!recordNode.getKind().equals(NodeKind.RECORD_TYPE)) {
             return false;
         }
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition((DiagnosticPos) node.getPosition());
-        DiagnosticPos ownerPos = CommonUtil.toZeroBasedPosition((DiagnosticPos) recordNode.getPosition());
+        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
+        DiagnosticPos ownerPos = CommonUtil
+                .toZeroBasedPosition(((BLangRecordTypeNode) recordNode).parent.getPosition());
         int ownerEndLine = ownerPos.getEndLine();
         int ownerEndCol = ownerPos.getEndColumn();
         int nodeStartLine = nodePos.getStartLine();
         int nodeStartCol = nodePos.getStartColumn();
-        BLangRecord bLangRecord = (BLangRecord) recordNode;
-        List<BLangVariable> fields = bLangRecord.fields;
+        BLangRecordTypeNode bLangRecord = (BLangRecordTypeNode) recordNode;
+        List<BLangSimpleVariable> fields = bLangRecord.fields;
         boolean isLastField = fields.indexOf(node) == fields.size() - 1;
         boolean isCursorBefore = ((nodeStartLine > line) || (nodeStartLine == line && nodeStartCol > col)) ||
                 (isLastField && ((line < ownerEndLine)
                         || (line == ownerEndLine && col < ownerEndCol)));
         
         if (isCursorBefore) {
-            treeVisitor.setTerminateVisitor(true);
-            SymbolEnv recordEnv = createRecordEnv((BLangRecord) recordNode, treeVisitor.getSymbolEnv());
+            treeVisitor.forceTerminateVisitor();
+            SymbolEnv recordEnv = createRecordEnv((BLangRecordTypeNode) recordNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(recordEnv), recordEnv);
         }
         
         return isCursorBefore;
     }
 
-    private static SymbolEnv createRecordEnv(BLangRecord record, SymbolEnv env) {
+    private static SymbolEnv createRecordEnv(BLangRecordTypeNode record, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(record, env.scope);
         env.copyTo(symbolEnv);
         return symbolEnv;

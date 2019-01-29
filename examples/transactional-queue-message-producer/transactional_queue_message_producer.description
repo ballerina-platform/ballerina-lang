@@ -1,0 +1,1 @@
+// In this example, you publish a message to a queue within a transaction using a Java Message Service (JMS) publisher.

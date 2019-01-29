@@ -1,0 +1,115 @@
+{
+  "ws": [
+    {
+      "ws": "\n",
+      "i": 7,
+      "text": "function",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 9,
+      "text": "name",
+      "static": false
+    },
+    {
+      "ws": "",
+      "i": 10,
+      "text": "(",
+      "static": true
+    },
+    {
+      "ws": "",
+      "i": 11,
+      "text": ")",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 13,
+      "text": "{",
+      "static": true
+    },
+    {
+      "ws": "\n\n",
+      "i": 15,
+      "text": "}",
+      "static": true
+    }
+  ],
+  "position": {
+    "startColumn": 1,
+    "startLine": 2,
+    "endColumn": 2,
+    "endLine": 4
+  },
+  "id": "3cf98bb5-6482-4583-a923-c1da14627d9b",
+  "VisibleEndpoints": [],
+  "workers": [],
+  "returnTypeAnnotationAttachments": [],
+  "name": {
+    "position": {
+      "startColumn": 10,
+      "startLine": 2,
+      "endColumn": 14,
+      "endLine": 2
+    },
+    "id": "796b8dc5-21ac-4620-95bf-67982f55725c",
+    "literal": false,
+    "value": "name",
+    "kind": "Identifier",
+    "valueWithBar": "name"
+  },
+  "annotationAttachments": [],
+  "returnTypeNode": {
+    "position": {
+      "startColumn": 10,
+      "startLine": 2,
+      "endColumn": 16,
+      "endLine": 2
+    },
+    "id": "e8355f85-b186-4d63-99c9-0905a926c472",
+    "symbolType": [
+      "null"
+    ],
+    "typeKind": "nil",
+    "grouped": false,
+    "nullable": false,
+    "kind": "ValueType"
+  },
+  "defaultableParameters": [],
+  "deprecatedAttachments": [],
+  "body": {
+    "id": "da67cc14-e4f2-4de3-89b4-8fdd18be393e",
+    "statements": [],
+    "kind": "Block"
+  },
+  "endpointNodes": [],
+  "parameters": [],
+  "kind": "Function",
+  "public": false,
+  "private": false,
+  "remote": false,
+  "native": false,
+  "final": false,
+  "attached": false,
+  "lambda": false,
+  "worker": false,
+  "parallel": false,
+  "listener": false,
+  "deprecated": false,
+  "readonly": false,
+  "function_final": false,
+  "interface": false,
+  "required": false,
+  "record": false,
+  "compensate": false,
+  "abstract": false,
+  "optional": false,
+  "testable": false,
+  "client": false,
+  "resource": false,
+  "service": false,
+  "constant": false,
+  "allParams": []
+}

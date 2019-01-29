@@ -15,6 +15,9 @@
  */
 package org.ballerinalang.langserver.compiler.common;
 
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.wso2.ballerinalang.util.RepoUtils;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,30 +29,33 @@ import java.nio.file.Paths;
  * Document class to hold the file path used in the LS.
  */
 public class LSDocument {
+    private Path path;
     private String uri;
     private String sourceRoot;
 
-    public LSDocument() {
-    }
-
     public LSDocument(String uri) {
-        this.uri = uri;
+        try {
+            this.uri = uri;
+            this.path = Paths.get(new URL(uri).toURI());
+            this.sourceRoot = LSCompilerUtil.getSourceRoot(this.path);
+        } catch (URISyntaxException | MalformedURLException e) {
+            // Ignore
+        }
     }
 
-    public LSDocument(String uri, String sourceRoot) {
+    public LSDocument(Path path, String sourceRoot) {
+        this.uri = path.toUri().toString();
         this.sourceRoot = sourceRoot;
-        this.uri = uri;
+        this.path = path;
     }
 
     /**
      * Get the path of the given URI.
      *
      * @return {@link Path} get the path
-     * @throws MalformedURLException can throw malformed url exception
-     * @throws URISyntaxException    can throw URI syntax exception
      */
-    public Path getPath() throws MalformedURLException, URISyntaxException {
-        return Paths.get(new URL(uri).toURI());
+    public Path getPath() {
+        return this.path;
     }
 
     /**
@@ -106,5 +112,19 @@ public class LSDocument {
      */
     public void setSourceRoot(String sourceRoot) {
         this.sourceRoot = sourceRoot;
+    }
+
+    /**
+     * Returns True when this source file has a ballerina project repository folder.
+     *
+     * @return True if this file has project repo, False otherwise
+     */
+    public boolean hasProjectRepo() {
+        return RepoUtils.hasProjectRepo(Paths.get(sourceRoot));
+    }
+
+    @Override
+    public String toString() {
+        return "{" + "sourceRoot:" + this.sourceRoot + ", uri:" + this.uri + "}";
     }
 }

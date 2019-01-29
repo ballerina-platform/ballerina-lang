@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree.types;
 
+import org.ballerinalang.model.tree.VariableNode;
+
 import java.util.List;
 
 /**
@@ -26,7 +28,7 @@ import java.util.List;
  */
 public interface FunctionTypeNode extends ReferenceTypeNode {
 
-    List<? extends TypeNode> getParamTypeNode();
+    List<? extends VariableNode> getParams();
 
     TypeNode getReturnTypeNode();
 

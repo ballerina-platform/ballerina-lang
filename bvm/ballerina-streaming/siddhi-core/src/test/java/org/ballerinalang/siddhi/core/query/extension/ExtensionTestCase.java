@@ -35,6 +35,9 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Testcase for extension validation.
+ */
 public class ExtensionTestCase {
     private static final Logger log = LoggerFactory.getLogger(ExtensionTestCase.class);
     private volatile int count;

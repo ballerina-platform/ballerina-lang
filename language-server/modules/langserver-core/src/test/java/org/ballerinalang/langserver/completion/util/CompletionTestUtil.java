@@ -19,25 +19,8 @@ package org.ballerinalang.langserver.completion.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
-import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,36 +31,22 @@ public class CompletionTestUtil {
 
     private static final Gson GSON = new Gson();
 
-    /**
-     * Get a new request message from the content.
-     *
-     * @param position position of the cursor
-     * @param uri      documentURI
-     * @return {@link TextDocumentPositionParams}
-     */
-    public static TextDocumentPositionParams getPositionParams(Position position, String uri) {
-        TextDocumentPositionParams textDocumentPositionParams = new TextDocumentPositionParams();
-        TextDocumentIdentifier documentIdentifier = new TextDocumentIdentifier();
-        documentIdentifier.setUri(Paths.get(uri).toUri().toString());
-
-        textDocumentPositionParams.setPosition(position);
-        textDocumentPositionParams.setTextDocument(documentIdentifier);
-
-        return textDocumentPositionParams;
-    }
-
     private static String getCompletionItemPropertyString(CompletionItem completionItem) {
 
         // TODO: Need to add kind and sort text as well
-        return "{" +
+        // Here we replace the Windows specific \r\n to \n for evaluation only
+        String additionalTextEdits = "";
+        if (completionItem.getAdditionalTextEdits() != null && !completionItem.getAdditionalTextEdits().isEmpty()) {
+            additionalTextEdits = "," + GSON.toJson(completionItem.getAdditionalTextEdits());
+        }
+        return ("{" +
                 completionItem.getInsertText() + "," +
                 completionItem.getDetail() + "," +
-                completionItem.getDocumentation() + "," +
-                completionItem.getLabel() +
-                "}";
+                completionItem.getLabel() + additionalTextEdits +
+                "}").replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 
-    private static List<String> getStringListForEvaluation(List<CompletionItem> completionItems) {
+    public static List<String> getStringListForEvaluation(List<CompletionItem> completionItems) {
         List<String> evalList = new ArrayList<>();
         completionItems.forEach(completionItem -> evalList.add(getCompletionItemPropertyString(completionItem)));
         return evalList;
@@ -105,52 +74,20 @@ public class CompletionTestUtil {
     }
 
     /**
-     * Get the completions list.
+     * Check whether list2 does not contains all the elements in list1.
      *
-     * @param documentManager Document manager instance
-     * @param pos             {@link TextDocumentPositionParams} position params
+     * @param list1 - negative completion item list being checked
+     * @param list2 - completion item list being checked against
+     * @return whether list1 is a subset of list2
      */
-    public static List<CompletionItem> getCompletions(WorkspaceDocumentManager documentManager,
-                                                      TextDocumentPositionParams pos) {
-        List<CompletionItem> completions;
-        LSServiceOperationContext completionContext = new LSServiceOperationContext();
-        completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
-        completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
-        BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager,
-                                                               false, CompletionCustomErrorStrategy.class, false).get(
-                0);
-        completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                              bLangPackage.symbol.getName().getValue());
-        // Visit the package to resolve the symbols
-        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-        bLangPackage.accept(treeVisitor);
-
-        BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-        if (symbolEnvNode == null) {
-            completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
-                    .resolveItems(completionContext);
-        } else {
-            completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
-                    .resolveItems(completionContext);
+    public static boolean containsAtLeastOne(List<CompletionItem> list1, List<CompletionItem> list2) {
+        List<String> pivotList = getStringListForEvaluation(list2);
+        for (String negativeItem : getStringListForEvaluation(list1)) {
+            if (pivotList.contains(negativeItem)) {
+                return true;
+            }
         }
 
-        return completions;
-    }
-
-    /**
-     * Prepare the Document manager instance with the given file and issue the did open operation.
-     *
-     * @param uri        File Uri
-     * @param balContent File Content
-     * @return {@link WorkspaceDocumentManager}
-     */
-    public static WorkspaceDocumentManagerImpl prepareDocumentManager(String uri, String balContent) {
-        Path openedPath;
-        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
-
-        openedPath = Paths.get(uri);
-        documentManager.openFile(openedPath, balContent);
-
-        return documentManager;
+        return false;
     }
 }

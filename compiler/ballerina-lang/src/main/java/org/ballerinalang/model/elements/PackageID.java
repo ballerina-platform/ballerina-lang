@@ -68,6 +68,22 @@ public class PackageID {
     /**
      * Creates a {@code PackageID} for an unnamed package.
      *
+     * @param orgName        organization name
+     * @param sourceFileName name of the .bal file
+     * @param version        version
+     */
+    public PackageID(Name orgName, String sourceFileName, Name version) {
+        this.orgName = orgName;
+        this.name = Names.DEFAULT_PACKAGE;
+        this.version = version;
+        this.nameComps = Lists.of(Names.DEFAULT_PACKAGE);
+        this.isUnnamed = true;
+        this.sourceFileName = new Name(sourceFileName);
+    }
+
+    /**
+     * Creates a {@code PackageID} for an unnamed package.
+     *
      * @param sourceFileName name of the .bal file
      */
     public PackageID(String sourceFileName) {
@@ -107,41 +123,43 @@ public class PackageID {
             return false;
         }
 
-        PackageID packageID = (PackageID) o;
-        return name.equals(packageID.name) && version.equals(packageID.version);
+        PackageID other = (PackageID) o;
+        boolean samePkg = false;
+
+        if (this.isUnnamed == other.isUnnamed) {
+            samePkg = (!this.isUnnamed) || (this.sourceFileName.equals(other.sourceFileName));
+        }
+
+        return samePkg && orgName.equals(other.orgName) && name.equals(other.name) && version.equals(other.version);
     }
 
     @Override
     public int hashCode() {
-        int result = nameComps.hashCode();
+        int result = orgName != null ? orgName.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + version.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        String orgName = "";
-        if (this.orgName != null && this.orgName != Names.ANON_ORG) {
-            orgName = this.orgName + "/";
+        if (Names.DOT.equals(this.name)) {
+            return this.name.value;
         }
 
-        if (version == Names.DEFAULT_VERSION || version.equals(Names.EMPTY)) {
+        String orgName = "";
+        if (this.orgName != null && !this.orgName.equals(Names.ANON_ORG)) {
+            orgName = this.orgName + Names.ORG_NAME_SEPARATOR.value;
+        }
+
+        if (version.equals(Names.EMPTY)) {
             return orgName + this.name.value;
         }
 
-        return orgName + this.name + ":" + this.version;
+        return orgName + this.name + Names.VERSION_SEPARATOR.value + this.version;
     }
 
     public Name getOrgName() {
         return orgName;
-    }
-
-    public String bvmAlias() {
-        // TODO: remove null check, it should never be null
-        if (this.orgName != null && this.orgName == Names.ANON_ORG) {
-            return this.name.toString();
-        } else {
-            return this.orgName + "." + this.getName();
-        }
     }
 }

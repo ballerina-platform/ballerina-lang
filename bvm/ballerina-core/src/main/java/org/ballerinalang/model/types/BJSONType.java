@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -27,24 +28,18 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BJSONType extends BType {
 
-    private BType constraint;
-
     /**
      * Create a {@code BJSONType} which represents the JSON type.
      *
      * @param typeName string name of the type
+     * @param pkgPath of the type
      */
     public BJSONType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BJSON.class);
+        super(typeName, pkgPath, BRefType.class);
     }
 
-    public BJSONType(BType constraint) {
-        super(TypeConstants.JSON_TNAME, null, BJSON.class);
-        this.constraint = constraint;
-    }
-
-    public BType getConstrainedType() {
-        return constraint;
+    public BJSONType() {
+        super(TypeConstants.JSON_TNAME, null, BRefType.class);
     }
 
     @Override
@@ -54,16 +49,7 @@ public class BJSONType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BJSON("{}");
-    }
-
-    @Override
-    public TypeSignature getSig() {
-        if (constraint == null) {
-            return new TypeSignature(TypeSignature.SIG_JSON);
-        } else {
-            return new TypeSignature(TypeSignature.SIG_JSON, constraint.getPackagePath(), constraint.getName());
-        }
+        return (V) new BMap();
     }
 
     @Override
@@ -72,27 +58,7 @@ public class BJSONType extends BType {
     }
 
     @Override
-    public String toString() {
-        if (constraint == null) {
-            return super.toString();
-        } else {
-            return "json" + "<" + constraint.getName() + ">";
-        }
-    }
-
-    @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BJSONType)) {
-            return false;
-        }
-
-        BJSONType other = (BJSONType) obj;
-        if (constraint == other.constraint) {
-            return true;
-        } else if (constraint == null || other.constraint == null) {
-            return false;
-        }
-
-        return constraint.equals(other.constraint);
+        return super.equals(obj) && obj instanceof BJSONType;
     }
 }

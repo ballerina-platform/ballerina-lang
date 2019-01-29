@@ -19,24 +19,28 @@
 package org.ballerinalang.util;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlobArray;
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
-import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
-import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Collection;
 
 /**
  * Includes utility methods required for table related operations.
@@ -44,17 +48,15 @@ import java.sql.SQLException;
  * @since 0.970.0
  */
 public class TableUtils {
-    private static final String TABLE_OPERATION_ERROR = "TableOperationError";
-    private static final String TABLE_PACKAGE_PATH = "ballerina.builtin";
-    private static final String EXCEPTION_OCCURRED = "Exception occurred";
+    private static final String DEFAULT_ERROR_DETAIL_MESSAGE = "Error occurred during table manipulation";
 
-    public static String generateInsertDataStatment(String tableName, BStruct constrainedType) {
+    public static String generateInsertDataStatment(String tableName, BMap<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
         sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
-        BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
+        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
         String sep = "";
-        for (BStructType.StructField sf : structFields) {
+        for (BField sf : structFields) {
             String name = sf.getFieldName();
             sbSql.append(sep).append(name).append(" ");
             sbValues.append(sep).append("?");
@@ -64,12 +66,12 @@ public class TableUtils {
         return sbSql.toString();
     }
 
-    public static String generateDeleteDataStatment(String tableName, BStruct constrainedType) {
+    public static String generateDeleteDataStatment(String tableName, BMap<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
-        BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
+        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
         String sep = "";
-        for (BStructType.StructField sf : structFields) {
+        for (BField sf : structFields) {
             String name = sf.getFieldName();
             sbSql.append(sep).append(name).append(" = ? ");
             sep = TableConstants.SQL_AND;
@@ -77,49 +79,45 @@ public class TableUtils {
         return sbSql.toString();
     }
 
-    public static void prepareAndExecuteStatement(PreparedStatement stmt, BStruct constrainedType) {
+    public static void prepareAndExecuteStatement(PreparedStatement stmt, BMap<String, BValue> constrainedType) {
         try {
-            BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
-            int intFieldIndex = 0;
-            int floatFieldIndex = 0;
-            int stringFieldIndex = 0;
-            int booleanFieldIndex = 0;
-            int refFieldIndex = 0;
-            int blobFieldIndex = 0;
+            Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
             int index = 1;
-            for (BStructType.StructField sf : structFields) {
+            for (BField sf : structFields) {
                 int type = sf.getFieldType().getTag();
+                String fieldName = sf.fieldName;
                 switch (type) {
                 case TypeTags.INT_TAG:
-                    stmt.setLong(index, constrainedType.getIntField(intFieldIndex));
-                    ++intFieldIndex;
+                    stmt.setLong(index, ((BInteger) constrainedType.get(fieldName)).intValue());
                     break;
                 case TypeTags.STRING_TAG:
-                    stmt.setString(index, constrainedType.getStringField(stringFieldIndex));
-                    ++stringFieldIndex;
+                    stmt.setString(index, constrainedType.get(fieldName).stringValue());
                     break;
                 case TypeTags.FLOAT_TAG:
-                    stmt.setDouble(index, constrainedType.getFloatField(floatFieldIndex));
-                    ++floatFieldIndex;
+                    stmt.setDouble(index, ((BFloat) constrainedType.get(fieldName)).floatValue());
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    stmt.setBoolean(index, constrainedType.getBooleanField(booleanFieldIndex) == 1);
-                    ++booleanFieldIndex;
+                    stmt.setBoolean(index, ((BBoolean) constrainedType.get(fieldName)).booleanValue());
                     break;
                 case TypeTags.XML_TAG:
                 case TypeTags.JSON_TAG:
-                    stmt.setString(index, constrainedType.getRefField(refFieldIndex).toString());
-                    ++refFieldIndex;
-                    break;
-                case TypeTags.BLOB_TAG:
-                    byte[] blobData = constrainedType.getBlobField(blobFieldIndex);
-                    stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
-                    ++blobFieldIndex;
+                    stmt.setString(index, constrainedType.get(fieldName).toString());
                     break;
                 case TypeTags.ARRAY_TAG:
-                    Object[] arrayData = getArrayData(constrainedType.getRefField(refFieldIndex));
-                    stmt.setObject(index, arrayData);
-                    ++refFieldIndex;
+                    boolean isBlobType =
+                            ((BArrayType) sf.getFieldType()).getElementType().getTag() == TypeTags.BYTE_TAG;
+                    if (isBlobType) {
+                        BValue value = constrainedType.get(fieldName);
+                        if (value != null) {
+                            byte[] blobData = ((BValueArray) constrainedType.get(fieldName)).getBytes();
+                            stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        } else {
+                            stmt.setNull(index, Types.BLOB);
+                        }
+                    } else {
+                        Object[] arrayData = getArrayData(constrainedType.get(fieldName));
+                        stmt.setObject(index, arrayData);
+                    }
                     break;
                 }
                 ++index;
@@ -139,38 +137,31 @@ public class TableUtils {
         int arrayLength;
         switch (typeTag) {
         case TypeTags.INT_TAG:
-            arrayLength = (int) ((BIntArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new Long[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BIntArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getInt(i);
             }
             break;
         case TypeTags.FLOAT_TAG:
-            arrayLength = (int) ((BFloatArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new Double[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BFloatArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getFloat(i);
             }
             break;
         case TypeTags.STRING_TAG:
-            arrayLength = (int) ((BStringArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new String[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BStringArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getString(i);
             }
             break;
         case TypeTags.BOOLEAN_TAG:
-            arrayLength = (int) ((BBooleanArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new Boolean[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BBooleanArray) value).get(i) > 0;
-            }
-            break;
-        case TypeTags.BLOB_TAG:
-            arrayLength = (int) ((BBlobArray) value).size();
-            arrayData = new Blob[arrayLength];
-            for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BBlobArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getBoolean(i) > 0;
             }
             break;
         default:
@@ -180,23 +171,17 @@ public class TableUtils {
     }
 
     /**
-     * Creates an instance of {@code {@link BStruct}} of the type TableOperationError.
+     * Creates an instance of {@code {@link BError}} representing an error.
      *
      * @param context The context
      * @param throwable The Throwable object to be used
-     * @return {@code {@link BStruct}} of the type {@code TableOperationError}
+     * @return error value
      */
-    public static BStruct createTableOperationError(Context context, Throwable throwable) {
-        PackageInfo tableLibPackage = context.getProgramFile()
-                .getPackageInfo(TABLE_PACKAGE_PATH);
-        StructInfo errorStructInfo = tableLibPackage.getStructInfo(TABLE_OPERATION_ERROR);
-        BStruct tableOperationError = new BStruct(errorStructInfo.getType());
-        if (throwable.getMessage() == null) {
-            tableOperationError.setStringField(0, EXCEPTION_OCCURRED);
-        } else {
-            tableOperationError.setStringField(0, throwable.getMessage());
-        }
-        return tableOperationError;
+    public static BError createTableOperationError(Context context, Throwable throwable) {
+        String detail = throwable.getMessage() != null ? throwable.getMessage() : DEFAULT_ERROR_DETAIL_MESSAGE;
+        BMap<String, BValue> tableErrorDetail = new BMap<>();
+        tableErrorDetail.put("message", new BString(detail));
+        return BLangVMErrors.createError(context, true, BTypes.typeError,
+                                         BallerinaErrorReasons.TABLE_OPERATION_ERROR, tableErrorDetail);
     }
-
 }

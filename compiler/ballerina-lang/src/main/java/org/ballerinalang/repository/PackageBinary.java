@@ -27,6 +27,6 @@ public interface PackageBinary extends PackageEntity {
      * 
      * @return the binary package content
      */
-    byte[] getBinaryContent();
+    CompilerInput getCompilerInput();
     
 }

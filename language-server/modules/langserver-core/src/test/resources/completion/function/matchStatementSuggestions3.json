@@ -1,0 +1,218 @@
+{
+  "position": {
+    "line": 11,
+    "character": 15
+  },
+  "source": "function/source/matchStatementSuggestions3.bal",
+  "items": [
+    {
+      "label":"equalsIgnoreCase(anotherString)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Compares two strings, ignoring the case of the strings.\n"
+      },
+      "sortText":"120",
+      "insertText":"equalsIgnoreCase(anotherString) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"toUpper()",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns a string with all the characters converted to uppercase.\n"
+      },
+      "sortText":"120",
+      "insertText":"toUpper() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"substring(startIndex,endIndex)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns a new string that is the substring of the specified string.\n"
+      },
+      "sortText":"120",
+      "insertText":"substring(startIndex,endIndex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"lastIndexOf(substring)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns the first index of the last occurence of the substring within the specified string.\n"
+      },
+      "sortText":"120",
+      "insertText":"lastIndexOf(substring) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"replaceFirst(regex,replaceWith)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Replaces the first instance of the replacePattern with the replaceWith string and returns the result.\n"
+      },
+      "sortText":"120",
+      "insertText":"replaceFirst(regex,replaceWith) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"length()",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns the length of the specified string.\n"
+      },
+      "sortText":"120",
+      "insertText":"length() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"contains(substring)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns a Boolean value indicating whether a string contains the specified substring.\n"
+      },
+      "sortText":"120",
+      "insertText":"contains(substring) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"indexOf(substring)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns the first index of the first occurence of the substring within the specified string.\n"
+      },
+      "sortText":"120",
+      "insertText":"indexOf(substring) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"trim()",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns a trimmed string by omitting the leading and trailing whitespaces of the original string.\n"
+      },
+      "sortText":"120",
+      "insertText":"trim() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"hasSuffix(suffix)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns a Boolean value indicating whether the string ends with specified suffix.\n"
+      },
+      "sortText":"120",
+      "insertText":"hasSuffix(suffix) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"unescape()",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns an unescaped string by omitting the escape characters of the original string.\n"
+      },
+      "sortText":"120",
+      "insertText":"unescape() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"toLower()",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns a string with all the characters converted to lowercase.\n"
+      },
+      "sortText":"120",
+      "insertText":"toLower() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"hasPrefix(prefix)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns a Boolean value indicating whether a string starts with the specified prefix.\n"
+      },
+      "sortText":"120",
+      "insertText":"hasPrefix(prefix) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"replaceAll(regex,replaceWith)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Replaces each substring of the string that matches the given regular expression with the given replacement.\n"
+      },
+      "sortText":"120",
+      "insertText":"replaceAll(regex,replaceWith) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"replace(regex,replaceWith)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Replaces all instances of the replacePattern string with the replaceWith string and returns the result.\n"
+      },
+      "sortText":"120",
+      "insertText":"replace(regex,replaceWith) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"split(regex)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Splits the string with the given regular expression to produce a string array.\n"
+      },
+      "sortText":"120",
+      "insertText":"split(regex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"findAll(regex)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Finds all the strings matching the regular expression.\n"
+      },
+      "sortText":"120",
+      "insertText":"findAll(regex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"matches(regex)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Returns a Boolean value indicating whether the string matches the regular expression.\n"
+      },
+      "sortText":"120",
+      "insertText":"matches(regex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"toByteArray(encoding)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "documentation":{
+        "left":"Converts string to a byte array.\n"
+      },
+      "sortText":"120",
+      "insertText":"toByteArray(encoding) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

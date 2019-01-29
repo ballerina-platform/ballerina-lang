@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TupleType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -35,6 +36,11 @@ public class BTupleType extends BType implements TupleType {
 
     public BTupleType(List<BType> tupleTypes) {
         super(TypeTags.TUPLE, null);
+        this.tupleTypes = tupleTypes;
+    }
+
+    public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes) {
+        super(TypeTags.TUPLE, tsymbol);
         this.tupleTypes = tupleTypes;
     }
 

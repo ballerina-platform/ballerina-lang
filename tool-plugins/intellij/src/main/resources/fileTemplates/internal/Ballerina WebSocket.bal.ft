@@ -1,7 +1,3 @@
-#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")
-package ${PACKAGE_NAME};
-#end
-
 import ballerina.net.ws;
 
 @Description {value:"This example gives you the basic idea of WebSocket endpoint."}
@@ -16,6 +12,7 @@ import ballerina.net.ws;
     keyStorePassword: "ballerina",
     certPassword: "ballerina"
 }
+
 service<ws> SimpleSecureServer {
 
     @Description {value:"This resource is responsible for handling user logic on handshake time. Note that the connection is not yet established while this code is running."}

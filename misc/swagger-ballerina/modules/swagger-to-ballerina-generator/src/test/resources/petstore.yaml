@@ -110,6 +110,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /action:
+    x-MULTI:
+      operationId: getAction
+      responses:
+        '200':
+          description: Successful
+          examples:
+            application/json: Ok
+      x-METHODS:
+        - HEAD
+        - OPTIONS
+        - PATCH
+        - DELETE
+        - POST
+        - PUT
+        - GET
 components:
   schemas:
     Pet:
@@ -126,6 +142,13 @@ components:
           type: string
         type:
           type: string
+    Dog:
+      allOf:
+      - $ref: "#/components/schemas/Pet"
+      - type: object
+        properties:
+          bark:
+            type: boolean
     Pets:
       type: array
       items:

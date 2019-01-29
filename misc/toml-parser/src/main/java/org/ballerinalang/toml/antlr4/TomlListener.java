@@ -228,16 +228,6 @@ public interface TomlListener extends ParseTreeListener {
 	 */
 	void exitEscapeSeqChar(TomlParser.EscapeSeqCharContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TomlParser#mlBasicString}.
-	 * @param ctx the parse tree
-	 */
-	void enterMlBasicString(TomlParser.MlBasicStringContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TomlParser#mlBasicString}.
-	 * @param ctx the parse tree
-	 */
-	void exitMlBasicString(TomlParser.MlBasicStringContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link TomlParser#mlBasicStringDelim}.
 	 * @param ctx the parse tree
 	 */
@@ -258,15 +248,15 @@ public interface TomlListener extends ParseTreeListener {
 	 */
 	void exitMlBasicBody(TomlParser.MlBasicBodyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TomlParser#mlBasicChar}.
+	 * Enter a parse tree produced by {@link TomlParser#mlBasicString}.
 	 * @param ctx the parse tree
 	 */
-	void enterMlBasicChar(TomlParser.MlBasicCharContext ctx);
+	void enterMlBasicString(TomlParser.MlBasicStringContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link TomlParser#mlBasicChar}.
+	 * Exit a parse tree produced by {@link TomlParser#mlBasicString}.
 	 * @param ctx the parse tree
 	 */
-	void exitMlBasicChar(TomlParser.MlBasicCharContext ctx);
+	void exitMlBasicString(TomlParser.MlBasicStringContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TomlParser#literalString}.
 	 * @param ctx the parse tree
@@ -327,36 +317,6 @@ public interface TomlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMinus(TomlParser.MinusContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link TomlParser#hexPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void enterHexPrefix(TomlParser.HexPrefixContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TomlParser#hexPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void exitHexPrefix(TomlParser.HexPrefixContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link TomlParser#octPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void enterOctPrefix(TomlParser.OctPrefixContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TomlParser#octPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void exitOctPrefix(TomlParser.OctPrefixContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link TomlParser#binPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinPrefix(TomlParser.BinPrefixContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TomlParser#binPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinPrefix(TomlParser.BinPrefixContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TomlParser#decInt}.
 	 * @param ctx the parse tree
@@ -827,4 +787,34 @@ public interface TomlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStdTableClose(TomlParser.StdTableCloseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TomlParser#arrayTable}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayTable(TomlParser.ArrayTableContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TomlParser#arrayTable}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayTable(TomlParser.ArrayTableContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TomlParser#arrayTableOpen}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayTableOpen(TomlParser.ArrayTableOpenContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TomlParser#arrayTableOpen}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayTableOpen(TomlParser.ArrayTableOpenContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TomlParser#arrayTableClose}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayTableClose(TomlParser.ArrayTableCloseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TomlParser#arrayTableClose}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayTableClose(TomlParser.ArrayTableCloseContext ctx);
 }

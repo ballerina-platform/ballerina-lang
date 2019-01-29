@@ -2,20 +2,22 @@
 
 import ballerina/io;
 
-@Description {value:"Struct for represent person's details"}
-@Field{value:"name: string value name of the person"}
-@Field{value:"id: int value id of the person"}
-@Field{value:"age: int value age of the person"}
-type Person {
+# Struct for represent person's details
+#
+# + name - string value name of the person
+# + id - int value id of the person 
+# + age - int value age of the person
+type Person record {
     string name;
     int id;
     int age;
 };
 
-@Description{value:"Test function to show current package works"}
-@Param{value:"s: string parameter"}
-@Param{value:"sd: int parameter"}
-@Return{value:"return an int"}
+# Test function to show current package works
+#
+# + s - string parameter 
+# + sd - int parameter 
+# + return - return an int
 function test1 (string s, int sd) returns int{
     int a = 0;
     return a;
@@ -37,7 +39,7 @@ function test1 (string s, int sd) returns int{
 
 
 
-function main (string... args) {
+public function main (string... args) {
     string s = "mars";
     io:println(s);
     var df = s.contains("mar");

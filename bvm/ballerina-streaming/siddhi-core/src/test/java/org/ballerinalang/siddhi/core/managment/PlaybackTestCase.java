@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for streaming event play back.
+ */
 public class PlaybackTestCase {
     private static final Logger log = LoggerFactory.getLogger(PlaybackTestCase.class);
     private int inEventCount;

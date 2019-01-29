@@ -32,6 +32,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for convert function.
+ */
 public class ConvertFunctionTestCase {
     private static final Logger log = LoggerFactory.getLogger(ConvertFunctionTestCase.class);
     private int count;

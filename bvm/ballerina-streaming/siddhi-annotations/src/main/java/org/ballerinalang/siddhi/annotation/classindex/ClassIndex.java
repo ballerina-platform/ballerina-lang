@@ -41,39 +41,6 @@ import java.util.Set;
  * Keep in mind that the class is indexed only when it is compiled with
  * classindex.jar file in classpath.
  * </p>
- *
- * Also to preserve class-index data when creating shaded jar you should use the following
- * Maven configuration:
- * <pre>
- * {@code
- * <build>
- *   <plugins>
- *     <plugin>
- *       <groupId>org.apache.maven.plugins</groupId>
- *       <artifactId>maven-shade-plugin</artifactId>
- *       <version>1.4</version>
- *       <executions>
- *         <execution>
- *           <phase>package</phase>
- *           <goals>
- *             <goal>shade</goal>
- *           </goals>
- *           <configuration>
- *             <transformers>
- *               <transformer implementation="org.ballerinalang.siddhi.annotation.classindex.ClassIndexTransformer"/>
- *             </transformers>
- *           </configuration>
- *         </execution>
- *       </executions>
- *       <dependencies>
- *         <groupId>org.atteo.classindex</groupId>
- *         <artifactId>classindex-transformer</artifactId>
- *       </dependencies>
- *     </plugin>
- *   </plugins>
- * </build>
- * }
- * </pre>
  */
 public class ClassIndex {
     public static final String SUBCLASS_INDEX_PREFIX = "META-INF/services/";

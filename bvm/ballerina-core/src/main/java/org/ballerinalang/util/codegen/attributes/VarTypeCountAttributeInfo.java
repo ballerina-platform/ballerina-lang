@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.util.codegen.attributes;
 
-import static org.ballerinalang.util.BLangConstants.BLOB_OFFSET;
 import static org.ballerinalang.util.BLangConstants.BOOL_OFFSET;
 import static org.ballerinalang.util.BLangConstants.FLOAT_OFFSET;
 import static org.ballerinalang.util.BLangConstants.INT_OFFSET;
@@ -71,14 +70,6 @@ public class VarTypeCountAttributeInfo implements AttributeInfo {
 
     public void setMaxIntVars(int maxIntVars) {
         this.varTypeCount[BOOL_OFFSET] = maxIntVars;
-    }
-
-    public int getMaxByteVars() {
-        return this.varTypeCount[BLOB_OFFSET];
-    }
-
-    public void setMaxByteVars(int maxByteVars) {
-        this.varTypeCount[BLOB_OFFSET] = maxByteVars;
     }
 
     public int getMaxRefVars() {

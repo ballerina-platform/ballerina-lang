@@ -22,8 +22,13 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,6 +41,10 @@ public class BLangLock extends BLangStatement implements LockNode {
     public BLangBlockStmt body;
 
     public Set<BVarSymbol> lockVariables = new HashSet<>();
+
+    public Map<BVarSymbol, Set<BLangStructFieldAccessExpr>> fieldVariables = new HashMap<>();
+
+    public String uuid;
 
     public BLangLock() {
     }
@@ -62,6 +71,18 @@ public class BLangLock extends BLangStatement implements LockNode {
 
     public boolean addLockVariable(BVarSymbol variable) {
         return lockVariables.add(variable);
+    }
+
+    public void addFieldVariable(BLangStructFieldAccessExpr expr) {
+        fieldVariables.putIfAbsent((BVarSymbol) ((BLangVariableReference) expr.expr).symbol,
+                new HashSet<>());
+
+        Set<BLangStructFieldAccessExpr> exprList = fieldVariables.get(((BLangVariableReference) expr.expr).symbol);
+
+        // remove the existing one to avoid duplicates if same field already exist
+        exprList.removeIf(fieldExpr ->
+                ((BLangLiteral) fieldExpr.indexExpr).value.equals(((BLangLiteral) expr.indexExpr).value));
+        exprList.add(expr);
     }
 
     @Override

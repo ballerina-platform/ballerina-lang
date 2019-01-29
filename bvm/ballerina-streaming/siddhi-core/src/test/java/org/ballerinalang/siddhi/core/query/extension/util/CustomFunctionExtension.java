@@ -31,6 +31,10 @@ import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 import java.util.Map;
 
+/**
+ * Test extension for custom function executor.
+ */
+
 @Extension(
         name = "plus",
         namespace = "custom",
@@ -73,7 +77,7 @@ public class CustomFunctionExtension extends FunctionExecutor {
     }
 
     /**
-     * Return type of the custom function mentioned
+     * Return type of the custom function mentioned.
      *
      * @return return type
      */

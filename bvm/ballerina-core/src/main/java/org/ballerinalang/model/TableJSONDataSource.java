@@ -17,16 +17,25 @@
  */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.util.JsonNode;
-import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BJSON.JSONDataSource;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -35,7 +44,7 @@ import java.sql.SQLException;
 import java.sql.Struct;
 
 /**
- * {@link org.ballerinalang.model.values.BJSON.JSONDataSource} implementation for table.
+ * {@link JSONDataSource} implementation for table.
  *
  * @since 0.8.0
  */
@@ -45,27 +54,46 @@ public class TableJSONDataSource implements JSONDataSource {
 
     private JSONObjectGenerator objGen;
 
-    private boolean isInTransaction;
-
-    public TableJSONDataSource(BTable df, boolean isInTransaction) {
-        this(df, new DefaultJSONObjectGenerator(), isInTransaction);
+    public TableJSONDataSource(BTable df) {
+        this(df, new DefaultJSONObjectGenerator());
     }
 
-    public TableJSONDataSource(BTable df, JSONObjectGenerator objGen, boolean isInTransaction) {
+    private TableJSONDataSource(BTable df, JSONObjectGenerator objGen) {
         this.df = df;
         this.objGen = objGen;
-        this.isInTransaction = isInTransaction;
     }
 
     @Override
     public void serialize(JsonGenerator gen) throws IOException {
         gen.writeStartArray();
-        while (this.df.hasNext(this.isInTransaction)) {
-            this.df.next();
-            this.objGen.transform(this.df).serialize(gen);
+        while (this.hasNext()) {
+            gen.serialize(this.next());
         }
         gen.writeEndArray();
-        this.df.close(this.isInTransaction);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return this.df.hasNext();
+    }
+
+    @Override
+    public BRefType<?> next() {
+        try {
+            this.df.moveToNext();
+            return this.objGen.transform(this.df);
+        } catch (IOException e) {
+            throw new BLangRuntimeException("error while geting next data", e);
+        }
+    }
+
+    @Override
+    public BRefType<?> build() {
+        BValueArray values = new BValueArray(new BArrayType(BTypes.typeJSON));
+        while (this.hasNext()) {
+            values.append(this.next());
+        }
+        return values;
     }
 
     /**
@@ -75,12 +103,12 @@ public class TableJSONDataSource implements JSONDataSource {
     private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
 
         @Override
-        public JsonNode transform(BTable df) throws IOException {
-            JsonNode objNode = new JsonNode(Type.OBJECT);
-            BStructType structType = df.getStructType();
-            BStructType.StructField[] structFields = null;
+        public BRefType<?> transform(BTable df) throws IOException {
+            BMap<String, BRefType<?>> objNode = new BMap<>(BTypes.typeJSON);
+            BStructureType structType = df.getStructType();
+            BField[] structFields = null;
             if (structType != null) {
-                structFields = structType.getStructFields();
+                structFields = structType.getFields().values().toArray(new BField[0]);
             }
             int index = 0;
             for (ColumnDefinition col : df.getColumnDefs()) {
@@ -99,94 +127,100 @@ public class TableJSONDataSource implements JSONDataSource {
 
     }
 
-    private static void constructJsonData(BTable df, JsonNode objNode, String name, TypeKind type, int index,
-            BStructType.StructField[] structFields) {
+    private static void constructJsonData(BTable df, BMap<String, BRefType<?>> jsonObject, String name, TypeKind type,
+                                          int index, BField[] structFields) {
         switch (type) {
-        case STRING:
-            objNode.set(name, df.getString(index));
-            break;
-        case INT:
-            objNode.set(name, df.getInt(index));
-            break;
-        case FLOAT:
-            objNode.set(name, df.getFloat(index));
-            break;
-        case BOOLEAN:
-            objNode.set(name, df.getBoolean(index));
-            break;
-        case BLOB:
-            objNode.set(name, df.getBlob(index));
-            break;
-        case ARRAY:
-            objNode.set(name, getDataArray(df, index));
-            break;
-        case JSON:
-            objNode.set(name, JsonParser.parse(df.getString(index)));
-            break;
-        case STRUCT:
-            objNode.set(name, getStructData(df.getStruct(index), structFields, index));
-            break;
-        case XML:
-            objNode.set(name, df.getString(index));
-            break;
-        default:
-            objNode.set(name, df.getString(index));
+            case STRING:
+                jsonObject.put(name, getBString(df.getString(index)));
+                break;
+            case INT:
+                Long intVal = df.getInt(index);
+                jsonObject.put(name, intVal == null ? null : new BInteger(intVal));
+                break;
+            case FLOAT:
+                Double floatVal = df.getFloat(index);
+                jsonObject.put(name, floatVal == null ? null : new BFloat(floatVal));
+                break;
+            case BOOLEAN:
+                Boolean boolVal = df.getBoolean(index);
+                jsonObject.put(name, boolVal == null ? null : new BBoolean(boolVal));
+                break;
+            case BLOB:
+                jsonObject.put(name, getBString(df.getBlob(index)));
+                break;
+            case ARRAY:
+                jsonObject.put(name, getDataArray(df, index));
+                break;
+            case JSON:
+                jsonObject.put(name, df.getString(index) == null ? null : JsonParser.parse(df.getString(index)));
+                break;
+            case OBJECT:
+            case RECORD:
+                jsonObject.put(name, getStructData(df.getStruct(index), structFields, index));
+                break;
+            case XML:
+                jsonObject.put(name, getBString(df.getString(index)));
+                break;
+            default:
+                jsonObject.put(name, getBString(df.getString(index)));
             break;
         }
     }
 
-    private static JsonNode getStructData(Object[] data, BStructType.StructField[] structFields, int index) {
-        JsonNode jsonData = null;
+    private static BRefType<?> getStructData(Object[] data, BField[] structFields, int index) {
         try {
             if (structFields == null) {
-                jsonData = new JsonNode(Type.ARRAY);
+                BValueArray jsonArray = new BValueArray(new BArrayType(BTypes.typeJSON));
                 if (data != null) {
                     for (Object value : data) {
                         if (value instanceof String) {
-                            jsonData.add((String) value);
+                            jsonArray.append(new BString((String) value));
                         } else if (value instanceof Boolean) {
-                            jsonData.add((Boolean) value);
+                            jsonArray.append(new BBoolean((Boolean) value));
                         } else if (value instanceof Long) {
-                            jsonData.add((long) value);
+                            jsonArray.append(new BInteger((long) value));
                         } else if (value instanceof Double) {
-                            jsonData.add((double) value);
+                            jsonArray.append(new BFloat((double) value));
                         } else if (value instanceof Integer) {
-                            jsonData.add((int) value);
+                            jsonArray.append(new BInteger((int) value));
                         } else if (value instanceof Float) {
-                            jsonData.add((float) value);
+                            jsonArray.append(new BFloat((float) value));
                         } else if (value instanceof BigDecimal) {
-                            jsonData.add(((BigDecimal) value).doubleValue());
+                            jsonArray.append(new BFloat(((BigDecimal) value).doubleValue()));
                         }
                     }
                 }
+                return jsonArray;
             } else {
-                jsonData = new JsonNode(Type.OBJECT);
+                BMap<String, BValue> jsonData = new BMap<>();
                 boolean structError = true;
                 if (data != null) {
                     int i = 0;
                     for (Object value : data) {
                         BType internaltType = structFields[index - 1].fieldType;
-                        if (internaltType.getTag() == TypeTags.STRUCT_TAG) {
-                            BStructType.StructField[] interanlStructFields = ((BStructType) internaltType)
-                                    .getStructFields();
-                            if (interanlStructFields != null) {
+                        if (internaltType.getTag() == TypeTags.OBJECT_TYPE_TAG
+                                || internaltType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                            BField[] internalStructFields =
+                                    ((BStructureType) internaltType).getFields().values().toArray(new BField[0]);
+                            if (internalStructFields != null) {
                                 if (value instanceof String) {
-                                    jsonData.set(interanlStructFields[i].fieldName, (String) value);
+                                    jsonData.put(internalStructFields[i].fieldName, new BString((String) value));
                                 } else if (value instanceof Boolean) {
-                                    jsonData.set(interanlStructFields[i].fieldName, (Boolean) value);
+                                    jsonData.put(internalStructFields[i].fieldName, new BBoolean((Boolean) value));
                                 } else if (value instanceof Long) {
-                                    jsonData.set(interanlStructFields[i].fieldName, (long) value);
+                                    jsonData.put(internalStructFields[i].fieldName, new BInteger((long) value));
                                 } else if (value instanceof Double) {
-                                    jsonData.set(interanlStructFields[i].fieldName, (double) value);
+                                    jsonData.put(internalStructFields[i].fieldName, new BFloat((double) value));
                                 } else if (value instanceof Integer) {
-                                    jsonData.set(interanlStructFields[i].fieldName, (int) value);
+                                    jsonData.put(internalStructFields[i].fieldName, new BInteger((int) value));
                                 } else if (value instanceof Float) {
-                                    jsonData.set(interanlStructFields[i].fieldName, (float) value);
+                                    jsonData.put(internalStructFields[i].fieldName, new BFloat((float) value));
                                 } else if (value instanceof BigDecimal) {
-                                    jsonData.set(interanlStructFields[i].fieldName, ((BigDecimal) value).doubleValue());
+                                    jsonData.put(internalStructFields[i].fieldName,
+                                            new BFloat(((BigDecimal) value).doubleValue()));
                                 } else if (value instanceof Struct) {
-                                    jsonData.set(interanlStructFields[i].fieldName,
-                                            getStructData(((Struct) value).getAttributes(), interanlStructFields,
+                                    jsonData.put(internalStructFields[i].fieldName,
+                                            getStructData(((Struct) value).getAttributes(), internalStructFields,
                                                     i + 1));
                                 }
                                 structError = false;
@@ -198,64 +232,76 @@ public class TableJSONDataSource implements JSONDataSource {
                 if (structError) {
                     throw new BallerinaException("error in constructing the json object from struct type data");
                 }
+                
+                return jsonData;
             }
         } catch (SQLException e) {
             throw new BallerinaException(
                     "error in retrieving struct data to construct the inner json object:" + e.getMessage());
         }
-        return jsonData;
     }
 
-    private static JsonNode getDataArray(BTable df, int columnIndex) {
+    private static BRefType<?> getDataArray(BTable df, int columnIndex) {
         Object[] dataArray = df.getArray(columnIndex);
         int length = dataArray.length;
-        JsonNode jsonArray = new JsonNode(Type.ARRAY);
+        BValueArray jsonArray = new BValueArray(new BArrayType(BTypes.typeJSON));
         if (length > 0) {
             Object obj = dataArray[0];
             if (obj instanceof String) {
-                for (Object value  : dataArray) {
-                    jsonArray.add((String) value);
+                for (Object value : dataArray) {
+                    jsonArray.append(new BString((String) value));
                 }
             } else if (obj instanceof Boolean) {
-                for (Object value  : dataArray) {
-                    jsonArray.add((Boolean) value);
+                for (Object value : dataArray) {
+                    jsonArray.append(new BBoolean((boolean) value));
                 }
             } else if (obj instanceof Integer) {
-                for (Object value  : dataArray) {
-                    jsonArray.add((int) value);
+                for (Object value : dataArray) {
+                    jsonArray.append(new BInteger((int) value));
                 }
             } else if (obj instanceof Long) {
-                for (Object value  : dataArray) {
-                    jsonArray.add((long) value);
+                for (Object value : dataArray) {
+                    jsonArray.append(new BInteger((long) value));
                 }
             } else if (obj instanceof Float) {
-                for (Object value  : dataArray) {
-                    jsonArray.add((float) value);
+                for (Object value : dataArray) {
+                    jsonArray.append(new BFloat((float) value));
                 }
             } else if (obj instanceof Double) {
-                for (Object value  : dataArray) {
-                    jsonArray.add((double) value);
+                for (Object value : dataArray) {
+                    jsonArray.append(new BFloat((double) value));
+                }
+            } else if (obj instanceof BigDecimal) {
+                for (Object value : dataArray) {
+                    if (value != null) {
+                        jsonArray.append(new BFloat(((BigDecimal) value).doubleValue()));
+                    } else {
+                        jsonArray.append(null);
+                    }
                 }
             }
         }
         return  jsonArray;
     }
 
+    private static BString getBString(String str) {
+        return str != null ? new BString(str) : null;
+    }
+
     /**
      * This represents the logic that will transform the current entry of a
-     * data table to a {@link JsonNode}.
+     * data table to a JSON.
      */
     public static interface JSONObjectGenerator {
 
         /**
-         * Converts the current position of the given table to a JSON object.
+         * Converts the current position of the given table to a JSON.
          *
          * @param table The table that should be used in the current position
          * @return The generated JSON object
-         * @throws IOException for json reading/serializing errors
+         * @throws IOException for JSON reading/serializing errors
          */
-        JsonNode transform(BTable table) throws IOException;
+        BRefType<?> transform(BTable table) throws IOException;
 
     }
-
 }

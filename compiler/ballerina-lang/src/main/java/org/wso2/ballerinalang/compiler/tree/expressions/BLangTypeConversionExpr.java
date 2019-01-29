@@ -19,10 +19,9 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -35,8 +34,7 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     public BLangExpression expr;
     public BLangType typeNode;
     public BType targetType;
-    public BConversionOperatorSymbol conversionSymbol;
-    public BLangInvocation transformerInvocation;
+    public BOperatorSymbol conversionSymbol;
 
     public ExpressionNode getExpression() {
         return expr;
@@ -52,11 +50,6 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
 
     public void setTypeNode(TypeNode typeNode) {
         this.typeNode = (BLangType) typeNode;
-    }
-
-    @Override
-    public InvocationNode getTransformerInvocation() {
-        return transformerInvocation;
     }
 
     @Override

@@ -1,0 +1,10 @@
+// Ballerina provides the capability to easily introduce webhooks via its implementation of the WebSub recommendation.
+//
+// Ballerina Services, acting as WebSub Publishers, could start up a Ballerina WebSub Hub to which they would publish
+// updates against topics on the occurrence of particular events.
+//
+// Ballerina WebSub subscribers can subscribe at these hubs, by specifying the topics, to receive notifications on
+// occurrence of particular events.
+//
+// Any of Ballerina's WebSub components (Publisher, Hub or Subscriber) could be used with non-Ballerina components which
+// are WebSub compliant.

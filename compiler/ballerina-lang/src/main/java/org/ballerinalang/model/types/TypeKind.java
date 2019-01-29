@@ -29,9 +29,19 @@ public enum TypeKind {
     INT("int"),
 
     /**
+     * The <em>byte</em> value type.
+     */
+    BYTE("byte"),
+
+    /**
      * The <em>float</em> value type.
      */
     FLOAT("float"),
+
+    /**
+     * The <em>decimal</em> value type.
+     */
+    DECIMAL("decimal"),
 
     /**
      * The <em>string</em> value type.
@@ -54,11 +64,10 @@ public enum TypeKind {
     JSON("json"),
     XML("xml"),
     ANY("any"),
+    ANYDATA("anydata"),
     MAP("map"),
     FUTURE("future"),
     PACKAGE("package"),
-    STRUCT("struct"),
-    ENUM("enum"),
     SERVICE("service"),
     CONNECTOR("connector"),
     ENDPOINT("endpoint"),
@@ -70,12 +79,14 @@ public enum TypeKind {
     NIL("null"),
     NONE(""),
     OTHER("other"),
-    MESSAGE("message"),
+    ERROR("error"),
     XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
+    OBJECT("object"),
     RECORD("record"),
     FINITE("finite"),
+    CHANNEL("channel")
     ;
 
     private String name;

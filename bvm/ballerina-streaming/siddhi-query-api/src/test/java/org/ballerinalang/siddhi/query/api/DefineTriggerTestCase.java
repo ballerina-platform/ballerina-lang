@@ -26,6 +26,9 @@ import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for defining triggers.
+ */
 public class DefineTriggerTestCase {
 
     @Test

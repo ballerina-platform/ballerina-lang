@@ -17,163 +17,101 @@
  */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.completions.util.sorters.MatchContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
+import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.generateMatchPattern;
+import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.getStructuredFixedValueMatch;
+import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.getVariableValueDestructurePattern;
 
 /**
  * Completion Item resolver for the match statement parser rule context.
  */
 public class ParserRuleMatchStatementContextResolver extends AbstractItemResolver {
-    private static final String LINE_SEPERATOR = System.lineSeparator();
+    
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        int currentTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int matchTokenIndex = this.getMatchTokenIndex(tokenStream, currentTokenIndex);
-        Token tokenOffsetBy2 = CommonUtil.getNthDefaultTokensToRight(tokenStream, matchTokenIndex, 2);
-        int offsetBy2TokenLine = tokenOffsetBy2.getLine() - 1;
-        int cursorLine = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-        List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        
-        if (tokenOffsetBy2.getText().equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                && offsetBy2TokenLine == cursorLine) {
-            String packageAlias =
-                    CommonUtil.getPreviousDefaultToken(tokenStream, tokenOffsetBy2.getTokenIndex()).getText();
-            SymbolInfo pkgSymbolInfo = symbolInfoList.stream().filter(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                if (bSymbol instanceof BPackageSymbol) {
-                    List<Name> nameComps = ((BPackageSymbol) bSymbol).pkgID.getNameComps();
-                    return packageAlias.equals(nameComps.get(nameComps.size() - 1).getValue());
+        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 3);
+        List<SymbolInfo> symbolInfoList = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        if (isInvocationOrInteractionOrFieldAccess(ctx)) {
+            String delimiter = "";
+            String variableName = "";
+            for (int i = 0; i < poppedTokens.size(); i++) {
+                if (poppedTokens.get(i).equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
+                        || poppedTokens.get(i).equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
+                        || poppedTokens.get(i).equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)) {
+                    delimiter = poppedTokens.get(i);
+                    variableName = poppedTokens.get(i - 1);
+                    break;
                 }
-                return false;
-            }).findFirst().orElse(null);
-            
-            if (pkgSymbolInfo != null && pkgSymbolInfo.getScopeEntry().symbol instanceof BPackageSymbol) {
-                pkgSymbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, scopeEntry) -> {
-                    BSymbol scopeEntrySymbol = scopeEntry.symbol;
-                    if (scopeEntrySymbol instanceof BInvokableSymbol) {
-                        this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) scopeEntrySymbol, completionItems);
-                    }
-                });
             }
-        } else if (tokenOffsetBy2.getText().equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
-                && offsetBy2TokenLine == cursorLine) {
-            List<SymbolInfo> filteredSymbols = CommonUtil.invocationsAndFieldsOnIdentifier(completionContext,
-                    tokenOffsetBy2.getTokenIndex()).stream().filter(symbolInfo -> {
-                BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                return symbol instanceof BInvokableSymbol;
-            }).collect(Collectors.toList());
-            filteredSymbols.forEach(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                if (bSymbol instanceof BInvokableSymbol) {
-                    this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, completionItems);
+            List<SymbolInfo> filteredList = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx,
+                    variableName,
+                    delimiter,
+                    ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY),
+                    false);
+            filteredList.removeIf(CommonUtil.invalidSymbolsPredicate());
+            filteredList.forEach(symbolInfo -> {
+                if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)) {
+                    BSymbol scopeEntrySymbol = symbolInfo.getScopeEntry().symbol;
+                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) scopeEntrySymbol, ctx));
                 }
             });
         } else {
-            List<SymbolInfo> filteredSymbolInfo = symbolInfoList.stream().filter(symbolInfo -> {
+            symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
+            symbolInfoList.forEach(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                return bSymbol instanceof BVarSymbol || bSymbol instanceof BPackageSymbol;
-            }).collect(Collectors.toList());
-            
-            filteredSymbolInfo.forEach(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                if (bSymbol instanceof BInvokableSymbol) {
-                    this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, completionItems);
-                } else if (bSymbol instanceof BVarSymbol) {
-                    this.fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems);
-                } else if (bSymbol instanceof BPackageSymbol
-                        && !bSymbol.pkgID.name.getValue().equals("builtin")
-                        && !bSymbol.pkgID.name.getValue().contains("runtime")) {
-                    completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
+                if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)
+                        && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED)) {
+                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, ctx));
+                } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
+                        && bSymbol instanceof BVarSymbol) {
+                    fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems, ctx);
+                    String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
+                    completionItems.add(BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol,
+                                                                             symbolInfo.getSymbolName(), typeName));
+                } else if (bSymbol instanceof BPackageSymbol) {
+                    completionItems.add(
+                            BTypeCompletionItemBuilder.build((BPackageSymbol) bSymbol, symbolInfo.getSymbolName()));
                 }
             });
         }
-        ItemSorters.getSorterByClass(MatchContextItemSorter.class).sortItems(completionContext, completionItems);
+        ItemSorters.get(MatchContextItemSorter.class).sortItems(ctx, completionItems);
 
         return completionItems;
     }
 
-    private String getMatchFieldsSnippet(BUnionType bUnionType) {
-        Set<BType> memberTypes = bUnionType.getMemberTypes();
-        StringBuilder fieldsSnippet = new StringBuilder("{");
-        fieldsSnippet.append(LINE_SEPERATOR);
-
-        memberTypes.forEach(bType -> {
-            fieldsSnippet
-                    .append("\t").append(bType.toString()).append(" => {")
-                    .append(LINE_SEPERATOR)
-                    .append("\t\t")
-                    .append(LINE_SEPERATOR)
-                    .append("\t").append("}")
-                    .append(LINE_SEPERATOR);
-        });
-        fieldsSnippet.append("}");
-        
-        return fieldsSnippet.toString();
-    }
-
-    private CompletionItem getFunctionCompletionItem(BInvokableSymbol func, String matchFieldSnippet) {
-        CompletionItem completionItem = getFunctionCompletionItem(func);
-        completionItem.setInsertText(completionItem.getInsertText() + " " + matchFieldSnippet);
+    private CompletionItem getVariableCompletionItem(BVarSymbol varSymbol, String matchFieldSnippet, String label) {
+        CompletionItem completionItem =
+                BVariableCompletionItemBuilder.build(varSymbol, label, varSymbol.type.toString());
+        completionItem.setInsertText(varSymbol.getName().getValue() + " " + matchFieldSnippet);
         completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        
-        return completionItem;
-    }
-
-    private CompletionItem getFunctionCompletionItem(BInvokableSymbol func) {
-        CompletionItem completionItem = new CompletionItem();
-        String functionSignature = this.getFunctionSignature(func);
-        completionItem.setLabel(functionSignature);
-        completionItem.setInsertText(completionItem.getLabel());
-        completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-        completionItem.setKind(CompletionItemKind.Function);
-        
-        return completionItem;
-    }
-
-    private CompletionItem getVariableCompletionItem(BVarSymbol varSymbol, String matchFieldSnippet) {
-        CompletionItem completionItem = getVariableCompletionItem(varSymbol);
-        completionItem.setInsertText(completionItem.getInsertText() + " " + matchFieldSnippet);
-        completionItem.setInsertTextFormat(InsertTextFormat.Snippet);        
-        
-        return completionItem;
-    }
-
-    private CompletionItem getVariableCompletionItem(BVarSymbol varSymbol) {
-        String typeName = varSymbol.type.toString();
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(varSymbol.getName().getValue());
-        completionItem.setInsertText(varSymbol.getName().getValue());
-        completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
-        completionItem.setKind(CompletionItemKind.Unit);
-
         return completionItem;
     }
 
@@ -181,55 +119,39 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
         String[] nameComps = func.getName().getValue().split("\\.");
         StringBuilder signature = new StringBuilder(nameComps[nameComps.length - 1]);
         List<String> params = new ArrayList<>();
-        signature.append(UtilSymbolKeys.OPEN_BRACKET_KEY);
+        signature.append(UtilSymbolKeys.OPEN_PARENTHESES_KEY);
         func.getParameters().forEach(bVarSymbol -> params.add(bVarSymbol.getName().getValue()));
         func.getDefaultableParameters().forEach(bVarSymbol -> params.add(bVarSymbol.getName().getValue()));
         signature.append(String.join(",", params)).append(")");
-        
+
         return signature.toString();
     }
-    
-    private int getMatchTokenIndex(TokenStream tokenStream, int startIndex) {
-        int searchIndex = startIndex;
-        int matchTokenIndex = -1;
-        while (true) {
-            if (searchIndex < 0) {
-                break;
-            }
-            Token token = CommonUtil.getPreviousDefaultToken(tokenStream, searchIndex);
-            if (UtilSymbolKeys.MATCH_KEYWORD_KEY.equals(token.getText())) {
-                matchTokenIndex = token.getTokenIndex();
-                break;
-            }
-            searchIndex = token.getTokenIndex();
-        }
-        
-        return matchTokenIndex;
+
+    private CompletionItem fillInvokableSymbolMatchSnippet(BInvokableSymbol func, LSContext ctx) {
+        String functionSignature = getFunctionSignature(func);
+        String variableValuePattern = getVariableValueDestructurePattern(ctx);
+        String variableValueSnippet = this.generateMatchSnippet(variableValuePattern);
+
+        return BFunctionCompletionItemBuilder.build(func, functionSignature,
+                                                    functionSignature + " " + variableValueSnippet);
     }
-    
-    private void fillInvokableSymbolMatchSnippet(BInvokableSymbol bInvokableSymbol,
-                                                  List<CompletionItem> completionItems) {
-        BType returnType = bInvokableSymbol.getReturnType();
-        if (returnType instanceof BUnionType && bInvokableSymbol.receiverSymbol == null) {
-            BUnionType unionType = (BUnionType) returnType;
-            CompletionItem completionItem = getFunctionCompletionItem(bInvokableSymbol,
-                    this.getMatchFieldsSnippet(unionType));
-            completionItems.add(completionItem);
-        } else if (!(bInvokableSymbol instanceof BOperatorSymbol) && bInvokableSymbol.receiverSymbol == null
-                && !bInvokableSymbol.getName().getValue().contains("<")) {
-            CompletionItem completionItem = getFunctionCompletionItem(bInvokableSymbol);
-            completionItems.add(completionItem);
-        }
-    }
-    
-    private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems) {
+
+    private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems, LSContext ctx) {
         BType symbolType = varSymbol.getType();
-        if (symbolType instanceof BUnionType) {
-            BUnionType unionType = (BUnionType) symbolType;
-            completionItems.add(getVariableCompletionItem(varSymbol,
-                    this.getMatchFieldsSnippet(unionType)));
+        String varName = varSymbol.getName().getValue();
+        if (symbolType instanceof BTupleType || symbolType instanceof BRecordType) {
+            String fixedValuePattern = "\t" + generateMatchPattern(getStructuredFixedValueMatch(symbolType), ctx);
+            String fixedValueSnippet = this.generateMatchSnippet(fixedValuePattern);
+            completionItems.add(this.getVariableCompletionItem(varSymbol, fixedValueSnippet, varName));
         } else {
-            completionItems.add(getVariableCompletionItem(varSymbol));
+            String variableValuePattern = "\t" + getVariableValueDestructurePattern(ctx);
+            String variableValueSnippet = this.generateMatchSnippet(variableValuePattern);
+            completionItems.add(this.getVariableCompletionItem(varSymbol, variableValueSnippet, varName));
         }
+    }
+
+    private String generateMatchSnippet(String patternClause) {
+        return UtilSymbolKeys.OPEN_BRACE_KEY + LINE_SEPARATOR + patternClause + LINE_SEPARATOR
+                + UtilSymbolKeys.CLOSE_BRACE_KEY;
     }
 }

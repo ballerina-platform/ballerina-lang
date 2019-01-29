@@ -45,9 +45,6 @@ rem ----- set BALLERINA_HOME ----------------------------
 :checkServer
 rem %~sdp0 is expanded pathname of the current script under NT with spaces in the path removed
 set BALLERINA_HOME=%~sdp0..
-SET curDrive=%cd:~0,1%
-SET ballerinaDrive=%BALLERINA_HOME:~0,1%
-if not "%curDrive%" == "%ballerinaDrive%" %ballerinaDrive%:
 
 goto updateClasspath
 
@@ -66,41 +63,53 @@ set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 
+set BALLERINA_CLI_HEIGHT=
+set BALLERINA_CLI_WIDTH=
+for /F "tokens=2 delims=:" %%a in ('mode con') do for %%b in (%%a) do (
+  if not defined BALLERINA_CLI_HEIGHT (
+     set "BALLERINA_CLI_HEIGHT=%%b"
+  ) else if not defined BALLERINA_CLI_WIDTH (
+     set "BALLERINA_CLI_WIDTH=%%b"
+  )
+)
+
+if defined BAL_JAVA_DEBUG goto commandDebug
+
 rem ----- Process the input command -------------------------------------------
-
-rem Slurp the command line arguments. This loop allows for an unlimited number
-rem of arguments (up to the command line limit, anyway).
-
-:setupArgs
-if ""%1""=="""" goto doneStart
-
-if ""%1""==""java.debug""    goto commandDebug
-if ""%1""==""-java.debug""   goto commandDebug
-if ""%1""==""--java.debug""  goto commandDebug
-
-shift
-goto setupArgs
-
+goto doneStart
 
 rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
-shift
-set DEBUG_PORT=%1
-if "%DEBUG_PORT%"=="" goto noDebugPort
-if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option.
-set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%DEBUG_PORT%
+if "%BAL_JAVA_DEBUG%"=="" goto noDebugPort
+if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable.
+set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%
 echo Please start the remote debugging client to continue...
 goto runServer
 
 :noDebugPort
-echo Please specify the debug port after the --java.debug option
+echo Please specify the debug port for the BAL_JAVA_DEBUG variable
 goto end
 
 :doneStart
 if "%OS%"=="Windows_NT" @setlocal
 if "%OS%"=="WINNT" @setlocal
-goto runServer
+rem find the version of the jdk
+:findJdk
 
+set CMD=RUN %*
+
+:checkJdk8AndHigher
+set JVER=
+for /f tokens^=2-5^ delims^=.-_^" %%j in ('"%JAVA_HOME%\bin\java" -fullversion 2^>^&1') do set "JVER=%%j%%k"
+if %JVER% EQU 18 goto jdk8
+goto unknownJdk
+
+:unknownJdk
+echo Ballerina is supported only on JDK 1.8
+goto end
+
+:jdk8
+goto runServer
 
 rem ----------------- Execute The Requested Command ----------------------------
 
@@ -112,7 +121,11 @@ rem ---------- Add jars to classpath ----------------
 
 set BALLERINA_CLASSPATH=.\bre\lib\bootstrap;%BALLERINA_CLASSPATH%
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.file="%BALLERINA_HOME%\bre\conf\logging.properties" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
+rem BALLERINA_CLASSPATH_EXT is for outsiders to additionally add
+rem classpath locations, e.g. AWS Lambda function libraries.
+set BALLERINA_CLASSPATH=%BALLERINA_CLASSPATH%;%BALLERINA_CLASSPATH_EXT%
+
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
 
 
 :runJava

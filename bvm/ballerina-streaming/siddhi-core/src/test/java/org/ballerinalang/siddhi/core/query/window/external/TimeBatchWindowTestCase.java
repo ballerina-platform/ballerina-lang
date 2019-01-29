@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for defined time batch window queries.
+ */
 public class TimeBatchWindowTestCase {
     private static final Logger log = LoggerFactory.getLogger(TimeBatchWindowTestCase.class);
     private int inEventCount;

@@ -16,33 +16,17 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BService;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ObjectTypeInfo;
 
 /**
  * {@code BServiceType} represents a service in Ballerina.
  *
  * @since 0.965.0
  */
-public class BServiceType extends BType {
+public class BServiceType extends BObjectType {
 
-    public BServiceType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BService.class);
-    }
-
-    @Override
-    public <V extends BValue> V getZeroValue() {
-        return null;
-    }
-
-    @Override
-    public <V extends BValue> V getEmptyValue() {
-        return null;
-    }
-
-    @Override
-    public TypeSignature getSig() {
-        return null;
+    public BServiceType(ObjectTypeInfo objectTypeInfo, String typeName, String pkgPath, int flags) {
+        super(objectTypeInfo, typeName, pkgPath, flags);
     }
 
     @Override

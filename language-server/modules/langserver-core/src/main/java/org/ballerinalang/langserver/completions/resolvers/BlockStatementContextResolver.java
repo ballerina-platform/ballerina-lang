@@ -18,30 +18,29 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Block statement Context Resolver.
  */
 public class BlockStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         AbstractItemResolver itemResolver;
 
-        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         if (parserRuleContext != null) {
-            itemResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+            itemResolver = CompletionItemResolver.get(parserRuleContext.getClass());
         } else {
-            itemResolver = CompletionItemResolver.getResolverByClass(StatementContextResolver.class);
+            itemResolver = CompletionItemResolver.get(StatementContextResolver.class);
         }
-        completionItems.addAll(itemResolver.resolveItems(completionContext));
 
-        return completionItems;
+        return new ArrayList<>(itemResolver.resolveItems(completionContext));
     }
 }

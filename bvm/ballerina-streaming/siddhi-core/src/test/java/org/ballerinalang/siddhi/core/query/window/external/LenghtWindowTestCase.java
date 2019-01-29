@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for defined length window queries.
+ */
 public class LenghtWindowTestCase {
     private static final Logger log = LoggerFactory.getLogger(LenghtWindowTestCase.class);
     private int inEventCount;

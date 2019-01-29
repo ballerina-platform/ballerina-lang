@@ -39,8 +39,6 @@ public class BLangOutputRateLimit extends BLangNode implements OutputRateLimitNo
 
     private boolean isSnapshot;
 
-    private boolean isEventBasedRateLimit;
-
     @Override
     public String getOutputRateType() {
         return outputRateType;
@@ -75,16 +73,6 @@ public class BLangOutputRateLimit extends BLangNode implements OutputRateLimitNo
     @Override
     public void setSnapshot(boolean snapshot) {
         isSnapshot = snapshot;
-    }
-
-    @Override
-    public boolean isEventBasedRateLimit() {
-        return isEventBasedRateLimit;
-    }
-
-    @Override
-    public void setEventBasedRateLimit(boolean eventBasedRateLimit) {
-        isEventBasedRateLimit = eventBasedRateLimit;
     }
 
     @Override

@@ -1,0 +1,64 @@
+# Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '{build}'
+skip_tags: true
+clone_depth: 1
+image:
+- Visual Studio 2017
+environment:
+  MAVEN_VERSION: 3.5.0
+  APPVEYOR: true
+  matrix:
+    - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+  nodejs_version: "8"
+install:
+  - ps: |
+      Add-Type -AssemblyName System.IO.Compression.FileSystem
+      if (!(Test-Path -Path "C:\maven" )) {
+        Write-Host "Downloading Maven $env:MAVEN_VERSION"
+        (new-object System.Net.WebClient).DownloadFile("https://repo1.maven.org/maven2/org/apache/maven/apache-maven/$env:MAVEN_VERSION/apache-maven-$env:MAVEN_VERSION-bin.zip", 'C:\maven-bin.zip')
+        [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\maven-bin.zip", "C:\maven")
+      }
+  - ps: Install-Product node $env:nodejs_version
+  - cmd: npm -g install npm@5.6.0
+  - cmd: SET M2_HOME=C:\maven\apache-maven-%MAVEN_VERSION%
+  - cmd: SET PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%;
+  - cmd: mvn --version
+  - cmd: java -version
+  - cmd: node --version
+  - cmd: npm --version
+build_script:
+  - SET MAVEN_OPTS="-Xms1024m"
+  - mvn clean install -B -V -DskipTests
+cache:
+  - C:\maven\ -> appveyor.yml
+  - C:\Users\appveyor\.m2\ -> pom.xml
+  - composer\node_modules -> composer\package.json
+  - tool-plugins\vscode\node_modules -> tool-plugins\vscode\package.json
+  - tool-plugins\theia\node_modules -> tool-plugins\theia\package.json
+  - tool-plugins\theia\browser-app\node_modules ->\package.json
+  - composer\packages\bbe\node_modules -> composer\packages\bbe\package.json
+  - composer\packages\font\node_modules -> composer\packages\font\package.json
+  - composer\packages\theme\node_modules -> composer\packages\theme\package.json
+  - composer\packages\diagram\node_modules -> composer\packages\diagram\package.json
+  - composer\packages\tracing\node_modules -> composer\packages\tracing\package.json
+  - composer\packages\ast-model\node_modules -> composer\packages\ast-model\package.json
+  - composer\packages\api-designer\node_modules -> composer\packages\api-designer\package.json
+  - composer\packages\distribution\node_modules -> composer\packages\distribution\package.json
+  - composer\packages\lang-service\node_modules -> composer\packages\lang-service\package.json
+  - composer\packages\documentation\node_modules -> composer\packages\documentation\package.json
+  - composer\tools\composer-cli\node_modules -> composer\tools\composer-cli\package.json
+  - tests\composer-integration-tests\node_modules\package.json -> tests\composer-integration-tests\package.json 
+  - '%APPDATA%\npm-cache'

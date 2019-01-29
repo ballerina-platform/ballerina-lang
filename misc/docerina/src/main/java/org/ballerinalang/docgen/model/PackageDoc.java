@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Package documentation.
@@ -31,16 +32,19 @@ import java.nio.file.Path;
 public class PackageDoc {
     public final String description;
     public final BLangPackage bLangPackage;
+    public final List<Path> resources;
 
     /**
      * Constructor.
      *
-     * @param descriptionPath description of the package.
+     * @param descriptionPath description of the package in markdown format.
+     * @param resources       resources of this package.
      * @param bLangPackage    package object.
      * @throws IOException on error.
      */
-    public PackageDoc(Path descriptionPath, BLangPackage bLangPackage) throws IOException {
+    public PackageDoc(Path descriptionPath, List<Path> resources, BLangPackage bLangPackage) throws IOException {
         this.description = getDescription(descriptionPath);
+        this.resources = resources;
         this.bLangPackage = bLangPackage;
     }
 

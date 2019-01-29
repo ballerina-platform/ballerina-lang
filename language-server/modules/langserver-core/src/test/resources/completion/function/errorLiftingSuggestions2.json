@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 3,
+    "character": 17
+  },
+  "source": "function/source/errorLiftingSuggestions2.bal",
+  "items": [
+    {
+      "label":"a",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"221",
+      "insertText":"a"
+    },
+    {
+      "label":"b",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"221",
+      "insertText":"b"
+    }
+  ]
+}

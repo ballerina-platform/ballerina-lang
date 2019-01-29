@@ -78,6 +78,19 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
         }
     }
 
+    private ParseTree getLastTerminalNode(ParserRuleContext parserRuleContext) {
+        int childCount = parserRuleContext.getChildCount();
+        ParseTree child = null;
+        for (int i = childCount - 1; i >= 0; i--) {
+            if (parserRuleContext.getChild(i) instanceof TerminalNode) {
+                child = parserRuleContext.getChild(i);
+                break;
+            }
+        }
+
+        return child;
+    }
+
     @Override
     public void enterEveryRule(ParserRuleContext parserRuleContext) {
         int tokenIndex = parserRuleContext.start.getTokenIndex();
@@ -93,10 +106,10 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
         }
         int rangeEndTokenIndex;
         if (parserRuleContext.stop == null) {
-            ParseTree child = parserRuleContext.getChild(1);
+            ParseTree child = getLastTerminalNode(parserRuleContext);
             if (child instanceof TerminalNode) {
                 // This is needed to handle A + B + C case of BinaryAddSubExpression
-                rangeEndTokenIndex = ((TerminalNode) child).getSymbol().getTokenIndex();
+                rangeEndTokenIndex = ((TerminalNode) child).getSymbol().getTokenIndex() + 1;
             } else {
                 rangesOfRuleContext.pop();
                 return;

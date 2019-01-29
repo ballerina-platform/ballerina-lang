@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,11 +65,9 @@ public class SourceDirectoryManager {
     public Stream<PackageID> listSourceFilesAndPackages() {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
-        Manifest manifest = getManifest();
-        return Stream.concat(sourceFileNames.stream().map(PackageID::new),
-                             packageNames.stream().map(name -> new PackageID(Names.ANON_ORG,
-                                                                             names.fromString(name),
-                                                                             new Name(manifest.getVersion()))));
+        return Stream.concat(sourceFileNames.stream().map(this::getPackageID),
+                             packageNames.stream().map(this::getPackageID)
+        );
     }
 
     private Manifest getManifest() {
@@ -84,27 +83,33 @@ public class SourceDirectoryManager {
         return manifest;
     }
 
-    public Stream<PackageID> listPackages() {
-        List<String> pkgNames = sourceDirectory.getSourcePackageNames();
-        return pkgNames.stream().map(name -> new PackageID(Names.ANON_ORG,
-                                                           names.fromString(name), Names.DEFAULT_VERSION));
-    }
-
     public PackageID getPackageID(String sourcePackage) {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
+        Manifest manifest = getManifest();
+        Name orgName = getOrgName(manifest);
+        Name version = new Name(manifest.getVersion());
+
+        //Check for built-in packages
+        if (orgName.equals(Names.BUILTIN_ORG)) {
+            return new PackageID(orgName, names.fromString(sourcePackage), Names.EMPTY);
+        }
+
+        //Check for source files
         if (sourceFileNames.contains(sourcePackage)) {
+            if (manifest.getName() != null && !manifest.getName().isEmpty()) {
+                return new PackageID(orgName, sourcePackage, version);
+            }
             return new PackageID(sourcePackage);
         }
 
+        //Check for packages
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
         if (packageNames.contains(sourcePackage)) {
-            Manifest manifest = getManifest();
-            return new PackageID(Names.ANON_ORG, names.fromString(sourcePackage), new Name(manifest.getVersion()));
+            return new PackageID(orgName, names.fromString(sourcePackage), version);
         }
 
         return null;
     }
-
 
     // private methods
 
@@ -131,5 +136,20 @@ public class SourceDirectoryManager {
 
         context.put(SourceDirectory.class, srcDirectory);
         return srcDirectory;
+    }
+
+    private Name getOrgName(Manifest manifest) {
+        return manifest.getName() == null || manifest.getName().isEmpty() ?
+                Names.ANON_ORG : names.fromString(manifest.getName());
+    }
+
+    /**
+     * Check if sources exists in the package.
+     *
+     * @param pkg package name
+     * @return true if ballerina sources exists, else false
+     */
+    boolean checkIfSourcesExists(String pkg) {
+        return ProjectDirs.containsSourceFiles(this.sourceDirectory.getPath().resolve(pkg));
     }
 }

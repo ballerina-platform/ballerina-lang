@@ -17,13 +17,15 @@
 */
 package org.ballerinalang.util;
 
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -33,6 +35,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 
 /**
  * {@code TableProvider} creates In Memory database for tables.
@@ -70,8 +73,8 @@ public class TableProvider {
         return this.indexID++;
     }
 
-    public String createTable(BType constrainedType, BStringArray primaryKeys, BStringArray indexeColumns) {
-        String tableName = TableConstants.TABLE_PREFIX + (constrainedType).getName()
+    public String createTable(BType constrainedType, BValueArray primaryKeys, BValueArray indexeColumns) {
+        String tableName = TableConstants.TABLE_PREFIX + constrainedType.getName()
                 .toUpperCase() + "_" + getTableID();
         String sqlStmt = generateCreateTableStatment(tableName, constrainedType, primaryKeys);
         executeStatement(sqlStmt);
@@ -84,8 +87,8 @@ public class TableProvider {
     }
 
 
-    public String createTable(String fromTableName, String joinTableName,  String query, BStructType tableType,
-                              BRefValueArray params) {
+    public String createTable(String fromTableName, String joinTableName,  String query, BStructureType tableType,
+                              BValueArray params) {
         String newTableName = TableConstants.TABLE_PREFIX + tableType.getName().toUpperCase()
                            + "_" + getTableID();
         String sqlStmt = query.replaceFirst(TableConstants.TABLE_NAME_REGEX, fromTableName);
@@ -97,18 +100,18 @@ public class TableProvider {
         return newTableName;
     }
 
-    public String createTable(String fromTableName, String query, BStructType tableType,
-                              BRefValueArray params) {
+    public String createTable(String fromTableName, String query, BStructureType tableType,
+                              BValueArray params) {
         return createTable(fromTableName, null, query, tableType, params);
     }
 
-    public String insertData(String tableName, BStruct constrainedType) {
+    public String insertData(String tableName, BMap<String, BValue> constrainedType) {
         String sqlStmt = TableUtils.generateInsertDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
         return tableName;
     }
 
-    public void deleteData(String tableName, BStruct constrainedType) {
+    public void deleteData(String tableName, BMap<String, BValue> constrainedType) {
         String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
     }
@@ -118,14 +121,14 @@ public class TableProvider {
         executeStatement(sqlStmt);
     }
 
-    public TableIterator createIterator(String tableName, BStructType type) {
+    public TableIterator createIterator(String tableName, BStructureType type) {
         TableIterator itr;
         Statement stmt = null;
         Connection conn = this.getConnection();
         try {
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(TableConstants.SQL_SELECT + tableName);
-            TableResourceManager rm = new TableResourceManager(conn, stmt);
+            TableResourceManager rm = new TableResourceManager(conn, stmt, true);
             rm.addResultSet(rs);
             itr = new TableIterator(rm, rs, type);
         } catch (SQLException e) {
@@ -146,12 +149,12 @@ public class TableProvider {
         return conn;
     }
 
-    private String generateCreateTableStatment(String tableName, BType constrainedType, BStringArray primaryKeys) {
+    private String generateCreateTableStatment(String tableName, BType constrainedType, BValueArray primaryKeys) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(tableName).append(" (");
-        BStructType.StructField[] structFields = ((BStructType) constrainedType).getStructFields();
+        Collection<BField> structFields = ((BStructureType) constrainedType).getFields().values();
         String seperator = "";
-        for (BStructType.StructField sf : structFields) {
+        for (BField sf : structFields) {
             int type = sf.getFieldType().getTag();
             String name = sf.getFieldName();
             sb.append(seperator).append(name).append(" ");
@@ -172,11 +175,13 @@ public class TableProvider {
                 case TypeTags.XML_TAG:
                     sb.append(TableConstants.SQL_TYPE_CLOB);
                     break;
-                case TypeTags.BLOB_TAG:
-                    sb.append(TableConstants.SQL_TYPE_BLOB);
-                    break;
                 case TypeTags.ARRAY_TAG:
-                    sb.append(TableConstants.SQL_TYPE_ARRAY);
+                    BType elementType = ((BArrayType) sf.getFieldType()).getElementType();
+                    if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                        sb.append(TableConstants.SQL_TYPE_BLOB);
+                    } else {
+                        sb.append(TableConstants.SQL_TYPE_ARRAY);
+                    }
                     break;
                 default:
                     throw new BallerinaException("Unsupported column type for table : " + sf.getFieldType());
@@ -190,7 +195,7 @@ public class TableProvider {
             if (primaryKeyCount > 0) {
                 sb.append(TableConstants.PRIMARY_KEY);
                 for (int i = 0; i < primaryKeyCount; i++) {
-                    sb.append(seperator).append(primaryKeys.get(i));
+                    sb.append(seperator).append(primaryKeys.getString(i));
                     seperator = ",";
                 }
                 sb.append(")");
@@ -207,12 +212,12 @@ public class TableProvider {
         return sb.toString();
     }
 
-    private void generateIndexesForTable(String tableName, BStringArray indexColumns) {
+    private void generateIndexesForTable(String tableName, BValueArray indexColumns) {
         int indexCount = (int) indexColumns.size();
         if (indexCount > 0) {
             for (int i = 0; i < indexCount; i++) {
                 StringBuilder sb = new StringBuilder();
-                String columnName = indexColumns.get(i);
+                String columnName = indexColumns.getString(i);
                 sb.append(TableConstants.SQL_CREATE_INDEX).append(TableConstants.INDEX).append(columnName)
                         .append(getIndexID()).append(TableConstants.SQL_ON).append(tableName).append("(")
                         .append(columnName).append(")");
@@ -235,13 +240,13 @@ public class TableProvider {
         }
     }
 
-    private void prepareAndExecuteStatement(String queryStatement, BRefValueArray params) {
+    private void prepareAndExecuteStatement(String queryStatement, BValueArray params) {
         PreparedStatement stmt = null;
         Connection conn = this.getConnection();
         try {
             stmt = conn.prepareStatement(queryStatement);
             for (int index = 1; index <= params.size(); index++) {
-                BRefType param = params.get(index - 1);
+                BRefType param = params.getRefValue(index - 1);
                 switch (param.getType().getTag()) {
                     case TypeTags.INT_TAG:
                         stmt.setLong(index, (Long) param.value());
@@ -259,13 +264,15 @@ public class TableProvider {
                     case TypeTags.JSON_TAG:
                         stmt.setString(index, (String) param.value());
                         break;
-                    case TypeTags.BLOB_TAG:
-                        byte[] blobData = (byte[]) param.value();
-                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
-                        break;
                     case TypeTags.ARRAY_TAG:
-                        Object[] arrayData = TableUtils.getArrayData(param);
-                        stmt.setObject(index, arrayData);
+                        BType elementType = ((BArrayType) param.getType()).getElementType();
+                        if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                            byte[] blobData = (byte[]) param.value();
+                            stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        } else {
+                            Object[] arrayData = TableUtils.getArrayData(param);
+                            stmt.setObject(index, arrayData);
+                        }
                         break;
                 }
             }
@@ -278,7 +285,7 @@ public class TableProvider {
         }
     }
 
-    private void prepareAndExecuteStatement(String queryStatement, BStruct constrainedType) {
+    private void prepareAndExecuteStatement(String queryStatement, BMap<String, BValue> constrainedType) {
         PreparedStatement stmt = null;
         Connection conn = this.getConnection();
         try {
@@ -306,6 +313,25 @@ public class TableProvider {
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in releasing table connection resource : " + e.getMessage());
+        }
+    }
+
+    public int getRowCount(String tableName) {
+        Statement stmt = null;
+        Connection conn = this.getConnection();
+        try {
+            stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(TableConstants.SQL_COUNT + tableName);
+            int rowCount = 0;
+            if (rs.next()) {
+                rowCount = rs.getInt(1);
+            }
+            return rowCount;
+        } catch (SQLException e) {
+            throw new BallerinaException("error in executing statement to get the count : " + stmt + " error:"
+                                                 + e.getMessage());
+        } finally {
+            releaseResources(conn, stmt);
         }
     }
 }

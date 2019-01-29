@@ -20,21 +20,17 @@ package org.ballerinalang.langserver.common.constants;
  */
 public class ContextConstants {
     public static final String FUNCTION = "FUNCTION";
-    public static final String STRUCT = "STRUCT";
-    public static final String ACTION = "ACTION";
-    public static final String ENUM = "ENUM";
-    public static final String TRANSFORMER = "TRANSFORMER";
-    public static final String CONNECTOR = "CONNECTOR";
     public static final String VARIABLE = "VARIABLE";
     public static final String ENDPOINT = "ENDPOINT";
     public static final String OBJECT = "OBJECT";
     public static final String RECORD = "RECORD";
     public static final String TYPE_DEF = "TYPE_DEF";
     public static final String DESCRIPTION = "Description";
-    public static final String PARAM = "Param";
-    public static final String RETURN = "Return";
-    public static final String FIELD = "Field";
-    public static final String COMPLETION_ERROR_STRATEGY = "CompletionCustomErrorStrategy";
+    public static final String PARAM_TITLE = "Param";
+    public static final String RETURN_TITLE = "Return";
+    public static final String FIELD_TITLE = "Field";
+    public static final String RECEIVER_TITLE = "Receiver";
+    public static final String VARIABLE_TITLE = "VARIABLE";
     public static final String DOC_FIELD = "FIELD";
     public static final String DOC_PARAM = "PARAM";
     public static final String DOC_RECEIVER = "RECEIVER";

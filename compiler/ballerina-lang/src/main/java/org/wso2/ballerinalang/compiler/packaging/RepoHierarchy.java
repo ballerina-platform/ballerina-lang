@@ -1,7 +1,25 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
 package org.wso2.ballerinalang.compiler.packaging;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
@@ -21,7 +39,7 @@ public class RepoHierarchy {
 
     private final Repo[] repos;
     private final RepoHierarchy[] dags;
-    private static final boolean verbose = false;
+    private static final boolean verbose = Boolean.parseBoolean(System.getenv("BALLERINA_REPO_LOOKUP_VERBOSE"));
     private static final PrintStream out = System.out;
 
     RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {
@@ -36,8 +54,8 @@ public class RepoHierarchy {
             Patten patten = repo.calculate(pkg);
             if (patten != Patten.NULL) {
                 Converter converter = repo.getConverterInstance();
-                List<PackageSourceEntry> paths = patten.convertToSources(converter, pkg)
-                                                       .collect(Collectors.toList());
+                List<CompilerInput> paths = patten.convertToSources(converter, pkg)
+                                                  .collect(Collectors.toList());
                 log2(repo, patten, paths);
                 if (!paths.isEmpty()) {
                     return new Resolution(getChildHierarchyForRepo(i), paths);
@@ -56,7 +74,7 @@ public class RepoHierarchy {
         }
     }
 
-    private void log2(Repo repo, Patten patten, List<PackageSourceEntry> paths) {
+    private void log2(Repo repo, Patten patten, List<CompilerInput> paths) {
         if (verbose) {
             out.println("\t looking in " + repo + " for patten\n\t\t" +
                                 patten + " and found \n\t\t\t" +

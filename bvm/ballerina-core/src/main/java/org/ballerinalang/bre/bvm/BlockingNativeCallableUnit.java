@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;
 
 /**
- * {@code {@link AbstractNativeCallableUnit}} represents an abstract implementation of
+ * {@code {@link BlockingNativeCallableUnit}} represents an abstract implementation of
  * functions and actions.
  *
  * @since 0.964.0

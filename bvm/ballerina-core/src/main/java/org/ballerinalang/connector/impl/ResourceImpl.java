@@ -20,8 +20,9 @@ package org.ballerinalang.connector.impl;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
-import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 
@@ -36,11 +37,14 @@ import java.util.List;
 public class ResourceImpl extends AnnotatableNode implements Resource {
     private String name;
 
-    //reference to the original resourceInfo object.
-    private ResourceInfo resourceInfo;
+    private ServiceImpl service;
 
-    public ResourceImpl(String name, ResourceInfo resourceInfo) {
+    //reference to the original resourceInfo object.
+    private FunctionInfo resourceInfo;
+
+    public ResourceImpl(String name, ServiceImpl service, FunctionInfo resourceInfo) {
         this.name = name;
+        this.service = service;
         this.resourceInfo = resourceInfo;
     }
 
@@ -51,7 +55,7 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
 
     @Override
     public String getServiceName() {
-        return resourceInfo.getServiceInfo().getName();
+        return service.getName();
     }
 
     /**
@@ -59,8 +63,17 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
      *
      * @return resourceInfo object.
      */
-    public ResourceInfo getResourceInfo() {
+    public FunctionInfo getResourceInfo() {
         return resourceInfo;
+    }
+
+    @Override
+    public Service getService() {
+        return service;
+    }
+
+    void setService(ServiceImpl service) {
+        this.service = service;
     }
 
     @Override
@@ -75,6 +88,10 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
                 (AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
         List<ParamDetail> paramDetails = new ArrayList<>();
         for (LocalVariableInfo variableInfo : attributeInfo.getLocalVariableInfoEntries()) {
+            //TODO:Get this clarified
+            if (variableInfo.getVariableName().equals("self")) {
+                continue;
+            }
             paramDetails.add(new ParamDetail(variableInfo.getVariableType(), variableInfo.getVariableName()));
         }
         return paramDetails;
@@ -82,6 +99,6 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
 
     @Override
     public String getAnnotationEntryKey() {
-        return getServiceName() + "." + name;
+        return service.getServiceInfo().serviceType.getType().getName() + "." + name;
     }
 }

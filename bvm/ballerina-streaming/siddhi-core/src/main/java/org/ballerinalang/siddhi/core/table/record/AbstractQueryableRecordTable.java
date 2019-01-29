@@ -103,7 +103,7 @@ public abstract class AbstractQueryableRecordTable extends AbstractRecordTable i
      * @param compiledCondition the compiledCondition against which records should be matched
      * @param compiledSelection the compiledSelection that maps records based to requested format
      * @return RecordIterator of matching records
-     * @throws ConnectionUnavailableException
+     * @throws ConnectionUnavailableException when connection is unavailable
      */
     protected abstract RecordIterator<Object[]> query(Map<String, Object> parameterMap,
                                                       CompiledCondition compiledCondition,

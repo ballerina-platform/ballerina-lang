@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase to validate the Siddhi latency.
+ */
 public class TestSiddhiLatency {
     private static final Logger log = LoggerFactory.getLogger(TestSiddhiLatency.class);
     private static InputHandler eligibilityStreamInputHandler;

@@ -20,6 +20,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -32,13 +33,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -47,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -54,8 +60,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -66,9 +72,11 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class responsible for desugar an iterable chain into actual Ballerina code.
@@ -153,6 +161,8 @@ public class IterableCodeDesugar {
                 operation.lambdaSymbol = (BInvokableSymbol) ((BLangSimpleVarRef) lambdaExpression).symbol;
             } else if (lambdaExpression.getKind() == NodeKind.LAMBDA) {
                 operation.lambdaSymbol = ((BLangLambdaFunction) lambdaExpression).function.symbol;
+            } else if (lambdaExpression.getKind() == NodeKind.ARROW_EXPR) {
+                operation.lambdaSymbol = ((BLangArrowFunction) lambdaExpression).function.symbol;
             }
         }
         generateVariables(operation);
@@ -240,17 +250,27 @@ public class IterableCodeDesugar {
             createResultVarDefStmt(funcNode, ctx);
         }
         // Create variables required.
-        final List<BLangVariable> foreachVariables = createForeachVariables(ctx, ctx.getFirstOperation().argVar,
+        final List<BLangSimpleVariable> foreachVariables = createForeachVariables(ctx, ctx.getFirstOperation().argVar,
                 funcNode);
         ctx.iteratorResultVariables = foreachVariables;
 
-        final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos,
-                funcNode.body,
-                ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol),
-                ASTBuilderUtil.createVariableRefList(pos, foreachVariables),
-                ctx.foreachTypes);
-        // foreach variable are the result variables.
+        final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos, funcNode.body,
+                ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol));
 
+        // Create a variable definition node for the foreach statement.
+        VariableDefinitionNode variableDef = getForeachVariableDefinitionNode(ctx, pos, foreachVariables);
+
+        foreachStmt.isDeclaredWithVar = true;
+        foreachStmt.variableDefinitionNode = variableDef;
+        BType paramType = ctx.getFirstOperation().inputType;
+        foreachStmt.varType = paramType;
+        BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
+        foreachStmt.resultType = mapType;
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        memberTypes.add(mapType);
+        foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
+
+        // foreach variable are the result variables.
         if (isReturningIteratorFunction(ctx)) {
             generateAggregator(foreachStmt.body, ctx);
             generateFinalResult(funcNode.body, ctx);
@@ -282,18 +302,28 @@ public class IterableCodeDesugar {
         }
 
         // Create variables required.
-        final List<BLangVariable> foreachVariables = createForeachVariables(ctx, ctx.getFirstOperation().argVar,
+        final List<BLangSimpleVariable> foreachVariables = createForeachVariables(ctx, ctx.getFirstOperation().argVar,
                 funcNode);
 
         // Define all undefined variables.
         defineRequiredVariables(ctx, streamOperations, foreachVariables, funcNode);
 
         // Generate foreach iteration.
-        final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos,
-                funcNode.body,
-                ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol),
-                ASTBuilderUtil.createVariableRefList(pos, foreachVariables),
-                ctx.foreachTypes);
+        final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos, funcNode.body,
+                ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol));
+
+        // Create a variable definition node for the foreach statement.
+        VariableDefinitionNode variableDef = getForeachVariableDefinitionNode(ctx, pos, foreachVariables);
+
+        foreachStmt.isDeclaredWithVar = true;
+        foreachStmt.variableDefinitionNode = variableDef;
+        BType paramType = ctx.getFirstOperation().inputType;
+        foreachStmt.varType = paramType;
+        BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
+        foreachStmt.resultType = mapType;
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        memberTypes.add(mapType);
+        foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
 
         if (foreachVariables.size() > 1) {
             // Create tuple, for lambda invocation.
@@ -303,7 +333,7 @@ public class IterableCodeDesugar {
 
             final BLangBracedOrTupleExpr tupleExpr = (BLangBracedOrTupleExpr) TreeBuilder
                     .createBracedOrTupleExpression();
-            for (BLangVariable foreachVariable : foreachVariables) {
+            for (BLangSimpleVariable foreachVariable : foreachVariables) {
                 tupleExpr.expressions.add(ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol));
             }
             tupleExpr.isBracedExpr = foreachVariables.size() == 1;
@@ -316,15 +346,19 @@ public class IterableCodeDesugar {
 
         // Generate aggregator and result
         if (isReturningIteratorFunction(ctx)) {
-            if (ctx.iteratorResultVariables.size() > 1) {
+            if (ctx.iteratorResultVariables.size() > 1 && ctx.getLastOperation().kind != IterableKind.COUNT) {
                 // Destructure return Values.
                 final BLangTupleDestructure tupleAssign = (BLangTupleDestructure) TreeBuilder
                         .createTupleDestructureStatementNode();
                 tupleAssign.pos = pos;
-                tupleAssign.declaredWithVar = true;
                 foreachStmt.body.addStatement(tupleAssign);
                 tupleAssign.expr = ASTBuilderUtil.createVariableRef(pos, ctx.getLastOperation().retVar.symbol);
-                tupleAssign.varRefs.addAll(ASTBuilderUtil.createVariableRefList(pos, ctx.iteratorResultVariables));
+                BLangTupleVarRef bLangTupleVarRef = new BLangTupleVarRef();
+                bLangTupleVarRef.expressions = ASTBuilderUtil.createVariableRefList(pos, ctx.iteratorResultVariables)
+                        .stream()
+                        .map(simpleVarRef -> (BLangExpression) simpleVarRef)
+                        .collect(Collectors.toList());
+                tupleAssign.varRef = bLangTupleVarRef;
             }
             generateAggregator(foreachStmt.body, ctx);
             generateFinalResult(funcNode.body, ctx);
@@ -340,9 +374,9 @@ public class IterableCodeDesugar {
 
     private void defineRequiredVariables(IterableContext ctx,
                                          LinkedList<Operation> streamOperations,
-                                         List<BLangVariable> foreachVariables,
+                                         List<BLangSimpleVariable> foreachVariables,
                                          BLangFunction funcNode) {
-        Set<BLangVariable> notDefinedVars = new HashSet<>();
+        Set<BLangSimpleVariable> notDefinedVars = new HashSet<>();
         streamOperations.forEach(operation -> {
             notDefinedVars.add(operation.argVar);
             if (operation.kind != IterableKind.FILTER && operation.retVar != null) {
@@ -353,7 +387,7 @@ public class IterableCodeDesugar {
         notDefinedVars.removeAll(foreachVariables);
         notDefinedVars.forEach(var -> defineVariable(var, ctx.env.enclPkg.symbol.pkgID, funcNode));
         notDefinedVars.forEach(var -> {
-            BLangVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(funcNode.pos, funcNode.body);
+            BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(funcNode.pos, funcNode.body);
             variableDefStmt.var = var;
         });
     }
@@ -376,7 +410,7 @@ public class IterableCodeDesugar {
         ctx.countVar = ASTBuilderUtil.createVariable(pos, VAR_COUNT, symTable.intType);
         ctx.countVar.expr = ASTBuilderUtil.createLiteral(pos, symTable.intType, 0L);
         defineVariable(ctx.countVar, funcNode.symbol.pkgID, funcNode);
-        final BLangVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, blockStmt);
+        final BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, blockStmt);
         variableDefStmt.var = ctx.countVar;
     }
 
@@ -401,7 +435,7 @@ public class IterableCodeDesugar {
 //        }
         defineVariable(ctx.resultVar, funcNode.symbol.pkgID, funcNode);
         final DiagnosticPos pos = blockStmt.pos;
-        final BLangVariableDef defStmt = ASTBuilderUtil.createVariableDefStmt(pos, blockStmt);
+        final BLangSimpleVariableDef defStmt = ASTBuilderUtil.createVariableDefStmt(pos, blockStmt);
         defStmt.var = ctx.resultVar;
         switch (ctx.resultType.tag) {
             case TypeTags.ARRAY:
@@ -412,10 +446,11 @@ public class IterableCodeDesugar {
                 defStmt.var.expr = arrayInit;
                 break;
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 defStmt.var.expr = ASTBuilderUtil.createEmptyRecordLiteral(pos, ctx.resultType);
                 break;
             case TypeTags.TABLE:
-                BLangVariable retVars = ctx.getFirstOperation().retVar;
+                BLangSimpleVariable retVars = ctx.getFirstOperation().retVar;
                 BType tableType = new BTableType(TypeTags.TABLE, retVars.type, symTable.tableType.tsymbol);
                 BType tableConfigType = symTable.rootScope.lookup(new Name(TABLE_CONFIG)).symbol.type;
                 defStmt.var.expr = ASTBuilderUtil.createEmptyTableLiteral(pos, tableType, tableConfigType);
@@ -452,6 +487,7 @@ public class IterableCodeDesugar {
                 generateArrayAggregator(blockStmt, ctx);
                 return;
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 generateMapAggregator(blockStmt, ctx);
                 return;
             case TypeTags.TABLE:
@@ -486,7 +522,7 @@ public class IterableCodeDesugar {
      * @param blockStmt target
      * @param variable  variable to increment
      */
-    private void generateCountAggregator(BLangBlockStmt blockStmt, BLangVariable variable) {
+    private void generateCountAggregator(BLangBlockStmt blockStmt, BLangSimpleVariable variable) {
         final DiagnosticPos pos = blockStmt.pos;
         // create count = count + 1;
         final BLangBinaryExpr add = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
@@ -517,7 +553,7 @@ public class IterableCodeDesugar {
         add.type = ctx.resultVar.symbol.type;
         add.opKind = OperatorKind.ADD;
         add.lhsExpr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
-        add.rhsExpr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0).symbol);
+        add.rhsExpr = getValueVariable(ctx, pos);
         add.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD, add.type, add.type);
         final BLangAssignment countAdd = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         countAdd.varRef = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
@@ -536,8 +572,9 @@ public class IterableCodeDesugar {
     private void generateCompareAggregator(BLangBlockStmt blockStmt, IterableContext ctx, OperatorKind operator) {
         final DiagnosticPos pos = blockStmt.pos;
         final BLangSimpleVarRef resultVar = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
-        final BLangSimpleVarRef valueVar = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0)
-                .symbol);
+        final BLangSimpleVarRef valueVar;
+
+        valueVar = getValueVariable(ctx, pos);
 
         final BLangBinaryExpr compare = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         compare.pos = pos;
@@ -558,6 +595,16 @@ public class IterableCodeDesugar {
         final BLangAssignment countAdd = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         countAdd.varRef = resultVar;
         countAdd.expr = ternaryExpr;
+    }
+
+    private BLangSimpleVarRef getValueVariable(IterableContext ctx, DiagnosticPos pos) {
+        BLangSimpleVarRef valueVar;
+        if (ctx.iteratorResultVariables.size() == 1) {
+            valueVar = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0).symbol);
+        } else {
+            valueVar = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(1).symbol);
+        }
+        return valueVar;
     }
 
     /**
@@ -588,13 +635,13 @@ public class IterableCodeDesugar {
     private void generateTableAggregator(BLangBlockStmt blockStmt, IterableContext ctx) {
         final DiagnosticPos pos = blockStmt.pos;
 
-        List<BLangVariable> variables = new ArrayList<>(1);
-        variables.add(ctx.resultVar);
+        List<BLangSimpleVariable> variables = new ArrayList<>(1);
         variables.add(ctx.iteratorResultVariables.get(0));
         BInvokableSymbol addSymbol = (BInvokableSymbol) symTable.rootScope.lookup(names.fromString(TABLE_ADD_FUNCTION))
                 .symbol;
         BLangInvocation addFunctionInvocation = ASTBuilderUtil.createInvocationExpr(pos, addSymbol, variables,
                 symResolver);
+        addFunctionInvocation.exprSymbol = ctx.resultVar.symbol;
         BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, blockStmt);
         expressionStmt.expr = addFunctionInvocation;
     }
@@ -618,8 +665,7 @@ public class IterableCodeDesugar {
         indexAccessNode.type = ctx.iteratorResultVariables.get(1).symbol.type;
         final BLangAssignment valueAssign = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         valueAssign.varRef = indexAccessNode;
-        valueAssign.expr = ASTBuilderUtil.generateConversionExpr(ASTBuilderUtil.createVariableRef(pos,
-                ctx.iteratorResultVariables.get(1).symbol), symTable.anyType, symResolver);
+        valueAssign.expr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(1).symbol);
     }
 
     /**
@@ -650,7 +696,7 @@ public class IterableCodeDesugar {
      * @param ctx       current context
      */
     private void generateDefaultIfEmpty(BLangBlockStmt blockStmt, IterableContext ctx) {
-        if (ctx.resultVar.symbol.type.tag > TypeTags.TYPEDESC) {
+        if (ctx.resultVar.symbol.type.tag > TypeTags.BOOLEAN) {
             return;
         }
         final DiagnosticPos pos = blockStmt.pos;
@@ -768,7 +814,7 @@ public class IterableCodeDesugar {
         notExpr.type = symTable.booleanType;
         ifNode.expr = notExpr;
         ifNode.body = ASTBuilderUtil.createBlockStmt(pos);
-        ASTBuilderUtil.createNextStmt(pos, ifNode.body);
+        ASTBuilderUtil.createContinueStmt(pos, ifNode.body);
     }
 
     /**
@@ -784,17 +830,17 @@ public class IterableCodeDesugar {
         final DiagnosticPos pos = operation.pos;
         final BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         assignment.varRef = ASTBuilderUtil.createVariableRef(operation.pos, operation.retVar.symbol);
-        assignment.expr = ASTBuilderUtil.createInvocationExpr(pos, operation.lambdaSymbol, Lists.of(operation.argVar)
-                , symResolver);
+        assignment.expr = ASTBuilderUtil.createInvocationExpr(pos, operation.lambdaSymbol, Lists.of(operation.argVar),
+                symResolver);
     }
 
 
     /* Some Utils methods */
 
-    private List<BLangVariable> createForeachVariables(IterableContext ctx,
-                                                       BLangVariable firstOperationArg,
-                                                       BLangFunction funcNode) {
-        List<BLangVariable> foreachVariables = new ArrayList<>();
+    private List<BLangSimpleVariable> createForeachVariables(IterableContext ctx,
+                                                             BLangSimpleVariable firstOperationArg,
+                                                             BLangFunction funcNode) {
+        List<BLangSimpleVariable> foreachVariables = new ArrayList<>();
         if (firstOperationArg.type.tag != TypeTags.TUPLE) {
             foreachVariables.add(firstOperationArg);
             defineVariable(firstOperationArg, ctx.env.enclPkg.symbol.pkgID, funcNode);
@@ -804,17 +850,17 @@ public class IterableCodeDesugar {
         int index = 0;
         for (BType type : tupleTypes) {
             String varName = VAR_FOREACH_VAL + index++;
-            final BLangVariable variable = ASTBuilderUtil.createVariable(funcNode.pos, varName, type);
+            final BLangSimpleVariable variable = ASTBuilderUtil.createVariable(funcNode.pos, varName, type);
             foreachVariables.add(variable);
             defineVariable(variable, ctx.env.enclPkg.symbol.pkgID, funcNode);
         }
         return foreachVariables;
     }
 
-    private List<BLangVariable> createIteratorResultVariables(IterableContext ctx,
-                                                              BLangVariable lastOperationArg,
-                                                              BLangFunction funcNode) {
-        List<BLangVariable> resultVariables = new ArrayList<>();
+    private List<BLangSimpleVariable> createIteratorResultVariables(IterableContext ctx,
+                                                                    BLangSimpleVariable lastOperationArg,
+                                                                    BLangFunction funcNode) {
+        List<BLangSimpleVariable> resultVariables = new ArrayList<>();
         if (lastOperationArg.type.tag != TypeTags.TUPLE) {
             resultVariables.add(lastOperationArg);
             defineVariable(lastOperationArg, ctx.env.enclPkg.symbol.pkgID, funcNode);
@@ -824,11 +870,27 @@ public class IterableCodeDesugar {
         int index = 0;
         for (BType type : tupleTypes) {
             String varName = VAR_RESULT_VAL + index++;
-            final BLangVariable variable = ASTBuilderUtil.createVariable(funcNode.pos, varName, type);
+            final BLangSimpleVariable variable = ASTBuilderUtil.createVariable(funcNode.pos, varName, type);
             resultVariables.add(variable);
             defineVariable(variable, ctx.env.enclPkg.symbol.pkgID, funcNode);
         }
         return resultVariables;
+    }
+
+    private VariableDefinitionNode getForeachVariableDefinitionNode(IterableContext ctx, DiagnosticPos pos,
+                                                                    List<BLangSimpleVariable> foreachVariables) {
+        if (foreachVariables.size() == 1) {
+            // If there is only one variable, directly create a variable definition from it.
+            return ASTBuilderUtil.createVariableDef(pos, foreachVariables.get(0));
+        } else {
+            // If there are multiple variables, create a tuple variable definition.
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
+            for (BLangSimpleVariable foreachVariable : foreachVariables) {
+                tupleVariable.addVariable(foreachVariable);
+            }
+            tupleVariable.type = ctx.getFirstOperation().inputType;
+            return ASTBuilderUtil.createTupleVariableDef(pos, tupleVariable);
+        }
     }
 
     private List<BType> getTupleTypeList(BType firstOperationInputType) {
@@ -838,7 +900,7 @@ public class IterableCodeDesugar {
         return ((BTupleType) firstOperationInputType).tupleTypes;
     }
 
-    private void defineVariable(BLangVariable variable, PackageID pkgID, BLangFunction funcNode) {
+    private void defineVariable(BLangSimpleVariable variable, PackageID pkgID, BLangFunction funcNode) {
         variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), pkgID, variable.type, funcNode.symbol);
     }
 

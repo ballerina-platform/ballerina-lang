@@ -18,6 +18,8 @@
 
 package org.ballerinalang.packerina.init;
 
+import org.ballerinalang.packerina.init.models.FileType;
+import org.ballerinalang.packerina.init.models.ModuleMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
 
@@ -44,10 +46,14 @@ public class InitHandler {
      * @param projectPath The output path.
      * @param manifest    The manifest for Ballerina.toml.
      * @param srcFiles    The source files.
+     * @param moduleMdFile moduleMD file list to be created.
+     * @throws IOException If file write exception occurs.
      */
-    public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles) throws IOException {
+    public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles,
+                                  List<ModuleMdFile> moduleMdFile) throws IOException {
         createBallerinaToml(projectPath, manifest);
         createBallerinaCacheFile(projectPath);
+        createModuleMD(projectPath, moduleMdFile);
         createSrcFolder(projectPath, srcFiles);
 
         String ignoreFileContent = "target/\n";
@@ -69,6 +75,32 @@ public class InitHandler {
                 Files.createFile(tomlPath);
                 // Writing content.
                 writeContent(tomlPath, getManifestContent(manifest));
+            }
+        }
+    }
+
+    /**
+     * Create Module.md for a module.
+     *
+     * @param projectPath       The project path.
+     * @param moduleMdFileList moduleMD file list to be created.
+     * @throws IOException If file write exception occurs.
+     */
+    private static void createModuleMD(Path projectPath, List<ModuleMdFile> moduleMdFileList) throws IOException {
+        if (null != moduleMdFileList && moduleMdFileList.size() > 0) {
+            for (ModuleMdFile moduleMdFile : moduleMdFileList) {
+                Path packagePath = projectPath.resolve(moduleMdFile.getName());
+
+                if (!Files.exists(packagePath)) {
+                    Files.createDirectory(packagePath);
+                }
+
+                Path srcFilePath = packagePath.resolve("Module.md");
+
+                if (!Files.exists(srcFilePath)) {
+                    Files.createFile(srcFilePath);
+                    writeContent(srcFilePath, moduleMdFile.getContent());
+                }
             }
         }
     }
@@ -97,32 +129,47 @@ public class InitHandler {
      * @throws IOException If file write exception occurs.
      */
     private static void createSrcFolder(Path projectPath, List<SrcFile> srcFiles) throws IOException {
-        final String testDirName = "tests";
         if (null != srcFiles && srcFiles.size() > 0) {
             for (SrcFile srcFile : srcFiles) {
                 Path packagePath = projectPath.resolve(srcFile.getName());
-                Path testDirPath = packagePath.resolve(testDirName);
-                if (!Files.exists(packagePath)) {
-                    Files.createDirectory(packagePath);
-                }
-                if (!Files.exists(testDirPath)) {
-                    Files.createDirectory(testDirPath);
-                }
-
-                Path srcFilePath = packagePath.resolve(srcFile.getSrcFileType().getFileName());
-                Path testFilePath = testDirPath.resolve(srcFile.getTestFileName());
-                if (!Files.exists(srcFilePath)) {
-                    Files.createFile(srcFilePath);
-                    writeContent(srcFilePath, srcFile.getContent());
-                }
-                if (!Files.exists(testFilePath)) {
-                    Files.createFile(testFilePath);
-                    writeContent(testFilePath, srcFile.getTestContent());
+                if (srcFile.getSrcFileType().equals(FileType.MAIN_TEST) ||
+                        srcFile.getSrcFileType().equals(FileType.SERVICE_TEST)) {
+                    if (!Files.isSameFile(projectPath, packagePath)) {
+                        createSrcFile(srcFile, packagePath.resolve("tests"));
+                    }
+                } else {
+                    createSrcFile(srcFile, packagePath);
                 }
             }
         }
     }
-    
+
+    /**
+     * Create src folder and files.
+     *
+     * @param srcFile src file.
+     * @param dirPath directory path.
+     * @throws IOException If file create and write exception occurs.
+     */
+    private static void createSrcFile(SrcFile srcFile, Path dirPath) throws IOException {
+        Files.createDirectories(dirPath);
+        Path srcFilePath = dirPath.resolve(srcFile.getSrcFileType().getFileName());
+        createAndWriteToFile(srcFilePath, srcFile.getSrcFileType().getContent());
+    }
+
+    /**
+     * Create source file and write content.
+     *
+     * @param filePath source file path.
+     * @param content  content to be written.
+     * @throws IOException If exception occurs when creating and writing to file.
+     */
+    private static void createAndWriteToFile(Path filePath, String content) throws IOException {
+        if (!Files.exists(filePath)) {
+            Files.createFile(filePath);
+            writeContent(filePath, content);
+        }
+    }
     /**
      * Creates the .gitignore file.
      *

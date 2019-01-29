@@ -26,6 +26,8 @@ import java.util.List;
 
 /**
  * @since 0.94
+ *
+ * @deprecated since 0.983.0, use trap instead.
  */
 public class BLangTryCatchFinally extends BLangStatement implements TryCatchFinallyNode {
     public BLangBlockStmt tryBody;

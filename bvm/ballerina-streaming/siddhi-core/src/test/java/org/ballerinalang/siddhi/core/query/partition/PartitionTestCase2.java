@@ -33,6 +33,9 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for partition queries.
+ */
 public class PartitionTestCase2 {
     private static final Logger log = LoggerFactory.getLogger(PartitionTestCase2.class);
     private AtomicInteger count = new AtomicInteger(0);

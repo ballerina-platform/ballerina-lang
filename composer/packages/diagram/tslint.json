@@ -1,0 +1,10 @@
+{
+    "extends": [
+        "../../configs/common.tslint.json"
+    ],
+    "linterOptions": {
+        "exclude": [
+            "**/*.json"
+        ]
+    }
+}

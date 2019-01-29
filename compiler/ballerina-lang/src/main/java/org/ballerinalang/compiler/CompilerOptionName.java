@@ -30,17 +30,25 @@ public enum CompilerOptionName {
 
     OFFLINE("offline"),
 
+    SKIP_TESTS("skipTests"),
+
     COMPILER_PHASE("compilerPhase"),
 
     TRANSACTION_EXISTS("transactionBlockExists"),
 
-    BUILD_COMPILED_PACKAGE("buildCompiledPackage"),
+    BUILD_COMPILED_MODULE("buildCompiledModule"),
 
-    LIST_PKG("listPkg"),
+    GEN_NATIVE_BINARY("genNativeBinary"),
 
-    DRY_RUN("dryRun"),
+    TEST_ENABLED("testEnabled"),
 
-    TARGET_BINARY_PATH("targetBinaryPath");
+    TARGET_BINARY_PATH("targetBinaryPath"),
+
+    LOCK_ENABLED("lockEnabled"),
+
+    SIDDHI_RUNTIME_ENABLED("siddhiRuntimeEnabled"),
+
+    EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled");
 
     public final String name;
 

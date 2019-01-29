@@ -1,24 +1,31 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.Map;
 
 /**
  * The {@code BFloat} represents a float value in Ballerina.
@@ -28,6 +35,7 @@ import org.ballerinalang.model.types.BTypes;
 public final class BFloat extends BValueType implements BRefType<Double> {
 
     private double value;
+    private BType type = BTypes.typeFloat;
 
     public BFloat(double value) {
         this.value = value;
@@ -35,7 +43,21 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public long intValue() {
-        return (long) this.value;
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                         "'float' value '" + value + "' cannot be converted to 'int'");
+        }
+
+        if (!BVM.isFloatWithinIntRange(value)) {
+            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                         "out of range 'float' value '" + value + "' cannot be converted to 'int'");
+        }
+        return Math.round(value);
+    }
+
+    @Override
+    public byte byteValue() {
+        return (byte) this.value;
     }
 
     @Override
@@ -44,13 +66,13 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
-    public boolean booleanValue() {
-        return false;
+    public BigDecimal decimalValue() {
+        return new BigDecimal(value, MathContext.DECIMAL128);
     }
 
     @Override
-    public byte[] blobValue() {
-        return null;
+    public boolean booleanValue() {
+        return value != 0.0;
     }
 
     @Override
@@ -60,7 +82,12 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public BType getType() {
-        return BTypes.typeFloat;
+        return type;
+    }
+
+    @Override
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override
@@ -90,7 +117,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
-    public BValue copy() {
-        return new BFloat(value);
+    public BValue copy(Map<BValue, BValue> refs) {
+        return this;
     }
 }

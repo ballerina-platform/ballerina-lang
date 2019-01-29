@@ -18,9 +18,6 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
-
-import java.util.List;
 
 /**
  * Represents foreach node.
@@ -36,11 +33,15 @@ public interface ForeachNode extends StatementNode {
 
     void setCollection(ExpressionNode collection);
 
-    List<? extends ExpressionNode> getVariables();
-
-    void addVariable(VariableReferenceNode variableReferenceNode);
-
     BlockNode getBody();
 
     void setBody(BlockNode body);
+
+    boolean setDeclaredWithVar();
+
+    boolean isDeclaredWithVar();
+
+    VariableDefinitionNode getVariableDefinitionNode();
+
+    void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode);
 }

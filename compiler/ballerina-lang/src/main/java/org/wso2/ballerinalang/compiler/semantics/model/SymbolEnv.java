@@ -17,23 +17,28 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -46,11 +51,7 @@ public class SymbolEnv {
 
     public BLangPackage enclPkg;
 
-    public BLangConnector enclConnector;
-
-    public BLangObject enclObject;
-
-    public BLangStruct enclStruct;
+    public BLangType enclType;
 
     public BLangAnnotation enclAnnotation;
 
@@ -64,31 +65,30 @@ public class SymbolEnv {
 
     public SymbolEnv enclEnv;
 
+    public boolean logErrors;
+
     public SymbolEnv(BLangNode node, Scope scope) {
         this.scope = scope;
         this.node = node;
         this.enclPkg = null;
-        this.enclConnector = null;
-        this.enclObject = null;
-        this.enclStruct = null;
         this.enclAnnotation = null;
         this.enclService = null;
         this.enclInvokable = null;
         this.forkJoin = null;
         this.enclEnv = null;
         this.enclVarSym = null;
+        this.logErrors = true;
     }
 
     public void copyTo(SymbolEnv target) {
         target.enclPkg = this.enclPkg;
-        target.enclConnector = this.enclConnector;
-        target.enclObject = this.enclObject;
-        target.enclStruct = this.enclStruct;
+        target.enclType = this.enclType;
         target.enclAnnotation = this.enclAnnotation;
         target.enclService = this.enclService;
         target.enclInvokable = this.enclInvokable;
         target.forkJoin = this.forkJoin;
         target.enclVarSym = this.enclVarSym;
+        target.logErrors = this.logErrors;
         target.enclEnv = this;
     }
 
@@ -96,6 +96,7 @@ public class SymbolEnv {
         SymbolEnv env = new SymbolEnv(node, scope);
         env.enclPkg = node;
         env.enclEnv = builtinEnv;
+        env.logErrors = false;
         return env;
     }
 
@@ -112,27 +113,25 @@ public class SymbolEnv {
         return funcEnv;
     }
 
-    public static SymbolEnv createConnectorEnv(BLangConnector node, Scope scope, SymbolEnv env) {
-        SymbolEnv connectorEnv = createPkgLevelSymbolEnv(node, scope, env);
-        connectorEnv.enclConnector = node;
-        return connectorEnv;
+    public static SymbolEnv createTypeEnv(BLangType node, Scope scope, SymbolEnv env) {
+        SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
+        objectEnv.enclType = node;
+        return objectEnv;
     }
 
-    public static SymbolEnv createObjectEnv(BLangObject node, Scope scope, SymbolEnv env) {
-        SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
-        objectEnv.enclObject = node;
-        return objectEnv;
+    public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
+                                                   SymbolEnv env) {
+        if (objSymbol.methodScope == null) {
+            objSymbol.methodScope = new Scope(env.scope.owner);
+        }
+        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
     }
 
     public static SymbolEnv createDummyEnv(BLangFunction node, Scope scope, SymbolEnv env) {
         SymbolEnv dummyEnv = createPkgLevelSymbolEnv(node, scope, env);
         return dummyEnv;
-    }
-
-    public static SymbolEnv createStructEnv(BLangStruct node, Scope scope, SymbolEnv env) {
-        SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
-        objectEnv.enclStruct = node;
-        return objectEnv;
     }
 
     public static SymbolEnv createAnnotationEnv(BLangAnnotation node, Scope scope, SymbolEnv env) {
@@ -150,6 +149,13 @@ public class SymbolEnv {
     public static SymbolEnv createResourceActionSymbolEnv(BLangInvokableNode node, Scope scope, SymbolEnv env) {
         SymbolEnv symbolEnv = duplicate(node, scope, env);
         symbolEnv.enclInvokable = node;
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createArrowFunctionSymbolEnv(BLangArrowFunction node, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        symbolEnv.enclEnv = env;
+        symbolEnv.enclPkg = env.enclPkg;
         return symbolEnv;
     }
 
@@ -204,16 +210,36 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
+    public static SymbolEnv createExpressionEnv(BLangExpression node, SymbolEnv env) {
+        Scope scope = new Scope(env.scope.owner);
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
     public static SymbolEnv getXMLAttributeEnv(BLangXMLAttribute node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
 
-    public static SymbolEnv createTransformerEnv(BLangTransformer node, Scope scope, SymbolEnv env) {
-        SymbolEnv transformerEnv = createPkgLevelSymbolEnv(node, scope, env);
-        transformerEnv.enclInvokable = node;
-        return transformerEnv;
+    public static SymbolEnv createStreamingQueryEnv(BLangStreamingQueryStatement node, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        env.copyTo(symbolEnv);
+        symbolEnv.node = node;
+        return symbolEnv;
+    }
+
+    public SymbolEnv createClone() {
+        Scope scope = new Scope(this.scope.owner);
+        for (Map.Entry<Name, Scope.ScopeEntry> entry: this.scope.entries.entrySet()) {
+            scope.entries.put(entry.getKey(), entry.getValue());
+        }
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        this.copyTo(symbolEnv);
+        symbolEnv.enclEnv = this.enclEnv != null ? this.enclEnv.createClone() : null;
+        symbolEnv.enclPkg = this.enclPkg;
+        return symbolEnv;
     }
 
     // Private functions
@@ -223,5 +249,4 @@ public class SymbolEnv {
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
-
 }

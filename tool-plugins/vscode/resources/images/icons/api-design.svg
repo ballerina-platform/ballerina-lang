@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright 2018, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="api-design" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 16 16" style="enable-background:new 0 0 16 16;" xml:space="preserve">
+<path fill="#424242" d="M8.9266357,10.3343506h0.633728c0.4277344,0,0.7603149-0.0316162,0.9979858-0.0791626
+	c0.1583862-0.0317383,0.3327026-0.1109009,0.4910889-0.2218018s0.3009644-0.2692871,0.4118652-0.4752197
+	c0.0950928-0.1900635,0.1583862-0.4434814,0.1583862-0.7287598c0-0.380127-0.0950317-0.6970215-0.2850952-0.9345703
+	c-0.1742554-0.2376709-0.4119263-0.3959961-0.6812134-0.4593506C10.479187,7.3879395,10.098999,7.3562012,9.5128784,7.3562012
+	H7.9603882v4.7682495h0.9662476V10.3343506z M8.9266357,8.1641235h0.4594727c0.3484497,0,0.5861206,0.0158691,0.6970215,0.0317383
+	c0.1583862,0.0316772,0.2851562,0.0950317,0.3960571,0.2218018c0.0950317,0.1107788,0.1425171,0.253418,0.1425171,0.4276123
+	c0,0.1426392-0.0316162,0.25354-0.1109009,0.3644409c-0.0633545,0.1107788-0.1742554,0.1900635-0.3009033,0.2375488
+	c-0.12677,0.0475464-0.380249,0.0791626-0.760437,0.0791626H8.9266357V8.1641235z M13.3305664,12.1244507H12.380127V7.3562012
+	h0.9504395V12.1244507z M3.6990356,12.1244507l0.3960571-1.0772095h1.9009399l0.4119263,1.0772095h1.0454712L5.5525513,7.3562012
+	h-1.013855l-1.8692627,4.7682495H3.6990356z M5.0297241,8.4650879l0.6494751,1.774231H4.380188L5.0297241,8.4650879z M1,1v3.2631836
+	v1V15h14V5.2631836v-1V1H1z M14,14H2V5.2631836h12V14z M2,4.2631836V2h12v2.2631836H2z"/>
+</svg>

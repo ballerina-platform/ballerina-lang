@@ -18,12 +18,9 @@
 
 package org.ballerinalang.logging.formatters;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import com.google.gson.Gson;
+
 import java.util.logging.Formatter;
-import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 /**
@@ -33,91 +30,8 @@ import java.util.logging.LogRecord;
  */
 public class JsonLogFormatter extends Formatter {
 
-    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-
     @Override
     public String format(LogRecord record) {
-        StringBuffer strbuff = new StringBuffer();
-        long millis = record.getMillis();
-        String date = getISO8601Date(new Date(millis), formatter);
-        long seq = record.getSequenceNumber();
-        String logger = record.getLoggerName();
-        Level level = record.getLevel();
-        String sourceClass = record.getSourceClassName();
-        String sourceMethod = record.getSourceMethodName();
-        int threadNum = record.getThreadID();
-        String message = record.getMessage();
-        Throwable sourceThrown = record.getThrown();
-
-        strbuff.append("{ \"record\": {");
-
-        writeJSON(strbuff, "logDate", date);
-
-        strbuff.append(",");
-        writeJSON(strbuff, "millis", String.valueOf(millis));
-
-        strbuff.append(",");
-        writeJSON(strbuff, "sequence", String.valueOf(seq));
-
-        if (logger != null) {
-            strbuff.append(",");
-            writeJSON(strbuff, "logger", logger);
-        }
-
-        strbuff.append(",");
-        writeJSON(strbuff, "level", level.getName());
-
-        if (sourceClass != null) {
-            strbuff.append(",");
-            writeJSON(strbuff, "sourceClass", sourceClass);
-        }
-
-        if (sourceMethod != null) {
-            strbuff.append(",");
-            writeJSON(strbuff, "sourceMethod", sourceMethod);
-        }
-
-        strbuff.append(",");
-        writeJSON(strbuff, "thread", String.valueOf(threadNum));
-
-        if (message != null) {
-            message = message.replaceAll("\\n", "\\\\n");
-            message = message.replaceAll("\"", "\\\\\"");
-            strbuff.append(",");
-            writeJSON(strbuff, "message", message);
-        }
-
-        if (sourceThrown != null) {
-            strbuff.append(",");
-            strbuff.append("\"exception\": {");
-            writeJSON(strbuff, "message", sourceThrown.getMessage());
-            StackTraceElement[] frames = sourceThrown.getStackTrace();
-            strbuff.append(",");
-            strbuff.append("\"frames\": [");
-
-            for (int i = 0; i < frames.length; i++) {
-                strbuff.append(
-                        "{ \"sourceClass\": \"" + frames[i].getClassName() + "\", \"sourceMethod\": \"" + frames[i]
-                                .getMethodName() + "\"," + " \"line\": \"" + frames[i].getLineNumber() + "\" }");
-                if (i < frames.length - 1) {
-                    strbuff.append(",");
-                }
-            }
-            strbuff.append("]");
-            strbuff.append("}");
-        }
-        strbuff.append("} }\n");
-
-        return strbuff.toString();
-    }
-
-    private void writeJSON(StringBuffer stringBuffer, String name, String value) {
-        stringBuffer.append("\"" + name + "\": " + "\"" + value + "\"");
-    }
-
-    private String getISO8601Date(Date date, DateFormat formatter) {
-        TimeZone timeZone = TimeZone.getDefault();
-        formatter.setTimeZone(timeZone);
-        return formatter.format(date);
+        return new Gson().toJson(record) + System.getProperty("line.separator");
     }
 }

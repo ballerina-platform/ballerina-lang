@@ -1,15 +1,15 @@
 import ballerina/http;
 
-service<http:Service> hello {
-    sayHello (endpoint client, http:Request request) {
+service serviceName on new http:Listener(8080) {
+    resource function newResource(http:Caller caller, http:Request request) {
         
     }
 }
 
-type testRecord1 {
+type testRecord1 record {
     int test1A = 12;
 };
 
-type testRecord2 {
+type testRecord2 record {
     int test2A = 12;
 };

@@ -1,0 +1,2 @@
+//The `ballerina/log` module contains the Ballerina log handling functions including 'DEBUG', 'ERROR', 'INFO', 'TRACE',
+//'WARN', 'OFF', and 'ALL'.

@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.langserver.references;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 /**
  * DTO to hold the data for the references tests.
  */
@@ -25,10 +29,11 @@ public class ReferencesTestDTO {
     private String ballerinaFilePath;
     private String ballerinaFileContent;
 
-    public ReferencesTestDTO(String expectedFileName, String ballerinaFilePath, String ballerinaFileContent) {
+    public ReferencesTestDTO(String expectedFileName, Path filePath) throws IOException {
+        byte[] encodedContent = Files.readAllBytes(filePath);
         this.expectedFileName = expectedFileName;
-        this.ballerinaFilePath = ballerinaFilePath;
-        this.ballerinaFileContent = ballerinaFileContent;
+        this.ballerinaFilePath = filePath.toString();
+        this.ballerinaFileContent = new String(encodedContent);
     }
 
     public String getExpectedFileName() {

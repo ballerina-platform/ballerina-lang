@@ -34,6 +34,9 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+/**
+ * Testcase for Streaming query statistics.
+ */
 public class StatisticsTestCase {
     private static final Logger log = LoggerFactory.getLogger(StatisticsTestCase.class);
     private int count;
@@ -115,7 +118,7 @@ public class StatisticsTestCase {
     }
 
     /**
-     * To test stats disabling
+     * To test stats disabling.
      */
     @Test
     public void statisticsTest2() throws InterruptedException {
@@ -185,7 +188,7 @@ public class StatisticsTestCase {
     }
 
     /**
-     * To test stats dynamic disabling
+     * To test stats dynamic disabling.
      */
     @Test
     public void statisticsTest3() throws InterruptedException {
@@ -270,7 +273,7 @@ public class StatisticsTestCase {
     }
 
     /**
-     * To test stats dynamic enabling
+     * To test stats dynamic enabling.
      */
     @Test
     public void statisticsTest4() throws InterruptedException {
@@ -354,7 +357,7 @@ public class StatisticsTestCase {
     }
 
     /**
-     * To not enable stats if no Stats manager enabled
+     * To not enable stats if no Stats manager enabled.
      */
     @Test
     public void statisticsTest5() throws InterruptedException {

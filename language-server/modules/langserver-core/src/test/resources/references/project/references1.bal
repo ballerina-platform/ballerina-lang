@@ -1,9 +1,9 @@
 import pkg1;
 
-@readonly string READ_ONLY_VAR;
-@final string FINAL_VAR = "Final variable";
+const string constantVariable = "Read Only Variable";
+final string finalVariable = "Final variable";
 
-type Info {
+type Info record {
     int id;
     string name;
 };

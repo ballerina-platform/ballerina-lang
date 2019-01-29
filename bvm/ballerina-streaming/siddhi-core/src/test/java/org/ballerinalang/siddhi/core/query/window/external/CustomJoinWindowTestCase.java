@@ -35,6 +35,9 @@ import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
 
+/**
+ * Testcase for defined window joins.
+ */
 public class CustomJoinWindowTestCase {
     private static final Logger log = LoggerFactory.getLogger(CustomJoinWindowTestCase.class);
     private int inEventCount;

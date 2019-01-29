@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.util.metrics.spi;
 
-import org.ballerinalang.util.metrics.CallbackGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
-import org.ballerinalang.util.metrics.Summary;
-import org.ballerinalang.util.metrics.Timer;
+import org.ballerinalang.util.metrics.PolledGauge;
+import org.ballerinalang.util.metrics.StatisticConfig;
 
 import java.util.function.ToDoubleFunction;
 
@@ -43,16 +42,33 @@ public interface MetricProvider {
     /**
      * This will be called when initializing the default {@link MetricRegistry}.
      */
-    void initialize();
+    void init();
 
+    /**
+     * This returns the new instance of the Counter metric.
+     *
+     * @param metricId ID of the metric that needs to be returned.
+     * @return Counter Instance created.
+     */
     Counter newCounter(MetricId metricId);
 
-    Gauge newGauge(MetricId metricId);
+    /**
+     * This returns the new instance of the Gauge metric.
+     *
+     * @param metricId ID of the metric that needs to be returned.
+     * @param statisticConfigs array of {@link StatisticConfig}s which configures the distribution statistics.
+     * @return Gauge Instance created.
+     */
+    Gauge newGauge(MetricId metricId, StatisticConfig... statisticConfigs);
 
-    <T> CallbackGauge newCallbackGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
-
-    Summary newSummary(MetricId metricId);
-
-    Timer newTimer(MetricId metricId);
+    /**
+     * This returns the new instance of the Polled Gauge metric.
+     * @param metricId ID of the metric that needs to be returned.
+     * @param obj State object used to compute a value.
+     * @param toDoubleFunction Function that produces an instantaneous gauge value from the state object.
+     * @param <T> The type of the state object from which the gauge value is extracted.
+     * @return PolledGauge Instance created.
+     */
+    <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
 
 }

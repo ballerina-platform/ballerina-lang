@@ -280,18 +280,6 @@ public class TomlBaseListener implements TomlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMlBasicString(TomlParser.MlBasicStringContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMlBasicString(TomlParser.MlBasicStringContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterMlBasicStringDelim(TomlParser.MlBasicStringDelimContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -316,13 +304,13 @@ public class TomlBaseListener implements TomlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMlBasicChar(TomlParser.MlBasicCharContext ctx) { }
+	@Override public void enterMlBasicString(TomlParser.MlBasicStringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMlBasicChar(TomlParser.MlBasicCharContext ctx) { }
+	@Override public void exitMlBasicString(TomlParser.MlBasicStringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -395,42 +383,6 @@ public class TomlBaseListener implements TomlListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMinus(TomlParser.MinusContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterHexPrefix(TomlParser.HexPrefixContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitHexPrefix(TomlParser.HexPrefixContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterOctPrefix(TomlParser.OctPrefixContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitOctPrefix(TomlParser.OctPrefixContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterBinPrefix(TomlParser.BinPrefixContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBinPrefix(TomlParser.BinPrefixContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -995,6 +947,42 @@ public class TomlBaseListener implements TomlListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStdTableClose(TomlParser.StdTableCloseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayTable(TomlParser.ArrayTableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayTable(TomlParser.ArrayTableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayTableOpen(TomlParser.ArrayTableOpenContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayTableOpen(TomlParser.ArrayTableOpenContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayTableClose(TomlParser.ArrayTableCloseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayTableClose(TomlParser.ArrayTableCloseContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

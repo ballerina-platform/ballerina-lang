@@ -18,7 +18,7 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BError;
 
 /**
  * {@link CallableUnitCallbackObserver} wraps {@link CallableUnitCallback}
@@ -43,7 +43,7 @@ public class CallableUnitCallbackObserver extends CallbackObserver implements Ca
     }
 
     @Override
-    public void notifyFailure(BStruct error) {
+    public void notifyFailure(BError error) {
         super.notifyFailure(error);
         this.callback.notifyFailure(error);
     }

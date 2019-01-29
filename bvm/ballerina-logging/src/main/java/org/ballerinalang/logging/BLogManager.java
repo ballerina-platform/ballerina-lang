@@ -28,6 +28,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,6 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG_LEVEL;
+import static org.ballerinalang.logging.util.Constants.DEFAULT_LOG_FILE_HANDLER_PATTERN;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_CONSOLE;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_FILE;
@@ -51,6 +54,8 @@ import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_FILE;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_HOST;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_PORT;
 import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
+import static org.ballerinalang.logging.util.Constants.TEMP_DIR;
+import static org.ballerinalang.logging.util.Constants.USER_DIR;
 
 /**
  * Java util logging manager for ballerina which overrides the readConfiguration method to replace placeholders
@@ -62,10 +67,7 @@ public class BLogManager extends LogManager {
 
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
-
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
-    private static final String LOG_CONFIG_FILE = "logging.properties";
-    private static final String SP_LOG_CONFIG_FILE = "java.util.logging.config.file";
 
     private Map<String, BLogLevel> loggerLevels = new HashMap<>();
     private BLogLevel ballerinaUserLogLevel = BLogLevel.INFO; // default to INFO
@@ -74,17 +76,16 @@ public class BLogManager extends LogManager {
 
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
-        Properties properties = getDefaultLogConfiguration();
-
-        // override the default configs if the user has provided a config file
-        if (System.getProperty(SP_LOG_CONFIG_FILE) != null) {
-            properties.load(ins);
-        }
+        Properties properties = new Properties();
+        properties.load(ins);
 
         properties.forEach((k, v) -> {
             String val = substituteVariables((String) v);
             properties.setProperty((String) k, val);
         });
+
+        String breLogPath = initBRELogHandler(properties.getProperty(DEFAULT_LOG_FILE_HANDLER_PATTERN));
+        properties.setProperty(DEFAULT_LOG_FILE_HANDLER_PATTERN, breLogPath);
 
         super.readConfiguration(propertiesToInputStream(properties));
     }
@@ -256,10 +257,15 @@ public class BLogManager extends LogManager {
         }
     }
 
-    private Properties getDefaultLogConfiguration() throws IOException {
-        Properties properties = new Properties();
-        InputStream in = getClass().getClassLoader().getResourceAsStream(LOG_CONFIG_FILE);
-        properties.load(in);
-        return properties;
+    private String initBRELogHandler(String fileName) throws IOException {
+        if (fileName == null || fileName.trim().isEmpty()) {
+            fileName = "ballerina-internal.log";
+        }
+
+        if (Files.isWritable(Paths.get(USER_DIR))) {
+            return Paths.get(USER_DIR, fileName).toString();
+        } else {
+            return Paths.get(TEMP_DIR, fileName).toString();
+        }
     }
 }

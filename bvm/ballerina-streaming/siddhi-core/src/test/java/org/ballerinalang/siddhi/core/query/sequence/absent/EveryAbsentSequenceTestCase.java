@@ -28,6 +28,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
+ * Testcase for absent sequence queries with every keyword.
  * Test the patterns:
  * - 'A, every(not B for 1 sec)'
  * - 'every (not A for 1 sec), B'

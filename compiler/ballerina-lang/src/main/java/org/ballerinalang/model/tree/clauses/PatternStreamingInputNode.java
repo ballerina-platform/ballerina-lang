@@ -19,7 +19,6 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
 
@@ -79,7 +78,12 @@ public interface PatternStreamingInputNode extends Node {
 
     boolean isCommaSeparated();
 
-    void setTimeExpr(ExpressionNode timeExpr);
+    String getTimeScale();
 
-    ExpressionNode getTimeExpr();
+    void setTimeScale(String timeScale);
+
+    String getTimeDurationValue();
+
+    void setTimeDurationValue(String timeDurationValue);
+
 }

@@ -17,20 +17,31 @@
  */
 package org.ballerinalang.packerina;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_PACKAGE;
+import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.DRY_RUN;
-import static org.ballerinalang.compiler.CompilerOptionName.LIST_PKG;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;;
 
 /**
  * This class provides util methods for building Ballerina programs and packages.
@@ -38,20 +49,100 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
  * @since 0.95.2
  */
 public class BuilderUtils {
+    private static PrintStream outStream = System.out;
 
-    public static void compileAndWrite(Path sourceRootPath, Path packagePath, Path targetPath,
-                                       boolean buildCompiledPkg, boolean offline, boolean listPkg, boolean dryRun) {
+    public static void compileWithTestsAndWrite(Path sourceRootPath,
+                                                String packagePath,
+                                                String targetPath,
+                                                boolean buildCompiledPkg,
+                                                boolean offline,
+                                                boolean lockEnabled,
+                                                boolean skiptests,
+                                                boolean enableExperimentalFeatures) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(BUILD_COMPILED_MODULE, Boolean.toString(buildCompiledPkg));
+        options.put(OFFLINE, Boolean.toString(offline));
+        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+        options.put(SKIP_TESTS, Boolean.toString(skiptests));
+        options.put(TEST_ENABLED, "true");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
+
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage bLangPackage = compiler.build(packagePath);
+
+        if (skiptests) {
+            outStream.println();
+            compiler.write(bLangPackage, targetPath);
+        } else {
+            runTests(compiler, sourceRootPath, Collections.singletonList(bLangPackage));
+            compiler.write(bLangPackage, targetPath);
+        }
+    }
+
+    public static void compileWithTestsAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled,
+                                                boolean skiptests, boolean enableExperimentalFeatures) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(offline));
-        options.put(LIST_PKG, Boolean.toString(listPkg));
-        options.put(DRY_RUN, Boolean.toString(dryRun));
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-        options.put(BUILD_COMPILED_PACKAGE, Boolean.toString(buildCompiledPkg));
+        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+        options.put(SKIP_TESTS, Boolean.toString(skiptests));
+        options.put(TEST_ENABLED, "true");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.build();
+        List<BLangPackage> packages = compiler.build();
+
+        if (skiptests) {
+            if (packages.size() == 0) {
+                throw new BLangCompilerException("no ballerina source files found to compile");
+            }
+            outStream.println();
+            compiler.write(packages);
+        } else {
+            if (packages.size() == 0) {
+                throw new BLangCompilerException("no ballerina source files found to compile");
+            }
+            runTests(compiler, sourceRootPath, packages);
+            compiler.write(packages);
+        }
+    }
+
+    /**
+     * Run tests in the build.
+     *
+     * @param compiler       compiler instance
+     * @param sourceRootPath source root path
+     * @param packageList    list of compiled packages
+     */
+    private static void runTests(Compiler compiler, Path sourceRootPath, List<BLangPackage> packageList) {
+        Map<BLangPackage, CompiledBinaryFile.ProgramFile> programFileMap = new HashMap<>();
+        // Only tests in packages are executed so default packages i.e. single bal files which has the package name
+        // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
+        // in packages.
+        packageList.stream().filter(bLangPackage -> !bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE))
+                   .forEach(bLangPackage -> {
+                       CompiledBinaryFile.ProgramFile programFile;
+                       if (bLangPackage.containsTestablePkg()) {
+                           programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
+                       } else {
+                           // In this package there are no tests to be executed. But we need to say to the users that
+                           // there are no tests found in the package to be executed as :
+                           // Running tests
+                           //     <org-name>/<package-name>:<version>
+                           //         No tests found
+                           programFile = compiler.getExecutableProgram(bLangPackage);
+                       }
+
+                       programFileMap.put(bLangPackage, programFile);
+                   });
+
+        if (programFileMap.size() > 0) {
+            TesterinaUtils.executeTests(sourceRootPath, programFileMap);
+        }
     }
 }

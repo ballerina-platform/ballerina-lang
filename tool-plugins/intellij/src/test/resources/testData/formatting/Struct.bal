@@ -1,3 +1,0 @@
-        struct      test            {
-                string       test       ;
-        }

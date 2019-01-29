@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 
 import java.util.List;
 
@@ -29,13 +29,13 @@ import java.util.List;
 public interface MatchExpressionNode extends ExpressionNode {
 
     /**
-     * {@code MatchExpressionPatternNode} represents a pattern inside a type switch expression
+     * {@code MatchExpressionPatternNode} represents a pattern inside a type switch expression.
      * 
      * @since 0.970.0
      */
     interface MatchExpressionPatternNode {
 
-        VariableNode getVariableNode();
+        SimpleVariableNode getVariableNode();
 
         ExpressionNode getStatement();
     }

@@ -20,6 +20,8 @@ package org.ballerinalang.util.metrics.noop;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.Snapshot;
+import org.ballerinalang.util.metrics.StatisticConfig;
 
 /**
  * Implementation of No-Op {@link Gauge}.
@@ -29,6 +31,7 @@ public class NoOpGauge extends AbstractMetric implements Gauge {
     public NoOpGauge(MetricId id) {
         super(id);
     }
+
 
     @Override
     public void increment(double amount) {
@@ -41,12 +44,32 @@ public class NoOpGauge extends AbstractMetric implements Gauge {
     }
 
     @Override
-    public void set(double value) {
+    public void setValue(double value) {
         // Do nothing
     }
 
     @Override
-    public double get() {
+    public double getValue() {
         return 0;
+    }
+
+    @Override
+    public long getCount() {
+        return 0;
+    }
+
+    @Override
+    public double getSum() {
+        return 0;
+    }
+
+    @Override
+    public Snapshot[] getSnapshots() {
+        return new Snapshot[0];
+    }
+
+    @Override
+    public StatisticConfig[] getStatisticsConfig() {
+        return new StatisticConfig[0];
     }
 }

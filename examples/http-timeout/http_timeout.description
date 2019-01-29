@@ -1,0 +1,1 @@
+// The Timeout is used to gracefully handle network timeouts, which occur when using the HTTP Client.

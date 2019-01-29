@@ -17,8 +17,8 @@
 */
 package org.wso2.ballerinalang.programfile;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -28,19 +28,14 @@ import java.util.Objects;
  */
 public class ServiceInfo extends StructureTypeInfo {
 
-    public int endpointNameCPIndex;
+    public int serviceTypeCPIndex;
 
-    public Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
+    public List<Integer> resourcesCPIndex = new ArrayList<>();
 
-    public FunctionInfo initFuncInfo;
-
-    public ServiceInfo(int pkgPathCPIndex,
-                       int nameCPIndex,
-                       int flags,
-                       int endpointNameCPIndex) {
+    public ServiceInfo(int pkgPathCPIndex, int nameCPIndex, int flags, int serviceTypeCPIndex) {
 
         super(pkgPathCPIndex, nameCPIndex, flags);
-        this.endpointNameCPIndex = endpointNameCPIndex;
+        this.serviceTypeCPIndex = serviceTypeCPIndex;
     }
 
     @Override

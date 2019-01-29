@@ -1,0 +1,17 @@
+# To invoke the Failover Service, use following curl command.
+$ curl -v http://localhost:9090/fo
+# The `FailoverClient` endpoint is configured with three target services.The first two targets are configured to mimic
+# failure backends. If one target service goes down, the failover client automatically calls the other targets.
+# Once you invoke the Failover demo service, the Failover client fails over the request to the configured
+# target endpoints. In this example, the third target is configured to give a successful response and the following
+# response is given when the failover demo service is invoked.
+# Server response:
+Mock Resource is Invoked.
+# Invoke the Failover Service again using the curl command.
+$ curl -v http://localhost:9090/fo
+# At this point, Ballerina failover client already knows that leading endpoints (in this case the first two targets)
+# failed in the last invocation and it got the successful response from the third target. So the failover client
+# resumes the failover from the last successful target. In this case it is the third target and the client will get
+# the immediate response for subsequent calls.
+# Server response:
+Mock Resource is Invoked.

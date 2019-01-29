@@ -16,7 +16,7 @@
 
 package org.ballerinalang.code.generator.model;
 
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -31,19 +31,26 @@ public class ParameterContextHolder {
     private String example;
 
     /**
-     * Build a readable parameter model from a Ballerina <code>VariableNode</code>.
+     * Build a readable parameter model from a Ballerina <code>SimpleVariableNode</code>.
      *
-     * @param parameter {@code VariableNode} with parameter definition
+     * @param parameter {@code SimpleVariableNode} with parameter definition
      * @return built Parameter context model
      */
-    public static ParameterContextHolder buildContext(VariableNode parameter) {
+    public static ParameterContextHolder buildContext(SimpleVariableNode parameter) {
         ParameterContextHolder context = new ParameterContextHolder();
         TypeNode type = parameter.getTypeNode();
 
         if (type instanceof BLangValueType) {
             context.type = ((BLangValueType) parameter.getTypeNode()).getTypeKind().typeName();
         } else if (type instanceof BLangUserDefinedType) {
-            context.type = ((BLangUserDefinedType) parameter.getTypeNode()).getTypeName().getValue();
+            String userDefType = "";
+            BLangUserDefinedType bLangUserDefinedType = (BLangUserDefinedType) parameter.getTypeNode();
+            if (bLangUserDefinedType.getPackageAlias() != null
+                    && bLangUserDefinedType.getPackageAlias().getValue() != null) {
+                userDefType += bLangUserDefinedType.getPackageAlias().getValue() + ":";
+            }
+            userDefType += bLangUserDefinedType.getTypeName().getValue();
+            context.type = userDefType;
         }
 
         // Ignore Connection and InRequest parameters
@@ -67,11 +74,7 @@ public class ParameterContextHolder {
      */
     private boolean isIgnoredType(String type) {
         // type of endpoint is returned as null
-        if (type == null  || "Request".equals(type)) {
-            return true;
-        }
-
-        return false;
+        return type == null || "Request".equals(type);
     }
 
     /**
@@ -101,7 +104,7 @@ public class ParameterContextHolder {
                 defaultValue = '\"' + name + '\"';
                 break;
             default:
-                defaultValue = "{}";
+                defaultValue = "new " + type + "()";
                 break;
         }
 

@@ -36,10 +36,18 @@ public class TableResourceManager {
     private Connection connection;
     private Statement statement;
     private Set<ResultSet> resultSets;
+    // Connection is closable if the table associated with the connection was retrieved through a select operation,
+    // because for select operations a separate db connection is obtained which independent of the connection used for
+    // rest of the operations in case of a transaction.
+    // If the table was retrieved through a call operation the connection will not be closable as the connection is
+    // shared with all the operations inside the transaction except for the select operations. In this case, connection
+    // closure happens through the {@code TransactionResourceManager} at the end of the transaction.
+    private boolean connectionClosable;
 
-    public TableResourceManager(Connection conn, Statement stmt) {
+    public TableResourceManager(Connection conn, Statement stmt, boolean connectionClosable) {
         this.connection = conn;
         this.statement = stmt;
+        this.connectionClosable = connectionClosable;
         this.resultSets = new HashSet<>(0);
     }
 
@@ -62,7 +70,7 @@ public class TableResourceManager {
     /**
      * Add a {@code {@link ResultSet}} to the Set of result sets. This {@code {@link ResultSet}} should be a one
      * associated with the connection. If an unrelated {@code {@link ResultSet}} is added it may result in undesirable
-     * consequences as when calling {@link #gracefullyReleaseResources(boolean)} releasing resources is based on
+     * consequences as when calling {@link #gracefullyReleaseResources()} releasing resources is based on
      * whether all the result sets are closed.
      *
      * @param rs the result set to be added
@@ -73,7 +81,7 @@ public class TableResourceManager {
 
     /**
      * Add a list of {@code {@link ResultSet}} to the Set of result sets. If an unrelated {@code {@link ResultSet}}
-     * is added it may result in undesirable consequences as when calling {@link #gracefullyReleaseResources(boolean)}
+     * is added it may result in undesirable consequences as when calling {@link #gracefullyReleaseResources()}
      * releasing resources is based on whether all the result sets are closed.
      *
      * @param resultSets the list of result sets to be added
@@ -86,10 +94,9 @@ public class TableResourceManager {
      * Close the statement only if all ResultSets are closed, and close the connection only if all ResultSets are
      * closed and a transaction is not in progress.
      *
-     * @param isInTransaction Whether a transaction is in progress
      * @throws SQLException if an issue occur while closing the connection or statement
      */
-    public void gracefullyReleaseResources(boolean isInTransaction) throws SQLException {
+    public void gracefullyReleaseResources() throws SQLException {
         boolean allResultSetsClosed = true;
         for (ResultSet rs : resultSets) {
             if (rs != null && !rs.isClosed()) {
@@ -101,7 +108,7 @@ public class TableResourceManager {
             if (statement != null && !statement.isClosed()) {
                 statement.close();
             }
-            if (!isInTransaction && connection != null && !connection.isClosed()) {
+            if (connectionClosable && connection != null && !connection.isClosed()) {
                 connection.close();
             }
         }

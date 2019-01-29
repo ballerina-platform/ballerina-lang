@@ -18,11 +18,12 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,13 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
 
     private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
     private String siddhiQuery;
-    public List<BLangVariable> params;
+    private SymbolEnv env;
+    private boolean isSiddhiRuntimeEnabled = false;
+    public List<BLangSimpleVariable> params;
+
+    public BLangForever(boolean isSiddhiRuntimeEnabled) {
+        this.isSiddhiRuntimeEnabled = isSiddhiRuntimeEnabled;
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -57,13 +64,13 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
     }
 
     @Override
-    public List<BLangVariable> getParameters() {
+    public List<BLangSimpleVariable> getParameters() {
         return params;
     }
 
     @Override
-    public void addParameter(VariableNode param) {
-        this.getParameters().add((BLangVariable) param);
+    public void addParameter(SimpleVariableNode param) {
+        this.getParameters().add((BLangSimpleVariable) param);
     }
 
     public String getSiddhiQuery() {
@@ -75,4 +82,15 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
         this.siddhiQuery = siddhiQuery;
     }
 
+    public SymbolEnv getEnv() {
+        return env;
+    }
+
+    public void setEnv(SymbolEnv env) {
+        this.env = env;
+    }
+
+    public boolean isSiddhiRuntimeEnabled() {
+        return isSiddhiRuntimeEnabled;
+    }
 }

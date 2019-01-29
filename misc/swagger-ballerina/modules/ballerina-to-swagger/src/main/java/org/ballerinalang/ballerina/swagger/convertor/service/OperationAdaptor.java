@@ -44,7 +44,11 @@ public class OperationAdaptor {
     }
 
     public void setPath(String path) {
-        this.path = path;
+        if (!path.startsWith("/")) {
+            this.path = "/" + path;
+        } else {
+            this.path = path;
+        }
     }
 
     public String getHttpOperation() {

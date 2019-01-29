@@ -27,7 +27,7 @@ public enum RuntimeErrors {
     CASTING_ANY_TYPE_WITHOUT_INIT("casting.any.without.init", "RUNTIME_0002"),
     INDEX_NUMBER_TOO_LARGE("index.number.too.large", "RUNTIME_0003"),
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range", "RUNTIME_0004"),
-    INCOMPATIBLE_TYPE_FOR_CASTING("incompatible.types", "RUNTIME_0005"),
+    INCOMPATIBLE_TYPE("incompatible.types", "RUNTIME_0005"),
     CASTING_WITHOUT_REQUIRED_FIELD("casting.without.required.field", "RUNTIME_0006"),
     CASTING_FAILED_WITH_CAUSE("casting.failed.with.cause", "RUNTIME_0007"),
     MISSING_FIELD_IN_JSON("missing.field.in.json", "RUNTIME_0008"),
@@ -41,7 +41,7 @@ public enum RuntimeErrors {
     SERVER_CONNECTOR_ALREADY_EXIST("server.connector.already.exist", "RUNTIME_0016"),
     INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "RUNTIME_0017"),
     CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT("connector.input.types.are.not.equivalent", "RUNTIME_0018"),
-    UNKNOWN_FIELD_JSON_STURCT("unknown.field.in.json.struct", "RUNTIME_0019"),
+    UNKNOWN_FIELD_JSON_STRUCT("unknown.field.in.json.struct", "RUNTIME_0019"),
     INVALID_RETRY_COUNT("invalid.retry.count", "RUNTIME_0020"),
     NOT_ENOUGH_FORMAT_ARGUMENTS("not.enough.format.arguments", "RUNTIME_0021"),
     INVALID_FORMAT_SPECIFIER("invalid.format.specifier", "RUNTIME_0022"),
@@ -49,8 +49,18 @@ public enum RuntimeErrors {
     INVALID_VALUE_LOAD("invalid.value.load", "RUNTIME_0024"),
     INVALID_TASK_CONFIG("invalid.task.config", "RUNTIME_0025"),
     TASK_ALREADY_RUNNING("task.already.running", "RUNTIME_0026"),
-    TASK_NOT_RUNNING("task.not.running", "RUNTIME_0027");
-    
+    TASK_NOT_RUNNING("task.not.running", "RUNTIME_0027"),
+    ILLEGAL_FORMAT_CONVERSION("illegal.format.conversion", "RUNTIME_0028"),
+    INCOMPATIBLE_STAMP_OPERATION("incompatible.stamp.operation", "RUNTIME_0029"),
+    CANNOT_STAMP_NULL("cannot.stamp.null", "RUNTIME_0030"),
+    UNSUPPORTED_CLONE_OPERATION("unsupported.clone.operation", "RUNTIME_0031"),
+    INVALID_RECORD_FIELD_ACCESS("invalid.record.field.access", "RUNTIME_0032"),
+    INVALID_RECORD_FIELD_ADDITION("invalid.record.field.addition", "RUNTIME_0033"),
+    INVALID_OBJECT_FIELD_ADDITION("invalid.object.field.addition", "RUNTIME_0034"),
+    TYPE_ASSERTION_ERROR("type.assertion.error", "RUNTIME_0035"),
+    INVALID_DYNAMICALLY_NESTED_TRANSACTION("dynamically.nested.transactions.are.not.allowed", "RUNTIME_0036"),
+    CYCLIC_VALUE_REFERENCE("cyclic.value.reference", "RUNTIME_0037");
+
     private String errorMsgKey;
     private String errorCode;
 

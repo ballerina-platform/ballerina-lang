@@ -6,13 +6,13 @@ Now that you have [written a main program](../tutorials/main-program.md) and [wr
 
 This tutorial consists of the following main sections.
 
-- [About connectors and actions](about-connectors-and-actions)
+- [About connectors and remote functions](about-connectors-and-remote-functions)
 - [About custom client connectors](about-custom-client-connectors)
 - [Create a custom client connector](create-a-custom-client-connector)
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). Use the Quick Tour to also get an understanding of the Ballerina Composer and how it works. It is also recommended to try to [write a main program](../tutorials/main-program.md) and [write a passthrough service](../tutorials/passthrough-service.md) before trying this out. This helps you to get familiar with Ballerina and how it can help achieve integration scenarios.
 
-## About connectors and actions
+## About connectors and remote functions
 
 When integrating and making a robust application, a need arises to make messaging channels in between various interfaces and weave a structure to encompass them together. When interacting with commonly available interfaces, rather than creating the structure of the messaging channel each and every time through code, it is worth keeping a programmed unit that can be reused. This component interacts with the given interface with ease and less complexity. In a way, such a unit can be described as a facade as it will mask any complexities that exist when interacting with the real interface and can be a facade to any party connecting to the particular interface.
 
@@ -24,7 +24,7 @@ Graphically, connectors are modeled as a separate lifeline to represent their in
 
 Connectors may need to have usage specific parameters and, hence, must be instantiated prior to use. For example, an HTTP connector needs at least the URL to connect to.
 
-A connector comes with a set of actions that represent the interactions that one can have with the remote service. Actions can be one directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the action has completed its remote interaction.
+A connector comes with a set of remote functions that represent the interactions that one can have with the remote service. Remote functions can be one directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the remote function has completed its remote interaction.
 
 A connector contains the following syntax in Ballerina.
 
@@ -36,23 +36,23 @@ A connector contains the following syntax in Ballerina.
 }
 ```
 
-Any variables declared at the connector level is visible to all actions. The lifetime of the connector also defines the lifetime of the variables and they are local to each connector instance.
+Any variables declared at the connector level is visible to all remote functions. The lifetime of the connector also defines the lifetime of the variables and they are local to each connector instance.
 
-The structure of an action definition is as follows.
+The structure of a remote function definition is as follows.
 
 ```
 [ActionAnnotations]
-action actionName ([Input parameters]) ([Output parameters]){
+remote function remoteFunctionName ([Input parameters]) ([Output parameters]){
 }
 ```
 
-The execution semantics of an action are the same as that of a function: it runs using the caller's thread and the caller blocks until the action completes execution.
+The execution semantics of a remote function are the same as that of a function: it runs using the caller's thread and the caller blocks until the remote function completes execution.
 
 ## About custom client connectors
 
 When creating a custom client connector, you need to be aware of the following.
 
-- The capabilities you need to expose through the connector and logical separation. These is represented by separate actions when the connector is being created.
+- The capabilities you need to expose through the connector and logical separation. These is represented by separate remote functions when the connector is being created.
 - Supportive extensions needed. These can be achieved by Ballerina itself or by integrating to an existing entity through Ballerina
 - Packaging the connector 
 
@@ -62,7 +62,7 @@ In order to demonstrate the above aspects, this tutorial uses a connector that c
 - [List repositories for an organization](https://developer.github.com/v3/repos/#list-organization-repositories).
 - [List issues per repository according to the state](https://developer.github.com/v3/issues/#list-issues)
 
-The above can be categorized as the capabilities expected from the connector and these are represented by separate actions.
+The above can be categorized as the capabilities expected from the connector and these are represented by separate remote functions.
 
 Furthermore, in order to invoke the APIs, an authentication header must be sent that encompasses the base64 encoded value of the username and the token. This is a supportive extension and can be powered by Ballerina itself by using its inbuilt [base64encoder](https://ballerinalang.org/docs/api/0.94.1/ballerina.util.html#base64encode).
 
@@ -102,9 +102,9 @@ This section of the tutorial explains the way a sample custom client connector i
         string authHeader = getBase64EncodedKey(username, token);
     }
     ```
-1. The first action retrieves the list of repositories per organization. The action defined takes in the desired organization as a parameter and returns a HTTP response and, within the action, the relevant REST API is invoked.
+1. The first remote function retrieves the list of repositories per organization. The remote function defined takes in the desired organization as a parameter and returns a HTTP response and, within the remote function, the relevant REST API is invoked.
     ```Ballerina
-    action getReposOfOrg (string orgnization) (http:Response, http:HttpConnectorError) {
+    remote function getReposOfOrg (string orgnization) (http:Response, http:HttpConnectorError) {
     	http:Request request = {};
     	string gitPath = string `/orgs/{{orgnization}}/repos`;
     	request.setHeader("Authorization", "Basic "+ authHeader);
@@ -114,7 +114,7 @@ This section of the tutorial explains the way a sample custom client connector i
     	return response, err;
  	}
     ```
-    Other actions can be configured in a similar manner.
+    Other remote functions can be configured in a similar manner.
 
 ## Using the connector
 

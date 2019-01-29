@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.expressions.LiteralNode;
+
 import java.util.List;
 
 /**
@@ -28,10 +30,6 @@ public interface PackageNode extends Node {
 
     void addCompilationUnit(CompilationUnitNode compUnit);
 
-    void setPackageDeclaration(PackageDeclarationNode pkgDecl);
-
-    PackageDeclarationNode getPackageDeclaration();
-
     List<? extends ImportPackageNode> getImports();
 
     void addImport(ImportPackageNode importPkg);
@@ -42,47 +40,26 @@ public interface PackageNode extends Node {
 
     List<? extends EndpointNode> getGlobalEndpoints();
 
-    List<? extends VariableNode> getGlobalVariables();
+    List<? extends LiteralNode> getConstants();
 
-    void addGlobalVariable(VariableNode globalVar);
+    List<? extends SimpleVariableNode> getGlobalVariables();
+
+    void addGlobalVariable(SimpleVariableNode globalVar);
 
     List<? extends ServiceNode> getServices();
 
     void addService(ServiceNode service);
 
-    List<? extends ConnectorNode> getConnectors();
-
-    void addConnector(ConnectorNode connector);
-
     List<? extends FunctionNode> getFunctions();
 
     void addFunction(FunctionNode function);
-
-    List<? extends StructNode> getStructs();
-
-    void addStruct(StructNode struct);
-
-    List<? extends ObjectNode> getObjects();
-
-    void addObject(ObjectNode object);
 
     List<? extends TypeDefinition> getTypeDefinitions();
 
     void addTypeDefinition(TypeDefinition typeDefinition);
 
-    List<? extends EnumNode> getEnums();
-
-    void addEnum(EnumNode enumNode);
-
     List<? extends AnnotationNode> getAnnotations();
 
     void addAnnotation(AnnotationNode annotation);
 
-    List<? extends TransformerNode> getTransformers();
-
-    void addTransformer(TransformerNode transformer);
-
-    List<? extends RecordNode> getRecords();
-
-    void addRecord(RecordNode recordNode);
 }

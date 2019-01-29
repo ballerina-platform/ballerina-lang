@@ -76,7 +76,7 @@ public class OpenTracingExtension implements OpenTracer {
                     || samplerType.equals(ProbabilisticSampler.TYPE))) {
                 samplerType = DEFAULT_SAMPLER_TYPE;
                 consoleError.println(
-                        "ballerina: Jaeger configuration: \"sampler type\" invalid. Defaulted to const sampling");
+                        "error: Jaeger configuration: \"sampler type\" invalid. Defaulted to const sampling");
             }
 
             samplerParam = Float.valueOf(

@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta2-SNAPSHOT</version>
+        <version>0.990.3-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -45,7 +45,7 @@
             <name>WSO2 Snapshot Repository</name>
             <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
             <snapshots>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
             <releases>
@@ -53,35 +53,47 @@
             </releases>
         </repository>
     </repositories>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>language-server-stdio-launcher</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-library</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-tools</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                    <id>vscode-test-skip</id>
+                    <phase>test</phase>
+                    <goals>
+                        <goal>bsh-property</goal>
+                    </goals>
+                    <configuration>
+                        <source>vscodeTestSkip = ${skipTests} ||  ${maven.test.skip} || ${vscode.test.skip};</source>
+                        <properties>
+                        <property>vscodeTestSkip</property>
+                        </properties>
+                    </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${maven.exec.plugin.version}</version>
                 <executions>
-                    <execution>
-                        <id>backup-package-lock</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <executable>node</executable>
-                            <arguments>
-                                <argument>./scripts/npm-preinstall</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>npm-install</id>
                         <goals>
@@ -92,20 +104,23 @@
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>install</argument>
+                                <argument>--unsafe-perm</argument>
                             </arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>replace-package-lock</id>
+                        <id>run tests</id>
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>generate-sources</phase>
+                        <phase>test</phase>
                         <configuration>
-                            <executable>node</executable>
+                            <executable>${npm.executable}</executable>
                             <arguments>
-                                <argument>./scripts/npm-postinstall</argument>
+                                <argument>run</argument>
+                                <argument>test</argument>
                             </arguments>
+                            <skip>${vscodeTestSkip}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -125,6 +140,22 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>update-version</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>update-version</argument>
+                                <argument>--</argument>
+                                <argument>${project.version}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -133,6 +164,22 @@
                 <version>${maven.antrun.plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>set-npm-executable</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- set executable names based on OS family -->
+                                <condition property="npm.executable" value="npm.cmd" else="npm">
+                                    <os family="windows" />
+                                </condition>
+                            </target>
+                            <exportAntProperties>true</exportAntProperties>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>clean-target-server-build-dirs</id>
                         <phase>clean</phase>
                         <goals>
@@ -140,7 +187,6 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.basedir}/server-build" includeemptydirs="true" />
                                 <delete dir="${project.basedir}/target" includeemptydirs="true" />
                             </target>
                         </configuration>
@@ -157,6 +203,25 @@
                             </target>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="copy resources">
+                                <mkdir dir="${project.basedir}/resources/composer" />
+                                <copy todir="${project.basedir}/resources/composer" overwrite="true">
+                                    <fileset dir="${project.build.directory}/composer/composer-library-${project.version}">
+                                        <include name="**/*.*" />
+                                        <exclude name="**/*.map" />
+                                        <exclude name="**/*.d.ts" />
+                                    </fileset>
+                                </copy>
+                            </target>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -164,63 +229,44 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy</id>
-                        <phase>prepare-package</phase>
+                        <id>copy-distribution</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>language-server-stdio-launcher</artifactId>
-                                    <version>${ballerina.version}</version>
-                                    <type>jar</type>
-                                    <classifier>jar-with-dependencies</classifier>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/server-build/</outputDirectory>
-                                    <destFileName>langserver.jar</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>language-server-stdio-launcher</artifactId>
-                                    <version>${ballerina.version}</version>
-                                    <type>jar</type>
-                                    <classifier>jar-with-non-ballerina-dependencies</classifier>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/server-build/</outputDirectory>
-                                    <destFileName>langserver-no-bal-deps.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
+                            <includeGroupIds>org.ballerinalang</includeGroupIds>
+                            <includeArtifactIds>ballerina-tools</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/test/</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
+                            <stripVersion>true</stripVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-composer-library</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeGroupIds>org.ballerinalang</includeGroupIds>
+                            <includeArtifactIds>composer-library</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/composer</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
+                            <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>${maven.replacer.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>replace-version</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <includes>
-                        <include>${basedir}/package.json</include>
-                    </includes>
-                    <replacements>
-                        <replacement>
-                            <token>"version": "(.*?)",</token>
-                            <value>"version": "${project.version}",</value>
-                        </replacement>
-                    </replacements>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+    <properties>
+        <skipTests>false</skipTests>
+        <maven.test.skip>false</maven.test.skip>
+        <vscode.test.skip>false</vscode.test.skip>
+    </properties>
 </project>

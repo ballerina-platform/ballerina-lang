@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class BLangCompoundAssignment extends BLangStatement implements CompoundAssignmentNode {
 
-    public BLangExpression varRef;
+    public BLangVariableReference varRef;
     public BLangExpression expr;
     public OperatorKind opKind;
     public BLangExpression modifiedExpr;
@@ -41,7 +41,7 @@ public class BLangCompoundAssignment extends BLangStatement implements CompoundA
     public BLangCompoundAssignment() {
     }
 
-    public BLangCompoundAssignment(DiagnosticPos pos, BLangExpression varRef,
+    public BLangCompoundAssignment(DiagnosticPos pos, BLangVariableReference varRef,
                                    BLangExpression expr) {
         this.pos = pos;
         this.varRef = varRef;

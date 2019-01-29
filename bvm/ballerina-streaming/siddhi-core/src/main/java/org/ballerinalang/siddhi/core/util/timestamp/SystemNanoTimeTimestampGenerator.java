@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.core.util.timestamp;
 
 /**
- * {@link TimestampGenerator} which return value of System.nanoTime()
+ * {@link TimestampGenerator} which return value of System.nanoTime().
  */
 public class SystemNanoTimeTimestampGenerator implements TimestampGenerator {
 

@@ -36,8 +36,4 @@ public interface TupleDestructureNode extends StatementNode {
 
     void setExpression(ExpressionNode expression);
 
-    boolean isDeclaredWithVar();
-
-    void setDeclaredWithVar(boolean isDeclaredWithVar);
-
 }

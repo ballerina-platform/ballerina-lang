@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.toml.model.fields;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Section headers valid in the manifest toml file.
@@ -27,13 +29,21 @@ import java.util.Locale;
 public enum ManifestHeader {
     PROJECT, DEPENDENCIES, PATCHES;
 
+    private static final Map<String, ManifestHeader> LOOKUP = new HashMap<>();
+
+    static {
+        for (ManifestHeader header : ManifestHeader.values()) {
+            LOOKUP.put(header.name().toLowerCase(Locale.ENGLISH), header);
+        }
+    }
+
     /**
-     * Check if the section header matches the toml header.
+     * Like as valueOf method, but input should be all lower case.
      *
-     * @param match section header in the toml file
-     * @return if it matches or not
+     * @param fieldKey Lower case string value of filed to find.
+     * @return Matching enum.
      */
-    public boolean stringEquals(String match) {
-        return toString().toLowerCase(Locale.ENGLISH).equals(match);
+    public static ManifestHeader valueOfLowerCase(String fieldKey) {
+        return LOOKUP.get(fieldKey);
     }
 }

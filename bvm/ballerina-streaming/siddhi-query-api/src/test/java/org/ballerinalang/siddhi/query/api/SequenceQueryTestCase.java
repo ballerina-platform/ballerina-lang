@@ -27,7 +27,7 @@ import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 import org.testng.annotations.Test;
 
 /**
- * Sequence query test case
+ * Sequence query test case.
  */
 public class SequenceQueryTestCase {
 

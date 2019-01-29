@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.query.api.exception.SiddhiAppContextException;
 import org.ballerinalang.siddhi.query.api.util.ExceptionUtil;
 
 /**
- * Exception class to be used when an error occurs while creating {@link org.ballerinalang.siddhi.query.api.SiddhiApp}
+ * Exception class to be used when an error occurs while creating {@link org.ballerinalang.siddhi.query.api.SiddhiApp}.
  */
 public class SiddhiAppCreationException extends RuntimeException implements SiddhiAppContextException {
     boolean classLoadingIssue = false;

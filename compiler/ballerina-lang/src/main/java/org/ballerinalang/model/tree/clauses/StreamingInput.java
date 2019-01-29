@@ -21,6 +21,8 @@ package org.ballerinalang.model.tree.clauses;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
+import java.util.List;
+
 /**
  * @since 0.965.0
  *
@@ -59,4 +61,12 @@ public interface StreamingInput extends Node {
     void setAlias(String alias);
 
     String getAlias();
+
+    void setPreFunctionInvocations(List<ExpressionNode> functionInvocations);
+
+    List<ExpressionNode> getPreFunctionInvocations();
+
+    void setPostFunctionInvocations(List<ExpressionNode> functionInvocations);
+
+    List<ExpressionNode> getPostFunctionInvocations();
 }

@@ -34,7 +34,7 @@ public class BLangPrograms {
 
     public static Path validateAndResolveSourcePath(Path programDirPath, Path sourcePath) {
         if (sourcePath == null) {
-            throw new IllegalArgumentException("source package/file cannot be null");
+            throw new IllegalArgumentException("source module/file cannot be null");
         }
 
         try {

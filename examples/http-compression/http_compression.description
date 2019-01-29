@@ -1,0 +1,4 @@
+// This sample demonstrates how the Ballerina HTTP service is configured to change the compression behaviour. By default, the server
+// compresses the response entity body with the scheme(gzip, deflate) that is specified in the Accept-Encoding request header. When
+// the particular header is not present or the header value is "identity", the server does not perform any compression. Compression
+// is disabled when the option is set to `COMPRESSION_NEVER`."

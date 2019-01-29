@@ -1,23 +1,24 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -39,6 +40,8 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     protected String pkgPath;
     protected String name;
     protected boolean isNative;
+    private boolean isPublic;
+    public int flags;
 
     // Index to the PackageCPEntry
     protected int pkgCPIndex;
@@ -48,10 +51,11 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     protected BType[] retParamTypes;
 
     protected int signatureCPIndex;
-    protected String signature;
 
     public int attachedToTypeCPIndex;
     public BType attachedToType;
+    public BFunctionType funcType;
+    public ChannelDetails[] workerSendInChannels;
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
     
@@ -68,6 +72,8 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     private NativeCallableUnit nativeCallableUnit;
     
     private WorkerSet workerSet = new WorkerSet();
+    
+    private boolean hasReturnType;
 
     private WorkerDataIndex calculateWorkerDataIndex(BType[] retTypes) {
         WorkerDataIndex index = new WorkerDataIndex();
@@ -75,24 +81,24 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
         for (int i = 0; i < retTypes.length; i++) {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
-            case TypeTags.INT_TAG:
-                index.retRegs[i] = index.longRegCount++;
-                break;
-            case TypeTags.FLOAT_TAG:
-                index.retRegs[i] = index.doubleRegCount++;
-                break;
-            case TypeTags.STRING_TAG:
-                index.retRegs[i] = index.stringRegCount++;
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                index.retRegs[i] = index.intRegCount++;
-                break;
-            case TypeTags.BLOB_TAG:
-                index.retRegs[i] = index.byteRegCount++;
-                break;
-            default:
-                index.retRegs[i] = index.refRegCount++;
-                break;
+                case TypeTags.INT_TAG:
+                    index.retRegs[i] = index.longRegCount++;
+                    break;
+                case TypeTags.BYTE_TAG:
+                    index.retRegs[i] = index.intRegCount++;
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    index.retRegs[i] = index.doubleRegCount++;
+                    break;
+                case TypeTags.STRING_TAG:
+                    index.retRegs[i] = index.stringRegCount++;
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    index.retRegs[i] = index.intRegCount++;
+                    break;
+                default:
+                    index.retRegs[i] = index.refRegCount++;
+                    break;
             }
         }
         return index;
@@ -138,6 +144,14 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
         isNative = aNative;
     }
 
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
     public BType[] getParamTypes() {
         return paramTypes;
     }
@@ -154,38 +168,11 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public void setRetParamTypes(BType[] retParamType) {
         this.retParamTypes = retParamType;
         this.retWorkerIndex = this.calculateWorkerDataIndex(this.retParamTypes);
+        this.hasReturnType = this.retParamTypes != null && this.retParamTypes.length > 0;
     }
 
-    public String getSignature() {
-        if (signature != null) {
-            return signature;
-        }
-
-        StringBuilder strBuilder = new StringBuilder("(");
-        for (BType paramType : paramTypes) {
-            strBuilder.append(paramType.getSig());
-        }
-        strBuilder.append(")(");
-
-        for (BType retType : retParamTypes) {
-            strBuilder.append(retType.getSig());
-        }
-        strBuilder.append(")");
-
-        signature = strBuilder.toString();
-        return signature;
-    }
-
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
-
-    public int getSignatureCPIndex() {
-        return signatureCPIndex;
-    }
-
-    public void setSignatureCPIndex(int signatureCPIndex) {
-        this.signatureCPIndex = signatureCPIndex;
+    public boolean hasReturnType() {
+        return hasReturnType;
     }
 
     public WorkerInfo getDefaultWorkerInfo() {
@@ -194,7 +181,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void setDefaultWorkerInfo(WorkerInfo defaultWorkerInfo) {
         this.defaultWorkerInfo = defaultWorkerInfo;
-        this.pupulateWorkerSet();
+        this.populateWorkerSet();
     }
 
     public WorkerInfo getWorkerInfo(String workerName) {
@@ -203,14 +190,14 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void addWorkerInfo(String workerName, WorkerInfo workerInfo) {
         workerInfoMap.put(workerName, workerInfo);
-        this.pupulateWorkerSet();
+        this.populateWorkerSet();
     }
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {
         return workerInfoMap;
     }
     
-    private void pupulateWorkerSet() {
+    private void populateWorkerSet() {
         this.workerSet.generalWorkers = this.workerInfoMap.values().toArray(new WorkerInfo[0]);
         if (this.workerSet.generalWorkers.length == 0) {
             this.workerSet.generalWorkers = new WorkerInfo[] { this.getDefaultWorkerInfo() };
@@ -285,6 +272,26 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
         public WorkerInfo[] generalWorkers;
 
+    }
+
+    /**
+     * Channel details which has channel name and where it resides.
+     */
+    public static class ChannelDetails {
+        public String name;
+        public boolean channelInSameStrand;
+        public boolean send;
+
+        public ChannelDetails(String name, boolean channelInSameStrand, boolean send) {
+            this.name = name;
+            this.channelInSameStrand = channelInSameStrand;
+            this.send = send;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
     
 }

@@ -28,6 +28,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
+ * Testcase for logical absent pattern queries.
  * Test the patterns:
  * - 'A -> not B and C'
  * - 'not A and B -> C'

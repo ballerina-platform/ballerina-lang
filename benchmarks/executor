@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -e
+
+BAL_HOME=$1
+chmod +x ${BAL_HOME}/bin/ballerina
+export PATH=${BAL_HOME}/bin:$PATH
+resultsFolderName=results
+resultsFileName=${resultsFolderName}/$4.csv
+gcViewerLocation=target/gcviewer-$6.jar
+NA=NA
+
+echo "Running Performance benchmarks ..."
+
+if [ ! -d "$resultsFolderName" ]; then
+ mkdir ${resultsFolderName}
+fi
+
+echo "Function Name,Total Time (ms),Throughput (operations/second),GC Throughput (%),Freed Memory By FullGC (M), Max Pause (s)" > ${resultsFileName}
+
+ballerina build benchmark
+
+for functionName in $(<benchmarkFunctions.txt)
+    do
+          export _JAVA_OPTIONS="-Xloggc:"$5gc_${functionName}.log""
+          ballerina run target/benchmark.balx $2 $3 ${functionName} | tr -d "\n" >> ${resultsFileName}
+          unset _JAVA_OPTIONS
+
+          ## check whether there are any GC events.
+          if  (( "$(wc -l < target/gc_${functionName}.log)" > 3)); then
+
+             ###### Analyze GC Logs ######
+             gcSummaryFile=target/gc_summarry_${functionName}.csv
+             java -jar ${gcViewerLocation} target/gc_${functionName}.log ${gcSummaryFile}
+
+              # GC throughput
+              GC_throughput=$(awk -F "\"*;\"*" '{print $2}' ${gcSummaryFile} | awk NR==37 )
+              echo ",${GC_throughput/n.a./$NA}," | tr -d "\n"  >> ${resultsFileName}
+
+              # freedMemoryByFullGC
+              freedMemoryByFullGC=$(awk -F "\"*;\"*" '{print $2}' ${gcSummaryFile} | awk NR==5 )
+              echo "${freedMemoryByFullGC/n.a./$NA}," | tr -d "\n"  >> ${resultsFileName}
+
+              #  GC maxPause
+              GC_maxPause=$(awk -F "\"*;\"*" '{print $2}' ${gcSummaryFile} | awk NR==24 )
+              echo ${GC_maxPause/n.a./$NA} >> ${resultsFileName}
+         else
+              echo ",$NA,$NA,$NA" >> ${resultsFileName}
+         fi
+    done

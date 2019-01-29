@@ -1,0 +1,980 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{
+    classHeader = "CopyrightHeader.txt"
+
+    implements = "io.ballerina.plugins.idea.psi.BallerinaCompositeElement"
+    extends = "io.ballerina.plugins.idea.psi.impl.BallerinaCompositeElementImpl"
+
+    parserClass = "io.ballerina.plugins.idea.parser.BallerinaParser"
+    parserUtilClass="io.ballerina.plugins.idea.parser.BallerinaParserUtil"
+
+    psiClassPrefix = "Ballerina"
+    psiImplClassSuffix = "Impl"
+    psiPackage = "io.ballerina.plugins.idea.psi"
+    psiImplPackage = "io.ballerina.plugins.idea.psi.impl"
+    psiImplUtilClass = "io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil"
+
+    elementTypeHolderClass = "io.ballerina.plugins.idea.psi.BallerinaTypes"
+    elementTypeClass = "io.ballerina.plugins.idea.psi.BallerinaCompositeElementType"
+
+    tokenTypeClass = "io.ballerina.plugins.idea.psi.BallerinaTokenType"
+
+    tokens = [
+
+        DEPRECATED          = 'deprecated';
+
+
+        // Separators
+        SEMICOLON           = ';' ;
+        COLON               = ':' ;
+        DOUBLE_COLON        = '::' ;
+        DOT                 = '.' ;
+        COMMA               = ',' ;
+        LEFT_BRACE          = '{' ;
+        RIGHT_BRACE         = '}' ;
+        LEFT_PARENTHESIS    = '(' ;
+        RIGHT_PARENTHESIS   = ')' ;
+        LEFT_BRACKET        = '[' ;
+        RIGHT_BRACKET       = ']' ;
+        QUESTION_MARK       = '?' ;
+
+        // Arithmetic operators
+        ASSIGN              = '=' ;
+        ADD                 = '+' ;
+        SUB                 = '-' ;
+        MUL                 = '*' ;
+        DIV                 = '/' ;
+        POW                 = '^' ;
+        MOD                 = '%';
+
+        // Relational operators
+        NOT                 = '!' ;
+        EQUAL               = '==' ;
+        NOT_EQUAL           = '!=' ;
+        REF_EQUAL           = '===' ;
+        REF_NOT_EQUAL       = '!==' ;
+        GT                  = '>' ;
+        LT                  = '<' ;
+        GT_EQUAL            = '>=' ;
+        LT_EQUAL            = '<=' ;
+        AND                 = '&&' ;
+        OR                  = '||' ;
+
+        // Additional symbols
+        RARROW              = '->' ;
+        LARROW              = '<-' ;
+        AT                  = '@' ;
+        BACKTICK            = '`' ;
+        RANGE               = '..' ;
+        ELLIPSIS            = '...' ;
+        PIPE                = '|' ;
+        EQUAL_GT            = '=>' ;
+
+        // Compound Assignment operators.
+        COMPOUND_ADD        = '+=' ;
+        COMPOUND_SUB        = '-=' ;
+        COMPOUND_MUL        = '*=' ;
+        COMPOUND_DIV        = '/=' ;
+
+        // Safe assignment operator
+        SAFE_ASSIGNMENT     = '=?' ;
+
+        // Post Arithmetic operators.
+        INCREMENT           = '++' ;
+        DECREMENT           = '--' ;
+
+        LINE_COMMENT        = 'regexp://[^\r\n]*'
+
+        WHITE_SPACE = 'regexp:\s+'
+        identifier = 'regexp:[a-zA-Z_][a-zA-Z0-9_]*'
+        DECIMAL_INTEGER_LITERAL = "regexp:\d+"
+  ]
+
+    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeAccessExprInvocation|StringFunctionInvocation)Reference") = VariableReference
+
+    extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|BracedOrTuple|Wait|WorkerSendAsync|WorkerReceive|FlushWorker|TableQuery|Checked|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ErrorConstructor|ServiceConstructor|BinaryRefEqual|Trap)Expression") = Expression
+    extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
+
+    extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
+
+    extends("(Simple|Array|Nullable|Union|Group|Tuple|Object|Record)TypeName|BinaryAndExpression") = TypeName
+
+    extends("StaticMatch(OrExpression|(Simple|Record|Tuple|Identifier)Literal)") = StaticMatchLiterals
+
+    // Each named definition which can be renamed should implement this interface.
+    implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
+    // This is to identify top level elements in a file.
+    implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
+    // Each named definition should extend this class.
+    extends("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
+
+    // Each stubbed element should have this element type factory.
+    elementTypeFactory("(Function|Struct|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
+
+    // Todo - Add CatchClause, TriggerWorker, WorkerReply?
+    // Each named element (which can be renamed) should implement this interface.
+    implements("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
+    // Each named element should extend this class.
+    extends("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
+    // Each stubbed element should have this element type factory.
+    elementTypeFactory("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
+
+    implements("NameReference") = "io.ballerina.plugins.idea.psi.BallerinaReferenceExpressionBase"
+
+    generateTokenAccessors = true
+}
+
+CompilationUnit ::=(ImportDeclaration | NamespaceDeclaration)* (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)* <<eof>>
+
+DefinitionWithMultipleAnnotationAttachments ::=  documentationString? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
+DefinitionWithSingleAnnotationAttachment ::= documentationString? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
+DefinitionWithoutAnnotationAttachments ::= documentationString? deprecatedAttachment? Definition {pin=3 elementType=Definition}
+
+//PackageDeclaration ::= package CompletePackageName PackageVersion? SEMICOLON {
+//    pin=1
+//    methods=[getName]
+//    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageDeclarationStub"
+//}
+
+CompletePackageName ::= PackageName (DOT PackageName)* {
+    pin(".*")=1
+    methods=[getReferences]
+}
+
+PackageName ::= identifier {
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageNameStub"
+}
+
+PackageVersion ::= version identifier {
+    pin=1
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageVersionStub"
+}
+
+// Todo - Cache
+ImportDeclaration ::= import (OrgName DIV)? CompletePackageName PackageVersion? Alias? SEMICOLON {
+    pin=1
+    methods=[getShortPackageName]
+}
+
+OrgName ::= identifier {
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaOrgNameStub"
+}
+
+Alias ::= as identifier {
+    pin=1 stubClass="io.ballerina.plugins.idea.stubs.BallerinaAliasStub"
+}
+
+// Note - Global variable definition should be the first definition since it can contain identifier as type.
+Definition ::= ( TypeDefinition
+               | ServiceDefinition
+               | GlobalVariableDefinition
+               | FunctionDefinition
+               | AnnotationDefinition
+               | ConstantDefinition )
+{recoverWhile=TopLevelDefinitionRecover}
+
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
+
+ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=3}
+ServiceBody ::= LEFT_BRACE ServiceBodyMember* RIGHT_BRACE
+ServiceBodyMember ::= ObjectFieldDefinition | ObjectFunctionDefinition
+
+// Pin to make sure callable unit is identified correctly
+CallableUnitBody ::= LEFT_BRACE (RIGHT_BRACE | Statement* WorkerWithStatementsBlock+ RIGHT_BRACE | Statement+ RIGHT_BRACE ) {pin=1}
+
+WorkerWithStatementsBlock ::= WorkerDefinition+ Statement*
+
+Block ::= Statement* {methods=[processDeclarations]}
+
+// Todo - Need getIdentifier?
+FunctionDefinition ::= (public|private)? (remote)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
+    pin=4 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
+}
+private FunctionWithReceiver ::=  (TypeName DOT)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
+private FunctionWithoutReceiver ::= AttachedObject DOT CallableUnitSignature CallableUnitBody {pin=2}
+
+AttachedObject ::= identifier
+
+LambdaFunction ::= function LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS (returns LambdaReturnParameter)? CallableUnitBody {pin(".*")=1}
+
+ArrowFunction ::= ArrowFunctionWithoutParenthesis | ArrowFunctionWithParenthesis
+
+private ArrowFunctionWithoutParenthesis ::= ArrowParam EQUAL_GT Expression {pin=2}
+private ArrowFunctionWithParenthesis ::= LEFT_PARENTHESIS (ArrowParam (COMMA ArrowParam)*)? RIGHT_PARENTHESIS EQUAL_GT Expression {pin=4}
+
+ArrowParam ::= identifier
+
+// Todo - cache and add Signature owner?
+CallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
+
+TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
+    pin=2
+    methods=[getName]
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaTypeDefinitionStub"
+}
+
+ObjectBody ::=  (ObjectFieldDefinition | ObjectFunctionDefinition | TypeReference)*
+
+TypeReference ::= MUL SimpleTypeName SEMICOLON {pin=1}
+
+ObjectFieldDefinition ::= AnnotationAttachment* deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
+
+FieldDefinition ::= AnnotationAttachment* TypeName identifier QUESTION_MARK? (ASSIGN Expression)? SEMICOLON {pin=3}
+
+RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS SEMICOLON | SealedLiteral SEMICOLON
+
+SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
+
+ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecatedAttachment? (public|private)? (remote|resource)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=7}
+
+AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier TypeName? SEMICOLON {
+    pin=2
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaAnnotationDefinitionStub"
+}
+
+ConstantDefinition ::= constWithoutType | constWithType
+private constWithType ::= PUBLIC? CONST TypeName identifier ASSIGN Expression SEMICOLON
+private constWithoutType ::= PUBLIC? CONST identifier ASSIGN Expression SEMICOLON
+//private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
+
+GlobalVariableDefinition ::= finalVariableDefinition
+                            | globalVarDefinition
+                            | nonFinalVariableDefinition
+                            | channelDefinition
+
+private finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON {pin=2}
+private globalVarDefinition ::= public? var identifier ASSIGN Expression SEMICOLON {pin=2}
+private nonFinalVariableDefinition ::=  public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
+private channelDefinition ::= channelType identifier ASSIGN Expression SEMICOLON
+channelType ::= channel (LT TypeName GT) {pin=1}
+
+// Todo - Need to update the service?
+// Note - "parameter" is treated differently here because there is a parser rule named "parameter" as well.
+AttachmentPoint ::= service | resource | function | remote | object | client | listener | type | TYPE_PARAMETER | annotation {
+    /*recoverWhile=AttachmentPointRecover*/
+}
+
+// Todo - Rename as declaration
+WorkerDefinition ::= worker identifier ReturnParameter? WorkerBody {
+    pin=1
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaWorkerDefinitionStub"
+    recoverWhile=WorkerDefinitionRecover
+}
+
+private WorkerDefinitionRecover ::= StatementRecover
+
+WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE
+
+FiniteType ::= FiniteTypeUnit (PIPE FiniteTypeUnit)*
+
+FiniteTypeUnit ::= SimpleLiteral | TypeName
+
+//todo
+TypeName ::= TupleTypeName
+             | SimpleTypeName
+             | GroupTypeName
+             | ArrayTypeName
+             | UnionTypeName
+             | ObjectTypeName
+             | NullableTypeName
+             | RecordTypeName
+
+SimpleTypeName ::= NULL_LITERAL
+                   | AnyTypeName
+                   | AnyDataTypeName
+                   | TypeDescTypeName
+                   | ValueTypeName
+                   | ReferenceTypeName
+                   | EmptyTupleLiteral
+
+AnyTypeName ::= any
+AnyDataTypeName ::= anydata
+TypeDescTypeName ::= typedesc
+
+//AnnotatedTypeName ::= AnnotationAttachment+ SimpleTypeName
+ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | SealedLiteral)? RIGHT_BRACKET)+
+NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
+UnionTypeName ::= TypeName (PIPE TypeName)+
+GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
+TupleTypeName ::= LEFT_PARENTHESIS TypeName (COMMA TypeName)* RIGHT_PARENTHESIS
+ObjectTypeName ::= abstract? client? object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=3}
+RecordTypeName ::= record? LEFT_BRACE RecordFieldDefinitionList RIGHT_BRACE
+
+RecordFieldDefinitionList ::= (FieldDefinition | TypeReference)* RecordRestFieldDefinition?
+
+//BuiltInTypeName ::= AnyTypeName
+//                    | SimpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
+//                    | TypeDescTypeName
+//                    | ValueTypeName
+//                    | BuiltInReferenceTypeName
+
+ReferenceTypeName ::= BuiltInReferenceTypeName
+                      | UserDefineTypeName
+
+UserDefineTypeName ::= NameReference
+
+ValueTypeName ::=   boolean | int | float | decimal | string | byte
+
+BuiltInReferenceTypeName ::= MapTypeName
+                             | FutureTypeName
+                             | XmlTypeName
+                             | JsonTypeName
+                             | StreamTypeName
+                             | TableTypeName
+                             | ServiceTypeName
+                             | ErrorTypeName
+                             | FunctionTypeName
+
+MapTypeName ::= map (LT TypeName GT) {pin=1}
+FutureTypeName ::= future (LT TypeName GT) {pin=1}
+XmlTypeName ::= xml (LT (LEFT_BRACE XmlNamespaceName RIGHT_BRACE)? XmlLocalName GT)? {pin=1}
+JsonTypeName ::= json
+TableTypeName ::= table (LT TypeName GT) {pin=1}
+ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
+StreamTypeName ::= stream (LT TypeName GT) {pin=1}
+FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
+XmlNamespaceName ::= QUOTED_STRING_LITERAL
+ServiceTypeName ::= service
+
+XmlLocalName ::= identifier
+
+// Todo - Cache
+AnnotationAttachment ::= AT NameReference RecordLiteral? {pin=1}
+
+// STATEMENTS / BLOCKS =================================================================================================
+
+// Todo - Add recovery rules
+// Note - Expression statement should be the first one.
+Statement ::=
+        WhileStatement
+    |   ForeverStatement
+    |   ContinueStatement
+    |   ForeachStatement
+    |   matchStatement
+    |   BreakStatement
+    |   ThrowStatement
+    |   PanicStatement
+    |   ReturnStatement
+    |   AbortStatement
+    |   RetryStatement
+    |   LockStatement
+    |   NamespaceDeclarationStatement
+    |   TransactionStatement
+    |   IfElseStatement
+    |   TryCatchStatement
+    |   ForkJoinStatement
+    |   tupleDestructuringStatement
+    |   RecordDestructuringStatement
+    |   WorkerSendAsyncStatement
+    |   AssignmentStatement
+    |   VariableDefinitionStatement
+    |   CompoundAssignmentStatement
+    |   ExpressionStmt
+    |   StreamingQueryStatement
+    |   ErrorDestructuringStatement
+{recoverWhile = StatementRecover}
+
+// Todo - Add more tokens (for record destructuring and panic)
+// Note - Literals are added for worker interactions - 10 -> w2;
+// NULL_LITERAL is added for match pattern -  null => return "error";
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|wait)
+
+// Note - VariableDefinitionStatementInService
+//TODO - change pin
+VariableDefinitionStatement ::= variableDefinitionStatementWithAssignment | variableDefinitionStatementWithoutAssignment {methods=[getType]}
+variableDefinitionStatementWithoutAssignment::= TypeName identifier SEMICOLON {pin=2}
+variableDefinitionStatementWithAssignment ::= final? (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON {pin=4}
+
+RecordLiteral ::= LEFT_BRACE RecordLiteralBody? RIGHT_BRACE {pin(".*")=1}
+
+RecordLiteralBody ::= (RecordKeyValue (COMMA RecordKeyValue)*){pin(".*")=1}
+
+RecordKeyValue ::= RecordKey COLON Expression {pin=1}
+
+RecordKey ::= Expression | identifier
+
+TableLiteral ::= table LEFT_BRACE TableColumnDefinition? (COMMA TableDataArray)? RIGHT_BRACE {pin=1}
+
+TableColumnDefinition ::= LEFT_BRACE (TableColumn (COMMA TableColumn)*)? RIGHT_BRACE
+
+TableColumn ::= identifier identifier | identifier
+
+TableDataArray ::= LEFT_BRACKET TableDataList? RIGHT_BRACKET
+
+TableDataList ::=  TableData (COMMA TableData)* | ExpressionList
+
+TableData ::= LEFT_BRACE ExpressionList RIGHT_BRACE
+
+ArrayLiteral ::= LEFT_BRACKET ExpressionList? RIGHT_BRACKET
+
+AssignmentStatement ::= VariableReference ASSIGN Expression SEMICOLON {pin=2}
+
+tupleDestructuringStatement ::= TupleRefBindingPattern ASSIGN Expression SEMICOLON {pin=2}
+
+RecordDestructuringStatement ::= RecordRefBindingPattern ASSIGN Expression SEMICOLON {pin=3}
+
+ErrorDestructuringStatement ::= ErrorRefBindingPattern ASSIGN Expression SEMICOLON
+
+CompoundAssignmentStatement ::= VariableReference CompoundOperator Expression SEMICOLON
+
+CompoundOperator ::=  COMPOUND_ADD
+                    | COMPOUND_SUB
+                    | COMPOUND_MUL
+                    | COMPOUND_DIV
+                    | COMPOUND_BIT_AND
+                    | COMPOUND_BIT_OR
+                    | COMPOUND_BIT_XOR
+                    | COMPOUND_LEFT_SHIFT
+                    | COMPOUND_RIGHT_SHIFT
+                    | COMPOUND_LOGICAL_SHIFT
+
+VariableReferenceList ::= VariableReference (COMMA VariableReference)* {pin(".*")=1}
+
+IfElseStatement ::= IfClause ElseIfClause* ElseClause? /*{pin=1}*/
+
+IfClause ::= if Expression (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
+
+ElseIfClause ::= else pinnedElseClause
+private pinnedElseClause ::= if Expression (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
+
+ElseClause ::= else (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
+
+matchStatement ::= match Expression matchStatementBody {pin=1}
+matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE
+
+// Todo - Add fake rule
+matchPatternClause ::= varMatchPattern | staticMatchPattern
+
+varMatchPattern ::= var BindingPattern (if Expression)? EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=1}
+staticMatchPattern ::=  StaticMatchLiterals EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
+
+StaticMatchLiterals ::= StaticMatchSimpleLiteral
+                    |   StaticMatchRecordLiteral
+                    |   StaticMatchTupleLiteral
+                    |   StaticMatchIdentifierLiteral
+                    |   StaticMatchOrExpression
+
+StaticMatchSimpleLiteral ::= SimpleLiteral
+StaticMatchRecordLiteral ::= RecordLiteral
+StaticMatchTupleLiteral ::= TupleLiteral
+StaticMatchIdentifierLiteral ::=  identifier
+StaticMatchOrExpression ::= StaticMatchLiterals PIPE StaticMatchLiterals
+
+TupleLiteral::=   LEFT_PARENTHESIS Expression (COMMA Expression)* RIGHT_PARENTHESIS
+
+BindingPattern ::= identifier | StructuredBindingPattern
+
+StructuredBindingPattern ::= TupleBindingPattern | RecordBindingPattern | ErrorBindingPattern
+
+ErrorBindingPattern ::= error LEFT_PARENTHESIS identifier (COMMA (identifier | RecordBindingPattern))? RIGHT_PARENTHESIS {pin=1}
+
+TupleBindingPattern ::= LEFT_PARENTHESIS BindingPattern (COMMA BindingPattern)+ RIGHT_PARENTHESIS
+
+RecordBindingPattern ::= LEFT_BRACE EntryBindingPattern RIGHT_BRACE {pin=1}
+
+EntryBindingPattern ::=  FieldBindingPattern (COMMA FieldBindingPattern)* (COMMA RestBindingPattern)? | RestBindingPattern
+
+FieldBindingPattern ::= identifier (COLON BindingPattern)? {pin=1}
+
+RestBindingPattern ::= ELLIPSIS identifier | SealedLiteral
+
+BindingRefPattern ::= VariableReference
+                    | StructuredRefBindingPattern
+                    | ErrorRefBindingPattern
+
+StructuredRefBindingPattern ::= TupleRefBindingPattern | RecordRefBindingPattern
+
+TupleRefBindingPattern ::= LEFT_PARENTHESIS BindingRefPattern (COMMA BindingRefPattern)+ RIGHT_PARENTHESIS {pin=1}
+
+RecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE {pin=1}
+
+ErrorRefBindingPattern ::= error LEFT_PARENTHESIS VariableReference (COMMA (VariableReference | RecordRefBindingPattern))? RIGHT_PARENTHESIS {pin=1}
+
+EntryRefBindingPattern ::= FieldRefBindingPattern (COMMA FieldRefBindingPattern)* (COMMA RestRefBindingPattern)? | RestRefBindingPattern
+
+FieldRefBindingPattern ::= identifier (COLON BindingRefPattern)? {pin=1}
+
+RestRefBindingPattern ::= ELLIPSIS VariableReference | SealedLiteral
+
+ForeachStatement ::= foreach (LEFT_PARENTHESIS? (TypeName | var) BindingPattern in Expression RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
+
+IntRangeExpression ::= openRange | closedRange
+private openRange ::= Expression RANGE Expression {pin=2}
+private closedRange ::= (LEFT_BRACKET|LEFT_PARENTHESIS) Expression RANGE Expression (RIGHT_BRACKET|RIGHT_PARENTHESIS) {pin=3}
+
+// Todo - pin 1?
+WhileStatement ::= while Expression WhileStatementBody {pin(".*")=1}
+
+WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE
+
+ContinueStatement ::= continue SEMICOLON {pin=1}
+
+BreakStatement ::= break SEMICOLON {pin=1}
+
+// typeName is only message
+ForkJoinStatement ::= fork LEFT_BRACE WorkerDefinition* RIGHT_BRACE {pin=1}
+
+// Depricated since 0.983.0, use trap expressoin. Todo - Remove this.
+TryCatchStatement ::= try (LEFT_BRACE Block RIGHT_BRACE CatchClauses) {pin(".*")=1}
+
+// Depricated since 0.983.0, use trap expressoin. Todo - Remove this.
+CatchClauses ::= CatchClause+ FinallyClause? | FinallyClause
+
+// Todo - Remove this.
+CatchClause ::= catch (LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
+
+// Todo - Remove this.
+FinallyClause ::= finally {LEFT_BRACE Block RIGHT_BRACE} {pin(".*")=1}
+
+// Depricated since 0.983.0, use panic instead. Todo - Remove this.
+ThrowStatement ::= throw Expression SEMICOLON {pin=1}
+
+PanicStatement ::= panic Expression SEMICOLON {pin=1}
+
+ReturnStatement ::= return Expression? SEMICOLON {pin=1}
+
+WorkerSendAsyncStatement ::= Expression RARROW identifier (COMMA Expression)? SEMICOLON {pin=2}
+
+FlushWorker ::= flush identifier? {pin=1}
+
+WaitForCollection ::= LEFT_BRACE WaitKeyValue (COMMA WaitKeyValue)* RIGHT_BRACE {pin=1}
+
+WaitKeyValue ::= identifier COLON Expression | identifier
+
+// Note - Order of 'simpleVariableReference' and 'functionInvocationReference' because otherwise all function
+// invocations will match simpleVariableReference first.
+VariableReference ::= MapArrayVariableReference
+                      | StringFunctionInvocationReference
+                      | InvocationReference
+                      | FieldVariableReference
+                      | XmlAttribVariableReference
+                      | FunctionInvocationReference
+                      | SimpleVariableReference
+                      | TypeAccessExprInvocationReference
+
+                      {methods=[getType]}
+
+InvocationReference ::= VariableReference Invocation
+MapArrayVariableReference ::= VariableReference Index
+FieldVariableReference ::= VariableReference Field
+XmlAttribVariableReference ::= VariableReference XmlAttrib
+FunctionInvocationReference ::= FunctionInvocation
+SimpleVariableReference ::=  NameReference
+TypeAccessExprInvocationReference ::=  TypeAccessExpression Invocation
+StringFunctionInvocationReference ::= QUOTED_STRING_LITERAL Invocation
+
+// Todo - Adding pin will mess function invocation.
+Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
+Index ::= LEFT_BRACKET Expression RIGHT_BRACKET /*{pin=1}*/
+Field ::= (DOT | NOT) (identifier | MUL) /*{pin=1}*/
+XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? {pin=1}
+
+// Todo - Need to pin?
+FunctionInvocation ::= functionNameReference LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=2}
+InvocationArgList ::= InvocationArg (COMMA InvocationArg)* {pin(".*")=1}
+InvocationArg ::= NamedArgs | RestArgs | Expression
+
+// Todo - Update the recovery rule
+ActionInvocation ::= start? VariableReference RARROW FunctionInvocation {/*pin=3 recoverWhile=StatementRecover*/}
+
+ExpressionList ::= Expression (COMMA Expression)* {
+    pin(".*")=1
+//    recoverWhile = ExpressionListRecover
+}
+//private ExpressionListRecover ::= !(RIGHT_PARENTHESIS | SEMICOLON)
+
+ExpressionStmt ::= Expression SEMICOLON
+
+TransactionStatement ::= TransactionClause OnRetryClause? CommittedAbortedClauses? {pin=1}
+
+CommittedAbortedClauses ::= CommittedClause AbortedClause | AbortedClause CommittedClause | AbortedClause | CommittedClause
+
+TransactionClause ::= transaction (with TransactionPropertyInitStatementList)? (LEFT_BRACE (Block RIGHT_BRACE)) {pin(".*")=1}
+
+TransactionPropertyInitStatement ::= RetriesStatement
+
+TransactionPropertyInitStatementList ::= TransactionPropertyInitStatement (COMMA TransactionPropertyInitStatement)* {pin(".*")=1}
+
+LockStatement ::= lock LEFT_BRACE Block RIGHT_BRACE {pin=1}
+
+OnRetryClause ::= onretry (LEFT_BRACE (Block RIGHT_BRACE)) {pin(".*")=1}
+
+AbortStatement ::= abort SEMICOLON {pin=1}
+
+RetryStatement ::= retry SEMICOLON {pin=1}
+
+RetriesStatement ::= retries ASSIGN Expression {pin=1}
+
+CommittedClause ::= committed LEFT_BRACE Block RIGHT_BRACE {pin=1}
+
+AbortedClause ::= aborted LEFT_BRACE Block RIGHT_BRACE {pin=1}
+
+NamespaceDeclarationStatement ::= NamespaceDeclaration /*{pin=1}*/
+
+NamespaceDeclaration ::= xmlns QUOTED_STRING_LITERAL (as identifier)? SEMICOLON {
+    pin=1
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaNamespaceDeclarationStub"
+}
+
+Expression
+    ::=
+        LambdaFunctionExpression
+    |   ArrowFunctionExpression
+    |   SimpleLiteralExpression
+    |   StringTemplateLiteralExpression
+    |   XmlLiteralExpression
+    |   TableLiteralExpression
+    |   RecordLiteralExpression
+    |   BracedOrTupleExpression
+    |   TernaryExpression
+    |   ArrayLiteralExpression
+    |   ActionInvocationExpression
+    |   VariableReferenceExpression
+    |   TypeInitExpression
+    |   TypeConversionExpression
+    |   UnaryExpression
+    |   BinaryDivMulModExpression
+    |   BinaryAddSubExpression
+    |   BinaryCompareExpression
+    |   BinaryEqualExpression
+    |   BinaryAndExpression
+    |   BinaryOrExpression
+    |   TableQueryExpression
+    |   CheckedExpression
+    |   ElvisExpression
+    |   WaitExpression
+    |   WorkerSendAsyncExpression
+    |   WorkerReceiveExpression
+    |   FlushWorkerExpression
+    |   IntegerRangeExpression
+    |   BitwiseExpression
+    |   BitwiseShiftExpression
+    |   ErrorConstructorExpression
+    |   ServiceConstructorExpression
+    |   TypeTestExpression
+    |   BinaryRefEqualExpression
+    |   TrapExpression
+    |   TypeAccessExpression
+    {recoverWhile=ExpressionRecover}
+
+TypeAccessExpression ::= TypeName
+
+TypeTestExpression ::= Expression is TypeName  {pin=2}
+
+BinaryRefEqualExpression ::= Expression (REF_EQUAL | REF_NOT_EQUAL) Expression
+
+ActionInvocationExpression::= ActionInvocation
+
+ElvisExpression::= Expression ELVIS Expression
+
+TableQueryExpression ::= TableQuery
+
+TableLiteralExpression ::= TableLiteral
+
+private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check)
+
+fake BinaryExpression ::= Expression {
+  methods=[left="Expression[0]" right="Expression[1]" getOperator]
+}
+
+//private ExpressionRecover ::=  !('!' | '!=' | '%' | '%=' | '&&' | '&' | '&=' | '&^' | '&^=' | '(' | ')' | '*' | '*=' | '+' | '++' | '+=' | ',' | '-' | '--' | '-=' | '...' | '/' | '/=' | ':' | ';' | '<' | '<-' | '<<' | '<<=' | '<=' | '<NL>' | '=' | '==' | '>' | '>=' | '>>' | '>>=' | '[' | ']' | '^' | '^=' | 'type' | '{' | '|' | '|=' | '||' | '}' | break | case | chan | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex | identifier | if | int | interface | map | oct | return | select | string | raw_string | struct | switch | var )
+SimpleLiteralExpression ::= SimpleLiteral
+ArrayLiteralExpression ::= ArrayLiteral
+RecordLiteralExpression ::= RecordLiteral
+XmlLiteralExpression ::= XmlLiteral
+StringTemplateLiteralExpression ::= StringTemplateLiteral
+VariableReferenceExpression ::= start? VariableReference
+LambdaFunctionExpression ::= LambdaFunction
+TypeConversionExpression ::= LT TypeName (COMMA FunctionInvocation)? GT Expression {pin=1}
+UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | untaint) Expression {pin=1}
+BracedOrTupleExpression ::= TupleLiteral
+BinaryDivMulModExpression ::= Expression (DIV | MUL | MOD) Expression
+BinaryAddSubExpression ::= Expression (ADD | SUB) Expression
+BinaryCompareExpression ::= Expression (LT_EQUAL | GT_EQUAL | GT | LT) Expression
+BinaryEqualExpression ::= Expression (EQUAL | NOT_EQUAL) Expression
+BinaryAndExpression ::= Expression <<isNotInStreams>> AND Expression
+BinaryOrExpression ::= Expression OR Expression
+WaitExpression ::=   wait (WaitForCollection | Expression) {pin=1}
+WorkerSendAsyncExpression ::= Expression SYNCRARROW identifier {pin=2}
+WorkerReceiveExpression ::= LARROW identifier (COMMA Expression)? {pin=1}
+FlushWorkerExpression ::= FlushWorker
+CheckedExpression ::= check Expression {pin=1}
+IntegerRangeExpression ::= Expression (ELLIPSIS | HALF_OPEN_RANGE) Expression
+BitwiseExpression ::= Expression (BITAND | PIPE | BITXOR) Expression
+BitwiseShiftExpression ::= Expression (ShiftExpression) Expression
+ArrowFunctionExpression ::= ArrowFunction
+ServiceConstructorExpression ::= AnnotationAttachment* service ServiceBody {pin=2}
+TernaryExpression ::= Expression (QUESTION_MARK Expression COLON Expression) {pin(".*")=1}
+
+TypeInitExpression ::= initWithType | initWithoutType
+initWithType ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=3}
+initWithoutType ::= new (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)?
+
+ErrorConstructorExpression ::= error LEFT_PARENTHESIS Expression (COMMA Expression)? RIGHT_PARENTHESIS {pin=1}
+
+TrapExpression ::= trap Expression {pin=1}
+
+ShiftExpression ::= GT <<shiftExprPredicate>> GT
+    | LT <<shiftExprPredicate>> LT
+    | GT <<shiftExprPredicate>> GT <<shiftExprPredicate>> GT
+
+//reusable productions
+
+NameReference ::= <<isPackageExpected>> PackageReference identifier | identifier {
+    methods=[/*getReference*/ getQualifier /*resolve*/ resolveType isInLocalPackage]
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaNameReferenceStub"
+//    extends=test
+//    elementType=test
+}
+
+functionNameReference ::= <<isPackageExpected>> PackageReference? AnyIdentifierName {
+    methods=[/*getReference*/ getQualifier /*resolve*/ resolveType isInLocalPackage]
+}
+
+PackageReference ::= identifier COLON {
+    pin=2
+    methods=[getReference]
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageReferenceStub"
+}
+
+ReturnParameter ::= returns ReturnType {pin=1}
+ReturnType ::= AnnotationAttachment* TypeName
+
+LambdaReturnParameter ::= AnnotationAttachment* TypeName
+
+ParameterTypeNameList ::= parameterTypeName (COMMA parameterTypeName)* {pin=1 /*recoverWhile=RecoverParameter*/}
+
+parameterTypeName ::= AnnotationAttachment* TypeName
+
+ParameterList ::= Parameter (COMMA Parameter)* {pin(".*")=1 /*recoverWhile=RecoverParameter*/}
+
+//private RecoverParameter ::= !(string | COMMA | RIGHT_PARENTHESIS | identifier)
+
+// Todo - Add indexing
+Parameter ::= SimpleParameter | TupleParameter
+private SimpleParameter ::= AnnotationAttachment* parameterWithType /*{pin=2}*/
+private TupleParameter ::= AnnotationAttachment* LEFT_PARENTHESIS parameterWithType (COMMA parameterWithType)* RIGHT_PARENTHESIS
+
+parameterWithType ::= <<isNotARestParameter>> TypeName identifier
+
+DefaultableParameter ::= Parameter ASSIGN Expression
+
+RestParameter ::= AnnotationAttachment* TypeName ELLIPSIS identifier {pin=3}
+
+FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultableParameter | Parameter))* (COMMA RestParameter)? | RestParameter
+
+SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
+                  | (ADD|SUB)? FloatingPointLiteral
+                  | QUOTED_STRING_LITERAL
+                  | SYMBOLIC_STRING_LITERAL
+                  | BOOLEAN_LITERAL
+                  | EmptyTupleLiteral
+                  | BlobLiteral
+                  | NULL_LITERAL
+
+// §3.10.1 Integer Literals
+IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL
+
+FloatingPointLiteral ::= DECIMAL_FLOATING_POINT_NUMBER | HEXADECIMAL_FLOATING_POINT_LITERAL
+
+EmptyTupleLiteral ::= LEFT_PARENTHESIS RIGHT_PARENTHESIS
+
+BlobLiteral ::= BASE_16_BLOB_LITERAL | BASE_64_BLOB_LITERAL
+
+NamedArgs ::= identifier ASSIGN Expression {pin=2}
+
+RestArgs ::= ELLIPSIS Expression {pin=1}
+
+// XML parsing
+
+XmlLiteral ::= XML_LITERAL_START XmlItem XML_LITERAL_END {pin=1}
+
+XmlItem ::= ProcIns | Comment | Element | XmlText | cdata
+
+Content ::= XmlText? ((ProcIns | Comment | Element | cdata) XmlText?)*
+
+Comment ::= XML_COMMENT_START (XML_COMMENT_TEMPLATE_TEXT Expression EXPRESSION_END)* XML_COMMENT_TEXT {pin=1}
+
+Element ::= StartTag Content CloseTag | EmptyTag
+
+StartTag ::= XML_TAG_OPEN XmlQualifiedName Attribute* XML_TAG_CLOSE {pin=1}
+
+CloseTag ::= XML_TAG_OPEN_SLASH XmlQualifiedName XML_TAG_CLOSE {pin=1}
+
+EmptyTag ::= XML_TAG_OPEN XmlQualifiedName Attribute* XML_TAG_SLASH_CLOSE {pin=1}
+
+ProcIns ::= XML_TAG_SPECIAL_OPEN (XML_PI_TEMPLATE_TEXT Expression EXPRESSION_END)* XML_PI_TEXT {pin=1}
+
+Attribute ::= XmlQualifiedName EQUALS XmlQuotedString;
+
+XmlText ::= (XML_TEMPLATE_TEXT Expression EXPRESSION_END)+ XML_TEXT_SEQUENCE? | XML_TEXT_SEQUENCE
+
+XmlQuotedString ::= XmlSingleQuotedString | XmlDoubleQuotedString
+
+XmlSingleQuotedString ::= SINGLE_QUOTE (XML_SINGLE_QUOTED_TEMPLATE_STRING Expression EXPRESSION_END)* XML_SINGLE_QUOTED_STRING_SEQUENCE? SINGLE_QUOTE_END
+
+XmlDoubleQuotedString ::= DOUBLE_QUOTE (XML_DOUBLE_QUOTED_TEMPLATE_STRING Expression EXPRESSION_END)* XML_DOUBLE_QUOTED_STRING_SEQUENCE? DOUBLE_QUOTE_END
+
+XmlQualifiedName ::= (XML_QNAME QNAME_SEPARATOR)? XML_QNAME | XML_TAG_EXPRESSION_START Expression EXPRESSION_END
+
+// Todo - Uncomment
+StringTemplateLiteral ::= STRING_TEMPLATE_LITERAL_START StringTemplateContent? STRING_TEMPLATE_LITERAL_END {pin=1 /*recoverWhile=StringTemplateLiteralRecover*/}
+
+// Todo - Update to statement recover
+/*private StringTemplateLiteralRecover ::= !(SEMICOLON | string | int | identifier)*/
+
+StringTemplateContent ::= StringTemplateExpressionContent | StringTemplateTextContent
+
+private StringTemplateExpressionContent ::= StringTemplateExpression+ STRING_TEMPLATE_TEXT?
+private StringTemplateExpression ::= STRING_TEMPLATE_EXPRESSION_START Expression EXPRESSION_END /*{pin=1}*/
+private StringTemplateTextContent ::= STRING_TEMPLATE_TEXT
+
+AnyIdentifierName ::= identifier | ReservedWord
+
+ReservedWord ::= foreach | map | start | continue | OBJECT_INIT
+
+//Siddhi Streams and Tables related
+TableQuery ::= from StreamingInput JoinStreamingInput? SelectClause? OrderByClause? LimitClause? {pin=1}
+
+// Note - Pinning 1 does not seem to work.
+ForeverStatement ::= forever (LEFT_BRACE ForeverStatementBody RIGHT_BRACE) {pin(".*")=1}
+ForeverStatementBody ::= StreamingQueryStatement+
+
+StreamingQueryStatement ::= from (StreamingInput (JoinStreamingInput)? | PatternClause)
+        SelectClause?
+        OrderByClause?
+        OutputRateLimit?
+        StreamingAction{pin=1}
+
+PatternClause ::= every? PatternStreamingInput WithinClause?
+
+WithinClause ::= within DECIMAL_INTEGER_LITERAL TimeScale {pin=1}
+
+OrderByClause ::= order by OrderByVariable (COMMA OrderByVariable)* {pin=1}
+
+OrderByVariable ::= VariableReference OrderByType?
+
+LimitClause ::= limit DECIMAL_INTEGER_LITERAL {pin=1}
+
+SelectClause ::= select (MUL| SelectExpressionList) GroupByClause? HavingClause? {pin=1}
+
+SelectExpressionList ::= SelectExpression (COMMA SelectExpression)*
+
+SelectExpression ::= Expression (as identifier)?
+
+GroupByClause ::= group by VariableReferenceList {pin=1}
+
+HavingClause ::= having Expression {pin=1}
+
+StreamingAction ::= EQUAL_GT LEFT_PARENTHESIS Parameter RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
+
+SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
+
+SetAssignmentClause ::= VariableReference ASSIGN Expression
+
+StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
+
+JoinStreamingInput ::= (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput (on Expression)?
+
+OutputRateLimit ::= output ((all | last | first) every DECIMAL_INTEGER_LITERAL (TimeScale | events)
+    | snapshot every DECIMAL_INTEGER_LITERAL TimeScale){pin(".*")=1}
+
+PatternStreamingInput ::=
+        Pattern4
+    |   Pattern5
+    |   Pattern1
+    |   Pattern2
+    |   Pattern3
+    |   PatternStreamingEdgeInput
+
+private Pattern1 ::= PatternStreamingEdgeInput (followed by | COMMA) PatternStreamingInput {pin=2}
+private Pattern2 ::= LEFT_PARENTHESIS PatternStreamingInput RIGHT_PARENTHESIS
+private Pattern4 ::= NOT PatternStreamingEdgeInput (AND PatternStreamingEdgeInput | for DECIMAL_INTEGER_LITERAL TimeScale) {pin(".*")=1}
+private Pattern3 ::= foreach PatternStreamingInput {pin=1}
+private Pattern5 ::= PatternStreamingEdgeInput (AND | OR) PatternStreamingEdgeInput {pin=2}
+
+PatternStreamingEdgeInput ::= VariableReference WhereClause? IntRangeExpression? (as identifier)? {pin=1}
+
+WhereClause ::= where Expression {pin=1}
+
+WindowClause ::= window FunctionInvocation  {pin=1}
+
+OrderByType ::= ascending | descending
+
+JoinType ::= left outer join | right outer join | full outer join | outer join | inner? join
+
+TimeScale ::= second | seconds
+            | minute | minutes
+            | hour | hours
+            | day | days
+            | month | months
+            | year | years
+
+// Deprecated parsing.
+
+deprecatedAttachment ::= DEPRECATED_TEMPLATE_START deprecatedText? DEPRECATED_TEMPLATE_END {pin=1}
+
+deprecatedText ::= deprecatedTemplateInlineCode (DEPRECATED_TEMPLATE_TEXT | deprecatedTemplateInlineCode)*
+                   | DEPRECATED_TEMPLATE_TEXT (DEPRECATED_TEMPLATE_TEXT | deprecatedTemplateInlineCode)*
+
+deprecatedTemplateInlineCode ::= singleBackTickDeprecatedInlineCode | doubleBackTickDeprecatedInlineCode | tripleBackTickDeprecatedInlineCode
+
+singleBackTickDeprecatedInlineCode ::= SB_DEPRECATED_INLINE_CODE_START SINGLE_BACK_TICK_INLINE_CODE? SINGLE_BACK_TICK_INLINE_CODE_END {pin=1}
+
+doubleBackTickDeprecatedInlineCode ::= DB_DEPRECATED_INLINE_CODE_START DOUBLE_BACK_TICK_INLINE_CODE? DOUBLE_BACK_TICK_INLINE_CODE_END {pin=1}
+
+tripleBackTickDeprecatedInlineCode ::= TB_DEPRECATED_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
+
+// Markdown Documentation parsing
+
+documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
+
+documentationLine ::= MARKDOWN_DOCUMENTATION_LINE_START documentationContent {pin=1}
+
+parameterDocumentationLine ::= (PARAMETER_DOCUMENTATION_START parameterDocumentation) (MARKDOWN_DOCUMENTATION_LINE_START parameterDescription)*
+
+returnParameterDocumentationLine ::= (RETURN_PARAMETER_DOCUMENTATION_START returnParameterDocumentation) (MARKDOWN_DOCUMENTATION_LINE_START returnParameterDescription)*
+
+documentationContent ::= documentationText?
+
+parameterDescription ::= documentationText?
+
+returnParameterDescription ::= documentationText?
+
+//TODO:Finalize the order of the expression
+documentationText ::= (MARKDOWN_DOCUMENTATION_TEXT | REFERENCE_TYPE | DOCUMENTATION_ESCAPED_CHARACTERS | documentationReference | backtickedBlock)+
+
+documentationReference ::= documentationDefinitionReference
+
+documentationDefinitionReference ::= definitionReferenceType singleBacktickedBlock
+
+definitionReferenceType ::= DEFINITION_REFERENCE
+
+parameterDocumentation ::=  PARAMETER_NAME DESCRIPTION_SEPARATOR documentationText? {pin=2}
+
+returnParameterDocumentation ::= docParameterDescription
+
+docParameterDescription ::= documentationText?
+
+backtickedBlock ::=  tripleBacktickedBlock | doubleBacktickedBlock | singleBacktickedBlock
+
+singleBacktickedBlock ::= SINGLE_BACKTICK_MARKDOWN_START SINGLE_BACKTICK_CONTENT? SINGLE_BACKTICK_MARKDOWN_END {pin=1}
+
+doubleBacktickedBlock ::= DOUBLE_BACKTICK_MARKDOWN_START DOUBLE_BACKTICK_CONTENT? DOUBLE_BACKTICK_MARKDOWN_END {pin=1}
+
+tripleBacktickedBlock ::= TRIPLE_BACKTICK_MARKDOWN_START TRIPLE_BACKTICK_CONTENT? TRIPLE_BACKTICK_MARKDOWN_END {pin=1}

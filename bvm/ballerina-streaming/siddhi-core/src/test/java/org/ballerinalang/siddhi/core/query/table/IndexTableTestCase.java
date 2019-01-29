@@ -39,6 +39,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for indexed tables.
+ */
 public class IndexTableTestCase {
     private static final Logger log = LoggerFactory.getLogger(IndexTableTestCase.class);
     private AtomicInteger inEventCount = new AtomicInteger(0);

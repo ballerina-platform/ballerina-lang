@@ -49,7 +49,11 @@ public class ObserverContext {
 
     private boolean started;
 
+    private boolean finished;
+
     private ObserverContext parent;
+
+    private boolean isSystemSpan;
 
     public ObserverContext() {
         this.properties = new HashMap<>();
@@ -65,11 +69,7 @@ public class ObserverContext {
     }
 
     public void addTag(String key, String value) {
-        tags.put(key, value);
-    }
-
-    public void addTags(Map<String, String> tags) {
-        this.tags.putAll(tags);
+        tags.put(key, value != null ? value : "");
     }
 
     public Map<String, String> getTags() {
@@ -124,6 +124,14 @@ public class ObserverContext {
         this.started = true;
     }
 
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished() {
+        this.finished = true;
+    }
+
     public ObserverContext getParent() {
         return parent;
     }
@@ -132,4 +140,11 @@ public class ObserverContext {
         this.parent = parent;
     }
 
+    public boolean isSystemSpan() {
+        return isSystemSpan;
+    }
+
+    public void setSystemSpan(boolean userSpan) {
+        isSystemSpan = userSpan;
+    }
 }

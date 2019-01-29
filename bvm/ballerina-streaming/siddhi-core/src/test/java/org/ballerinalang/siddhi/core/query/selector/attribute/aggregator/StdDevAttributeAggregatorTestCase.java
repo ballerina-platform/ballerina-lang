@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for stddev aggregator.
+ */
 public class StdDevAttributeAggregatorTestCase {
     private static final Logger log = LoggerFactory.getLogger(StdDevAttributeAggregatorTestCase.class);
     private final double epsilon = 0.00001; // difference threshold for two doubles to be treated distinct

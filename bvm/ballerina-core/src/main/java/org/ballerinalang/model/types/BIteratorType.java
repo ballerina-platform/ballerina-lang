@@ -41,11 +41,6 @@ public class BIteratorType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return null;
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.ITERATOR_TAG;
     }

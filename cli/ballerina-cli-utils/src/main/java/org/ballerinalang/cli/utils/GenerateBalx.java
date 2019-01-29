@@ -19,16 +19,21 @@
 package org.ballerinalang.cli.utils;
 
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * Class providing utility methods to generate balx from bal.
@@ -39,12 +44,23 @@ public class GenerateBalx {
 
     public static void main(String[] args) {
         Path prjctDir = Paths.get(args[0]);
+        String sourcePath = args[1];
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, prjctDir.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(OFFLINE, Boolean.toString(true));
+        options.put(SKIP_TESTS, Boolean.toString(true));
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.build();
+        BLangPackage bLangPackage = compiler.build(sourcePath);
+
+        Path targetFilePath = prjctDir.resolve(sourcePath);
+        compiler.write(bLangPackage, targetFilePath.toString());
+
+        BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(context);
+        if (diagnosticLog.errorCount > 0) {
+            throw new BLangCompilerException("failed to generate executable for " + args[0]);
+        }
     }
 }

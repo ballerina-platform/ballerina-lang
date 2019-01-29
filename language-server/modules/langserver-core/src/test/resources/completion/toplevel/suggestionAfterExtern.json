@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 0,
+    "character": 7
+  },
+  "source": "toplevel/source/suggestionAfterExtern.bal",
+  "items": [
+    {
+      "label":"function signature",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"function ${1:name}(${2});",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

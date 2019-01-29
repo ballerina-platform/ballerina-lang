@@ -1,1 +1,12 @@
-{"id":"324","result":{"contents":[{"left":"**Description**\r\n```\r\nReturns a Boolean value indicating whether a string contains the specified substring\r\n\r\n```\r\n**Param**\r\n```\r\nmainString: The original string argument\r\nsubString: The substring to be compared\r\n\r\n```\r\n**Return**\r\n```\r\nTrue if the string contains the substring; false otherwise\r\n\r\n```\r\n"}]},"jsonrpc":"2.0"}
+{
+  "result": {
+    "contents": {
+      "kind": "markdown",
+      "value": "**Description**\r\n\r\nReturns a Boolean value indicating whether a string contains the specified substring.\r\n\r\n**Param**\r\n- substring:The substring to be compared\r\n\r\n**Return**\r\n- True if the string contains the substring; false otherwise\r\n\r\n"
+    }
+  },
+  "id": {
+    "left": "324"
+  },
+  "jsonrpc": "2.0"
+}

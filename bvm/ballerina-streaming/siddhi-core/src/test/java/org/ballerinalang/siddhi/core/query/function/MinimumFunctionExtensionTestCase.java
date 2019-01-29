@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for minimum function.
+ */
 public class MinimumFunctionExtensionTestCase {
     private static final Logger log = LoggerFactory.getLogger(MinimumFunctionExtensionTestCase.class);
     private volatile int count;

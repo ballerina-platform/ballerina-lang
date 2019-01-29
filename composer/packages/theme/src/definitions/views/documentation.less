@@ -1,0 +1,151 @@
+/*!
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+@type    : "view";
+@element : "documentation";
+
+@import (multiple) '../../ballerina.config';
+
+.documentation(@color) {
+    background: ~"@{@{color}-documentation-background-color}";
+    color: ~"@{@{color}-documentation-base-text-color}";
+
+    .documentation-container {
+        padding: 25px 30px;
+
+        .documentation-block {
+            margin-bottom: 45px;
+
+            .parameter {
+                color: ~"@{@{color}-documentation-parameter-text-color}";
+            }
+            .type {
+                color: ~"@{@{color}-documentation-type-text-color}";
+                font-style: italic;
+            }
+            .title {
+                font-size: @documentation-title-font-size;
+                margin-bottom: 5px;
+                font-weight: 400;
+        
+                .icon {
+                    margin-right: 3px;
+                }
+                .object-type,
+                .service-type,
+                .value-type {
+                    font-size: 15px;
+                    font-style: italic;
+                    margin-left: 5px;
+                }
+                .parameters {
+                    color: ~"@{@{color}-documentation-parameter-text-color}";
+                    font-style: italic;
+                    font-size: calc(@documentation-title-font-size - 2px);
+                }
+            }
+
+            .description {
+                font-size: 15px;
+            }
+            .ui.grid.params-list {
+                background-color: ~"@{@{color}-documentation-records-container-background-color}";
+                padding: @documentation-records-container-padding;
+                margin: @documentation-records-container-margin;
+
+                & > .row {
+                    padding: @documentation-records-padding;
+                }
+            }
+            .return-details {
+                strong {
+                    font-weight: 600;
+                }
+                .return-description {
+                    font-style: italic;
+                }
+            }
+            code {
+                background: #E0E1E2;
+                border: none;
+                color: #000;
+                padding: 1px 3px;
+                font-family: monospace, monospace;
+                font-size: 0.9em;
+            }
+            .ui.table {
+                thead th {
+                    font-weight: 500;
+                }
+
+                tbody .stacked-content {
+                    display: none !important;
+                }
+            }
+        }
+        .ui.list.tree-show-line {
+            .item > .content > .list {
+                margin-top: 0.5rem;
+
+                .item {
+                    display: table;
+                    width: 100%;
+                }
+            }
+            .item:not(:last-child) > .content > .list {
+                // TODO: Add treeview lines
+                // background: url(data:image/gif;base64,R0lGODlhCQACAIAAAMzMzP///yH5BAEAAAEALAAAAAAJAAIAAAIEjI9pUAA7) 0 0 repeat-y;
+            }
+        }
+        .__added {
+            animation: added_animate 3s;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes added_animate {
+            from {
+                background-color: rgb(225, 225, 50);
+            }
+            to {}
+        }
+
+        @media only screen and (max-width: 767px) {
+            .ui.table {
+                thead {
+                    display: none !important;
+                }
+            }
+            .ui.table tbody td .stacked-content {
+                display: inline-block !important;
+            }
+            .ui.table tbody td>.stacked-content+p {
+                display: inline-block;
+            }
+            .ui.table tbody td .stacked-content .label {
+                margin-right: 5px;
+            }
+        }
+    }
+}
+
+body.documentation {
+    .documentation("light");
+}
+
+.loadUIOverrides();

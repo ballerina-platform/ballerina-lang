@@ -67,36 +67,23 @@ public class BFunctionType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_FUNCTION);
-        // TODO: Fix this for Runtime function types. Without this Type Casting doesn't work.
-//        return new TypeSignature(TypeSignature.SIG_FUNCTION, getSigString());
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.FUNCTION_POINTER_TAG;
     }
 
-
-    private String getSigString() {
-        return "(" + getBTypListAsString(paramTypes, true) + ")("
-                + getBTypListAsString(retParamTypes, true) + ")";
-    }
-
     public static String getTypeName(BType[] parameterType, BType[] returnParameterType) {
-        return "function (" + (parameterType != null ? getBTypListAsString(parameterType, false) : "") + ")"
-                + (returnParameterType != null ? " returns (" + getBTypListAsString(returnParameterType, false) +
+        return "function (" + (parameterType != null ? getBTypeListAsString(parameterType) : "") + ")"
+                + (returnParameterType != null ? " returns (" + getBTypeListAsString(returnParameterType) +
                 ")" : "");
     }
 
-    private static String getBTypListAsString(BType[] typeNames, boolean isSigNature) {
+    private static String getBTypeListAsString(BType[] typeNames) {
         StringBuffer br = new StringBuffer();
         int i = 0;
         for (BType type : typeNames) {
-            br.append(isSigNature ? type.getSig() : type.getName());
+            br.append(type.getName());
             if (++i < typeNames.length) {
-                br.append(isSigNature ? "" : ",");
+                br.append(",");
             }
         }
         return br.toString();
@@ -127,6 +114,11 @@ public class BFunctionType extends BType {
         result = 31 * result + Arrays.hashCode(paramTypes);
         result = 31 * result + Arrays.hashCode(retParamTypes);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return getTypeName(paramTypes, retParamTypes);
     }
 
     /* Utility methods for Composer. */

@@ -26,6 +26,10 @@ import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
 import org.ballerinalang.siddhi.core.stream.output.sink.InMemorySink;
 import org.ballerinalang.siddhi.core.util.transport.DynamicOptions;
 
+/**
+ * Test InMemory sink implementation.
+ */
+
 @Extension(
         name = "testFailingInMemory",
         namespace = "sink",

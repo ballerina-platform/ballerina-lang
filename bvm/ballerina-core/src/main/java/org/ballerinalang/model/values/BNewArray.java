@@ -17,11 +17,16 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.lang.reflect.Array;
+import java.util.List;
+
+import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
  * {@code BArray} represents an arrays in Ballerina.
@@ -31,14 +36,16 @@ import java.lang.reflect.Array;
 // TODO Change this class name
 public abstract class BNewArray implements BRefType, BCollection {
 
+    protected BType arrayType;
+    protected volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
+
     /**
      * The maximum size of arrays to allocate.
      * <p>
      * This is same as Java
      */
-    protected static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-    protected static final int DEFAULT_ARRAY_SIZE = 100;
-
+    protected int maxArraySize = Integer.MAX_VALUE - 8;
+    private static final int DEFAULT_ARRAY_SIZE = 100;
     protected int size = 0;
 
     public abstract void grow(int newLength);
@@ -50,19 +57,24 @@ public abstract class BNewArray implements BRefType, BCollection {
 
     @Override
     public BType getType() {
-        return null; //todo
+        return arrayType;
     }
 
     @Override
-    public BRefType value() {
-        return null;
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+
     }
 
+    @Override
+    public BRefType<?> value() {
+        return null;
+    }
 
     // Private methods
 
     protected Object newArrayInstance(Class<?> componentType) {
-        return Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
+        return (size > 0) ?
+                Array.newInstance(componentType, size) : Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
     }
 
     protected void prepareForAdd(long index, int currentArraySize) {
@@ -79,22 +91,22 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     protected void rangeCheck(long index, int size) {
-        if (index > MAX_ARRAY_SIZE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
 
-        if ((int) index < 0) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+        if ((int) index < 0 || index >= maxArraySize) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
@@ -107,7 +119,7 @@ public abstract class BNewArray implements BRefType, BCollection {
             newArraySize = Math.max(newArraySize, requestedCapacity);
 
             // Now get the minimum value of new array size and maximum array size
-            newArraySize = Math.min(newArraySize, MAX_ARRAY_SIZE);
+            newArraySize = Math.min(newArraySize, maxArraySize);
             grow(newArraySize);
         }
     }
@@ -139,17 +151,40 @@ public abstract class BNewArray implements BRefType, BCollection {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
+        public BValue getNext() {
             long cursor = this.cursor++;
-            if (arity == 1) {
-                return new BValue[] {array.getBValue(cursor)};
+            if (cursor == length) {
+                return null;
             }
-            return new BValue[] {new BInteger(cursor), array.getBValue(cursor)};
+            return array.getBValue(cursor);
         }
 
         @Override
         public boolean hasNext() {
             return cursor < length;
+        }
+
+        @Override
+        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized boolean isFrozen() {
+        return this.freezeStatus.isFrozen();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
+        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
         }
     }
 }

@@ -23,6 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.LauncherUtils;
@@ -69,6 +70,12 @@ public class DocerinaMojo extends AbstractMojo {
      */
     @Parameter(property = "packageFilter", required = false)
     private String packageFilter;
+
+    /**
+     * Organization name.
+     */
+    @Parameter(property = "orgName", required = false)
+    private String orgName;
     
     /**
      * treat the source as native ballerina code.
@@ -78,12 +85,25 @@ public class DocerinaMojo extends AbstractMojo {
 
     @Parameter(property = "outputZip", required = false)
     private String outputZip;
+    
+    /**
+     * Generates the table of content file for the package.
+     */
+    @Parameter(property = "generateTOC", required = false, defaultValue = "false")
+    private boolean generateTOC;
 
     /**
      * enable debug level logs.
      */
     @Parameter(property = "debugDocerina", required = false)
     private boolean debugDocerina;
+
+    /**
+     * doc generation shouldn't make network call for pulling packages.
+     */
+    @Parameter(property = "offline", required = false)
+    private boolean offline;
+
 
     public void execute() throws MojoExecutionException {
         if (debugDocerina) {
@@ -95,6 +115,11 @@ public class DocerinaMojo extends AbstractMojo {
         if (outputZip != null) {
             System.setProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH, outputZip);
         }
+        if (orgName != null) {
+            System.setProperty(BallerinaDocConstants.ORG_NAME, orgName);
+        }
+        
+        ConfigRegistry.getInstance().addConfiguration(BallerinaDocConstants.GENERATE_TOC, generateTOC);
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         List<String> sources;
@@ -106,10 +131,16 @@ public class DocerinaMojo extends AbstractMojo {
         }
 
         try {
-            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir, packageFilter, nativeCode, sources.toArray
-                    (new String[sources.size()]));
+            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir, packageFilter, nativeCode, offline,
+                    sources.toArray(new String[sources.size()]));
         } catch (Throwable e) {
             err.println(ExceptionUtils.getStackTrace(e));
+        } finally {
+            System.clearProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS);
+            System.clearProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY);
+            System.clearProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
+            System.clearProperty(BallerinaDocConstants.ORG_NAME);
+            ConfigRegistry.getInstance().removeConfiguration(BallerinaDocConstants.GENERATE_TOC);
         }
     }
 }

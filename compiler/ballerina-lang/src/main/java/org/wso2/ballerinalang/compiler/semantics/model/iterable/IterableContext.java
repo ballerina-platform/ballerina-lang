@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.iterable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
@@ -40,10 +40,10 @@ public class IterableContext {
 
     /* Filed used for code generation */
     // Variables used in iterator function.
-    public BLangVariable collectionVar = null;
-    public BLangVariable resultVar = null;
-    public BLangVariable countVar = null;
-    public List<BLangVariable> iteratorResultVariables = new ArrayList<>();
+    public BLangSimpleVariable collectionVar = null;
+    public BLangSimpleVariable resultVar = null;
+    public BLangSimpleVariable countVar = null;
+    public List<BLangSimpleVariable> iteratorResultVariables = new ArrayList<>();
     public List<BType> foreachTypes = new ArrayList<>();
 
     public BLangExpression collectionExpr;

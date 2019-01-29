@@ -20,37 +20,39 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.StructField;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Implantation of {@link org.ballerinalang.connector.api.Struct}
+ * Implantation of {@link org.ballerinalang.connector.api.Struct}.
  *
  * @since 0.965.0
  */
 public class StructImpl extends AnnotatableNode implements Struct {
 
-    private BStruct value;
-    private BStructType type;
+    private BMap<String, BValue> value;
+    private BStructureType type;
     private Map<String, StructFieldImpl> structFields = new LinkedHashMap<>();
     private int[] indexes = new int[] {-1, -1, -1, -1, -1, -1};
 
-    StructImpl(BStruct value) {
+    StructImpl(BMap<String, BValue> value) {
         this.value = value;
-        type = value.getType();
-        Arrays.stream(value.getType().getStructFields()).forEach(sf -> {
+        type = (BStructureType) value.getType();
+        type.getFields().values().forEach(sf -> {
             final StructFieldImpl structField = new StructFieldImpl(sf.fieldName, sf.fieldType.getTag());
             setIndex(structField, indexes);
             structFields.put(sf.fieldName, structField);
@@ -74,27 +76,27 @@ public class StructImpl extends AnnotatableNode implements Struct {
 
     @Override
     public long getIntField(String fieldName) {
-        return value.getIntField(getFieldIndex(fieldName));
+        return ((BInteger) value.get(fieldName)).intValue();
     }
 
     @Override
     public double getFloatField(String fieldName) {
-        return value.getFloatField(getFieldIndex(fieldName));
+        return ((BFloat) value.get(fieldName)).floatValue();
     }
 
     @Override
     public String getStringField(String fieldName) {
-        return value.getStringField(getFieldIndex(fieldName));
+        return value.get(fieldName).stringValue();
     }
 
     @Override
     public boolean getBooleanField(String fieldName) {
-        return value.getBooleanField(getFieldIndex(fieldName)) == 1;
+        return ((BBoolean) value.get(fieldName)).booleanValue();
     }
 
     @Override
     public Struct getStructField(String fieldName) {
-        final BStruct refField = (BStruct) value.getRefField(getFieldIndex(fieldName));
+        final BMap<String, BValue> refField = (BMap<String, BValue>) value.get(fieldName);
         if (refField == null) {
             return null;
         }
@@ -102,15 +104,20 @@ public class StructImpl extends AnnotatableNode implements Struct {
     }
 
     @Override
+    public BMap getServiceField(String fieldName) {
+        return (BMap) value.get(fieldName);
+    }
+
+    @Override
     public Value[] getArrayField(String fieldName) {
-        final BNewArray refField = (BNewArray) value.getRefField(getFieldIndex(fieldName));
+        final BNewArray refField = (BNewArray) value.get(fieldName);
         if (refField == null) {
             return null;
         }
         List<Value> list = new ArrayList<>();
         final BIterator bIterator = refField.newIterator();
         while (bIterator.hasNext()) {
-            list.add(ValueImpl.createValue(bIterator.getNext(1)[0]));
+            list.add(ValueImpl.createValue(bIterator.getNext()));
         }
         return list.toArray(new Value[0]);
     }
@@ -122,22 +129,22 @@ public class StructImpl extends AnnotatableNode implements Struct {
 
     @Override
     public Map<String, Value> getMapField(String fieldName) {
-        final BMap refField = (BMap) value.getRefField(getFieldIndex(fieldName));
+        final BMap refField = (BMap) value.get(fieldName);
         if (refField == null) {
             return null;
         }
         Map<String, Value> valueMap = new LinkedHashMap<>();
         final BIterator bIterator = refField.newIterator();
         while (bIterator.hasNext()) {
-            final BValue[] next = bIterator.getNext(2);
-            valueMap.put(next[0].stringValue(), ValueImpl.createValue(next[1]));
+            final BValueArray next = (BValueArray) bIterator.getNext();
+            valueMap.put(next.getRefValue(0).stringValue(), ValueImpl.createValue(next.getRefValue(1)));
         }
         return valueMap;
     }
 
     @Override
     public Value getTypeField(String fieldName) {
-        final BTypeDescValue refField = (BTypeDescValue) value.getRefField(getFieldIndex(fieldName));
+        final BTypeDescValue refField = (BTypeDescValue) value.get(fieldName);
         if (refField == null) {
             return null;
         }
@@ -146,20 +153,12 @@ public class StructImpl extends AnnotatableNode implements Struct {
 
     @Override
     public Value getRefField(String fieldName) {
-        final BValue refField = value.getRefField(getFieldIndex(fieldName));
+        final BValue refField = value.get(fieldName);
 
         if (refField == null) {
             return null;
         }
         return ValueImpl.createValue(refField);
-    }
-
-    private int getFieldIndex(String fieldName) {
-        final StructFieldImpl structField = structFields.get(fieldName);
-        if (structField == null) {
-            throw new RuntimeException(fieldName + " not found");
-        }
-        return structField.index;
     }
 
     @Override
@@ -184,7 +183,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
     }
 
     /**
-     * Implementation of {@link StructFieldImpl}
+     * Implementation of {@link StructFieldImpl}.
      *
      * @since 0.965.0
      */
@@ -223,9 +222,6 @@ public class StructImpl extends AnnotatableNode implements Struct {
                 break;
             case TypeTags.BOOLEAN_TAG:
                 structField.index = ++currentIndex[3];
-                break;
-            case TypeTags.BLOB_TAG:
-                structField.index = ++currentIndex[4];
                 break;
             default:
                 structField.index = ++currentIndex[5];

@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -38,7 +37,6 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
 
     private PatternStreamingInputNode patternStreamingInput;
     private List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputNodeList = new ArrayList<>();
-    private ExpressionNode timeExpr;
     private boolean isFollowedBy;
     private boolean isEnclosedInParenthesis;
     private boolean isNotWithFor;
@@ -46,6 +44,8 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     private boolean isAndOnly;
     private boolean isOrOnly;
     private boolean isCommaSeparated;
+    private String timeScale;
+    private String timeDurationValue;
 
     @Override
     public NodeKind getKind() {
@@ -143,13 +143,23 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     }
 
     @Override
-    public void setTimeExpr(ExpressionNode timeExpr) {
-        this.timeExpr = timeExpr;
+    public String getTimeScale() {
+        return timeScale;
     }
 
     @Override
-    public ExpressionNode getTimeExpr() {
-        return timeExpr;
+    public void setTimeScale(String timeScale) {
+        this.timeScale = timeScale;
+    }
+
+    @Override
+    public String getTimeDurationValue() {
+        return timeDurationValue;
+    }
+
+    @Override
+    public void setTimeDurationValue(String timeDurationValue) {
+        this.timeDurationValue = timeDurationValue;
     }
 
     @Override

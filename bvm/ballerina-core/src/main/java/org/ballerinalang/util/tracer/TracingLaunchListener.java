@@ -20,7 +20,7 @@ package org.ballerinalang.util.tracer;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 
@@ -32,10 +32,12 @@ public class TracingLaunchListener implements LaunchListener {
 
     @Override
     public void beforeRunProgram(boolean service) {
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
-            ObservabilityUtils.addObserver(new BallerinaTracingObserver());
-            TracersStore.getInstance().loadTracers();
+        if (!TracersStore.getInstance().isInitialized()) {
+            ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+            if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
+                ObserveUtils.addObserver(new BallerinaTracingObserver());
+                TracersStore.getInstance().loadTracers();
+            }
         }
     }
 

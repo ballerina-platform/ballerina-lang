@@ -20,6 +20,7 @@ package org.ballerinalang.connector.impl;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
 import java.util.HashMap;
@@ -34,19 +35,19 @@ import java.util.Map;
 public class ServiceImpl extends AnnotatableNode implements Service {
     private String name;
     private String packagePath;
-    private String endPointName;
     private ServiceInfo serviceInfo;
     private String packageVersion;
+    private BMap serviceValue;
 
     //key - resourceName, value - resource
     private Map<String, Resource> resourceMap = new HashMap<>();
 
-    ServiceImpl(ServiceInfo serviceInfo) {
+    ServiceImpl(ServiceInfo serviceInfo, BMap serviceValue) {
         this.serviceInfo = serviceInfo;
         this.name = serviceInfo.getName();
         this.packagePath = serviceInfo.getPackagePath();
         this.packageVersion = serviceInfo.getPackageInfo().getPackageVersion();
-        this.endPointName = serviceInfo.getEndpointName();
+        this.serviceValue = serviceValue;
     }
 
     public void addResource(String name, Resource resource) {
@@ -58,14 +59,13 @@ public class ServiceImpl extends AnnotatableNode implements Service {
         return name;
     }
 
-    @Override
-    public String getPackage() {
-        return packagePath;
+    public BMap getBValue() {
+        return serviceValue;
     }
 
     @Override
-    public String getEndpointName() {
-        return endPointName;
+    public String getPackage() {
+        return packagePath;
     }
 
     @Override

@@ -39,6 +39,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for filter queries.
+ */
 public class FilterTestCase1 {
     private static final Logger log = LoggerFactory.getLogger(FilterTestCase1.class);
     private volatile int count;

@@ -17,15 +17,19 @@
 package org.ballerinalang.swagger.model;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.callbacks.Callback;
 import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
+import org.ballerinalang.swagger.utils.CodegenUtils;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +46,16 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
     private String description;
     private ExternalDocumentation externalDocs;
     private String operationId;
-    private List<Parameter> parameters;
-    private RequestBody requestBody;
+    private List<BallerinaParameter> parameters;
+    private BallerinaRequestBody requestBody;
     private Set<Map.Entry<String, ApiResponse>> responses;
     private Set<Map.Entry<String, Callback>> callbacks;
     private List<SecurityRequirement> security;
+    private List<String> methods;
+
+    // Not static since handlebars can't see static variables
+    private final List<String> allMethods =
+            Arrays.asList("HEAD", "OPTIONS", "PATCH", "DELETE", "POST", "PUT", "GET");
 
     public BallerinaOperation() {
         this.responses = new LinkedHashSet<>();
@@ -54,18 +63,23 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
     }
 
     @Override
-    public BallerinaOperation buildContext(Operation operation) throws BallerinaOpenApiException {
+    public BallerinaOperation buildContext(Operation operation, OpenAPI openAPI) throws BallerinaOpenApiException {
         if (operation == null) {
             return getDefaultValue();
         }
+
+        // OperationId with spaces will cause trouble in ballerina code.
+        // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> swagger
+        this.operationId = CodegenUtils.normalizeForBIdentifier(operation.getOperationId());
         this.tags = operation.getTags();
         this.summary = operation.getSummary();
         this.description = operation.getDescription();
         this.externalDocs = operation.getExternalDocs();
-        this.parameters = operation.getParameters();
-        this.requestBody = operation.getRequestBody();
         this.security = operation.getSecurity();
-        this.operationId = operation.getOperationId();
+
+        this.parameters = new ArrayList<>();
+        this.methods = null;
+        this.requestBody = new BallerinaRequestBody().buildContext(operation.getRequestBody(), openAPI);
 
         if (operation.getResponses() != null) {
             operation.getResponses()
@@ -75,10 +89,58 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
             operation.getCallbacks()
                     .forEach((name, callback) -> callbacks.add(new AbstractMap.SimpleEntry<>(name, callback)));
         }
+        if (operation.getParameters() != null) {
+            for (Parameter parameter : operation.getParameters()) {
+                this.parameters.add(new BallerinaParameter().buildContext(parameter, openAPI));
+            }
+        }
 
         return this;
     }
 
+    @Override
+    public BallerinaOperation buildContext(Operation operation) throws BallerinaOpenApiException {
+        return buildContext(operation, null);
+    }
+
+    /**
+     * Build BallerinaOperation with user extension.
+     * Complete BallerinaOperation object will not be built. Only selected
+     * set of attributes are supported.
+     *
+     * @param xObj extension context object
+     * @return BallerinaOperation built with extension details
+     */
+    public BallerinaOperation buildXContext(Object xObj) {
+        LinkedHashMap extension = (LinkedHashMap) xObj;
+        Object operationId = extension.get("operationId");
+        Object tags = extension.get("tags");
+        Object summary = extension.get("summary");
+        Object description = extension.get("description");
+        Object xMethodsObj = extension.get("x-METHODS");
+        this.parameters = new ArrayList<>();
+
+        if (operationId != null) {
+            // OperationId with spaces will cause trouble in ballerina code.
+            // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> swagger
+            this.operationId = CodegenUtils.normalizeForBIdentifier(operationId.toString());
+        }
+        if (tags != null && tags instanceof ArrayList) {
+            this.tags = (ArrayList<String>) tags;
+        }
+        if (summary != null) {
+            this.summary = summary.toString();
+        }
+        if (description != null) {
+            this.description = description.toString();
+        }
+        if (xMethodsObj != null && (xMethodsObj instanceof ArrayList)) {
+            this.methods =  (ArrayList) xMethodsObj;
+        }
+
+        return this;
+    }
+    
     @Override
     public BallerinaOperation getDefaultValue() {
         return new BallerinaOperation();
@@ -104,11 +166,11 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         return operationId;
     }
 
-    public List<Parameter> getParameters() {
+    public List<BallerinaParameter> getParameters() {
         return parameters;
     }
 
-    public RequestBody getRequestBody() {
+    public BallerinaRequestBody getRequestBody() {
         return requestBody;
     }
 
@@ -126,5 +188,13 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
 
     public void setOperationId(String operationId) {
         this.operationId = operationId;
+    }
+
+    public List<String> getMethods() {
+        return methods;
+    }
+
+    public List<String> getAllMethods() {
+        return allMethods;
     }
 }

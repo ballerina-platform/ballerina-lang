@@ -1,0 +1,2 @@
+// Documentation attachments allow you to document different Ballerina constructs such as functions, records, objects and listeners defined in modules.
+// These attachments are used by Docerina (Ballerina documentation generation tool) to generate API documentation for the modules.

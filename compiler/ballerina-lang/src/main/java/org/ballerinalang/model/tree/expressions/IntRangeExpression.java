@@ -30,7 +30,7 @@ public interface IntRangeExpression extends ExpressionNode {
 
     void setStartExpression(ExpressionNode expression);
 
-    void getEndExpression(ExpressionNode expression);
+    void setEndExpression(ExpressionNode expression);
 
     boolean includeStart();
 

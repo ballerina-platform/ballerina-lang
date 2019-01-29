@@ -33,11 +33,11 @@ Similar to languages such as Java, Go, etc, Ballerina supports the following exp
 
 * Mathematical expressions `(x + y, x/y, etc.)`
 * Function calls `(foo(a,b))`
-* Action calls `(tweet(twitterActor, "hello"))`
+* Remote function calls `(tweet(twitterActor, "hello"))`
 * Complex expressions `(foo(a,bar(c,d)))`
 
 ## Names
-When naming your elements (services, resources, actions, functions, etc.), Ballerina's support for identifier literals allows you to use quotes, foreign characters, and more in your names. If the name has space, be sure to surround the name with vertical bars (|) when declaring and invoking the element. For example:
+When naming your elements (services, resources, remote functions, functions, etc.), Ballerina's support for identifier literals allows you to use quotes, foreign characters, and more in your names. If the name has space, be sure to surround the name with vertical bars (|) when declaring and invoking the element. For example:
 
 ```
 int |this is a variable| = 5;
@@ -77,7 +77,6 @@ For more detailed information, see "IdentifierLiteral" in the [Ballerina grammar
 ### Reserved names
 When naming Ballerina elements, Swagger files, program files, and packages, do **not** use the following terms for the name, as these terms are reserved in Ballerina:
 
-- action
 - all
 - any
 - as

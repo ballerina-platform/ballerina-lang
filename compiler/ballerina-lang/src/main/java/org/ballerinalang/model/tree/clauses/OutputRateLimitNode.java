@@ -50,7 +50,4 @@ public interface OutputRateLimitNode extends Node {
 
     void setSnapshot(boolean snapshot);
 
-    boolean isEventBasedRateLimit();
-
-    void setEventBasedRateLimit(boolean eventBasedRateLimit);
 }

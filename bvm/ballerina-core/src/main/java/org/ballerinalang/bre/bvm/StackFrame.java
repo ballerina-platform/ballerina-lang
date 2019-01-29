@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,174 +17,133 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
+import org.ballerinalang.util.observability.ObserverContext;
 
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * {@code StackFrame} represents frame in a control stack.
- * Holds references to parameters, local variables and return values.
- *
- * @since 0.88
+ * This represents the local variables that are available to a worker. 
+ * 
+ * @since 0.985.0
  */
 public class StackFrame {
-    long[] longRegs;
-    double[] doubleRegs;
-    String[] stringRegs;
-    int[] intRegs;
-    byte[][] byteRegs;
-    BRefType[] refRegs;
 
-    // Return address of the caller
-    int retAddrs;
+    public int invocationFlags = FunctionFlags.NOTHING;
 
-    // Caller's Register indexes to which the return values should be copied;
-    int[] retRegIndexes;
+    public long[] longRegs;
 
-    // Error thrown by current stack.
-    BStruct errorThrown;
+    public double[] doubleRegs;
 
-    CallableUnitInfo callableUnitInfo;
-    PackageInfo packageInfo;
-    WorkerInfo workerInfo;
+    public String[] stringRegs;
 
-    // To support old native function and action invocation
-    public BValue[] returnValues;
+    public int[] intRegs;
 
-    // To support worker return.
-    final AtomicBoolean workerReturned = new AtomicBoolean();
-    String returnedWorker = "";
-    
-    public StackFrame prevStackFrame;
+    public BRefType<?>[] refRegs;
 
-    public StackFrame(PackageInfo packageInfo, int retAddrs, int[] retRegIndexes) {
-        this.packageInfo = packageInfo;
-        this.retAddrs = retAddrs;
-        this.retRegIndexes = retRegIndexes;
-    }
+    public CallableUnitInfo callableUnitInfo;
 
-    public StackFrame(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, int retAddrs, int[] retRegIndexes) {
+    public Map<String, Object> localProps = new HashMap<>();
+
+    // Cached value
+    ConstantPoolEntry[] constPool;
+
+    // Cached value
+    public Instruction[] code;
+
+    // Instruction pointer
+    public int ip;
+
+    // Return registry index
+    int retReg;
+
+    public ObserverContext observerContext;
+
+    // Indicate this frame belong to a transaction participant
+    TransactionParticipantType trxParticipant;
+
+    // RefReg index of returning error value of the frame, -1 if not returning error
+    int errorRetReg = -1;
+
+    public WDChannels wdChannels;
+
+    public CallableUnitInfo.ChannelDetails[] workerSendInChannels;
+
+    public StackFrame() {}
+
+    public StackFrame(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg,
+                      int invocationFlags, CallableUnitInfo.ChannelDetails[] workerSendInChannels) {
+        if (ci.maxLongRegs > 0) {
+            this.longRegs = new long[ci.maxLongRegs];
+        }
+        if (ci.maxDoubleRegs > 0) {
+            this.doubleRegs = new double[ci.maxDoubleRegs];
+        }
+        if (ci.maxStringRegs > 0) {
+            this.stringRegs = new String[ci.maxStringRegs];
+        }
+        if (ci.maxIntRegs > 0) {
+            this.intRegs = new int[ci.maxIntRegs];
+        }
+        if (ci.maxBValueRegs > 0) {
+            this.refRegs = new BRefType[ci.maxBValueRegs];
+        }
+        this.ip = ci.getCodeAddrs();
         this.callableUnitInfo = callableUnitInfo;
-        this.packageInfo = callableUnitInfo.getPackageInfo();
-        this.workerInfo = workerInfo;
-        CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
-
-        this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
-        this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
-        this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
-        this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
-        this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
-
-        this.retAddrs = retAddrs;
-        this.retRegIndexes = retRegIndexes;
+        this.constPool = packageInfo.getConstPoolEntries();
+        this.code = packageInfo.getInstructions();
+        this.retReg = retReg;
+        this.invocationFlags = invocationFlags;
+        this.wdChannels = new WDChannels();
+        this.workerSendInChannels = workerSendInChannels;
     }
 
-    public StackFrame(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, int retAddrs, int[] retRegIndexes,
-                      BValue[] returnValues) {
-        this.callableUnitInfo = callableUnitInfo;
-        this.packageInfo = callableUnitInfo.getPackageInfo();
-        this.workerInfo = workerInfo;
-        CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
-
-        this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
-        this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
-        this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
-        this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
-        this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
-
-        this.retAddrs = retAddrs;
-        this.retRegIndexes = retRegIndexes;
-        this.returnValues = returnValues;
+    enum TransactionParticipantType {
+        LOCAL_PARTICIPANT,
+        REMOTE_PARTICIPANT,
+        NON_PARTICIPANT
     }
 
-    public long[] getLongRegs() {
-        return longRegs;
+    public void handleChannelPanic(BError error, WDChannels parentChannels) {
+        for (int i = 0; i < workerSendInChannels.length; i++) {
+            WorkerDataChannel channel;
+            CallableUnitInfo.ChannelDetails channelDetails = workerSendInChannels[i];
+            if (channelDetails.channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
+            } else {
+                channel = parentChannels.getWorkerDataChannel(channelDetails.name);
+            }
+            if (channelDetails.send) {
+                channel.setSendPanic(error);
+            } else {
+                channel.setReceiverPanic(error);
+            }
+        }
     }
 
-    public double[] getDoubleRegs() {
-        return doubleRegs;
+    public void handleChannelError(BRefType value, WDChannels parentChannels) {
+        for (int i = 0; i < workerSendInChannels.length; i++) {
+            WorkerDataChannel channel;
+            CallableUnitInfo.ChannelDetails channelDetails = workerSendInChannels[i];
+            if (channelDetails.channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
+            } else {
+                channel = parentChannels.getWorkerDataChannel(channelDetails.name);
+            }
+            if (channelDetails.send) {
+                channel.setSendError(value);
+            } else {
+                channel.setRecieveError(value);
+            }
+        }
     }
 
-    public String[] getStringRegs() {
-        return stringRegs;
-    }
-
-    public int[] getIntRegs() {
-        return intRegs;
-    }
-
-    public byte[][] getByteRegs() {
-        return byteRegs;
-    }
-
-    public BRefType[] getRefRegs() {
-        return refRegs;
-    }
-
-    public void setLongRegs(long[] longRegs) {
-        this.longRegs = longRegs;
-    }
-
-    public void setDoubleRegs(double[] doubleRegs) {
-        this.doubleRegs = doubleRegs;
-    }
-
-    public void setStringRegs(String[] stringRegs) {
-        this.stringRegs = stringRegs;
-    }
-
-    public void setIntRegs(int[] intRegs) {
-        this.intRegs = intRegs;
-    }
-
-    public void setByteRegs(byte[][] byteRegs) {
-        this.byteRegs = byteRegs;
-    }
-
-    public void setRefRegs(BRefType[] refRegs) {
-        this.refRegs = refRegs;
-    }
-
-    public int getRetAddrs() {
-        return retAddrs;
-    }
-
-    public BStruct getErrorThrown() {
-        return errorThrown;
-    }
-
-    public void setErrorThrown(BStruct errorThrown) {
-        this.errorThrown = errorThrown;
-    }
-
-    public CallableUnitInfo getCallableUnitInfo() {
-        return callableUnitInfo;
-    }
-
-    public PackageInfo getPackageInfo() {
-        return packageInfo;
-    }
-
-    public WorkerInfo getWorkerInfo() {
-        return workerInfo;
-    }
-
-    public boolean tryReturn() {
-        return this.workerReturned.compareAndSet(false, true);
-    }
-
-    public void markedAsReturned() {
-        this.workerReturned.set(true);
-    }
 }

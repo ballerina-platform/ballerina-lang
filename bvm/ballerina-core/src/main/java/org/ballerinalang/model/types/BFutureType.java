@@ -33,6 +33,7 @@ public class BFutureType extends BType {
      * Create a {@code BTableType} which represents the SQL Result Set.
      *
      * @param typeName string name of the type
+     * @param pkgPath of the type
      */
     public BFutureType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BFuture.class);
@@ -55,15 +56,6 @@ public class BFutureType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null;
-    }
-
-    @Override
-    public TypeSignature getSig() {
-        if (constraint == null) {
-            return new TypeSignature(TypeSignature.SIG_FUTURE);
-        } else {
-            return new TypeSignature(TypeSignature.SIG_FUTURE, constraint.getPackagePath(), constraint.getName());
-        }
     }
 
     @Override

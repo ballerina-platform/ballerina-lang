@@ -21,8 +21,8 @@ import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.ballerinalang.toml.antlr4.TomlProcessor;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.util.TomlProcessor;
 
 import java.io.IOException;
 
@@ -65,7 +65,8 @@ public class SettingsProcessor {
     private static Settings getSettings(CharStream charStream) {
         Settings settings = new Settings();
         ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new SettingsBuildListener(settings), TomlProcessor.parseTomlContent(charStream));
+        walker.walk(new SettingsBuildListener(settings), TomlProcessor.parseTomlContent(charStream,
+                "~/.ballerina/Settings.toml"));
         return settings;
     }
 }

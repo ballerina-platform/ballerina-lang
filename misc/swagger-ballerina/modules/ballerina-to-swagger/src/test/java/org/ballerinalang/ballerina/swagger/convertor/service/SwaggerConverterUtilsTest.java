@@ -16,6 +16,7 @@
 
 package org.ballerinalang.ballerina.swagger.convertor.service;
 
+import org.ballerinalang.ballerina.swagger.convertor.SwaggerConverterException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -27,29 +28,48 @@ import java.io.IOException;
 
 public class SwaggerConverterUtilsTest {
     //Sample Ballerina Service definitions to be used for tests.
+    private static String echoServiceBal = "import ballerina/http;\n" +
+            "\n" +
+            "listener http:Listener ep = new (9090);\n" +
+            "\n" +
+            "service hello on ep {\n" +
+            "    resource function hi (http:Caller caller, http:Request request) {\n" +
+            "        http:Response res;\n" +
+            "        res.setStringPayload(\"Hello World!\\n\");\n" +
+            "        _ = caller->respond(res);\n" +
+            "    }\n" +
+            "}";
+
+    private static String invalidEchoServiceBal = "import ballerina/http;\n" +
+            "\n" +
+            "listener http:Listener ep = new (9090);\n" +
+            "\n" +
+            "service hello on ep \n" +
+            "    resource function hi (http:Caller caller, http:Request request) {\n" +
+            "        http:Response res;\n" +
+            "        res.setStringPayload(\"Hello World!\\n\");\n" +
+            "        _ = caller->respond(res);\n" +
+            "    }\n" +
+            "}";
+
     private static String serviceWithMultipleHTTPMethodsInResourceLevel = "import ballerina/http;\n" +
             "\n" +
             "\n" +
-            "endpoint http:Listener backendEP {\n" +
-            "   port:8081\n" +
-            "};\n" +
+            "listener http:Listener backendEP = new (8081);" +
             "\n" +
-            "endpoint http:Client backendClientEP {\n" +
-            "   targets: [{url: \"http://localhost:8081\"}]\n" +
-            "};\n" +
-            "\n" +
+            "http:Client backendClientEP = new(\"http://localhost:8081\");\n" +
             "\n" +
             "@http:ServiceConfig {\n" +
             "   basePath:\"/hello\"\n" +
             "   \n" +
             "}\n" +
-            "service hello bind backendEP {\n" +
+            "service hello on backendEP {\n" +
             "\n" +
             "   @http:ResourceConfig {\n" +
             "   methods:[\"GET, PUT\"],\n" +
             "       path:\"/\"\n" +
             "   }\n" +
-            "   sayHello (endpoint outboundEP, http:Request request) {\n" +
+            "   resource function sayHello (http:Caller outboundEP, http:Request request) {\n" +
             "       http:Response response = new;\n" +
             "       response.setStringPayload(\"Hello World!!!\");\n" +
             "       _ = outboundEP -> respond(response);\n" +
@@ -59,25 +79,20 @@ public class SwaggerConverterUtilsTest {
     private static String serviceWithNoHTTPMethodsAtResourceLevel = "import ballerina/http;\n" +
             "\n" +
             "\n" +
-            "endpoint http:Listener backendEP {\n" +
-            "   port:8081\n" +
-            "};\n" +
+            "listener http:Listener backendEP = new (8081);" +
             "\n" +
-            "endpoint http:Client backendClientEP {\n" +
-            "   targets: [{url: \"http://localhost:8081\"}]\n" +
-            "};\n" +
-            "\n" +
+            "http:Client backendClientEP = new(\"http://localhost:8081\");\n" +
             "\n" +
             "@http:ServiceConfig {\n" +
             "   basePath:\"/hello\"\n" +
             "   \n" +
             "}\n" +
-            "service hello bind backendEP {\n" +
+            "service hello on backendEP {\n" +
             "\n" +
             "   @http:ResourceConfig {\n" +
             "       path:\"/\"\n" +
             "   }\n" +
-            "   sayHello (endpoint outboundEP, http:Request request) {\n" +
+            "   resource function sayHello (http:Caller outboundEP, http:Request request) {\n" +
             "       http:Response response = new;\n" +
             "       response.setStringPayload(\"Hello World!!!\");\n" +
             "       _ = outboundEP -> respond(response);\n" +
@@ -87,26 +102,21 @@ public class SwaggerConverterUtilsTest {
     private static String serviceWithOneHTTPMethod = "import ballerina/http;\n" +
             "\n" +
             "\n" +
-            "endpoint http:Listener backendEP {\n" +
-            "   port:8081\n" +
-            "};\n" +
+            "listener http:Listener backendEP = new (8081);" +
             "\n" +
-            "endpoint http:Client backendClientEP {\n" +
-            "   targets: [{url: \"http://localhost:8081\"}]\n" +
-            "};\n" +
-            "\n" +
+            "http:Client backendClientEP = new(\"http://localhost:8081\");\n" +
             "\n" +
             "@http:ServiceConfig {\n" +
             "   basePath:\"/hello\"\n" +
             "   \n" +
             "}\n" +
-            "service hello bind backendEP {\n" +
+            "service hello on backendEP {\n" +
             "\n" +
             "   @http:ResourceConfig {\n" +
             "   methods:[\"GET\"],\n" +
             "       path:\"/\"\n" +
             "   }\n" +
-            "   sayHello (endpoint outboundEP, http:Request request) {\n" +
+            "   resource function sayHello (http:Caller outboundEP, http:Request request) {\n" +
             "       http:Response response = new;\n" +
             "       response.setStringPayload(\"Hello World!!!\");\n" +
             "       _ = outboundEP -> respond(response);\n" +
@@ -116,26 +126,21 @@ public class SwaggerConverterUtilsTest {
     String sampleSwaggerWithTwoResources = "import ballerina/http;\n" +
             "\n" +
             "\n" +
-            "endpoint http:Listener backendEP {\n" +
-            "   port:8081\n" +
-            "};\n" +
+            "listener http:Listener backendEP = new (8081);" +
             "\n" +
-            "endpoint http:Client backendClientEP {\n" +
-            "   targets: [{url: \"http://localhost:8081\"}]\n" +
-            "};\n" +
-            "\n" +
+            "http:Client backendClientEP = new(\"http://localhost:8081\");\n" +
             "\n" +
             "@http:ServiceConfig {\n" +
             "   basePath:\"/hello\"\n" +
             "   \n" +
             "}\n" +
-            "service hello bind backendEP {\n" +
+            "service hello on backendEP {\n" +
             "\n" +
             "   @http:ResourceConfig {\n" +
             "   methods:[\"GET\"],\n" +
             "       path:\"/goma\"\n" +
             "   }\n" +
-            "   sayHello (endpoint outboundEP, http:Request request) {\n" +
+            "   resource function sayHello (http:Caller outboundEP, http:Request request) {\n" +
             "       http:Response response = new;\n" +
             "       response.setStringPayload(\"Hello World!!!\");\n" +
             "       _ = outboundEP -> respond(response);\n" +
@@ -145,7 +150,7 @@ public class SwaggerConverterUtilsTest {
             "   methods:[\"PUT\"],\n" +
             "       path:\"/ela\"\n" +
             "   }\n" +
-            "   sayHelloPut (endpoint outboundEP, http:Request request) {\n" +
+            "   resource function sayHelloPut (http:Caller outboundEP, http:Request request) {\n" +
             "       http:Response response = new;\n" +
             "       response.setStringPayload(\"Hello World!!!\");\n" +
             "       _ = outboundEP -> respond(response);\n" +
@@ -154,26 +159,21 @@ public class SwaggerConverterUtilsTest {
     String sampleSwaggerWithMultipleResourceAndVerbs = "import ballerina/http;\n" +
             "\n" +
             "\n" +
-            "endpoint http:Listener backendEP {\n" +
-            "   port:8081\n" +
-            "};\n" +
+            "listener http:Listener backendEP = new (8081);" +
             "\n" +
-            "endpoint http:Client backendClientEP {\n" +
-            "   targets: [{url: \"http://localhost:8081\"}]\n" +
-            "};\n" +
-            "\n" +
+            "http:Client backendClientEP = new(\"http://localhost:8081\");\n" +
             "\n" +
             "@http:ServiceConfig {\n" +
             "   basePath:\"/hello\"\n" +
             "   \n" +
             "}\n" +
-            "service hello bind backendEP {\n" +
+            "service hello on backendEP {\n" +
             "\n" +
             "   @http:ResourceConfig {\n" +
             "   methods:[\"GET\"],\n" +
             "       path:\"/goma\"\n" +
             "   }\n" +
-            "   sayHello (endpoint outboundEP, http:Request request) {\n" +
+            "   resource function sayHello (http:Caller outboundEP, http:Request request) {\n" +
             "       http:Response response = new;\n" +
             "       response.setStringPayload(\"Hello World!!!\");\n" +
             "       _ = outboundEP -> respond(response);\n" +
@@ -183,7 +183,7 @@ public class SwaggerConverterUtilsTest {
             "   methods:[\"PUT\"],\n" +
             "       path:\"/ela\"\n" +
             "   }\n" +
-            "   sayHelloPut (endpoint outboundEP, http:Request request) {\n" +
+            "   resource function sayHelloPut (http:Caller outboundEP, http:Request request) {\n" +
             "       http:Response response = new;\n" +
             "       response.setStringPayload(\"Hello World!!!\");\n" +
             "       _ = outboundEP -> respond(response);\n" +
@@ -193,7 +193,7 @@ public class SwaggerConverterUtilsTest {
             "   methods:[\"POST\"],\n" +
             "       path:\"/ela\"\n" +
             "   }\n" +
-            "   sayHelloPost (endpoint outboundEP, http:Request request) {\n" +
+            "   resource function sayHelloPost (http:Caller outboundEP, http:Request request) {\n" +
             "       http:Response response = new;\n" +
             "       response.setStringPayload(\"Hello World!!!\");\n" +
             "       _ = outboundEP -> respond(response);\n" +
@@ -221,8 +221,8 @@ public class SwaggerConverterUtilsTest {
             String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(
                     serviceWithMultipleHTTPMethodsInResourceLevel, serviceName);
             Assert.assertNotNull(swaggerDefinition);
-        } catch (IOException e) {
-            Assert.fail("Error while converting ballerina service to swagger definition with empty service name");
+        } catch (SwaggerConverterException e) {
+            Assert.fail("Error while converting ballerina service to swagger definition");
         }
     }
 
@@ -235,8 +235,8 @@ public class SwaggerConverterUtilsTest {
             String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(
                     serviceWithNoHTTPMethodsAtResourceLevel, serviceName);
             Assert.assertNotNull(swaggerDefinition);
-        } catch (IOException e) {
-            Assert.fail("Error while converting ballerina service to swagger definition with empty service name");
+        } catch (SwaggerConverterException e) {
+            Assert.fail("Error while converting ballerina service to swagger definition");
         }
     }
 
@@ -248,8 +248,8 @@ public class SwaggerConverterUtilsTest {
             String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(serviceWithOneHTTPMethod,
                     serviceName);
             Assert.assertNotNull(swaggerDefinition);
-        } catch (IOException e) {
-            Assert.fail("Error while converting ballerina service to swagger definition with empty service name");
+        } catch (SwaggerConverterException e) {
+            Assert.fail("Error while converting ballerina service to swagger definition");
         }
     }
 
@@ -261,8 +261,8 @@ public class SwaggerConverterUtilsTest {
             String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(
                     sampleSwaggerWithTwoResources, serviceName);
             Assert.assertNotNull(swaggerDefinition);
-        } catch (IOException e) {
-            Assert.fail("Error while converting ballerina service to swagger definition with empty service name");
+        } catch (SwaggerConverterException e) {
+            Assert.fail("Error while converting ballerina service to swagger definition");
         }
     }
 
@@ -279,7 +279,34 @@ public class SwaggerConverterUtilsTest {
             Assert.assertNotNull(openAPIDefinition);
         } catch (IOException e) {
             Assert.fail("Error while converting ballerina service to swagger definition with empty service name");
+        } catch (SwaggerConverterException e) {
+            Assert.fail("Error while converting ballerina service to swagger definition");
         }
     }
 
+    @Test(description = "Test OAS and Swagger definition generation from ballerina echo service")
+    public void testWithEchoService() {
+        try {
+            String openAPIDefinition = SwaggerConverterUtils.generateOAS3Definitions(
+                    echoServiceBal, null);
+            String swaggerDefinition = SwaggerConverterUtils.generateSwaggerDefinitions(
+                    echoServiceBal, null);
+            Assert.assertNotNull(swaggerDefinition);
+            Assert.assertNotNull(openAPIDefinition);
+        } catch (IOException e) {
+            Assert.fail("Error while converting ballerina echo service to swagger definition");
+        } catch (SwaggerConverterException e) {
+            Assert.fail("Error while converting ballerina service to swagger definition");
+        }
+    }
+
+    @Test(description = "Test OAS definition generation when input ballerina service is invalid")
+    public void testServiceWithTypo() {
+        try {
+            String oasDef = SwaggerConverterUtils.generateOAS3Definitions(invalidEchoServiceBal, null);
+            Assert.fail("Error was not thrown for invalid ballerina service");
+        } catch (SwaggerConverterException e) {
+            Assert.assertEquals(e.getMessage(), "Please check if input source is valid and complete");
+        }
+    }
 }

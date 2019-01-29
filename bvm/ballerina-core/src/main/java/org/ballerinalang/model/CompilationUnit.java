@@ -21,7 +21,6 @@ package org.ballerinalang.model;
  * {@code CompilationUnit} represents a top-level construct in Ballerina Grammar.
  *
  * @see Function
- * @see org.wso2.ballerinalang.compiler.tree.BLangStruct
  * @since 0.8.0
  */
 public interface CompilationUnit extends Node {

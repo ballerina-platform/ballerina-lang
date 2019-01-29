@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 
 import java.util.List;
 
@@ -33,9 +33,9 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     void setName(IdentifierNode name);
     
-    List<? extends VariableNode> getParameters();
+    List<? extends SimpleVariableNode> getParameters();
     
-    void addParameter(VariableNode param);
+    void addParameter(SimpleVariableNode param);
 
     TypeNode getReturnTypeNode();
 
@@ -57,10 +57,10 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     void addDefaultableParameter(VariableDefinitionNode param);
 
-    List<BLangVariableDef> getDefaultableParameters();
+    List<BLangSimpleVariableDef> getDefaultableParameters();
 
-    VariableNode getRestParameters();
+    SimpleVariableNode getRestParameters();
 
-    void setRestParameter(VariableNode restParam);
+    void setRestParameter(SimpleVariableNode restParam);
 
 }

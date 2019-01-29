@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.connector.api;
 
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
 import java.util.List;
@@ -44,13 +45,6 @@ public interface Service {
     String getPackage();
 
     /**
-     * This method returns the package qualified endpoint name that bound to the service.
-     *
-     * @return the package qualified endpoint name that bound to the service.
-     */
-    String getEndpointName();
-
-    /**
      * This method will return the list of annotations for the given package path and annotation name.
      *
      * @param pkgPath of the annotation.
@@ -74,4 +68,6 @@ public interface Service {
      * @return version of the package.
      */
     String getPackageVersion();
+
+    BValue getBValue();
 }

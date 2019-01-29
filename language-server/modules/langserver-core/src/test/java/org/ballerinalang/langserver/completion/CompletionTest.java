@@ -17,26 +17,28 @@
 */
 package org.ballerinalang.langserver.completion;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
+import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
-import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.testng.log4testng.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -44,45 +46,57 @@ import java.util.List;
  */
 public abstract class CompletionTest {
 
-    private static final Logger LOGGER = Logger.getLogger(CompletionTest.class);
+    private Endpoint serviceEndpoint;
 
-    private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
-            + File.separator + "completion";
+    private Path sourcesPath = FileUtils.RES_DIR.resolve("completion");
 
-    private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
+    private JsonParser parser = new JsonParser();
 
-    protected static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "completion";
+    private Gson gson = new Gson();
 
-    @BeforeMethod
-    public void loadTestCases() throws IOException {
-        File source = new File(TESTS_SAMPLES);
-        File destination = new File(SAMPLES_COPY_DIR);
-        org.apache.commons.io.FileUtils.copyDirectory(source, destination);
+    @BeforeClass
+    public void init() {
+        this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
     @Test(dataProvider = "completion-data-provider")
-    public void test(String config, String configPath) {
-        String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);
+
+        String response = getResponse(configJsonObject);
+        JsonObject json = parser.parse(response).getAsJsonObject();
+        Type collectionType = new TypeToken<List<CompletionItem>>() {
+        }.getType();
+        JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
+        List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
         List<CompletionItem> expectedList = getExpectedList(configJsonObject);
-        Assert.assertEquals(true, CompletionTestUtil.isSubList(expectedList, responseItemList));
+
+        boolean result = CompletionTestUtil.isSubList(expectedList, responseItemList);
+        if (!result) {
+            // This will print nice comparable text in IDE
+//            Assert.assertEquals(responseItemList.toString(), expectedList.toString(),
+//                        "Failed Test for: " + configJsonPath);
+            Assert.fail("Failed Test for: " + configJsonPath);
+        }
     }
 
-    protected List<CompletionItem> getResponseItemList(JsonObject configJsonObject) {
-        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
-        String balPath = SAMPLES_COPY_DIR + File.separator + configJsonObject.get("source").getAsString();
+    String getResponse(JsonObject configJsonObject) throws IOException {
+        Path sourcePath = sourcesPath.resolve(configJsonObject.get("source").getAsString());
+        String responseString;
         Position position = new Position();
-        String content = FileUtils.fileContent(balPath);
+        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
-        TextDocumentPositionParams positionParams =
-                CompletionTestUtil.getPositionParams(position, balPath);
-        WorkspaceDocumentManager documentManager = CompletionTestUtil.prepareDocumentManager(balPath, content);
-        return CompletionTestUtil.getCompletions(documentManager, positionParams);
+
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position, this.serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+
+        return responseString;
     }
 
-    protected List<CompletionItem> getExpectedList(JsonObject configJsonObject) {
+    List<CompletionItem> getExpectedList(JsonObject configJsonObject) {
         JsonArray expectedItems = configJsonObject.get("items").getAsJsonArray();
         return CompletionTestUtil.getExpectedItemList(expectedItems);
     }
@@ -90,15 +104,8 @@ public abstract class CompletionTest {
     @DataProvider(name = "completion-data-provider")
     public abstract Object[][] dataProvider();
 
-    @AfterMethod
-    public void tearDown(ITestResult result) {
-        if (result.getStatus() == ITestResult.FAILURE) {
-            LOGGER.error("Test Failed for: [" + result.getParameters()[1] + "/" + result.getParameters()[0] + "]");
-        }
-    }
-
     @AfterClass
-    public void cleanSamplesCopy() throws IOException {
-        org.apache.commons.io.FileUtils.deleteDirectory(new File(ROOT_DIR + "samples"));
+    public void cleanupLanguageServer() {
+        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 }

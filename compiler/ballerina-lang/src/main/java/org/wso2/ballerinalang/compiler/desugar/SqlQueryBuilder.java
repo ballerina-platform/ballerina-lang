@@ -106,7 +106,7 @@ public abstract class SqlQueryBuilder extends BLangNodeVisitor {
             case LESS_EQUAL:
                 sqlExpr.append(lhsExpr).append(String.valueOf(expr.opKind)).append(rhsExpr);
                 break;
-            case POW:
+            case BITWISE_XOR:
                 sqlExpr.append("power(").append(lhsExpr).append(", ").append(rhsExpr).append(")");
                 break;
             case AND:
@@ -216,7 +216,14 @@ public abstract class SqlQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        StringBuilder sqlStringBuilder = new StringBuilder(invocationExpr.getName().getValue()).append("(");
+        StringBuilder sqlStringBuilder = new StringBuilder();
+        if (invocationExpr.pkgAlias != null) {
+            String pkgAlias = invocationExpr.pkgAlias.value;
+            if (pkgAlias != null && !pkgAlias.isEmpty()) {
+                sqlStringBuilder.append(pkgAlias).append(":");
+            }
+        }
+        sqlStringBuilder.append(invocationExpr.getName().getValue()).append("(");
         List<String> argList = new ArrayList<>();
         for (BLangExpression arg : invocationExpr.argExprs) {
             arg.accept(this);

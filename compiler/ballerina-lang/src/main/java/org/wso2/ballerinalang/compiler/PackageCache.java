@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -35,6 +36,7 @@ public class PackageCache {
             new CompilerContext.Key<>();
 
     protected Map<String, BLangPackage> packageMap;
+    protected Map<String, BPackageSymbol> packageSymbolMap;
 
     public static PackageCache getInstance(CompilerContext context) {
         PackageCache packageCache = context.get(PACKAGE_CACHE_KEY);
@@ -51,10 +53,11 @@ public class PackageCache {
     protected PackageCache(CompilerContext context) {
         context.put(PACKAGE_CACHE_KEY, this);
         this.packageMap = new HashMap<>();
+        this.packageSymbolMap = new HashMap<>();
     }
 
     public BLangPackage get(PackageID packageID) {
-        return packageMap.get(packageID.bvmAlias());
+        return packageMap.get(getCacheID(packageID));
     }
 
     public BLangPackage get(String pkgPath) {
@@ -65,6 +68,26 @@ public class PackageCache {
         if (bLangPackage != null) {
             bLangPackage.packageID = packageID;
         }
-        packageMap.put(packageID.bvmAlias(), bLangPackage);
+        packageMap.put(getCacheID(packageID), bLangPackage);
+    }
+
+    public static String getCacheID(PackageID packageID) {
+        String bvmAlias = packageID.toString();
+        if (packageID.sourceFileName != null) {
+            bvmAlias = bvmAlias + "-" + packageID.sourceFileName.getValue();
+        }
+        return bvmAlias;
+    }
+
+    public BPackageSymbol getSymbol(PackageID packageID) {
+        return getSymbol(packageID.toString());
+    }
+
+    public BPackageSymbol getSymbol(String bvmAlias) {
+        return this.packageSymbolMap.get(bvmAlias);
+    }
+
+    public void putSymbol(PackageID packageID, BPackageSymbol packageSymbol) {
+        this.packageSymbolMap.put(packageID.toString(), packageSymbol);
     }
 }
