@@ -18,6 +18,7 @@
  */
 package org.ballerinalang.stdlib.task.listener.objects;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.utils.TaskRegistry;
 
@@ -38,12 +39,40 @@ public abstract class AbstractTask {
         return id;
     }
 
+    /**
+     * Stop the task.
+     */
     public void stop() {
         TaskRegistry.getInstance().remove(id);
     }
 
+    /**
+     * Get list of attached services of the task.
+     * @return  Services List
+     */
     public abstract ArrayList<Service> getServices();
 
+    /**
+     * Add particular service to the registry of the Task.
+     *
+     * @param service   Service which needs to be attached to the task.
+     */
     public abstract void addService(Service service);
 
+    /**
+     * Pause the task, if running.
+     */
+    public abstract void pause();
+
+    /**
+     * Resume the task if paused.
+     */
+    public abstract void resume();
+
+    /**
+     * Run all the services attached to the task.
+     *
+     * @param context - Ballerina context which runs the services.
+     */
+    public abstract void runServices(Context context);
 }

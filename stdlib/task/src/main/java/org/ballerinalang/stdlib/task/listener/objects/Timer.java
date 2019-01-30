@@ -70,27 +70,57 @@ public class Timer extends AbstractTask {
         TaskRegistry.getInstance().addTimer(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void stop() {
         this.executorService.shutdown();
         super.stop();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ArrayList<Service> getServices() {
         return this.serviceList;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addService(Service service) {
         this.serviceList.add(service);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void pause() {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void resume() {
+
+    }
+
 
     private static void callTriggerFunction(Context parentCtx, FunctionInfo onTriggerFunction,
                                             FunctionInfo onErrorFunction, Service service) {
         TaskExecutor.execute(parentCtx, onTriggerFunction, onErrorFunction, service);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void runServices(Context context) {
         final Runnable schedulerFunc = () -> {
             if (this.maxRuns > 0 && this.maxRuns == noOfRuns) {
