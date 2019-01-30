@@ -20,6 +20,7 @@ import ballerina/test;
 // shape of that value. Note that it is possible for the variable-reference within the 
 // simple-const-expr to reference a structured value.
 // TODO: support unsupported types
+// https://github.com/ballerina-platform/ballerina-lang/issues/13410
 map<string> strMap = {
     one: "test string 1",
     two: "test string 2",
@@ -38,7 +39,7 @@ map<string> strMap = {
 @test:Config {
     groups: ["deviation"]
 }
-function testSingletonTypeDesciptorsBroken() {
+function testSingletonTypeDescriptorsBroken() {
     // INT_POSITIVE_ONE s1 = +1;
     // test:assertEquals(s1, +1, msg = "expected value to be equal to singleton value");
 

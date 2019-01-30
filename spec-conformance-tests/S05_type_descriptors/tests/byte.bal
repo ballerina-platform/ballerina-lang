@@ -20,8 +20,6 @@ byte b1 = 1;
 byte b254 = 254;
 byte b255 = 255;
 
-map<byte> byteMap = {};
-
 // byte-type-descriptor := byte
 
 // The byte type is an abbreviation for a union of the int values in the range 0 to 255 inclusive.
