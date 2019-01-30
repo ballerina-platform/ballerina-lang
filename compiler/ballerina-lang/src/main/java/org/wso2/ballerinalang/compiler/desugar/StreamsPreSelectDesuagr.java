@@ -71,7 +71,6 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     private final StreamingCodeDesugar streamingCodeDesugar;
     private final BLangDiagnosticLog dlog;
     private final SymbolResolver symResolver;
-    private final Names names;
 
     private BSymbol[] mapVarSymbols;
     private BLangNode result;
@@ -89,7 +88,6 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         this.streamingCodeDesugar = StreamingCodeDesugar.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.names = Names.getInstance(context);
     }
 
     public static StreamsPreSelectDesuagr getInstance(CompilerContext context) {
@@ -273,10 +271,10 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
                                                                    BLangInvocation funcInvocation,
                                                                    List<BVarSymbol> params) {
         // generates the fields which will be aggregated e.g. t.age
-        List<BLangExpression> args = generateAggregatorInputFieldsArgs(streamEventSymbol, funcInvocation, params);
+        List<BLangExpression> args = generateAggregatorInputFieldsArgs(funcInvocation, params);
         // generate the EventType for the aggregation o.eventType
         BLangFieldBasedAccess streamEventFieldAccess = generateStreamEventTypeForAggregatorArg(streamEventSymbol,
-                                                                                               funcInvocation.pos, params);
+                funcInvocation.pos, params);
         // (t.age, o.eventType)
         args.add(streamEventFieldAccess);
         return args;
@@ -292,8 +290,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         return streamEventFieldAccess;
     }
 
-    private List<BLangExpression> generateAggregatorInputFieldsArgs(BVarSymbol streamEventSymbol,
-                                                                    BLangInvocation funcInvocation,
+    private List<BLangExpression> generateAggregatorInputFieldsArgs(BLangInvocation funcInvocation,
                                                                     List<BVarSymbol> params) {
         List<BLangExpression> args = new ArrayList<>();
         int i = 0;
@@ -370,9 +367,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
             String mapKey = fieldAccessExpr.toString();
             BLangExpression indexExpr = ASTBuilderUtil.createLiteral(fieldAccessExpr.pos, symTable.stringType,
                                                                      mapKey);
-            BLangIndexBasedAccess mapAccessExpr = createMapVariableIndexAccessExpr((BVarSymbol) mapRef.symbol,
-                                                                                   indexExpr);
-            result = mapAccessExpr;
+            result = createMapVariableIndexAccessExpr((BVarSymbol) mapRef.symbol, indexExpr);
         } else {
             result = fieldAccessExpr;
         }
