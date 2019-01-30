@@ -87,8 +87,19 @@ function testFrozenStructureMembersFrozennessBroken() {
     _ = a13.add(a14);
     _ = a13.freeze();
     test:assertTrue(a13.isFrozen(), msg = "exected value to be frozen");
-    //test:assertTrue(a14.isFrozen(), msg = "exected value to be frozen");
+    //test:assertTrue(a14.isFrozen(), msg = "expected value to be frozen");
     test:assertFalse(a14.isFrozen(), msg = "exected value to not be frozen");
+}
+
+// The shape of the members of a container value contribute to the shape of the container.
+// Mutating a member of a container can thus cause the shape of the container to change.
+// TODO: add test once stamp/convert is supported for tables
+// https://github.com/ballerina-platform/ballerina-lang/issues/12264
+@test:Config {
+    groups: ["deviation"]
+}
+function testTableShapeOfContainters() {
+
 }
 
 // A frozen container value belongs to a type if and only if the type contains the shape of the
@@ -96,6 +107,7 @@ function testFrozenStructureMembersFrozennessBroken() {
 // information that cannot be derived from the value. In other words, freezing a container
 // narrows its inherent type to a type that consists of just its current shape.
 // TODO: Need to consider the shape of a frozen container to be its type
+// TODO: Add tests for tables
 // https://github.com/ballerina-platform/ballerina-lang/issues/13189
 @test:Config {
     groups: ["deviation"]
