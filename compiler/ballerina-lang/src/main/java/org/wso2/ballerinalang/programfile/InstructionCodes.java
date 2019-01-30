@@ -96,9 +96,6 @@ public interface InstructionCodes {
 
     int STAMP = 62;
 
-    int FREEZE = 63;
-    int IS_FROZEN = 64;
-
     int ERROR = 65;
     int PANIC = 66;
     int REASON = 67;
