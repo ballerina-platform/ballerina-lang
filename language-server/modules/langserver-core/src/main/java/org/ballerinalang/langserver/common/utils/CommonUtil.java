@@ -43,7 +43,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.util.BLangConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -370,8 +369,7 @@ public class CommonUtil {
      */
     public static String topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
                                             WorkspaceDocumentManager docManager) {
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
-                                                      "record");
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint");
         LSDocument document = new LSDocument(identifier.getUri());
 
         try {
@@ -384,13 +382,23 @@ public class CommonUtil {
                 List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
 
                 ListIterator<String> iterator = alphaNumericTokens.listIterator();
+                int tokenCounter = 0;
                 while (iterator.hasNext()) {
                     String topLevelKeyword = iterator.next();
-                    if (topLevelKeywords.contains(topLevelKeyword) &&
-                            (!iterator.hasNext() || !CONSTRUCTOR_FUNCTION_SUFFIX.equals(iterator.next()))) {
+
+                    boolean validTypeDef = (topLevelKeyword.equals(UtilSymbolKeys.RECORD_KEYWORD_KEY)
+                            || topLevelKeyword.equals(UtilSymbolKeys.OBJECT_KEYWORD_KEY))
+                            && tokenCounter > 1
+                            && alphaNumericTokens.get(tokenCounter - 2).equals("type");
+
+                    if (validTypeDef || (topLevelKeywords.contains(topLevelKeyword) &&
+                            (!iterator.hasNext() || !CONSTRUCTOR_FUNCTION_SUFFIX.equals(iterator.next())))) {
                         return topLevelKeyword;
                     }
+                    tokenCounter++;
                 }
+
+
             }
             return null;
         } catch (WorkspaceDocumentException e) {
@@ -602,17 +610,21 @@ public class CommonUtil {
                 typeString = "[]";
                 break;
             case RECORD:
+            case MAP:
                 typeString = "{}";
                 break;
             case FINITE:
-                List<String> types = new ArrayList<>();
-                ((FiniteType) bType).getValueSpace().forEach(typeEntry -> types.add(typeEntry.toString()));
-                types.sort(Comparator.naturalOrder());
-                typeString = String.join("|", types);
+                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).valueSpace);
+                String value = valueSpace.get(0).toString();
+                BType type = valueSpace.get(0).type;
+                typeString = value;
+                if (type.toString().equals("string")) {
+                    typeString = "\"" + typeString + "\"";
+                }
                 break;
             case UNION:
-                String[] typeNameComps = bType.toString().split(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
-                typeString = typeNameComps[typeNameComps.length - 1];
+                List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).memberTypes);
+                typeString = getDefaultValueForType(memberTypes.get(0));
                 break;
             case STREAM:
             default:
@@ -688,6 +700,9 @@ public class CommonUtil {
                 insertText.append("{").append(LINE_SEPARATOR).append("\t${1}").append(LINE_SEPARATOR).append("}");
             } else {
                 insertText.append("${1:").append(getDefaultValueForType(bStructField.getType())).append("}");
+                if (bStructField.getType() instanceof BFiniteType || bStructField.getType() instanceof BUnionType) {
+                    insertText.append(getFiniteAndUnionTypesComment(bStructField.getType()));
+                }
             }
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText.toString());
@@ -714,6 +729,9 @@ public class CommonUtil {
         fields.forEach(bStructField -> {
             String defaultFieldEntry = bStructField.getName().getValue()
                     + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(bStructField.getType());
+            if (bStructField.getType() instanceof BFiniteType || bStructField.getType() instanceof BUnionType) {
+                defaultFieldEntry += "," + getFiniteAndUnionTypesComment(bStructField.type);
+            }
             fieldEntries.add(defaultFieldEntry);
         });
 
@@ -1560,6 +1578,22 @@ public class CommonUtil {
             }
         }
         return pkgPrefix;
+    }
+
+    private static String getFiniteAndUnionTypesComment(BType bType) {
+        if (bType instanceof BFiniteType) {
+            List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).valueSpace);
+            return " // Values allowed: " + valueSpace.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining("|"));
+        } else if (bType instanceof BUnionType) {
+            List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).memberTypes);
+            return " // Values allowed: " + memberTypes.stream()
+                    .map(BType::toString)
+                    .collect(Collectors.joining("|"));
+        }
+
+        return "";
     }
 
     /**
