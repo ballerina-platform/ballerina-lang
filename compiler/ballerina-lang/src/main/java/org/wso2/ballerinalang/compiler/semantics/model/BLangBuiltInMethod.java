@@ -32,8 +32,6 @@ public enum BLangBuiltInMethod {
 
     LENGTH("length", true),
 
-    STRING_LENGTH("getLengthOfString", true),
-
     REASON("reason", true),
 
     DETAIL("detail", true),

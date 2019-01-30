@@ -3166,6 +3166,9 @@ public class Desugar extends BLangNodeVisitor {
             case CLONE:
                 result = createCloneInvocation(iExpr.expr);
                 break;
+            case LENGTH:
+                result = createLengthInvocation(iExpr.expr);
+                break;
             case FREEZE:
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
@@ -3201,10 +3204,10 @@ public class Desugar extends BLangNodeVisitor {
                                                          List<BLangExpression> requiredArgs, List<BType> paramTypes, 
                                                          BType retType) {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BInvokableSymbol cloneSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC,
+        BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC,
                                                             names.fromString(builtInMethod.getName()), UTILS, opType,
                                                             null);
-        return ASTBuilderUtil.createInvocationExprMethod(pos, cloneSymbol, requiredArgs,
+        return ASTBuilderUtil.createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
                                                          new ArrayList<>(), new ArrayList<>(), symResolver);
     }
 
@@ -3218,8 +3221,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createLengthInvocation(BLangExpression expr) {
         if (expr.type.tag == TypeTags.STRING) {
-            return visitBuiltInMethodInvocation(expr.pos, BLangBuiltInMethod.STRING_LENGTH, Lists.of(expr),
-                                                Lists.of(symTable.stringType), symTable.intType);
+            // Builtin module provides string.length() function hence reusing it without desugar to util function.
+            return expr;
         }
         return visitBuiltInMethodInvocation(expr.pos, BLangBuiltInMethod.LENGTH, Lists.of(expr),
                                             Lists.of(symTable.anydataType), symTable.intType);
