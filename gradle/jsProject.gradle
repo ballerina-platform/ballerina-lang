@@ -1,7 +1,11 @@
+apply plugin: 'base'
 
 task npmInstall(type: Exec) {
     inputs.file("package-lock.json")
     outputs.dir("node_modules")
-    outputs.cacheIf { true } 
     commandLine 'npm', 'install'
+}
+
+build {
+    dependsOn npmInstall
 }

@@ -1,7 +1,3 @@
-plugins {
-    id 'base'
-}
-
 apply from: "$rootDir/gradle/jsProject.gradle"
 
 task npmBuild(type: Exec) {
@@ -11,6 +7,5 @@ task npmBuild(type: Exec) {
 }
 
 build {
-    dependsOn npmInstall
     dependsOn npmBuild
 }
