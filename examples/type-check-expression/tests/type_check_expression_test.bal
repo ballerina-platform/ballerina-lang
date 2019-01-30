@@ -28,4 +28,8 @@ function testFunc() {
     test:assertEquals(outputs[4], "Alex is a student");
     test:assertEquals(outputs[5], "Alex is a person");
     test:assertEquals(outputs[6], "Alex is not a vehicle");
+    test:assertEquals(outputs[7], "Is foo returns a student?");
+    test:assertEquals(outputs[8], true);
+    test:assertEquals(outputs[9], "Is foo returns a student?");
+    test:assertEquals(outputs[10], false);
 }
