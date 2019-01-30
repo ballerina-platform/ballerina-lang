@@ -121,9 +121,12 @@ public class Timer {
     }
 
     public void stop() {
-        //BLangScheduler.workerCountDown();
-        executorService.shutdown();
-        TaskRegistry.getInstance().remove(id);
+        try {
+            executorService.shutdown();
+            TaskRegistry.getInstance().remove(id);
+        } catch (RuntimeException e) {
+
+        }
     }
 
     public void addService(Service service) {

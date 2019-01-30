@@ -91,6 +91,19 @@ public class ListenerTest {
         BServiceUtil.runService(compileResult);
     }
 
+    @Test(description = "Tests a timer listener with inline configurations")
+    public void testListenerTimerStop() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "listener-test-src/listener_timer_service_stop.bal");
+        BServiceUtil.runService(compileResult);
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BInteger);
+            return (((BInteger) count[0]).intValue() == 20);
+        });
+    }
+
     @Test(description = "Tests a timer listener without delay field")
     public void testListenerTimerWithoutDelay() {
         CompileResult compileResult = BCompileUtil.compile(

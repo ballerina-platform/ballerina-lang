@@ -64,6 +64,8 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public boolean stop() throws SchedulingException {
-        return false;
+        Timer timer = TaskRegistry.getInstance().getTimer(taskId);
+        timer.stop();
+        return true;
     }
 }

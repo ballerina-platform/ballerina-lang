@@ -18,9 +18,11 @@
 #
 # + interval - Timer interval, which triggers the onTrigger() resource.
 # + delay - Delay after which the timer will run.
+# + noOfRecurrings - Number of times to trigger the task, after which the task stops running.
 public type TimerConfiguration record {
     int interval;
     int delay?;
+    int noOfRecurrings?;
     !...;
 };
 
@@ -30,10 +32,11 @@ public type TimerConfiguration record {
 # + seconds - Second(s) in a given minute, in which the appointment will run.
 # + minutes - Minute(s) in a given hour, in which the appointment will run.
 # + hours - Hour(s) in a given day, in which the appointment will run.
-# + dayOfMonth - Day(s) of the month, in which the appointment will run.
-# + month - Month(s) in a given year, in which the appointment will run.
-# + dayOfWeek - Day(s) of a week, in which the appointment will run.
+# + daysOfMonth - Day(s) of the month, in which the appointment will run.
+# + months - Month(s) in a given year, in which the appointment will run.
+# + daysOfWeek - Day(s) of a week, in which the appointment will run.
 # + year - Year(s) in which the appointment will run.
+# + noOfRecurrings - Number of times to trigger the task, after which the task stops running.
 public type AppointmentConfiguration record {
     string cronExpression?;
     string seconds?;
@@ -43,12 +46,11 @@ public type AppointmentConfiguration record {
     string months?;
     string daysOfWeek?;
     string year?;
+    int noOfRecurrings?;
     !...;
 };
 
 # Represents a ballerina task listener
-#
-# + listenerConfiguration - Provide configurations related to task.
 public type Listener object {
     *AbstractListener;
 
@@ -72,7 +74,29 @@ public type Listener object {
 
     }
 
-    extern function register(service attachedService, map<any> annotationData) returns error?;
+    extern function register(service s, map<any> annotationData) returns error?;
 
-    extern function start() returns error?;
+    # Attaches the provided service to the listener.
+    #
+    # + serviceToAttach - service which needs to be attached to the listener.
+    # + return - Returns error if the process failed due to any reason, nil otherwise.
+    public function attach(service serviceToAttach) returns error? {
+        return self.register(serviceToAttach, {});
+    }
+
+    # Starts running the task. Task will not run until this has been called.
+    #
+    # + returns - Returns error if the process failed due to any reason, nil otherwise.
+    public extern function start() returns error?;
+
+    # Stops the listenr from running. This will stop, after finish running the existing jobs.
+    #
+    # + returns - Returns error if the process failed due to any reason, nil otherwise.
+    public extern function stop() returns error?;
+
+    # Detach the service from the listener.
+    #
+    # + attachedService - service which needs to be detached from the listener.
+    # + return - Returns error if the process failed due to any reason, nil otherwise.
+    extern function detach(service attachedService) returns error?;
 };

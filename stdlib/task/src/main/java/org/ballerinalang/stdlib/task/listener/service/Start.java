@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.stdlib.task.listener;
+package org.ballerinalang.stdlib.task.listener.service;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
