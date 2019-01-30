@@ -67,6 +67,19 @@ public class ListenerTest {
         });
     }
 
+    @Test(description = "Tests running an timer as a service")
+    public void testListenerTimerLimitedNoOfRuns() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "listener-test-src/timer/service_limited_number_of_runs.bal");
+        BServiceUtil.runService(compileResult);
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BInteger);
+            return (((BInteger) count[0]).intValue() == 4);
+        });
+    }
+
     @Test(description = "Tests a timer listener with inline configurations")
     public void testListenerTimerInlineConfigs() {
         CompileResult compileResult = BCompileUtil.compile(

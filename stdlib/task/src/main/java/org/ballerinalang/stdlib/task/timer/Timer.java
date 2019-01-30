@@ -42,7 +42,7 @@ public class Timer {
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private ArrayList<Service> serviceList = new ArrayList<>();
     private long interval, delay;
-    //private int noOfRuns, maxRuns;
+    private long noOfRuns, maxRuns;
 
     /**
      * Triggers the timer.
@@ -89,8 +89,32 @@ public class Timer {
         this.interval = interval;
         this.delay = delay;
         this.serviceList.add(service);
-        //maxRuns = 0;
+        this.maxRuns = -1;
         //noOfRuns = 0;
+
+        TaskRegistry.getInstance().addTimer(this);
+    }
+
+    /**
+     * Creates a Timer object with limited number of running times.
+     *
+     * @param context  The ballerina context.
+     * @param delay    The initial delay.
+     * @param interval The interval between two task executions.
+     * @param service  Service attached to the listener.
+     * @throws SchedulingException if cannot create the scheduler.
+     */
+    public Timer(Context context, long delay, long interval, Service service, long maxRuns) throws SchedulingException {
+
+        if (delay < 0 || interval < 0) {
+            throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
+        }
+
+        this.interval = interval;
+        this.delay = delay;
+        this.serviceList.add(service);
+        this.maxRuns = maxRuns;
+        noOfRuns = 0;
 
         TaskRegistry.getInstance().addTimer(this);
     }
@@ -138,7 +162,11 @@ public class Timer {
 
     public void runServices(Context context) {
         final Runnable schedulerFunc = () -> {
-            //this.noOfRuns++;
+            if (this.maxRuns > 0 && this.maxRuns == noOfRuns) {
+                this.stop();
+                return;
+            }
+            this.noOfRuns++;
             for (Service service : serviceList) {
                 FunctionInfo onTriggerFunction, onErrorFunction;
                 if (RESOURCE_ON_TRIGGER.equals(service.getResources()[0].getName())) {

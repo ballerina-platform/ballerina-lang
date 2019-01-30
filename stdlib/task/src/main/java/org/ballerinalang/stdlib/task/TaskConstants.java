@@ -31,11 +31,12 @@ public class TaskConstants {
 
     public static final String TIMER_CONFIGURATION_STRUCT_NAME = "TimerConfiguration";
     public static final String APPOINTMENT_CONFIGURATION_STRUCT_NAME = "AppointmentConfiguration";
-    public static final String LISTENER_CONFIGURATION_FIELD_NAME = "listenerConfiguration";
+    public static final String LISTENER_CONFIGURATION_MEMBER_NAME = "listenerConfiguration";
 
     public static final String RESOURCE_ON_TRIGGER = "onTrigger";
     public static final String RESOURCE_ON_ERROR = "onError";
 
+    public static final String FIELD_NAME_NO_OF_RUNS = "noOfRecurrings";
     public static final String FIELD_NAME_INTERVAL = "interval";
     public static final String FIELD_NAME_DELAY = "delay";
     public static final String FIELD_NAME_CRON_EXPRESSION = "cronExpression";

@@ -86,12 +86,12 @@ public type Listener object {
 
     # Starts running the task. Task will not run until this has been called.
     #
-    # + returns - Returns error if the process failed due to any reason, nil otherwise.
+    # + return - Returns error if the process failed due to any reason, nil otherwise.
     public extern function start() returns error?;
 
     # Stops the listenr from running. This will stop, after finish running the existing jobs.
     #
-    # + returns - Returns error if the process failed due to any reason, nil otherwise.
+    # + return - Returns error if the process failed due to any reason, nil otherwise.
     public extern function stop() returns error?;
 
     # Detach the service from the listener.

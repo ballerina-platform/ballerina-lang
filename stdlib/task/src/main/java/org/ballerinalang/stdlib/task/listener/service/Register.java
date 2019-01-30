@@ -40,7 +40,8 @@ import java.util.Objects;
 
 import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_DELAY;
 import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_INTERVAL;
-import static org.ballerinalang.stdlib.task.TaskConstants.LISTENER_CONFIGURATION_FIELD_NAME;
+import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_NO_OF_RUNS;
+import static org.ballerinalang.stdlib.task.TaskConstants.LISTENER_CONFIGURATION_MEMBER_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_NAME;
@@ -68,7 +69,7 @@ public class Register extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
-        BMap<String, BValue> configurations = (BMap<String, BValue>) task.get(LISTENER_CONFIGURATION_FIELD_NAME);
+        BMap<String, BValue> configurations = (BMap<String, BValue>) task.get(LISTENER_CONFIGURATION_MEMBER_NAME);
 
         String configurationTypeName = configurations.getType().getName();
 
@@ -86,7 +87,12 @@ public class Register extends BlockingNativeCallableUnit {
                     timer = TaskRegistry.getInstance().getTimer(task.get(TIMER_TASK_ID_FIELD).stringValue());
                     timer.addService(service);
                 } else {
-                    timer = new Timer(context, delay, interval, service);
+                    if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
+                        long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
+                        timer = new Timer(context, delay, interval, service, noOfRuns);
+                    } else {
+                        timer = new Timer(context, delay, interval, service);
+                    }
                     task.put(TIMER_TASK_ID_FIELD, new BString(timer.getId()));
                     task.put(TIMER_IS_RUNNING_FIELD, new BBoolean(false));
                 }
