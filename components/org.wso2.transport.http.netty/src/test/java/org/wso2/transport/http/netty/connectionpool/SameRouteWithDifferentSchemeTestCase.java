@@ -47,7 +47,7 @@ import static org.wso2.transport.http.netty.util.TestUtil.sendRequestAsyncWithGi
  * Test that when two different clients have the same route with different schemes that they do not share the connection
  * pool, even though they have the same connection manager.
  *
- * @since 6.0.256
+ * @since 6.0.260
  */
 public class SameRouteWithDifferentSchemeTestCase {
 

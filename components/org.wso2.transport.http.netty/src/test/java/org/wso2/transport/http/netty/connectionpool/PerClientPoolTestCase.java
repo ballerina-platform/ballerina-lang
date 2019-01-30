@@ -53,7 +53,7 @@ import static org.testng.AssertJUnit.assertNotNull;
  * Test that when two different clients have the same route with their own pools that they do not share one another's
  * pool among them.
  *
- * @since 6.0.256
+ * @since 6.0.260
  */
 public class PerClientPoolTestCase {
     private static final Logger LOG = LoggerFactory.getLogger(PerClientPoolTestCase.class);
