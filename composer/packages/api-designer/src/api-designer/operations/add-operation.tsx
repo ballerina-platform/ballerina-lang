@@ -100,7 +100,15 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
                 <Button size="mini" onClick={() => {
                     onAddOperation(this.state.operationObject);
                     this.setState({
-                        operationMethods: []
+                        operationMethods: [],
+                        operationObject: {
+                            description: "",
+                            id: "",
+                            method: [],
+                            name: "",
+                            path: this.props.resourcePath,
+                            responses: []
+                        }
                     });
                 }}>Add</Button>
             </Form>
