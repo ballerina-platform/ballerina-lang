@@ -726,14 +726,15 @@ public class CommonUtil {
     public static CompletionItem getFillAllStructFieldsItem(List<BField> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
-        fields.forEach(bStructField -> {
+        for (int i = 0; i < fields.size(); i++) {
+            BField bStructField = fields.get(i);
             String defaultFieldEntry = bStructField.getName().getValue()
                     + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(bStructField.getType());
             if (bStructField.getType() instanceof BFiniteType || bStructField.getType() instanceof BUnionType) {
-                defaultFieldEntry += "," + getFiniteAndUnionTypesComment(bStructField.type);
+                defaultFieldEntry += (i < fields.size() -1 ? "," : "") + getFiniteAndUnionTypesComment(bStructField.type);
             }
             fieldEntries.add(defaultFieldEntry);
-        });
+        }
 
         String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
         String label = "Add All Attributes";
