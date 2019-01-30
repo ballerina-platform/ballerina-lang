@@ -1208,6 +1208,10 @@ public class FormattingSourceGen {
             node.addProperty("compoundOperator",
                     node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
+
+        if ("Assignment".equals(kind) && node.has("expression")) {
+            node.getAsJsonObject("expression").addProperty("isExpression", true);
+        }
     }
 
     private static void literalWSAssignForTemplates(int currentWs, int nextWs,
