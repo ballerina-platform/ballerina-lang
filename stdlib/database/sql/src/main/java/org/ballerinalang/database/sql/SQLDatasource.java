@@ -356,24 +356,18 @@ public class SQLDatasource implements BValue {
          private Struct poolOptions;
          private String jdbcUrl;
          private String dbType;
-         private String hostOrPath;
-         private int port;
          private String username;
          private String password;
          private String dbName;
-         private String urlOptions;
          private Map dbOptionsMap;
 
         private SQLDatasourceParams(SQLDatasourceParamsBuilder builder) {
             this.poolOptions = builder.poolOptions;
             this.jdbcUrl = builder.jdbcUrl;
             this.dbType = builder.dbType;
-            this.hostOrPath = builder.hostOrPath;
-            this.port = builder.port;
             this.username = builder.username;
             this.password = builder.password;
             this.dbName = builder.dbName;
-            this.urlOptions = builder.urlOptions;
             this.dbOptionsMap = builder.dbOptionsMap;
         }
 
@@ -389,12 +383,9 @@ public class SQLDatasource implements BValue {
         private Struct poolOptions;
         private String jdbcUrl;
         private String dbType;
-        private String hostOrPath;
-        private int port;
         private String username;
         private String password;
         private String dbName;
-        private String urlOptions;
         private Map<String, Value> dbOptionsMap;
 
         public SQLDatasourceParamsBuilder(String dbType) {
@@ -415,16 +406,6 @@ public class SQLDatasource implements BValue {
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withHostOrPath(String hostOrPath) {
-            this.hostOrPath = hostOrPath;
-            return this;
-        }
-
-        public SQLDatasourceParamsBuilder withPort(int port) {
-            this.port = port;
-            return this;
-        }
-
         public SQLDatasourceParamsBuilder withUsername(String username) {
             this.username = username;
             return this;
@@ -432,11 +413,6 @@ public class SQLDatasource implements BValue {
 
         public SQLDatasourceParamsBuilder withPassword(String password) {
             this.password = password;
-            return this;
-        }
-
-        public SQLDatasourceParamsBuilder withUrlOptions(String urlOptions) {
-            this.urlOptions = urlOptions;
             return this;
         }
 
