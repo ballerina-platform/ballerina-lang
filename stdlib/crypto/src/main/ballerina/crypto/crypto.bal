@@ -17,28 +17,15 @@
 # The key algorithms supported by crypto module.
 public type KeyAlgorithm RSA;
 
-# The key algorithms supported by crypto module.
-public type Mode CBC|ECB|GCM;
-
-public type AesPadding NONE|PKCS5;
-
-public type RsaPadding PKCS1|OAEPwithMD5andMGF1|OAEPWithSHA1AndMGF1|OAEPWithSHA256AndMGF1|OAEPwithSHA384andMGF1|
-                       OAEPwithSHA512andMGF1;
-
 # The `RSA` algorithm
 public const RSA = "RSA";
 
-# The `AES` algorithm
-public const AES = "AES";
+# Padding algorithms supported with AES encryption and decryption
+public type AesPadding NONE|PKCS5;
 
-# The `CBC` cypher mode
-public const CBC = "CBC";
-
-# The `ECB` cypher mode
-public const ECB = "ECB";
-
-# The `GCM` cypher mode
-public const GCM = "GCM";
+# Padding algorithms supported with RSA encryption and decryption
+public type RsaPadding PKCS1|OAEPwithMD5andMGF1|OAEPWithSHA1AndMGF1|OAEPWithSHA256AndMGF1|OAEPwithSHA384andMGF1|
+                       OAEPwithSHA512andMGF1;
 
 # No padding
 public const NONE = "NONE";
@@ -237,8 +224,8 @@ public extern function decodePublicKey(KeyStore? keyStore = (), string? keyAlias
 # + key - Private or public key used for encryption
 # + iv - Initialization vector
 # + return - Encrypted data or error if key is invalid
-public extern function encryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key, byte[]? iv = ())
-returns byte[]|error;
+public extern function encryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key,
+                                     byte[]? iv = ()) returns byte[]|error;
 
 # Returns AES CBC encrypted value for the given data.
 #
@@ -276,8 +263,8 @@ public extern function encryptAesGcm(AesPadding padding = "PKCS5", byte[] input,
 # + key - Private or public key used for encryption
 # + iv - Initialization vector
 # + return - Decrypted data or error if key is invalid
-public extern function decryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key, byte[]? iv = ())
-returns byte[]|error;
+public extern function decryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key,
+                                     byte[]? iv = ()) returns byte[]|error;
 
 # Returns AES CBC decrypted value for the given AES CBC encrypted data.
 #
