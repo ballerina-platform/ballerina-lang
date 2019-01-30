@@ -564,6 +564,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
+            types.validateNullLiteralUsage(pattern.literal, matchStmt.expr.type);
+
             matchedPatterns.add(pattern);
         }
 
