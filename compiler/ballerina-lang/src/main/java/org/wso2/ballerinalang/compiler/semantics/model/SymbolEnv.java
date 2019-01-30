@@ -231,7 +231,7 @@ public class SymbolEnv {
         Scope scope = new Scope(this.scope.owner);
         this.scope.entries.entrySet().stream()
                 // skip the type narrowed symbols when taking the snapshot for closures.
-                .filter(entry -> entry.getValue().symbol.tag != SymTag.VARIABLE ||
+                .filter(entry -> (entry.getValue().symbol.tag & SymTag.VARIABLE) != SymTag.VARIABLE ||
                         ((BVarSymbol) entry.getValue().symbol).originalSymbol == null)
                 .forEach(entry -> scope.entries.put(entry.getKey(), entry.getValue()));
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);

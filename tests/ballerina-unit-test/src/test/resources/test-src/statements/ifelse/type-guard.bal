@@ -526,3 +526,44 @@ public function testUpdatingTypeNarrowedVar_3() returns string {
         return "outer string: " + z;
     }
 }
+
+error e1 = error("e1");
+error e2 = error("e2");
+error? errorW1 = e1;
+error? errorW2 = e2;
+
+function testTypeGuardForGlobalVars() returns (string, string) {
+    string w1ErrMsg = "";
+    string w2ErrMsg = "";
+    if (errorW1 is error) {
+        w1ErrMsg = errorW1.reason();
+    }
+    if (errorW2 is error) {
+        w2ErrMsg = errorW2.reason();
+    }
+    return (w1ErrMsg, w2ErrMsg);
+}
+
+int|string|boolean global_x = 5;
+
+public function testUpdatingTypeNarrowedGlobalVar() returns string {
+    if (global_x is int|boolean) {
+        if (global_x is int) {
+            global_x = "hello";   // update the var with a type outside of narrowed types
+        }
+
+        if (global_x is int) {
+            int z = global_x;
+            return "int: " + z;
+        } else if (global_x is string) {
+            string z = global_x;
+            return "string: " + z;
+        } else {
+            boolean z = global_x;
+            return "boolean: " + z;
+        }
+    } else {
+        string z = global_x;
+        return "outer string: " + z;
+    }
+}

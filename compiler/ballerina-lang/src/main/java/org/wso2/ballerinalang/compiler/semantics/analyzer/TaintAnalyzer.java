@@ -914,7 +914,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         } else {
             // Taint information should be always taken from the original symbol
             BSymbol symbol;
-            if (varRefExpr.symbol.tag == SymTag.VARIABLE) {
+            if ((varRefExpr.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
                 BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
                 symbol = varSymbol.originalSymbol == null ? varSymbol : varSymbol.originalSymbol;
             } else {
@@ -1633,7 +1633,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 && !varNode.symbol.tainted))) {
             // Taint information should always set to the original symbol
             BSymbol symbol;
-            if (varNode.symbol.tag == SymTag.VARIABLE) {
+            if ((varNode.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
                 BVarSymbol varSymbol = (BVarSymbol) varNode.symbol;
                 symbol = varSymbol.originalSymbol == null ? varSymbol : varSymbol.originalSymbol;
             } else {

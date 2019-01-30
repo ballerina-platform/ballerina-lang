@@ -1288,7 +1288,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineTypeNarrowedSymbol(DiagnosticPos pos, SymbolEnv targetEnv, BVarSymbol symbol, BType type) {
-        BVarSymbol varSymbol = createVarSymbol(0, type, symbol.name, targetEnv);
+        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv);
+        varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
         defineShadowedSymbol(pos, varSymbol, targetEnv);
     }

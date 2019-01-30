@@ -1855,6 +1855,14 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        // Restore the original symbol
+        if ((varRefExpr.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+            BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
+            if (varSymbol.originalSymbol != null) {
+                varRefExpr.symbol = varSymbol.originalSymbol;
+            }
+        }
+
         BSymbol ownerSymbol = varRefExpr.symbol.owner;
         if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
                 varRefExpr.symbol.type.tag == TypeTags.INVOKABLE) {
@@ -1891,21 +1899,16 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.type = varRefExpr.type;
         genVarRefExpr.pos = varRefExpr.pos;
 
-        // Restore the original type of the symbol
-        if (genVarRefExpr.varSymbol != null && genVarRefExpr.varSymbol.originalSymbol != null) {
-            genVarRefExpr.symbol = genVarRefExpr.varSymbol = genVarRefExpr.varSymbol.originalSymbol;
-        }
-
         if (varRefExpr.lhsVar || !types.isValueType(genVarRefExpr.type)) {
             result = genVarRefExpr;
             return;
         }
 
-        // If the the variable if not used in lhs, and if the current type
+        // If the the variable is not used in lhs, and if the current type
         // is a value type, then add a conversion if required. This is done
         // to unbox a narrowed type.
         BType targetType = genVarRefExpr.type;
-        genVarRefExpr.type = genVarRefExpr.varSymbol.type;
+        genVarRefExpr.type = genVarRefExpr.symbol.type;
         result = addConversionExprIfRequired(genVarRefExpr, targetType);
     }
 

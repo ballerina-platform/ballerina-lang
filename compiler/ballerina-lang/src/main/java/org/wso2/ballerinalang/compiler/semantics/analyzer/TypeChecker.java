@@ -2868,54 +2868,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return matchExprTypes;
     }
 
-    /**
-     * Returns the type guards included in a given expression.
-     *
-     * @param expr Expression to get type guards
-     * @return A map of type guards, with the original variable symbol as keys
-     * and their guarded type.
-     */
-    Map<BVarSymbol, BType> getTypeGuards(BLangExpression expr) {
-        Map<BVarSymbol, BType> typeGuards = new HashMap<>();
-        collectTypeGuards(expr, typeGuards);
-        return typeGuards;
-    }
-
-    private Map<BVarSymbol, BType> collectTypeGuards(BLangExpression expr, Map<BVarSymbol, BType> typeGuards) {
-        switch (expr.getKind()) {
-            case TYPE_TEST_EXPR:
-                BLangTypeTestExpr typeTest = (BLangTypeTestExpr) expr;
-                if (typeTest.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTest.expr).symbol;
-                    if (varSymbol == null) {
-                        break;
-                    }
-                    if (!typeGuards.containsKey(varSymbol)) {
-                        typeGuards.put(varSymbol, typeTest.typeNode.type);
-                    } else {
-                        // TODO: handle two type-tests for same var
-                    }
-                }
-                break;
-            case BRACED_TUPLE_EXPR:
-                BLangBracedOrTupleExpr bracedExpr = (BLangBracedOrTupleExpr) expr;
-                if (bracedExpr.isBracedExpr) {
-                    collectTypeGuards(bracedExpr.expressions.get(0), typeGuards);
-                }
-                break;
-            case BINARY_EXPR:
-                BLangBinaryExpr binExpr = (BLangBinaryExpr) expr;
-                if (binExpr.getOperatorKind() == OperatorKind.AND) {
-                    collectTypeGuards(binExpr.lhsExpr, typeGuards);
-                    collectTypeGuards(binExpr.rhsExpr, typeGuards);
-                }
-                break;
-            default:
-                break;
-        }
-        return typeGuards;
-    }
-
     private BSymbol getSymbolForBuiltinMethodWithDynamicRetType(BLangInvocation iExpr, BLangBuiltInMethod function) {
         switch (function) {
             case CLONE:

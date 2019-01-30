@@ -395,4 +395,17 @@ public class TypeGuardTest {
         BValue[] returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_3");
         Assert.assertEquals(returns[0].stringValue(), "string: hello");
     }
+
+    @Test
+    public void testTypeGuardForGlobalVars() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForGlobalVars");
+        Assert.assertEquals(returns[0].stringValue(), "e1");
+        Assert.assertEquals(returns[1].stringValue(), "e2");
+    }
+
+    @Test
+    public void testUpdatingTypeNarrowedGlobalVar() {
+        BValue[] returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedGlobalVar");
+        Assert.assertEquals(returns[0].stringValue(), "string: hello");
+    }
 }

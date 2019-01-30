@@ -1957,7 +1957,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        return ((BLangSimpleVarRef) expr).symbol.tag == SymTag.VARIABLE;
+        return (((BLangSimpleVarRef) expr).symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE;
     }
 
     private void resetTypeNarrowing(BLangExpression lhsExpr, BLangExpression rhsExpr) {
@@ -1980,9 +1980,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void defineOriginalSymbol(BLangExpression lhsExpr, BVarSymbol varSymbol, SymbolEnv env) {
-        BSymbol foundSym = symResolver.lookupSymbolInGivenScope(env, varSymbol.name, varSymbol.tag);
+        BSymbol foundSym = symResolver.lookupSymbol(env, varSymbol.name, varSymbol.tag);
 
-        // Terminate if we reach the env where the symbol is originally defined
+        // Terminate if we reach the env where the original symbol available
         if (foundSym == varSymbol) {
             return;
         }
