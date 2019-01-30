@@ -912,7 +912,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             this.taintedStatus = TaintedStatus.UNTAINTED;
         } else {
-            this.taintedStatus = varRefExpr.symbol.tainted ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED;
+            // Taint information should be always taken from the original symbol
+            BSymbol symbol;
+            if (varRefExpr.symbol.tag == SymTag.VARIABLE) {
+                BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
+                symbol = varSymbol.originalSymbol == null ? varSymbol : varSymbol.originalSymbol;
+            } else {
+                symbol = varRefExpr.symbol;
+            }
+
+            this.taintedStatus = symbol.tainted ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED;
         }
     }
 
@@ -1056,13 +1065,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         overridingAnalysis = false;
-
-        // Copy the taint information from the original symbol to the newly created type guarded symbol
-        ternaryExpr.ifTypeGuards
-                .forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
-        ternaryExpr.elseTypeGuards
-                .forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
-
         ternaryExpr.thenExpr.accept(this);
         TaintedStatus thenTaintedCheckResult = this.taintedStatus;
         ternaryExpr.elseExpr.accept(this);
@@ -1629,7 +1631,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void setTaintedStatus(BLangVariableReference varNode, TaintedStatus taintedStatus) {
         if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || (varNode.symbol != null
                 && !varNode.symbol.tainted))) {
-            setTaintedStatus(varNode.symbol, taintedStatus);
+            // Taint information should always set to the original symbol
+            BSymbol symbol;
+            if (varNode.symbol.tag == SymTag.VARIABLE) {
+                BVarSymbol varSymbol = (BVarSymbol) varNode.symbol;
+                symbol = varSymbol.originalSymbol == null ? varSymbol : varSymbol.originalSymbol;
+            } else {
+                symbol = varNode.symbol;
+            }
+            setTaintedStatus(symbol, taintedStatus);
         }
     }
 

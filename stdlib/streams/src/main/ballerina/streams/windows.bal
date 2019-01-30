@@ -2096,7 +2096,7 @@ public type TimeOrderWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }

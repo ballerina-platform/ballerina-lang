@@ -279,3 +279,36 @@ public function testUpdatingTypeNarrowedVar_2() returns string {
 
     return "not an int";
 }
+
+public function testUpdatingTypeNarrowedVar_3() {
+    int|string|boolean x = 8;
+    int|string|boolean y = 8;
+
+    if (x is int|string) {
+        int|string a = x;
+        if (x is int) {
+            int b = x;
+            if (x > 5) {
+
+                int c = x;
+                x = "hello";
+                int d = x;
+
+                if (y is int) {
+                    int e = x;
+                    y = "hello again";
+                    int f = x;
+                }
+                int g = x;
+                string h = y;
+            }
+            int i = x;
+            string j = y;
+        }
+
+        int|string j = x;
+        string h = y;
+    }
+
+    int|string|boolean i = x;
+}

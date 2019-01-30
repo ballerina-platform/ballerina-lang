@@ -503,3 +503,26 @@ public function testUpdatingTypeNarrowedVar_2(int|string|boolean a) returns stri
 
     return "not an int";
 }
+
+public function testUpdatingTypeNarrowedVar_3() returns string {
+    int|string|boolean x = 5;
+    if (x is int|boolean) {
+        if (x is int) {
+            x = "hello";   // update the var with a type outside of narrowed types
+        }
+
+        if (x is int) {
+            int z = x;
+            return "int: " + z;
+        } else if (x is string) {
+            string z = x;
+            return "string: " + z;
+        } else {
+            boolean z = x;
+            return "boolean: " + z;
+        }
+    } else {
+        string z = x;
+        return "outer string: " + z;
+    }
+}

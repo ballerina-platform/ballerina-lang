@@ -1892,8 +1892,8 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.pos = varRefExpr.pos;
 
         // Restore the original type of the symbol
-        if (genVarRefExpr.varSymbol != null) {
-            genVarRefExpr.varSymbol.type = genVarRefExpr.varSymbol.originalType;
+        if (genVarRefExpr.varSymbol != null && genVarRefExpr.varSymbol.originalSymbol != null) {
+            genVarRefExpr.symbol = genVarRefExpr.varSymbol = genVarRefExpr.varSymbol.originalSymbol;
         }
 
         if (varRefExpr.lhsVar || !types.isValueType(genVarRefExpr.type)) {
@@ -1905,7 +1905,7 @@ public class Desugar extends BLangNodeVisitor {
         // is a value type, then add a conversion if required. This is done
         // to unbox a narrowed type.
         BType targetType = genVarRefExpr.type;
-        genVarRefExpr.type = genVarRefExpr.varSymbol.originalType;
+        genVarRefExpr.type = genVarRefExpr.varSymbol.type;
         result = addConversionExprIfRequired(genVarRefExpr, targetType);
     }
 
@@ -2032,7 +2032,7 @@ public class Desugar extends BLangNodeVisitor {
             if (iExpr.exprSymbol == null) {
                 return;
             }
-            iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, (BVarSymbol) iExpr.exprSymbol);
+            iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, iExpr.exprSymbol);
             iExpr.expr = rewriteExpr(iExpr.expr);
         }
 

@@ -1225,11 +1225,11 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTernaryExpr ternaryExpr) {
         BType condExprType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
 
-        typeNarrower.evaluateTruth(ternaryExpr.expr, env);
-        BType thenType = checkExpr(ternaryExpr.thenExpr, env, expType);
+        SymbolEnv thenEnv = typeNarrower.evaluateTruth(ternaryExpr.expr, ternaryExpr.thenExpr, env);
+        BType thenType = checkExpr(ternaryExpr.thenExpr, thenEnv, expType);
 
-        typeNarrower.evaluateFalsity(ternaryExpr.expr, env);
-        BType elseType = checkExpr(ternaryExpr.elseExpr, env, expType);
+        SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ternaryExpr.expr, ternaryExpr.elseExpr, env);
+        BType elseType = checkExpr(ternaryExpr.elseExpr, elseEnv, expType);
 
         if (condExprType == symTable.semanticError || thenType == symTable.semanticError ||
                 elseType == symTable.semanticError) {
@@ -1246,9 +1246,6 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             resultType = expType;
         }
-
-        // Reset the type narrowing when exiting from the ternary expr
-        typeNarrower.reset(ternaryExpr.expr, env);
     }
 
     public void visit(BLangWaitExpr waitExpr) {
@@ -1342,15 +1339,17 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
+        SymbolEnv rhsExprEnv;
         BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
         if (binaryExpr.opKind == OperatorKind.AND) {
-            typeNarrower.evaluateTruth(binaryExpr.lhsExpr, env);
+            rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
         } else if (binaryExpr.opKind == OperatorKind.OR) {
-            typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, env);
+            rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
+        } else {
+            rhsExprEnv = env;
         }
 
-        BType rhsType = checkExpr(binaryExpr.rhsExpr, env);
-        typeNarrower.reset(binaryExpr.lhsExpr, env);
+        BType rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;

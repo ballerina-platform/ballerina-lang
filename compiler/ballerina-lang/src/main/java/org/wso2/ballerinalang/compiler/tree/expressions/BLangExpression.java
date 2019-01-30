@@ -32,8 +32,6 @@ import java.util.Map;
  */
 public abstract class BLangExpression extends BLangNode implements ExpressionNode {
 
-    public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
-
     /**
      * Implicit cast expression. If the type of this expression is assignable
      * to the expected type and an implicit cast is required, this field is
@@ -52,4 +50,6 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
      * Indicates whether the expression has already been type checked.
      */
     public boolean typeChecked;
+
+    public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
 }

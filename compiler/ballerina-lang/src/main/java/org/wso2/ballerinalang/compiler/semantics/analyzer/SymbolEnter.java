@@ -1256,8 +1256,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             invokableSymbol.restParam = invokableNode.restParam.symbol;
             paramTypes.add(invokableSymbol.restParam.type);
         }
-        invokableSymbol.originalType =
-                invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
+        invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
@@ -1286,6 +1285,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (symResolver.checkForUniqueSymbolInCurrentScope(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
+    }
+
+    public void defineTypeNarrowedSymbol(DiagnosticPos pos, SymbolEnv targetEnv, BVarSymbol symbol, BType type) {
+        BVarSymbol varSymbol = createVarSymbol(0, type, symbol.name, targetEnv);
+        varSymbol.originalSymbol = symbol;
+        defineShadowedSymbol(pos, varSymbol, targetEnv);
     }
 
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {

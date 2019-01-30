@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashMap;
@@ -53,13 +55,14 @@ public class TypeNarrower extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolTable symTable;
     private Types types;
-
+    private SymbolEnter symbolEnter;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
 
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
     }
 
     public static TypeNarrower getInstance(CompilerContext context) {
@@ -71,49 +74,51 @@ public class TypeNarrower extends BLangNodeVisitor {
     }
 
     /**
-     * Evaluate an expression to truth value. Update the types of the variable symbols in the expression
-     * to their respective types implied by the truth of the expression.
+     * Evaluate an expression to truth value. Returns an environment containing the symbols
+     * with their narrowed types, defined by the truth of the expression. If there are no 
+     * symbols that get affected by type narrowing, then this will return the same environment. 
      * 
      * @param expr Expression to evaluate
+     * @param targetNode node to which the type narrowing applies
      * @param env Current environment
+     * @return target environment
      */
-    public void evaluateTruth(BLangExpression expr, SymbolEnv env) {
-        getNarrowedTypes(expr, env).forEach((symbol, typeInfo) -> symbol.type = typeInfo.trueType);
-    }
-
-    /**
-     * Evaluate an expression to false value. Update the types of the variable symbols in the expression
-     * to their respective types implied by the falsity of the expression.
-     * 
-     * @param expr Expression to evaluate
-     * @param env Current environment
-     */
-    public void evaluateFalsity(BLangExpression expr, SymbolEnv env) {
-        getNarrowedTypes(expr, env).forEach((symbol, typeInfo) -> symbol.type = typeInfo.falseType);
-    }
-
-    /**
-     * Reset the types variable symbols in an expression to the type which was the type
-     * before evaluating the expression.
-     * 
-     * @param expr Expression to reset
-     * @param env Current environment
-     */
-    public void reset(BLangExpression expr, SymbolEnv env) {
-        if (expr == null || expr.narrowedTypeInfo == null) {
-            return;
+    public SymbolEnv evaluateTruth(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
+        Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, env);
+        if (narrowedTypes.isEmpty()) {
+            return env;
         }
 
-        expr.narrowedTypeInfo.forEach((symbol, typeInfo) -> symbol.type = typeInfo.prevType);
+        SymbolEnv targetEnv = getTargetEnv(targetNode, env);
+        narrowedTypes.forEach((symbol, typeInfo) -> {
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, getOriginalVarSymbol(symbol), typeInfo.trueType);
+        });
+
+        return targetEnv;
     }
 
     /**
-     * Reset the type of a symbol to it's original type.
-     *
-     * @param symbol Variable symbol to rest the type
+     * Evaluate an expression to false value. Returns an environment containing the symbols
+     * with their narrowed types, defined by the falsity of the expression. If there are no 
+     * symbols that get affected by type narrowing, then this will return the same environment. 
+     * 
+     * @param expr Expression to evaluate
+     * @param targetNode node to which the type narrowing applies
+     * @param env Current environment
+     * @return target environment
      */
-    public void reset(BVarSymbol symbol) {
-        symbol.type = symbol.originalType;
+    public SymbolEnv evaluateFalsity(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
+        Map<BVarSymbol, NarrowedTypes> narroedTypes = getNarrowedTypes(expr, env);
+        if (narroedTypes.isEmpty()) {
+            return env;
+        }
+
+        SymbolEnv targetEnv = getTargetEnv(targetNode, env);
+        narroedTypes.forEach((symbol, typeInfo) -> {
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, getOriginalVarSymbol(symbol), typeInfo.falseType);
+        });
+
+        return targetEnv;
     }
 
     @Override
@@ -138,8 +143,11 @@ public class TypeNarrower extends BLangNodeVisitor {
         updatedSymbols.addAll(t2.keySet());
 
         if (binaryExpr.opKind == OperatorKind.AND || binaryExpr.opKind == OperatorKind.OR) {
-            binaryExpr.narrowedTypeInfo.putAll(updatedSymbols.stream().collect(Collectors.toMap(symbol -> symbol,
-                    symbol -> getNarrowedTypesForBinaryOp(t1, t2, symbol, binaryExpr.opKind))));
+            binaryExpr.narrowedTypeInfo.putAll(updatedSymbols.stream()
+                    .collect(Collectors.toMap(
+                            symbol -> getOriginalVarSymbol(symbol),
+                            symbol -> getNarrowedTypesForBinaryOp(t1, t2, getOriginalVarSymbol(symbol),
+                                    binaryExpr.opKind))));
         }
     }
 
@@ -166,7 +174,8 @@ public class TypeNarrower extends BLangNodeVisitor {
 
         BType trueType = getTypeIntersection(varSymbol.type, typeTestExpr.typeNode.type);
         BType falseType = types.getRemainingType(varSymbol.type, typeTestExpr.typeNode.type);
-        typeTestExpr.narrowedTypeInfo.put(varSymbol, new NarrowedTypes(trueType, falseType, varSymbol.type));
+        typeTestExpr.narrowedTypeInfo.put(getOriginalVarSymbol(varSymbol),
+                new NarrowedTypes(trueType, falseType, varSymbol.type));
     }
 
     // Private methods
@@ -263,5 +272,22 @@ public class TypeNarrower extends BLangNodeVisitor {
             return union.toArray(new BType[1])[0];
         }
         return new BUnionType(null, union, union.contains(symTable.nilType));
+    }
+
+    private BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {
+        if (varSymbol.originalSymbol == null) {
+            return varSymbol;
+        }
+
+        return getOriginalVarSymbol(varSymbol.originalSymbol);
+    }
+
+    private SymbolEnv getTargetEnv(BLangNode targetNode, SymbolEnv env) {
+        SymbolEnv targetEnv = SymbolEnv.createTypeNarrowedEnv(targetNode, env);
+        if (targetNode.getKind() == NodeKind.BLOCK) {
+            ((BLangBlockStmt) targetNode).scope = targetEnv.scope;
+        }
+
+        return targetEnv;
     }
 }

@@ -138,6 +138,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.BRACED_TUPLE_EXPR;
@@ -167,6 +168,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType expType;
     private DiagnosticCode diagCode;
     private BType resType;
+
+    // Stack holding the fall-back environments. fall-back env is the env to go back
+    // after visiting the current env.
+    private Stack<SymbolEnv> prevEnvs = new Stack<>();
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -560,7 +565,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
             // symbol enter. If the variable is a local variable, the symbol will be created above.
-            simpleVariable.symbol.originalType = simpleVariable.symbol.type = rhsType;
+            simpleVariable.symbol.type = rhsType;
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
             if (TypeTags.TUPLE != rhsType.tag) {
                 dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
@@ -1040,8 +1045,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Statements
 
     public void visit(BLangBlockStmt blockNode) {
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
-        blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, blockEnv));
+        env = SymbolEnv.createBlockEnv(blockNode, env);
+        blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, env));
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
@@ -1323,16 +1328,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
         }
 
-        typeNarrower.evaluateTruth(ifNode.expr, env);
-        analyzeStmt(ifNode.body, env);
+        SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
+        analyzeStmt(ifNode.body, ifEnv);
 
         if (ifNode.elseStmt != null) {
-            typeNarrower.evaluateFalsity(ifNode.expr, env);
-            analyzeStmt(ifNode.elseStmt, env);
+            SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env);
+            analyzeStmt(ifNode.elseStmt, elseEnv);
         }
-
-        // Reset the type narrowing when exiting from the if-else node
-        typeNarrower.reset(ifNode.expr, env);
     }
 
     @Override
@@ -1444,14 +1446,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (patternClause.typeGuardExpr != null) {
             analyzeDef(patternClause.bindingPatternVariable, blockEnv);
             typeChecker.checkExpr(patternClause.typeGuardExpr, blockEnv);
-
-            typeNarrower.evaluateTruth(patternClause.typeGuardExpr, blockEnv);
+            blockEnv = typeNarrower.evaluateTruth(patternClause.typeGuardExpr, patternClause.body, blockEnv);
         } else {
             analyzeDef(patternClause.bindingPatternVariable, blockEnv);
         }
 
         analyzeStmt(patternClause.body, blockEnv);
-        typeNarrower.reset(patternClause.typeGuardExpr, env);
     }
 
     @Override
@@ -1679,7 +1679,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
-        SymbolEnv prevEnv = this.env;
+        this.prevEnvs.push(this.env);
         BType preExpType = this.expType;
         DiagnosticCode preDiagCode = this.diagCode;
 
@@ -1688,7 +1688,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.expType = expType;
         this.diagCode = diagCode;
         node.accept(this);
-        this.env = prevEnv;
+        this.env = this.prevEnvs.pop();
         this.expType = preExpType;
         this.diagCode = preDiagCode;
 
@@ -1881,7 +1881,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // If this is an update of a type narrowed variable, the assignment should allow assigning
         // values of its original type. Therefore treat all lhs simpleVarRefs in their original type.
         if (isSimpleVarRef(expr)) {
-            varRefExpr.type = ((BVarSymbol) ((BLangSimpleVarRef) expr).symbol).originalType;
+            BVarSymbol originSymbol = ((BVarSymbol) ((BLangSimpleVarRef) expr).symbol).originalSymbol;
+            if (originSymbol != null) {
+                varRefExpr.type = originSymbol.type;
+            }
         }
 
         return varRefExpr.type;
@@ -1962,12 +1965,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // If the rhs's type is not assignable to the variable's narrowed type,
-        // then the type narrowing will no longer hold. Thus reset the type of
-        // the variable symbol to its original type.
         BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) lhsExpr).symbol;
-        if (!types.isAssignable(rhsExpr.type, varSymbol.type)) {
-            typeNarrower.reset(varSymbol);
+        if (varSymbol.originalSymbol == null) {
+            return;
         }
+
+        // If the rhs's type is not assignable to the variable's narrowed type,
+        // then the type narrowing will no longer hold. Thus define the original
+        // symbol in all the scopes that are affected by this assignment.
+        if (!types.isAssignable(rhsExpr.type, varSymbol.type)) {
+            defineOriginalSymbol(lhsExpr, varSymbol.originalSymbol, env);
+            env = prevEnvs.peek();
+        }
+    }
+
+    private void defineOriginalSymbol(BLangExpression lhsExpr, BVarSymbol varSymbol, SymbolEnv env) {
+        BSymbol foundSym = symResolver.lookupSymbolInGivenScope(env, varSymbol.name, varSymbol.tag);
+
+        // Terminate if we reach the env where the symbol is originally defined
+        if (foundSym == varSymbol) {
+            return;
+        }
+
+        // Traverse back to all the fall-back-environments, and update the env with the new symbol.
+        // Here the existing fall-back env will be replaced by a new env.
+        // i.e: [new fall-back env] = [snapshot of old fall-back env] + [new symbol]
+        env = SymbolEnv.createTypeNarrowedEnv(lhsExpr, env);
+        symbolEnter.defineTypeNarrowedSymbol(lhsExpr.pos, env, varSymbol, varSymbol.type);
+        SymbolEnv prevEnv = prevEnvs.pop();
+        defineOriginalSymbol(lhsExpr, varSymbol, prevEnv);
+        prevEnvs.push(env);
     }
 }
