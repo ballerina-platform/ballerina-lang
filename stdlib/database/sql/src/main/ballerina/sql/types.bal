@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
+
 # Represents the properties which are used to configure DB connection pool.
 #
 # + connectionInitSql - SQL statement that will be executed after every new connection creation before adding it
@@ -30,16 +32,16 @@
 # + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes
 # + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
 public type PoolOptions record {
-    string connectionInitSql = "";
-    string dataSourceClassName = "";
-    boolean autoCommit = true;
-    boolean isXA = false;
-    int maximumPoolSize = 10;
-    int connectionTimeout = 30000;
-    int idleTimeout = 600000;
-    int minimumIdle = -1;
-    int maxLifetime = 1800000;
-    int validationTimeout = 5000;
+    string connectionInitSql = config:getAsString("connection.init.sql", default = "");
+    string dataSourceClassName = config:getAsString("datasource.class.name", default = "");
+    boolean autoCommit = config:getAsBoolean("connection.auto.commit", default = true);
+    boolean isXA = config:getAsBoolean("xa.enabled", default = false);
+    int maximumPoolSize = config:getAsInt("max.pool.size", default = 10);
+    int connectionTimeout = config:getAsInt("connection.time.out", default = 30000);
+    int idleTimeout =  config:getAsInt("connection.idle.time.out", default = 600000);
+    int minimumIdle = config:getAsInt("connection.min.idle.count", default = 10);
+    int maxLifetime = config:getAsInt("connection.max.life.time", default = 1800000);
+    int validationTimeout = config:getAsInt("validation.time.out", default = 5000);
     !...;
 };
 
