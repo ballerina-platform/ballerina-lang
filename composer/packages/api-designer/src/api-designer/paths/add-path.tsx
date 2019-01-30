@@ -19,10 +19,11 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Form, Input, Label, Transition } from "semantic-ui-react";
+import { Button, Form, Input, Label, Segment, Transition } from "semantic-ui-react";
 
 export interface AddOpenApiPathProps {
     onAddOpenApiPath: (path: Swagger.PathItemObject, onAdd: (state: boolean) => void) => void;
+    onClose: () => void;
 }
 
 export interface AddOpenApiPathState {
@@ -92,10 +93,17 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
 
     public render() {
         const { operationMethods, showState } = this.state;
-        const { onAddOpenApiPath } = this.props;
+        const { onAddOpenApiPath, onClose } = this.props;
 
         return (
             <Form size="mini" className="add-resource">
+                <Segment basic clearing>
+                    <Button size="mini" floated="right" onClick={() => {
+                        onClose();
+                    }}>
+                        <i className="fw fw-close icon"></i>
+                    </Button>
+                </Segment>
                 <Form.Field>
                     <label>Resource Name</label>
                     <Input label="/"

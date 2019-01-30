@@ -19,12 +19,13 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Form } from "semantic-ui-react";
+import { Button, Form, Segment } from "semantic-ui-react";
 
 export interface OpenApiAddOperationProps {
     openApiJson: Swagger.OpenAPIObject;
     onAddOperation: (operation: Swagger.OperationObject) => void ;
     resourcePath: string;
+    handleOnClose: (e: React.MouseEvent) => void;
 }
 
 export interface OpenApiAddOperationState {
@@ -79,10 +80,28 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
 
     public render() {
         const { operationMethods } = this.state;
-        const { onAddOperation } = this.props;
+        const { onAddOperation, handleOnClose } = this.props;
 
         return (
             <Form className="add-operation">
+                <Segment basic clearing>
+                    <Button size="mini" floated="right" onClick={(e: any) => {
+                        handleOnClose(e);
+                        this.setState({
+                            operationMethods: [],
+                            operationObject: {
+                                description: "",
+                                id: "",
+                                method: [],
+                                name: "",
+                                path: this.props.resourcePath,
+                                responses: []
+                            }
+                        });
+                    }}>
+                        <i className="fw fw-close icon"></i>
+                    </Button>
+                </Segment>
                 <Form.Group inline>
                     <label>Methods</label>
                     {operationMethods.sort().map((method) => {

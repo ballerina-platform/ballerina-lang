@@ -117,7 +117,8 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                     <Button type="operations" onClick={this.onExpandAll}>Expand All</Button>
                 </Button.Group>
                 {showOpenApiAddPath &&
-                    <AddOpenApiPath onAddOpenApiPath={appContext.onAddOpenApiPath} />
+                    <AddOpenApiPath onClose={this.handleShowOpenApiAddPath}
+                        onAddOpenApiPath={appContext.onAddOpenApiPath} />
                 }
                 <OpenApiPathList showType={showType} paths={openApiJson.paths} />
             </OpenApiContextProvider>

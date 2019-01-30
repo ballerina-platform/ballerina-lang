@@ -130,6 +130,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                     openApiJson={context!.openApiJson}
                                                     onAddOperation={context!.onAddOpenApiOperation}
                                                     resourcePath={openApiResource}
+                                                    handleOnClose={this.onAddOperationClick}
                                                 />
                                             }
                                             <OpenApiOperation
