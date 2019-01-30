@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-any[] outputs = [];
+(any|error)[] outputs = [];
 int counter = 0;
 
 // This is the mock function which will replace the real function
@@ -22,9 +22,13 @@ function testFunc() {
     main();
 
     string statusCode = "The status code: ";
-    error err = error("response error");
     test:assertEquals(outputs[0], statusCode);
-    test:assertEquals(outputs[1], err);
+    any|error res = outputs[1];
+    if (res is error) {
+        test:assertEquals(res.reason(), "response error");
+    } else {
+        test:assertFail(msg = "expected an error");
+    }
     test:assertEquals(outputs[2], statusCode);
     test:assertEquals(outputs[3], ());
 }
