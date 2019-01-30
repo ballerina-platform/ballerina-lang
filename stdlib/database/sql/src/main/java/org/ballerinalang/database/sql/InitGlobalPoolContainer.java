@@ -34,8 +34,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "initGlobalPoolContainer",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "GlobalPoolContainer", structPackage = "ballerina"
-                + "/sql"),
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                             structType = "GlobalPoolConfigContainer",
+                             structPackage = "ballerina/sql"),
         args = { @Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolOptions")},
         isPublic = true
 )
@@ -43,6 +44,6 @@ public class InitGlobalPoolContainer extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> globalPoolConfig = (BMap<String, BValue>) context.getRefArgument(1);
-        globalPoolConfig.addNativeData("PoolMap", new ConcurrentHashMap<String, SQLDatasource>());
+        globalPoolConfig.addNativeData(Constants.POOL_MAP_KEY, new ConcurrentHashMap<String, SQLDatasource>());
     }
 }

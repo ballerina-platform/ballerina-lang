@@ -71,7 +71,7 @@ public type Client client object {
 
     # Gets called when the H2 client is instantiated.
     public function __init(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig c) {
-        self.sqlClient = createClient(c, sql:globalPoolContainer.getGlobalPoolConfig());
+        self.sqlClient = createClient(c, sql:globalPoolConfigContainer.getGlobalPoolConfig());
     }
 
     # The call operation implementation for H2 Client to invoke stored procedures/functions.
