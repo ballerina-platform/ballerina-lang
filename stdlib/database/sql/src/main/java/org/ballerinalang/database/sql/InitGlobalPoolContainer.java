@@ -28,6 +28,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Extern function to initialize the global pool map.
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "initGlobalPoolContainer",
@@ -36,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
         args = { @Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolOptions")},
         isPublic = true
 )
-public class initGlobalPoolContainer extends BlockingNativeCallableUnit {
+public class InitGlobalPoolContainer extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> globalPoolConfig = (BMap<String, BValue>) context.getRefArgument(1);
