@@ -20,7 +20,10 @@ public type KeyAlgorithm RSA;
 # The key algorithms supported by crypto module.
 public type Mode CBC|ECB|GCM;
 
-public type Padding NONE|PKCS5|OAEP;
+public type AesPadding NONE|PKCS5;
+
+public type RsaPadding PKCS1|OAEPwithMD5andMGF1|OAEPWithSHA1AndMGF1|OAEPWithSHA256AndMGF1|OAEPwithSHA384andMGF1|
+                       OAEPwithSHA512andMGF1;
 
 # The `RSA` algorithm
 public const RSA = "RSA";
@@ -46,8 +49,20 @@ public const PKCS1 = "PKCS1";
 # The `PKCS5` padding mode
 public const PKCS5 = "PKCS5";
 
-# The `OAEP` padding mode
-public const OAEP = "OAEP";
+# The `OAEPwithMD5andMGF1` padding mode
+public const OAEPwithMD5andMGF1 = "OAEPwithMD5andMGF1";
+
+# The `OAEPWithSHA1AndMGF1` padding mode
+public const OAEPWithSHA1AndMGF1 = "OAEPWithSHA1AndMGF1";
+
+# The `OAEPWithSHA256AndMGF1` padding mode
+public const OAEPWithSHA256AndMGF1 = "OAEPWithSHA256AndMGF1";
+
+# The `OAEPwithSHA384andMGF1` padding mode
+public const OAEPwithSHA384andMGF1 = "OAEPwithSHA384andMGF1";
+
+# The `OAEPwithSHA512andMGF1` padding mode
+public const OAEPwithSHA512andMGF1 = "OAEPwithSHA512andMGF1";
 
 # Record for providing key store related configurations.
 #
@@ -217,14 +232,13 @@ public extern function decodePublicKey(KeyStore? keyStore = (), string? keyAlias
 
 # Returns RSA encrypted value for the given data.
 #
-# + mode - The cypher mode
 # + padding - The padding
 # + input - The content to be encrypted
 # + key - Private or public key used for encryption
 # + iv - Initialization vector
 # + return - Encrypted data or error if key is invalid
-public extern function encryptRsa(Mode mode = "CBC", Padding padding = "PKCS5", byte[] input, PrivateKey|PublicKey key,
-                                  byte[]? iv = ()) returns byte[]|error;
+public extern function encryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key, byte[]? iv = ())
+returns byte[]|error;
 
 # Returns AES CBC encrypted value for the given data.
 #
@@ -233,7 +247,7 @@ public extern function encryptRsa(Mode mode = "CBC", Padding padding = "PKCS5", 
 # + key - Encryption key
 # + iv - Initialization vector
 # + return - Encrypted data or error if key is invalid
-public extern function encryptAesCbc(Padding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = ())
+public extern function encryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = ())
 returns byte[]|error;
 
 # Returns AES ECB encrypted value for the given data.
@@ -242,7 +256,7 @@ returns byte[]|error;
 # + input - The content to be encrypted
 # + key - Encryption key
 # + return - Encrypted data or error if key is invalid
-public extern function encryptAesEcb(Padding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error;
+public extern function encryptAesEcb(AesPadding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error;
 
 # Returns AES GCM encrypted value for the given data.
 #
@@ -250,20 +264,20 @@ public extern function encryptAesEcb(Padding padding = "PKCS5", byte[] input, by
 # + input - The content to be encrypted
 # + key - Encryption key
 # + iv - Initialization vector
+# + tagSize - Tag size
 # + return - Encrypted data or error if key is invalid
-public extern function encryptAesGcm(Padding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = (),
+public extern function encryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = (),
                                      int? tagSize = 128) returns byte[]|error;
 
 # Returns RSA decrypted value for the given RSA encrypted data.
 #
-# + mode - The cypher mode
 # + padding - The padding
 # + input - The content to be decrypted
 # + key - Private or public key used for encryption
 # + iv - Initialization vector
 # + return - Decrypted data or error if key is invalid
-public extern function decryptRsa(Mode mode = "CBC", Padding padding = "PKCS5", byte[] input, PrivateKey|PublicKey key,
-                                  byte[]? iv = ()) returns byte[]|error;
+public extern function decryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key, byte[]? iv = ())
+returns byte[]|error;
 
 # Returns AES CBC decrypted value for the given AES CBC encrypted data.
 #
@@ -272,7 +286,7 @@ public extern function decryptRsa(Mode mode = "CBC", Padding padding = "PKCS5", 
 # + key - Encryption key
 # + iv - Initialization vector
 # + return - Decrypted data or error if key is invalid
-public extern function decryptAesCbc(Padding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = ())
+public extern function decryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = ())
 returns byte[]|error;
 
 # Returns AES ECB decrypted value for the given AES ECB encrypted data.
@@ -281,7 +295,7 @@ returns byte[]|error;
 # + input - The content to be decrypted
 # + key - Encryption key
 # + return - Decrypted data or error if key is invalid
-public extern function decryptAesEcb(Padding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error;
+public extern function decryptAesEcb(AesPadding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error;
 
 # Returns AES GCM decrypted value for the given AES GCM encrypted data.
 #
@@ -289,6 +303,7 @@ public extern function decryptAesEcb(Padding padding = "PKCS5", byte[] input, by
 # + input - The content to be decrypted
 # + key - Encryption key
 # + iv - Initialization vector
+# + tagSize - Tag size
 # + return - Decrypted data or error if key is invalid
-public extern function decryptAesGcm(Padding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = (),
+public extern function decryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = (),
                                      int? tagSize = 128) returns byte[]|error;

@@ -26,9 +26,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -38,34 +36,30 @@ import java.security.PublicKey;
  *
  * @since 0.991.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "encryptRsa", isPublic = true)
-public class EncryptRsa extends BlockingNativeCallableUnit {
+@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "decryptRsaEcb", isPublic = true)
+public class DecryptRsaEcb extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BValue inputBValue = context.getRefArgument(0);
-        BMap<String, BValue> keyMap = (BMap<String, BValue>) context.getRefArgument(3);
+        BMap<String, BValue> keyMap = (BMap<String, BValue>) context.getRefArgument(1);
         byte[] input = ((BValueArray) inputBValue).getBytes();
-        String mode = context.getRefArgument(1).stringValue();
         String padding = context.getRefArgument(2).stringValue();
         BValue ivBValue = context.getNullableRefArgument(3);
         byte[] iv = null;
         if (ivBValue != null) {
             iv = ((BValueArray) ivBValue).getBytes();
         }
-        try {
-            Key key;
-            if (keyMap.get(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
-                key = (PrivateKey) keyMap.get(Constants.NATIVE_DATA_PRIVATE_KEY);
-            } else if (keyMap.get(Constants.NATIVE_DATA_PUBLIC_KEY) != null) {
-                key = (PublicKey) keyMap.get(Constants.NATIVE_DATA_PUBLIC_KEY);
-            } else {
-                throw new BallerinaException("error", context);
-            }
-            context.setReturnValues(new BValueArray(CryptoUtils.rsaEncryptDecrypt(context,
-                    CryptoUtils.CipherMode.ENCRYPT, mode, padding, key, input, iv)));
-        } catch (InvalidKeyException e) {
+        Key key;
+        if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
+            key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
+        } else if (keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY) != null) {
+            key = (PublicKey) keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
+        } else {
             context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
+            return;
         }
+        CryptoUtils.rsaEncryptDecrypt(context, CryptoUtils.CipherMode.DECRYPT, Constants.ECB, padding, key, input, iv,
+                -1);
     }
 }

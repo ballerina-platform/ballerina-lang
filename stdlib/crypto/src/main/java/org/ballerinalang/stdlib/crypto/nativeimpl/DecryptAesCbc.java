@@ -26,8 +26,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
-import java.security.InvalidKeyException;
-
 /**
  * Extern function ballerina.crypto:signRsaMd5.
  *

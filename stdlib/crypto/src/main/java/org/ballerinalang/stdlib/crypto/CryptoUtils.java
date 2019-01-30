@@ -28,7 +28,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -38,8 +37,7 @@ import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.AlgorithmParameterSpec;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -56,6 +54,16 @@ import javax.crypto.spec.SecretKeySpec;
  * @since 0.95.1
  */
 public class CryptoUtils {
+
+    /**
+     * Cipher mode that is used to decide if encryption or decryption operation should be performed.
+     */
+    public enum CipherMode { ENCRYPT, DECRYPT };
+
+    /**
+     * Valid tag sizes usable with GCM mode encryption.
+     */
+    private static final int[] VALID_TAG_SIZES = new int[] {32, 63, 96, 104, 112, 120, 128};
 
     private CryptoUtils() {
 
@@ -146,45 +154,40 @@ public class CryptoUtils {
      * @param algorithmPadding padding used during encryption
      * @param key              key to be used during encryption
      * @param input            input byte array for encryption
-     * @return encrypted value
-     * @throws InvalidKeyException if the privateKey is invalid
+     * @param iv               initialization vector
+     * @param tagSize          tag size used for GCM encryption
      */
-    public static byte[] rsaEncryptDecrypt(Context context, CipherMode cipherMode, String algorithmMode,
-                                           String algorithmPadding, Key key, byte[] input, byte[] iv)
-            throws InvalidKeyException {
+    public static void rsaEncryptDecrypt(Context context, CipherMode cipherMode, String algorithmMode,
+                                           String algorithmPadding, Key key, byte[] input, byte[] iv, long tagSize) {
         try {
-            algorithmMode = transformAlgorithmMode(context, algorithmMode);
-            algorithmPadding = transformAlgorithmPadding(context, algorithmPadding);
-            if (algorithmPadding != null && algorithmMode != null) {
-                Cipher cipher = Cipher.getInstance("RSA/" + algorithmMode + "/" + algorithmPadding);
-                AlgorithmParameterSpec paramSpec = buildParameterSpec(context, algorithmMode, iv, 0);
-                initCipher(cipher, cipherMode, key, paramSpec);
-                return cipher.doFinal(input);
-            } else {
-                throw new BallerinaException("error", context);
+            String transformedAlgorithmMode = transformAlgorithmMode(context, algorithmMode);
+            String transformedAlgorithmPadding = transformAlgorithmPadding(context, algorithmPadding);
+            if (tagSize != -1 && !Arrays.stream(VALID_TAG_SIZES).anyMatch(i -> tagSize == i)) {
+                context.setReturnValues(CryptoUtils.createCryptoError(context, "valid tag sizes are: " +
+                        Arrays.toString(VALID_TAG_SIZES)));
+                return;
             }
+            AlgorithmParameterSpec paramSpec = buildParameterSpec(context, transformedAlgorithmMode, iv, (int) tagSize);
+            Cipher cipher = Cipher.getInstance("RSA/" + transformedAlgorithmMode + "/" + transformedAlgorithmPadding);
+            initCipher(cipher, cipherMode, key, paramSpec);
+            context.setReturnValues(new BValueArray(cipher.doFinal(input)));
         } catch (NoSuchAlgorithmException e) {
-            throw new BallerinaException("error occurred while calculating signature: " + e.getMessage(), context);
-        } catch (NoSuchPaddingException e) {
-            throw new BallerinaException("error", context);
-        } catch (IllegalBlockSizeException e) {
-            throw new BallerinaException("error", context);
-        } catch (BadPaddingException e) {
-            throw new BallerinaException("error", context);
+            context.setReturnValues(CryptoUtils.createCryptoError(context, "unsupported algorithm: AES " +
+                    algorithmMode + " " + algorithmPadding));
+        } catch (InvalidKeyException e) {
+            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
         } catch (InvalidAlgorithmParameterException e) {
-            throw new BallerinaException("error", context);
+            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
+        } catch (NoSuchPaddingException e) {
+            context.setReturnValues(CryptoUtils.createCryptoError(context, "unsupported padding scheme defined in " +
+                    "the algorithm: AES " + algorithmMode + " " + algorithmPadding));
+        } catch (BadPaddingException e) {
+            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
+        } catch (IllegalBlockSizeException e) {
+            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
+        } catch (BallerinaException e) {
+            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
         }
-    }
-
-    private static final List<Integer> VALID_TAG_SIZES = new ArrayList<>();
-    static {
-        VALID_TAG_SIZES.add(32);
-        VALID_TAG_SIZES.add(63);
-        VALID_TAG_SIZES.add(96);
-        VALID_TAG_SIZES.add(104);
-        VALID_TAG_SIZES.add(112);
-        VALID_TAG_SIZES.add(120);
-        VALID_TAG_SIZES.add(128);
     }
 
     /**
@@ -197,6 +200,7 @@ public class CryptoUtils {
      * @param key              key to be used during encryption
      * @param input            input byte array for encryption
      * @param iv               initialization vector
+     * @param tagSize          tag size used for GCM encryption
      */
     public static void aesEncryptDecrypt(Context context, CipherMode cipherMode, String algorithmMode,
                                            String algorithmPadding, byte[] key, byte[] input, byte[] iv, long tagSize) {
@@ -204,9 +208,10 @@ public class CryptoUtils {
             String transformedAlgorithmMode = transformAlgorithmMode(context, algorithmMode);
             String transformedAlgorithmPadding = transformAlgorithmPadding(context, algorithmPadding);
             SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-            if (!VALID_TAG_SIZES.contains(tagSize)) {
+            if (tagSize != -1 && !Arrays.stream(VALID_TAG_SIZES).anyMatch(i -> tagSize == i)) {
                 context.setReturnValues(CryptoUtils.createCryptoError(context, "valid tag sizes are: " +
-                        VALID_TAG_SIZES.toString()));
+                        Arrays.toString(VALID_TAG_SIZES)));
+                return;
             }
             AlgorithmParameterSpec paramSpec = buildParameterSpec(context, transformedAlgorithmMode, iv, (int) tagSize);
             Cipher cipher = Cipher.getInstance("AES/" + transformedAlgorithmMode + "/" + transformedAlgorithmPadding);
@@ -284,8 +289,16 @@ public class CryptoUtils {
             algorithmPadding = "PKCS1Padding";
         } else if (algorithmPadding.equals("PKCS5")) {
             algorithmPadding = "PKCS5Padding";
-        } else if (algorithmPadding.equals("OAEP")) {
-            algorithmPadding = "OAEPPadding";
+        } else if (algorithmPadding.equals("OAEPwithMD5andMGF1")) {
+            algorithmPadding = "OAEPWithMD5AndMGF1Padding";
+        } else if (algorithmPadding.equals("OAEPWithSHA1AndMGF1")) {
+            algorithmPadding = "OAEPWithSHA-1AndMGF1Padding";
+        } else if (algorithmPadding.equals("OAEPWithSHA256AndMGF1")) {
+            algorithmPadding = "OAEPWithSHA-256AndMGF1Padding";
+        } else if (algorithmPadding.equals("OAEPwithSHA384andMGF1")) {
+            algorithmPadding = "OAEPWithSHA-384AndMGF1Padding";
+        } else if (algorithmPadding.equals("OAEPwithSHA512andMGF1")) {
+            algorithmPadding = "OAEPWithSHA-512AndMGF1Padding";
         } else if (algorithmPadding.equals("NONE")) {
             algorithmPadding = "NoPadding";
         } else {
@@ -293,6 +306,4 @@ public class CryptoUtils {
         }
         return algorithmPadding;
     }
-
-    public enum CipherMode {ENCRYPT, DECRYPT}
 }

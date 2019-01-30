@@ -140,32 +140,52 @@ function testSignRsaMd5WithInvalidKey(byte[] input) returns byte[]|error {
     return crypto:signRsaMd5(input, pk);
 }
 
-function testEncryptAesEcb(byte[] input, byte[] key, crypto:Padding padding = "PKCS5", byte[]? iv = ())
+function testEncryptAesEcb(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5", byte[]? iv = ())
 returns byte[]|error {
     return crypto:encryptAesEcb(input, key, padding = padding);
 }
 
-function testDecryptAesEcb(byte[] input, byte[] key, crypto:Padding padding = "PKCS5", byte[]? iv = ())
+function testDecryptAesEcb(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5", byte[]? iv = ())
 returns byte[]|error {
     return crypto:decryptAesEcb(input, key, padding = padding);
 }
 
-function testEncryptAesCbc(byte[] input, byte[] key, crypto:Padding padding = "PKCS5", byte[]? iv = ())
+function testEncryptAesCbc(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5", byte[]? iv = ())
 returns byte[]|error {
     return crypto:encryptAesCbc(input, key, iv = iv, padding = padding);
 }
 
-function testDecryptAesCbc(byte[] input, byte[] key, crypto:Padding padding = "PKCS5", byte[]? iv = ())
+function testDecryptAesCbc(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5", byte[]? iv = ())
 returns byte[]|error {
     return crypto:decryptAesCbc(input, key, iv = iv, padding = padding);
 }
 
-function testEncryptAesGcm(byte[] input, byte[] key, crypto:Padding padding = "PKCS5", byte[]? iv = (),
+function testEncryptAesGcm(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5", byte[]? iv = (),
 int? tagSize = 128) returns byte[]|error {
     return crypto:encryptAesGcm(input, key, iv = iv, padding = padding, tagSize = tagSize);
 }
 
-function testDecryptAesGcm(byte[] input, byte[] key, crypto:Padding padding = "PKCS5", byte[]? iv = (),
+function testDecryptAesGcm(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5", byte[]? iv = (),
 int? tagSize = 128) returns byte[]|error {
     return crypto:decryptAesGcm(input, key, iv = iv, padding = padding, tagSize = tagSize);
+}
+
+function testEncryptRsaEcb(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = (), string path,
+string keyStorePassword, string keyAlias) returns byte[]|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:encryptRsaEcb(input, pk, iv = iv, padding = padding);
+}
+
+function testDecryptRsaEcb(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = (), string path,
+string keyStorePassword, string keyAlias, string keyPassword) returns byte[]|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
+    return crypto:decryptRsaEcb(input, pk, iv = iv, padding = padding);
 }
