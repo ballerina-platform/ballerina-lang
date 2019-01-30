@@ -15,7 +15,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.utils;
 
 /**
  * Task related constants.

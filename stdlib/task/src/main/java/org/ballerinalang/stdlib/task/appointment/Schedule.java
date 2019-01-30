@@ -33,11 +33,11 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
-import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_CRON_EXPR_FIELD;
-import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_ON_ERROR_FIELD;
-import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_ON_TRIGGER_FIELD;
-import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_TASK_ID_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_CRON_EXPR_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_IS_RUNNING_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_ON_ERROR_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_ON_TRIGGER_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_TASK_ID_FIELD;
 
 /**
  * Extern function ballerina/task:Appointment.schedule.

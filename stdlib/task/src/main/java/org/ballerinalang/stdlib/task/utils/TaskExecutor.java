@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;

@@ -29,18 +29,18 @@ import org.ballerinalang.model.values.BValue;
 
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_CRON_EXPRESSION;
-import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_DAYS_OF_MONTH;
-import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_DAYS_OF_WEEK;
-import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_HOURS;
-import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_MINUTES;
-import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_MONTHS;
-import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_SECONDS;
-import static org.ballerinalang.stdlib.task.TaskConstants.FIELD_NAME_YEAR;
-import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.TaskConstants.TASK_ERROR_CODE;
-import static org.ballerinalang.stdlib.task.TaskConstants.TASK_ERROR_MESSAGE;
-import static org.ballerinalang.stdlib.task.TaskConstants.TASK_ERROR_RECORD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_CRON_EXPRESSION;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_DAYS_OF_MONTH;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_DAYS_OF_WEEK;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_HOURS;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_MINUTES;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_MONTHS;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_SECONDS;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_YEAR;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_CODE;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_MESSAGE;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_RECORD;
 
 /**
  * Utility functions used in ballerina task module.
@@ -61,7 +61,7 @@ public class Utils {
     }
 
     public static String getCronExpressionFromAppointmentRecord(BMap<String, BValue> record) {
-        String cronExpression = "";
+        String cronExpression;
         if (Objects.nonNull(record.get(FIELD_NAME_CRON_EXPRESSION))) {
             cronExpression = record.get(FIELD_NAME_CRON_EXPRESSION).stringValue();
         } else {

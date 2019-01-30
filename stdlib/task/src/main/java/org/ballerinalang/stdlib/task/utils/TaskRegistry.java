@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.utils;
 
+import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.appointment.Appointment;
 import org.ballerinalang.stdlib.task.timer.Timer;
 

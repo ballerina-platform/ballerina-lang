@@ -33,12 +33,12 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
-import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_DELAY;
-import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_INTERVAL;
-import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_ON_ERROR_FIELD;
-import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_ON_TRIGGER_FIELD;
-import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_DELAY;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_INTERVAL;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_IS_RUNNING_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_ON_ERROR_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_ON_TRIGGER_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
  * Extern function ballerina/task:Timer.start.

@@ -30,12 +30,12 @@ import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.listener.impl.TaskServerConnectorImpl;
 
-import static org.ballerinalang.stdlib.task.TaskConstants.LISTENER_STRUCT_NAME;
-import static org.ballerinalang.stdlib.task.TaskConstants.ORGANIZATION_NAME;
-import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_IS_RUNNING_FIELD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 
 /**

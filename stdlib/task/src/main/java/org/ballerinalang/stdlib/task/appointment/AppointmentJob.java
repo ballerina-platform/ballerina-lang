@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.task.appointment;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.stdlib.task.TaskExecutor;
+import org.ballerinalang.stdlib.task.utils.TaskExecutor;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.Job;
 import org.quartz.JobDataMap;

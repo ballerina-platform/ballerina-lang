@@ -21,8 +21,8 @@ package org.ballerinalang.stdlib.task.timer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.TaskExecutor;
-import org.ballerinalang.stdlib.task.TaskRegistry;
+import org.ballerinalang.stdlib.task.utils.TaskExecutor;
+import org.ballerinalang.stdlib.task.utils.TaskRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.ArrayList;
@@ -30,8 +30,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.stdlib.task.TaskConstants.RESOURCE_ON_TRIGGER;
-import static org.ballerinalang.stdlib.task.TaskIdGenerator.generate;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
+import static org.ballerinalang.stdlib.task.utils.TaskIdGenerator.generate;
 
 /**
  * Represents a timer.
@@ -98,10 +98,11 @@ public class Timer {
     /**
      * Creates a Timer object with limited number of running times.
      *
-     * @param context  The ballerina context.
-     * @param delay    The initial delay.
-     * @param interval The interval between two task executions.
-     * @param service  Service attached to the listener.
+     * @param context   The ballerina context.
+     * @param delay     The initial delay.
+     * @param interval  The interval between two task executions.
+     * @param service   Service attached to the listener.
+     * @param maxRuns   Number of times after which the timer will turn off.
      * @throws SchedulingException if cannot create the scheduler.
      */
     public Timer(Context context, long delay, long interval, Service service, long maxRuns) throws SchedulingException {

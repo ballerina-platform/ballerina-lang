@@ -21,8 +21,8 @@ package org.ballerinalang.stdlib.task.appointment;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.TaskIdGenerator;
-import org.ballerinalang.stdlib.task.TaskRegistry;
+import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
+import org.ballerinalang.stdlib.task.utils.TaskRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.SchedulerException;
 

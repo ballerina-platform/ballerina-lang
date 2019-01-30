@@ -24,10 +24,10 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import static org.ballerinalang.stdlib.task.TaskConstants.LISTENER_STRUCT_NAME;
-import static org.ballerinalang.stdlib.task.TaskConstants.ORGANIZATION_NAME;
-import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 
 /**
  * Native function to detach a service from the listener.

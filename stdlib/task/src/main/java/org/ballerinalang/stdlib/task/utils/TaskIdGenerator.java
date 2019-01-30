@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.utils;
 
 import java.util.UUID;
 

@@ -20,9 +20,9 @@ package org.ballerinalang.stdlib.task.listener.impl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.TaskRegistry;
 import org.ballerinalang.stdlib.task.listener.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.timer.Timer;
+import org.ballerinalang.stdlib.task.utils.TaskRegistry;
 
 /**
  * ballerina/task server connector implementation.
