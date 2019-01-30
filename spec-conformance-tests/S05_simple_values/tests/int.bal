@@ -41,8 +41,7 @@ function testInt(int i1, int i2, int i3, int i4) {
     dataProvider: "decimalDataProvider"
 }
 function testOutOfRangeValueAsInt(decimal d) {
-    // TODO - update once int.convert(d1)'s return type is changed to int|error
-    utils:assertErrorReason(trap int.convert(d), "{ballerina}NumberConversionError", 
+    utils:assertErrorReason(trap int.convert(d), "{ballerina}NumberConversionError",
                             "invalid reason on out of range int value");
 }
 

@@ -79,7 +79,8 @@ function testRequiredFields() {
     result = FooRecord.convert(b2);
     test:assertTrue(result is error, 
                     msg = "expected conversion to fail since all required fields are not present");
-    utils:assertErrorReason(result, "{ballerina}StampError", "expected conversion to faising fields");
+    utils:assertErrorReason(result, "{ballerina}StampError",
+                            "expected conversion to fail due to missing fields");
 }
 
 @test:Config {}

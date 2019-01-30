@@ -344,9 +344,9 @@ function testRecordFrozenContainerShapeAndType() {
     _ = a10.freeze();
     result = trap updateRecordBazField(a8, a10);
     test:assertTrue(a10 is BazRecord,
-    msg = "expected value's type to match shape after freezing");
+                    msg = "expected value's type to match shape after freezing");
     test:assertTrue(!(result is error),
-                     msg = "expected to be able to add a frozen value that conforms to shape");
+                    msg = "expected to be able to add a frozen value that conforms to shape");
 }
 
 public type BazRecord record {
