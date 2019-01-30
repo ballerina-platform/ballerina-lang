@@ -36,6 +36,9 @@ function testFunc() {
             test:assertFail(msg = "Failed to call the endpoint:");
         }
 
+    // Introducce an idle time to make sure requests are send in order.
+    runtime:sleep(3000);
+
     http:Request req2 = new;
     req2.setJsonPayload({ "name": "Teak", "amount": 500.0 });
     // Send a `GET` request to the specified endpoint.

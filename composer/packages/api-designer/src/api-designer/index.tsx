@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *
+ *
  */
 
 import * as Swagger from "openapi3-ts";
@@ -57,7 +58,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                 paths: this.props.openApiJson.paths
             },
             showOpenApiAddPath: false,
-            showType: "all"
+            showType: ""
         };
 
         this.handleShowOpenApiAddPath = this.handleShowOpenApiAddPath.bind(this);
@@ -123,14 +124,26 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         );
     }
 
-    private onAddOpenApiPath(path: Swagger.PathItemObject) {
+    private onAddOpenApiPath(path: Swagger.PathItemObject, onAdd: (state: boolean) => void) {
         const { onDidAddResource, onDidChange } = this.props;
         const resourceName = path.name.replace(" ", "");
         const operations: { [index: string]: Swagger.OperationObject } = {};
 
+        if (resourceName === "") {
+            onAdd(false);
+            return;
+        }
+
         path.methods.forEach((method: string, index: number) => {
+            let opName = resourceName;
+            opName = opName.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, "");
+
+            if (resourceName.match(/\d+/g) !== null) {
+                opName = "resource" + opName;
+            }
+
             operations[method.toLowerCase()] = {
-                operationId: index === 0 ? resourceName : "resource" + index,
+                operationId: index === 0 ? opName : "resource" + index,
                 responses: {},
             };
         });
@@ -147,6 +160,8 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         }), () => {
             if (this.state.openApiJson.paths["/" + resourceName]) {
 
+                onAdd(true);
+
                 if (onDidAddResource) {
                     onDidAddResource(resourceName, this.state.openApiJson);
                 }
@@ -155,6 +170,8 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                     onDidChange(EVENTS.ADD_RESOURCE, this.state.openApiJson);
                 }
 
+            } else {
+                onAdd(false);
             }
         });
     }
