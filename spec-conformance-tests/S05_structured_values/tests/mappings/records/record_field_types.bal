@@ -79,7 +79,7 @@ function testRequiredFields() {
     result = FooRecord.convert(b2);
     if (result is error) {
         test:assertEquals(result.reason(), "{ballerina}StampError",
-            msg = "expected conversion to faising fields");
+            msg = "expected conversion to fail due to missing fields");
     } else {
         test:assertFail(msg = "expected conversion to fail since all required fields are not present");
     }

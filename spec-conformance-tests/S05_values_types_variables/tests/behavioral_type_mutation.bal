@@ -43,7 +43,6 @@ public type BazObjectTwo object {
 
 // Whether a behavioural value is mutable depends on its basic type: some of the behavioural basic types
 // allow mutation, and some do not. Mutation cannot change the basic type of a value.
-// TODO: add tests for other mutable behavioural basic types
 @test:Config {}
 function testBehaviouralBasicTypeMutation() {
     BazObjectOne b1 = new(100);

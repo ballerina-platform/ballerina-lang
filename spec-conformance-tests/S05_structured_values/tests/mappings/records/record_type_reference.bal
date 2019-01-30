@@ -42,7 +42,7 @@ public type OpenRecordThree record {
 };
 
 @test:Config {}
-function testRecordTypeReferenceRestFieldOverride() {
+function testRecordTypeReferenceOpenRestFieldOverride() {
     boolean bTrue = true;
     boolean bFalse = false;
 
@@ -54,4 +54,23 @@ function testRecordTypeReferenceRestFieldOverride() {
     test:assertEquals(r1.fieldThree, bTrue);
     test:assertEquals(r1.fieldFour, s1);
     test:assertEquals(r1.fieldFive, bFalse);
+}
+
+public type OpenRecordFour record {
+    boolean fieldFour;
+    *ClosedRecord;
+};
+
+@test:Config {}
+function testRecordTypeReferenceClosedRestFieldOverride() {
+    boolean bTrue = true;
+    boolean bFalse = false;
+
+    OpenRecordFour r1 = { fieldOne: s1, fieldFour: bTrue, fieldThree: bFalse };
+    r1.fieldTwo = s1;
+
+    test:assertEquals(r1.fieldOne, s1);
+    test:assertEquals(r1.fieldFour, bTrue);
+    test:assertEquals(r1.fieldTwo, s1);
+    test:assertEquals(r1.fieldThree, bFalse);
 }

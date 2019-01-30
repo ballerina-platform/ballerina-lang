@@ -16,30 +16,19 @@
 import ballerina/test;
 
 // Both kinds of type descriptor are covariant in the types of their members.
-
-public type ClosedRecordTwo record {
-    string|int fieldOne;
-    boolean|float fieldTwo;
-    !...;
-};
-
-public type ClosedRecordThree record {
-    float fieldTwo;
-    string fieldOne;
-    !...;
-};
-
-public type ClosedRecordFour record {
-    boolean fieldOne;
-    string fieldTwo;
-    !...;
-};
-
 @test:Config {}
-function testRecordCovariance() {
-    any r = <ClosedRecordThree>{ fieldOne: s1, fieldTwo: 100.0 };
-    test:assertTrue(r is ClosedRecordTwo, msg = "expected record to be identified as a subtype");
+function testMapCovariance() {
+    string st1 = "test string 1";
+    string st2 = "test string 2";
+    string st3 = "test string 3";
+    map<string> stringMap = { one: st1, two: st2 };
+    map<string|int> stringOrIntMap = stringMap;
+    stringOrIntMap.three = st3;
 
-    r = <ClosedRecordFour>{ fieldOne: false, fieldTwo: s1 };
-    test:assertTrue(!(r is ClosedRecordTwo), msg = "expected record to not be identified as a subtype");
+    test:assertEquals(stringOrIntMap.one, st1, msg = EXPECTED_THE_ORIGINAL_VALUE_FAILURE_MESSAGE);
+    test:assertEquals(stringOrIntMap.two, st2, msg = EXPECTED_THE_ORIGINAL_VALUE_FAILURE_MESSAGE);
+    test:assertEquals(stringOrIntMap.three, st3, msg = EXPECTED_THE_ORIGINAL_VALUE_FAILURE_MESSAGE);
+    utils:assertPanic(function () { stringOrIntMap.four = 1; },
+                      INHERENT_TYPE_VIOLATION_REASON,
+                      INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
 }

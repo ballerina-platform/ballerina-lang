@@ -14,18 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-//
-//// service-type-descriptor := service
-//service sampleService = service {
-//    function temp() returns int {
-//        return 12;
-//    }
-//};
-//
-//// A service value contains resources and methods.
-//// A service method is similar to an object method.
-//// TODO: Service methods should be accessible similar to an object method.
-//@test:Config {}
-//function testServiceBroken() {
-//    sampleService.temp();
-//}
+
+type USER_DEF_TYPE_ONE "hi"|1;
+type USER_DEF_TYPE_TWO "hi"|1|2.0;
+
+// A type S is a subtype of type T if the set of shapes denoted by S is a subset of the set of shapes denoted by T.
+@test:Config {}
+function testSubtype() {
+    USER_DEF_TYPE_ONE u1 = "hi";
+    any a = u1;
+    test:assertTrue(a is USER_DEF_TYPE_TWO,
+                    msg = "expected value's type to be identified as a subtype");
+    test:assertTrue(a is string|int,
+                    msg = "expected value's type to be identified as a subtype");
+}

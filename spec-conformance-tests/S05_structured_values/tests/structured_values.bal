@@ -330,6 +330,10 @@ function testTableContainerValueInherentType() {
                     msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 }
 
+// A frozen container value belongs to a type if and only if the type contains the shape of the
+// value. Thus after a container value is frozen, its inherent type does not provide additional
+// information that cannot be derived from the value. In other words, freezing a container
+// narrows its inherent type to a type that consists of just its current shape.
 @test:Config {}
 function testRecordFrozenContainerShapeAndType() {
     BazRecordThree a8 = { bazFieldOne: "test string 1" };
@@ -344,9 +348,9 @@ function testRecordFrozenContainerShapeAndType() {
     _ = a10.freeze();
     result = trap updateRecordBazField(a8, a10);
     test:assertTrue(a10 is BazRecord,
-    msg = "expected value's type to match shape after freezing");
+                    msg = "expected value's type to match shape after freezing");
     test:assertTrue(!(result is error),
-                     msg = "expected to be able to add a frozen value that conforms to shape");
+                    msg = "expected to be able to add a frozen value that conforms to shape");
 }
 
 public type BazRecord record {
