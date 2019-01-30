@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.stdlib.database.sql;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -27,20 +28,28 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 
 public class SQLConnectionPoolTest {
     private CompileResult result;
     private static final String DB1_NAME = "TEST_SQL_CONNECTION_POOL_1";
     private static final String DB2_NAME = "TEST_SQL_CONNECTION_POOL_2";
+    private Path ballerinaConfPath;
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws Exception {
+        ballerinaConfPath = Paths.get("src", "test", "resources", "ballerina.conf").toAbsolutePath();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
         result = BCompileUtil.compile("test-src/sql/connection_pool_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB1_NAME);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB2_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB1_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB2_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
     }
+
     @Test
     public void testGlobalConnectionPoolSingleDestination() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestination");
@@ -52,7 +61,7 @@ public class SQLConnectionPoolTest {
             Assert.assertEquals(expectedTableData[i], (((BValueArray) returns[0])).getRefValue(i).stringValue());
         }
         Assert.assertTrue((((BValueArray) returns[0])).getRefValue(10).stringValue()
-                .matches(".*Timeout after 300\\d\\dms of waiting for a connection.*"));
+                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
     }
 
     @Test
@@ -69,13 +78,13 @@ public class SQLConnectionPoolTest {
             Assert.assertEquals(expectedTableData[i], jsonArray1.getRefValue(i).stringValue());
         }
         Assert.assertTrue(jsonArray1.getRefValue(10).stringValue()
-                .matches(".*Timeout after 300\\d\\dms of waiting for a connection.*"));
+                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
 
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals(expectedTableData[i], jsonArray2.getRefValue(i).stringValue());
         }
         Assert.assertTrue(jsonArray2.getRefValue(10).stringValue()
-                .matches(".*Timeout after 300\\d\\dms of waiting for a connection.*"));
+                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
     }
 
     @Test
@@ -90,8 +99,8 @@ public class SQLConnectionPoolTest {
             Assert.assertEquals(array.getRefValue(1).stringValue(), name2);
         }
         BValueArray array = ((BValueArray) ((BValueArray) returns[0]).getRefValue(4));
-        Assert.assertTrue(array.getRefValue(2).stringValue()
-                .matches(".*Timeout after 300\\d\\dms of waiting for a connection.*"));
+        Assert.assertTrue(
+                array.getRefValue(2).stringValue().matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
     }
 
     @Test
@@ -124,9 +133,9 @@ public class SQLConnectionPoolTest {
             Assert.assertEquals(returnArray.getRefValue(i).stringValue(), expectedArray1[i]);
             Assert.assertEquals(returnArray.getRefValue(i + 4).stringValue(), expectedArray2[i]);
         }
-        Assert.assertTrue(returnArray.getRefValue(3).stringValue().matches(".*Timeout after 10\\d\\dms of waiting for"
-                + " a connection.*"));
-        Assert.assertTrue(returnArray.getRefValue(7).stringValue().matches(".*Timeout after 10\\d\\dms of waiting for"
-                + " a connection.*"));
+        Assert.assertTrue(returnArray.getRefValue(3).stringValue()
+                .matches(".*Timeout after 10\\d\\dms of waiting for" + " a connection.*"));
+        Assert.assertTrue(returnArray.getRefValue(7).stringValue()
+                .matches(".*Timeout after 10\\d\\dms of waiting for" + " a connection.*"));
     }
 }
