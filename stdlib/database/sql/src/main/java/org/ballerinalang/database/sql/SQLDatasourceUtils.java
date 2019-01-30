@@ -1170,8 +1170,8 @@ public class SQLDatasourceUtils {
         String jdbcUrl = constructJDBCURL(dbType, host, port, name, username, password, urlOptions);
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withHostOrPath(host).withPort(port)
-                .withJdbcUrl(jdbcUrl).withPoolOptions(poolOptions).withUsername(username).withPassword(password).withDbName(name)
-                .withUrlOptions(urlOptions).build();
+                .withJdbcUrl(jdbcUrl).withPoolOptions(poolOptions).withUsername(username).withPassword(password)
+                .withDbName(name).withUrlOptions(urlOptions).build();
         return createSQLClient(context, sqlDatasourceParams, poolOptions);
     }
 
@@ -1223,9 +1223,9 @@ public class SQLDatasourceUtils {
         }
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
         String jdbcUrl = constructJDBCURL(dbType, hostOrPath, port, name, username, password, urlOptions);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptions).withJdbcUrl(jdbcUrl)
-                .withDbType(dbType).withHostOrPath(hostOrPath).withPort(port).withUsername(username)
-                .withPassword(password).withDbName(name).withUrlOptions(urlOptions).build();
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptions)
+                .withJdbcUrl(jdbcUrl).withDbType(dbType).withHostOrPath(hostOrPath).withPort(port)
+                .withUsername(username).withPassword(password).withDbName(name).withUrlOptions(urlOptions).build();
         return createSQLClient(context, sqlDatasourceParams, poolOptions);
     }
 
@@ -1345,8 +1345,10 @@ public class SQLDatasourceUtils {
         return sqlClient;
     }
 
-    private static Map<String, SQLDatasource> createPoolMapIfNotExists(final org.ballerinalang.connector.api.Struct poolOptions) {
-        Map<String, SQLDatasource> hikariDatasourceMap = (Map<String, SQLDatasource>) poolOptions.getNativeData(Constants.POOL_MAP_KEY);
+    private static Map<String, SQLDatasource> createPoolMapIfNotExists(
+            final org.ballerinalang.connector.api.Struct poolOptions) {
+        Map<String, SQLDatasource> hikariDatasourceMap = (Map<String, SQLDatasource>) poolOptions
+                .getNativeData(Constants.POOL_MAP_KEY);
         // map could be null only in a local pool creation scenario
         if (hikariDatasourceMap == null) {
             synchronized (poolOptions) {

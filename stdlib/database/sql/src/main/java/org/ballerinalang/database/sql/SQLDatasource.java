@@ -164,7 +164,8 @@ public class SQLDatasource implements BValue {
                 if (maximumPoolSize != -1) {
                     config.setMaximumPoolSize(maximumPoolSize);
                 }
-                long connectionTimeout = sqlDatasourceParams.poolOptions.getIntField(Constants.Options.CONNECTION_TIMEOUT);
+                long connectionTimeout = sqlDatasourceParams.poolOptions
+                        .getIntField(Constants.Options.CONNECTION_TIMEOUT);
                 if (connectionTimeout != -1) {
                     config.setConnectionTimeout(connectionTimeout);
                 }
@@ -180,7 +181,8 @@ public class SQLDatasource implements BValue {
                 if (maxLifetime != -1) {
                     config.setMaxLifetime(maxLifetime);
                 }
-                long validationTimeout = sqlDatasourceParams.poolOptions.getIntField(Constants.Options.VALIDATION_TIMEOUT);
+                long validationTimeout = sqlDatasourceParams.poolOptions
+                        .getIntField(Constants.Options.VALIDATION_TIMEOUT);
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }
