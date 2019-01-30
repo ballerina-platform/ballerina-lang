@@ -2404,7 +2404,8 @@ public class FormattingNodeTree {
             boolean isTable = parentKind.equals("Table");
             boolean isExpression = parentKind.equals("Endpoint") || parentKind.equals("AnnotationAttachment")
                     || parentKind.equals("Service") || parentKind.equals("Variable") || parentKind.equals("Invocation")
-                    || parentKind.equals("ErrorConstructor") || parentKind.equals("RecordLiteralExpr");
+                    || parentKind.equals("ErrorConstructor") || parentKind.equals("RecordLiteralExpr")
+                    || parentKind.equals("RecordLiteralKeyValue") || parentKind.equals("Return");
 
             if (isExpression) {
                 node.getAsJsonObject(FormattingConstants.POSITION).addProperty(FormattingConstants.START_COLUMN,
@@ -4077,7 +4078,7 @@ public class FormattingNodeTree {
                 if (node.has("initialExpression")) {
                     JsonObject initialExprFormattingConfig = this.getFormattingConfig(0, 1,
                             0, false, this.getWhiteSpaceCount(indentWithParentIndentation),
-                            false);
+                            true);
                     node.getAsJsonObject("initialExpression").add(FormattingConstants.FORMATTING_CONFIG,
                             initialExprFormattingConfig);
                 }
