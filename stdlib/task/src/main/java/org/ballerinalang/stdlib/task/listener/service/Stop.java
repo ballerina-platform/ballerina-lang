@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.task.listener.service;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -33,6 +34,7 @@ import static org.ballerinalang.stdlib.task.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_IS_RUNNING_FIELD;
 import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 
@@ -54,6 +56,12 @@ public class Stop extends BlockingNativeCallableUnit {
     @Override
     public void execute (Context context) {
         BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
+        boolean isRunning = ((BBoolean) task.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
+        if (!isRunning) {
+            String errorMessage = "Cannot stop the task: Task is not running.";
+            context.setReturnValues(createError(context, errorMessage));
+            return;
+        }
         String taskId = task.get(TIMER_TASK_ID_FIELD).stringValue();
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(context, taskId);
         try {

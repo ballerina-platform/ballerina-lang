@@ -37,11 +37,12 @@ import static org.ballerinalang.stdlib.task.TaskIdGenerator.generate;
  * Represents a timer.
  */
 public class Timer {
+
     private String id = generate();
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private ArrayList<Service> serviceList = new ArrayList<>();
     private long interval, delay;
-
+    //private int noOfRuns, maxRuns;
 
     /**
      * Triggers the timer.
@@ -73,10 +74,10 @@ public class Timer {
     /**
      * Creates a Timer object.
      *
-     * @param context               The ballerina context.
-     * @param delay                 The initial delay.
-     * @param interval              The interval between two task executions.
-     * @param service               Service attached to the listener.
+     * @param context  The ballerina context.
+     * @param delay    The initial delay.
+     * @param interval The interval between two task executions.
+     * @param service  Service attached to the listener.
      * @throws SchedulingException if cannot create the scheduler.
      */
     public Timer(Context context, long delay, long interval, Service service) throws SchedulingException {
@@ -88,6 +89,8 @@ public class Timer {
         this.interval = interval;
         this.delay = delay;
         this.serviceList.add(service);
+        //maxRuns = 0;
+        //noOfRuns = 0;
 
         TaskRegistry.getInstance().addTimer(this);
     }
@@ -121,12 +124,8 @@ public class Timer {
     }
 
     public void stop() {
-        try {
-            executorService.shutdown();
-            TaskRegistry.getInstance().remove(id);
-        } catch (RuntimeException e) {
-
-        }
+        executorService.shutdown();
+        TaskRegistry.getInstance().remove(id);
     }
 
     public void addService(Service service) {
@@ -139,6 +138,7 @@ public class Timer {
 
     public void runServices(Context context) {
         final Runnable schedulerFunc = () -> {
+            //this.noOfRuns++;
             for (Service service : serviceList) {
                 FunctionInfo onTriggerFunction, onErrorFunction;
                 if (RESOURCE_ON_TRIGGER.equals(service.getResources()[0].getName())) {

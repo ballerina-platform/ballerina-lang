@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -45,6 +46,7 @@ import static org.ballerinalang.stdlib.task.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_IS_RUNNING_FIELD;
 import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
@@ -86,6 +88,7 @@ public class Register extends BlockingNativeCallableUnit {
                 } else {
                     timer = new Timer(context, delay, interval, service);
                     task.put(TIMER_TASK_ID_FIELD, new BString(timer.getId()));
+                    task.put(TIMER_IS_RUNNING_FIELD, new BBoolean(false));
                 }
             } catch (SchedulingException e) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);

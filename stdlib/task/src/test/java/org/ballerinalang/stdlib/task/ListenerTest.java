@@ -45,7 +45,7 @@ public class ListenerTest {
     @Test(description = "Tests a dynamic timer")
     public void testListenerTimerDynamicService() {
         CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/listener_timer_dynamic_service.bal");
+                "listener-test-src/timer/dynamic_service.bal");
         BRunUtil.invoke(compileResult, "main");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
@@ -57,7 +57,7 @@ public class ListenerTest {
 
     @Test(description = "Tests running an timer as a service")
     public void testListenerTimer() {
-        CompileResult compileResult = BCompileUtil.compile("listener-test-src/listener_timer_service.bal");
+        CompileResult compileResult = BCompileUtil.compile("listener-test-src/timer/service_simple.bal");
         BServiceUtil.runService(compileResult);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
@@ -70,7 +70,7 @@ public class ListenerTest {
     @Test(description = "Tests a timer listener with inline configurations")
     public void testListenerTimerInlineConfigs() {
         CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/listener_timer_service_inline_configs.bal");
+                "listener-test-src/timer/service_inline_configs.bal");
         BServiceUtil.runService(compileResult);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
@@ -87,14 +87,14 @@ public class ListenerTest {
     )
     public void testListenerTimerNegativeValues() {
         CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/listener_timer_service_negative_values.bal");
+                "listener-test-src/timer/service_negative_values.bal");
         BServiceUtil.runService(compileResult);
     }
 
     @Test(description = "Tests a timer listener with inline configurations")
     public void testListenerTimerStop() {
         CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/listener_timer_service_stop.bal");
+                "listener-test-src/timer/service_stop.bal");
         BServiceUtil.runService(compileResult);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
@@ -107,7 +107,7 @@ public class ListenerTest {
     @Test(description = "Tests a timer listener without delay field")
     public void testListenerTimerWithoutDelay() {
         CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/listener_timer_service_without_delay.bal");
+                "listener-test-src/timer/service_without_delay.bal");
         BServiceUtil.runService(compileResult);
     }
 }
