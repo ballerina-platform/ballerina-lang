@@ -1011,7 +1011,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
             }
 
-            if (!isAllowedConstantType(constant.symbol)) {
+            if (!isAllowedConstantType(constant.symbol, constant.typeNode)) {
                 // Constant might not have a typeNode.
                 if (constant.typeNode != null) {
                     dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE,
@@ -1021,7 +1021,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private boolean isAllowedConstantType(BConstantSymbol symbol) {
+    private boolean isAllowedConstantType(BConstantSymbol symbol, BLangType typeNode) {
         switch (symbol.literalValueType.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
@@ -1030,10 +1030,30 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
             case TypeTags.NIL:
-            case TypeTags.MAP:
                 return true;
+            case TypeTags.MAP:
+                return isAllowedMapConstraintType(typeNode);
         }
         return false;
+    }
+
+    private boolean isAllowedMapConstraintType(BLangType typeNode) {
+        switch (typeNode.type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+            case TypeTags.NIL:
+                return true;
+            case TypeTags.MAP:
+                return isAllowedMapConstraintType(((BLangConstrainedType) typeNode).constraint);
+            default:
+                dlog.error(typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, typeNode);
+        }
+        // Return true anyway since otherwise there will be two errors logged for this.
+        return true;
     }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
