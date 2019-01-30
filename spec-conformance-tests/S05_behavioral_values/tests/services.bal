@@ -20,4 +20,8 @@ service sampleService = service {
     function serviceFunction() returns int {
         return 12;
     }
+
+    resource function serviceResourceFunction() returns boolean {
+        return true;
+    }
 };
