@@ -1,0 +1,36 @@
+plugins {
+    id 'base'
+}
+
+apply from: "$rootDir/gradle/jsProject.gradle"
+
+task npmBuild(type: Exec) {
+    outputs.dir("packages/distribution/build")
+    outputs.dir("packages/distribution/node_modules")
+    outputs.dir("packages/api-designer/lib")
+    outputs.dir("packages/api-designer/node_modules")
+    outputs.dir("packages/ast-model/lib")
+    outputs.dir("packages/ast-model/node_modules")
+    outputs.dir("packages/bbe/lib")
+    outputs.dir("packages/bbe/node_modules")
+    outputs.dir("packages/diagram/lib")
+    outputs.dir("packages/diagram/node_modules")
+    outputs.dir("packages/documentation/lib")
+    outputs.dir("packages/documentation/node_modules")
+    outputs.dir("packages/font/build")
+    outputs.dir("packages/font/node_modules")
+    outputs.dir("packages/lang-service/lib")
+    outputs.dir("packages/lang-service/node_modules")
+    outputs.dir("packages/theme/lib")
+    outputs.dir("packages/theme/node_modules")
+    outputs.dir("packages/tracing/lib")
+    outputs.dir("packages/tracing/node_modules")
+
+    outputs.cacheIf { true } 
+    commandLine 'npm', 'run', 'build'
+}
+
+build {
+    dependsOn npmInstall
+    dependsOn npmBuild
+}
