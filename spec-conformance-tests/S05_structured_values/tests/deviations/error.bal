@@ -27,10 +27,10 @@ import ballerina/test;
     groups: ["deviation"]
 }
 function testErrorTypeDescriptorBroken() {
-    map<anydata> detail = { cause: "Core Error" };
-    error <string, map<anydata>> error1 = error("Error Three", detail);
-    detail.stacktrace = "xyz";
-    test:assertEquals(error1.detail(), detail, msg = "expected detail map in error to be changed");
+    error <string, map<anydata>> error1 = error("Error Three", { cause: "Core Error" });
+    error1.detail().stacktrace = "xyz"; // Should fail
+    test:assertEquals(error1.detail(), <map<anydata>>{ cause: "Core Error" },
+        msg = "expected detail map in error to be changed");
 }
 
 // An error type does not have an implicit initial value.

@@ -22,9 +22,9 @@ import ballerina/utils;
 // type.
 @test:Config {}
 function testTableIterable() {
-    BazRecordFourteen bazRecord1 = { bazFieldOne: 1 };
-    BazRecordFourteen bazRecord2 = { bazFieldOne: 2 };
-    BazRecordFourteen bazRecord3 = { bazFieldOne: 3 };
+    BazRecordFourteen bazRecord1 = { bazFieldOne: 1, bazFieldTwo: "string one" };
+    BazRecordFourteen bazRecord2 = { bazFieldOne: 2, bazFieldTwo: "string one" };
+    BazRecordFourteen bazRecord3 = { bazFieldOne: 3, bazFieldTwo: "string one" };
     table<BazRecordFourteen> iterableTable = table{};
     _ = iterableTable.add(bazRecord1);
     _ = iterableTable.add(bazRecord2);
@@ -103,4 +103,31 @@ function testTableSubtype() {
 
 public type BazRecordFourteen record {
     float bazFieldOne;
+    string bazFieldTwo;
 };
+
+// Otherwise the value for all primary keys together must uniquely identify each row in the table;
+// in other words, a table cannot have two rows where for every column marked as a primary key,
+// that value of that column in both rows is the same.
+@test:Config {}
+function testDuplicateKeyValue() {
+    BazRecordFourteen bazRecord1 = { bazFieldOne: 1, bazFieldTwo: "string one" };
+    BazRecordFourteen bazRecord2 = { bazFieldOne: 1, bazFieldTwo: "string two" };
+
+    table<BazRecordFourteen> iterableTable = table{
+        {key bazFieldOne, bazFieldTwo}
+    };
+    var resultOne = iterableTable.add(bazRecord1);
+    var resultTwo = iterableTable.add(bazRecord2);
+
+    if (resultOne is error) {
+        test:assertFail(msg = "expected table row to be added with no error");
+    }
+
+    if (resultTwo is error) {
+        test:assertEquals(resultTwo.reason(), "{ballerina}TableOperationError",
+            msg = "invalid reason on adding duplicate key");
+    } else {
+        test:assertFail(msg = "expected expression to panic");
+    }
+}

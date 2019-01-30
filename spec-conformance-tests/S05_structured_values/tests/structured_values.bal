@@ -22,17 +22,17 @@ const string IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE = "invalid reason on 
 const string EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE = "exected value to not be frozen";
 const string EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE = "exected value to be frozen";
 
-const string EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE = 
+const string EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE =
                                 "expected convert to succeed since the value is of the expected shape";
 const string EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE =
                                 "expected convert to fail since the value is not of the expected shape";
 
-const string EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE = 
+const string EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
                                 "expected value's type to be of same type or sub type";
 const string EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
                                 "expected value's type to not be of same type or sub type";
 
-const string EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE = 
+const string EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
                                 "expected to be able to add a value of same type or sub type";
 const string EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
                                 "expected to not be able to add a value of type that is not same type or sub type";
@@ -47,7 +47,7 @@ const string EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILUR
 function testArrayFreezeOnContainer() {
     int[] a1 = [1, 2, 3];
     _ = a1.freeze();
-    utils:assertErrorReason(trap insertMemberToArray(a1, 0, 1), B7A_INVALID_UPDATE_REASON,
+    utils:assertPanic(function () { insertMemberToArray(a1, 0, 1); }, B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 }
 
@@ -64,7 +64,7 @@ function insertMemberToArray(any[] array, int index, any member) {
 function testTupleFreezeOnContainer() {
     (int, boolean) a2 = (1, false);
     _ = a2.freeze();
-    utils:assertErrorReason(trap insertMemberToTuple(a2, 2), B7A_INVALID_UPDATE_REASON,
+    utils:assertPanic(function () { insertMemberToTuple(a2, 2); }, B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 }
 
@@ -81,7 +81,7 @@ function testMapFreezeOnContainer() {
     map<string|int|FooObjectThirteen> a3 = { one: 1, two: "two" };
     var result = a3.freeze();
     if (result is map<string|int|FooObjectThirteen>) {
-        utils:assertErrorReason(trap insertMemberToMap(result, "two", 2), B7A_INVALID_UPDATE_REASON,
+        utils:assertPanic(function () { insertMemberToMap(result, "two", 2); }, B7A_INVALID_UPDATE_REASON,
                                 IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
     }
 }
@@ -99,7 +99,7 @@ function insertMemberToMap(map<any|error> mapVal, string index, any|error member
 function testRecordFreezeOnContainer() {
     FooRecordThirteen a4 = { fooFieldOne: "test string 1" };
     _ = a4.freeze();
-    utils:assertErrorReason(trap updateFooRecord(a4, "test string 2"), B7A_INVALID_UPDATE_REASON,
+    utils:assertPanic(function () { updateFooRecord(a4, "test string 2"); }, B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 }
 
@@ -116,7 +116,7 @@ function testTableFreezeOnContainer() {
     table<BarRecordThirteen> a5 = table{};
     BarRecordThirteen b1 = { barFieldOne: 100 };
     _ = a5.freeze();
-    utils:assertErrorReason(trap insertMemberToTable(a5, b1), B7A_INVALID_UPDATE_REASON,
+    utils:assertPanic(function () { insertMemberToTable(a5, b1); }, B7A_INVALID_UPDATE_REASON,
                             IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
 }
 
@@ -388,11 +388,11 @@ public type BarRecordThirteen record {
 
 public type FooObjectThirteen object {
     public string fooFieldOne;
-    
+
     public function __init(string fooFieldOne) {
         self.fooFieldOne = fooFieldOne;
     }
-    
+
     public function getFooFieldOne() returns string {
         return self.fooFieldOne;
     }
@@ -400,11 +400,11 @@ public type FooObjectThirteen object {
 
 public type BarObjectThirteen object {
     public int barFieldOne;
-    
+
     public function __init(int barFieldOne) {
         self.barFieldOne = barFieldOne;
     }
-    
+
     public function getBarFieldOne() returns int {
         return self.barFieldOne;
     }

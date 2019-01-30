@@ -19,6 +19,8 @@ const string EXPECTED_STAMPING_TO_BE_SUCCESSFUL_FAILURE_MESSAGE = "expected stam
 
 // A value looks like a type at a particular point in the execution of a program if its shape
 // at that point is a member of the type
+// Ballerina also provides mechanisms that take a value that looks like a type
+// and use it to create a value that belongs to a type
 @test:Config {}
 function testLooksLikeArray() {
     (int|boolean)[] a = [true, false, false];

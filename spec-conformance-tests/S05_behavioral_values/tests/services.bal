@@ -14,18 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/test;
-//
-//// service-type-descriptor := service
-//service sampleService = service {
-//    function temp() returns int {
-//        return 12;
-//    }
-//};
-//
-//// A service value contains resources and methods.
-//// A service method is similar to an object method.
-//// TODO: Service methods should be accessible similar to an object method. open an issue
-//@test:Config {}
-//function testServiceBroken() {
-//    sampleService.temp();
-//}
+
+// service-type-descriptor := service
+service sampleService = service {
+    function serviceFunction() returns int {
+        return 12;
+    }
+};

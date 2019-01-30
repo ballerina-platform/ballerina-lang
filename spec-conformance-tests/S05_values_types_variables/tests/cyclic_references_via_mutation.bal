@@ -16,6 +16,7 @@
 import ballerina/test;
 
 const string EXPECTED_VALUES_TO_BE_AT_SAME_LOCATION_FAILURE_MESSAGE = "expected values to be at the same location";
+
 // Mutation makes it possible for the graphs of references between values to have cycles.
 @test:Config {}
 function testCyclicReferenceViaMutationInArrays() {

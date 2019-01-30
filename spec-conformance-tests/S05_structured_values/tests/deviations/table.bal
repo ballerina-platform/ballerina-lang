@@ -29,3 +29,18 @@ import ballerina/test;
 function testTableTypeDescriptorBroken() {
 
 }
+
+// A table value also contains a boolean flag for each column name saying
+// whether that column is a primary key for the table;
+// TODO: Table with multiple key columns should be supported
+//@test:Config {
+//    groups: ["deviation"]
+//}
+//function testMultipleKeyTableDescriptor() {
+//    BazRecordFourteen bazRecord1 = { bazFieldOne: 1, bazFieldTwo: "string one" };
+//    BazRecordFourteen bazRecord2 = { bazFieldOne: 1, bazFieldTwo: "string two" };
+//
+//    table<BazRecordFourteen> iterableTable = table{
+//        {key bazFieldOne, key bazFieldTwo}
+//    };
+//}

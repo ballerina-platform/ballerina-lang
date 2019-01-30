@@ -32,7 +32,7 @@ function testRecordTypeReference() {
     ClosedRecord r1 = { fieldOne: s1 };
     test:assertEquals(r1.fieldOne, s1);
 
-    utils:assertErrorReason(trap updateOpenRecordTwo(r1, i1), "{ballerina}KeyNotFound",
+    utils:assertPanic(function () { updateOpenRecordTwo(r1, i1); }, "{ballerina}KeyNotFound",
                             "invalid reason on inherent type violating record update");
 }
 

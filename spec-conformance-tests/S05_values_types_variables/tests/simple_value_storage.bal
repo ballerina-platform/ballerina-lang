@@ -15,15 +15,14 @@
 // under the License.
 import ballerina/test;
 
+// Values can be stored in variables or as members of structures.
+// A simple value is stored directly in the variable or structure.
 const decimal D = 1.23;
 const int I = 1;
 const string S = "test string const";
 const float F = 1.0;
 const boolean B = true;
 
-// Values can be stored in variables or as members of structures.
-
-// A simple value is stored directly in the variable or structure.
 @test:Config {}
 function testSimpleValuesStoredInArrays() {
     decimal d = D;

@@ -28,18 +28,24 @@ function testMapFieldShape() {
     // change the value's shape
     m1.bazFieldTwo = 1.0;
     conversionResult = BazRecordTen.convert(m1);
-    test:assertTrue(conversionResult is error, msg = "expected conversion to fail");
-    utils:assertErrorReason(conversionResult, "{ballerina}StampError", 
-                            "invalid reason on conversion failure due to shape mismatch");
+    if (conversionResult is error) {
+        test:assertEquals(conversionResult.reason(), "{ballerina}StampError",
+            msg = "invalid reason on conversion failure due to shape mismatch");
+    } else {
+        test:assertFail(msg = "expected conversion to fail");
+    }
 
     // remove a required field and add a new field with a different name
     boolean removalStatus = m1.remove("bazFieldTwo");
     test:assertTrue(removalStatus, msg = "expected removal to succeed");
     m1.bazFieldThree = "test string 3";
     conversionResult = BazRecordTen.convert(m1);
-    test:assertTrue(conversionResult is error, msg = "expected conversion to fail");
-    utils:assertErrorReason(conversionResult, "{ballerina}StampError", 
-                            "invalid reason on conversion failure due to shape mismatch");
+    if (conversionResult is error) {
+        test:assertEquals(conversionResult.reason(), "{ballerina}StampError",
+            msg = "invalid reason on conversion failure due to shape mismatch");
+    } else {
+        test:assertFail(msg = "expected conversion to fail");
+    }
 }
 
 public type BazRecordTen record {
