@@ -208,13 +208,16 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
               if (signatures != null && !signatures.isEmpty) {
                 val scalaSignatures = signatures.asScala
                 val activeSignatureIndex = signature.getActiveSignature
+                val activeParameterIndex = signature.getActiveParameter
+                val activeParameter = if(scalaSignatures(activeSignatureIndex).getParameters.size > activeParameterIndex)
+                  scalaSignatures(activeSignatureIndex).getParameters.get(activeParameterIndex).getLabel else ""
                 val signatureDescription = scalaSignatures(activeSignatureIndex).getDocumentation
                 if(signatureDescription.isLeft) {
                   // Todo - Add parameter Documentation
                   val builder = StringBuilder.newBuilder
                   builder.append("<html>")
                   scalaSignatures.take(activeSignatureIndex).foreach(sig => builder.append(sig.getLabel).append("<br>"))
-                  builder.append("<b>").append(scalaSignatures(activeSignatureIndex).getLabel).append("</b>")
+                  builder.append("<b>").append(scalaSignatures(activeSignatureIndex).getLabel.replace(" " + activeParameter, "<font color=\"yellow\">" + " " + activeParameter + "</font>")).append("</b>")
                   builder.append("<div>").append(signatureDescription.getLeft).append("</div>")
                   scalaSignatures.drop(activeSignatureIndex + 1).foreach(sig => builder.append("<br>").append(sig.getLabel))
                   builder.append("</html>")
