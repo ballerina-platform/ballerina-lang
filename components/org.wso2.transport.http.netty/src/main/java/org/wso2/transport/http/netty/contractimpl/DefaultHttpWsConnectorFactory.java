@@ -143,8 +143,16 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     public HttpClientConnector createHttpClientConnector(
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
-        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration, bootstrapConfig, clientGroup);
-        return new DefaultHttpClientConnector(connectionManager, senderConfiguration);
+        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration());
+        return new DefaultHttpClientConnector(connectionManager, senderConfiguration, bootstrapConfig, clientGroup);
+    }
+
+    @Override
+    public HttpClientConnector createHttpClientConnector(
+        Map<String, Object> transportProperties, SenderConfiguration senderConfiguration,
+        ConnectionManager connectionManager) {
+        BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
+        return new DefaultHttpClientConnector(connectionManager, senderConfiguration, bootstrapConfig, clientGroup);
     }
 
     @Override

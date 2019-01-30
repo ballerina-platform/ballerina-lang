@@ -22,12 +22,14 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.base64.Base64;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -42,6 +44,7 @@ import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityListener;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
@@ -75,8 +78,12 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     private KeepAliveConfig keepAliveConfig;
     private boolean isHttp2;
     private ForwardedExtensionConfig forwardedExtensionConfig;
+    private EventLoopGroup clientEventGroup;
+    private BootstrapConfiguration bootstrapConfig;
+    private GenericObjectPool clientConnectionPool;
 
-    public DefaultHttpClientConnector(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
+    public DefaultHttpClientConnector(ConnectionManager connectionManager, SenderConfiguration senderConfiguration,
+        BootstrapConfiguration bootstrapConfig, EventLoopGroup clientEventGroup) {
         this.connectionManager = connectionManager;
         this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
         this.senderConfiguration = senderConfiguration;
@@ -84,6 +91,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         if (Float.valueOf(senderConfiguration.getHttpVersion()) == Constants.HTTP_2_0) {
             isHttp2 = true;
         }
+        this.clientEventGroup = clientEventGroup;
+        this.bootstrapConfig = bootstrapConfig;
     }
 
     @Override
@@ -153,7 +162,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
              * rather http connection manager create new connections and handover to the http2 connection manager
              * in case of the connection get upgraded to a HTTP/2 connection.
              */
-            final HttpRoute route = getTargetRoute(httpOutboundRequest);
+            final HttpRoute route = getTargetRoute(senderConfiguration.getScheme(), httpOutboundRequest);
             if (isHttp2) {
                 // See whether an already upgraded HTTP/2 connection is available
                 Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(route);
@@ -168,8 +177,15 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 }
             }
 
-            // Look for the connection from http connection manager
-            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
+            if (clientConnectionPool == null) {
+                clientConnectionPool = connectionManager.getClientConnectionPool(route, srcHandler, senderConfiguration,
+                                                                                 bootstrapConfig, clientEventGroup);
+            }
+
+            TargetChannel targetChannel = (TargetChannel) clientConnectionPool.borrowObject();
+            targetChannel.setCorrelatedSource(srcHandler);
+            targetChannel.setConnectionManager(connectionManager);
+
             Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
             outboundMsgHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
             httpResponseFuture = outboundMsgHolder.getResponseFuture();
@@ -257,11 +273,11 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         return errorResponseFuture;
     }
 
-    private HttpRoute getTargetRoute(HttpCarbonMessage httpCarbonMessage) {
+    private HttpRoute getTargetRoute(String scheme, HttpCarbonMessage httpCarbonMessage) {
         String host = fetchHost(httpCarbonMessage);
         int port = fetchPort(httpCarbonMessage);
 
-        return new HttpRoute(host, port);
+        return new HttpRoute(scheme, host, port);
     }
 
     private int fetchPort(HttpCarbonMessage httpCarbonMessage) {

@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 
 package org.wso2.transport.http.netty.connectionpool;
@@ -46,17 +46,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static org.testng.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
- * Tests for connection pool implementation.
+ * Test that when two different clients have the same route with their own pools that they do not share one another's
+ * pool among them.
+ *
+ * @since 6.0.260
  */
-public class ConnectionPoolProxyTestCase {
+public class PerClientPoolTestCase {
+    private static final Logger LOG = LoggerFactory.getLogger(PerClientPoolTestCase.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnectionPoolProxyTestCase.class);
-
-    private Future<String> requestTwoResponse;
     private ExecutorService executor = Executors.newFixedThreadPool(2);
 
     private HttpWsConnectorFactory httpWsConnectorFactory;
@@ -65,17 +66,16 @@ public class ConnectionPoolProxyTestCase {
 
     @BeforeClass
     public void setup() {
-        httpServer = TestUtil
-                .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
 
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         serverConnector = httpWsConnectorFactory
-                .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
+            .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(
-                new PassthroughMessageProcessorListener(new SenderConfiguration(), true));
+        serverConnectorFuture
+            .setHttpConnectorListener(new PassthroughMessageProcessorListener(new SenderConfiguration(), false));
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
@@ -84,36 +84,28 @@ public class ConnectionPoolProxyTestCase {
     }
 
     @Test
-    public void testConnectionReuseForProxy() {
+    public void testPerClientConnectionPool() {
         try {
             Future<String> requestOneResponse;
-            Future<String> requestThreeResponse;
+            Future<String> requestTwoResponse;
 
             ClientWorker clientWorkerOne = new ClientWorker();
             ClientWorker clientWorkerTwo = new ClientWorker();
-            ClientWorker clientWorkerThree = new ClientWorker();
 
             requestOneResponse = executor.submit(clientWorkerOne);
-
-            // While the first request is being processed by the back-end,
-            // we send the second request which forces the client connector to
-            // create a new connection.
-            Thread.sleep(2500);
-            requestTwoResponse = executor.submit(clientWorkerTwo);
             assertNotNull(requestOneResponse.get());
+            requestTwoResponse = executor.submit(clientWorkerTwo);
+            assertNotNull(requestTwoResponse.get());
 
-            requestThreeResponse = executor.submit(clientWorkerThree);
-
-            assertEquals(requestOneResponse.get(), requestThreeResponse.get());
+            assertNotEquals(requestOneResponse.get(), requestTwoResponse.get());
         } catch (Exception e) {
-            TestUtil.handleException("IOException occurred while running testConnectionReuseForProxy", e);
+            TestUtil.handleException("IOException occurred while running testPerClientConnectionPool", e);
         }
     }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         try {
-            requestTwoResponse.get();
             serverConnector.stop();
             httpServer.shutdown();
             httpWsConnectorFactory.shutdown();
@@ -130,8 +122,7 @@ public class ConnectionPoolProxyTestCase {
         public String call() throws Exception {
             try {
                 URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
-                HttpURLConnection urlConn = TestUtil
-                        .request(baseURI, "/", HttpMethod.POST.name(), true);
+                HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
                 urlConn.getOutputStream().write(TestUtil.smallEntity.getBytes());
                 response = TestUtil.getContent(urlConn);
             } catch (IOException e) {

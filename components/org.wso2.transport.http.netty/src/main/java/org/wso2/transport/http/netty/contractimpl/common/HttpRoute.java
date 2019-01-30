@@ -19,17 +19,19 @@ package org.wso2.transport.http.netty.contractimpl.common;
  * Class encapsulates the Endpoint address.
  */
 public class HttpRoute {
+    private String scheme;
     private String host;
     private int port;
 
-    public HttpRoute(String host, int port) {
+    public HttpRoute(String scheme, String host, int port) {
+        this.scheme = scheme;
         this.host = host;
         this.port = port;
     }
 
     @Override
     public String toString() {
-        return host + "-" + port;
+        return scheme + "-" + host + "-" + port;
     }
 
     public String getHost() {
@@ -39,8 +41,8 @@ public class HttpRoute {
     public int getPort() {
         return port;
     }
+
+    public String getScheme() {
+        return scheme;
+    }
 }
-
-
-
-
