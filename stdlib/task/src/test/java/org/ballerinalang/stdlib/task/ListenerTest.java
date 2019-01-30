@@ -67,15 +67,15 @@ public class ListenerTest {
         });
     }
 
+    /* TODO:
+     * There should be way to know exactly a service is stopped or not.
+     * This method is not the optimal way to check the service has stopped.
+     */
     @Test(description = "Tests running an timer as a service")
     public void testListenerTimerLimitedNoOfRuns() {
         CompileResult compileResult = BCompileUtil.compile(
                 "listener-test-src/timer/service_limited_number_of_runs.bal");
         BServiceUtil.runService(compileResult);
-        /* TODO:
-         * There should be way to know exactly a service is stopped or not.
-         * This method is not the optimal way to check the service has stopped.
-         */
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);

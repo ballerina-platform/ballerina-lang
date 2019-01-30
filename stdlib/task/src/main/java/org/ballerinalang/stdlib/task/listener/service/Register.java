@@ -31,24 +31,24 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.timer.Timer;
-import org.ballerinalang.stdlib.task.utils.TaskRegistry;
+import org.ballerinalang.stdlib.task.listener.objects.Timer;
+import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_DELAY;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_INTERVAL;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NAME_NO_OF_RUNS;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_CONFIGURATION_MEMBER_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_STRUCT_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_TASK_ID_FIELD;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_DELAY;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_INTERVAL;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_NO_OF_RUNS;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_CONFIGURATION_MEMBER_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_IS_RUNNING_FIELD;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
  * Native function to attach a service to the listener.
