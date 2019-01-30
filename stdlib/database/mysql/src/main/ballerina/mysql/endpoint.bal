@@ -47,7 +47,7 @@ public type Client client object {
 
     # Gets called when the MySQL client is instantiated.
     public function __init(ClientEndpointConfig c) {
-        self.sqlClient = createClient(c, sql:globalPoolContainer.getGlobalPoolConfig());
+        self.sqlClient = createClient(c, sql:globalPoolConfigContainer.getGlobalPoolConfig());
     }
 
     # The call operation implementation for MySQL Client to invoke stored procedures/functions.
