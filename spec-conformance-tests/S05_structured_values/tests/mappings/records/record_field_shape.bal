@@ -30,17 +30,23 @@ function testRecordFieldShape() {
     // change the value's shape
     r1.bazFieldTwo = 1.0;
     conversionResult = BazRecordEleven.convert(r1);
-    test:assertTrue(conversionResult is error, msg = "expected conversion to fail");
-    utils:assertErrorReason(conversionResult, STAMP_ERROR_REASON, 
-                            "invalid reason on conversion failure due to shape mismatch");
+    if (conversionResult is error) {
+        test:assertEquals(conversionResult.reason(), STAMP_ERROR_REASON,
+            msg = "invalid reason on conversion failure due to shape mismatch");
+    } else {
+        test:assertFail(msg = "expected conversion to fail");
+    }
 
     // create a record without a required field,
     // but with a new field with a different name and matching value shape
     DefaultOpenRecord r2 = { bazFieldThree: "test string 3", bazFieldOne: 1.0 };
     conversionResult = BazRecordEleven.convert(r2);
-    test:assertTrue(conversionResult is error, msg = "expected conversion to fail");
-    utils:assertErrorReason(conversionResult, STAMP_ERROR_REASON, 
-                            "invalid reason on conversion failure due to shape mismatch");
+    if (conversionResult is error) {
+        test:assertEquals(conversionResult.reason(), STAMP_ERROR_REASON,
+            msg = "invalid reason on conversion failure due to shape mismatch");
+    } else {
+        test:assertFail(msg = "expected conversion to fail");
+    }
 }
 
 public type DefaultOpenRecord record {

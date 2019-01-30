@@ -450,7 +450,6 @@ public interface BallerinaTypes {
   IElementType LEFT_BRACE = new BallerinaTokenType("{");
   IElementType LEFT_BRACKET = new BallerinaTokenType("[");
   IElementType LEFT_PARENTHESIS = new BallerinaTokenType("(");
-  IElementType LENGTHOF = new BallerinaTokenType("lengthof");
   IElementType LIMIT = new BallerinaTokenType("limit");
   IElementType LINE_COMMENT = new BallerinaTokenType("LINE_COMMENT");
   IElementType LISTENER = new BallerinaTokenType("listener");

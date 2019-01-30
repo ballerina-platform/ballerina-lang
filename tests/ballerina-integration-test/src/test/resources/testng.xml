@@ -220,7 +220,7 @@
 
     <test name="ballerina-jms-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.jms.JMSConnectorTestCase"/>
+            <class name="org.ballerinalang.test.jms.JmsConnectorTestCase"/>
         </classes>
     </test>
 
@@ -245,6 +245,7 @@
                 "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
                 @BeforeClass in test classes which have @BeforeClass -->
             <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>
             <class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>
         </classes>
     </test>

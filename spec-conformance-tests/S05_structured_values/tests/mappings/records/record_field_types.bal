@@ -51,11 +51,11 @@ public type BarRecord record {
 @test:Config {}
 function testRecordFieldValueTypeConformance() {
     FooRecord f = { fieldOne: s1, fieldTwo: i1 };
-    utils:assertErrorReason(trap updateRecordFieldOne(f, i1), INHERENT_TYPE_VIOLATION_REASON,
+    utils:assertPanic(function () { updateRecordFieldOne(f, i1); }, INHERENT_TYPE_VIOLATION_REASON,
                             "invalid reason on inherent type violating record update");
 
     BarRecord b = { fieldOne: s1, fieldThree: 1.0 };
-    utils:assertErrorReason(trap updateRecordFieldOne(b, i1), INHERENT_TYPE_VIOLATION_REASON,
+    utils:assertPanic(function () { updateRecordFieldOne(b, i1); }, INHERENT_TYPE_VIOLATION_REASON,
                             "invalid reason on inherent type violating record update");
 }
 
@@ -77,9 +77,12 @@ function testRequiredFields() {
 
     map<anydata> b2 = { fieldOne: "test string 1" };
     result = FooRecord.convert(b2);
-    test:assertTrue(result is error, 
-                    msg = "expected conversion to fail since all required fields are not present");
-    utils:assertErrorReason(result, "{ballerina}StampError", "expected conversion to fail due to missing fields");
+    if (result is error) {
+        test:assertEquals(result.reason(), "{ballerina}StampError",
+            msg = "expected conversion to fail due to missing fields");
+    } else {
+        test:assertFail(msg = "expected conversion to fail since all required fields are not present");
+    }
 }
 
 @test:Config {}

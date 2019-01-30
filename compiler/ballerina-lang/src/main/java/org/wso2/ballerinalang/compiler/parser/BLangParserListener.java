@@ -902,6 +902,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
         this.pkgBuilder.addRecordBindingWS(getWS(ctx));
     }
 
@@ -2784,42 +2788,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startSetClauseNode();
-    }
-
-    @Override
-    public void exitSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endSetClauseNode(getWS(ctx), ctx.getChildCount() / 2);
     }
 
     @Override

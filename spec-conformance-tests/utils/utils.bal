@@ -15,21 +15,6 @@
 // under the License.
 import ballerina/test;
 
-# Util function expected to be used with the result of a trapped expression.
-# Validates that `result` is of type `error` and that the error has the reason specified as `expectedReason`,
-# and fails with the `invalidReasonFailureMessage` string if the reasons mismatch.
-# 
-# + result - the result of the trapped expression
-# + expectedReason - the reason the error is expected to have
-# + invalidReasonFailureMessage - the failure message on reason mismatch
-public function assertErrorReason(any|error result, string expectedReason, string invalidReasonFailureMessage) {
-    if (result is error) {
-        test:assertEquals(result.reason(), expectedReason, msg = invalidReasonFailureMessage);
-    } else {
-        test:assertFail(msg = "expected expression to panic");
-    }
-}
-
 # Util function to assert the occurrence of a panic, and the error reason.
 # Validates that a panic occurs and that the error has the reason specified as `expectedReason`,
 # fails with the `invalidReasonFailureMessage` string if the reasons mismatch.
@@ -38,5 +23,10 @@ public function assertErrorReason(any|error result, string expectedReason, strin
 # + expectedReason - the reason the error is expected to have
 # + invalidReasonFailureMessage - the failure message on reason mismatch
 public function assertPanic(function() returns any func, string expectedReason, string invalidReasonFailureMessage) {
-    assertErrorReason(trap func.call(), expectedReason, invalidReasonFailureMessage);
+    var result = trap func.call();
+    if (result is error) {
+        test:assertEquals(result.reason(), expectedReason, msg = invalidReasonFailureMessage);
+    } else {
+        test:assertFail(msg = "expected expression to panic");
+    }
 }

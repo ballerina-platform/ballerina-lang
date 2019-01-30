@@ -27,6 +27,8 @@ function testFutures() {
     }
     future<int> sampleFuture = w1;
     any result = wait sampleFuture;
-    test:assertTrue(result is int, msg = EXPECTED_FUTURE_TO_WAIT_FAILURE_MESSAGE);
-    test:assertEquals(result, 200, msg = EXPECTED_FUTURE_TO_WAIT_FAILURE_MESSAGE);
+    any futureVariable = sampleFuture;
+    test:assertTrue(result is int, msg = "expected future return value to belong to type int");
+    test:assertTrue(futureVariable is future<int>, msg = "expected future that returns int to belong to future<int>");
+    test:assertEquals(result, 200, msg = "expected future to wait for named worker to return an int");
 }

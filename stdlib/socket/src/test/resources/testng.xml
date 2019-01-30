@@ -21,7 +21,7 @@
 
 <suite name="ballerina-test-suite">
     <listeners>
-        <listener class-name="org.ballerinalang.stdlib.socket.BLogInitializer"/>
+        <listener class-name="org.ballerinalang.stdlib.common.BLogInitializer"/>
     </listeners>
     <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
         <classes>

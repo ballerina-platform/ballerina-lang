@@ -46,7 +46,7 @@ function add_panic(int i, int j) returns int {
         l = l + 1;
     }
     if (true) {
-        error err = error("err from panic" );
+        error err = error("err from panic");
         panic err;
     }
     return k;

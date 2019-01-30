@@ -7,7 +7,7 @@ listener http:Listener ep{{@index}} = new({{port}}{{#host}}, config = {host: "{{
 {{/servers}}
 @swagger:ServiceInfo {{=<% %>=}}{<%={{ }}=%>{{#info}}
     title: "{{title}}"{{#description}},
-    description: "{{description}}"{{/description}},
+    description: "{{{description}}}"{{/description}},
     serviceVersion: "{{version}}"{{#termsOfService}},
     termsOfService: "{{termsOfService}}"{{/termsOfService}}{{#contact}},
     contact: {name: "{{contact.name}}", email: "{{contact.email}}", url: "{{contact.url}}"}{{/contact}}{{#license}},

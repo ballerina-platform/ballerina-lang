@@ -14,7 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
@@ -26,13 +28,19 @@ map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 service hubService =
 @http:ServiceConfig {
-    basePath:BASE_PATH
+    basePath: BASE_PATH,
+    authConfig: {
+        authentication: {
+            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", default = false)
+        },
+        scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
+    }
 }
 service {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:HUB_PATH
+        methods: ["GET"],
+        path: HUB_PATH
     }
     resource function status(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
@@ -42,8 +50,8 @@ service {
     }
 
     @http:ResourceConfig {
-        methods:["POST"],
-        path:HUB_PATH
+        methods: ["POST"],
+        path: HUB_PATH
     }
     resource function hub(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
@@ -453,9 +461,11 @@ returns error? {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
             if (SHA1.equalsIgnoreCase(hubSignatureMethod)) { //not recommended
-                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
+                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toByteArray("UTF-8"),
+                    subscriptionDetails.secret.toByteArray("UTF-8")));
             } else if (SHA256.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
+                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
+                    subscriptionDetails.secret.toByteArray("UTF-8")));
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);
@@ -538,4 +548,16 @@ function generateKey(string topic, string callback) returns (string) {
 function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;
+}
+
+# Construct an array of groups from the comma separed group string passed
+#
+# + groupString - comma separated string of groups
+# + return - array of groups, nil if the groups string is empty/nil
+function getArray(string groupString) returns string[]? {
+    string[] groupsArr = [];
+    if (groupString.length() == 0) {
+        return ();
+    }
+    return groupString.split(",");
 }

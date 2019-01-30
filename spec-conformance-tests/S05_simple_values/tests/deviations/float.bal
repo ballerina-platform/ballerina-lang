@@ -46,7 +46,6 @@ import ballerina/test;
 //}
 
 // The multiple bit patterns that IEEE 754 treats as NaN are considered to be the same value in Ballerina
-// TODO: Decimal does not support division by zero
 // TODO: == and === not working for float NAN values
 // https://github.com/ballerina-platform/ballerina-lang/issues/11913
 @test:Config {}
@@ -58,12 +57,12 @@ function testFloatingPointNaNValuesBroken() {
     //test:assertTrue(f1 === f2, msg = "expected +0.0 and -0.0 to be of same value");
     test:assertTrue(f1 !== f2, msg = "expected +0.0 and -0.0 to be different values");
 
-    //decimal d1 = <decimal>+0.0/0.0;
-    //decimal d2 = <decimal>-0.0/0.0;
-    ////test:assertTrue(d1 == d2, msg = "expected +0.0 and -0.0 to be of same value");
-    //test:assertTrue(d1 != d2, msg = "expected +0.0 and -0.0 to be of same value");
-    ////test:assertTrue(d1 === d2, msg = "expected +0.0 and -0.0 to be of same value");
-    //test:assertTrue(d1 !== d2, msg = "expected +0.0 and -0.0 to be of same value");
+    decimal d1 = <decimal>+0.0/0.0;
+    decimal d2 = <decimal>-0.0/0.0;
+    //test:assertTrue(d1 == d2, msg = "expected +0.0 and -0.0 to be of same value");
+    test:assertTrue(d1 != d2, msg = "expected +0.0 and -0.0 to be of same value");
+    //test:assertTrue(d1 === d2, msg = "expected +0.0 and -0.0 to be of same value");
+    test:assertTrue(d1 !== d2, msg = "expected +0.0 and -0.0 to be of same value");
 }
 
 // Positive and negative zero of a floating point basic type are distinct values,

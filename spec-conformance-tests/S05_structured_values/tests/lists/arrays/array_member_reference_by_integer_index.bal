@@ -97,15 +97,15 @@ function testFloatArrayMemberReferenceByInvalidIntegerIndex() {
     float[] floatArray = [1.1, 0.0, 2.20];
     
     int index = -1;
-    utils:assertErrorReason(trap floatArray[index], INDEX_OUT_OF_RANGE_REASON,
+    utils:assertPanic(function () { _ = floatArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_NEGATIVE_INDEX_FAILURE_MESSAGE);
     
     index = floatArray.length();
-    utils:assertErrorReason(trap floatArray[index], INDEX_OUT_OF_RANGE_REASON,
+    utils:assertPanic(function () { _ = floatArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_ARRAY_LENGTH_INDEX_FAILURE_MESSAGE);
     
     index = floatArray.length() + 3;
-    utils:assertErrorReason(trap floatArray[index], INDEX_OUT_OF_RANGE_REASON,
+    utils:assertPanic(function () { _ = floatArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_LARGER_INDEX_FAILURE_MESSAGE);
 }
 
@@ -113,15 +113,15 @@ function testFloatArrayMemberReferenceByInvalidIntegerIndex() {
 function testRecordArrayMemberReferenceByInvalidIntegerIndex() {
     int index = -1;
     BarRecordFour[] barRecordArray = [<BarRecordFour>{ barFieldOne: 1 }, <BarRecordFour>{ barFieldOne: 2 }];
-    utils:assertErrorReason(trap barRecordArray[index], INDEX_OUT_OF_RANGE_REASON,
+    utils:assertPanic(function () { _ = barRecordArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_NEGATIVE_INDEX_FAILURE_MESSAGE);
     
     index = barRecordArray.length();
-    utils:assertErrorReason(trap barRecordArray[index], INDEX_OUT_OF_RANGE_REASON,
+    utils:assertPanic(function () { _ = barRecordArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_ARRAY_LENGTH_INDEX_FAILURE_MESSAGE);
     
     index = barRecordArray.length();
-    utils:assertErrorReason(trap barRecordArray[index], INDEX_OUT_OF_RANGE_REASON,
+    utils:assertPanic(function () { _ = barRecordArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_LARGER_INDEX_FAILURE_MESSAGE);
 }
 
@@ -132,15 +132,15 @@ function testObjectArrayMemberReferenceByInvalidIntegerIndex() {
     BarObjectFour b2 = new(2);
     BarObjectFour b3 = new(3);
     BarObjectFour[] barObjectArray = [b1, b2, b3];
-    utils:assertErrorReason(trap barObjectArray[index], INDEX_OUT_OF_RANGE_REASON,
+    utils:assertPanic(function () { _ = barObjectArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_NEGATIVE_INDEX_FAILURE_MESSAGE);
     
     index = barObjectArray.length();
-    utils:assertErrorReason(trap barObjectArray[index], INDEX_OUT_OF_RANGE_REASON,
+    utils:assertPanic(function () { _ = barObjectArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_ARRAY_LENGTH_INDEX_FAILURE_MESSAGE);
     
     index = barObjectArray.length();
-    utils:assertErrorReason(trap barObjectArray[index], INDEX_OUT_OF_RANGE_REASON,
+    utils:assertPanic(function () { _ = barObjectArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_LARGER_INDEX_FAILURE_MESSAGE);
 }
 

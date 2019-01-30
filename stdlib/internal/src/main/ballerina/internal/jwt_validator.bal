@@ -16,6 +16,7 @@
 
 import ballerina/log;
 import ballerina/time;
+import ballerina/encoding;
 
 # Represents JWT validator configurations.
 # + issuer - Expected issuer
@@ -108,8 +109,10 @@ function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload
 }
 
 function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, json)|error) {
-    string jwtHeader = check urlDecode(encodedJWTComponents[0]).base64Decode();
-    string jwtPayload = check urlDecode(encodedJWTComponents[1]).base64Decode();
+    string jwtHeader = encoding:byteArrayToString(check
+        encoding:decodeBase64(urlDecode(encodedJWTComponents[0])));
+    string jwtPayload = encoding:byteArrayToString(check
+        encoding:decodeBase64(urlDecode(encodedJWTComponents[1])));
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 

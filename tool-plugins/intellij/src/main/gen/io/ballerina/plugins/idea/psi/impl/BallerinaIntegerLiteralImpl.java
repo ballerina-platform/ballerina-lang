@@ -43,12 +43,6 @@ public class BallerinaIntegerLiteralImpl extends BallerinaCompositeElementImpl i
 
   @Override
   @Nullable
-  public PsiElement getBinaryIntegerLiteral() {
-    return findChildByType(BINARY_INTEGER_LITERAL);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getDecimalIntegerLiteral() {
     return findChildByType(DECIMAL_INTEGER_LITERAL);
   }

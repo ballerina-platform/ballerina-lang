@@ -30,7 +30,6 @@ public type Scheduler object {
         self.running = false;
         self.timer = ();
         self.processFunc = processFunc;
-
     }
 
     public function notifyAt(int timestamp) {
@@ -42,6 +41,7 @@ public type Scheduler object {
         if (self.toNotifyQueue.getSize() == 1 && self.running == false) {
             lock {
                 if (self.running == false) {
+                    self.running = true;
                     int timeDiff = timestamp > time:currentTime().time ? timestamp - time:currentTime().time : 0;
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 

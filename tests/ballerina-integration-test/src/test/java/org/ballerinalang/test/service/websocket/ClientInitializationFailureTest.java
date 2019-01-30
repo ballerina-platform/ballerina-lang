@@ -53,7 +53,7 @@ public class ClientInitializationFailureTest extends WebSocketTestCommons {
 
         Assert.assertNotNull(closeWebSocketFrame);
         Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
-        Assert.assertEquals(closeWebSocketFrame.reasonText(), "Connection refused: localhost/127.0.0.1:15500");
+        Assert.assertEquals(closeWebSocketFrame.reasonText(), "Connection refused: localhost/127.0.0.1:14400");
 
         closeWebSocketFrame.release();
     }

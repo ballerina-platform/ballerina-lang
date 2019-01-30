@@ -30,6 +30,8 @@ const string EXPECTED_GLOBAL_STRING_VAR_TO_BE_UPDATED_FAILURE_MESSAGE =
 // variables within the body of the function definition. The parameters of a function definition
 // are of three kinds: required, defaultable and rest. The relative order of required parameters
 // is significant, but not for defaultable parameters. There can be at most one rest parameter.
+//
+// If there is no named argument for a defaultable parameter then the default value is assigned to that parameter.
 string globalStringVar = "";
 
 @test:Config {}
@@ -65,16 +67,17 @@ int c = 3;
 int d = 4;
 int e = 5;
 int f = 6;
+const int INT_CONST = 10;
 
 @test:Config {}
 function testFunctionInvocationWithoutNamedAndRestArgs() {
-    test:assertEquals(funcWithNamedAndRestParams(a, b), a + b,
+    test:assertEquals(funcWithNamedAndRestParams(a, b), a + b + INT_CONST,
         msg = EXPECTED_RETURN_VALUE_TO_BE_EQUAL_TO_SUM_FAILURE_MESSAGE);
 }
 
 @test:Config {}
 function testFunctionInvocationWithSingleNamedArgAndWithoutRestArg() {
-    test:assertEquals(funcWithNamedAndRestParams(a, j = c, b), a + b + c,
+    test:assertEquals(funcWithNamedAndRestParams(a, j = c, b), a + b + c + INT_CONST,
         msg = EXPECTED_RETURN_VALUE_TO_BE_EQUAL_TO_SUM_FAILURE_MESSAGE);
 }
 
@@ -86,11 +89,11 @@ function testFunctionInvocationWithAllNamedArgsAndWithoutRestArg() {
 
 @test:Config {}
 function testFunctionInvocationWithRestArgsAndWithoutNamedArgs() {
-    test:assertEquals(funcWithNamedAndRestParams(a, b, e, f), a + b + e + f,
+    test:assertEquals(funcWithNamedAndRestParams(a, b, e, f), a + b + e + f + INT_CONST,
         msg = EXPECTED_RETURN_VALUE_TO_BE_EQUAL_TO_SUM_FAILURE_MESSAGE);
 
     int[] arr = [e, f];
-    test:assertEquals(funcWithNamedAndRestParams(a, b, ...arr), a + b + e + f,
+    test:assertEquals(funcWithNamedAndRestParams(a, b, ...arr), a + b + e + f + INT_CONST,
         msg = EXPECTED_RETURN_VALUE_TO_BE_EQUAL_TO_SUM_FAILURE_MESSAGE);
 }
 
@@ -100,7 +103,7 @@ function testFunctionInvocationWithAllArgs() {
         msg = EXPECTED_RETURN_VALUE_TO_BE_EQUAL_TO_SUM_FAILURE_MESSAGE);
 }
 
-function funcWithNamedAndRestParams(int i, int j = 0, int k = 0, int l, int... m) returns int {
+function funcWithNamedAndRestParams(int i, int j = 0, int k = 10, int l, int... m) returns int {
     int sum = i + j + k + l;
     foreach int intVal in m {
         sum += intVal;

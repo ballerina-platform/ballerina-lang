@@ -40,6 +40,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -177,7 +178,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(dataProvider = "testgen-fail-data-provider", enabled = false)
+    @Test(dataProvider = "testgen-fail-data-provider")
     public void testTestGenerationFailCases(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -206,7 +207,7 @@ public class CommandExecutionTest {
         }
     }
 
-    @Test(dataProvider = "testgen-data-provider", enabled = false)
+    @Test(dataProvider = "testgen-data-provider")
     public void testTestGeneration(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -282,6 +283,10 @@ public class CommandExecutionTest {
             testablePkg.getServices().forEach(service -> {
                 services.removeIf(ser -> service.name.value.equals(ser));
             });
+            testablePkg.getGlobalVariables().stream()
+                    .filter(simpleVariable -> simpleVariable.type instanceof BServiceType)
+                    .forEach(simpleVariable ->
+                            services.removeIf(serviceName -> serviceName.equals(simpleVariable.name.value)));
             // Check for pending expected values
             String failMsgTemplate = "Generated test file does not contain following %s:\n%s";
             if (!imports.isEmpty()) {
@@ -356,7 +361,7 @@ public class CommandExecutionTest {
     public Object[][] testGenerationDataProvider() {
         log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_TEST);
         return new Object[][]{
-                {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
+//                {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
                 {"testGenerationForServices.json", Paths.get("testgen", "module2", "services.bal")}
         };
     }

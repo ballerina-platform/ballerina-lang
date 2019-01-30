@@ -132,6 +132,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
+import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
@@ -141,6 +142,8 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS;
 import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
@@ -604,6 +607,14 @@ public class HttpUtil {
                                               ProgramFile programFile) {
         inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequestStruct.addNativeData(REQUEST, true);
+
+        if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
+            BMap<String, BValue> mutualSslRecord = BLangConnectorSPIUtil
+                    .createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, MUTUAL_SSL_HANDSHAKE_RECORD);
+            mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
+                    new BString((String) inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT)));
+            inboundRequestStruct.put(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
+        }
 
         enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);

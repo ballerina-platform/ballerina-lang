@@ -41,23 +41,23 @@ function testInt(int i1, int i2, int i3, int i4) {
     dataProvider: "decimalDataProvider"
 }
 function testOutOfRangeValueAsInt(decimal d) {
-    utils:assertErrorReason(trap int.convert(d), "{ballerina}NumberConversionError",
-                            "invalid reason on out of range int value");
+    utils:assertPanic(function() returns int { return int.convert(d); },
+        "{ballerina}NumberConversionError", "invalid reason on out of range int value");
 }
 
 function intDataProvider() returns (int[][]) {
     return [
-        [0, 0x0, 0X00, 0x000], 
-        [2767, 0xACF, 0xacf, 0XAcf], 
+        [0, 0x0, 0X00, 0x000],
+        [2767, 0xACF, 0xacf, 0XAcf],
         [1105, 0x451, 0X451, 0X0451]
     ];
 }
 
 function decimalDataProvider() returns (decimal[][]) {
     return [
-        [-9223372036854775810.0], 
-        [-9223372036854775809.0], 
-        [9223372036854775808.0], 
+        [-9223372036854775810.0],
+        [-9223372036854775809.0],
+        [9223372036854775808.0],
         [9223372036854775810.5]
     ];
 }

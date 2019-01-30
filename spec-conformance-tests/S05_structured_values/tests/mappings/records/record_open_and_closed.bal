@@ -44,7 +44,7 @@ function testDefaultOpenRecord() {
 @test:Config {}
 function testClosedRecord() {
     ClosedRecordWithOneField r1 = { strField: "test string 1" };
-    utils:assertErrorReason(trap updateClosedRecordWithOneField(r1, 1), "{ballerina}KeyNotFound", 
+    utils:assertPanic(function () { updateClosedRecordWithOneField(r1, 1); }, "{ballerina}KeyNotFound",
                             "invalid reason on inherent type violating record insertion");
 }
 
@@ -70,7 +70,7 @@ function testOpenRecordWithSpecifiedRestType() {
     OpenRecordTwo r1 = { fieldOne: s1, fieldTwo: i1 };
     r1.fieldthree = i2;
 
-    utils:assertErrorReason(trap updateOpenRecordTwo(r1, s1), INHERENT_TYPE_VIOLATION_REASON,
+    utils:assertPanic(function () { updateOpenRecordTwo(r1, s1); }, INHERENT_TYPE_VIOLATION_REASON,
                             "invalid reason on inherent type violating record update");
 }
 

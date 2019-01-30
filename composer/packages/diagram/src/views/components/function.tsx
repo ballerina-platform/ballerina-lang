@@ -100,9 +100,16 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                             }
                         }}
                         onAddWorker={() => {
-                            if (model.body && ast) {
-                                ASTUtil.addWorkerToBlock(model.body, ast);
+                            if (!(model.body && ast)) {
+                                return;
                             }
+                            let nextWorkerIndex: number = model.body.statements.length;
+                            model.body.statements.forEach((statement, i) => {
+                                if (ASTUtil.isWorkerFuture(statement)) {
+                                    nextWorkerIndex = i + 1;
+                                }
+                            });
+                            ASTUtil.addWorkerToBlock(model.body, ast, nextWorkerIndex);
                         }}
                     />
                 )}

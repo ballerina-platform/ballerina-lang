@@ -24,7 +24,7 @@ import ballerina/test;
 //
 //// A service value contains resources and methods.
 //// A service method is similar to an object method.
-//// TODO: Service methods should be accessbile similar to an object method.
+//// TODO: Service methods should be accessible similar to an object method.
 //@test:Config {}
 //function testServiceBroken() {
 //    sampleService.temp();

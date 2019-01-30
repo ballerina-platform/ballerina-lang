@@ -1,5 +1,5 @@
 
-import { ASTNode } from "@ballerina/ast-model";
+import { ASTNode, ASTUtil } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -18,9 +18,12 @@ export const Statement: React.StatelessComponent<{
 }) => {
         const viewState: StmntViewState = model.viewState;
         const label = (/^worker /.test(viewState.bBox.label)) ? "" : viewState.bBox.label;
+        let fullText = (model) ? ASTUtil.genSource(model) : label;
+        fullText = fullText.replace(/\/\/.*$/gm, "");
 
         const statementProps = {
             className: "statement",
+            fullText,
             target: model,
             text: label,
             x: viewState.bBox.x + config.statement.padding.left,
