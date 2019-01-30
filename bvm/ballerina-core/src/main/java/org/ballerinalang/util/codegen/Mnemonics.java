@@ -99,8 +99,6 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.ERROR] = "error";
         mnemonics[InstructionCodes.PANIC] = "panic";
-        mnemonics[InstructionCodes.REASON] = "reason";
-        mnemonics[InstructionCodes.DETAIL] = "detail";
 
         mnemonics[InstructionCodes.MAPSTORE] = "map_store";
         mnemonics[InstructionCodes.JSONSTORE] = "json_store";

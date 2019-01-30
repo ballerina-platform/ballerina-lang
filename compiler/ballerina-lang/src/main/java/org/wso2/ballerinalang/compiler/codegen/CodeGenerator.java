@@ -1283,12 +1283,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
         switch (iExpr.builtInMethod) {
-            case REASON:
-                emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
-                break;
-            case DETAIL:
-                emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
-                break;
             case LENGTH:
                 Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
                 emit(InstructionCodes.LENGTH, iExpr.expr.regIndex, typeCPIndex, regIndex);

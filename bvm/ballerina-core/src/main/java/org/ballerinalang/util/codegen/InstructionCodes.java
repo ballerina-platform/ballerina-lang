@@ -98,8 +98,6 @@ public interface InstructionCodes {
 
     int ERROR = 65;
     int PANIC = 66;
-    int REASON = 67;
-    int DETAIL = 68;
 
     int MAPSTORE = 69;
     int JSONSTORE = 70;

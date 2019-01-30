@@ -376,7 +376,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
         return symTable.createOperator(names.fromIdNode(name), new ArrayList<>(),
-                ((BErrorType) type).detailType, InstructionCodes.DETAIL);
+                ((BErrorType) type).detailType, InstructionCodes.NOP);
     }
 
     public BSymbol createSymbolForConvertOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
