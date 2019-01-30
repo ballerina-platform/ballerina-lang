@@ -22,9 +22,9 @@ import ballerina/utils;
 // type.
 @test:Config {}
 function testTableIterable() {
-    BazRecordFourteen bazRecord1 = { bazFieldOne: 1, bazFieldTwo: "string one" };
-    BazRecordFourteen bazRecord2 = { bazFieldOne: 2, bazFieldTwo: "string one" };
-    BazRecordFourteen bazRecord3 = { bazFieldOne: 3, bazFieldTwo: "string one" };
+    BazRecordFourteen bazRecord1 = { bazFieldOne: 1, bazFieldTwo: 4 };
+    BazRecordFourteen bazRecord2 = { bazFieldOne: 2, bazFieldTwo: 5 };
+    BazRecordFourteen bazRecord3 = { bazFieldOne: 3, bazFieldTwo: 6 };
     table<BazRecordFourteen> iterableTable = table{};
     _ = iterableTable.add(bazRecord1);
     _ = iterableTable.add(bazRecord2);
@@ -103,7 +103,7 @@ function testTableSubtype() {
 
 public type BazRecordFourteen record {
     float bazFieldOne;
-    string bazFieldTwo;
+    int bazFieldTwo;
 };
 
 // Otherwise the value for all primary keys together must uniquely identify each row in the table;
@@ -111,11 +111,36 @@ public type BazRecordFourteen record {
 // that value of that column in both rows is the same.
 @test:Config {}
 function testDuplicateKeyValue() {
-    BazRecordFourteen bazRecord1 = { bazFieldOne: 1, bazFieldTwo: "string one" };
-    BazRecordFourteen bazRecord2 = { bazFieldOne: 1, bazFieldTwo: "string two" };
+    BazRecordFourteen bazRecord1 = { bazFieldOne: 1, bazFieldTwo: 2 };
+    BazRecordFourteen bazRecord2 = { bazFieldOne: 1, bazFieldTwo: 3 };
 
     table<BazRecordFourteen> iterableTable = table{
         {key bazFieldOne, bazFieldTwo}
+    };
+    var resultOne = iterableTable.add(bazRecord1);
+    var resultTwo = iterableTable.add(bazRecord2);
+
+    if (resultOne is error) {
+        test:assertFail(msg = "expected table row to be added with no error");
+    }
+
+    if (resultTwo is error) {
+        test:assertEquals(resultTwo.reason(), "{ballerina}TableOperationError",
+            msg = "invalid reason on adding duplicate key");
+    } else {
+        test:assertFail(msg = "expected expression to panic");
+    }
+}
+
+// A table value also contains a boolean flag for each column name saying
+// whether that column is a primary key for the table;
+@test:Config {}
+function testMultipleKeyTableDescriptor() {
+    BazRecordFourteen bazRecord1 = { bazFieldOne: 1, bazFieldTwo: 2 };
+    BazRecordFourteen bazRecord2 = { bazFieldOne: 1, bazFieldTwo: 2 };
+
+    table<BazRecordFourteen> iterableTable = table{
+        {key bazFieldOne, key bazFieldTwo}
     };
     var resultOne = iterableTable.add(bazRecord1);
     var resultTwo = iterableTable.add(bazRecord2);
