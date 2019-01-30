@@ -455,8 +455,13 @@ public class CommonUtil {
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
         List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
         Optional currentPkgImport = imports.stream()
-                .filter(bLangImportPackage -> bLangImportPackage.symbol != null
-                        && bLangImportPackage.symbol.pkgID.equals(packageID))
+                .filter(bLangImportPackage -> {
+                    String pkgName = bLangImportPackage.orgName + "/"
+                            + CommonUtil.getPackageNameComponentsCombined(bLangImportPackage);
+                    String evalPkgName = packageID.orgName + "/" + packageID.nameComps.stream()
+                            .map(Name::getValue).collect(Collectors.joining("."));
+                    return pkgName.equals(evalPkgName);
+                })
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
         if (!currentPkgImport.isPresent()) {
@@ -731,7 +736,8 @@ public class CommonUtil {
             String defaultFieldEntry = bStructField.getName().getValue()
                     + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(bStructField.getType());
             if (bStructField.getType() instanceof BFiniteType || bStructField.getType() instanceof BUnionType) {
-                defaultFieldEntry += (i < fields.size() -1 ? "," : "") + getFiniteAndUnionTypesComment(bStructField.type);
+                defaultFieldEntry += (i < fields.size() - 1 ? "," : "") +
+                        getFiniteAndUnionTypesComment(bStructField.type);
             }
             fieldEntries.add(defaultFieldEntry);
         }
