@@ -111,7 +111,7 @@ public class ListenerTest {
     @Test(description = "Tests a timer listener with inline configurations")
     public void testListenerTimerStop() {
         CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/timer/service_stop.bal");
+                "listener-test-src/timer/service_cancel.bal");
         BServiceUtil.runService(compileResult);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");

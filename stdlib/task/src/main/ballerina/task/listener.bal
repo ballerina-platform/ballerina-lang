@@ -71,10 +71,12 @@ public type Listener object {
     }
 
     public function __stop() returns error? {
-
+        return self.stop();
     }
 
     extern function register(service s, map<any> annotationData) returns error?;
+
+    extern function stop() returns error?;
 
     # Attaches the provided service to the listener.
     #
@@ -89,10 +91,12 @@ public type Listener object {
     # + return - Returns error if the process failed due to any reason, nil otherwise.
     public extern function start() returns error?;
 
-    # Stops the listenr from running. This will stop, after finish running the existing jobs.
+    # Cancels the listenr from running. This will stop, after finish running the existing jobs.
     #
     # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public extern function stop() returns error?;
+    public function cancel() returns error? {
+        return self.stop();
+    }
 
     # Pauses the task.
     #

@@ -33,7 +33,7 @@ service timerService on timer {
     resource function onTrigger() {
         count = count + 1;
         if (count == 3) {
-            var result = timer.stop();
+            var result = timer.cancel();
             if (result is error) {
                 count = 10;
             } else {
