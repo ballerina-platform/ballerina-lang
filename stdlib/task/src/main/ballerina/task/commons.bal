@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type FailureReason record {
-    error? cause = ();
-    string reason = "";
-    !...;
+type TaskError record {
+    string message = "";
 };
 

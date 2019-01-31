@@ -39,6 +39,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURC
 public class Timer extends AbstractTask {
     private long interval, delay;
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private boolean isPaused = false;
 
     /**
      * Creates a Timer object.
@@ -118,11 +119,10 @@ public class Timer extends AbstractTask {
      */
     @Override
     public void pause() throws SchedulingException {
-        /*try {
-            this.executorService.wait();
-        } catch (InterruptedException e) {
-            throw new SchedulingException("Pausing the timer failed." + e.getMessage());
-        }*/
+        if (this.isPaused) {
+            throw new SchedulingException("Timer is already paused");
+        }
+        this.isPaused = true;
     }
 
     /**
@@ -130,7 +130,10 @@ public class Timer extends AbstractTask {
      */
     @Override
     public void resume() throws SchedulingException {
-        /*this.executorService.notify();*/
+        if (!this.isPaused) {
+            throw new SchedulingException("Timer is already running.");
+        }
+        this.isPaused = false;
     }
 
     private static void callTriggerFunction(Context parentCtx, FunctionInfo onTriggerFunction,
@@ -144,6 +147,9 @@ public class Timer extends AbstractTask {
     @Override
     public void runServices(Context context) {
         final Runnable schedulerFunc = () -> {
+            if (this.isPaused) {
+                return;
+            }
             if (this.maxRuns > 0 && this.maxRuns == noOfRuns) {
                 this.stop();
                 return;

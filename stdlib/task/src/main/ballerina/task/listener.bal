@@ -96,8 +96,13 @@ public type Listener object {
 
     # Pauses the task.
     #
-    # + return - Returns error if the task is not running or any other error is occured.
+    # + return - Returns error if the task is not running or any other error is occured, nil Otherwise.
     public extern function pause() returns error?;
+
+    # Resumes a paused task.
+    #
+    # + return - Returns error is the task is not paused or, any other error occurred, nil Otherwise.
+    public extern function resume() returns error?;
 
     # Detach the service from the listener.
     #
