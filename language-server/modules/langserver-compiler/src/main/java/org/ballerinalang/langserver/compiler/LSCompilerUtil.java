@@ -226,7 +226,6 @@ public class LSCompilerUtil {
                                        Class customErrorStrategy) {
         context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
-        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
         if (customErrorStrategy != null) {
             compilerContext.put(DefaultErrorStrategy.class,
                                 CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
