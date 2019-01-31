@@ -202,6 +202,7 @@ public class FormattingNodeTree {
         if (node.has(FormattingConstants.FORMATTING_CONFIG)) {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentWithParentIndentation = this.getParentIndentation(formatConfig);
+            String indentation = this.getIndentation(formatConfig, false);
 
             // Update whitespace for element type.
             if (node.has("elementType")) {
@@ -218,7 +219,8 @@ public class FormattingNodeTree {
             if (node.has(FormattingConstants.WS)) {
                 JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
 
-                this.preserveHeight(ws, indentWithParentIndentation);
+                this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                        ? indentWithParentIndentation : indentation);
 
                 for (int i = 0; i < ws.size(); i++) {
                     JsonObject wsItem = ws.get(i).getAsJsonObject();
@@ -229,8 +231,9 @@ public class FormattingNodeTree {
                             if (node.has(FormattingConstants.GROUPED) &&
                                     node.get(FormattingConstants.GROUPED).getAsBoolean()) {
                                 wsItem.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
-                                        .get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                        indentWithParentIndentation);
+                                        .get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                        + this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
+                                        .getAsInt()) + indentation);
                             }
                         } else {
                             // Update rest of the token whitespaces.
