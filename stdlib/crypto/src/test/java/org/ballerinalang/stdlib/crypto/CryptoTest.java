@@ -359,6 +359,30 @@ public class CryptoTest {
                 "invalid key size. valid key sizes in bytes: [16, 24, 32]");
     }
 
+    @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid IV length")
+    public void testEncryptAesCbcNoPaddingWithInvalidIvLength() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[32];
+        for (int i = 0; i < 32; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[15];
+        for (int i = 0; i < 15; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "Wrong IV length: must be 16 bytes long");
+    }
+
     @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid input length")
     public void testEncryptAesCbcNoPaddingWithInvalidInputLength() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
@@ -825,5 +849,53 @@ public class CryptoTest {
         returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt with private key and decrypt with public key using RSA ECB PKCS1")
+    public void testEncryptRsaEcbWithPrivateKeyPkcs1() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"),
+                null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcbWithPrivateKey", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], new BString("target" + File.separator + "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"),
+                null};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcbWithPublicKey", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB PKCS1 with an invalid key")
+    public void testEncryptRsaEcbWithPrivateKeyPkcs1WithInvalidKey() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("PKCS1"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcbWithInvalidKey", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB PKCS1 with invalid padding")
+    public void testEncryptRsaEcbWithPrivateKeyPkcs1WithInvalidPadding() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("PKCS99"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "unsupported padding: PKCS99");
     }
 }

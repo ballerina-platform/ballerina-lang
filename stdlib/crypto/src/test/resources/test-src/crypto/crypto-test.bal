@@ -186,6 +186,34 @@ string keyStorePassword, string keyAlias, string keyPassword) returns byte[]|err
         path: path,
         password: keyStorePassword
     };
-    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+                                                         keyPassword = keyPassword);
     return crypto:decryptRsaEcb(input, pk, padding = padding);
+}
+
+function testEncryptRsaEcbWithPrivateKey(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = (),
+string path, string keyStorePassword, string keyAlias, string keyPassword) returns byte[]|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+                                                         keyPassword = keyPassword);
+    return crypto:encryptRsaEcb(input, pk, padding = padding);
+}
+
+function testDecryptRsaEcbWithPublicKey(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = (),
+string path, string keyStorePassword, string keyAlias) returns byte[]|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:decryptRsaEcb(input, pk, padding = padding);
+}
+
+function testEncryptRsaEcbWithInvalidKey(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = ())
+returns byte[]|error {
+    crypto:PrivateKey pk = {algorithm:"RSA"};
+    return crypto:encryptRsaEcb(input, pk, padding = padding);
 }

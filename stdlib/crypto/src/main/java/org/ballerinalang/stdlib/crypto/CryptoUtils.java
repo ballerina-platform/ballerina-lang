@@ -179,18 +179,11 @@ public class CryptoUtils {
         } catch (NoSuchAlgorithmException e) {
             context.setReturnValues(CryptoUtils.createCryptoError(context, "unsupported algorithm: AES " +
                     algorithmMode + " " + algorithmPadding));
-        } catch (InvalidKeyException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
-        } catch (InvalidAlgorithmParameterException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
         } catch (NoSuchPaddingException e) {
             context.setReturnValues(CryptoUtils.createCryptoError(context, "unsupported padding scheme defined in " +
                     "the algorithm: AES " + algorithmMode + " " + algorithmPadding));
-        } catch (BadPaddingException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
-        } catch (IllegalBlockSizeException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
-        } catch (BallerinaException e) {
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException | BadPaddingException |
+                IllegalBlockSizeException | BallerinaException e) {
             context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
         }
     }
