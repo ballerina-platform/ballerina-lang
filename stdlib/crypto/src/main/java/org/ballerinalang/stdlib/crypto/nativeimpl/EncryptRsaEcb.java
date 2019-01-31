@@ -32,9 +32,9 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 /**
- * Extern function ballerina.crypto:signRsaMd5.
+ * Extern function ballerina.crypto:encryptRsaEcb.
  *
- * @since 0.991.0
+ * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "encryptRsaEcb", isPublic = true)
 public class EncryptRsaEcb extends BlockingNativeCallableUnit {

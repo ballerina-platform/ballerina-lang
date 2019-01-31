@@ -46,7 +46,7 @@ import java.security.cert.CertificateException;
 /**
  * Function for decoding private key.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",

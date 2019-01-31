@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.crypto;
 /**
  * Constants related to Ballerina crypto stdlib.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class Constants {
 

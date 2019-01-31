@@ -28,9 +28,9 @@ import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
- * Extern function ballerina.crypto:signRsaMd5.
+ * Extern function ballerina.crypto:encryptAesGcm.
  *
- * @since 0.991.0
+ * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "encryptAesGcm", isPublic = true)
 public class EncryptAesGcm extends BlockingNativeCallableUnit {
