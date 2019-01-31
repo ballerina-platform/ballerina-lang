@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-any[] outputs = [];
+string [] outputs = [];
 int counter = 0;
 
 // This is the mock function that replaces the real function.
@@ -10,8 +10,12 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    foreach var entry in s {
-        outputs[counter] = entry;
+    string outStr = "";
+    foreach var str in s {
+        outStr = outStr + <string> str;
+    }
+    lock {
+        outputs[counter] = outStr;
         counter += 1;
     }
 }
@@ -20,8 +24,5 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoke the main function.
     main();
-    test:assertEquals(outputs[0], "Error: ");
-    test:assertEquals(outputs[1], "Account Not Found");
-    test:assertEquals(outputs[2], ", Account ID: ");
-    test:assertEquals(outputs[3], -1);
+    test:assertEquals(outputs[2], "[main] iW1: 23 sW1: Colombo fW2: 10.344");
 }
