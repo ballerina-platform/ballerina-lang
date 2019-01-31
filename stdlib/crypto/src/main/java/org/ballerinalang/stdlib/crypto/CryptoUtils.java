@@ -58,7 +58,7 @@ public class CryptoUtils {
     /**
      * Cipher mode that is used to decide if encryption or decryption operation should be performed.
      */
-    public enum CipherMode { ENCRYPT, DECRYPT };
+    public enum CipherMode { ENCRYPT, DECRYPT }
 
     /**
      * Valid tag sizes usable with GCM mode encryption.
@@ -167,7 +167,7 @@ public class CryptoUtils {
         try {
             String transformedAlgorithmMode = transformAlgorithmMode(context, algorithmMode);
             String transformedAlgorithmPadding = transformAlgorithmPadding(context, algorithmPadding);
-            if (tagSize != -1 && !Arrays.stream(VALID_GCM_TAG_SIZES).anyMatch(i -> tagSize == i)) {
+            if (tagSize != -1 && Arrays.stream(VALID_GCM_TAG_SIZES).noneMatch(i -> tagSize == i)) {
                 context.setReturnValues(CryptoUtils.createCryptoError(context, "valid tag sizes are: " +
                         Arrays.toString(VALID_GCM_TAG_SIZES)));
                 return;
@@ -210,7 +210,7 @@ public class CryptoUtils {
     public static void aesEncryptDecrypt(Context context, CipherMode cipherMode, String algorithmMode,
                                            String algorithmPadding, byte[] key, byte[] input, byte[] iv, long tagSize) {
         try {
-            if (!Arrays.stream(VALID_AES_KEY_SIZES).anyMatch(validSize -> validSize == key.length)) {
+            if (Arrays.stream(VALID_AES_KEY_SIZES).noneMatch(validSize -> validSize == key.length)) {
                 context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid key size. valid key sizes" +
                         " in bytes: " + Arrays.toString(VALID_AES_KEY_SIZES)));
                 return;
@@ -218,7 +218,7 @@ public class CryptoUtils {
             String transformedAlgorithmMode = transformAlgorithmMode(context, algorithmMode);
             String transformedAlgorithmPadding = transformAlgorithmPadding(context, algorithmPadding);
             SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-            if (tagSize != -1 && !Arrays.stream(VALID_GCM_TAG_SIZES).anyMatch(validSize -> validSize == tagSize)) {
+            if (tagSize != -1 && Arrays.stream(VALID_GCM_TAG_SIZES).noneMatch(validSize -> validSize == tagSize)) {
                 context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid tag size. valid tag sizes" +
                         " in bytes: " + Arrays.toString(VALID_GCM_TAG_SIZES)));
                 return;
@@ -230,18 +230,11 @@ public class CryptoUtils {
         } catch (NoSuchAlgorithmException e) {
             context.setReturnValues(CryptoUtils.createCryptoError(context, "unsupported algorithm: AES " +
                     algorithmMode + " " + algorithmPadding));
-        } catch (InvalidKeyException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
-        } catch (InvalidAlgorithmParameterException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
         } catch (NoSuchPaddingException e) {
             context.setReturnValues(CryptoUtils.createCryptoError(context, "unsupported padding scheme defined in " +
                     "the algorithm: AES " + algorithmMode + " " + algorithmPadding));
-        } catch (BadPaddingException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
-        } catch (IllegalBlockSizeException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
-        } catch (BallerinaException e) {
+        } catch (BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException |
+                InvalidKeyException | BallerinaException e) {
             context.setReturnValues(CryptoUtils.createCryptoError(context, e.getMessage()));
         }
     }
@@ -328,24 +321,33 @@ public class CryptoUtils {
      */
     private static String transformAlgorithmPadding(Context context, String algorithmPadding)
             throws BallerinaException {
-        if (algorithmPadding.equals("PKCS1")) {
-            algorithmPadding = "PKCS1Padding";
-        } else if (algorithmPadding.equals("PKCS5")) {
-            algorithmPadding = "PKCS5Padding";
-        } else if (algorithmPadding.equals("OAEPwithMD5andMGF1")) {
-            algorithmPadding = "OAEPWithMD5AndMGF1Padding";
-        } else if (algorithmPadding.equals("OAEPWithSHA1AndMGF1")) {
-            algorithmPadding = "OAEPWithSHA-1AndMGF1Padding";
-        } else if (algorithmPadding.equals("OAEPWithSHA256AndMGF1")) {
-            algorithmPadding = "OAEPWithSHA-256AndMGF1Padding";
-        } else if (algorithmPadding.equals("OAEPwithSHA384andMGF1")) {
-            algorithmPadding = "OAEPWithSHA-384AndMGF1Padding";
-        } else if (algorithmPadding.equals("OAEPwithSHA512andMGF1")) {
-            algorithmPadding = "OAEPWithSHA-512AndMGF1Padding";
-        } else if (algorithmPadding.equals("NONE")) {
-            algorithmPadding = "NoPadding";
-        } else {
-            throw new BallerinaException("unsupported padding: " + algorithmPadding, context);
+        switch (algorithmPadding) {
+            case "PKCS1":
+                algorithmPadding = "PKCS1Padding";
+                break;
+            case "PKCS5":
+                algorithmPadding = "PKCS5Padding";
+                break;
+            case "OAEPwithMD5andMGF1":
+                algorithmPadding = "OAEPWithMD5AndMGF1Padding";
+                break;
+            case "OAEPWithSHA1AndMGF1":
+                algorithmPadding = "OAEPWithSHA-1AndMGF1Padding";
+                break;
+            case "OAEPWithSHA256AndMGF1":
+                algorithmPadding = "OAEPWithSHA-256AndMGF1Padding";
+                break;
+            case "OAEPwithSHA384andMGF1":
+                algorithmPadding = "OAEPWithSHA-384AndMGF1Padding";
+                break;
+            case "OAEPwithSHA512andMGF1":
+                algorithmPadding = "OAEPWithSHA-512AndMGF1Padding";
+                break;
+            case "NONE":
+                algorithmPadding = "NoPadding";
+                break;
+            default:
+                throw new BallerinaException("unsupported padding: " + algorithmPadding, context);
         }
         return algorithmPadding;
     }

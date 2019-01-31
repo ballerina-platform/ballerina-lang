@@ -68,7 +68,7 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
         BMap<String, BValue> keyStore = (BMap<String, BValue>) context.getNullableRefArgument(0);
         BString keyAlias = (BString) context.getNullableRefArgument(1);
 
-        PublicKey publicKey = null;
+        PublicKey publicKey;
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore != null) {
             File keyStoreFile = new File(keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).stringValue());
