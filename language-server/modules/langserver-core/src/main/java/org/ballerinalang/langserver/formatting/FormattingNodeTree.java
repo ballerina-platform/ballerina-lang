@@ -3794,37 +3794,31 @@ public class FormattingNodeTree {
                 this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean() ?
                         getParentIndentation(formatConfig) : indentation);
 
-                // Handle package alias if available.
-                if (ws.size() > 1) {
-                    // Update whitespace for package alias.
-                    JsonObject packageAliasWhitespace = ws.get(0).getAsJsonObject();
-                    if (this.noHeightAvailable(packageAliasWhitespace.get(FormattingConstants.WS).getAsString())) {
-                        packageAliasWhitespace.addProperty(FormattingConstants.WS,
-                                this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
-                                        + indentation + this.getWhiteSpaces(formatConfig
-                                        .get(FormattingConstants.SPACE_COUNT).getAsInt()));
-                    }
-
-                    // Update whitespace for package access colon.
-                    JsonObject packageColonWhitespace = ws.get(ws.size() - 2).getAsJsonObject();
-                    if (this.noHeightAvailable(packageColonWhitespace.get(FormattingConstants.WS).getAsString())) {
-                        packageColonWhitespace.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    // Update whitespace for identifier
-                    JsonObject identifierWhitespace = ws.get(ws.size() - 1).getAsJsonObject();
-                    if (this.noHeightAvailable(identifierWhitespace.get(FormattingConstants.WS).getAsString())) {
-                        identifierWhitespace.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                } else {
-                    // Update whitespace for identifier
-                    JsonObject identifierWhitespace = ws.get(ws.size() - 1).getAsJsonObject();
-                    if (this.noHeightAvailable(identifierWhitespace.get(FormattingConstants.WS).getAsString())) {
-                        identifierWhitespace.addProperty(FormattingConstants.WS,
-                                this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
-                                        + indentation + this.getWhiteSpaces(formatConfig
-                                        .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                boolean isPackageAliasExist = false;
+                for (int i = 0; i < ws.size(); i++) {
+                    JsonObject currentWS = ws.get(i).getAsJsonObject();
+                    if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                        String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                        if (i == 0) {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT)
+                                            .getAsInt()) + indentation + this.getWhiteSpaces(formatConfig
+                                            .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        } else {
+                            if (text.equals(":")) {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                                isPackageAliasExist = true;
+                            } else if (text.equals("?")) {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            } else {
+                                if (isPackageAliasExist) {
+                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                                    isPackageAliasExist = false;
+                                } else {
+                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                                }
+                            }
+                        }
                     }
                 }
             } else if (node.has(FormattingConstants.IS_ANON_TYPE) &&
