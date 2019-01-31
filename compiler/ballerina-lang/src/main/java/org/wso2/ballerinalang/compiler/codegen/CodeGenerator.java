@@ -185,6 +185,7 @@ import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
+import org.wso2.ballerinalang.programfile.KeyValueInfo;
 import org.wso2.ballerinalang.programfile.LabelTypeInfo;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
@@ -2152,9 +2153,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
         int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
 
-
         ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, finiteTypeSigCPIndex, valueTypeSigCPIndex,
-                constantSymbol.flags, -1);
+                constantSymbol.flags);
 
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
@@ -2167,16 +2167,60 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
             constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
+
+            constantInfo.isSimpleLiteral = true;
+
         } else {
             constantSymbol.varIndex = getPVIndex(constantSymbol.literalValueType.tag);
-        }
-
-        if (constantSymbol.varIndex != null) {
             constantInfo.globalMemIndex = constantSymbol.varIndex.value;
+
+            // Create key-value info.
+            constantInfo.recordKeyValueInfo = getConstantMapInfo((BLangRecordLiteral) constantSymbol.literalValue);
         }
 
         // Add documentation attributes.
         addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);
+    }
+
+    private  List<KeyValueInfo> getConstantMapInfo(BLangRecordLiteral expression) {
+        List<KeyValueInfo> keyValueInfoMap = new LinkedList<>();
+        List<BLangRecordKeyValue> keyValuePairs = expression.keyValuePairs;
+        for (BLangRecordKeyValue keyValuePair : keyValuePairs) {
+            keyValueInfoMap.add(getConstantMapInfo(keyValuePair));
+        }
+        return keyValueInfoMap;
+    }
+
+    private  KeyValueInfo getConstantMapInfo(BLangRecordKeyValue keyValue) {
+        if (keyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            BLangLiteral expr = (BLangLiteral) keyValue.key.expr;
+
+            int keyCPIndex = addUTF8CPEntry(currentPkgInfo, expr.value.toString());
+            int originalKeyCPIndex = addUTF8CPEntry(currentPkgInfo, expr.originalValue);
+            int keyTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
+
+            KeyValueInfo keyValueInfo = new KeyValueInfo(keyCPIndex, originalKeyCPIndex, keyTypeSigCPIndex,
+                    expr.typeTag, -1, -1, -1, -1);
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) keyValue.getValue();
+            keyValueInfo.children = getConstantMapInfo(recordLiteral);
+
+            return keyValueInfo;
+        } else if (keyValue.valueExpr.getKind() == NodeKind.LITERAL) {
+
+            BLangLiteral expr = (BLangLiteral) keyValue.valueExpr;
+
+            int valueCPIndex = addUTF8CPEntry(currentPkgInfo, expr.value.toString());
+            int originalValueCPIndex = addUTF8CPEntry(currentPkgInfo, expr.originalValue);
+            int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
+
+            KeyValueInfo keyValueInfo = new KeyValueInfo(-1, -1, -1, -1, valueCPIndex, originalValueCPIndex,
+                    valueTypeSigCPIndex, expr.typeTag);
+            keyValueInfo.isTerminal = true;
+
+            return keyValueInfo;
+        } else {
+            throw new RuntimeException("Unexpected node kind");
+        }
     }
 
     private void createPackageVarInfo(BLangSimpleVariable varNode) {

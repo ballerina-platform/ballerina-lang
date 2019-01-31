@@ -606,10 +606,36 @@ public class PackageInfoReader {
         // Read and ignore index.
         dataInStream.readInt();
 
-        // Read and ignore attributes.
-        int attributesCount = dataInStream.readShort();
-        for (int k = 0; k < attributesCount; k++) {
-            getAttributeInfo(packageInfo, constantPool);
+        if (dataInStream.readBoolean()) {
+            // Read and ignore attributes.
+            int attributesCount = dataInStream.readShort();
+            for (int k = 0; k < attributesCount; k++) {
+                getAttributeInfo(packageInfo, constantPool);
+            }
+        } else {
+            readConstantMapInfo();
+        }
+    }
+
+    private void readConstantMapInfo() throws IOException {
+        int size = dataInStream.readInt();
+        for (int i = 0; i < size; i++) {
+
+            boolean isTerminal = dataInStream.readBoolean();
+
+            dataInStream.readInt();
+            dataInStream.readInt();
+            dataInStream.readInt();
+            dataInStream.readInt();
+
+            dataInStream.readInt();
+            dataInStream.readInt();
+            dataInStream.readInt();
+            dataInStream.readInt();
+
+            if (!isTerminal) {
+                readConstantMapInfo();
+            }
         }
     }
 

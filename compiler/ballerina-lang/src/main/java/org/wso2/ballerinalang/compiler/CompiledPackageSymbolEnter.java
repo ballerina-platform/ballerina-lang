@@ -650,23 +650,56 @@ public class CompiledPackageSymbolEnter {
 
         enclScope.define(constantSymbol.name, constantSymbol);
 
-        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+        Map<Kind, byte[]> attrDataMap;
+        if (dataInStream.readBoolean()) {
+            attrDataMap = readAttributes(dataInStream);
+        } else {
+            attrDataMap = new HashMap<>();
+            readConstantMapInfo(dataInStream);
+
+            // Todo - set literal value
+        }
+
         setDocumentation(constantSymbol, attrDataMap);
 
-        // Read value of the constant and set it in the symbol.
-        BLangLiteral constantValue = getConstantValue(attrDataMap);
-        constantSymbol.literalValue = constantValue.value;
-        constantSymbol.literalValueType = constantValue.type;
-        constantSymbol.literalValueTypeTag = constantValue.typeTag;
-
-        // If the memory index is not equal to -1, that means we have allocated a memory location for that. So we
-        // update the varIndex of the symbol.
-        if (memIndex != -1) {
+        // For simple literals, we don't allocate a memory location. So if the memIndex is -1, that means we are
+        // reading a constant with a simple literal value.
+        if (memIndex == -1) {
+            // Read value of the constant and set it in the symbol.
+            BLangLiteral constantValue = getConstantSimpleLiteralValue(attrDataMap);
+            constantSymbol.literalValue = constantValue.value;
+            constantSymbol.literalValueType = constantValue.type;
+            constantSymbol.literalValueTypeTag = constantValue.typeTag;
+        } else {
+            // If the memory index is not equal to -1, that means we have allocated a memory location for that. So we
+            // update the varIndex of the symbol.
             constantSymbol.varIndex = new RegIndex(memIndex, constantSymbol.literalValueType.tag);
         }
     }
 
-    private BLangLiteral getConstantValue(Map<Kind, byte[]> attrDataMap) throws IOException {
+    private void readConstantMapInfo(DataInputStream dataInStream) throws IOException {
+        int size = dataInStream.readInt();
+        for (int i = 0; i < size; i++) {
+
+            boolean isTerminal = dataInStream.readBoolean();
+
+            int keyCPIndex = dataInStream.readInt();
+            int originalKeyCPIndex = dataInStream.readInt();
+            int keyTypeDescCPIndex = dataInStream.readInt();
+            int keyTypeDescTag = dataInStream.readInt();
+
+            int valueCPIndex = dataInStream.readInt();
+            int originalValueCPIndex = dataInStream.readInt();
+            int valueTypeDescCPIndex = dataInStream.readInt();
+            int valueTypeDescTag = dataInStream.readInt();
+
+            if (!isTerminal) {
+                readConstantMapInfo(dataInStream);
+            }
+        }
+    }
+
+    private BLangLiteral getConstantSimpleLiteralValue(Map<Kind, byte[]> attrDataMap) throws IOException {
         // Constants must have a value attribute.
         byte[] documentationBytes = attrDataMap.get(Kind.DEFAULT_VALUE_ATTRIBUTE);
         DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(documentationBytes));

@@ -21,6 +21,8 @@ import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,15 +36,18 @@ public class ConstantInfo implements AttributeInfoPool {
     public int finiteTypeCPIndex;
     public int valueTypeCPIndex;
     public int flags;
-    public int globalMemIndex;
+    public int globalMemIndex = -1;
+    public boolean isSimpleLiteral;
+    public List<KeyValueInfo> recordKeyValueInfo;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex, int finiteTypeCPIndex, int valueTypeCPIndex, int flags, int globalMemIndex) {
+    public ConstantInfo(int nameCPIndex, int finiteTypeCPIndex, int valueTypeCPIndex, int flags) {
         this.nameCPIndex = nameCPIndex;
         this.finiteTypeCPIndex = finiteTypeCPIndex;
         this.valueTypeCPIndex = valueTypeCPIndex;
         this.flags = flags;
+        this.recordKeyValueInfo = new LinkedList<>();
     }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {

@@ -236,7 +236,35 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(constantInfo.valueTypeCPIndex);
             dataOutStream.writeInt(constantInfo.flags);
             dataOutStream.writeInt(constantInfo.globalMemIndex);
-            writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
+
+            dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
+            if (constantInfo.isSimpleLiteral) {
+                writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
+            } else {
+                writeConstantMapInfo(dataOutStream, constantInfo.recordKeyValueInfo);
+            }
+        }
+    }
+
+    private static void writeConstantMapInfo(DataOutputStream dataOutStream, List<KeyValueInfo> recordKeyValueInfo)
+            throws IOException {
+        dataOutStream.writeInt(recordKeyValueInfo.size());
+        for (KeyValueInfo keyValueInfo : recordKeyValueInfo) {
+            dataOutStream.writeBoolean(keyValueInfo.isTerminal);
+
+            dataOutStream.writeInt(keyValueInfo.keyCPIndex);
+            dataOutStream.writeInt(keyValueInfo.originalKeyCPIndex);
+            dataOutStream.writeInt(keyValueInfo.keyTypeDescCPIndex);
+            dataOutStream.writeInt(keyValueInfo.keyTypeDescTag);
+
+            dataOutStream.writeInt(keyValueInfo.valueCPIndex);
+            dataOutStream.writeInt(keyValueInfo.originalValueCPIndex);
+            dataOutStream.writeInt(keyValueInfo.valueTypeDescCPIndex);
+            dataOutStream.writeInt(keyValueInfo.valueTypeDescTag);
+
+            if (!keyValueInfo.isTerminal) {
+                writeConstantMapInfo(dataOutStream, keyValueInfo.children);
+            }
         }
     }
 
