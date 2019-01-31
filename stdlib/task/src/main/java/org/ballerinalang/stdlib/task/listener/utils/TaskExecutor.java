@@ -39,41 +39,6 @@ import java.util.List;
 @SuppressWarnings("Duplicates")
 public class TaskExecutor {
 
-    public static void execute(Context parentCtx, FunctionInfo onTriggerFunction, FunctionInfo onErrorFunction) {
-        boolean isErrorFnCalled = false;
-        try {
-            BMap<String, BValue> task = (BMap<String, BValue>) parentCtx.getRefArgument(0);
-            BFunctionPointer triggerFunction = (BFunctionPointer) task.get(TaskConstants.TIMER_ON_TRIGGER_FIELD);
-            List<BValue> onTriggerFunctionArgs = new ArrayList<>();
-            for (BClosure closure : triggerFunction.getClosureVars()) {
-                onTriggerFunctionArgs.add(closure.value());
-            }
-            // Invoke the onTrigger function.
-            BValue[] results = BVMExecutor.executeFunction(onTriggerFunction.getPackageInfo().getProgramFile(),
-                    onTriggerFunction,
-                    onTriggerFunctionArgs.toArray(new BValue[0]));
-            // If there are results, that mean an error has been returned
-            if (onErrorFunction != null && results.length > 0 && results[0] != null) {
-                isErrorFnCalled = true;
-                BFunctionPointer errorFunction = (BFunctionPointer) task.get(TaskConstants.TIMER_ON_ERROR_FIELD);
-                List<BValue> onErrorFunctionArgs = new ArrayList<>();
-                for (BClosure closure : errorFunction.getClosureVars()) {
-                    onErrorFunctionArgs.add(closure.value());
-                }
-                onErrorFunctionArgs.addAll(Arrays.asList(results));
-                BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(),
-                        onErrorFunction, onErrorFunctionArgs.toArray(new BValue[0]));
-            }
-        } catch (RuntimeException e) {
-
-            //Call the onError function in case of error.
-            if (onErrorFunction != null && !isErrorFnCalled) {
-                BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(), onErrorFunction,
-                        BLangVMErrors.createError(parentCtx, e.getMessage()));
-            }
-        }
-    }
-
     public static void execute(Context parentCtx, FunctionInfo onTriggerFunction, FunctionInfo onErrorFunction,
                                Service service) {
         boolean isErrorFnCalled = false;
@@ -88,7 +53,7 @@ public class TaskExecutor {
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
-                BFunctionPointer errorFunction = (BFunctionPointer) task.get(TaskConstants.TIMER_ON_ERROR_FIELD);
+                BFunctionPointer errorFunction = (BFunctionPointer) task.get(TaskConstants.RESOURCE_ON_ERROR);
                 List<BValue> onErrorFunctionArgs = new ArrayList<>();
                 for (BClosure closure : errorFunction.getClosureVars()) {
                     onErrorFunctionArgs.add(closure.value());

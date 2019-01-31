@@ -18,21 +18,19 @@
 package org.ballerinalang.stdlib.task.listener.utils;
 
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.appointment.Appointment;
-import org.ballerinalang.stdlib.task.listener.objects.Timer;
+import org.ballerinalang.stdlib.task.listener.objects.Task;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * Maintains timers and appointments (Appointment support will be available in the future).
+ * Maintains taskMap and appointments (Appointment support will be available in the future).
  */
 public class TaskRegistry {
 
     private static TaskRegistry instance = new TaskRegistry();
-    private Map<String, Timer> timers = new HashMap<>();
-    private Map<String, Appointment> appointments = new HashMap<>();
+    private Map<String, Task> taskMap = new HashMap<>();
 
     private TaskRegistry() {
     }
@@ -41,45 +39,31 @@ public class TaskRegistry {
         return instance;
     }
 
-    public void stopTask(String taskId) {
-        if (timers.containsKey(taskId)) {
-            timers.get(taskId).stop();
-        } else if (appointments.containsKey(taskId)) {
-            appointments.get(taskId).stop();
-        }
-    }
-
-    public void addTimer(Timer timer) {
-        String taskId = timer.getId();
+    public void addTask(Task task) {
+        String taskId = task.getId();
         checkDuplicateTask(taskId);
-        timers.put(taskId, timer);
+        taskMap.put(taskId, task);
     }
 
-    public Timer getTimer(String serviceTaskId) throws SchedulingException {
-        if (Objects.nonNull(timers.get(serviceTaskId))) {
-            return timers.get(serviceTaskId);
+    public Task getTask(String taskID) throws SchedulingException {
+        if (Objects.nonNull(taskMap.get(taskID))) {
+            return taskMap.get(taskID);
         } else {
             throw new SchedulingException("Timer not available for the service");
         }
     }
 
-    public void addAppointment(Appointment appointment) {
-        String taskId = appointment.getId();
-        checkDuplicateTask(taskId);
-        appointments.put(taskId, appointment);
-    }
-
     private void checkDuplicateTask(String taskId) {
-        if (timers.containsKey(taskId) || appointments.containsKey(taskId)) {
+        if (taskMap.containsKey(taskId)) {
             throw new IllegalArgumentException("Task with ID " + taskId + " already exists");
         }
     }
 
-    public void remove(String taskId) {
-        if (timers.containsKey(taskId)) {
-            timers.remove(taskId);
-        } else if (appointments.containsKey(taskId)) {
-            appointments.remove(taskId);
+    public void remove(String taskId) throws SchedulingException {
+        if (taskMap.containsKey(taskId)) {
+            taskMap.remove(taskId);
+        } else {
+            throw new SchedulingException("Task cannot be found");
         }
     }
 }

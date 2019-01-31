@@ -31,6 +31,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.listener.objects.Task;
 import org.ballerinalang.stdlib.task.listener.objects.Timer;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -46,9 +47,9 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENE
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_RUNNING_FIELD;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
  * Native function to attach a service to the listener.
@@ -68,8 +69,8 @@ public class Register extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
-        BMap<String, BValue> configurations = (BMap<String, BValue>) task.get(LISTENER_CONFIGURATION_MEMBER_NAME);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
+        BMap<String, BValue> configurations = (BMap<String, BValue>) taskStruct.get(LISTENER_CONFIGURATION_MEMBER_NAME);
 
         String configurationTypeName = configurations.getType().getName();
 
@@ -82,19 +83,19 @@ public class Register extends BlockingNativeCallableUnit {
             }
 
             try {
-                Timer timer;
-                if (Objects.nonNull(task.get(TIMER_TASK_ID_FIELD))) {
-                    timer = TaskRegistry.getInstance().getTimer(task.get(TIMER_TASK_ID_FIELD).stringValue());
-                    timer.addService(service);
+                Task task;
+                if (Objects.nonNull(taskStruct.get(TASK_TASK_ID_FIELD))) {
+                    task = TaskRegistry.getInstance().getTask(taskStruct.get(TASK_TASK_ID_FIELD).stringValue());
+                    task.addService(service);
                 } else {
                     if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
                         long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
-                        timer = new Timer(context, delay, interval, service, noOfRuns);
+                        task = new Timer(context, delay, interval, service, noOfRuns);
                     } else {
-                        timer = new Timer(context, delay, interval, service);
+                        task = new Timer(context, delay, interval, service);
                     }
-                    task.put(TIMER_TASK_ID_FIELD, new BString(timer.getId()));
-                    task.put(TIMER_IS_RUNNING_FIELD, new BBoolean(false));
+                    taskStruct.put(TASK_TASK_ID_FIELD, new BString(task.getId()));
+                    taskStruct.put(TASK_IS_RUNNING_FIELD, new BBoolean(false));
                 }
             } catch (SchedulingException e) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);

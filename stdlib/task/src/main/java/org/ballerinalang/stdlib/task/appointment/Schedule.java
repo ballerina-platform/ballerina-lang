@@ -42,6 +42,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_TASK
 /**
  * Extern function ballerina/task:Appointment.schedule.
  */
+@SuppressWarnings("Duplicates")
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "task",

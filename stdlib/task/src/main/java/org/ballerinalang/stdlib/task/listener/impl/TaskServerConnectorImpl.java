@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.task.listener.impl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.api.TaskServerConnector;
-import org.ballerinalang.stdlib.task.listener.objects.Timer;
+import org.ballerinalang.stdlib.task.listener.objects.Task;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 
 /**
@@ -55,8 +55,8 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public void start() throws SchedulingException {
-        Timer timer = TaskRegistry.getInstance().getTimer(taskId);
-        timer.runServices(context);
+        Task task = TaskRegistry.getInstance().getTask(taskId);
+        task.runServices(context);
     }
 
     /**
@@ -64,8 +64,8 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public boolean stop() throws SchedulingException {
-        Timer timer = TaskRegistry.getInstance().getTimer(taskId);
-        timer.stop();
+        Task task = TaskRegistry.getInstance().getTask(taskId);
+        task.stop();
         return true;
     }
 }

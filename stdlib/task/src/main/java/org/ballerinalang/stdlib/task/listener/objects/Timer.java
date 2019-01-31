@@ -30,7 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 
 /**
  * Represents a Timer object used to create and run Timers.
@@ -60,7 +60,7 @@ public class Timer extends AbstractTask {
         this.delay = delay;
         this.maxRuns = -1;
 
-        TaskRegistry.getInstance().addTimer(this);
+        TaskRegistry.getInstance().addTask(this);
     }
 
     /**
@@ -85,7 +85,7 @@ public class Timer extends AbstractTask {
         this.maxRuns = maxRuns;
         noOfRuns = 0;
 
-        TaskRegistry.getInstance().addTimer(this);
+        TaskRegistry.getInstance().addTask(this);
     }
 
     /**
@@ -117,18 +117,22 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void pause() {
-
+    public void pause() throws SchedulingException {
+        /*try {
+            this.executorService.wait();
+        } catch (InterruptedException e) {
+            throw new SchedulingException("Pausing the timer failed." + e.getMessage());
+        }*/
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void resume() {
-
+    public void resume() throws SchedulingException {
+        /*this.executorService.notify();*/
     }
-    
+
     private static void callTriggerFunction(Context parentCtx, FunctionInfo onTriggerFunction,
                                             FunctionInfo onErrorFunction, Service service) {
         TaskExecutor.execute(parentCtx, onTriggerFunction, onErrorFunction, service);

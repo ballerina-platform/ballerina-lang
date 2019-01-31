@@ -94,6 +94,11 @@ public type Listener object {
     # + return - Returns error if the process failed due to any reason, nil otherwise.
     public extern function stop() returns error?;
 
+    # Pauses the task.
+    #
+    # + return - Returns error if the task is not running or any other error is occured.
+    public extern function pause() returns error?;
+
     # Detach the service from the listener.
     #
     # + attachedService - service which needs to be detached from the listener.
