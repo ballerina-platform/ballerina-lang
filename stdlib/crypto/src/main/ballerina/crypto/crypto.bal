@@ -222,10 +222,9 @@ public extern function decodePublicKey(KeyStore? keyStore = (), string? keyAlias
 # + padding - The padding
 # + input - The content to be encrypted
 # + key - Private or public key used for encryption
-# + iv - Initialization vector
 # + return - Encrypted data or error if key is invalid
-public extern function encryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key,
-                                     byte[]? iv = ()) returns byte[]|error;
+public extern function encryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key)
+returns byte[]|error;
 
 # Returns AES CBC encrypted value for the given data.
 #
@@ -234,7 +233,7 @@ public extern function encryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input,
 # + key - Encryption key
 # + iv - Initialization vector
 # + return - Encrypted data or error if key is invalid
-public extern function encryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = ())
+public extern function encryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv)
 returns byte[]|error;
 
 # Returns AES ECB encrypted value for the given data.
@@ -253,7 +252,7 @@ public extern function encryptAesEcb(AesPadding padding = "PKCS5", byte[] input,
 # + iv - Initialization vector
 # + tagSize - Tag size
 # + return - Encrypted data or error if key is invalid
-public extern function encryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = (),
+public extern function encryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv,
                                      int? tagSize = 128) returns byte[]|error;
 
 # Returns RSA decrypted value for the given RSA encrypted data.
@@ -261,10 +260,9 @@ public extern function encryptAesGcm(AesPadding padding = "PKCS5", byte[] input,
 # + padding - The padding
 # + input - The content to be decrypted
 # + key - Private or public key used for encryption
-# + iv - Initialization vector
 # + return - Decrypted data or error if key is invalid
-public extern function decryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key,
-                                     byte[]? iv = ()) returns byte[]|error;
+public extern function decryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key)
+returns byte[]|error;
 
 # Returns AES CBC decrypted value for the given AES CBC encrypted data.
 #
@@ -273,7 +271,7 @@ public extern function decryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input,
 # + key - Encryption key
 # + iv - Initialization vector
 # + return - Decrypted data or error if key is invalid
-public extern function decryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = ())
+public extern function decryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv)
 returns byte[]|error;
 
 # Returns AES ECB decrypted value for the given AES ECB encrypted data.
@@ -292,5 +290,5 @@ public extern function decryptAesEcb(AesPadding padding = "PKCS5", byte[] input,
 # + iv - Initialization vector
 # + tagSize - Tag size
 # + return - Decrypted data or error if key is invalid
-public extern function decryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[]? iv = (),
+public extern function decryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv,
                                      int? tagSize = 128) returns byte[]|error;

@@ -63,7 +63,12 @@ public class CryptoUtils {
     /**
      * Valid tag sizes usable with GCM mode encryption.
      */
-    private static final int[] VALID_TAG_SIZES = new int[] {32, 63, 96, 104, 112, 120, 128};
+    private static final int[] VALID_GCM_TAG_SIZES = new int[] { 32, 63, 96, 104, 112, 120, 128 };
+
+    /**
+     * Valid AES key sizes.
+     */
+    private static final int[] VALID_AES_KEY_SIZES = new int[] { 16 , 24, 32 };
 
     private CryptoUtils() {
 
@@ -162,9 +167,9 @@ public class CryptoUtils {
         try {
             String transformedAlgorithmMode = transformAlgorithmMode(context, algorithmMode);
             String transformedAlgorithmPadding = transformAlgorithmPadding(context, algorithmPadding);
-            if (tagSize != -1 && !Arrays.stream(VALID_TAG_SIZES).anyMatch(i -> tagSize == i)) {
+            if (tagSize != -1 && !Arrays.stream(VALID_GCM_TAG_SIZES).anyMatch(i -> tagSize == i)) {
                 context.setReturnValues(CryptoUtils.createCryptoError(context, "valid tag sizes are: " +
-                        Arrays.toString(VALID_TAG_SIZES)));
+                        Arrays.toString(VALID_GCM_TAG_SIZES)));
                 return;
             }
             AlgorithmParameterSpec paramSpec = buildParameterSpec(context, transformedAlgorithmMode, iv, (int) tagSize);
@@ -205,12 +210,17 @@ public class CryptoUtils {
     public static void aesEncryptDecrypt(Context context, CipherMode cipherMode, String algorithmMode,
                                            String algorithmPadding, byte[] key, byte[] input, byte[] iv, long tagSize) {
         try {
+            if (!Arrays.stream(VALID_AES_KEY_SIZES).anyMatch(validSize -> validSize == key.length)) {
+                context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid key size. valid key sizes" +
+                        " in bytes: " + Arrays.toString(VALID_AES_KEY_SIZES)));
+                return;
+            }
             String transformedAlgorithmMode = transformAlgorithmMode(context, algorithmMode);
             String transformedAlgorithmPadding = transformAlgorithmPadding(context, algorithmPadding);
             SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-            if (tagSize != -1 && !Arrays.stream(VALID_TAG_SIZES).anyMatch(i -> tagSize == i)) {
-                context.setReturnValues(CryptoUtils.createCryptoError(context, "valid tag sizes are: " +
-                        Arrays.toString(VALID_TAG_SIZES)));
+            if (tagSize != -1 && !Arrays.stream(VALID_GCM_TAG_SIZES).anyMatch(validSize -> validSize == tagSize)) {
+                context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid tag size. valid tag sizes" +
+                        " in bytes: " + Arrays.toString(VALID_GCM_TAG_SIZES)));
                 return;
             }
             AlgorithmParameterSpec paramSpec = buildParameterSpec(context, transformedAlgorithmMode, iv, (int) tagSize);
@@ -257,15 +267,13 @@ public class CryptoUtils {
                                                              int tagSize) {
         if (algorithmMode.equals("GCM")) {
             if (iv == null) {
-                iv = new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                return new GCMParameterSpec(tagSize, iv);
+                throw new BallerinaException("GCM mode requires 16 byte IV", context);
             } else {
                 return new GCMParameterSpec(tagSize, iv);
             }
         } else if (algorithmMode.equals("CBC")) {
             if (iv == null) {
-                iv = new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                return new IvParameterSpec(iv);
+                throw new BallerinaException("CBC mode requires 16 byte IV", context);
             } else {
                 return new IvParameterSpec(iv);
             }

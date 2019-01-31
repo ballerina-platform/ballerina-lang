@@ -316,15 +316,20 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), null};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
-        BValue[] args1 = {returnValues[0], keyValue, new BString("NONE"), null};
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("NONE")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptAesCbc", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -338,15 +343,20 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), null};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "Invalid AES key length: 31 bytes");
+                "invalid key size. valid key sizes in bytes: [16, 24, 32]");
     }
 
     @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid input length")
@@ -357,43 +367,20 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), null};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
                 "Input length not multiple of 16 bytes");
-    }
-
-    @Test(description = "Test encrypt and decrypt with AES CBC NoPadding with a non-zero IV")
-    public void testEncryptAesCbcNoPaddingWithNewVi() {
-        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
-            key[i] = (byte) i;
-        }
-
-        byte[] iv = new byte[16];
-        for (int i = 0; i < 16; i++) {
-            iv[i] = (byte) i;
-        }
-
-        BValueArray messageValue = new BValueArray(message);
-        BValueArray keyValue = new BValueArray(key);
-        BValueArray ivValue = new BValueArray(iv);
-
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), ivValue};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertTrue(returnValues[0] instanceof BValueArray);
-
-        BValue[] args1 = {returnValues[0], keyValue, new BString("NONE"), ivValue};
-        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesCbc", args1);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
     }
 
     @Test(description = "Test encrypt and decrypt with AES CBC PKCS5")
@@ -404,44 +391,20 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
-        BValueArray messageValue = new BValueArray(message);
-        BValueArray keyValue = new BValueArray(key);
-
-        BValue[] args = {messageValue, keyValue, new BString("PKCS5"), null};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertTrue(returnValues[0] instanceof BValueArray);
-
-        BValue[] args1 = {returnValues[0], keyValue, new BString("PKCS5"), null};
-        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesCbc", args1);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
-    }
-
-
-    @Test(description = "Test encrypt and decrypt with AES CBC PKCS5 with non-zero IV")
-    public void testEncryptAesCbcPkcs5WithNewVi() {
-        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
-            key[i] = (byte) i;
-        }
-
         byte[] iv = new byte[16];
         for (int i = 0; i < 16; i++) {
             iv[i] = (byte) i;
         }
-
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
-        BValueArray ivValue = new BValueArray(iv);
 
-        BValue[] args = {messageValue, keyValue, new BString("PKCS5"), ivValue};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS5")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
-        BValue[] args1 = {returnValues[0], keyValue, new BString("PKCS5"), ivValue};
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("PKCS5")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptAesCbc", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -455,10 +418,15 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("PKCS1"), null};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
@@ -481,12 +449,12 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), null};
+        BValue[] args = {messageValue, keyValue, new BString("NONE")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
-        BValue[] args1 = {returnValues[0], keyValue, new BString("NONE"), null};
+        BValue[] args1 = {returnValues[0], keyValue, new BString("NONE")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptAesEcb", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -503,12 +471,12 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), null};
+        BValue[] args = {messageValue, keyValue, new BString("NONE")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "Invalid AES key length: 31 bytes");
+                "invalid key size. valid key sizes in bytes: [16, 24, 32]");
     }
 
     @Test(description = "Test encrypt and decrypt with AES ECB NoPadding using invalid input length")
@@ -522,7 +490,7 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), null};
+        BValue[] args = {messageValue, keyValue, new BString("NONE")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
@@ -541,12 +509,12 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("PKCS5"), null};
+        BValue[] args = {messageValue, keyValue, new BString("PKCS5")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
-        BValue[] args1 = {returnValues[0], keyValue, new BString("PKCS5"), null};
+        BValue[] args1 = {returnValues[0], keyValue, new BString("PKCS5")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptAesEcb", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -563,13 +531,17 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("PKCS1"), null};
+        BValue[] args = {messageValue, keyValue, new BString("PKCS1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
                 "unsupported algorithm: AES ECB PKCS1");
     }
+
+    //
+    // AES GCM Encryption Related Tests
+    //
 
     @Test(description = "Test encrypt and decrypt with AES GCM NoPadding")
     public void testEncryptAesGcmNoPadding() {
@@ -579,15 +551,20 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), null, new BInteger(128)};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE"), new BInteger(128)};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
-        BValue[] args1 = {returnValues[0], keyValue, new BString("NONE"), null, new BInteger(128)};
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("NONE"), new BInteger(128)};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptAesGcm", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -602,15 +579,20 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), null, new BInteger(128)};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE"), new BInteger(128)};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "Invalid AES key length: 31 bytes");
+                "invalid key size. valid key sizes in bytes: [16, 24, 32]");
     }
 
     @Test(description = "Test encrypt and decrypt with AES GCM NoPadding using invalid input length")
@@ -621,43 +603,20 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
-        BValueArray messageValue = new BValueArray(message);
-        BValueArray keyValue = new BValueArray(key);
-
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), null, new BInteger(128)};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertTrue(returnValues[0] instanceof BValueArray);
-
-        BValue[] args1 = {returnValues[0], keyValue, new BString("NONE"), null, new BInteger(128)};
-        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesGcm", args1);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
-    }
-
-    @Test(description = "Test encrypt and decrypt with AES GCM NoPadding with a non-zero IV")
-    public void testEncryptAesGcmNoPaddingWithNewVi() {
-        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
-            key[i] = (byte) i;
-        }
-
         byte[] iv = new byte[16];
         for (int i = 0; i < 16; i++) {
             iv[i] = (byte) i;
         }
-
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
-        BValueArray ivValue = new BValueArray(iv);
 
-        BValue[] args = {messageValue, keyValue, new BString("NONE"), ivValue, new BInteger(128)};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE"), new BInteger(128)};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
-        BValue[] args1 = {returnValues[0], keyValue, new BString("NONE"), ivValue, new BInteger(128)};
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("NONE"), new BInteger(128)};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptAesGcm", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -671,44 +630,20 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
-        BValueArray messageValue = new BValueArray(message);
-        BValueArray keyValue = new BValueArray(key);
-
-        BValue[] args = {messageValue, keyValue, new BString("PKCS5"), null, new BInteger(128)};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertTrue(returnValues[0] instanceof BValueArray);
-
-        BValue[] args1 = {returnValues[0], keyValue, new BString("PKCS5"), null, new BInteger(128)};
-        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesGcm", args1);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
-    }
-
-
-    @Test(description = "Test encrypt and decrypt with AES GCM PKCS5 with non-zero IV")
-    public void testEncryptAesGcmPkcs5WithNewVi() {
-        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
-            key[i] = (byte) i;
-        }
-
         byte[] iv = new byte[16];
         for (int i = 0; i < 16; i++) {
             iv[i] = (byte) i;
         }
-
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
-        BValueArray ivValue = new BValueArray(iv);
 
-        BValue[] args = {messageValue, keyValue, new BString("PKCS5"), ivValue, new BInteger(128)};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS5"), new BInteger(128)};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
-        BValue[] args1 = {returnValues[0], keyValue, new BString("PKCS5"), ivValue, new BInteger(128)};
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("PKCS5"), new BInteger(128)};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptAesGcm", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -722,10 +657,15 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("PKCS1"), null, new BInteger(128)};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS1"), new BInteger(128)};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
@@ -741,15 +681,20 @@ public class CryptoTest {
             key[i] = (byte) i;
         }
 
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
         BValueArray messageValue = new BValueArray(message);
         BValueArray keyValue = new BValueArray(key);
 
-        BValue[] args = {messageValue, keyValue, new BString("PKCS5"), null, new BInteger(500)};
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS5"), new BInteger(500)};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
         Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
-                .startsWith("valid tag sizes are:"));
+                .startsWith("invalid tag size. valid tag sizes in bytes:"));
     }
 
     //

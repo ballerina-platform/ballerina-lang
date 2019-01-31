@@ -40,12 +40,12 @@ public class EncryptAesCbc extends BlockingNativeCallableUnit {
         byte[] input = ((BValueArray) inputBValue).getBytes();
         BValue keyBValue = context.getRefArgument(1);
         byte[] key = ((BValueArray) keyBValue).getBytes();
-        String padding = context.getRefArgument(2).stringValue();
-        BValue ivBValue = context.getNullableRefArgument(3);
+        BValue ivBValue = context.getRefArgument(2);
         byte[] iv = null;
         if (ivBValue != null) {
             iv = ((BValueArray) ivBValue).getBytes();
         }
+        String padding = context.getRefArgument(3).stringValue();
         CryptoUtils.aesEncryptDecrypt(context, CryptoUtils.CipherMode.ENCRYPT, Constants.CBC, padding, key, input, iv,
                 -1);
     }

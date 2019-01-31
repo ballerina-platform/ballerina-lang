@@ -45,11 +45,6 @@ public class EncryptRsaEcb extends BlockingNativeCallableUnit {
         BMap<String, BValue> keyMap = (BMap<String, BValue>) context.getRefArgument(1);
         byte[] input = ((BValueArray) inputBValue).getBytes();
         String padding = context.getRefArgument(2).stringValue();
-        BValue ivBValue = context.getNullableRefArgument(3);
-        byte[] iv = null;
-        if (ivBValue != null) {
-            iv = ((BValueArray) ivBValue).getBytes();
-        }
         Key key;
         if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
             key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
@@ -59,7 +54,7 @@ public class EncryptRsaEcb extends BlockingNativeCallableUnit {
             context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
             return;
         }
-        CryptoUtils.rsaEncryptDecrypt(context, CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding, key, input, iv,
+        CryptoUtils.rsaEncryptDecrypt(context, CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding, key, input, null,
                 -1);
     }
 }
