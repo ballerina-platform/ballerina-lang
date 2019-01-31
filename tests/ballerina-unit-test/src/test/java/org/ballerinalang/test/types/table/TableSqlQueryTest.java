@@ -89,7 +89,7 @@ public class TableSqlQueryTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
-    @Test(groups = "TableQueryTest", description = "Do a simple select all with limit")
+    @Test(groups = "TableQueryTest", description = "Do a simple select within a if block")
     public void testSimpleSelectAllWithCondition() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAllWithCondition", args);

@@ -288,7 +288,6 @@ function testTableToString() returns table<record {}> {
 
 
 function testSimpleSelectAllWithCondition() returns (int) {
-
     table<Person> personTable = table{};
     int recordCount = 0;
     Person p1 = { id: 1, age: 25, salary: 300.50, name: "jane", married: true };
