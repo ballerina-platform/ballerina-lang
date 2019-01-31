@@ -77,10 +77,10 @@ public class CryptoUtils {
     /**
      * Generate HMAC of a byte array based on the provided HMAC algorithm.
      *
-     * @param context   BRE context used to raise error messages
+     * @param context BRE context used to raise error messages
      * @param algorithm algorithm used during HMAC generation
-     * @param key       key used during HMAC generation
-     * @param input     input byte array for HMAC generation
+     * @param key key used during HMAC generation
+     * @param input input byte array for HMAC generation
      * @return calculated HMAC value
      */
     public static byte[] hmac(Context context, String algorithm, byte[] key, byte[] input) {
@@ -97,9 +97,9 @@ public class CryptoUtils {
     /**
      * Generate Hash of a byte array based on the provided hashing algorithm.
      *
-     * @param context   BRE context used to raise error messages
+     * @param context BRE context used to raise error messages
      * @param algorithm algorithm used during hashing
-     * @param input     input byte array for hashing
+     * @param input input byte array for hashing
      * @return calculated hash value
      */
     public static byte[] hash(Context context, String algorithm, byte[] input) {
@@ -117,10 +117,10 @@ public class CryptoUtils {
     /**
      * Generate signature of a byte array based on the provided signing algorithm.
      *
-     * @param context    BRE context used to raise error messages
-     * @param algorithm  algorithm used during signing
+     * @param context BRE context used to raise error messages
+     * @param algorithm algorithm used during signing
      * @param privateKey private key to be used during signing
-     * @param input      input byte array for signing
+     * @param input input byte array for signing
      * @return calculated signature
      * @throws InvalidKeyException if the privateKey is invalid
      */
@@ -139,8 +139,8 @@ public class CryptoUtils {
     /**
      * Create crypto error.
      *
-     * @param context Represent ballerina context
-     * @param errMsg  Error description
+     * @param context represent ballerina context
+     * @param errMsg error description
      * @return conversion error
      */
     public static BError createCryptoError(Context context, String errMsg) {
@@ -153,14 +153,14 @@ public class CryptoUtils {
     /**
      * Encrypt or decrypt byte array based on RSA algorithm.
      *
-     * @param context          BRE context used to raise error messages
-     * @param cipherMode       cipher mode depending on encryption or decryption
-     * @param algorithmMode    mode used during encryption
+     * @param context BRE context used to raise error messages
+     * @param cipherMode cipher mode depending on encryption or decryption
+     * @param algorithmMode mode used during encryption
      * @param algorithmPadding padding used during encryption
-     * @param key              key to be used during encryption
-     * @param input            input byte array for encryption
-     * @param iv               initialization vector
-     * @param tagSize          tag size used for GCM encryption
+     * @param key key to be used during encryption
+     * @param input input byte array for encryption
+     * @param iv initialization vector
+     * @param tagSize tag size used for GCM encryption
      */
     public static void rsaEncryptDecrypt(Context context, CipherMode cipherMode, String algorithmMode,
                                            String algorithmPadding, Key key, byte[] input, byte[] iv, long tagSize) {
@@ -198,14 +198,14 @@ public class CryptoUtils {
     /**
      * Encrypt or decrypt byte array based on AES algorithm.
      *
-     * @param context          BRE context used to raise error messages
-     * @param cipherMode       cipher mode depending on encryption or decryption
-     * @param algorithmMode    mode used during encryption
+     * @param context BRE context used to raise error messages
+     * @param cipherMode cipher mode depending on encryption or decryption
+     * @param algorithmMode mode used during encryption
      * @param algorithmPadding padding used during encryption
-     * @param key              key to be used during encryption
-     * @param input            input byte array for encryption
-     * @param iv               initialization vector
-     * @param tagSize          tag size used for GCM encryption
+     * @param key key to be used during encryption
+     * @param input input byte array for encryption
+     * @param iv initialization vector
+     * @param tagSize tag size used for GCM encryption
      */
     public static void aesEncryptDecrypt(Context context, CipherMode cipherMode, String algorithmMode,
                                            String algorithmPadding, byte[] key, byte[] input, byte[] iv, long tagSize) {
@@ -246,23 +246,42 @@ public class CryptoUtils {
         }
     }
 
-    private static void initCipher(Cipher cipher, CipherMode cipherMode, Key key, AlgorithmParameterSpec ivSpec)
+    /**
+     * Initialize cipher for encryption and decryption operations.
+     *
+     * @param cipher cipher instance to initialize
+     * @param cipherMode mode denoting if cipher is used for encryption or decryption
+     * @param key key used for crypto operation
+     * @param paramSpec cipher parameter specification
+     * @throws InvalidKeyException if provided key was not valid
+     * @throws InvalidAlgorithmParameterException if algorithm parameters are insufficient
+     */
+    private static void initCipher(Cipher cipher, CipherMode cipherMode, Key key, AlgorithmParameterSpec paramSpec)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
         if (cipherMode == CipherMode.ENCRYPT) {
-            if (ivSpec == null) {
+            if (paramSpec == null) {
                 cipher.init(Cipher.ENCRYPT_MODE, key);
             } else {
-                cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+                cipher.init(Cipher.ENCRYPT_MODE, key, paramSpec);
             }
         } else {
-            if (ivSpec == null) {
+            if (paramSpec == null) {
                 cipher.init(Cipher.DECRYPT_MODE, key);
             } else {
-                cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+                cipher.init(Cipher.DECRYPT_MODE, key, paramSpec);
             }
         }
     }
 
+    /**
+     * Build algorithm parameter specification based on the cipher mode.
+     *
+     * @param context BRE context used to raise error messages
+     * @param algorithmMode algorithm mode
+     * @param iv initialization vector for CBC and GCM mode
+     * @param tagSize tag size for GCM mode
+     * @return algorithm parameter specification
+     */
     private static AlgorithmParameterSpec buildParameterSpec(Context context, String algorithmMode, byte[] iv,
                                                              int tagSize) {
         if (algorithmMode.equals("GCM")) {
@@ -284,6 +303,14 @@ public class CryptoUtils {
         }
     }
 
+    /**
+     * Transform Ballerina algorithm mode names to Java algorithm mode names.
+     *
+     * @param context BRE context used to raise error messages
+     * @param algorithmMode algorithm mode
+     * @return transformed algorithm mode
+     * @throws BallerinaException if algorithm mode is not supported
+     */
     private static String transformAlgorithmMode(Context context, String algorithmMode) throws BallerinaException {
         if (!algorithmMode.equals("CBC") && !algorithmMode.equals("ECB") && !algorithmMode.equals("GCM")) {
             throw new BallerinaException("unsupported mode: " + algorithmMode, context);
@@ -291,6 +318,14 @@ public class CryptoUtils {
         return algorithmMode;
     }
 
+    /**
+     * Transform Ballerina padding algorithm names to Java padding algorithm names.
+     *
+     * @param context BRE context used to raise error messages
+     * @param algorithmPadding padding algorithm name
+     * @return transformed  padding algorithm name
+     * @throws BallerinaException if padding algorithm is not supported
+     */
     private static String transformAlgorithmPadding(Context context, String algorithmPadding)
             throws BallerinaException {
         if (algorithmPadding.equals("PKCS1")) {
