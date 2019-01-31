@@ -3419,7 +3419,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
         if (NodeKind.LAMBDA == fpExpr.getKind()) {
-            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
+            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr), funcRefCPIndex, nextIndex,
                     typeCPIndex);
         } else {
             operands = new Operand[4];
@@ -3452,15 +3452,12 @@ public class CodeGenerator extends BLangNodeVisitor {
      * If there are no closure variables found, then this method will just add 0 as the termination index
      * which is used at runtime.
      */
-    private Operand[] calcClosureOperands(BLangFunction function, int funcRefCPIndex, RegIndex nextIndex,
+    private Operand[] calcClosureOperands(BLangLambdaFunction function, int funcRefCPIndex, RegIndex nextIndex,
                                           Operand typeCPIndex) {
         List<Operand> closureOperandList = new ArrayList<>();
 
 
-        for (BVarSymbol symbol : function.symbol.params) {
-            if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
-                continue;
-            }
+        for (BVarSymbol symbol : function.resolvedClosureMaps) {
             Operand type = new Operand(symbol.type.tag);
             Operand index = new Operand(symbol.varIndex.value);
             closureOperandList.add(type);

@@ -20,15 +20,13 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @since 0.94
@@ -44,10 +42,15 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public boolean objInitFunction;
 
     public boolean interfaceFunction;
-
-    public Set<BVarSymbol> closureVarSymbols =  new LinkedHashSet<>();
-
+    public Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>(); // NEED TO REMOVE THIS
+    public Map<BVarSymbol, Integer> closureVarsWithResolvedLevels = new LinkedHashMap<>();
+    public Map<Integer, BVarSymbol> closureResolvedMaps = new LinkedHashMap<>();
     public Map<BSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
+    public Stack<BVarSymbol> paramMapSymbols = new Stack<>();
+    public Stack<BVarSymbol> blockSymbolsInUpperLevels = new Stack<>();
+    public SymbolEnv.ExposedClosureHolder dataHolder = new SymbolEnv.ExposedClosureHolder();
+    public int enclEnvCount;
+    public boolean hasArrowFuncAsParent;
 
     public BInvokableSymbol originalFuncSymbol;
 

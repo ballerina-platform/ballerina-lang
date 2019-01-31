@@ -244,6 +244,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        // This was added if an arrow function was added preceding a lambda function.
+        if (funcNode.hasArrowFuncAsParent) {
+            funcEnv.envCount = funcEnv.envCount + 1;
+        }
+
+        // Lambda functions declared globally will be added to the module init function.
+        // Ignore the init functions of record and object types
+        if (env.node.getKind() != NodeKind.RECORD_TYPE && env.node.getKind() != NodeKind.OBJECT_TYPE) {
+            if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.PACKAGE) {
+                funcEnv.envCount = funcEnv.envCount + 2;
+            }
+        }
+        funcEnv.exposedClosureHolder = funcNode.dataHolder;
+        funcNode.enclEnvCount = funcEnv.envCount;
         //set function param flag to final
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
@@ -307,12 +321,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
 
         boolean isAbstract = objectTypeNode.flagSet.contains(Flag.ABSTRACT);
+
+        int prevCount = objectEnv.envCount;
+        // Add +2 to the previous count when visiting the fields of the object since they'll be inside the object init
+        // function at desugar
+        objectEnv.envCount = objectEnv.envCount + 2;
         objectTypeNode.fields.forEach(field -> {
             analyzeDef(field, objectEnv);
             if (isAbstract && field.flagSet.contains(Flag.PRIVATE)) {
                 this.dlog.error(field.pos, DiagnosticCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
             }
         });
+        // Revert back the env count to the previous
+        objectEnv.envCount = prevCount;
 
         // Visit functions as they are not in the same scope/env as the object fields
         objectTypeNode.functions.forEach(func -> {
@@ -354,7 +375,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
+        int prevCount = recordEnv.envCount;
+        // Add +2 to the previous count when visiting the fields of the record since they'll be inside the record init
+        // function at desugar
+        recordEnv.envCount = recordEnv.envCount + 2;
         recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
+        // Revert back the env count to the previous
+        recordEnv.envCount = prevCount;
         analyzeDef(recordTypeNode.initFunction, recordEnv);
         validateDefaultable(recordTypeNode);
     }
@@ -1041,6 +1068,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
+        blockEnv.exposedClosureHolder = blockNode.dataHolder;
+        // Analyze statements in the block node
         blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, blockEnv));
     }
 

@@ -728,11 +728,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
                         !(symbol.owner instanceof BPackageSymbol)) {
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                            SymTag.VARIABLE_NAME);
-                    if (closureVarSymbol != symTable.notFoundSymbol &&
-                            !isFunctionArgument(closureVarSymbol, env.enclInvokable.requiredParams)) {
-                        ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
+                    ClosureSymbolWrapper symbolWrapper = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                            SymTag.VARIABLE, 1, false);
+                    if (symbolWrapper.bSymbol != symTable.notFoundSymbol && !isFunctionArgument
+                            (symbolWrapper.bSymbol, env.enclInvokable.requiredParams) && !env.enclInvokable.flagSet
+                            .contains(Flag.ATTACHED) && env.enclInvokable.flagSet.contains(Flag.LAMBDA)) {
+                        ((BLangFunction) env.enclInvokable).closureVarsWithResolvedLevels.putIfAbsent((BVarSymbol)
+                                symbolWrapper.bSymbol, symbolWrapper.resolvedLevel);
                     }
                 }
                 if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
@@ -742,11 +744,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     symbol.owner = Symbols.createInvokableSymbol(SymTag.FUNCTION, 0, null,
                             env.enclPkg.packageID, null, symbol.owner);
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                            SymTag.VARIABLE_NAME);
-                    if (closureVarSymbol != symTable.notFoundSymbol &&
-                            !isFunctionArgument(closureVarSymbol, ((BLangArrowFunction) env.node).params)) {
-                        ((BLangArrowFunction) env.node).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
+                    ClosureSymbolWrapper symbolWrapper = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                            SymTag.VARIABLE, 1, false);
+                    if (symbolWrapper.bSymbol != symTable.notFoundSymbol &&
+                            !isFunctionArgument(symbolWrapper.bSymbol, ((BLangArrowFunction) env.node).params)) {
+                        ((BLangArrowFunction) env.node).closureVarsWithResolvedLevels.putIfAbsent(
+                                (BVarSymbol) symbolWrapper.bSymbol, symbolWrapper.resolvedLevel);
                     }
                 }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
@@ -1546,6 +1549,10 @@ public class TypeChecker extends BLangNodeVisitor {
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.cachedEnv = env.createClone();
+        // If the lambda function is preceeded by an arrow function
+        if (env.node.getKind() == NodeKind.ARROW_EXPR) {
+            bLangLambdaFunction.function.hasArrowFuncAsParent = true;
+        }
         env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
     }
@@ -2001,8 +2008,14 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
-        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
+        int envCount = env.envCount;
+        if (env.node.getKind() == NodeKind.ARROW_EXPR) {
+            envCount = envCount + 1;
+        }
+        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env, envCount);
         bLangArrowFunction.params.forEach(param -> symbolEnter.defineNode(param, arrowFunctionEnv));
+        bLangArrowFunction.enclEnvCount = arrowFunctionEnv.envCount;
+        arrowFunctionEnv.exposedClosureHolder = bLangArrowFunction.dataHolder;
         return checkExpr(bLangArrowFunction.expression, arrowFunctionEnv, expectedRetType);
     }
 

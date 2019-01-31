@@ -21,8 +21,12 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Implementation of {@link LambdaFunctionNode}.
@@ -33,6 +37,7 @@ public class BLangLambdaFunction extends BLangExpression implements LambdaFuncti
 
     public BLangFunction function;
     public SymbolEnv cachedEnv;
+    public Set<BVarSymbol> resolvedClosureMaps = new LinkedHashSet<>();
 
     @Override
     public FunctionNode getFunctionNode() {

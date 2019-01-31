@@ -28,17 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -57,13 +47,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -88,15 +73,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -709,37 +686,43 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param env       symbol env to analyse and find the closure variable.
      * @param name      name of the symbol to lookup
      * @param expSymTag symbol tag
+     * @param resolvedLevel resolved level
+     * @param countStarted
      * @return resolved closure variable symbol for the given name.
      */
-    public BSymbol lookupClosureVarSymbol(SymbolEnv env, Name name, int expSymTag) {
+    public ClosureSymbolWrapper lookupClosureVarSymbol(SymbolEnv env, Name name, int expSymTag, int resolvedLevel, boolean countStarted) {
+
+        if (countStarted && (env.node.getKind() == NodeKind.FUNCTION || env.node.getKind() == NodeKind.BLOCK ||
+                env.node.getKind() == NodeKind.ARROW_EXPR)) {
+            resolvedLevel++;
+        }
+        if (!countStarted && (env.node.getKind() == NodeKind.BLOCK || env.node.getKind() == NodeKind.BLOCK ||
+                env.node.getKind() == NodeKind.ARROW_EXPR)) {
+            countStarted = true;
+        }
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
                     (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
-                return entry.symbol;
+                addClosuresExposed(env, entry.symbol);
+                return new ClosureSymbolWrapper(entry.symbol, env.envCount);
             }
             if ((entry.symbol.tag & expSymTag) == expSymTag) {
-                return entry.symbol;
+                addClosuresExposed(env, entry.symbol);
+                return new ClosureSymbolWrapper(entry.symbol, env.envCount);
             }
             entry = entry.next;
         }
 
-        if (env.enclEnv != null && env.enclInvokable != null) {
-            BSymbol bSymbol = lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
-            if (bSymbol != symTable.notFoundSymbol && !env.enclInvokable.flagSet.contains(Flag.ATTACHED)
-                    && env.enclInvokable.flagSet.contains(Flag.LAMBDA)) {
-                ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) bSymbol);
-            }
-            return bSymbol;
+        if (env.enclEnv.node == null) {
+            return new ClosureSymbolWrapper(symTable.notFoundSymbol, 0);
         }
-        if (env.enclEnv != null && env.node != null && env.node.getKind() == NodeKind.ARROW_EXPR) {
-            BSymbol bSymbol = lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
-            if (bSymbol != symTable.notFoundSymbol) {
-                ((BLangArrowFunction) env.node).closureVarSymbols.add((BVarSymbol) bSymbol);
-            }
-            return bSymbol;
-        }
-        return symTable.notFoundSymbol;
+
+        return lookupClosureVarSymbol(env.enclEnv, name, expSymTag, resolvedLevel, countStarted);
+    }
+
+    private void addClosuresExposed(SymbolEnv env, BSymbol closureVarSymbol) {
+        env.exposedClosureHolder.closuresExposed.add((BVarSymbol) closureVarSymbol);
     }
 
     /**

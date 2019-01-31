@@ -21,11 +21,10 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * @since 0.94
@@ -34,6 +33,7 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
 
     public List<BLangStatement> stmts;
 
+    public SymbolEnv.ExposedClosureHolder dataHolder = new SymbolEnv.ExposedClosureHolder();
     /**
      * We need to keep a reference to the block statements scope here.
      * This is the only place where we have a link from the node to a scope
