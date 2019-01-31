@@ -144,7 +144,6 @@ COLON               : ':' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
-RIGHT_BRACE         : '}' ;
 LEFT_PARENTHESIS    : '(' ;
 RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
@@ -472,7 +471,11 @@ DeprecatedTemplateStart
     ;
 
 ExpressionEnd
-    :   {inTemplate}? RIGHT_BRACE RIGHT_BRACE   ->  popMode
+    :   {inTemplate}? '}}'   ->  popMode
+    ;
+
+InterpolationExpressionEnd
+    :   {inTemplate}? '}'   ->  popMode
     ;
 
 // Whitespace and comments
@@ -643,6 +646,11 @@ XMLLiteralEnd
 fragment
 ExpressionStart
     :   '{{'
+    ;
+
+fragment
+InterpolationExpressionStart
+    :   '${'
     ;
 
 XMLTemplateText
@@ -914,7 +922,7 @@ SingleBackTickInlineCodeChar
 mode DEPRECATED_TEMPLATE;
 
 DeprecatedTemplateEnd
-    :   RIGHT_BRACE { inDeprecatedTemplate = false; }                         -> popMode
+    :   '}' { inDeprecatedTemplate = false; }                         -> popMode
     ;
 
 SBDeprecatedInlineCodeStart
@@ -964,7 +972,7 @@ StringTemplateLiteralEnd
     ;
 
 StringTemplateExpressionStart
-    :   StringTemplateText? ExpressionStart            -> pushMode(DEFAULT_MODE)
+    :   StringTemplateText? InterpolationExpressionStart            -> pushMode(DEFAULT_MODE)
     ;
 
 // We cannot use "StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)*" because it
@@ -976,8 +984,7 @@ StringTemplateText
 
 fragment
 StringTemplateStringChar
-    :   ~[`{\\]
-    |   '\\' [`{]
+    :   ~[`${\\]
     |   WS
     |   StringLiteralEscapedSequence
     ;
@@ -985,11 +992,13 @@ StringTemplateStringChar
 fragment
 StringLiteralEscapedSequence
     :   '\\\\'
-    |   '\\{{'
+    |   '\\' ~'$'
+    |   '\\' '$'+ ~[`${]
     ;
 
 fragment
 StringTemplateValidCharSequence
-    :   '{'
+    :   '{'+ '$'*
+    |   '$'+
     |   '\\' ~'\\'
     ;
