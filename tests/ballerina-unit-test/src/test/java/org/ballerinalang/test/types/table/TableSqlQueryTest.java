@@ -89,6 +89,13 @@ public class TableSqlQueryTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
+    @Test(groups = "TableQueryTest", description = "Do a simple select all with limit")
+    public void testSimpleSelectAllWithCondition() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAllWithCondition", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
     @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where along with group by " +
                                                    "with limit")
     public void testSelectWithJoinAndWhereWithGroupByWithLimit() {

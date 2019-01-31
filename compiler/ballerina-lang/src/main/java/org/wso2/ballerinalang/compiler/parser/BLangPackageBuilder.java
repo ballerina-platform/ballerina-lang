@@ -3159,8 +3159,12 @@ public class BLangPackageBuilder {
 
         if (this.exprNodeStack.size() > 1) {
             List<ExpressionNode> exprList = new ArrayList<>();
-            addExprToExprNodeList(exprList, this.exprNodeStack.size() - 1);
-            streamingInput.setPostFunctionInvocations(exprList);
+            while (this.exprNodeStack.peek().getKind() == NodeKind.INVOCATION) {
+                exprList.add(this.exprNodeStack.pop());
+            }
+            if (exprList.size() > 0) {
+                streamingInput.setPostFunctionInvocations(exprList);
+            }
         }
 
         if (!this.windowClausesStack.empty()) {
