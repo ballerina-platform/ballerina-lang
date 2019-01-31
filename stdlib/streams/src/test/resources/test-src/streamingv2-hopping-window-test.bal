@@ -52,7 +52,6 @@ function startHoppingWindowTest() returns (Teacher[]) {
     runtime:sleep(1000);
     inputStreamHoppingWindow.publish(t3);
 
-
     int count = 0;
     while(true) {
         runtime:sleep(500);
