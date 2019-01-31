@@ -936,16 +936,17 @@ public class FormattingSourceGen {
             }
         }
 
-        if ("Return".equals(kind)
-                && node.has("expression")
-                && node.getAsJsonObject("expression").get("kind").getAsString().equals("Literal")) {
-            if (node.getAsJsonObject("expression").get("value").getAsString().equals("()")) {
-                node.addProperty("noExpressionAvailable", true);
-            }
+        if ("Return".equals(kind) && node.has("expression")) {
+            if (node.getAsJsonObject("expression").get("kind").getAsString().equals("Literal")) {
+                if (node.getAsJsonObject("expression").get("value").getAsString().equals("()")) {
+                    node.addProperty("noExpressionAvailable", true);
+                }
 
-            if (node.getAsJsonObject("expression").get("value").getAsString().equals("null")) {
-                node.getAsJsonObject("expression").addProperty("emptyParantheses", true);
+                if (node.getAsJsonObject("expression").get("value").getAsString().equals("null")) {
+                    node.getAsJsonObject("expression").addProperty("emptyParantheses", true);
+                }
             }
+            node.getAsJsonObject("expression").addProperty("isExpression", "true");
         }
 
         if ("Documentation".equals(kind)) {
