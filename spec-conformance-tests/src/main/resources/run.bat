@@ -19,5 +19,6 @@ REM Run Ballerina Spec Conformance Tests.
 REM ---------------------------------------------------------------------------
 
 REM cd %1
+SET JAVA_OPTS=%3
 REM target\ballerina-tools-%2\bin\ballerina init
 REM target\ballerina-tools-%2\bin\ballerina test --experimental
