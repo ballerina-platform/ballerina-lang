@@ -553,6 +553,34 @@ function testConversionFromUnionWithNumericBasicTypes() returns boolean {
     return conversionSuccessful && d1 == d;
 }
 
+function testNumericConversionFromBasicTypeToUnionType() returns boolean {
+    float f1 = 12.0;
+    int i1 = 12;
+    decimal d1 = 12.0;
+    byte b1 = 12;
+
+    int|boolean u1 = <int|boolean> f1;
+    decimal|string u2 = <decimal|string> f1;
+    byte|string|Employee u3 = <byte|string|Employee> f1;
+    boolean conversionSuccessful = u1 == i1 && u2 == d1 && u3 == b1;
+
+    float|boolean u4 = <float|boolean> i1;
+    decimal|string u5 = <decimal|string> i1;
+    byte|string|Employee u6 = <byte|string|Employee> i1;
+    conversionSuccessful = conversionSuccessful && u4 == f1 && u5 == d1 && u6 == b1;
+
+    float|boolean u7 = <float|boolean> d1;
+    int|string u8 = <int|string> d1;
+    byte|string|Employee u9 = <byte|string|Employee> d1;
+    conversionSuccessful = conversionSuccessful && u7 == f1 && u8 == i1 && u9 == b1;
+
+    float|boolean u10 = <float|boolean> b1;
+    int|string u11 = <int|string> b1;
+    decimal|string|Employee u12 = <decimal|string|Employee> b1;
+    conversionSuccessful = conversionSuccessful && u10 == f1 && u11 == i1 && u12 == d1;
+    return conversionSuccessful;
+}
+
 function getFloat(float f) returns float {
     return f;
 }

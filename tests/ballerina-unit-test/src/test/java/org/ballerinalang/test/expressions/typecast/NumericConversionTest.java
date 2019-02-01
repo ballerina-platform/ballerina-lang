@@ -334,6 +334,12 @@ public class NumericConversionTest {
     }
 
     @Test
+    public void testNumericConversionFromBasicTypeToUnionType() {
+        BValue[] returns = BRunUtil.invoke(result, "testNumericConversionFromBasicTypeToUnionType");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected numeric conversion to be successful");
+    }
+
+    @Test
     public void testNegativeExprs() {
         Assert.assertEquals(resultNegative.getErrorCount(), 25);
         int errIndex = 0;

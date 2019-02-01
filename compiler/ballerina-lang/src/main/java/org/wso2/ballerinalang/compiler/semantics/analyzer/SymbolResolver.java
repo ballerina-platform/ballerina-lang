@@ -288,9 +288,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getCastOperator(sourceType, targetType);
     }
 
-    BSymbol resolveTypeCastOrAssertionOperator(BLangTypeConversionExpr conversionExpr, BType sourceType,
-                                               BType targetType) {
-        return types.getTypeAssertionOperator(conversionExpr, sourceType, targetType);
+    BSymbol resolveTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
+        return types.getTypeCastOperator(conversionExpr, sourceType, targetType);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
@@ -547,7 +546,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_CAST);
     }
 
-    BSymbol getNumericConversionOrCastSymbol(BType sourceType, BType targetType) {
+    BSymbol getNumericConversionOrCastSymbol(BLangTypeConversionExpr conversionExpr, BType sourceType,
+                                             BType targetType) {
         if (targetType.tag == TypeTags.UNION &&
                 ((BUnionType) targetType).memberTypes.stream()
                         .filter(memType -> types.isBasicNumericType(memType)).count() > 1) {
@@ -555,16 +555,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (types.isBasicNumericType(sourceType) && types.isBasicNumericType(targetType)) {
-            if (sourceType == targetType) {
-                return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType, false, true,
-                                                        InstructionCodes.NOP, null, null);
-            }
+            // we only reach here for different numeric types.
             return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         } else {
+            // Target type is always a union here.
             if (types.isBasicNumericType(sourceType)) {
-                return getNumericConversionOrCastSymbol(
-                        sourceType, ((BUnionType) targetType).memberTypes.stream()
-                                .filter(memType -> types.isBasicNumericType(memType)).findFirst().get());
+                // i.e., a conversion from a numeric type to another numeric type in a union.
+                // int|string u1 = <int|string> 1.0;
+                types.setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+                return createTypeCastSymbol(sourceType, targetType);
             }
 
             switch (sourceType.tag) {

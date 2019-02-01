@@ -2619,7 +2619,9 @@ public class BVM {
                                                           boolean isRefTypeTarget) {
         BType sourceType = bRefTypeValue.getType();
         int targetTag = targetType.getTag();
-        if (!isBasicNumericType(sourceType)) {
+
+        if ((targetTag == TypeTags.UNION_TAG && ((BUnionType) targetType).getMemberTypes().stream()
+                .filter(BVM::isBasicNumericType).count() > 1) || !isBasicNumericType(sourceType)) {
             ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
                                                    BLangExceptionHelper.getErrorMessage(
                                                            RuntimeErrors.TYPE_CAST_ERROR, sourceType, targetType)));
