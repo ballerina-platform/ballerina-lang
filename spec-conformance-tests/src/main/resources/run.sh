@@ -22,6 +22,8 @@
 # Change directory to provided path
 cd ${1}
 
+export JAVA_OPTS=${3}
+
 echo `date "+%Y-%m-%d-%H:%M:%S"`" : Start Running Ballerina Spec Conformance Tests"
 echo $PWD
 sh target/ballerina-tools-${2}/bin/ballerina init
