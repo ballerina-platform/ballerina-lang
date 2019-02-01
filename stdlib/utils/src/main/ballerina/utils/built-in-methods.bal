@@ -43,3 +43,9 @@ extern function reason(error value) returns string;
 # + value - Error value
 # + return - Error detail
 extern function detail(error value) returns anydata;
+
+# Get a new Iterator
+#
+# + collection - Data collection
+# + iterator - Iterator for the given data
+extern function iterate(any data) returns any;

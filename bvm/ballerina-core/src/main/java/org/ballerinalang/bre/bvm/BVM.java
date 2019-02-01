@@ -55,7 +55,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BClosure;
-import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -782,7 +781,6 @@ public class BVM {
                     case InstructionCodes.NEWXMLSEQ:
                         execXMLOpcodes(strand, sf, opcode, operands);
                         break;
-                    case InstructionCodes.ITR_NEW:
                     case InstructionCodes.ITR_NEXT:
                     execIteratorOperation(strand, sf, instruction);
                     break;
@@ -2825,61 +2823,29 @@ public class BVM {
     }
 
     private static void execIteratorOperation(Strand ctx, StackFrame sf, Instruction instruction) {
-        int i, j;
-        BValue collection;
         BIterator iterator;
         InstructionIteratorNext nextInstruction;
-        switch (instruction.getOpcode()) {
-            case InstructionCodes.ITR_NEW:
-                i = instruction.getOperands()[0];   // collection
-                j = instruction.getOperands()[1];   // iterator variable (ref) index.
+        nextInstruction = (InstructionIteratorNext) instruction;
+        iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
 
-                collection = sf.refRegs[i];
-                if (collection == null) {
-                    handleNullRefError(ctx);
-                    return;
-                } else if (!(collection instanceof BCollection)) {
-                    // Value is a value-type JSON.
-                    sf.refRegs[j] = new BIterator() {
-                        @Override
-                        public boolean hasNext() {
-                            return false;
-                        }
-
-                        @Override
-                        public BValue getNext() {
-                            return null;
-                        }
-                    };
-                    break;
-                }
-
-                sf.refRegs[j] = ((BCollection) collection).newIterator();
-                break;
-            case InstructionCodes.ITR_NEXT:
-                nextInstruction = (InstructionIteratorNext) instruction;
-                iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
-
-                try {
-                    // Check whether we have a next value.
-                    if (!Optional.of(iterator).get().hasNext()) {
-                        // If we don't have a next value, that means we have reached the end of the iterable list. So
-                        // we set null to the corresponding registry location.
-                        sf.refRegs[nextInstruction.retRegs[0]] = null;
-                        return;
-                    }
-                    // Get the next value.
-                    BValue value = Optional.of(iterator).get().getNext();
-                    // We create a new map and add the value to the map with the key `value`. Then we set this
-                    // map to the corresponding registry location.
-                    BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
-                    newMap.put("value", value);
-                    sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
-                } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
-                    handleError(ctx);
-                }
-                break;
+        try {
+            // Check whether we have a next value.
+            if (!Optional.of(iterator).get().hasNext()) {
+                // If we don't have a next value, that means we have reached the end of the iterable list. So
+                // we set null to the corresponding registry location.
+                sf.refRegs[nextInstruction.retRegs[0]] = null;
+                return;
+            }
+            // Get the next value.
+            BValue value = Optional.of(iterator).get().getNext();
+            // We create a new map and add the value to the map with the key `value`. Then we set this
+            // map to the corresponding registry location.
+            BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
+            newMap.put("value", value);
+            sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
+        } catch (BallerinaException e) {
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
+            handleError(ctx);
         }
     }
 

@@ -2790,7 +2790,7 @@ public class Desugar extends BLangNodeVisitor {
         LinkedList<BType> paramTypes = new LinkedList<>();
         paramTypes.add(collectionSymbol.type);
         iteratorInvocation.symbol = symTable.createOperator(names.fromIdNode(iterateIdentifier), paramTypes,
-                symTable.anyType, InstructionCodes.ITR_NEW);
+                symTable.anyType, InstructionCodes.NOP);
         iteratorInvocation.type = symTable.intType;
 
         // Note - any $iterator$ = $data$.iterate();
@@ -3188,8 +3188,9 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             case REASON:
             case DETAIL:
+            case ITERATE:
                 result = visitBuiltInMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
-                        Lists.of(symTable.errorType), iExpr.type);
+                        Lists.of(iExpr.expr.type), iExpr.type);
                 break;
             default:
                 result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);

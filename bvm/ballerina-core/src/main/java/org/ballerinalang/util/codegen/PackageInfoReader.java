@@ -1174,7 +1174,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.NEWSTRUCT:
-                case InstructionCodes.ITR_NEW:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
