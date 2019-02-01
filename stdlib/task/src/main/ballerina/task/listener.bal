@@ -18,11 +18,11 @@
 #
 # + interval - Timer interval, which triggers the onTrigger() resource.
 # + delay - Delay after which the timer will run.
-# + noOfRecurrings - Number of times to trigger the task, after which the task stops running.
+# + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
 public type TimerConfiguration record {
     int interval;
     int delay?;
-    int noOfRecurrings?;
+    int noOfRecurrences?;
     !...;
 };
 
@@ -36,7 +36,7 @@ public type TimerConfiguration record {
 # + months - Month(s) in a given year, in which the appointment will run.
 # + daysOfWeek - Day(s) of a week, in which the appointment will run.
 # + year - Year(s) in which the appointment will run.
-# + noOfRecurrings - Number of times to trigger the task, after which the task stops running.
+# + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
 public type AppointmentConfiguration record {
     string cronExpression?;
     string seconds?;
@@ -46,7 +46,7 @@ public type AppointmentConfiguration record {
     string months?;
     string daysOfWeek?;
     string year?;
-    int noOfRecurrings?;
+    int noOfRecurrences?;
     !...;
 };
 

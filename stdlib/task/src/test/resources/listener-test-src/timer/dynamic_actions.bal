@@ -49,18 +49,18 @@ function testAttach() {
     }
 }
 
-function getConfigurations(int interval, int delay, int noOfRecurrings)
+function getConfigurations(int interval, int delay, int noOfRecurrences)
              returns task:TimerConfiguration {
     task:TimerConfiguration configuration = {
         interval: interval,
         delay: delay,
-        noOfRecurrings: noOfRecurrings
+        noOfRecurrences: noOfRecurrences
     };
 
     return configuration;
 }
 
-function getConfigurationsWithoutRecurrings(int interval, int delay) returns task:TimerConfiguration {
+function getConfigurationsWithoutRecurrences(int interval, int delay) returns task:TimerConfiguration {
     task:TimerConfiguration configuration = {
         interval: interval,
         delay: delay
@@ -69,16 +69,16 @@ function getConfigurationsWithoutRecurrings(int interval, int delay) returns tas
     return configuration;
 }
 
-function getConfigurationsWithoutDelay(int interval, int noOfRecurrings) returns task:TimerConfiguration {
+function getConfigurationsWithoutDelay(int interval, int noOfRecurrences) returns task:TimerConfiguration {
     task:TimerConfiguration configuration = {
         interval: interval,
-        noOfRecurrings: noOfRecurrings
+        noOfRecurrences: noOfRecurrences
     };
 
     return configuration;
 }
 
-function getConfigurationsWithoutDelayAndRecurrings(int interval) returns task:TimerConfiguration {
+function getConfigurationsWithoutDelayAndRecurrences(int interval) returns task:TimerConfiguration {
     task:TimerConfiguration configuration = {
         interval: interval
     };

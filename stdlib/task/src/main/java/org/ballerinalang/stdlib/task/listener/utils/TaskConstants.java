@@ -36,7 +36,7 @@ public class TaskConstants {
     public static final String RESOURCE_ON_TRIGGER = "onTrigger";
     public static final String RESOURCE_ON_ERROR = "onError";
 
-    public static final String FIELD_NAME_NO_OF_RUNS = "noOfRecurrings";
+    public static final String FIELD_NAME_NO_OF_RUNS = "noOfRecurrences";
 
     public static final String FIELD_NAME_INTERVAL = "interval";
     public static final String FIELD_NAME_DELAY = "delay";

@@ -18,7 +18,7 @@ import ballerina/task;
 
 task:TimerConfiguration configuration = {
     interval: 1000,
-    noOfRecurrings: 3
+    noOfRecurrences: 3
 };
 
 int count = 0;
