@@ -40,10 +40,7 @@ public class Detail extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue refRegVal = context.getNullableRefArgument(0);
-        if (refRegVal == null) {
-            return;
-        }
+        BValue refRegVal = context.getRefArgument(0);
         context.setReturnValues(((BError) refRegVal).getDetails());
     }
 }

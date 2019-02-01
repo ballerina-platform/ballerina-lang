@@ -41,10 +41,7 @@ public class Reason extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue refRegVal = context.getNullableRefArgument(0);
-        if (refRegVal == null) {
-            return;
-        }
+        BValue refRegVal = context.getRefArgument(0);
         BString reason = new BString(((BError) refRegVal).getReason());
         context.setReturnValues(reason);
     }
