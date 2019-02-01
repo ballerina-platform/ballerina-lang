@@ -300,7 +300,7 @@ function testSimpleSelectAllWithCondition() returns int {
     _ = personTable.add(p3);
     _ = personTable.add(p4);
 
-    if(recordCount == 0) {
+    if (recordCount == 0) {
         table<Person> personTableCopy = from personTable select * limit 2;
         while (personTableCopy.hasNext()) {
             _ = personTableCopy.getNext();
