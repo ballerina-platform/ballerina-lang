@@ -389,6 +389,27 @@
                 <classifier>ballerina-sources</classifier>
             </dependency>
 
+            <!-- ballerina-jvm -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+
             <!-- ballerina-bir -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -857,6 +878,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-backend-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-backend-jvm</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <!--<dependency>-->
@@ -1609,6 +1635,11 @@
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1799,6 +1830,7 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1826,6 +1858,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
                 <module>compiler/ballerina-backend-llvm</module>
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1881,6 +1914,7 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1908,6 +1942,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
                 <module>compiler/ballerina-backend-llvm</module>
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -2426,6 +2461,7 @@
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>1.5.5</apache.directory.server.version>
         <bouncycastle.version>1.60</bouncycastle.version>
+        <asm.version>6.2.1</asm.version>
     </properties>
 
 </project>

@@ -218,7 +218,12 @@
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
-
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jvm</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-bir</artifactId>
@@ -314,6 +319,18 @@
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>llvm-platform</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jvm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-backend-jvm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
         </dependency>
     </dependencies>
 
@@ -423,6 +440,7 @@
                                 ballerina-websub,
                                 ballerina-privacy,
                                 ballerina-llvm,
+                                ballerina-jvm,
                                 ballerina-bir,
                                 <!-- other artifacts -->
                                 ballerina,
@@ -616,6 +634,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-llvm-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-jvm-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

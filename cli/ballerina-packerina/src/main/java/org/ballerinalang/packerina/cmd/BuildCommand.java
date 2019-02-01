@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.packerina.cmd;
 
+import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
 import org.ballerinalang.compiler.backend.llvm.NativeGen;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
@@ -72,6 +73,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
     private boolean dumpLLVMIR;
 
+    @CommandLine.Option(names = {"--jvmTarget"}, hidden = true,
+            description = "compile Ballerina program to a jvm class")
+    private boolean jvmTarget;
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
@@ -93,6 +98,8 @@ public class BuildCommand implements BLauncherCmd {
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
         if (nativeBinary) {
             genNativeBinary(sourceRootPath, argList);
+        } else if (jvmTarget) {
+            genJVMExecutable(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
             // ballerina build
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag);
@@ -178,6 +185,15 @@ public class BuildCommand implements BLauncherCmd {
                                                   offline, lockEnabled, skiptests, experimentalFlag);
         }
         Runtime.getRuntime().exit(0);
+    }
+
+    private void genJVMExecutable(Path projectDirPath, List<String> argList) {
+        if (argList == null || argList.size() != 1) {
+            throw LauncherUtils.createUsageExceptionWithHelp("no Ballerina program given");
+        }
+        String programName = argList.get(0);
+
+        JVMCodeGen.getInstance().genJVMExecutable(projectDirPath, programName, projectDirPath);
     }
 
     /**
