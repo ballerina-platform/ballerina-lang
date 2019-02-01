@@ -1630,8 +1630,7 @@ public type SortWindow object {
 
                     StreamEvent expiredEvent = <StreamEvent>self.sortedWindow.removeLast();
                     expiredEvent.timestamp = currentTime;
-                    streamEventChunk.addLast(expiredEvent);
-                    StreamEvent str = <StreamEvent>streamEventChunk.next();
+                    streamEventChunk.insertBeforeCurrent(expiredEvent);
                 }
             }
         }
@@ -1645,7 +1644,7 @@ public type SortWindow object {
                     StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
                     events[events.length()] = streamEvent;
                 }
-                nextProcessFuncPointer.call(streamEvents);
+                nextProcessFuncPointer.call(events);
             }
         }
     }
