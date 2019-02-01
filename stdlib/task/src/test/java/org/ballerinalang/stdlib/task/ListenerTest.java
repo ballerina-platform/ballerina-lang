@@ -27,21 +27,13 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
 public class ListenerTest {
-    ByteArrayOutputStream out;
-    @BeforeClass
-    public void setupStreams() {
-        out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
-    }
 
     @Test(description = "Tests a dynamic timer")
     public void testListenerTimerDynamicService() {

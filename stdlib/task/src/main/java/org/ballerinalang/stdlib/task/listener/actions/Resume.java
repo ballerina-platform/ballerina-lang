@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.task.listener.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -33,6 +34,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_STRUCT_
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_IS_RUNNING_FIELD;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 
@@ -55,6 +57,12 @@ public class Resume extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
         String taskId = taskStruct.get(TIMER_TASK_ID_FIELD).stringValue();
+        boolean isRunning = ((BBoolean) taskStruct.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
+        if (!isRunning) {
+            String errorMessage = "Cannot resume the task: Task is not started.";
+            context.setReturnValues(createError(context, errorMessage));
+            return;
+        }
         try {
             Task task = TaskRegistry.getInstance().getTask(taskId);
             task.resume();

@@ -59,7 +59,7 @@ public class Pause extends BlockingNativeCallableUnit {
         String taskId = taskStruct.get(TIMER_TASK_ID_FIELD).stringValue();
         boolean isRunning = ((BBoolean) taskStruct.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
         if (!isRunning) {
-            String errorMessage = "Cannot pause the task: Task is not running.";
+            String errorMessage = "Cannot pause the task: Task is not started.";
             context.setReturnValues(createError(context, errorMessage));
             return;
         }

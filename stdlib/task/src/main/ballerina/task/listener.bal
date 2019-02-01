@@ -59,6 +59,11 @@ public type Listener object {
     private boolean isRunning;
 
     public function __init(TimerConfiguration|AppointmentConfiguration configs) {
+        if (configs is TimerConfiguration) {
+            if (configs["delay"] == ()) {
+                configs.delay = configs.interval;
+            }
+        }
         self.listenerConfiguration = configs;
     }
 

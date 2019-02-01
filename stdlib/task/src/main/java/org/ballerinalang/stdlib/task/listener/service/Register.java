@@ -76,11 +76,7 @@ public class Register extends BlockingNativeCallableUnit {
 
         if (TIMER_CONFIGURATION_STRUCT_NAME.equals(configurationTypeName)) {
             long interval = ((BInteger) configurations.get(FIELD_NAME_INTERVAL)).intValue();
-            long delay = interval;
-
-            if (Objects.nonNull(configurations.get(FIELD_NAME_DELAY))) {
-                delay = ((BInteger) configurations.get(FIELD_NAME_DELAY)).intValue();
-            }
+            long delay = ((BInteger) configurations.get(FIELD_NAME_DELAY)).intValue();
 
             try {
                 Task task;

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/task;
-import ballerina/io;
 
 task:TimerConfiguration configuration = {
     interval: 2000,
