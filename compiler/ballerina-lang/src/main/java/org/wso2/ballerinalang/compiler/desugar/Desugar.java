@@ -3186,6 +3186,11 @@ public class Desugar extends BLangNodeVisitor {
             case CALL:
                 visitCallBuiltInMethodInvocation(iExpr);
                 break;
+            case REASON:
+            case DETAIL:
+                result = visitBuiltInMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
+                        Lists.of(symTable.errorType), iExpr.type);
+                break;
             default:
                 result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
         }

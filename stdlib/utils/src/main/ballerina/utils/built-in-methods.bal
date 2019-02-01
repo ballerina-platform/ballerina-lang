@@ -26,8 +26,20 @@ extern function clone(anydata value) returns anydata;
 # + return - Frozen value
 extern function freeze(anydata value) returns anydata;
 
-# Check freeze status of given value
+# Check freeze status of given value.
 #
 # + value - Value to check freeze status
 # + return - True for a frozen value
 extern function isFrozen(anydata value) returns boolean;
+
+# Get the reason phrase of an error value.
+#
+# + value - Error value
+# + return - Reason phrase
+extern function reason(error value) returns string;
+
+# Get error details of an error value.
+#
+# + value - Error value
+# + return - Error detail
+extern function detail(error value) returns anydata;

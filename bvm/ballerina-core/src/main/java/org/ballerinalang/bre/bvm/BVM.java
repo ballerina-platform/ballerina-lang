@@ -509,10 +509,6 @@ public class BVM {
                 case InstructionCodes.ERROR:
                     createNewError(operands, strand, sf);
                     break;
-                case InstructionCodes.REASON:
-                case InstructionCodes.DETAIL:
-                    handleErrorBuiltinMethods(opcode, operands, sf);
-                    break;
                 case InstructionCodes.STAMP:
                     handleStampBuildInMethod(strand, operands, sf);
                     break;
@@ -1001,20 +997,6 @@ public class BVM {
         sf.refRegs[l] = (BRefType<?>) BLangVMErrors
                 .createError(strand, true, (BErrorType) typeRefCPEntry.getType(), sf.stringRegs[j],
                         (BMap<String, BValue>) sf.refRegs[k]);
-    }
-
-    private static void handleErrorBuiltinMethods(int opcode, int[] operands, StackFrame sf) {
-        int i = operands[0];
-        int j = operands[1];
-        BError error = (BError) sf.refRegs[i];
-        switch (opcode) {
-            case InstructionCodes.REASON:
-                sf.stringRegs[j] = error.getReason();
-                break;
-            case InstructionCodes.DETAIL:
-                sf.refRegs[j] = error.getDetails();
-                break;
-        }
     }
 
     private static void handleStampBuildInMethod(Strand ctx, int[] operands, StackFrame sf) {

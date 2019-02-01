@@ -115,6 +115,18 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
