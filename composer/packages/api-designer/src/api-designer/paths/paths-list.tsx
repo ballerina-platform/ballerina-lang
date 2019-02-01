@@ -21,7 +21,7 @@ import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import { Accordion, AccordionTitleProps, Button, Label } from "semantic-ui-react";
 
-import { OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
+import { ExpandMode, OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
 
 import AddOpenApiOperation from "../operations/add-operation";
 import OpenApiOperation from "../operations/operations-list";
@@ -30,7 +30,7 @@ import InlineEdit from "../components/utils/inline-edit";
 
 interface OpenApiPathProps {
     paths: Swagger.PathsObject;
-    showType: string;
+    expandMode: ExpandMode;
 }
 
 interface OpenApiPathState {
@@ -44,7 +44,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
 
         this.state = {
             activeIndex: [],
-            showAddOperation: false
+            showAddOperation: false,
         };
 
         this.onAccordionTitleClick = this.onAccordionTitleClick.bind(this);
@@ -52,17 +52,25 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
     }
 
     public componentWillReceiveProps(nextProps: OpenApiPathProps) {
-        const { paths, showType } = nextProps;
+        const { paths, expandMode } = nextProps;
         const activePaths: number[] = [];
         let hideForm: boolean = this.state.showAddOperation;
 
-        if (showType === "operations" || showType === "resources") {
+        debugger;
+
+        if (expandMode.isEdit) {
+            return;
+        }
+
+        if (expandMode.type === "operations" || expandMode.type === "resources") {
             Object.keys(paths).sort().map((openApiResource, index) => {
-                activePaths.push(index);
+                if (!activePaths.includes(index)) {
+                    activePaths.push(index);
+                }
             });
         }
 
-        if (showType === "collapse") {
+        if (expandMode.type === "collapse") {
             hideForm = false;
         }
 
@@ -134,7 +142,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                 />
                                             }
                                             <OpenApiOperation
-                                                showType={context!.showType}
+                                                expandMode={context!.expandMode}
                                                 path={openApiResource}
                                                 pathItem={paths[openApiResource]}
                                             />
@@ -163,7 +171,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
 
         this.setState({
             activeIndex: !activeIndex.includes(Number(index)) ?
-                [...this.state.activeIndex, Number(index)] : this.state.activeIndex.filter((i) => i !== index)
+                [...this.state.activeIndex, Number(index)] : this.state.activeIndex.filter((i) => i !== index),
         });
     }
 }
