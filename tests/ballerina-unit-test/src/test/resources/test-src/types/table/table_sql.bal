@@ -303,7 +303,7 @@ function testSimpleSelectAllWithCondition() returns (int) {
     if(recordCount == 0) {
         table<Person> personTableCopy = from personTable select * limit 2;
         while (personTableCopy.hasNext()) {
-            var rs = personTableCopy.getNext();
+            _ = personTableCopy.getNext();
             recordCount = recordCount + 1;
         }
     }
