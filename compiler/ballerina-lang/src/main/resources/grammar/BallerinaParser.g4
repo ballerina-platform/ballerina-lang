@@ -877,7 +877,7 @@ stringTemplateLiteral
     ;
 
 stringTemplateContent
-    :   (StringTemplateExpressionStart expression InterpolationExpressionEnd)+ StringTemplateText?
+    :   (StringTemplateExpressionStart expression RIGHT_BRACE)+ StringTemplateText?
     |   StringTemplateText
     ;
 

@@ -2,6 +2,7 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inTemplate = false;
+    boolean inStringTemplate = false;
     boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
@@ -144,6 +145,7 @@ COLON               : ':' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
+RIGHT_BRACE         : '}' {inStringTemplate}? -> mode(STRING_TEMPLATE);
 LEFT_PARENTHESIS    : '(' ;
 RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
@@ -450,7 +452,7 @@ XMLLiteralStart
     ;
 
 StringTemplateLiteralStart
-    :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
+    :   TYPE_STRING WS* BACKTICK   { inStringTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
 
 DocumentationLineStart
@@ -471,11 +473,7 @@ DeprecatedTemplateStart
     ;
 
 ExpressionEnd
-    :   {inTemplate}? '}}'   ->  popMode
-    ;
-
-InterpolationExpressionEnd
-    :   {inTemplate}? '}'   ->  popMode
+    :   {inTemplate}? RIGHT_BRACE RIGHT_BRACE   ->  popMode
     ;
 
 // Whitespace and comments
@@ -922,7 +920,7 @@ SingleBackTickInlineCodeChar
 mode DEPRECATED_TEMPLATE;
 
 DeprecatedTemplateEnd
-    :   '}' { inDeprecatedTemplate = false; }                         -> popMode
+    :   RIGHT_BRACE { inDeprecatedTemplate = false; }                         -> popMode
     ;
 
 SBDeprecatedInlineCodeStart
@@ -968,11 +966,11 @@ DeprecatedValidCharSequence
 mode STRING_TEMPLATE;
 
 StringTemplateLiteralEnd
-    :   '`' { inTemplate = false; }          -> popMode
+    :   '`' { inStringTemplate = false; }          -> popMode
     ;
 
 StringTemplateExpressionStart
-    :   StringTemplateText? InterpolationExpressionStart            -> pushMode(DEFAULT_MODE)
+    :   StringTemplateText? InterpolationExpressionStart            -> mode(DEFAULT_MODE)
     ;
 
 // We cannot use "StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)*" because it
