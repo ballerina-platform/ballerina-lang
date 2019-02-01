@@ -46,11 +46,14 @@ public type GREATER_THAN "GREATER_THAN";
 public type GREATER_EQUAL "GREATER_EQUAL";
 public type LESS_THAN "LESS_THAN";
 public type LESS_EQUAL "LESS_EQUAL";
+public type AND "AND";
+public type OR "OR";
 
 
 public type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|BinaryOpInstructionKind;
 
-public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL;
+public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
+                                        AND|OR;
 
 
 public type ArgVarKind "ARG";
@@ -69,7 +72,9 @@ public type BTypeInt "int";
 
 public type BTypeBoolean "boolean";
 
-public type BType BTypeInt | BTypeBoolean | BTypeNil;
+public type BTypeString "string";
+
+public type BType BTypeInt | BTypeBoolean | BTypeNil | BTypeString;
 
 
 public type BTypeSymbol record {
