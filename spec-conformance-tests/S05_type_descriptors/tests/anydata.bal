@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 (anydata|error)[] anydataOrErrorArray = [a, b, errValOne, c];
@@ -42,7 +43,7 @@ function testAnydataTypeDescriptor(anydata av) {
     test:assertEquals(av2, av, msg = "expected variable to hold the assigned value");
 }
 
-function anydataValueDataProvider() returns (anydata[][]) {
+function anydataValueDataProvider() returns anydata[][] {
     return [
         [a],
         [b],

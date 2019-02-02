@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 // json means  () | boolean | int | float | decimal | string | json[] | map<json>
@@ -27,7 +28,7 @@ function testJsonTypeDescriptorBroken(json jv) {
     test:assertEquals(jv2, jv, msg = "expected variable to hold the assigned value");
 }
 
-function brokenJsonValueDataProvider() returns (json[][]) {
+function brokenJsonValueDataProvider() returns json[][] {
     return [
         // [jsonMap]
     ];

@@ -13,15 +13,16 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 // Values can be stored in variables or as members of structures.
 // A simple value is stored directly in the variable or structure.
 const decimal D = 1.23;
-const int I = 1;
-const string S = "test string const";
-const float F = 1.0;
-const boolean B = true;
+const I = 1;
+const S = "test string const";
+const F = 1.0;
+const B = true;
 
 @test:Config {}
 function testSimpleValuesStoredInArrays() {
@@ -59,7 +60,6 @@ function testSimpleValuesStoredInRecords() {
     s = "test string 1";
     test:assertEquals(s4.fooFieldOne, S, msg = "expected record member to not have changed");
 }
-
 
 public type BarObject object {
     public int barFieldOne;

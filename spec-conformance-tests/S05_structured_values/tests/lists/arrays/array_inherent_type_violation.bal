@@ -17,7 +17,7 @@
 import ballerina/test;
 import utils;
 
-const string INHERENT_TYPE_VIOLATION_REASON = "{ballerina}InherentTypeViolation";
+const INHERENT_TYPE_VIOLATION_REASON = "{ballerina}InherentTypeViolation";
 const string INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE =
                                             "invalid reason on inherent type violating array insertion";
 

@@ -13,12 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_RETURN_VALUE_TO_BE_EQUAL_TO_SUM_FAILURE_MESSAGE =
-                                            "expected return value to be equal to the sum";
-const string EXPECTED_GLOBAL_STRING_VAR_TO_BE_UPDATED_FAILURE_MESSAGE =
-                                            "expected globalStringVar to have been updated";
+const EXPECTED_RETURN_VALUE_TO_BE_EQUAL_TO_SUM_FAILURE_MESSAGE = "expected return value to be equal to the sum";
+const EXPECTED_GLOBAL_STRING_VAR_TO_BE_UPDATED_FAILURE_MESSAGE = "expected globalStringVar to have been updated";
 
 // A function can be passed any number of arguments. Each argument is passed in one of
 // three ways: as a positional argument, as a named argument or as a rest argument. A
@@ -41,7 +40,7 @@ function testFunctionWithNoParamsAndNoReturn() {
         msg = EXPECTED_GLOBAL_STRING_VAR_TO_BE_UPDATED_FAILURE_MESSAGE);
 }
 
-const string NO_PARAMS_NO_RETURN = "no params no return";
+const NO_PARAMS_NO_RETURN = "no params no return";
 
 function funcWithNoParamsAndNoReturn() {
     globalStringVar = NO_PARAMS_NO_RETURN;
@@ -55,7 +54,7 @@ function testFunctionWithParamsAndNoReturn() {
     test:assertEquals(globalStringVar, s1 + s2, msg = EXPECTED_GLOBAL_STRING_VAR_TO_BE_UPDATED_FAILURE_MESSAGE);
 }
 
-const string WITH_PARAMS_NO_RETURN = "with params no return";
+const WITH_PARAMS_NO_RETURN = "with params no return";
 
 function funcWithParamsAndNoReturn(string s1, string s2) {
     globalStringVar = s1 + s2;

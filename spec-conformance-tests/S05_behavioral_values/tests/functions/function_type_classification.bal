@@ -13,7 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
+
+const EXPECTED_FUNCTION_TO_BE_OF_EXPECTED_TYPES = "expected function to be of expected type";
 
 // The type system classifies functions based only on the arguments they are declared to
 // accept and the values they are declared to return. Other aspects of a function value, such as
@@ -24,10 +27,8 @@ function testFunctionTypeClassification() {
     any func1 = funcRetFloatOne;
     any func2 = funcRetFloatTwo;
 
-    test:assertTrue(func1 is function (float f) returns float, 
-                      msg = "expected function to be of expected type");
-    test:assertTrue(func2 is function (float f) returns float, 
-                      msg = "expected function to be of expected type");
+    test:assertTrue(func1 is function (float f) returns float, msg = EXPECTED_FUNCTION_TO_BE_OF_EXPECTED_TYPES);
+    test:assertTrue(func2 is function (float f) returns float, msg = EXPECTED_FUNCTION_TO_BE_OF_EXPECTED_TYPES);
 }
 
 float globalFloatVar = 0.0;

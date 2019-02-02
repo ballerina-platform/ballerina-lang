@@ -13,9 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_CLIENT_OBJECT_FAILURE_MESSAGE = "expected client object's ";
+const EXPECTED_CLIENT_OBJECT_FAILURE_MESSAGE = "expected client object's ";
 
 // Objects are a combination of public and private fields along with a set of associated
 // functions, called methods, that can be used to manipulate them. An object’s methods are

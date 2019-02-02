@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 // There are two kinds of scope: module scope and block scope.
@@ -43,6 +44,5 @@ function testBlockScope() {
         s2 = s3;
     }
  
-    test:assertEquals(s1, s2, 
-                      msg = "expected block scope variables to hold the same value");
+    test:assertEquals(s1, s2, msg = "expected block scope variables to hold the same value");
 }

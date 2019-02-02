@@ -17,8 +17,8 @@
 import ballerina/test;
 import utils;
 
-const string EXPECTED_THE_ORIGINAL_VALUE_FAILURE_MESSAGE = "expected the original value";
-const string EXPECTED_FIXED_AND_IMPLIED_LENGTH_TO_BE_EQUAL_FAILURE_MESSAGE = 
+const EXPECTED_THE_ORIGINAL_VALUE_FAILURE_MESSAGE = "expected the original value";
+const EXPECTED_FIXED_AND_IMPLIED_LENGTH_TO_BE_EQUAL_FAILURE_MESSAGE =
                                             "expected fixed length array and implied length array to be equal";
 
 // Both kinds of type descriptor are covariant in the types of their members.

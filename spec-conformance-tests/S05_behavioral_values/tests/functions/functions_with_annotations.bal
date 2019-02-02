@@ -13,9 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_VALUES_TO_BE_UNCHANGED_FAILURE_MESSAGE = "expected values to be unchanged";
+const EXPECTED_VALUES_TO_BE_UNCHANGED_FAILURE_MESSAGE = "expected values to be unchanged";
 
 // function-type-descriptor := function function-signature
 // function-signature := ( param-list ) return-type-descriptor

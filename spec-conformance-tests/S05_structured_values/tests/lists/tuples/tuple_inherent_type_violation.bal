@@ -17,7 +17,7 @@
 import ballerina/test;
 import utils;
 
-const string INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE = 
+const INVALID_REASON_ON_INHERENT_TYPE_VIOLATIONG_TUPLE_UPDATE_FAILURE_MESSAGE =
                                         "invalid reason on inherent type violating tuple insertion";
 
 // The inherent type of a list value determines a type Ti for a member with index i.

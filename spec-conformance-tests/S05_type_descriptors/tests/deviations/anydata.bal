@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 // Thus the type anydata|error is the supertype of all pure types. The type anydata is equivalent to the union
@@ -31,7 +32,7 @@ function testAnydataTypeDescriptorBroken(anydata av) {
     test:assertEquals(av2, av, msg = "expected variable to hold the assigned value");
 }
 
-function brokenAnydataValueDataProvider() returns (anydata[][]) {
+function brokenAnydataValueDataProvider() returns anydata[][] {
     return [
         // [anydataOrErrorArray],
         // [anydataOrErrorMap]

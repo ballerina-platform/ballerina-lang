@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 // json-type-descriptor := json
@@ -37,7 +38,7 @@ function testJsonTypeDescriptor(json jVal) {
     test:assertEquals(jVal2, jVal, msg = "expected variable to hold the assigned value");
 }
 
-function jsonValueDataProvider() returns (json[][]) {
+function jsonValueDataProvider() returns json[][] {
     return [
         [a],
         [b],

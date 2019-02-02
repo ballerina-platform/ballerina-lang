@@ -13,22 +13,20 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_RETURN_TYPE_TO_BE_OF_EXPECTED_TYPE_FAILURE_MESSAGE =
-                                            "expected return type to be of expected type";
+const EXPECTED_RETURN_TYPE_TO_BE_OF_EXPECTED_TYPE_FAILURE_MESSAGE = "expected return type to be of expected type";
 
 // For return values, typing is straightforward: returns T means that the value returned by
 // the function is always of type T.
 @test:Config {}
 function testFunctionReturnType() {
     any res = funcWithUnionReturnType("string");
-    test:assertTrue(res is string|int, 
-                      msg = EXPECTED_RETURN_TYPE_TO_BE_OF_EXPECTED_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(res is string|int, msg = EXPECTED_RETURN_TYPE_TO_BE_OF_EXPECTED_TYPE_FAILURE_MESSAGE);
 
     res = funcWithUnionReturnType("int");
-    test:assertTrue(res is string|int, 
-                      msg = EXPECTED_RETURN_TYPE_TO_BE_OF_EXPECTED_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(res is string|int, msg = EXPECTED_RETURN_TYPE_TO_BE_OF_EXPECTED_TYPE_FAILURE_MESSAGE);
 }
 
 type STRING_OR_INT "string"|"int";

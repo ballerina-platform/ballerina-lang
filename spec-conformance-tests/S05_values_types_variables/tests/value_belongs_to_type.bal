@@ -13,10 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_VALUE_TO_BELONG_TO_TYPE_FAILURE_MESSAGE = "expected value to belong to type";
-const string EXPECTED_VALUE_NOT_TO_BELONG_TO_TYPE_FAILURE_MESSAGE = "expected value to not belong to type";
+const EXPECTED_VALUE_TO_BELONG_TO_TYPE_FAILURE_MESSAGE = "expected value to belong to type";
+const EXPECTED_VALUE_NOT_TO_BELONG_TO_TYPE_FAILURE_MESSAGE = "expected value to not belong to type";
 
 // a value belongs to a type if it looks like the type, and it will necessarily continue to
 // look like the type no matter how the value is mutated

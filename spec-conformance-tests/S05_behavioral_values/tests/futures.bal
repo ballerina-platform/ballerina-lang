@@ -13,9 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_FUTURE_TO_WAIT_FAILURE_MESSAGE = "expected future to wait for named worker to return an int";
+const EXPECTED_FUTURE_TO_WAIT_FAILURE_MESSAGE = "expected future to wait for named worker to return an int";
 
 // future-type-descriptor := future < type-descriptor >
 // A future value represents a value to be returned by a named worker.

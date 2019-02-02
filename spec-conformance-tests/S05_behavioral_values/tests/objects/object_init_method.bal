@@ -13,10 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_OBJECT_FIELD_TO_BE_INITIALIZED_FAILURE_MESSAGE =
-                                            "expected object field to have initialzed value";
+const EXPECTED_OBJECT_FIELD_TO_BE_INITIALIZED_FAILURE_MESSAGE = "expected object field to have initialzed value";
 
 // A non-abstract object type provides a way to initialize an object of the type. An object is
 // initialized by:
