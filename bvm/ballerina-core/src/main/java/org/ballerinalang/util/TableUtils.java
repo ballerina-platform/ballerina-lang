@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -95,6 +96,9 @@ public class TableUtils {
                     break;
                 case TypeTags.FLOAT_TAG:
                     stmt.setDouble(index, ((BFloat) constrainedType.get(fieldName)).floatValue());
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    stmt.setDouble(index, ((BDecimal) constrainedType.get(fieldName)).decimalValue().doubleValue());
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     stmt.setBoolean(index, ((BBoolean) constrainedType.get(fieldName)).booleanValue());

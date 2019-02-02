@@ -30,6 +30,24 @@ type Person2 record {
     boolean married;
 };
 
+type Subject record {
+   string name;
+   int moduleCount;
+};
+
+type Subject2 record {
+    float name;
+    int moduleCount;
+};
+
+
+type Data record {
+    int id;
+    decimal salary;
+    json address;
+    xml role;
+};
+
 table<Person> tGlobal = table{};
 
 function testTableDefaultValueForLocalVariable() returns (int) {
@@ -192,6 +210,45 @@ function testTableAddWhileIterating() returns (int, int) {
     }
     int count = t1.count();
     return (loopVariable, count);
+}
+
+function testTableStringPrimaryKey() returns int {
+    table<Subject> t1 = table {
+        { key name, moduleCount }
+    };
+
+    Subject s1 = { name: "Maths", moduleCount: 10 };
+    Subject s2 = { name: "Science", moduleCount: 5 };
+    _ = t1.add(s1);
+    _ = t1.add(s2);
+
+    int count = t1.count();
+    return count;
+}
+
+function testTableWithDifferentDataTypes() returns (int, int, decimal, xml, json) {
+    table<Data> t1 = table {
+        { key id, salary, address, role }
+    };
+
+    json j = { city: "London", country: "UK" };
+    xml x = xml `<role>Manager</role>`;
+    Data d1 = { id: 10, salary: 1000.45, address: j, role: x  };
+    _ = t1.add(d1);
+
+    int i = 0;
+    decimal d = 0;
+    xml xRet = xml `<book>Invalid Role</book>`;
+    json jRet = {};
+    foreach var v in t1 {
+        i = v.id;
+        d = v.salary;
+        jRet = v.address;
+        xRet = v.role;
+    }
+
+    int count = t1.count();
+    return (count, i, d, xRet, jRet);
 }
 
 function isBelow35(Person p) returns (boolean) {

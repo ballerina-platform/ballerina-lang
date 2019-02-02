@@ -163,9 +163,10 @@ public class TableProvider {
                     sb.append(TableConstants.SQL_TYPE_BIGINT);
                     break;
                 case TypeTags.STRING_TAG:
-                    sb.append(TableConstants.SQL_TYPE_CLOB);
+                    sb.append(TableConstants.SQL_TYPE_VARCHAR);
                     break;
                 case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
                     sb.append(TableConstants.SQL_TYPE_DOUBLE);
                     break;
                 case TypeTags.BOOLEAN_TAG:

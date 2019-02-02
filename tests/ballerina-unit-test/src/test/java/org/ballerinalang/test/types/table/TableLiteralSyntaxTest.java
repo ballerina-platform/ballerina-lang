@@ -20,12 +20,15 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
 
 /**
  * Class to test table literal syntax.
@@ -117,6 +120,22 @@ public class TableLiteralSyntaxTest {
     public void testTableLiteralDataAndAddWithKey() {
         BValue[] returns = BRunUtil.invoke(result, "testTableLiteralDataAndAddWithKey");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testTableStringPrimaryKey() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableStringPrimaryKey2");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test
+    public void testTableWithDifferentDataTypes() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableWithDifferentDataTypes");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 10);
+        Assert.assertEquals(((BDecimal) returns[2]).decimalValue(), new BigDecimal("1000.45"));
+        Assert.assertEquals(returns[3].stringValue(), "<role>Manager</role>");
+        Assert.assertEquals(returns[4].stringValue(), "{\"city\":\"London\", \"country\":\"UK\"}");
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")
