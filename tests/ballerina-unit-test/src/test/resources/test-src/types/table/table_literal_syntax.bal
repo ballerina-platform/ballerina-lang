@@ -35,12 +35,6 @@ type Subject record {
    int moduleCount;
 };
 
-type Subject2 record {
-    float name;
-    int moduleCount;
-};
-
-
 type Data record {
     int id;
     decimal salary;

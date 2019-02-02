@@ -124,7 +124,7 @@ public class TableLiteralSyntaxTest {
 
     @Test
     public void testTableStringPrimaryKey() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableStringPrimaryKey2");
+        BValue[] returns = BRunUtil.invoke(result, "testTableStringPrimaryKey");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
