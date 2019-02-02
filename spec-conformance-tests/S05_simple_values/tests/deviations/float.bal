@@ -49,7 +49,9 @@ import ballerina/test;
 // The multiple bit patterns that IEEE 754 treats as NaN are considered to be the same value in Ballerina
 // TODO: == and === not working for float NAN values
 // https://github.com/ballerina-platform/ballerina-lang/issues/11913
-@test:Config {}
+@test:Config {
+    groups: ["deviation"]
+}
 function testFloatingPointNaNValuesBroken() {
     float f1 = +0.0/0.0;
     float f2 = -0.0/0.0;
