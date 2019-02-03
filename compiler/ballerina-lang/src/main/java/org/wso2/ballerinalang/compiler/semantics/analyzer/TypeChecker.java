@@ -344,9 +344,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
-                    for (BField field:((BRecordType) tableConstraint).fields) {
+                    for (BField field : ((BRecordType) tableConstraint).fields) {
                         if (field.name.value.equals(column.columnName)) {
-                            if(!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.STRING) ) {
+                            if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.STRING)) {
                                 dlog.error(column.pos, DiagnosticCode.TYPE_NOT_ALLOWED_WITH_PRIMARYKEY,
                                         column.columnName, field.type);
                             }
