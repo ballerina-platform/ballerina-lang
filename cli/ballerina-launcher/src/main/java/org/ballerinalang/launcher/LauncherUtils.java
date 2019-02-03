@@ -82,9 +82,9 @@ public class LauncherUtils {
         runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag, false, true);
     }
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
-                                  String configFilePath, String[] args, boolean offline, boolean observeFlag,
-                                  boolean siddhiRuntimeFlag, boolean experimentalFlag) {
+    static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
+                           String configFilePath, String[] args, boolean offline, boolean observeFlag,
+                           boolean siddhiRuntimeFlag, boolean experimentalFlag) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
