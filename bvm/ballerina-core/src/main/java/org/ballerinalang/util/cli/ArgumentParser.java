@@ -130,13 +130,11 @@ public class ArgumentParser {
         }
 
         if (requiredAndRestArgs.length < requiredParamsCount) {
-            throw new BLangUsageException("insufficient arguments to call entry function '" + entryFuncInfo.getName()
-                                                  + "'");
+            throw new BLangUsageException("insufficient arguments to call the 'main' function");
         }
 
         if (requiredAndRestArgs.length > requiredParamsCount && restParamCount == 0) {
-            throw new BLangUsageException("too many arguments to call entry function '" + entryFuncInfo.getName()
-                                                  + "'");
+            throw new BLangUsageException("too many arguments to call the 'main' function");
         }
 
         // populate values specified for required params
