@@ -90,21 +90,15 @@
                                             <structure name="Ballerina Coverage Report">
                                                 <group name="ballerina">
                                                     <classfiles>
-                                                        <fileset dir="${project.build.directory}/../../bvm/ballerina-config/target/classes"/>
                                                         <fileset dir="${project.build.directory}/../../bvm/ballerina-core/target/classes"/>
-                                                        <fileset dir="${project.build.directory}/../../bvm/ballerina-logging/target/classes"/>
                                                         <fileset dir="${project.build.directory}/../../compiler/ballerina-lang/target/classes">
                                                             <exclude
                                                                     name="org/wso2/ballerinalang/compiler/parser/antlr4/*"/>
                                                         </fileset>
-                                                        <fileset dir="${project.build.directory}/../../stdlib/builtin/target/classes"/>
                                                     </classfiles>
                                                     <sourcefiles encoding="UTF-8">
-                                                        <fileset dir="${project.build.directory}/../../bvm/ballerina-config/src/main/java"/>
                                                         <fileset dir="${project.build.directory}/../../bvm/ballerina-core/src/main/java"/>
-                                                        <fileset dir="${project.build.directory}/../../bvm/ballerina-logging/src/main/java"/>
                                                         <fileset dir="${project.build.directory}/../../compiler/ballerina-lang/src/main/java"/>
-                                                        <fileset dir="${project.build.directory}/../../stdlib/builtin/src/main/java"/>
                                                     </sourcefiles>
                                                 </group>
                                             </structure>
