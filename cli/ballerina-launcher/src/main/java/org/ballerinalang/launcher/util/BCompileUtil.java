@@ -423,7 +423,7 @@ public class BCompileUtil {
         }
 
         if (programFile.isMainEPAvailable()) {
-            LauncherUtils.runMain(programFile, new String[0], false);
+            LauncherUtils.runMain(programFile, new String[0]);
         } else {
             LauncherUtils.runServices(programFile);
         }

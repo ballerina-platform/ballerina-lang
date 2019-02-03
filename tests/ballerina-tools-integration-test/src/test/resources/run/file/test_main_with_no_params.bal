@@ -13,11 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/io;
 
 public function main() {
-    // do nothing - placeholder to allow balx generation
-}
-
-public function ^"colonsInName:Function"(string arg) returns string {
-    return arg;
+    io:print(1);
 }
