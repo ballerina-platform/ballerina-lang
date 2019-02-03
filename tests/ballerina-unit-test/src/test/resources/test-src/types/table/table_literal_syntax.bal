@@ -25,7 +25,7 @@ type Person record {
 type Person2 record {
     int id;
     int age;
-    float key;
+    string key;
     string name;
     boolean married;
 };
@@ -69,7 +69,7 @@ function testTableAddOnUnconstrainedTable() returns (int) {
 
 function testTableAddOnConstrainedTable() returns (int) {
     table<Person> t1 = table {
-        { key id, key salary, name, age, married }
+        { key id, salary, key name, age, married }
     };
 
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
@@ -92,7 +92,7 @@ function testTableLiteralData() returns (int) {
     Person p3 = { id: 3, age: 30, salary: 300.50, name: "peter", married: true };
 
     table<Person> t1 = table {
-        { key id, key salary, name, age, married },
+        { key id, salary, key name, age, married },
         [p1, p2, p3]
     };
 
@@ -124,7 +124,7 @@ function testTableLiteralDataAndAdd2() returns (int) {
     Person p5 = { id: 5, age: 30, salary: 300.50, name: "mary", married: true };
 
     table<Person> t1 = table {
-        { key id, key salary, name, age, married },
+        { key id, salary, key name, age, married },
         [{ 1, 300.5, "jane",  30, true },
          { 2, 302.5, "anne",  23, false },
          { 3, 320.5, "john",  33, true }
@@ -167,15 +167,15 @@ function testTableAddOnConstrainedTableWithViolation2() returns (string) {
 }
 
 function testTableLiteralDataAndAddWithKey() returns (int) {
-    Person2 p4 = { id: 4, age: 30, key: 300.50, name: "john", married: true };
-    Person2 p5 = { id: 5, age: 30, key: 300.50, name: "mary", married: true };
+    Person2 p4 = { id: 4, age: 30, key: "test", name: "john", married: true };
+    Person2 p5 = { id: 5, age: 30, key: "test", name: "mary", married: true };
 
-    float key = 454.9;
+    string key = "test2";
     table<Person2> t1 = table {
         { key id, key key, name, age, married },
-        [{ 1, 300.5, "jane", 30, true },
+        [{ 1, "test3", "jane", 30, true },
          { 2, key, "anne", 23, false },
-         { 3, 320.5, "peter", 33, true }
+         { 3, "test4", "peter", 33, true }
         ]
     };
 
@@ -188,7 +188,7 @@ function testTableLiteralDataAndAddWithKey() returns (int) {
 
 function testTableAddWhileIterating() returns (int, int) {
     table<Person> t1 = table {
-        { key id, key salary, name, age, married }
+        { key id, salary, key name, age, married }
     };
 
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };

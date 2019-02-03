@@ -339,8 +339,20 @@ public class TypeChecker extends BLangNodeVisitor {
             for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
                 boolean contains = columnNames.contains(column.columnName);
                 if (!contains) {
-                    dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
+                    dlog.error(column.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
                             tableConstraint);
+                }
+
+                if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
+                    for (BField field:((BRecordType) tableConstraint).fields) {
+                        if (field.name.value.equals(column.columnName)) {
+                            if(!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.STRING) ) {
+                                dlog.error(column.pos, DiagnosticCode.TYPE_NOT_ALLOWED_WITH_PRIMARYKEY,
+                                        column.columnName, field.type);
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }

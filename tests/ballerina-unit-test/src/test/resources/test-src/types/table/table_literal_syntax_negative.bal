@@ -44,7 +44,7 @@ function testTableLiteralDataAndAdd2() returns (int) {
     Person p5 = { id: 5, age: 30, salary: 300.50, name: "mary", married: true };
 
     table<Person> t1 = table {
-        { key id, key salary, name, age, married2 },
+        { key id, salary, key name, age, married2 },
         [{ 1, 300.5, "jane",  30, true },
         { 2, 302.5, "anne",  23, false },
         { 3, 320.5, "john",  33, true }
@@ -60,7 +60,7 @@ function testTableLiteralDataAndAdd2() returns (int) {
 
 function testTableLiteralDataWithInit() returns (int) {
     table<Person> t1 = table {
-        { key id, key salary, name, age, married },
+        { key id, salary, key name, age, married },
         [1, 1]
     };
 
@@ -106,6 +106,28 @@ function testTableRemoveInvalidFunctionPointer() returns (int, json) | error {
     json j = check json.convert(dt);
 
     return (count, j);
+}
+
+type SubjectInvalid record {
+    float name;
+    int moduleCount;
+};
+
+type SubjectInvalid2 record {
+    json name;
+    int moduleCount;
+};
+
+function testTableFloatPrimaryKey() {
+    table<SubjectInvalid> t1 = table {
+        { key name, moduleCount }
+    };
+}
+
+function testTableJsonPrimaryKey() {
+    table<SubjectInvalid2> t1 = table {
+        { key name, moduleCount }
+    };
 }
 
 function isBelow35Invalid(Person p) {

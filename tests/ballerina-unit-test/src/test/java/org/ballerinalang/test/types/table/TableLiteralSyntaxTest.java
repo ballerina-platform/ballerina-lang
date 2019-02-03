@@ -140,20 +140,23 @@ public class TableLiteralSyntaxTest {
 
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 40, 11);
-        BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 46, 24);
+        BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 47, 42);
         BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 48, 10);
         BAssertUtil.validateError(resultNegative, 3, "undefined field 'married2' in record 'Person'", 49, 9);
         BAssertUtil.validateError(resultNegative, 4, "undefined field 'married2' in record 'Person'", 50, 9);
         BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Person', found 'int'", 64, 10);
         BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'Person', found 'int'", 64, 13);
         BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 76, 5);
-        //BAssertUtil.validateError(resultNegative, 8, "table cannot be created without a constraint", 88, 16);
         BAssertUtil.validateError(resultNegative, 8, "unknown type 'Student'", 88, 11);
         BAssertUtil.validateError(resultNegative, 9,
               "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
               101, 25);
+        BAssertUtil.validateError(resultNegative, 10,
+              "column 'name' of type 'float' is not allowed as key, use 'int' or 'string' column", 123, 11);
+        BAssertUtil.validateError(resultNegative, 11,
+              "column 'name' of type 'json' is not allowed as key, use 'int' or 'string' column", 129, 11);
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")
