@@ -13,9 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE =
+const EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE =
                         "expected record value to be destructured to variable defintions";
 
 // typed-binding-pattern := impliable-type-descriptor binding-pattern

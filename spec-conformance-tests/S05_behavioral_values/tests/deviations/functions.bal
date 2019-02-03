@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 // annots type-descriptor param-name [= default-value]
@@ -41,11 +42,9 @@ function testFunctionBelongsToByReturnTypeBroken() {
     any func = funcReturningString;
     // test:assertTrue(func is (function() returns string|int), 
     //                   msg = "expected function to be of expected type");
-    test:assertTrue(func is (function() returns string), 
-                      msg = "expected function to be of expected type");
+    test:assertTrue(func is (function() returns string), msg = "expected function to be of expected type");
     any execResult = funcReturningString();
-    test:assertTrue(execResult is string|int, 
-                      msg = "expected result to be of expected type");
+    test:assertTrue(execResult is string|int, msg = "expected result to be of expected type");
 }
 
 function funcReturningString() returns string  {

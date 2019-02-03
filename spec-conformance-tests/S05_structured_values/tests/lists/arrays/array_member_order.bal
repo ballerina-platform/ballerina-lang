@@ -16,7 +16,7 @@
 
 import ballerina/test;
 
-const string EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE = "expected value not found at index ";
+const EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE = "expected value not found at index ";
 
 // A list value is a container that keeps its members in an ordered list.
 

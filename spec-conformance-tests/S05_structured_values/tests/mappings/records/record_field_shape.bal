@@ -13,10 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 import utils;
 
-const string STAMP_ERROR_REASON = "{ballerina}StampError";
+const STAMP_ERROR_REASON = "{ballerina}StampError";
 
 // The shape of a mapping value is an unordered collection of field shapes one for each field.
 // The field shape for a field f has a name, which is the same as the name of f, and a shape,

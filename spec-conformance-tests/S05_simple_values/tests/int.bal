@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 import utils;
 
@@ -45,7 +46,7 @@ function testOutOfRangeValueAsInt(decimal d) {
         "{ballerina}NumberConversionError", "invalid reason on out of range int value");
 }
 
-function intDataProvider() returns (int[][]) {
+function intDataProvider() returns int[][] {
     return [
         [0, 0x0, 0X00, 0x000],
         [2767, 0xACF, 0xacf, 0XAcf],
@@ -53,7 +54,7 @@ function intDataProvider() returns (int[][]) {
     ];
 }
 
-function decimalDataProvider() returns (decimal[][]) {
+function decimalDataProvider() returns decimal[][] {
     return [
         [-9223372036854775810.0],
         [-9223372036854775809.0],

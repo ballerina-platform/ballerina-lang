@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 int a = 1;
@@ -77,7 +78,7 @@ function testAnyTypeDescriptor(any av) {
     test:assertEquals(av2, av, msg = "expected variable to hold the assigned value");
 }
 
-function anyValueDataProvider() returns (any[][]) {
+function anyValueDataProvider() returns any[][] {
     return [
         [a],
         [b],

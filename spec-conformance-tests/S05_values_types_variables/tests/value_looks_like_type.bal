@@ -13,9 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_STAMPING_TO_BE_SUCCESSFUL_FAILURE_MESSAGE = "expected stamping to be successful";
+const EXPECTED_STAMPING_TO_BE_SUCCESSFUL_FAILURE_MESSAGE = "expected stamping to be successful";
 
 // A value looks like a type at a particular point in the execution of a program if its shape
 // at that point is a member of the type

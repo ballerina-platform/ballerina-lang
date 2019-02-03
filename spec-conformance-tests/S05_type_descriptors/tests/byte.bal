@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 byte b0 = 0;
@@ -31,7 +32,7 @@ function testByteTypeDescriptor(byte bVal) {
     test:assertEquals(bVal2, bVal, msg = "expected variable to hold the assigned value");
 }
 
-function byteValueDataProvider() returns (byte[][]) {
+function byteValueDataProvider() returns byte[][] {
     return [
         [b0],
         [b1],

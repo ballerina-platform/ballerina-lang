@@ -13,10 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_RETURN_VALUE_TO_BE_NIL_FAILURE_MESSAGE = "expected return value to be ()";
-const string EXPECTED_GLOBAL_INT_VAR_TO_BE_UPDATED_FAILURE_MESSAGE = "expected globalIntVar to have been updated";
+const EXPECTED_RETURN_VALUE_TO_BE_NIL_FAILURE_MESSAGE = "expected return value to be ()";
+const EXPECTED_GLOBAL_INT_VAR_TO_BE_UPDATED_FAILURE_MESSAGE = "expected globalIntVar to have been updated";
 
 // A function that would in other programming
 // languages not return a value is represented in Ballerina by a function returning (). (Note

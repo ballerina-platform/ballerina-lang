@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 // floating-point-type-descriptor := float | decimal
@@ -36,7 +37,7 @@ function testDecimal(decimal d1, decimal d2, decimal d3, decimal d4) {
     test:assertEquals(d1, d4, msg = "expected decimal values to be equal");
 }
 
-function decimalValueDataProvider() returns (decimal[][]) {
+function decimalValueDataProvider() returns decimal[][] {
     return [
         // DecimalFloatingPointNumber
         [<decimal>100e+12, <decimal>100E+12, <decimal>100e12, <decimal>100E12],

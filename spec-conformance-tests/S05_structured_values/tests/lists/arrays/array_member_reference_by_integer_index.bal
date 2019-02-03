@@ -17,12 +17,11 @@
 import ballerina/test;
 import utils;
 
-const string INDEX_OUT_OF_RANGE_REASON = "{ballerina}IndexOutOfRange";
-const string INVALID_REASON_ON_ACCESS_BY_NEGATIVE_INDEX_FAILURE_MESSAGE = "invalid reason on access by negative index";
-const string INVALID_REASON_ON_ACCESS_BY_ARRAY_LENGTH_INDEX_FAILURE_MESSAGE = 
+const INDEX_OUT_OF_RANGE_REASON = "{ballerina}IndexOutOfRange";
+const INVALID_REASON_ON_ACCESS_BY_NEGATIVE_INDEX_FAILURE_MESSAGE = "invalid reason on access by negative index";
+const INVALID_REASON_ON_ACCESS_BY_ARRAY_LENGTH_INDEX_FAILURE_MESSAGE =
                                                                 "invalid reason on access by index == array length";
-const string INVALID_REASON_ON_ACCESS_BY_LARGER_INDEX_FAILURE_MESSAGE = 
-                                                                "invalid reason on access by index > array length";
+const INVALID_REASON_ON_ACCESS_BY_LARGER_INDEX_FAILURE_MESSAGE = "invalid reason on access by index > array length";
 
 // A member of a list can be referenced by an integer index representing its position in the list.
 // For a list of length n, the indices of the members of the list, from first to last, are 0,1,...,n - 1.

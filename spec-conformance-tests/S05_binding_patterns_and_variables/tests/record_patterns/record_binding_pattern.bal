@@ -13,10 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE =
-                "expected record value to be destructured to variable references";
+const EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE = "expected record value to be destructured to variable references";
 
 // binding-pattern :=
 //    simple-binding-pattern

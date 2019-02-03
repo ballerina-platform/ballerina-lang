@@ -13,28 +13,28 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 import utils;
 
-const string B7A_INVALID_UPDATE_REASON = "{ballerina}InvalidUpdate";
-const string IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE = "invalid reason on immutable value update";
+const B7A_INVALID_UPDATE_REASON = "{ballerina}InvalidUpdate";
+const IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE = "invalid reason on immutable value update";
 
-const string EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE = "exected value to not be frozen";
-const string EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE = "exected value to be frozen";
+const EXPECTED_VALUE_TO_NOT_BE_FROZEN_FAILURE_MESSAGE = "exected value to not be frozen";
+const EXPECTED_VALUE_TO_BE_FROZEN_FAILURE_MESSAGE = "exected value to be frozen";
 
-const string EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE =
+const EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE =
                                 "expected convert to succeed since the value is of the expected shape";
-const string EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE =
+const EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE =
                                 "expected convert to fail since the value is not of the expected shape";
 
-const string EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
-                                "expected value's type to be of same type or sub type";
-const string EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
+const EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE = "expected value's type to be of same type or sub type";
+const EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
                                 "expected value's type to not be of same type or sub type";
 
-const string EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
+const EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
                                 "expected to be able to add a value of same type or sub type";
-const string EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
+const EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE =
                                 "expected to not be able to add a value of type that is not same type or sub type";
 
 // Values of the container basic types are containers for other values, which are called their
@@ -201,48 +201,40 @@ function testFrozenXml() {
 function testArrayShapeOfContainters() {
     (int|string)[] a1 = [1, 2];
     var a2 = int[].convert(a1);
-    test:assertTrue(a2 is int[],
-                    msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
+    test:assertTrue(a2 is int[], msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a1[2] = "test string 1";
     a2 = int[].convert(a1);
-    test:assertFalse(a2 is int[],
-                     msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
+    test:assertFalse(a2 is int[], msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 }
 
 @test:Config {}
 function testTupleShapeOfContainters() {
     (float, int|string, boolean) a3 = (1.1, 1, true);
     var a4 = (float, int, boolean).convert(a3);
-    test:assertTrue(a4 is (float, int, boolean),
-                    msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
+    test:assertTrue(a4 is (float, int, boolean), msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a3[1] = "test string 1";
     a4 = (float, int, boolean).convert(a3);
-    test:assertFalse(a4 is (float, int, boolean),
-                    msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
+    test:assertFalse(a4 is (float, int, boolean), msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 }
 
 @test:Config {}
 function testMapShapeOfContainters() {
     map<int|boolean> a5 = { one: 1, two: 2, three: 3 };
     var a6 = map<int>.convert(a5);
-    test:assertTrue(a6 is map<int>,
-                    msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
+    test:assertTrue(a6 is map<int>, msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a5.four = true;
     a6 = map<int>.convert(a5);
-    test:assertFalse(a6 is map<int>,
-                    msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
+    test:assertFalse(a6 is map<int>, msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 }
 
 @test:Config {}
 function testRecordShapeOfContainters() {
     BazRecordThree a7 = { bazFieldOne: 1.0 };
     var a8 = BazRecord.convert(a7);
-    test:assertTrue(a8 is BazRecord,
-                    msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
+    test:assertTrue(a8 is BazRecord, msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a7.bazFieldOne = "1.0";
     a8 = BazRecord.convert(a7);
-    test:assertFalse(a8 is BazRecord,
-                     msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
+    test:assertFalse(a8 is BazRecord, msg = EXPECTED_CONVERT_TO_FAIL_FAILURE_MESSAGE);
 }
 
 // A type descriptor for a container basic type describe the shape of the container in terms of
@@ -260,17 +252,14 @@ function testArrayContainerValueInherentType() {
     (int|string)[] a1 = [1, "2"];
     any anyVal = intVal;
     var result = trap insertMemberToArray(a1, a1.length() - 1, anyVal);
-    test:assertTrue(anyVal is int|string,
-                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(result is error),
-                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(anyVal is int|string, msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(result is error), msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
     result = trap insertMemberToArray(a1, a1.length() - 1, anyVal);
     test:assertTrue(result is error,
                     msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(anyVal is int|string),
-                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(anyVal is int|string), msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
 }
 
@@ -279,17 +268,14 @@ function testTupleContainerValueInherentType() {
     (string|float, int) a2 = ("test string 1", 1);
     any anyVal = floatVal;
     var result = trap insertMemberToTuple(a2, anyVal);
-    test:assertTrue(anyVal is string|float,
-                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(result is error),
-                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(anyVal is string|float, msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(result is error), msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
     result = trap insertMemberToTuple(a2, anyVal);
     test:assertTrue(result is error,
                     msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(anyVal is string|float),
-                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(anyVal is string|float), msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 }
 
 @test:Config {}
@@ -297,17 +283,14 @@ function testMapContainerValueInherentType() {
     map<int> a3 = { one: 1 };
     any anyVal = intVal;
     var result = trap insertMemberToMap(a3, "two", anyVal);
-    test:assertTrue(anyVal is int,
-                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(result is error),
-                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(anyVal is int, msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(result is error), msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 
     anyVal = booleanVal;
     result = trap insertMemberToMap(a3, "two", anyVal);
     test:assertTrue(result is error,
                     msg = EXPECTED_TO_NOT_BE_ABLE_TO_ADD_VALUE_NOT_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(anyVal is int),
-                    msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(anyVal is int), msg = EXPECTED_VALUE_TO_NOT_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 }
 
 @test:Config {}
@@ -315,10 +298,8 @@ function testRecordContainerValueInherentType() {
     FooRecordThirteen a4 = { fooFieldOne: "test string 1" };
     any anyVal = "test string 2";
     var result = trap updateFooRecord(a4, <string>anyVal);
-    test:assertTrue(anyVal is string,
-                    msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
-    test:assertTrue(!(result is error),
-                    msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(anyVal is string, msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
+    test:assertTrue(!(result is error), msg = EXPECTED_TO_BE_ABLE_TO_ADD_VALUE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);
 }
 
 @test:Config {}
@@ -340,17 +321,13 @@ function testRecordFrozenContainerShapeAndType() {
     BazRecordFour a9 = { bazFieldOne: 1.0, bazFieldTwo: "test string 2" };
     anydata a10 = a9;
     var result = trap updateRecordBazField(a8, a10);
-    test:assertTrue(result is error,
-                    msg = "expected to not be able to add a value that violates shape");
-    test:assertTrue(!(a10 is BazRecord),
-                    msg = "expected value's type to not be of same type or sub type");
+    test:assertTrue(result is error, msg = "expected to not be able to add a value that violates shape");
+    test:assertTrue(!(a10 is BazRecord), msg = "expected value's type to not be of same type or sub type");
 
     _ = a10.freeze();
     result = trap updateRecordBazField(a8, a10);
-    test:assertTrue(a10 is BazRecord,
-                    msg = "expected value's type to match shape after freezing");
-    test:assertTrue(!(result is error),
-                    msg = "expected to be able to add a frozen value that conforms to shape");
+    test:assertTrue(a10 is BazRecord, msg = "expected value's type to match shape after freezing");
+    test:assertTrue(!(result is error), msg = "expected to be able to add a frozen value that conforms to shape");
 }
 
 public type BazRecord record {

@@ -13,10 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_VALUE_TO_BE_UPDATED_FAILURE_MESSAGE = "expected the value to be updated";
-const string EXPECTED_ORIGINAL_VALUE_TO_BE_UPDATED_FAILURE_MESSAGE = "expected the original value to be updated";
+const EXPECTED_VALUE_TO_BE_UPDATED_FAILURE_MESSAGE = "expected the value to be updated";
+const EXPECTED_ORIGINAL_VALUE_TO_BE_UPDATED_FAILURE_MESSAGE = "expected the original value to be updated";
 
 // All basic types of structural values, with the exception of the XML,
 // are mutable, meaning the value referred to by a particular reference

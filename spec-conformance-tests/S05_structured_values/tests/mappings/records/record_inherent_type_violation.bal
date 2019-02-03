@@ -13,10 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 import utils;
 
-const string INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_RECORD_UPDATE_FAILURE_MESSAGE =
+const INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_RECORD_UPDATE_FAILURE_MESSAGE =
                             "invalid reason on inherent type violating record insertion";
 
 // The inherent type of a mapping value must be a mapping-type-descriptor. The

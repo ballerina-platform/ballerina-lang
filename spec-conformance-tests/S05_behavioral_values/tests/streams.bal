@@ -13,10 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/runtime;
 import ballerina/test;
 
-const string EXPECTED_SUBSCRIBER_TO_UPDATE_VALUE_FAILURE_MESSAGE =
+const EXPECTED_SUBSCRIBER_TO_UPDATE_VALUE_FAILURE_MESSAGE =
                                 "expected value to be updated via subscriber function invocation";
 
 // stream-type-descriptor := stream < type-descriptor >

@@ -16,7 +16,7 @@
 
 import ballerina/test;
 
-const string INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE = "incorrect member value found on iteration";
+const INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE = "incorrect member value found on iteration";
 
 // A list is iterable as a sequence of its members.
 // An array T[] is iterable as a sequence of values of type T.
@@ -33,8 +33,7 @@ function testBasicTypeArrayMemberIteration() {
     int currentIndex = 0;
 
     foreach string|int value in array {
-        test:assertEquals(value, arrayTwo[currentIndex],
-                          msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);
+        test:assertEquals(value, arrayTwo[currentIndex], msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);
         currentIndex = currentIndex + 1;
     }
 }
@@ -48,8 +47,7 @@ function testRecordArrayMemberIteration() {
     (FooRecordTwo|BarRecordTwo)[] arrayFour = [e, f];
 
     foreach FooRecordTwo|BarRecordTwo value in arrayThree {
-        test:assertEquals(value, arrayFour[currentIndex],
-                          msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);
+        test:assertEquals(value, arrayFour[currentIndex], msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);
         currentIndex = currentIndex + 1;
     }
 }
@@ -64,8 +62,7 @@ function testObjectArrayMemberIteration() {
     (FooObjectTwo|BarObjectTwo)[] arraySix = [g, h, i];
 
     foreach FooObjectTwo|BarObjectTwo value in arrayFive {
-        test:assertEquals(value, arraySix[currentIndex],
-                          msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);
+        test:assertEquals(value, arraySix[currentIndex], msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);
         currentIndex = currentIndex + 1;
     }
 }

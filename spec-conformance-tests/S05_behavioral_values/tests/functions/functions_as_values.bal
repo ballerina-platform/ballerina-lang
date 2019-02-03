@@ -13,9 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
-const string EXPECTED_VALUE_OF_I_PLUS_J_FAILURE_MESSAGE = "expected value to be equal to addition of i and j";
+const EXPECTED_VALUE_OF_I_PLUS_J_FAILURE_MESSAGE = "expected value to be equal to addition of i and j";
+
 // function-type-descriptor := function function-signature
 // function-signature := ( param-list ) return-type-descriptor
 // return-type-descriptor := [ returns annots type-descriptor ]
