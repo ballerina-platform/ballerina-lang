@@ -24,7 +24,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -78,24 +77,14 @@ import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
  */
 public class LauncherUtils {
 
-    private static PrintStream outStream = System.out;
-
     public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
                                   String configFilePath, String[] args, boolean offline, boolean observeFlag) {
-        runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag,
-                   false, false, true);
+        runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag, false, true);
     }
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
                                   String configFilePath, String[] args, boolean offline, boolean observeFlag,
-                                  boolean printReturn) {
-        runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag,
-                   printReturn, false, true);
-    }
-
-    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
-                                  String configFilePath, String[] args, boolean offline, boolean observeFlag,
-                                  boolean printReturn, boolean siddhiRuntimeFlag, boolean experimentalFlag) {
+                                  boolean siddhiRuntimeFlag, boolean experimentalFlag) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -157,18 +146,15 @@ public class LauncherUtils {
             }
             runServices(programFile);
         } else {
-            runMain(programFile, args, printReturn);
+            runMain(programFile, args);
         }
         BLangProgramRunner.resumeStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
     }
 
-    public static void runMain(ProgramFile programFile, String[] args, boolean printReturn) {
+    public static void runMain(ProgramFile programFile, String[] args) {
         try {
-            BValue[] entryFuncResult = BLangProgramRunner.runMainFunc(programFile, args);
-            if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1 && entryFuncResult[0] != null) {
-                outStream.print(entryFuncResult[0].stringValue());
-            }
+            BLangProgramRunner.runMainFunc(programFile, args);
         } catch (BLangUsageException | BallerinaException e) {
             throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
         }

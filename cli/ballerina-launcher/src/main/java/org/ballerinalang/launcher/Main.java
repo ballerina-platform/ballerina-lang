@@ -220,9 +220,6 @@ public class Main {
         @CommandLine.Option(names = "--observe", description = "enable observability with default configs")
         private boolean observeFlag;
 
-        @CommandLine.Option(names = "--printreturn", description = "print return value to the out stream")
-        private boolean printReturn;
-
         @CommandLine.Option(names = "-e", description = "Ballerina environment parameters")
         private Map<String, String> runtimeParams = new HashMap<>();
 
@@ -268,7 +265,7 @@ public class Main {
 
             // Normalize the source path to remove './' or '.\' characters that can appear before the name
             LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), runtimeParams, configFilePath, programArgs,
-                                     offline, observeFlag, printReturn, siddhiRuntimeFlag, experimentalFlag);
+                                     offline, observeFlag, siddhiRuntimeFlag, experimentalFlag);
         }
 
         @Override
