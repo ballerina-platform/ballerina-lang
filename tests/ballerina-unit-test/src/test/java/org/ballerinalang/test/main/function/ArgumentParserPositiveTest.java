@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.entry.function;
+package org.ballerinalang.test.main.function;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.launcher.LauncherUtils;

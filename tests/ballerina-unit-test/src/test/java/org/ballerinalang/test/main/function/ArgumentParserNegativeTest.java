@@ -15,11 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.entry.function;
+package org.ballerinalang.test.main.function;
 
 import org.ballerinalang.launcher.BLauncherException;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -37,7 +36,6 @@ public class ArgumentParserNegativeTest {
 
     private static final String MAIN_FUNCTION_TEST_SRC_DIR = "src/test/resources/test-src/main.function";
 
-    private ProgramFile programFile;
     private final Map<String, String> runtimeParams = new HashMap<>();
     private final String configFilePath = null;
     private final boolean offline = true;
