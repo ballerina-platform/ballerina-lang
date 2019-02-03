@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -15,6 +15,15 @@
 // under the License.
 import ballerina/io;
 
-public function main(int i, float f) returns int {
-    return f > 5.0 ? i + 5 : 5 - i;
+public type Employee record {
+    string name;
+};
+
+public function main((int, Employee, string) t) {
+    int id;
+    Employee e;
+    string dept;
+    (id, e, dept) = t;
+
+    io:print("Id: " + string.convert(id) + ", Name: " + e.name + ", Dept: " + dept);
 }
