@@ -2747,6 +2747,17 @@ public class BVM {
             case InstructionCodes.D2BI:
                 i = operands[0];
                 j = operands[1];
+
+                DecimalValueKind valueKind = ((BDecimal) sf.refRegs[i]).valueKind;
+                if (valueKind == DecimalValueKind.NOT_A_NUMBER || valueKind == DecimalValueKind.NEGATIVE_INFINITY ||
+                        valueKind == DecimalValueKind.POSITIVE_INFINITY) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'decimal' value '" + sf.refRegs[i] + "' cannot be " +
+                                                                   "converted to 'byte'"));
+                    handleError(ctx);
+                    break;
+                }
+
                 long doubleAsIntVal = Math.round(Math.round(((BDecimal) sf.refRegs[i]).decimalValue().doubleValue()));
                 if (!isByteLiteral(doubleAsIntVal)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
@@ -2865,8 +2876,18 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 BDecimal decimal = (BDecimal) sf.refRegs[i];
-                if (decimal.valueKind == DecimalValueKind.NOT_A_NUMBER ||
-                        !isDecimalWithinIntRange((decimal.decimalValue()))) {
+                DecimalValueKind decValueKind = decimal.valueKind;
+                if (decValueKind == DecimalValueKind.NOT_A_NUMBER ||
+                        decValueKind == DecimalValueKind.NEGATIVE_INFINITY ||
+                        decValueKind == DecimalValueKind.POSITIVE_INFINITY) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'decimal' value '" + sf.refRegs[i] + "' cannot be " +
+                                                                   "converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                if (!isDecimalWithinIntRange((decimal.decimalValue()))) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                             "out of range 'decimal' value '" + decimal + "' cannot be converted to 'int'"));
                     handleError(ctx);
