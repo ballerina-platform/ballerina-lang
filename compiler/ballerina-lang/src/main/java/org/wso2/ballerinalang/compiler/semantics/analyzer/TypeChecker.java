@@ -335,6 +335,24 @@ public class TypeChecker extends BLangNodeVisitor {
             List<String> columnNames = new ArrayList<>();
             for (BField field : ((BRecordType) tableConstraint).fields) {
                 columnNames.add(field.getName().getValue());
+                //Check for valid column types
+                if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.STRING ||
+                        field.type.tag == TypeTags.FLOAT || field.type.tag == TypeTags.DECIMAL ||
+                        field.type.tag == TypeTags.XML || field.type.tag == TypeTags.JSON ||
+                        field.type.tag == TypeTags.BOOLEAN || field.type.tag == TypeTags.ARRAY)) {
+                    dlog.error(tableLiteral.pos, DiagnosticCode.FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN,
+                            field.name.value, field.type);
+                }
+                //Check for valid array types as columns
+                if (field.type.tag == TypeTags.ARRAY) {
+                    BType arrayType = ((BArrayType) field.type).eType;
+                    if (!(arrayType.tag == TypeTags.INT || arrayType.tag == TypeTags.FLOAT ||
+                            arrayType.tag == TypeTags.DECIMAL || arrayType.tag == TypeTags.STRING ||
+                            arrayType.tag == TypeTags.BOOLEAN || arrayType.tag == TypeTags.BYTE)) {
+                        dlog.error(tableLiteral.pos, DiagnosticCode.FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN,
+                                field.name.value, field.type);
+                    }
+                }
             }
             for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
                 boolean contains = columnNames.contains(column.columnName);
@@ -342,7 +360,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(column.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
                             tableConstraint);
                 }
-
+                //Check for valid primary key column types
                 if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
                     for (BField field : ((BRecordType) tableConstraint).fields) {
                         if (field.name.value.equals(column.columnName)) {

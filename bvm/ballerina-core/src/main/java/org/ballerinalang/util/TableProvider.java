@@ -105,10 +105,9 @@ public class TableProvider {
         return createTable(fromTableName, null, query, tableType, params);
     }
 
-    public String insertData(String tableName, BMap<String, BValue> constrainedType) {
+    public void insertData(String tableName, BMap<String, BValue> constrainedType) {
         String sqlStmt = TableUtils.generateInsertDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
-        return tableName;
     }
 
     public void deleteData(String tableName, BMap<String, BValue> constrainedType) {

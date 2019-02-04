@@ -130,6 +130,82 @@ function testTableJsonPrimaryKey() {
     };
 }
 
+type UnionRecord record {
+    int id;
+    float|int salary;
+};
+
+type RecordInRecord record {
+    int id;
+    Bar bar;
+};
+
+type ObjectInRecord record {
+    int id;
+    Foo foo;
+};
+
+type ErrorInRecord record {
+    int id;
+    error bar;
+};
+
+type Bar record {
+    int a;
+};
+
+type Foo object {
+    public int age = 0;
+};
+
+function addInvalidUnionData() {
+    table<UnionRecord> t = table {
+        { key id, salary },
+        [{1, 300.5}
+        ]
+    };
+}
+
+function addInvalidRecordData() {
+    Bar bar1 = { a: 10 };
+    table<RecordInRecord> t = table {
+        { key id, bar },
+        [{1, bar1}
+        ]
+    };
+}
+
+function addInvalidObjectData() {
+    Foo foo1 = new();
+    table<ObjectInRecord> t = table {
+        { key id, foo },
+        [{1, foo1}
+        ]
+    };
+}
+
+function addInvalidErrorData() {
+    table<ErrorInRecord> t1 = table {
+        { key id, bar }
+    };
+
+    error e = error("response error");
+    ErrorInRecord d1 = { id: 10, bar: e };
+    _ = t1.add(d1);
+}
+
+type ArrayRecord record {
+    int id;
+    xml[] xArr;
+    error[] eArr;
+};
+
+function addInvalidArrayData() {
+    table<ArrayRecord> t1 = table {
+        { key id, xArr, eArr }
+    };
+}
+
 function isBelow35Invalid(Person p) {
     p.age = 10;
 }

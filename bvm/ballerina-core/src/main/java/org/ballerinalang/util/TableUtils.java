@@ -38,6 +38,7 @@ import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -166,6 +167,13 @@ public class TableUtils {
             arrayData = new Boolean[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
                 arrayData[i] = ((BValueArray) value).getBoolean(i) > 0;
+            }
+            break;
+        case TypeTags.DECIMAL_TAG:
+            arrayLength = (int) ((BValueArray) value).size();
+            arrayData = new BigDecimal[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BValueArray) value).getRefValue(i).value();
             }
             break;
         default:

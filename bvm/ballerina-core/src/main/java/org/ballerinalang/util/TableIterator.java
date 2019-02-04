@@ -30,6 +30,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -320,11 +321,11 @@ public class TableIterator implements DataIterator {
             }
             return doubleDataArray;
         } else if ((firstNonNullElement instanceof BigDecimal)) {
-            BValueArray doubleDataArray = new BValueArray(BTypes.typeFloat);
+            BDecimalArray decimalDataArray = new BDecimalArray();
             for (int i = 0; i < dataArray.length; i++) {
-                doubleDataArray.add(i, ((BigDecimal) dataArray[i]).doubleValue());
+                decimalDataArray.add(i, (BigDecimal) dataArray[i]);
             }
-            return doubleDataArray;
+            return decimalDataArray;
         } else {
             return null;
         }
