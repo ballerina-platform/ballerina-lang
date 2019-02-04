@@ -29,7 +29,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spec-conformance-tests</artifactId>
     <packaging>pom</packaging>
-    
+
     <name>Ballerina - Spec Conformance Tests</name>
 
     <build>
@@ -62,7 +62,72 @@
                             </target>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>report-generation</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="mergeReports">
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+                                         classpathref="maven.plugin.classpath"/>
+                                <if>
+                                    <and>
+                                        <available file="${project.build.directory}/coverage-reports/jacoco.exec"/>
+                                    </and>
+                                    <then>
+                                        <taskdef name="report" classname="org.jacoco.ant.ReportTask">
+                                            <classpath path="${basedir}/target/jacoco-jars/org.jacoco.ant.jar"/>
+                                        </taskdef>
+                                        <mkdir dir="${project.build.directory}/coverage-reports"/>
+                                        <report>
+                                            <executiondata>
+                                                <fileset dir="${project.build.directory}/coverage-reports/">
+                                                    <include name="jacoco.exec"/>
+                                                </fileset>
+                                            </executiondata>
+                                            <structure name="Ballerina Coverage Report">
+                                                <group name="ballerina">
+                                                    <classfiles>
+                                                        <fileset dir="${project.build.directory}/../../bvm/ballerina-core/target/classes"/>
+                                                        <fileset dir="${project.build.directory}/../../compiler/ballerina-lang/target/classes">
+                                                            <exclude
+                                                                    name="org/wso2/ballerinalang/compiler/parser/antlr4/*"/>
+                                                        </fileset>
+                                                    </classfiles>
+                                                    <sourcefiles encoding="UTF-8">
+                                                        <fileset dir="${project.build.directory}/../../bvm/ballerina-core/src/main/java"/>
+                                                        <fileset dir="${project.build.directory}/../../compiler/ballerina-lang/src/main/java"/>
+                                                    </sourcefiles>
+                                                </group>
+                                            </structure>
+                                            <html destdir="${project.build.directory}/coverage-reports/site"/>
+                                        </report>
+                                    </then>
+                                </if>
+                            </target>
+                        </configuration>
+                    </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.ant</artifactId>
+                        <version>${jacoco.agent.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>ant-contrib</groupId>
+                        <artifactId>ant-contrib</artifactId>
+                        <version>${ant.contrib.plugin.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>ant</groupId>
+                                <artifactId>ant</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -82,8 +147,38 @@
                     <arguments>
                         <argument>${project.build.directory}/../</argument>
                         <argument>${project.version}</argument>
+                        <argument>${jacoco.agent.argLine}</argument>
                     </arguments>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <ballerina.agent.path>
+                            ${project.build.directory}/ballerina-integration-test-utils-${project.version}.jar
+                        </ballerina.agent.path>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-it-test-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                            <inclNoLocationClasses>true</inclNoLocationClasses>
+                            <propertyName>jacoco.agent.argLine</propertyName>
+                            <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
