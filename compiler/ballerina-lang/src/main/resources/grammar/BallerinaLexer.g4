@@ -145,7 +145,13 @@ COLON               : ':' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
-RIGHT_BRACE         : '}' {inStringTemplate}? -> mode(STRING_TEMPLATE);
+RIGHT_BRACE         : '}'
+{
+if (inStringTemplate)
+{
+    popMode();
+}
+};
 LEFT_PARENTHESIS    : '(' ;
 RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
@@ -970,7 +976,7 @@ StringTemplateLiteralEnd
     ;
 
 StringTemplateExpressionStart
-    :   StringTemplateText? InterpolationExpressionStart            -> mode(DEFAULT_MODE)
+    :   StringTemplateText? InterpolationExpressionStart            -> pushMode(DEFAULT_MODE)
     ;
 
 // We cannot use "StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)*" because it
