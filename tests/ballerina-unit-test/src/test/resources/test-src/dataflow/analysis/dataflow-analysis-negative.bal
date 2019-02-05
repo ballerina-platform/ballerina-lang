@@ -253,9 +253,9 @@ function testUninitializedVarReferrencing() {
                     <!-- refering to uninitialized {{a}} -->
                     <?target content {{a}}?>
                 </foo>`;
-                
+
     // uninitialized var in string template
-    string text = string `hello {{a}}`;
+    string text = string `hello ${a}`;
 
     // uninitialized var index/field based access
     _ = m.foo;

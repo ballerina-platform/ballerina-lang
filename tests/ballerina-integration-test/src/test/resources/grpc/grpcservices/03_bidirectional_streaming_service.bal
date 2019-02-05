@@ -35,7 +35,7 @@ service Chat on ep3 {
 
     resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
         grpc:Caller con = new;
-        string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
+        string msg = string `${chatMsg.name}: ${chatMsg.message}`;
         io:println(msg);
         string[] conKeys = self.consMap.keys();
         int len = conKeys.length();
@@ -59,7 +59,7 @@ service Chat on ep3 {
 
     resource function onComplete(grpc:Caller caller) {
         grpc:Caller con = new;
-        string msg = string `{{caller.getId()}} left the chat`;
+        string msg = string `${caller.getId()} left the chat`;
         io:println(msg);
         var v = self.consMap.remove(<string>caller.getId());
         string[] conKeys = self.consMap.keys();

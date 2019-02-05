@@ -94,7 +94,7 @@ service basic on new http:WebSocketListener(9090) {
     // This resource is triggered when a client connection is closed from the client side.
     resource function onClose(http:WebSocketCaller caller, int statusCode,
                                 string reason) {
-        io:println(string `Client left with {{statusCode}} because
-                    {{reason}}`);
+        io:println(string `Client left with ${statusCode} because
+                    ${reason}`);
     }
 }

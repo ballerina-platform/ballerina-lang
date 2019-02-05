@@ -9,17 +9,17 @@ function stringTemplateWithText2 () returns (string) {
 }
 
 function stringTemplateWithText3 () returns (string) {
-    string s = string `\{`;
+    string s = string `\$`;
     return s;
 }
 
 function stringTemplateWithText4 () returns (string) {
-    string s = string `\{{`;
+    string s = string `{{`;
     return s;
 }
 
 function stringTemplateWithText5 () returns (string) {
-    string s = string `{\{`;
+    string s = string `$\{`;
     return s;
 }
 
@@ -45,62 +45,62 @@ function stringTemplateWithText9 () returns (string) {
 
 function stringTemplateWithText10 () returns (string) {
     string name = "Ballerina";
-    string s = string `{{name}}`;
+    string s = string `${name}`;
     return s;
 }
 
 function stringTemplateWithText11 () returns (string) {
     string name = "Ballerina";
-    string s = string `Hello {{name}}`;
+    string s = string `Hello ${name}`;
     return s;
 }
 
 function stringTemplateWithText12 () returns (string) {
     string name = "Ballerina";
-    string s = string `{{name}} !!!`;
+    string s = string `${name} !!!`;
     return s;
 }
 
 function stringTemplateWithText13 () returns (string) {
     string name = "Ballerina";
-    string s = string `Hello {{name}} !!!`;
+    string s = string `Hello ${name} !!!`;
     return s;
 }
 
 function stringTemplateWithText14 () returns (string) {
     string firstName = "John";
     string lastName = "Smith";
-    string s = string `Hello {{lastName}}, {{firstName}}`;
+    string s = string `Hello ${lastName}, ${firstName}`;
     return s;
 }
 
 function stringTemplateWithText15 () returns (string) {
     string firstName = "John";
     string lastName = "Smith";
-    string s = string `Hello {{lastName}}, {{firstName}} !!!`;
+    string s = string `Hello ${lastName}, ${firstName} !!!`;
     return s;
 }
 
 function stringTemplateWithText16 () returns (string) {
     int count = 10;
-    string s = string `Count = {{count}}`;
+    string s = string `Count = ${count}`;
     return s;
 }
 
 function stringTemplateWithText17 () returns (string) {
-    string s = string `\{{count}}`;
+    string s = string `$\{count}`;
     return s;
 }
 
 function stringTemplateWithText18 () returns (string) {
     int count = 10;
-    string s = string `\\{{count}}`;
+    string s = string `\\${count}`;
     return s;
 }
 
 function stringTemplateWithText19 () returns (string) {
     string path = "root";
-    string s = string `Path = \\{{path}}`;
+    string s = string `Path = \\${path}`;
     return s;
 }
 
@@ -112,17 +112,17 @@ function stringTemplateWithText20 () returns (string) {
 function stringTemplateWithText21 () returns (string) {
     string firstName = "John";
     string lastName = "Smith";
-    string s = string `Hello {{firstName + " " + lastName}} !!!`;
+    string s = string `Hello ${firstName + " " + lastName} !!!`;
     return s;
 }
 
 function stringTemplateWithText22 () returns (string) {
-    string s = string `Hello {{getFullName()}} !!!`;
+    string s = string `Hello ${getFullName()} !!!`;
     return s;
 }
 
 function stringTemplateWithText23 () returns (string) {
-    string s = string `Hello {{getFirstName() + " " + getLastName()}} !!!`;
+    string s = string `Hello ${getFirstName() + " " + getLastName()} !!!`;
     return s;
 }
 
@@ -146,5 +146,5 @@ function emptyStringTemplate () returns (string) {
 function concatStringTemplateExprs() returns (string) {
     string s1 = "John";
     string s2 = "Doe";
-    return string `FirstName: {{s1}}.` + string ` Second name: {{s2}}`;
+    return string `FirstName: ${s1}.` + string ` Second name: ${s2}`;
 }

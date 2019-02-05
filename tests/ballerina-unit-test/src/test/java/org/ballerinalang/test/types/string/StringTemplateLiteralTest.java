@@ -58,7 +58,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText3", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{");
+        Assert.assertEquals(returns[0].stringValue(), "$");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText5", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{{");
+        Assert.assertEquals(returns[0].stringValue(), "${");
     }
 
     @Test
@@ -171,7 +171,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText17", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{{count}}");
+        Assert.assertEquals(returns[0].stringValue(), "${count}");
     }
 
     @Test

@@ -47,7 +47,7 @@ function test7 (string s) returns (int|error) {
 }
 
 function test8 (string s) returns (string) {
-    string x = string `hello {{s == "world" ? "world...!!" : "everyone..!"}}`;
+    string x = string `hello ${s == "world" ? "world...!!" : "everyone..!"}`;
     return x;
 }
 
