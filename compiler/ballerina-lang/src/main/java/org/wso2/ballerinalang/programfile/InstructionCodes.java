@@ -278,7 +278,6 @@ public interface InstructionCodes {
     
     int CONVERT = 218;
 
-    int ITR_NEW = 219;
     int ITR_NEXT = 221;
     int INT_RANGE = 222;
 

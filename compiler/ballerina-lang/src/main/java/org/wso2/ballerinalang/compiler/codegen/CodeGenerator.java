@@ -1305,9 +1305,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     emit(opcode, expr.regIndex, convExprRegIndex);
                 }
                 break;
-            case ITERATE:
-                emit(InstructionCodes.ITR_NEW, iExpr.expr.regIndex, regIndex);
-                break;
             case NEXT:
                 List<Operand> list = new LinkedList<>();
                 list.add(iExpr.expr.regIndex);
