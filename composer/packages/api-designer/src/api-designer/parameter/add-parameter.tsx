@@ -19,7 +19,7 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Checkbox, Form, Header, Icon, Select } from "semantic-ui-react";
+import { Button, Checkbox, Form, Header, Select } from "semantic-ui-react";
 
 export interface OpenApiAddParameterProps {
     openApiJson: Swagger.OpenAPIObject;
