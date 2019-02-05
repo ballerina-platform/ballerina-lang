@@ -143,7 +143,13 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
 
     foreach var key in keys {
         if (key == ALG) {
-            jwtHeader.alg = jwtHeaderJson[key].toString();
+            if (jwtHeaderJson[key].toString() == "RS256") {
+                jwtHeader.alg = RS256;
+            } else if (jwtHeaderJson[key].toString() == "RS384") {
+                jwtHeader.alg = RS384;
+            } else if (jwtHeaderJson[key].toString() == "RS512") {
+                jwtHeader.alg = RS512;
+            }
         } else if (key == TYP) {
             jwtHeader.typ = jwtHeaderJson[key].toString();
         } else if (key == CTY) {
@@ -267,10 +273,20 @@ function validateMandatoryFields(JwtPayload jwtPayload) returns (boolean) {
 }
 
 function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config)
-returns error? {
+returns boolean|error {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
-    string signPart = encodedJWTComponents[2];
-    return verifySignature(assertion, signPart, jwtHeader.alg, config.trustStore, config.certificateAlias);
+    byte[] signPart = check encoding:decodeBase64Url(encodedJWTComponents[2]);
+    crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = config.trustStore, keyAlias = config.certificateAlias);
+    if (jwtHeader.alg == RS256) {
+        return crypto:verifyRsaSha256Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+    } else if (jwtHeader.alg == RS384) {
+        return crypto:verifyRsaSha384Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+    } else if (jwtHeader.alg == RS512) {
+        return crypto:verifyRsaSha512Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+    } else {
+        error jwtError = error(AUTH_ERROR_CODE, { message : "Unsupported JWS algorithm" });
+        return jwtError;
+    }
 }
 
 function validateIssuer(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {

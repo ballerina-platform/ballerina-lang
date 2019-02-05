@@ -5,7 +5,7 @@ import ballerina/crypto;
 
 function testIssueJwt (string keyStorePath) returns (string)|error {
     auth:JwtHeader header = {};
-    header.alg = "RS256";
+    header.alg = auth:RS256;
     header.typ = "JWT";
 
     auth:JwtPayload payload = {};

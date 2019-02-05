@@ -14,6 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# The key algorithms supported by crypto module.
+public type JwtSigningAlgorithm RS256|RS384|RS512;
+
+# The `RSA-SHA256` algorithm
+public const RS256 = "RS256";
+
+# The `RSA-SHA384` algorithm
+public const RS384 = "RS384";
+
+# The `RSA-SHA512` algorithm
+public const RS512 = "RS512";
+
 //JOSH header parameters
 const string ALG = "alg";
 const string TYP = "typ";
@@ -36,7 +48,7 @@ const string IAT = "iat";
 # + kid - Key ID, hint indicating which key was used to secure the JWS
 # + customClaims - Map of custom claims
 public type JwtHeader record {
-    string alg = "";
+    JwtSigningAlgorithm alg?;
     string typ?;
     string cty?;
     string kid?;

@@ -36,7 +36,7 @@ import ballerina/crypto;
     crypto:KeyStore keyStore;
     string keyAlias;
     string keyPassword;
-    string signingAlg;
+    JwtSigningAlgorithm signingAlg;
     !...;
 };
 

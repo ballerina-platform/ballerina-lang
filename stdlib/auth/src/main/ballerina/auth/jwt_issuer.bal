@@ -30,7 +30,19 @@ public function issueJwt(JwtHeader header, JwtPayload payload, crypto:KeyStore k
     string jwtHeader = check buildHeaderString(header);
     string jwtPayload = check buildPayloadString(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
-    string signature = sign(jwtAssertion, header.alg, keyStore, keyAlias, keyPassword);
+    var privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias, keyPassword = keyPassword);
+
+    string signature = "";
+    if (header.alg == RS256) {
+        signature = encoding:encodeBase64Url(check crypto:signRsaSha256(jwtAssertion.toByteArray("UTF-8"), privateKey));
+    } else if (header.alg == RS384) {
+        signature = encoding:encodeBase64Url(check crypto:signRsaSha384(jwtAssertion.toByteArray("UTF-8"), privateKey));
+    } else if (header.alg == RS512) {
+        signature = encoding:encodeBase64Url(check crypto:signRsaSha512(jwtAssertion.toByteArray("UTF-8"), privateKey));
+    } else {
+        error jwtError = error(AUTH_ERROR_CODE, { message : "Unsupported JWS algorithm" });
+        return jwtError;
+    }
     return (jwtAssertion + "." + signature);
 }
 
@@ -40,7 +52,16 @@ function buildHeaderString(JwtHeader header) returns (string|error) {
         error jwtError = error(AUTH_ERROR_CODE, { message : "Mandatory field signing algorithm(alg) is empty." });
         return jwtError;
     }
-    headerJson[ALG] = header.alg;
+    if (header.alg == RS256) {
+        headerJson[ALG] = "RS256";
+    } else if (header.alg == RS384) {
+        headerJson[ALG] = "RS384";
+    } else if (header.alg == RS512) {
+        headerJson[ALG] = "RS512";
+    } else {
+        error jwtError = error(AUTH_ERROR_CODE, { message : "Unsupported JWS algorithm" });
+        return jwtError;
+    }
     headerJson[TYP] = "JWT";
     var customClaims = header["customClaims"];
     if (customClaims is map<any>) {
