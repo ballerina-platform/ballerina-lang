@@ -21,6 +21,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -163,6 +164,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaSha1",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     @Test(description = "Test RSA-SHA256 siging")
@@ -184,6 +193,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaSha256",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     @Test(description = "Test RSA-384 siging")
@@ -205,6 +222,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaSha384",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     @Test(description = "Test RSA-512 siging")
@@ -226,6 +251,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaSha512",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     @Test(description = "Test RSA-MD5 siging")
@@ -247,6 +280,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaMd5",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     @Test(description = "Test RSA-SHA1 siging with an invalid private key")

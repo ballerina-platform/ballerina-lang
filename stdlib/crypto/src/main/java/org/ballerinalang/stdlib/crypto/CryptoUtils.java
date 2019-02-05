@@ -31,6 +31,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import javax.crypto.Mac;
@@ -105,6 +106,29 @@ public class CryptoUtils {
             sig.initSign(privateKey);
             sig.update(input);
             return sig.sign();
+        } catch (NoSuchAlgorithmException | SignatureException e) {
+            throw new BallerinaException("error occurred while calculating signature: " + e.getMessage(), context);
+        }
+    }
+
+    /**
+     * Verify signature of a byte array based on the provided signing algorithm.
+     *
+     * @param context BRE context used to raise error messages
+     * @param algorithm algorithm used during verification
+     * @param publicKey public key to be used during verification
+     * @param data input byte array for verification
+     * @param signature signature byte array for verification
+     * @return validity of the signature
+     * @throws InvalidKeyException if the publicKey is invalid
+     */
+    public static boolean verify(Context context, String algorithm, PublicKey publicKey, byte[] data,
+                                byte[] signature) throws InvalidKeyException {
+        try {
+            Signature sig = Signature.getInstance(algorithm);
+            sig.initVerify(publicKey);
+            sig.update(data);
+            return sig.verify(signature);
         } catch (NoSuchAlgorithmException | SignatureException e) {
             throw new BallerinaException("error occurred while calculating signature: " + e.getMessage(), context);
         }

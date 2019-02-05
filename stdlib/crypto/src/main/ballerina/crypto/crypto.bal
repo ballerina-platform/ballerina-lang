@@ -170,6 +170,50 @@ public extern function signRsaSha384(byte[] input, PrivateKey privateKey) return
 # + return - The generated signature or error if private key is invalid
 public extern function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[]|error;
 
+# Verify RSA-MD5 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey publicKey) returns boolean|error;
+
+# Verify RSA-SHA1 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaSha1Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error;
+
+# Verify RSA-SHA256 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaSha256Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error;
+
+# Verify RSA-SHA384 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaSha384Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error;
+
+# Verify RSA-SHA512 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error;
+
 # Read a private key from the provided PKCS#12 archive file.
 #
 # + keyStore - Key store configuration
