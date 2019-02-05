@@ -22,7 +22,8 @@ function genJVMClassFile(byte[] birBinary, string progName) returns byte[] {
     checkValidBirChannel(reader);
     bir:ConstPoolParser cpParser = new(reader);
     bir:BirChannelReader birReader = new(reader, cpParser.parse());
-    bir:PackageParser pkgParser = new(birReader);
+    bir:TypeParser typeParser = new (birReader);
+    bir:PackageParser pkgParser = new(birReader, typeParser);
     bir:Package pkg = pkgParser.parsePackage();
     return generateJVMClass(pkg);
 }

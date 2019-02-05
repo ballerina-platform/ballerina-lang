@@ -74,7 +74,17 @@ public type BTypeBoolean "boolean";
 
 public type BTypeString "string";
 
-public type BType BTypeInt | BTypeBoolean | BTypeNil | BTypeString;
+public type BArrayType record {
+   BType eType;
+};
+
+public type BUnionType record {
+   BType[]  members;
+};
+
+
+public type BType BTypeInt | BTypeBoolean | BTypeNil | "byte" | "float" | BTypeString | BUnionType |
+                  BInvokableType | BArrayType;
 
 
 public type BTypeSymbol record {
@@ -229,7 +239,7 @@ public type Branch object {
         self.trueBB = trueBB;
     }
 };
-//
+
 public type GOTO object {
     public InstructionKind kind;
     public BasicBlock targetBB;
@@ -238,7 +248,7 @@ public type GOTO object {
         self.targetBB = targetBB;
     }
 };
-//
+
 public type Return object {
     public InstructionKind kind;
     public function __init(InstructionKind kind) {
