@@ -261,12 +261,11 @@ function testArrayData() returns (int, int[], string[], float[], boolean[], byte
     boolean[] bArr = [true, false];
     byte[] byteArrVal = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
 
-    ArrayData d1 = { id: 10, intArr: iArr, strArr: sArr, floatArr: fArr, boolArr: bArr, byteArr: byteArrVal };
-
     table<ArrayData> t1 = table {
         { key id, intArr, strArr, floatArr, boolArr, byteArr}
     };
 
+    ArrayData d1 = { id: 10, intArr: iArr, strArr: sArr, floatArr: fArr, boolArr: bArr, byteArr: byteArrVal };
     _ = t1.add(d1);
 
     int i = 0;
@@ -275,7 +274,6 @@ function testArrayData() returns (int, int[], string[], float[], boolean[], byte
     float[] retfArr;
     boolean[] retbArr;
     byte[] retbyteArr;
-
     foreach var v in t1 {
         i = v.id;
         retiArr = v.intArr;
