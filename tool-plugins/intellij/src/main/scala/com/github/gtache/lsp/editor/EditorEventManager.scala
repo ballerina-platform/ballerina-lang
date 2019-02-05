@@ -209,14 +209,29 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                 val scalaSignatures = signatures.asScala
                 val activeSignatureIndex = signature.getActiveSignature
                 val activeParameterIndex = signature.getActiveParameter
-                val activeParameter = scalaSignatures(activeSignatureIndex).getParameters.get(activeParameterIndex).getLabel
-                val builder = StringBuilder.newBuilder
-                builder.append("<html>")
-                scalaSignatures.take(activeSignatureIndex).foreach(sig => builder.append(sig.getLabel).append("<br>"))
-                builder.append("<b>").append(scalaSignatures(activeSignatureIndex).getLabel).append("</b>")
-                scalaSignatures.drop(activeSignatureIndex + 1).foreach(sig => builder.append("<br>").append(sig.getLabel))
-                builder.append("</html>")
-                invokeLater(() => currentHint = createAndShowEditorHint(editor, builder.toString(), point, HintManager.UNDER, HintManager.HIDE_BY_OTHER_HINT))
+                val activeParameter = if(scalaSignatures(activeSignatureIndex).getParameters.size > activeParameterIndex)
+                  scalaSignatures(activeSignatureIndex).getParameters.get(activeParameterIndex).getLabel else ""
+                val signatureDescription = scalaSignatures(activeSignatureIndex).getDocumentation
+                if(signatureDescription.isLeft) {
+                  // Todo - Add parameter Documentation
+                  val builder = StringBuilder.newBuilder
+                  builder.append("<html>")
+                  scalaSignatures.take(activeSignatureIndex).foreach(sig => builder.append(sig.getLabel).append("<br>"))
+                  builder.append("<b>").append(scalaSignatures(activeSignatureIndex).getLabel.replace(" " + activeParameter, "<font color=\"yellow\">" + " " + activeParameter + "</font>")).append("</b>")
+                  builder.append("<div>").append(signatureDescription.getLeft).append("</div>")
+                  scalaSignatures.drop(activeSignatureIndex + 1).foreach(sig => builder.append("<br>").append(sig.getLabel))
+                  builder.append("</html>")
+                  invokeLater(() => currentHint = createAndShowEditorHint(editor, builder.toString(), point, HintManager.UNDER, HintManager.HIDE_BY_OTHER_HINT))
+                } else if (signatureDescription.isRight) {
+                  // Todo - Add marked content parsing
+                  val builder = StringBuilder.newBuilder
+                  builder.append("<html>")
+                  scalaSignatures.take(activeSignatureIndex).foreach(sig => builder.append(sig.getLabel).append("<br>"))
+                  builder.append("<b>").append(scalaSignatures(activeSignatureIndex).getLabel).append("</b>")
+                  scalaSignatures.drop(activeSignatureIndex + 1).foreach(sig => builder.append("<br>").append(sig.getLabel))
+                  builder.append("</html>")
+                  invokeLater(() => currentHint = createAndShowEditorHint(editor, builder.toString(), point, HintManager.UNDER, HintManager.HIDE_BY_OTHER_HINT))
+                }
               }
             }
           } catch {
