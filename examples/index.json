@@ -258,8 +258,8 @@
                 "url": "type-conversion"
             },
             {
-                "name": "Type Assertion",
-                "url": "type-assertion"
+                "name": "Type Cast",
+                "url": "type-cast"
             },
             {
                 "name": "Nil Lifting",
