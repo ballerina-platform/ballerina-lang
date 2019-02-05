@@ -65,7 +65,7 @@ function test7(){
     s.filter(function (string s) returns (boolean, int) {return (true, 1);});
     s.filter(function (string s) {});
     s.filter(function (person p) {});
-    _ = s.filter(function (string s) returns (person) {return null;});
+    _ = s.filter(function (string s) returns (person) {return ();});
 }
 
 function test8() {
@@ -97,11 +97,11 @@ function test11() {
     map<any> z = {a:"1", b:"2"};
 
     map<any> m = z.filter(function (any s) returns boolean {
-          return s == null;
+          return s == ();
     });
 
     any x = z.filter(function (any s) returns boolean {
-         return s == null;
+         return s == ();
     });
 }
 

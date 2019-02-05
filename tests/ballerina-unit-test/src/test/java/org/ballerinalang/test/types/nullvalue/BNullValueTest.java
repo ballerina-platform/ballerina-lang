@@ -38,10 +38,12 @@ public class BNullValueTest {
 
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        Assert.assertEquals(result.getErrorCount(), 4);
+        Assert.assertEquals(result.getErrorCount(), 6);
         BAssertUtil.validateError(result, 0, "operator '>' not defined for '()' and 'xml?'", 12, 13);
         BAssertUtil.validateError(result, 1, "incompatible types: expected 'int', found '()'", 16, 13);
-        BAssertUtil.validateError(result, 2, "operator '+' not defined for '()' and '()'", 20, 13);
-        BAssertUtil.validateError(result, 3, "incompatible types: expected 'string', found '()'", 24, 16);
+        BAssertUtil.validateError(result, 2, "null literal can only be used in JSON related contexts", 20, 20);
+        BAssertUtil.validateError(result, 3, "null literal can only be used in JSON related contexts", 20, 13);
+        BAssertUtil.validateError(result, 4, "operator '+' not defined for '()' and '()'", 20, 13);
+        BAssertUtil.validateError(result, 5, "incompatible types: expected 'string', found '()'", 24, 16);
     }
 }
