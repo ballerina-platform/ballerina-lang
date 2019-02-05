@@ -237,4 +237,13 @@ public class StringTemplateLiteralTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "FirstName: John. Second name: Doe");
     }
+
+    @Test
+    public void testComplexStringTemplateExpr() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "complexStringTemplateExpr", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(),
+                "Hello $$$\\{DummyText`\\test Ballerina endText\\{{{{{innerStartText 7 }}!!!");
+    }
 }

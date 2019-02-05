@@ -148,3 +148,8 @@ function concatStringTemplateExprs() returns (string) {
     string s2 = "Doe";
     return string `FirstName: ${s1}.` + string ` Second name: ${s2}`;
 }
+
+function complexStringTemplateExpr() returns (string) {
+    string s1 = "Ballerina";
+    return string `Hello $$$\\{DummyText\`\\test ${s1} endText\\{{{{{innerStartText ${4 + 3} }}!!!`;
+}
