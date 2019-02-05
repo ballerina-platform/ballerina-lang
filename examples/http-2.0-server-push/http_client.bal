@@ -21,7 +21,7 @@ public function main() {
         return;
     }
 
-    http:PushPromise[] promises = [];
+    http:PushPromise?[] promises = [];
     int promiseCount = 0;
     // Check if promises exists.
     boolean hasPromise = clientEP->hasPromise(httpFuture);
@@ -76,7 +76,8 @@ public function main() {
     }
 
     // Fetch required promise responses.
-    foreach http:PushPromise promise in promises {
+    foreach var p in promises {
+        http:PushPromise promise = <http:PushPromise> p;
         http:Response promisedResponse = new;
         var promisedResponseResult = clientEP->getPromisedResponse(promise);
         if (promisedResponseResult is http:Response) {
