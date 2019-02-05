@@ -158,6 +158,9 @@ public class BValueArray extends BNewArray implements Serializable {
             byteValues = (byte[]) newArrayInstance(Byte.TYPE);
         } else if (type.getTag() == TypeTags.FLOAT_TAG) {
             floatValues = (double[]) newArrayInstance(Double.TYPE);
+        } else if (type.getTag() == TypeTags.DECIMAL_TAG) {
+            refValues = (BRefType[]) newArrayInstance(BRefType.class);
+            Arrays.fill(refValues, type.getEmptyValue());
         } else if (type.getTag() == TypeTags.STRING_TAG) {
             stringValues = (String[]) newArrayInstance(String.class);
             Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
