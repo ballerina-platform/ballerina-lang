@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -62,8 +61,6 @@ public class JVMCodeGen {
     private String classFileName = "DEFAULT.class";
     private static JVMCodeGen jvmCodeGen = new JVMCodeGen();
 
-    private static final PrintStream out = System.out;
-
     private JVMCodeGen() {}
 
     public static JVMCodeGen getInstance() {
@@ -81,7 +78,6 @@ public class JVMCodeGen {
 
         BIREmitter birEmitter = new BIREmitter();
         String birText = birEmitter.emit(bir);
-        out.println(birText);
 
         generateJVMClassFile(bir, outputPath);
     }
