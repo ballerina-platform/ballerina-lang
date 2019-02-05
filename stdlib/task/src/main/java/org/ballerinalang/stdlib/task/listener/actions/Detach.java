@@ -20,14 +20,23 @@ package org.ballerinalang.stdlib.task.listener.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.listener.objects.Task;
+import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 
+import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
  * Native function to detach a service from the listener.
@@ -46,7 +55,16 @@ public class Detach extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        /*BValue task = context.getRefArgument(0);
-        BValue service = context.getRefArgument(1);*/
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
+        String taskId = taskStruct.get(TIMER_TASK_ID_FIELD).stringValue();
+        BMap<String, BValue> serviceStruct = (BMap) context.getRefArgument(1);
+        Service service = BLangConnectorSPIUtil.getService(context.getProgramFile(), serviceStruct);
+
+        try {
+            Task task = TaskRegistry.getInstance().getTask(taskId);
+            task.removeService(service);
+        } catch (SchedulingException e) {
+            context.setReturnValues(createError(context, e.getMessage()));
+        }
     }
 }

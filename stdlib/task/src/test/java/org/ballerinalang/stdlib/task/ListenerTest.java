@@ -132,4 +132,15 @@ public class ListenerTest {
             return (((BBoolean) isPaused[0]).booleanValue() && ((BBoolean) isResumed[0]).booleanValue());
         });
     }
+
+    /*
+     * TODO:
+     * Compiler plugin does not hit. Check !
+     */
+    @Test(
+            description = "Tests compiler error for a task with an invalid resource name"
+    )
+    public void testInvalidResourceName() {
+        CompileResult compileResult = BCompileUtil.compile("listener-test-src/timer/invalid_resource.bal");
+    }
 }

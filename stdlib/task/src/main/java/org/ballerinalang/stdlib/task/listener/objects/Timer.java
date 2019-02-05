@@ -112,6 +112,14 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
+    public void removeService(Service service) {
+        this.serviceList.remove(service);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void pause() throws SchedulingException {
         if (this.isPaused) {
             throw new SchedulingException("Timer is already paused");

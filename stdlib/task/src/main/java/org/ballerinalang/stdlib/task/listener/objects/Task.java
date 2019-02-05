@@ -58,6 +58,13 @@ public interface Task {
     void addService(Service service);
 
     /**
+     * Remove particular service from the registry of the Task.
+     *
+     * @param service   Service which needs to be detached from the task.
+     */
+    void removeService(Service service);
+
+    /**
      * Pause the task, if running.
      *
      * @throws SchedulingException  when task is not running or any other error occurs.

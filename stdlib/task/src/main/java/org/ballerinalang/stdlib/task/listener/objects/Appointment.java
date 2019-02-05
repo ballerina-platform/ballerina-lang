@@ -63,34 +63,59 @@ public class Appointment extends AbstractTask {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void stop() throws SchedulingException {
         AppointmentManager.getInstance().stop(id);
         super.stop();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ArrayList<Service> getServices() {
         return this.serviceList;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addService(Service service) {
         this.serviceList.add(service);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void pause() throws SchedulingException {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeService(Service service) {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void resume() throws SchedulingException {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void runServices(Context context) {
-
     }
 }
