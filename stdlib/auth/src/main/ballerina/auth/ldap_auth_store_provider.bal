@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/runtime;
+import ballerina/crypto;
 
 # Represents configurations that required for LDAP auth store.
 #
@@ -70,18 +71,8 @@ public type LdapAuthProviderConfig record {
 # + trustStore - Configures the trust store to be used
 # + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
 public type SecureClientSocket record {
-    TrustStore? trustStore = ();
+    crypto:TrustStore? trustStore = ();
     string trustedCertFile = "";
-    !...;
-};
-
-# A record for providing trust store related configurations.
-#
-# + path - Path to the trust store file
-# + password - Trust store password
-public type TrustStore record {
-    string path = "";
-    string password = "";
     !...;
 };
 

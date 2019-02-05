@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.internal.jwt.crypto;
+package org.ballerinalang.stdlib.auth.jwt.crypto;
 
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSVerifier;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSAVerifier;
+import org.ballerinalang.auth.ldap.jwt.crypto.JWSVerifier;
+import org.ballerinalang.auth.ldap.jwt.crypto.RSAVerifier;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -53,7 +53,7 @@ public class JWTVerifierTest {
     private RSAPublicKey getRSAPublicKey() throws Exception {
         KeyStore trustStore;
         InputStream file = new FileInputStream(new File(getClass().getClassLoader().getResource(
-                "datafiles/keyStore/ballerinaTruststore.p12").getPath()));
+                "datafiles/keystore/ballerinaTruststore.p12").getPath()));
         trustStore = java.security.KeyStore.getInstance("pkcs12");
         trustStore.load(file, "ballerina".toCharArray());
         Certificate publicCertificate = trustStore.getCertificate("ballerina");

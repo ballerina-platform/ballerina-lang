@@ -16,8 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.internal.jwt.signature;
+package org.ballerinalang.auth.ldap.jwt.signature;
 
+import org.ballerinalang.auth.ldap.jwt.crypto.JWSSigner;
+import org.ballerinalang.auth.ldap.jwt.crypto.KeyStoreHolder;
+import org.ballerinalang.auth.ldap.jwt.crypto.RSASigner;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -28,9 +31,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
-import org.ballerinalang.stdlib.internal.jwt.crypto.KeyStoreHolder;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,35 +42,37 @@ import java.security.PrivateKey;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
+        orgName = "ballerina", packageName = "auth",
         functionName = "sign",
         args = {
                 @Argument(name = "data", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING),
                 @Argument(name = "keyStore", type = TypeKind.RECORD, structType = "KeyStore",
-                        structPackage = "ballerina/internal")
+                        structPackage = "ballerina/internal"),
+                @Argument(name = "keyAlias", type = TypeKind.STRING),
+                @Argument(name = "keyPassword", type = TypeKind.STRING)
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class Sign extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Sign.class);
-    private static final String KEY_ALIAS_FIELD = "keyAlias";
-    private static final String KEY_PASSWORD_FIELD = "keyPassword";
-    private static final String KEY_STORE_PATH_FIELD = "keyStoreFilePath";
-    private static final String KEY_STORE_PASSWORD_FIELD = "keyStorePassword";
+    private static final String KEY_STORE_PATH_FIELD = "path";
+    private static final String KEY_STORE_PASSWORD_FIELD = "password";
 
     @Override
     public void execute(Context context) {
         String data = context.getStringArgument(0);
         String algorithm = context.getStringArgument(1);
+        String keyAlias = context.getStringArgument(2);
+        String keyPasswordStr = context.getStringArgument(3);
         BMap<String, BValue> keyStore = (BMap<String, BValue>) context.getRefArgument(0);
-        char[] keyPassword = keyStore.get(KEY_PASSWORD_FIELD).stringValue().toCharArray();
+        char[] keyPassword = keyPasswordStr.toCharArray();
         char[] keyStorePassword = keyStore.get(KEY_STORE_PASSWORD_FIELD).stringValue().toCharArray();
         String signature = null;
         PrivateKey privateKey;
         try {
-            privateKey = KeyStoreHolder.getInstance().getPrivateKey(keyStore.get(KEY_ALIAS_FIELD).stringValue(),
+            privateKey = KeyStoreHolder.getInstance().getPrivateKey(keyAlias,
                     keyPassword, PathResolver.getResolvedPath(keyStore.get(KEY_STORE_PATH_FIELD).stringValue()),
                     keyStorePassword);
             JWSSigner signer = new RSASigner(privateKey);

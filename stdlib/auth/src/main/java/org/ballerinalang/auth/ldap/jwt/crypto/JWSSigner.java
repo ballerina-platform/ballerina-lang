@@ -16,32 +16,25 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.internal.jwt.crypto;
+package org.ballerinalang.auth.ldap.jwt.crypto;
 
 /**
- * A checked exception for wrapping potential exceptions thrown during JWT signature processing.
+ * JSON web signature.
  *
  * @since 0.964.0
  */
-public class JWSException extends Exception {
+public interface JWSSigner {
 
     /**
-     * Constructs a new JWSException with the specified message.
+     * Signs the specified input data.
      *
-     * @param message Error message
+     * @param data      This input should contain the header and body part of the JWT.
+     *                  BASE64URL(UTF8(JOSE header)) || '.' || BASE64URL(JWS payload)
+     * @param algorithm JWS algorithm used to secure the JWS.
+     *                  This is the 'alg' header parameter.
+     * @return The signature part of the JWS object.
+     * @throws JWSException If the JWS algorithm is not supported or if
+     *                      signing failed for some other internal reason.
      */
-    public JWSException(String message) {
-        super(message);
-    }
-
-    /**
-     * Constructs a new JWSException with the specified message.
-     *
-     * @param message Error message
-     * @param cause   The cause of the failure
-     */
-    public JWSException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
+    String sign(final String data, final String algorithm) throws JWSException;
 }

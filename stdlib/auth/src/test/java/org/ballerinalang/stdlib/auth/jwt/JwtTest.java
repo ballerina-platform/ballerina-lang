@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.internal.jwt;
+package org.ballerinalang.stdlib.auth.jwt;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -46,9 +46,9 @@ public class JwtTest {
     @BeforeClass
     public void setup() throws Exception {
         keyStorePath = getClass().getClassLoader().getResource(
-                "datafiles/keyStore/ballerinaKeystore.p12").getPath();
+                "datafiles/keystore/ballerinaKeystore.p12").getPath();
         trustStorePath = getClass().getClassLoader().getResource(
-                "datafiles/keyStore/ballerinaTruststore.p12").getPath();
+                "datafiles/keystore/ballerinaTruststore.p12").getPath();
         resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().
                 getLocation().getPath()).getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "jwt");

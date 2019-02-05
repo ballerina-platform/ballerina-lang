@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.internal.jwt.signature;
+package org.ballerinalang.auth.ldap.jwt.signature;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

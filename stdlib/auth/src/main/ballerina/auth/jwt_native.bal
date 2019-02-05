@@ -20,16 +20,10 @@
 # + signature - Signature string.
 # + algorithm - Signature algorithm.
 # + trustStore - Truststore.
-# + return - Verified status. true or false.
-extern function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
-    returns error?;
-
-type TrustStore record {
-    string certificateAlias;
-    string trustStoreFilePath;
-    string trustStorePassword;
-    !...;
-};
+# + keyAlias - Key alias.
+# + return - error if verification failed, nil if verification is successful.
+extern function verifySignature(string data, string signature, string algorithm, crypto:TrustStore trustStore,
+                                string keyAlias) returns error?;
 
 # Sign the given input jwt data.
 #
@@ -37,18 +31,6 @@ type TrustStore record {
 # + algorithm - Signature string.
 # + keyStore - Keystore.
 # + return - Signature. Signed string.
-extern function sign(string data, string algorithm, KeyStore keyStore) returns (string);
+extern function sign(string data, string algorithm, crypto:KeyStore keyStore, string keyAlias, string keyPassword)
+returns (string);
 
-type KeyStore record {
-    string keyAlias;
-    string keyPassword;
-    string keyStoreFilePath;
-    string keyStorePassword;
-    !...;
-};
-
-# Parse JSON string to generate JSON object.
-#
-# + s - JSON string
-# + return - JSON object.
-public extern function parseJson(string s) returns (json|error);

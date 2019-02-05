@@ -1,21 +1,26 @@
 import ballerina/auth;
+import ballerina/crypto;
 
 function testJwtAuthenticatorCreationWithCache() returns (auth:JWTAuthProvider) {
-    auth:JWTAuthProviderConfig jwtConfig = {};
-    jwtConfig.issuer = "wso2";
-    jwtConfig.audience = "ballerina";
-    jwtConfig.certificateAlias = "ballerina";
+    crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
+    auth:JWTAuthProviderConfig jwtConfig = {
+        issuer: "wso2",
+        audience: "ballerina",
+        certificateAlias: "ballerina",
+        trustStore: trustStore
+    };
     auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider;
 }
 
 function testAuthenticationSuccess(string jwtToken, string trustStorePath) returns (boolean|error) {
-    auth:JWTAuthProviderConfig jwtConfig = {};
-    jwtConfig.issuer = "wso2";
-    jwtConfig.audience = "ballerina";
-    jwtConfig.certificateAlias = "ballerina";
-    jwtConfig.trustStoreFilePath = trustStorePath;
-    jwtConfig.trustStorePassword = "ballerina";
+    crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
+    auth:JWTAuthProviderConfig jwtConfig = {
+        issuer: "wso2",
+        audience: "ballerina",
+        certificateAlias: "ballerina",
+        trustStore: trustStore
+    };
     auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider.authenticate(jwtToken);
 }

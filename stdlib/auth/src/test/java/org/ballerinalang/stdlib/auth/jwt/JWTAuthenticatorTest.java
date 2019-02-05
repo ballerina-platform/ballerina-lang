@@ -18,6 +18,8 @@
 
 package org.ballerinalang.stdlib.auth.jwt;
 
+import org.ballerinalang.auth.ldap.jwt.crypto.JWSSigner;
+import org.ballerinalang.auth.ldap.jwt.crypto.RSASigner;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -26,8 +28,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.internal.jwt.crypto;
+package org.ballerinalang.stdlib.auth.jwt.crypto;
 
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
+import org.ballerinalang.auth.ldap.jwt.crypto.JWSSigner;
+import org.ballerinalang.auth.ldap.jwt.crypto.RSASigner;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -51,7 +51,7 @@ public class JWTSignerTest {
     private PrivateKey getPrivateKey() throws Exception {
         KeyStore keyStore;
         InputStream file = new FileInputStream(new File(getClass().getClassLoader().getResource(
-                "datafiles/keyStore/ballerinaKeystore.p12").getPath()));
+                "datafiles/keystore/ballerinaKeystore.p12").getPath()));
         keyStore = java.security.KeyStore.getInstance("pkcs12");
         keyStore.load(file, "ballerina".toCharArray());
         KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ballerina", new KeyStore

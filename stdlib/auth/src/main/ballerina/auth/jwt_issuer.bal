@@ -15,44 +15,29 @@
 // under the License.
 
 import ballerina/encoding;
-
-# Represents JWT issuer configurations.
-# + keyAlias - Key alias used for signing
-# + keyPassword - Key password used for signing
-# + keyStoreFilePath - Key store file path
-# + keyStorePassword - Key store password
-public type JWTIssuerConfig record {
-    string keyAlias = "";
-    string keyPassword = "";
-    string keyStoreFilePath = "";
-    string keyStorePassword = "";
-    !...;
-};
+import ballerina/crypto;
 
 # Issue a JWT token.
 #
 # + header - JwtHeader object
 # + payload - JwtPayload object
-# + config - JWTIssuerConfig object
+# + keyStore - Keystore to be used in JWT signing
+# + keyAlias - Signing key alias
+# + keyPassword - Signing key password
 # + return - JWT token string or an error if token validation fails
-public function issue(JwtHeader header, JwtPayload payload, JWTIssuerConfig config) returns (string|error) {
-    string jwtHeader = check createHeader(header);
-    string jwtPayload = check createPayload(payload);
+public function issueJwt(JwtHeader header, JwtPayload payload, crypto:KeyStore keyStore, string keyAlias,
+                         string keyPassword) returns (string|error) {
+    string jwtHeader = check buildHeaderString(header);
+    string jwtPayload = check buildPayloadString(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
-    KeyStore keyStore = {
-        keyAlias : config.keyAlias,
-        keyPassword : config.keyPassword,
-        keyStoreFilePath : config.keyStoreFilePath,
-        keyStorePassword : config.keyStorePassword
-    };
-    string signature = sign(jwtAssertion, header.alg, keyStore);
+    string signature = sign(jwtAssertion, header.alg, keyStore, keyAlias, keyPassword);
     return (jwtAssertion + "." + signature);
 }
 
-function createHeader(JwtHeader header) returns (string|error) {
+function buildHeaderString(JwtHeader header) returns (string|error) {
     json headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Mandatory field signing algorithm(alg) is empty." });
+        error jwtError = error(AUTH_ERROR_CODE, { message : "Mandatory field signing algorithm(alg) is empty." });
         return jwtError;
     }
     headerJson[ALG] = header.alg;
@@ -66,10 +51,10 @@ function createHeader(JwtHeader header) returns (string|error) {
     return encodedPayload;
 }
 
-function createPayload(JwtPayload payload) returns (string|error) {
+function buildPayloadString(JwtPayload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
-        error jwtError = error(INTERNAL_ERROR_CODE,
+        error jwtError = error(AUTH_ERROR_CODE,
                             { message : "Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty." });
         return jwtError;
     }

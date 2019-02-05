@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.internal.jwt.crypto;
+package org.ballerinalang.auth.ldap.jwt.crypto;
 
 /**
  * Provides the supported algorithms.

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.internal.jwt.crypto;
+package org.ballerinalang.auth.ldap.jwt.crypto;
 
 /**
  * JSON Web Signature (JWS) algorithm name, represents the {@code alg} header

@@ -16,8 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.internal.jwt.signature;
+package org.ballerinalang.auth.ldap.jwt.signature;
 
+import org.ballerinalang.auth.ldap.jwt.crypto.JWSVerifier;
+import org.ballerinalang.auth.ldap.jwt.crypto.RSAVerifier;
+import org.ballerinalang.auth.ldap.jwt.crypto.TrustStoreHolder;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -27,9 +30,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSVerifier;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSAVerifier;
-import org.ballerinalang.stdlib.internal.jwt.crypto.TrustStoreHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,14 +47,15 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
+        orgName = "ballerina", packageName = "auth",
         functionName = "verifySignature",
         args = {
                 @Argument(name = "data", type = TypeKind.STRING),
                 @Argument(name = "signature", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING),
                 @Argument(name = "trustStore", type = TypeKind.RECORD, structType = "TrustStoreHolder",
-                        structPackage = "ballerina/internal")
+                        structPackage = "ballerina/internal"),
+                @Argument(name = "keyAlias", type = TypeKind.STRING)
         },
         returnType = {
                 @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage =
@@ -64,23 +65,23 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 )
 public class VerifySignature extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(VerifySignature.class);
-    private static final String CERT_ALIAS = "certificateAlias";
-    private static final String TRUST_STORE_PATH = "trustStoreFilePath";
-    private static final String TRUST_STORE_PASSWORD = "trustStorePassword";
+    private static final String TRUST_STORE_PATH = "path";
+    private static final String TRUST_STORE_PASSWORD = "password";
 
     @Override
     public void execute(Context context) {
         String data = context.getStringArgument(0);
         String signature = context.getStringArgument(1);
         String algorithm = context.getStringArgument(2);
+        String keyAlias = context.getStringArgument(3);
         BMap<String, BValue> trustStore = (BMap<String, BValue>) context.getRefArgument(0);
         char[] trustStorePassword = trustStore.get(TRUST_STORE_PASSWORD).stringValue().toCharArray();
         RSAPublicKey publicKey;
         String msg = null;
         try {
             X509Certificate certificate = (X509Certificate) TrustStoreHolder.getInstance().getTrustedCertificate(
-                    trustStore.get(CERT_ALIAS).stringValue(),
-                    PathResolver.getResolvedPath(trustStore.get(TRUST_STORE_PATH).stringValue()), trustStorePassword);
+                    keyAlias, PathResolver.getResolvedPath(trustStore.get(TRUST_STORE_PATH).stringValue()),
+                    trustStorePassword);
             certificate.checkValidity();
             publicKey = (RSAPublicKey) certificate.getPublicKey();
 
@@ -89,9 +90,9 @@ public class VerifySignature extends BlockingNativeCallableUnit {
                 msg = "Invalid signature";
             }
         } catch (CertificateExpiredException e) {
-            msg = "Certificate with alias " + trustStore.get(CERT_ALIAS) + " has expired";
+            msg = "Certificate with alias " + keyAlias + " has expired";
         } catch (CertificateNotYetValidException e) {
-            msg = "Certificate with alias " + trustStore.get(CERT_ALIAS) + " is not yet valid";
+            msg = "Certificate with alias " + keyAlias + " is not yet valid";
         } catch (Exception e) {
             msg = "Error in verifying signature";
             log.error(msg, e);

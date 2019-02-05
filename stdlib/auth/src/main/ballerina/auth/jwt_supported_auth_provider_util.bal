@@ -46,10 +46,10 @@ public type InferredJwtAuthProviderConfig record {
 # + username - user name
 # + authConfig - authentication provider configurations that supports generating JWT for client interactions
 function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig) {
-    internal:JwtHeader header = createHeader(authConfig);
-    internal:JwtPayload payload = createPayload(username, authConfig);
-    internal:JWTIssuerConfig config = createJWTIssueConfig(authConfig);
-    var token = internal:issue(header, payload, config);
+    JwtHeader header = createHeader(authConfig);
+    JwtPayload payload = createPayload(username, authConfig);
+    crypto:KeyStore keyStore = { path: authConfig.keyStoreFilePath, password: authConfig.keyStorePassword };
+    var token = issueJwt(header, payload, keyStore, authConfig.keyAlias, authConfig.keyPassword);
     if (token is string) {
         runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
         authContext.scheme = "jwt";
@@ -57,15 +57,15 @@ function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig)
     }
 }
 
-function createHeader(InferredJwtAuthProviderConfig authConfig) returns (internal:JwtHeader) {
-    internal:JwtHeader header = { alg: authConfig.signingAlg, typ: "JWT" };
+function createHeader(InferredJwtAuthProviderConfig authConfig) returns (JwtHeader) {
+    JwtHeader header = { alg: authConfig.signingAlg, typ: "JWT" };
     return header;
 }
 
-function createPayload(string username, InferredJwtAuthProviderConfig authConfig) returns (internal:JwtPayload) {
+function createPayload(string username, InferredJwtAuthProviderConfig authConfig) returns (JwtPayload) {
     string audList = authConfig.audience;
     string[] audience = audList.split(" ");
-    internal:JwtPayload payload = {
+    JwtPayload payload = {
         sub: username,
         iss: authConfig.issuer,
         exp: time:currentTime().time / 1000 + authConfig.expTime,
@@ -75,14 +75,4 @@ function createPayload(string username, InferredJwtAuthProviderConfig authConfig
         aud: audience
     };
     return payload;
-}
-
-function createJWTIssueConfig(InferredJwtAuthProviderConfig authConfig) returns (internal:JWTIssuerConfig) {
-    internal:JWTIssuerConfig config = {
-        keyAlias: authConfig.keyAlias,
-        keyPassword: authConfig.keyPassword,
-        keyStoreFilePath: authConfig.keyStoreFilePath,
-        keyStorePassword: authConfig.keyStorePassword
-    };
-    return config;
 }
