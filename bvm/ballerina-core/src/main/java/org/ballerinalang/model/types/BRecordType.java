@@ -18,7 +18,6 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.util.Flags;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.RecordTypeInfo;
@@ -57,73 +56,39 @@ public class BRecordType extends BStructureType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
+        if (this.implicitInitValue == null) {
+            this.implicitInitValue = new BMap<>(this);
+            this.fields.entrySet().stream()
+                    .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
+                    .forEach(entry -> {
+                        BValue value = entry.getValue().fieldType.getZeroValue();
+                        implicitInitValue.put(entry.getKey(), value);
+                    });
+        }
+
         try {
-            if (this.implicitInitValue == null) {
-                this.implicitInitValue = new BMap<>(this);
-                this.fields.entrySet().stream()
-                        .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
-                        .forEach(entry -> {
-                            BValue value = entry.getValue().fieldType.getZeroValue();
-                            BType fieldType = entry.getValue().fieldType;
-                            if (value == null) {
-                                switch (fieldType.getTag()) {
-                                    case TypeTags.NULL_TAG:
-                                    case TypeTags.ANY_TAG:
-                                    case TypeTags.ANYDATA_TAG:
-                                    case TypeTags.JSON_TAG:
-                                        break;
-                                    case TypeTags.UNION_TAG:
-                                        if (((BUnionType) fieldType).isNullable()) {
-                                            break;
-                                        }
-                                    default:
-                                        throw new IllegalStateException(
-                                                "Field '" + entry.getValue().fieldName + "' in record type '" +
-                                                        this.toString() + "' does not have an implicit initial value.");
-                                }
-                            }
-                            implicitInitValue.put(entry.getKey(), value);
-                        });
-            }
             return (V) implicitInitValue.clone();
         } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("Failed to get initial value", e);
+            throw new IllegalStateException("Failed to get implicit initial value", e);
         }
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
+        if (this.implicitInitValue == null) {
+            this.implicitInitValue = new BMap<>(this);
+            this.fields.entrySet().stream()
+                    .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
+                    .forEach(entry -> {
+                        BValue value = entry.getValue().fieldType.getEmptyValue();
+                        implicitInitValue.put(entry.getKey(), value);
+                    });
+        }
+
         try {
-            if (this.implicitInitValue == null) {
-                this.implicitInitValue = new BMap<>(this);
-                this.fields.entrySet().stream()
-                        .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
-                        .forEach(entry -> {
-                            BValue value = entry.getValue().fieldType.getZeroValue();
-                            BType fieldType = entry.getValue().fieldType;
-                            if (value == null) {
-                                switch (fieldType.getTag()) {
-                                    case TypeTags.NULL_TAG:
-                                    case TypeTags.ANY_TAG:
-                                    case TypeTags.ANYDATA_TAG:
-                                    case TypeTags.JSON_TAG:
-                                        break;
-                                    case TypeTags.UNION_TAG:
-                                        if (((BUnionType) fieldType).isNullable()) {
-                                            break;
-                                        }
-                                    default:
-                                        throw new IllegalStateException(
-                                                "Field '" + entry.getValue().fieldName + "' in record type '" +
-                                                        this.toString() + "' does not have an implicit initial value.");
-                                }
-                            }
-                            implicitInitValue.put(entry.getKey(), value);
-                        });
-            }
             return (V) implicitInitValue.clone();
         } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("Failed to get initial value", e);
+            throw new IllegalStateException("Failed to get empty value", e);
         }
     }
 

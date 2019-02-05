@@ -80,7 +80,7 @@ public class BFiniteType extends BType {
 
         Iterator<BValue> valueIterator = valueSpace.iterator();
         BValue firstVal = valueIterator.next();
-        BValue implicitInitValOfType = firstVal.getType().getZeroValue();
+        BValue implicitInitValOfType = firstVal.getType().getEmptyValue();
 
         if (implicitInitValOfType.equals(firstVal)) {
             return (V) implicitInitValOfType;
@@ -93,19 +93,11 @@ public class BFiniteType extends BType {
             }
         }
 
-        throw new IllegalStateException("Finite type '" + this.typeName + "' does not have an implicit initial value.");
+        throw new IllegalStateException("Finite type '" + this.typeName + "' does not have an empty value.");
     }
 
     @Override
     public int getTag() {
         return TypeTags.FINITE_TYPE_TAG;
-    }
-
-    private void validateBasicType(BType type) {
-        if (!BTypes.isBasicType(type)) {
-            throw new IllegalStateException(
-                    "Component type '" + type.getName() + "' of the union type '" + this.typeName +
-                            "' is not a basic type.");
-        }
     }
 }
