@@ -2,18 +2,20 @@ package org.ballerinalang.test.bir;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.debugger.Debugger;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -74,9 +76,15 @@ public class TypeGenTest {
     }
 
     private BValue[] executeTestFuncInBalx(byte[] typeBinary, byte[] cpBinary) {
-        BValue[] args = {new BByteArray(cpBinary), new BByteArray(typeBinary)};
-        return BLangFunctions.invokeEntrypointCallable(programFile, entryPkgName,
-                                                       "testParseType", args);
+        BValue[] args = {new BValueArray(cpBinary), new BValueArray(typeBinary)};
+
+        PackageInfo packageInfo = programFile.getPackageInfo(entryPkgName);
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo("testParseType");
+        if (functionInfo == null) {
+            throw new RuntimeException("Function 'testParseType' is not defined");
+        }
+
+        return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
     }
 
     private byte[] serializeBType(BType type, ConstantPool cp) {
