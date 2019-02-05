@@ -103,11 +103,7 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
             <Form size="mini" className="add-resource">
                 <Form.Field>
                     <h4>Resource Name</h4>
-                    <Button 
-                        size="mini" 
-                        floated="right" 
-                        className="btn-close" 
-                        circular onClick={() => {
+                    <Button size="mini" floated="right" className="btn-close" circular onClick={() => {
                         onClose();
                     }}>
                         <i className="fw fw-close icon"></i>
