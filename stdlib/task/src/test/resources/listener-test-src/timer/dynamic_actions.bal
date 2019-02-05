@@ -17,37 +17,20 @@
 import ballerina/task;
 import ballerina/runtime;
 
+int resultValue = 0;
+
 boolean isPaused = false;
 boolean isResumed = false;
 
 service timerService = service {
     resource function onTrigger() {
-        // Do nothing
+        resultValue = 1;
     }
 
     resource function onError() {
-        // Do nothing
+        resultValue = -1;
     }
 };
-
-function testAttach() {
-    task:TimerConfiguration configurations = getConfigurations(1000, 2000, 3);
-    task:Listener timer = createTimer(configurations);
-    var result = attachTimer(timer, timerService);
-    result = startTimer(timer);
-    result = timer.pause();
-    if (result is error) {
-        return;
-    } else {
-        isPaused = true;
-    }
-    result = timer.resume();
-    if (result is error) {
-        return;
-    } else {
-        isResumed = true;
-    }
-}
 
 function getConfigurations(int interval, int delay, int noOfRecurrences)
              returns task:TimerConfiguration {
@@ -89,28 +72,4 @@ function getConfigurationsWithoutDelayAndRecurrences(int interval) returns task:
 function createTimer(task:TimerConfiguration configurations) returns task:Listener {
     task:Listener timer = new(configurations);
     return timer;
-}
-
-function attachTimer(task:Listener timer, service s) returns error? {
-    return timer.attach(s);
-}
-
-function startTimer(task:Listener timer) returns error? {
-    return timer.start();
-}
-
-function pauseTimer(task:Listener timer) returns error? {
-    return timer.pause();
-}
-
-function resumeTimer(task:Listener timer) returns error? {
-    return timer.resume();
-}
-
-function getIsPaused() returns boolean {
-    return isPaused;
-}
-
-function getIsResumed() returns boolean {
-    return isResumed;
 }

@@ -38,8 +38,10 @@ public interface Task {
 
     /**
      * Stop the task.
+     *
+     * @throws SchedulingException  If the task cannot be stopped.
      */
-    void stop();
+    void stop() throws SchedulingException;
 
     /**
      * Get list of attached services of the task.
@@ -72,7 +74,8 @@ public interface Task {
     /**
      * Run all the services attached to the task.
      *
-     * @param context - Ballerina context which runs the services.
+     * @param context   Ballerina context which runs the services.
+     * @throws SchedulingException  When there is a failure to stop the task after maximum number of runs specified.
      */
-    void runServices(Context context);
+    void runServices(Context context) throws SchedulingException;
 }

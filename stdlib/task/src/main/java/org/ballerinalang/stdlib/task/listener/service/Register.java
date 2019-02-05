@@ -31,11 +31,10 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.listener.objects.Appointment;
 import org.ballerinalang.stdlib.task.listener.objects.Task;
 import org.ballerinalang.stdlib.task.listener.objects.Timer;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.Objects;
 
@@ -50,6 +49,8 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_RUNNING_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
+import static org.ballerinalang.stdlib.task.listener.utils.Utils.getCronExpressionFromAppointmentRecord;
 
 /**
  * Native function to attach a service to the listener.
@@ -73,13 +74,13 @@ public class Register extends BlockingNativeCallableUnit {
         BMap<String, BValue> configurations = (BMap<String, BValue>) taskStruct.get(LISTENER_CONFIGURATION_MEMBER_NAME);
 
         String configurationTypeName = configurations.getType().getName();
+        Task task;
 
         if (TIMER_CONFIGURATION_STRUCT_NAME.equals(configurationTypeName)) {
             long interval = ((BInteger) configurations.get(FIELD_NAME_INTERVAL)).intValue();
             long delay = ((BInteger) configurations.get(FIELD_NAME_DELAY)).intValue();
 
             try {
-                Task task;
                 if (Objects.nonNull(taskStruct.get(TASK_TASK_ID_FIELD))) {
                     task = TaskRegistry.getInstance().getTask(taskStruct.get(TASK_TASK_ID_FIELD).stringValue());
                     task.addService(service);
@@ -94,11 +95,28 @@ public class Register extends BlockingNativeCallableUnit {
                     taskStruct.put(TASK_IS_RUNNING_FIELD, new BBoolean(false));
                 }
             } catch (SchedulingException e) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
+                context.setReturnValues(createError(context, e.getMessage()));
             }
 
         } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
-            //String cronExpression = getCronExpressionFromAppointmentRecord(configurations);
+            try {
+                String cronExpression = getCronExpressionFromAppointmentRecord(configurations);
+                if (Objects.nonNull(taskStruct.get(TASK_TASK_ID_FIELD))) {
+                    task = TaskRegistry.getInstance().getTask(taskStruct.get(TASK_TASK_ID_FIELD).stringValue());
+                    task.addService(service);
+                } else {
+                    if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
+                        long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
+                        task = new Appointment(context, cronExpression, service, noOfRuns);
+                    } else {
+                        task = new Appointment(context, cronExpression, service);
+                    }
+                    taskStruct.put(TASK_TASK_ID_FIELD, new BString(task.getId()));
+                    taskStruct.put(TASK_IS_RUNNING_FIELD, new BBoolean(false));
+                }
+            } catch (SchedulingException e) {
+                context.setReturnValues(createError(context, e.getMessage()));
+            }
         }
     }
 }

@@ -93,7 +93,7 @@ public class ListenerTest {
     @Test(
             description = "Tests a timer listener with negative delay and interval values",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Task scheduling configuration is invalid.*"
+            expectedExceptionsMessageRegExp = ".*Timer scheduling delay and interval should be non-negative values.*"
     )
     public void testListenerTimerNegativeValues() {
         CompileResult compileResult = BCompileUtil.compile(

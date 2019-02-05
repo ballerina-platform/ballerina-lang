@@ -24,6 +24,7 @@ import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.TaskExecutor;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -51,15 +52,12 @@ public class Timer extends AbstractTask {
      * @throws SchedulingException if cannot create the scheduler.
      */
     public Timer(Context context, long delay, long interval, Service service) throws SchedulingException {
-
+        super(service);
         if (delay < 0 || interval < 0) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
         }
-        this.serviceList = new ArrayList<>();
-        this.serviceList.add(service);
         this.interval = interval;
         this.delay = delay;
-        this.maxRuns = -1;
 
         TaskRegistry.getInstance().addTask(this);
     }
@@ -75,16 +73,12 @@ public class Timer extends AbstractTask {
      * @throws SchedulingException if cannot create the scheduler.
      */
     public Timer(Context context, long delay, long interval, Service service, long maxRuns) throws SchedulingException {
-
+        super(service, maxRuns);
         if (delay < 0 || interval < 0) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
         }
-        this.serviceList = new ArrayList<>();
         this.interval = interval;
         this.delay = delay;
-        this.serviceList.add(service);
-        this.maxRuns = maxRuns;
-        noOfRuns = 0;
 
         TaskRegistry.getInstance().addTask(this);
     }
@@ -93,7 +87,7 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void stop() {
+    public void stop() throws SchedulingException {
         this.executorService.shutdown();
         super.stop();
     }
@@ -151,7 +145,11 @@ public class Timer extends AbstractTask {
                 return;
             }
             if (this.maxRuns > 0 && this.maxRuns == noOfRuns) {
-                this.stop();
+                try {
+                    this.stop();
+                } catch (SchedulingException e) {
+                    throw new BLangRuntimeException("Failed to stop the task: " + e.getMessage());
+                }
                 return;
             }
             this.noOfRuns++;
