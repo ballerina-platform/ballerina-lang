@@ -105,7 +105,8 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                     }
                     {text.url &&
                         <div className="contact-link">
-                            <span className="inline-editor-span" onClick={this.enableEditing}>{text.name} - Website
+                            <span className="inline-editor-span" onClick={this.enableEditing}>
+                                {text.name} - Website
                                 <i className="fw fw-edit edit-icon"></i>
                             </span>
                             <a className="activate-edit" href={text.url} target="_blank">
@@ -125,7 +126,8 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
             if (this.isObjectEmpty(text)) {
                 return (
                     <div className="inline-editor license" onClick={this.enableEditing}>
-                        <span className="inline-editor-span" onClick={this.enableEditing}>{placeholderText}
+                        <span className="inline-editor-span" onClick={this.enableEditing}>
+                            {placeholderText}
                             <i className="fw fw-edit edit-icon"></i>
                         </span>
                     </div>
@@ -134,7 +136,8 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
 
             return (
                 <div className="inline-editor license">
-                    <span className="inline-editor-span" onClick={this.enableEditing}>{text.name}
+                    <span className="inline-editor-span" onClick={this.enableEditing}>
+                        {text.name}
                         <i className="fw fw-edit edit-icon"></i>
                     </span>
                     <a className="activate-edit" href={text.url} target="_blank">
@@ -152,7 +155,8 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
             if (this.isObjectEmpty(text)) {
                 return (
                     <div className="inline-editor url" onClick={this.enableEditing}>
-                        <span className="inline-editor-span" onClick={this.enableEditing}>{placeholderText}
+                        <span className="inline-editor-span" onClick={this.enableEditing}>
+                            {placeholderText}
                             <i className="fw fw-edit edit-icon"></i>
                         </span>
                     </div>
@@ -161,7 +165,8 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
 
             return (
                 <div className="inline-editor url" onClick={this.enableEditing}>
-                    <span className="inline-editor-span" onClick={this.enableEditing}>{text.urlText}
+                    <span className="inline-editor-span" onClick={this.enableEditing}>
+                        {text.urlText}
                         <i className="fw fw-edit edit-icon"></i>
                     </span>
                     <a className="activate-edit inline-editor-span" href={text.link} target="_blank">
@@ -193,7 +198,8 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
             if (text === "") {
                 return (
                     <div className="inline-editor paragraph markdown" >
-                        <span className="inline-editor-span" onClick={this.enableEditing}>{placeholderText}
+                        <span className="inline-editor-span" onClick={this.enableEditing}>
+                            {placeholderText}
                             <i className="fw fw-edit edit-icon"></i>
                         </span>
                     </div>
@@ -236,7 +242,8 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
             if (text === "") {
                 return (
                     <div className="inline-editor string" onClick={this.enableEditing}>
-                        <span className="inline-editor-span" onClick={this.enableEditing}>{placeholderText}
+                        <span className="inline-editor-span" onClick={this.enableEditing}>
+                            {placeholderText}
                             <i className="fw fw-edit edit-icon"></i>
                         </span>
                     </div>
