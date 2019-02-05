@@ -1,0 +1,77 @@
+plugins {
+    id 'base'
+}
+
+apply from: "$rootDir/gradle/repositories.gradle"
+
+configurations {
+    dist {
+      transitive false
+    }
+    distBal {
+        transitive false
+    }
+}
+
+dependencies {
+    dist 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2'
+    dist 'org.bytedeco:javacpp:1.4.2'
+    dist 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
+    dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
+    dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
+    dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
+
+    dist project(':ballerina-cli-utils')
+    dist project(':ballerina-llvm')
+
+    dist project(':testerina:testerina-core')
+    
+    dist project(':swagger-ballerina:swagger-to-ballerina-generator')
+    dist project(':ballerina-backend-llvm')
+    dist project(':language-server:language-server-compiler');
+    dist project(':ballerina-packerina');
+    dist project(':protobuf-ballerina')
+    dist project(':swagger-ballerina:swagger-to-ballerina-generator');
+    dist project(':docerina');
+}
+
+def basePath = '/' + project.name + '-' + project.version + '/'
+
+CopySpec copyJarSpec = copySpec {
+    from configurations.dist
+    into(basePath + 'bre/lib')
+}
+
+CopySpec copyBaloSpec = copySpec {
+    from configurations.distBal
+    into(basePath + 'lib')
+}
+
+CopySpec copyBinSpec = copySpec {
+    from ('bin')
+    filter { line -> line.replace('${project.version}', "$project.version") }
+    into(basePath + 'bin')
+}
+
+task createZip(type: Zip) {
+    with copyJarSpec
+    with copyBaloSpec
+    with copyBinSpec
+}
+
+build {
+    dependsOn createZip
+}
+
+// This section makes sure that checkstyle/spotbug runs when dist is build.
+project.afterEvaluate {
+    configurations.dist.dependencies
+        .findAll { it instanceof ProjectDependency }
+        .each {
+            it.dependencyProject.afterEvaluate {
+                def dependencyCheck = it.tasks.find { it.name == 'check' }
+                check.dependsOn dependencyCheck
+            }
+        }
+}

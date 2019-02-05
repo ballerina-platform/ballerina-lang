@@ -1,0 +1,11 @@
+apply from: "$rootDir/gradle/jsProject.gradle"
+
+task npmBuild(type: Exec) {
+    outputs.dir("$buildDir/out")
+    outputs.cacheIf { true } 
+    commandLine 'npm', 'run', 'package'
+}
+
+build {
+    dependsOn npmBuild
+}
