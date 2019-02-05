@@ -34,7 +34,7 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.NULL_REF_EXCEPTION;
  * Returns an integer representing the number of items that a ref value contains, where the meaning of item depends on
  * the basic type of value.
  *
- * @since 0.991.0
+ * @since 0.990.4
  */
 @BallerinaFunction(
         orgName = "ballerina",
