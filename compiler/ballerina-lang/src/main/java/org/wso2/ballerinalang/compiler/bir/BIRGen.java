@@ -207,7 +207,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
-        List<org.wso2.ballerinalang.compiler.bir.model.BIROperand> args = new ArrayList<>();
+        List<BIROperand> args = new ArrayList<>();
 
         for (BLangExpression requiredArg : requiredArgs) {
             requiredArg.accept(this);
@@ -271,7 +271,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangIf astIfStmt) {
         astIfStmt.expr.accept(this);
-        org.wso2.ballerinalang.compiler.bir.model.BIROperand ifExprResult = this.env.targetOperand;
+        BIROperand ifExprResult = this.env.targetOperand;
 
         // Create the basic block for the if-then block.
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -330,7 +330,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Visit condition expression
         this.env.enclBB = whileExprBB;
         astWhileStmt.expr.accept(this);
-        org.wso2.ballerinalang.compiler.bir.model.BIROperand whileExprResult = this.env.targetOperand;
+        BIROperand whileExprResult = this.env.targetOperand;
 
         // Create the basic block for the while-body block.
         BIRBasicBlock whileBodyBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -380,10 +380,10 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangBinaryExpr astBinaryExpr) {
         astBinaryExpr.lhsExpr.accept(this);
-        org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp1 = this.env.targetOperand;
+        BIROperand rhsOp1 = this.env.targetOperand;
 
         astBinaryExpr.rhsExpr.accept(this);
-        org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp2 = this.env.targetOperand;
+        BIROperand rhsOp2 = this.env.targetOperand;
 
         // Create a temporary variable to store the binary operation result.
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astBinaryExpr.type,

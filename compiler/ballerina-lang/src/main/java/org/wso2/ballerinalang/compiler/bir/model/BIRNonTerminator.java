@@ -45,7 +45,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      */
     public static class Move extends BIRNonTerminator implements BIRAssignInstruction {
         public BIROperand lhsOp;
-        public org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp;
+        public BIROperand rhsOp;
 
         public Move(DiagnosticPos pos, BIROperand fromOperand, BIROperand toOperand) {
             super(pos, InstructionKind.MOVE);
@@ -73,15 +73,15 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      */
     public static class BinaryOp extends BIRNonTerminator implements BIRAssignInstruction {
         public BIROperand lhsOp;
-        public org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp1;
-        public org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp2;
+        public BIROperand rhsOp1;
+        public BIROperand rhsOp2;
 
         public BinaryOp(DiagnosticPos pos,
                         InstructionKind kind,
                         BType type,
                         BIROperand lhsOp,
-                        org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp1,
-                        org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp2) {
+                        BIROperand rhsOp1,
+                        BIROperand rhsOp2) {
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.rhsOp1 = rhsOp1;
