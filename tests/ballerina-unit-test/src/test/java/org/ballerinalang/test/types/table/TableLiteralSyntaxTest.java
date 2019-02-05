@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -162,14 +161,10 @@ public class TableLiteralSyntaxTest {
         BValueArray retBoolArrValue = (BValueArray) returns[4];
         Assert.assertEquals(retBoolArrValue.getBoolean(0), 1);
         Assert.assertEquals(retBoolArrValue.getBoolean(1), 0);
-        //Decimal Array
-        BDecimalArray retDecimalArrValue = (BDecimalArray) returns[5];
-        Assert.assertEquals(retDecimalArrValue.get(0), new BigDecimal("11.11"));
-        Assert.assertEquals(retDecimalArrValue.get(1), new BigDecimal("22.22"));
         //Byte Array
         String b64 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
         byte[] byteArrExpected = ByteArrayUtils.decodeBase64(b64);
-        BValueArray byteArrReturned = (BValueArray) returns[6];
+        BValueArray byteArrReturned = (BValueArray) returns[5];
         ByteArrayUtils.assertJBytesWithBBytes(byteArrExpected, byteArrReturned);
     }
 

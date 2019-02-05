@@ -48,7 +48,6 @@ type ArrayData record {
     string[] strArr;
     float[] floatArr;
     boolean[] boolArr;
-    decimal[] decimalArr;
     byte[] byteArr;
 };
 
@@ -255,19 +254,17 @@ function testTableWithDifferentDataTypes() returns (int, int, decimal, xml, json
     return (count, i, d, xRet, jRet);
 }
 
-function testArrayData() returns (int, int[], string[], float[], boolean[], decimal[], byte[]) {
+function testArrayData() returns (int, int[], string[], float[], boolean[], byte[]) {
     int[] iArr = [1, 2, 3];
     string[] sArr = ["test1", "test2"];
     float[] fArr = [1.1, 2.2];
     boolean[] bArr = [true, false];
-    decimal[] dArr = [11.11, 22.22];
     byte[] byteArrVal = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
 
-    ArrayData d1 = { id: 10, intArr: iArr, strArr: sArr, floatArr: fArr, boolArr: bArr, decimalArr: dArr,
-                     byteArr: byteArrVal };
+    ArrayData d1 = { id: 10, intArr: iArr, strArr: sArr, floatArr: fArr, boolArr: bArr, byteArr: byteArrVal };
 
     table<ArrayData> t1 = table {
-        { key id, intArr, strArr, floatArr, boolArr, decimalArr, byteArr}
+        { key id, intArr, strArr, floatArr, boolArr, byteArr}
     };
 
     _ = t1.add(d1);
@@ -277,7 +274,6 @@ function testArrayData() returns (int, int[], string[], float[], boolean[], deci
     string[] retsArr;
     float[] retfArr;
     boolean[] retbArr;
-    decimal[] retdArr;
     byte[] retbyteArr;
 
     foreach var v in t1 {
@@ -286,10 +282,9 @@ function testArrayData() returns (int, int[], string[], float[], boolean[], deci
         retsArr = v.strArr;
         retfArr = v.floatArr;
         retbArr = v.boolArr;
-        retdArr = v.decimalArr;
         retbyteArr = v.byteArr;
     }
-    return (i, retiArr, retsArr, retfArr, retbArr, retdArr, retbyteArr);
+    return (i, retiArr, retsArr, retfArr, retbArr, retbyteArr);
 }
 
 function isBelow35(Person p) returns (boolean) {
