@@ -39,7 +39,7 @@ public class CreateLabel extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String labelId = context.getStringArgument(1);
+        String labelId = context.getStringArgument(0);
         Label label = new Label();
         ASMCodeGenerator.getInstance().addLabel(labelId, label);
     }
