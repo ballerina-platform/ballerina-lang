@@ -562,6 +562,10 @@
             {
                 "name": "Kubernetes Deployment",
                 "url": "kubernetes-deployment"
+            },
+            {
+                "name": "AWS Lambda Deployment",
+                "url": "awslambda-deployment"
             }
         ]
     },
