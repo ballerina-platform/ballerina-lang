@@ -42,7 +42,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
@@ -126,19 +125,17 @@ public class BValueArray extends BNewArray implements Serializable {
                     this.size = maxArraySize = arrayType.getSize();
                 }
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
-                // TODO: 1/17/19 This is only required to fill the initially created array. If we can lazily fill
-                // that initial array as well, no need to fill it here.
-//                Arrays.fill(refValues, arrayType.getElementType().getZeroValue());
             } else if (type.getTag() == TypeTags.TUPLE_TAG) {
                 BTupleType tupleType = (BTupleType) type;
                 this.size = maxArraySize = tupleType.getTupleTypes().size();
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
-                AtomicInteger counter = new AtomicInteger(0);
-                tupleType.getTupleTypes().forEach(memType ->
-                        refValues[counter.getAndIncrement()] = memType.getEmptyValue());
+                List<BType> tupleTypes = tupleType.getTupleTypes();
+                for (int i = 0; i < tupleTypes.size(); i++) {
+                    refValues[i] = tupleTypes.get(i).getZeroValue();
+                }
             } else {
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
-                Arrays.fill(refValues, type.getEmptyValue());
+                Arrays.fill(refValues, type.getZeroValue());
             }
         }
     }
