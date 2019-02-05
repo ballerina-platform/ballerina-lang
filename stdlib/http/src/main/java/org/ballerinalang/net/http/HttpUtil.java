@@ -1370,6 +1370,11 @@ public class HttpUtil {
         poolConfiguration.setMaxActivePerPool(
                 validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
 
+        long maxIdleConnections = ((BInteger) poolRecord
+                .get(HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS)).intValue();
+        poolConfiguration.setMaxIdlePerPool(
+                validateConfig(maxIdleConnections, HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS));
+
         long waitTime = ((BInteger) poolRecord.get(HttpConstants.CONNECTION_POOLING_WAIT_TIME)).intValue();
         poolConfiguration.setMaxWaitTime(waitTime);
 

@@ -364,6 +364,7 @@ public class HttpConstants {
 
     //Client connection pooling configs
     public static final String CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
+    public static final String CONNECTION_POOLING_MAX_IDLE_CONNECTIONS = "maxIdleConnections";
     public static final String CONNECTION_POOLING_WAIT_TIME = "waitTimeinMillis";
     public static final String CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION = "maxActiveStreamsPerConnection";
     public static final String HTTP_CLIENT_CONNECTION_POOL = "PoolConfiguration";
