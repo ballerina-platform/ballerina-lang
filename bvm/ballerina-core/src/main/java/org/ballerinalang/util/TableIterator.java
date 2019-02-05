@@ -212,8 +212,8 @@ public class TableIterator implements DataIterator {
                         value = new BFloat(dValue);
                         break;
                     case TypeTags.DECIMAL_TAG:
-                        BigDecimal decialValue = rs.getBigDecimal(index);
-                        value = new BDecimal(decialValue);
+                        BigDecimal decimalValue = rs.getBigDecimal(index);
+                        value = new BDecimal(decimalValue);
                         break;
                     case TypeTags.BOOLEAN_TAG:
                         boolean boolValue = rs.getBoolean(index);

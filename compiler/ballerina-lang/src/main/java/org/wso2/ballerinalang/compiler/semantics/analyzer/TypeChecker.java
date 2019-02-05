@@ -357,8 +357,7 @@ public class TypeChecker extends BLangNodeVisitor {
             for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
                 boolean contains = columnNames.contains(column.columnName);
                 if (!contains) {
-                    dlog.error(column.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
-                            tableConstraint);
+                    dlog.error(column.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName, tableConstraint);
                 }
                 //Check for valid primary key column types
                 if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
