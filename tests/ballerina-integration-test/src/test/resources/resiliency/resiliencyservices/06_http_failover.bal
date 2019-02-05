@@ -33,7 +33,7 @@ http:FailoverClient foBackendEP05 = new({
     intervalMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
-        { url: "http://localhost:3000/inavalidEP" },
+        { url: "http://localhost:3467/inavalidEP" },
         { url: "http://localhost:8085/delay" },
         { url: "http://localhost:8085/mock" }
     ]

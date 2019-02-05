@@ -27,6 +27,7 @@ type Teacher record {
 type TeacherOutput record {
     string name;
     int age;
+    int count;
 };
 
 int index = 0;
@@ -76,7 +77,7 @@ function testSortWindow() {
     forever {
         from inputStreamSortWindowTest1 window sort(3, inputStreamSortWindowTest1.age, "ascending",
             inputStreamSortWindowTest1.name, "descending")
-        select inputStreamSortWindowTest1.name, inputStreamSortWindowTest1.age
+        select inputStreamSortWindowTest1.name, inputStreamSortWindowTest1.age, count() as count
         group by inputStreamSortWindowTest1.school
         => (TeacherOutput [] emp) {
             foreach var e in emp {

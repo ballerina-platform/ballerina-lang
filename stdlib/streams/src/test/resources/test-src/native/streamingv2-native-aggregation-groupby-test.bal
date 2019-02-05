@@ -78,7 +78,7 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
 
 //  ------------- Query to be implemented -------------------------------------------------------
 //  from inputStream where inputStream.age > getValue()
-//  select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
+//  select inputStream.name, inputStream.age, getAge(sum(inputStream.age)) as sumAge, count() as count
 //  group by inputStream.name
 //      => (TeacherOutput [] o) {
 //            outputStream.publish(o);
@@ -123,7 +123,7 @@ function createStreamingConstruct() {
             return {
                 "name": e.data["inputStream.name"],
                 "age": e.data["inputStream.age"],
-                "sumAge": sumAggregator1.process(e.data["inputStream.age"], e.eventType),
+                "sumAge": getAge(<int>sumAggregator1.process(e.data["inputStream.age"], e.eventType)),
                 "count": countAggregator1.process((), e.eventType)
             };
         }
@@ -148,6 +148,11 @@ function createStreamingConstruct() {
 
 function getValue() returns int {
     return 25;
+}
+
+
+function getAge(int x) returns int {
+    return x;
 }
 
 function printTeachers(TeacherOutput e) {

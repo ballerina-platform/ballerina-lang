@@ -465,7 +465,7 @@ public type FailoverClientEndpointConfiguration record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = ();
+    PoolConfiguration? poolConfig = ();
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
@@ -487,7 +487,7 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         followRedirects:foConfig.followRedirects,
         retryConfig:foConfig.retryConfig,
         proxy:foConfig.proxy,
-        connectionThrottling:foConfig.connectionThrottling,
+        poolConfig:foConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:foConfig.cache,
         compression:foConfig.compression,
