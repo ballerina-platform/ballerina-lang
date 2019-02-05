@@ -226,7 +226,7 @@ function testTableStringPrimaryKey() returns int {
     _ = t1.add(s2);
 
     int count = t1.count();
-    return count;
+    return t1.count();
 }
 
 function testTableWithDifferentDataTypes() returns (int, int, decimal, xml, json) {
