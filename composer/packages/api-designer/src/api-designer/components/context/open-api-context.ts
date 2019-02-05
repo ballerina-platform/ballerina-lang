@@ -22,15 +22,24 @@ import * as React from "react";
 
 export interface OpenApiContext {
     openApiJson: Swagger.OpenAPIObject;
-    onAddOpenApiPath: (path: Swagger.PathItemObject) => void;
+    onAddOpenApiPath: (path: Swagger.PathItemObject, onAdd: (state: boolean) => void) => void;
     onAddOpenApiOperation: (operation: Swagger.OperationObject) => void;
     onAddOpenApiParameter: (operation: Swagger.ParameterObject) => void;
     onAddOpenApiResponse: (response: Swagger.ResponseObject) => void;
     onInlineValueChange: (openApiJson: Swagger.OpenAPIObject) => void;
-    showType: string;
+    expandMode: ExpandMode;
+}
+
+export interface ExpandMode {
+    type: string;
+    isEdit: boolean;
 }
 
 const context = React.createContext<OpenApiContext>({
+    expandMode: {
+        isEdit: false,
+        type: ""
+    },
     onAddOpenApiOperation: () => {/* tslint:disable:no-empty */},
     onAddOpenApiParameter: () => {/* tslint:disable:no-empty */},
     onAddOpenApiPath: () => {/* tslint:disable:no-empty */},
@@ -43,8 +52,7 @@ const context = React.createContext<OpenApiContext>({
         },
         openapi: "",
         paths: {}
-    },
-    showType: ""
+    }
 });
 
 export const OpenApiContextProvider = context.Provider;
