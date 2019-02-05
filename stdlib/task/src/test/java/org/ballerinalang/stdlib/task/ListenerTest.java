@@ -79,8 +79,7 @@ public class ListenerTest {
 
     @Test(description = "Tests a timer listener with inline configurations")
     public void testListenerTimerInlineConfigs() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/timer/service_inline_configs.bal");
+        CompileResult compileResult = BCompileUtil.compile("listener-test-src/timer/service_inline_configs.bal");
         BServiceUtil.runService(compileResult);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
@@ -96,15 +95,13 @@ public class ListenerTest {
             expectedExceptionsMessageRegExp = ".*Timer scheduling delay and interval should be non-negative values.*"
     )
     public void testListenerTimerNegativeValues() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/timer/service_negative_values.bal");
+        CompileResult compileResult = BCompileUtil.compile("listener-test-src/timer/service_negative_values.bal");
         BServiceUtil.runService(compileResult);
     }
 
     @Test(description = "Tests a timer listener with inline configurations")
     public void testListenerTimerStop() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/timer/service_cancel.bal");
+        CompileResult compileResult = BCompileUtil.compile("listener-test-src/timer/service_cancel.bal");
         BServiceUtil.runService(compileResult);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
@@ -116,8 +113,7 @@ public class ListenerTest {
 
     @Test(description = "Tests a timer listener without delay field")
     public void testListenerTimerWithoutDelay() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/timer/service_without_delay.bal");
+        CompileResult compileResult = BCompileUtil.compile("listener-test-src/timer/service_without_delay.bal");
         BServiceUtil.runService(compileResult);
     }
 
