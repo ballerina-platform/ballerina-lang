@@ -119,7 +119,8 @@ public class JWTAuthenticatorTest {
 
     @Test(description = "Test case for creating JWT authenticator with a cache")
     public void testCreateJwtAuthenticatorWithCache() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJwtAuthenticatorCreationWithCache");
+        BValue[] inputBValues = {new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJwtAuthenticatorCreationWithCache", inputBValues);
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns[0] instanceof BMap);
     }
