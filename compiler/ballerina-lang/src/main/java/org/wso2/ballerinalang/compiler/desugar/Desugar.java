@@ -3194,8 +3194,8 @@ public class Desugar extends BLangNodeVisitor {
             case REASON:
             case DETAIL:
             case ITERATE:
-                result = visitBuiltInMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
-                        Lists.of(iExpr.expr.type), iExpr.type);
+                result = visitUtilMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
+                        Lists.of(symTable.errorType), iExpr.type);
                 break;
             default:
                 result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
@@ -3214,12 +3214,18 @@ public class Desugar extends BLangNodeVisitor {
                                                          new ArrayList<>(), new ArrayList<>(), symResolver);
     }
 
+    private BLangExpression visitUtilMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
+                                                      List<BLangExpression> requiredArgs,
+                                                      List<BType> paramTypes, BType retType) {
+        return createInbuiltMethodInvocation(pos, UTILS, builtInMethod, requiredArgs, paramTypes, retType);
+    }
+
     private BLangExpression visitCloneInvocation(BLangExpression expr) {
         if (types.isValueType(expr.type)) {
             return expr;
         }
-        return createInbuiltMethodInvocation(expr.pos, UTILS, BLangBuiltInMethod.CLONE, Lists.of(expr),
-                                             Lists.of(symTable.anydataType), symTable.anydataType);
+        return visitUtilMethodInvocation(expr.pos, BLangBuiltInMethod.CLONE, Lists.of(expr),
+                                         Lists.of(symTable.anydataType), symTable.anydataType);
     }
 
     private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
@@ -3229,8 +3235,8 @@ public class Desugar extends BLangNodeVisitor {
                                                  BLangBuiltInMethod.STRING_LENGTH, Lists.of(iExpr.expr),
                                                  Lists.of(symTable.stringType), symTable.intType);
         }
-        return createInbuiltMethodInvocation(iExpr.pos, UTILS, BLangBuiltInMethod.LENGTH, Lists.of(iExpr.expr),
-                                             Lists.of(symTable.anydataType), symTable.intType);
+        return visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.LENGTH, Lists.of(iExpr.expr),
+                                         Lists.of(symTable.anydataType), symTable.intType);
     }
 
     private void visitFreezeBuiltInMethodInvocation(BLangInvocation iExpr) {
@@ -3248,8 +3254,8 @@ public class Desugar extends BLangNodeVisitor {
         if (iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN) {
             retType = symTable.booleanType;
         }
-        result = createInbuiltMethodInvocation(iExpr.pos, UTILS, iExpr.builtInMethod, Lists.of(iExpr.expr),
-                                               Lists.of(symTable.anydataType), retType);
+        result = visitUtilMethodInvocation(iExpr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
+                                           Lists.of(symTable.anydataType), retType);
     }
 
     private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {
