@@ -201,8 +201,8 @@ function visitBinaryOpIns(bir:BinaryOp binaryIns) {
     } else if (binaryIns.kind is bir:LESS_EQUAL) {
         visitLessEqualIns(binaryIns);
     } else {
-      error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
-      panic err;
+        error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
+        panic err;
     }
 }
 
@@ -460,14 +460,15 @@ function genReturnTerm(bir:Return returnIns) {
         bir:BType bType = currentFunc.typeValue.retType;
         if (bType is bir:BTypeInt) {
             jvm:visitVariableInstruction(LLOAD, returnVarRefIndex);
+            jvm:visitNoOperandInstruction(LRETURN);
         } else if (bType is bir:BTypeString) {
             jvm:visitVariableInstruction(ALOAD, returnVarRefIndex);
+            jvm:visitNoOperandInstruction(ARETURN);
         } else {
             error err = error( "JVM generation is not supported for type " +
                             io:sprintf("%s", currentFunc.typeValue.retType));
             panic err;
         }
-        jvm:visitNoOperandInstruction(ARETURN);
     }
 }
 
@@ -609,7 +610,7 @@ function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
 }
 
 type BalToJVMIndexMap object {
-    private int localVarIndex = -1;
+    private int localVarIndex = 0;
     private map<int> jvmLocalVarIndexMap = {};
 
     function add(bir:VariableDcl varDcl) {
