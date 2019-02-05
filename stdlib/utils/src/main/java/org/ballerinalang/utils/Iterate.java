@@ -47,7 +47,8 @@ public class Iterate extends BlockingNativeCallableUnit {
         if (collection == null) {
             context.setReturnValues(BLangVMErrors.createNullRefException(context.getStrand()));
             return;
-        } else if (!(collection instanceof BCollection)) {
+        }
+        if (!(collection instanceof BCollection)) {
             // Value is a value-type JSON.
             context.setReturnValues(new JSONIterator());
             return;
