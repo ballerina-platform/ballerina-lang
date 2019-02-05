@@ -344,15 +344,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
 
         BLangType returnTypeNode = funcNode.returnTypeNode;
-        if (returnTypeNode.type.tag == TypeTags.ARRAY && returnTypeNode instanceof BLangArrayType) {
-            analyzeArrayElemImplicitInitialValue(((BLangArrayType) returnTypeNode),
-                    returnTypeNode.pos);
-        } else if (returnTypeNode.type.tag == TypeTags.TUPLE && returnTypeNode instanceof BLangTupleTypeNode) {
+        if (returnTypeNode.type.tag == TypeTags.ARRAY && returnTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
+            analyzeArrayElemImplicitInitialValue(((BLangArrayType) returnTypeNode), returnTypeNode.pos);
+        } else if (returnTypeNode.type.tag == TypeTags.TUPLE && returnTypeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
             for (BLangType memberTypeNode : ((BLangTupleTypeNode) returnTypeNode).memberTypeNodes) {
                 analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
             }
-        } else if (returnTypeNode.type.tag == TypeTags.UNION &&
-                returnTypeNode instanceof BLangUnionTypeNode) {
+        } else if (returnTypeNode.type.tag == TypeTags.UNION && returnTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) returnTypeNode).memberTypeNodes;
             for (BLangType memberTypeNode : memberTypeNodes) {
                 analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
@@ -1019,17 +1017,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (varNode.typeNode.type.tag == TypeTags.ARRAY) {
             analyzeArrayElemImplicitInitialValue(varNode.typeNode, varNode.pos);
         } else if (varNode.typeNode.type.tag == TypeTags.INVOKABLE &&
-                varNode.typeNode instanceof BLangFunctionTypeNode) {
+                varNode.typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
             // Variable is a function pointer, analyze parameters.
             for (BLangVariable param : ((BLangFunctionTypeNode) varNode.typeNode).params) {
                 analyzeArrayElemImplicitInitialValue(param.typeNode, param.pos);
             }
-        } else if (varNode.typeNode.type.tag == TypeTags.UNION && varNode.typeNode instanceof BLangUnionTypeNode) {
+        } else if (varNode.typeNode.type.tag == TypeTags.UNION
+                && varNode.typeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             // Check each member of the union.
             for (BLangType memberTypeNode : ((BLangUnionTypeNode) varNode.typeNode).memberTypeNodes) {
                 analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
             }
-        } else if (varNode.typeNode.type.tag == TypeTags.UNION && varNode.typeNode instanceof BLangArrayType) {
+        } else if (varNode.typeNode.type.tag == TypeTags.UNION && varNode.typeNode.getKind() == NodeKind.ARRAY_TYPE) {
             // Specific handling for T[]|?, typeNode is a BLangArrayType
             BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
             if (!arrayPart.elemtype.type.hasImplicitInitialValue()) {
