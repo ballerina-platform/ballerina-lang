@@ -17,6 +17,7 @@
 import ballerina/test;
 
 // TODO: Record variable definition should work with only a single rest parameter
+// https://github.com/ballerina-platform/ballerina-lang/issues/13459
 @test:Config {
     groups: ["deviation"]
 }
