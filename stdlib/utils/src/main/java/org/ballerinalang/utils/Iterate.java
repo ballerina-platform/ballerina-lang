@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Check the freeze status of a given value.
+ * Get a new iterator for the given value.
  *
  * @since 0.991.0
  */
