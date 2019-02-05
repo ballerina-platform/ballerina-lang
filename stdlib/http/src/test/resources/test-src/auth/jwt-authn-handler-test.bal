@@ -1,5 +1,6 @@
 import ballerina/auth;
 import ballerina/http;
+import ballerina/crypto;
 
 function testCanHandleHttpJwtAuthWithoutHeader() returns (boolean) {
     http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider("ballerina/security/ballerinaTruststore.p12"));
@@ -42,12 +43,16 @@ function createRequest() returns (http:Request) {
 }
 
 function createJwtAuthProvider(string trustStorePath) returns auth:JWTAuthProvider {
-    auth:JWTAuthProviderConfig jwtConfig = {};
-    jwtConfig.issuer = "wso2";
-    jwtConfig.audience = "ballerina";
-    jwtConfig.certificateAlias = "ballerina";
-    jwtConfig.trustStoreFilePath = trustStorePath;
-    jwtConfig.trustStorePassword = "ballerina";
+    crypto:TrustStore trustStore = {
+        path: trustStorePath,
+        password: "ballerina"
+    };
+    auth:JWTAuthProviderConfig jwtConfig = {
+        issuer: "wso2",
+        audience: "ballerina",
+        certificateAlias: "ballerina",
+        trustStore: trustStore
+    };
     auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider;
 }

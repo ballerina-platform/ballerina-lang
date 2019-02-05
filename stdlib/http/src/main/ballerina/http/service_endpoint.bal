@@ -17,6 +17,7 @@
 import ballerina/auth;
 import ballerina/log;
 import ballerina/system;
+import ballerina/crypto;
 
 /////////////////////////////
 /// HTTP Listener Endpoint ///
@@ -381,13 +382,19 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
         return basicAuthHandler;
     } else if (authProvider.scheme == AUTH_SCHEME_JWT){
-        auth:JWTAuthProviderConfig jwtConfig = {};
-        jwtConfig.issuer = authProvider.issuer;
-        jwtConfig.audience = authProvider.audience;
-        jwtConfig.certificateAlias = authProvider.certificateAlias;
-        jwtConfig.clockSkew = authProvider.clockSkew;
-        jwtConfig.trustStoreFilePath = authProvider.trustStore.path ?: "";
-        jwtConfig.trustStorePassword = authProvider.trustStore.password ?: "";
+        string trustStorePath = authProvider.trustStore.path ?: "";
+        string trustStorePassword = authProvider.trustStore.password ?: "";
+        crypto:TrustStore trustStore = {
+            path: trustStorePath,
+            password: trustStorePassword
+        };
+        auth:JWTAuthProviderConfig jwtConfig = {
+            issuer: authProvider.issuer,
+            audience: authProvider.audience,
+            certificateAlias: authProvider.certificateAlias,
+            clockSkew: authProvider.clockSkew,
+            trustStore: trustStore
+        };
         auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
         return jwtAuthnHandler;
@@ -404,15 +411,19 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
     int defaultExpTime = 300; // in seconds
     string defaultSignAlg = "RS256";
 
-    auth:InferredJwtAuthProviderConfig jwtAuthConfig = {};
-    jwtAuthConfig.issuer = authProvider.issuer == "" ? defaultIssuer : authProvider.issuer;
-    jwtAuthConfig.expTime = authProvider.expTime == 0 ? defaultExpTime : authProvider.expTime;
-    jwtAuthConfig.signingAlg = authProvider.signingAlg == "" ? defaultSignAlg : authProvider.signingAlg;
-    jwtAuthConfig.audience = authProvider.audience == "" ? defaultAudience : authProvider.audience;
-    jwtAuthConfig.keyAlias = authProvider.keyAlias;
-    jwtAuthConfig.keyPassword = authProvider.keyPassword;
-    jwtAuthConfig.keyStoreFilePath = authProvider.keyStore.path ?: "";
-    jwtAuthConfig.keyStorePassword = authProvider.keyStore.password ?: "";
+    crypto:KeyStore keyStore = {
+        path: authProvider.keyStore.path ?: "",
+        password: authProvider.keyStore.password ?: ""
+    };
+    auth:InferredJwtAuthProviderConfig jwtAuthConfig = {
+        issuer: authProvider.issuer == "" ? defaultIssuer : authProvider.issuer,
+        expTime: authProvider.expTime == 0 ? defaultExpTime : authProvider.expTime,
+        signingAlg: authProvider.signingAlg == "" ? defaultSignAlg : authProvider.signingAlg,
+        audience: authProvider.audience == "" ? defaultAudience : authProvider.audience,
+        keyAlias: authProvider.keyAlias,
+        keyPassword: authProvider.keyPassword,
+        keyStore: keyStore
+    };
     return jwtAuthConfig;
 }
 

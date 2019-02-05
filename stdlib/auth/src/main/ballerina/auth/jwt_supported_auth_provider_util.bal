@@ -18,26 +18,25 @@ import ballerina/internal;
 import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
+import ballerina/crypto;
 
 # Represents authentication provider configurations that supports generating JWT for client interactions.
 #
 # + issuer - Expected JWT token issuer
 # + audience - Expected JWT token audience
 # + expTime - Expiry time for newly issued JWT tokens
+# + keyStore - Keystore containing the signing key
 # + keyAlias - Key alias for signing newly issued JWT tokens
 # + keyPassword - Key password for signing newly issued JWT tokens
-# + keyStoreFilePath - Path to the key-store file containing signing key
-# + keyStorePassword - Password of the key-store file containing signing key
 # + signingAlg - Signing algorithm for signing newly issued JWT tokens
-public type InferredJwtAuthProviderConfig record {
-    string issuer = "";
-    string audience = "";
+    public type InferredJwtAuthProviderConfig record {
+    string issuer;
+    string audience;
     int expTime = 0;
-    string keyAlias = "";
-    string keyPassword = "";
-    string keyStoreFilePath = "";
-    string keyStorePassword = "";
-    string signingAlg = "";
+    crypto:KeyStore keyStore;
+    string keyAlias;
+    string keyPassword;
+    string signingAlg;
     !...;
 };
 
@@ -48,8 +47,7 @@ public type InferredJwtAuthProviderConfig record {
 function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig) {
     JwtHeader header = createHeader(authConfig);
     JwtPayload payload = createPayload(username, authConfig);
-    crypto:KeyStore keyStore = { path: authConfig.keyStoreFilePath, password: authConfig.keyStorePassword };
-    var token = issueJwt(header, payload, keyStore, authConfig.keyAlias, authConfig.keyPassword);
+    var token = issueJwt(header, payload, authConfig.keyStore, authConfig.keyAlias, authConfig.keyPassword);
     if (token is string) {
         runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
         authContext.scheme = "jwt";
