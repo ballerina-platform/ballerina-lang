@@ -37,19 +37,19 @@ import java.util.Base64;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "encoding",
-        functionName = "encodeBase64",
+        functionName = "encodeBase64Url",
         args = {
                 @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class EncodeBase64 extends BlockingNativeCallableUnit {
+public class EncodeBase64Url extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BValueArray input = (BValueArray) context.getRefArgument(0);
-        byte[] encodedValue = Base64.getEncoder().encode(input.getBytes());
+        byte[] encodedValue = Base64.getUrlEncoder().encode(input.getBytes());
         context.setReturnValues(new BString(new String(encodedValue, StandardCharsets.ISO_8859_1)));
     }
 }

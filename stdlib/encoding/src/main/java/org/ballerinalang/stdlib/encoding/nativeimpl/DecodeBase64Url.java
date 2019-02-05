@@ -37,7 +37,7 @@ import java.util.Base64;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "encoding",
-        functionName = "decodeBase64",
+        functionName = "decodeBase64Url",
         args = {
                 @Argument(name = "input", type = TypeKind.STRING)
         },
@@ -54,10 +54,11 @@ public class DecodeBase64Url extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String input = context.getStringArgument(0);
         try {
-            byte[] output = Base64.getDecoder().decode(input);
+            byte[] output = Base64.getUrlDecoder().decode(input);
             context.setReturnValues(new BValueArray(output));
         } catch (IllegalArgumentException e) {
-            context.setReturnValues(EncodingUtil.createEncodingError(context, "input is not a valid Base64 value"));
+            context.setReturnValues(EncodingUtil.createEncodingError(context, "input is not a valid Base64 URL " +
+                    "encoded value"));
         }
     }
 }
