@@ -912,18 +912,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             value.accept(this);
         }
 
-        if (ignoredCount == recordVar.variableList.size()) {
+        if (ignoredCount == recordVar.variableList.size() && recordVar.restParam == null) {
             dlog.error(recordVar.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
             return false;
         }
 
         if (recordVar.restParam != null) {
-            ((BLangVariable) recordVar.restParam).type = new BMapType(TypeTags.MAP, recordVarType.restFieldType, null);
+            boolean hasAnyTypeField = recordVarType.fields.stream()
+                    .map(field -> field.type)
+                    .anyMatch(fieldType -> !types.isAnydata(fieldType));
+            ((BLangVariable) recordVar.restParam).type = new BMapType(TypeTags.MAP, hasAnyTypeField ?
+                    symTable.anyType : types.isAnydata(recordVarType.restFieldType) ?
+                    symTable.anydataType : symTable.anyType, null);
             symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
 
         return validRecord;
     }
+
     /**
      * This method will resolve field types based on a list of possible types.
      * When a record variable has multiple possible assignable types, each field will be a union of the relevant
@@ -1197,7 +1203,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (lhsVarRef.isClosed) {
                     dlog.error(lhsVarRef.pos, DiagnosticCode.NO_MATCHING_RECORD_REF_PATTERN, rhsField.name);
                 }
-                return;
+                continue;
             }
 
             if (expField.size() > 1) {
@@ -1208,19 +1214,33 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (variableReference.getKind() == NodeKind.RECORD_VARIABLE_REF) {
                 checkRecordVarRefEquivalency(variableReference.pos,
                         (BLangRecordVarRef) variableReference, rhsField.type, rhsPos);
-            } else if (variableReference.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+                continue;
+            }
+
+            if (variableReference.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
                 checkTupleVarRefEquivalency(pos, (BLangTupleVarRef) variableReference, rhsField.type, rhsPos);
-            } else if (variableReference.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                continue;
+            }
+
+            if (variableReference.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 Name varName = names.fromIdNode(((BLangSimpleVarRef) variableReference).variableName);
                 if (varName == Names.IGNORE) {
                     continue;
                 }
-                types.checkType(variableReference.pos,
-                        rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
-            } else {
-                types.checkType(variableReference.pos,
-                        rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
             }
+
+            types.checkType(variableReference.pos,
+                    rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
+        }
+
+        if (lhsVarRef.restParam != null) {
+            boolean hasAnyTypeField = rhsRecordType.fields.stream()
+                    .map(field -> field.type)
+                    .anyMatch(fieldType -> !types.isAnydata(fieldType));
+            types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, new BMapType(TypeTags.MAP, hasAnyTypeField ?
+                            symTable.anyType : types.isAnydata(rhsRecordType.restFieldType) ?
+                            symTable.anydataType : symTable.anyType, null),
+                    ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
         //Check whether this is an readonly field.
