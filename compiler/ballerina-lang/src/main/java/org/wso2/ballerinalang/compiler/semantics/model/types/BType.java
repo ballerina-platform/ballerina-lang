@@ -124,8 +124,6 @@ public class BType implements ValueType {
             case NIL:
             case TYPEDESC:
                 return true;
-            case ERROR:
-                return false;
             default:
                 throw new IllegalStateException("hasImplicitInitialValue not implemented for " +
                         this.getClass().getSimpleName() + " " + this.tsymbol.name);

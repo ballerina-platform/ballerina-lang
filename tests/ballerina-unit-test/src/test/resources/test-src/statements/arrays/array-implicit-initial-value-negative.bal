@@ -97,6 +97,8 @@ FTNUnion[] ftnU = [];
 type FTNSingle FTN;
 FTNSingle[] ftnS = [];
 
+error[] errors = [];
+
 function foo(FTN[] ftns) {
     var i = ftns;
 }
@@ -135,3 +137,5 @@ function foo4 () returns int[] {
 function foo5 (int|float param) {
 
 }
+
+error[]? errorsOpt = [];

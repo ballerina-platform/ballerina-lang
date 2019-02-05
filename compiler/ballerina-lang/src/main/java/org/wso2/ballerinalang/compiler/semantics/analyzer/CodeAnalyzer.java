@@ -379,15 +379,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.doneWithintransactionCheckStack.pop();
     }
 
-    private void analyzeArrayElemImplicitInitialValue(BType type, DiagnosticPos pos) {
-        if (type.tag == TypeTags.ARRAY) {
-            BType elementType = ((BArrayType) type).getElementType();
-            if (!elementType.hasImplicitInitialValue()) {
-                this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, elementType, elementType);
-            }
-        }
-    }
-
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
         return Symbols.isPublic(invNode.symbol) && (SymbolKind.PACKAGE.equals(invNode.symbol.owner.getKind()) ||
                 Symbols.isPublic(invNode.symbol.owner));
