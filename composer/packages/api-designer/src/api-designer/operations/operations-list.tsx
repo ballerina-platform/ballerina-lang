@@ -51,6 +51,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
         };
 
         this.onAccordionTitleClick = this.onAccordionTitleClick.bind(this);
+        this.handleShowAddParameter = this.handleShowAddParameter.bind(this);
     }
 
     public componentWillReceiveProps(nextProps: OpenApiOperationProp) {
@@ -148,6 +149,8 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                                         onAddParameter={appContext!.onAddOpenApiParameter}
                                                         operation={openApiOperation}
                                                         resourcePath={path}
+                                                        onClose={this.handleShowAddParameter}
+                                                        index={index}
                                                     />
                                                 );
                                             }}

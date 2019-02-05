@@ -54,11 +54,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
     public componentWillReceiveProps(nextProps: OpenApiPathProps) {
         const { paths, expandMode } = nextProps;
         const activePaths: number[] = [];
-<<<<<<< Updated upstream
-        let hideForm: boolean = this.state.showAddOperation;
-=======
         let hideForm: number[] = this.state.showAddOperation;
->>>>>>> Stashed changes
 
         if (expandMode.isEdit) {
             return;

@@ -26,6 +26,8 @@ export interface OpenApiAddParameterProps {
     onAddParameter: (parameter: Swagger.ParameterObject) => void;
     operation: string;
     resourcePath: string;
+    index: number;
+    onClose: (index: number) => void;
 }
 
 export interface OpenApiAddParameterState {
@@ -74,13 +76,17 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
 
     public render() {
         const { parameterIn, parameterType } = this.state;
-        const { onAddParameter } = this.props;
+        const { onAddParameter, onClose, index } = this.props;
 
         return (
             <Form size="mini" className="add-operation">
                 <div className="form-box">
                     <Header floated="left" as="h3">Add Parameter</Header>
-                    <Icon circular className="fw fw-delete" />
+                    <Button size="mini" floated="right" onClick={() => {
+                        onClose(index);
+                    }}>
+                        <i className="fw fw-close icon"></i>
+                    </Button>
                 </div>
                 <Form.Field>
                     <label>Name</label>
