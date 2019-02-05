@@ -483,34 +483,37 @@ function genBranchTerm(bir:Branch branchIns) {
 
 function genCallTerm(bir:Call callIns) {
     //io:println("Call Ins : " + io:sprintf("%s", callIns));
-    if (!isNativeCall(callIns)){
-        string jvmClass = className; //todo get the correct class name
-        string methodName = callIns.name.value;
-        string methodDesc = "(";
-        foreach var arg in callIns.args {
+    string jvmClass = className; //todo get the correct class name
+    string methodName = callIns.name.value;
+    string methodDesc = "(";
+    foreach var arg in callIns.args {
 
-            int argIndex = getJVMIndexOfVarRef(arg.variableDcl);
+        int argIndex = getJVMIndexOfVarRef(arg.variableDcl);
 
-            bir:BType bType = arg.typeValue;
+        bir:BType bType = arg.typeValue;
 
-            if (bType is bir:BTypeInt) {
-                jvm:visitVariableInstruction(LLOAD, argIndex);
-                methodDesc = methodDesc + "J";
-            } else if (bType is bir:BTypeString) {
-                jvm:visitVariableInstruction(ALOAD, argIndex);
-                methodDesc = methodDesc + "Ljava/lang/String;";
-            } else {
-                error err = error( "JVM generation is not supported for type " +
-                                                    io:sprintf("%s", arg.typeValue));
-                panic err;
-            }
+        if (bType is bir:BTypeInt) {
+            jvm:visitVariableInstruction(LLOAD, argIndex);
+            methodDesc = methodDesc + "J";
+        } else if (bType is bir:BTypeString) {
+            jvm:visitVariableInstruction(ALOAD, argIndex);
+            methodDesc = methodDesc + "Ljava/lang/String;";
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                                                io:sprintf("%s", arg.typeValue));
+            panic err;
         }
-
-        methodDesc = methodDesc + ")Ljava/lang/Object;";
-
-        // call method
-        jvm:visitMethodInstruction(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
     }
+
+
+    bir:BType? returnType = callIns.lhsOp.typeValue;
+
+    string returnTypeDesc = generateReturnType(returnType);
+
+    methodDesc = methodDesc + returnTypeDesc;
+
+    // call method
+    jvm:visitMethodInstruction(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
 
     // store return
     bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;
@@ -522,10 +525,8 @@ function genCallTerm(bir:Call callIns) {
         bir:BType? bType = callIns.lhsOp.typeValue;
 
         if (bType is bir:BTypeInt) {
-            jvm:visitTypeInstruction(CHECKCAST, "long");
             jvm:visitVariableInstruction(LSTORE, lhsLndex);
         } else if (bType is bir:BTypeString) {
-            jvm:visitTypeInstruction(CHECKCAST, "java/lang/String");
             jvm:visitVariableInstruction(ASTORE, lhsLndex);
         } else if (bType is bir:BTypeBoolean) {
             jvm:visitVariableInstruction(ISTORE, lhsLndex);
@@ -540,19 +541,16 @@ function genCallTerm(bir:Call callIns) {
     jvm:visitJumpInstruction("goto", currentFuncName + callIns.thenBB.id.value);
 }
 
-function isNativeCall(bir:Call callIns) returns boolean {
-    // todo need proper check
-    return callIns.name.value.contains("contains") || callIns.name.value.contains("matches");
-}
-
-
-function generateReturnType(bir:BType bType) returns string {
+function generateReturnType(bir:BType? bType) returns string {
     if (bType is bir:BTypeNil) {
         return ")V";
     } else if (bType is bir:BTypeInt) {
         return ")J";
+    } else if (bType is bir:BTypeString) {
+        return ")Ljava/lang/String;";
     } else {
-        return ")Ljava/lang/Object;";
+        error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
+        panic err;
     }
 }
 
