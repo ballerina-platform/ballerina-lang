@@ -806,7 +806,7 @@ function testJsonToMapConstrainedFail() returns map<any> {
     var result = map<T1>.convert(j2);
     if (result is map<T1>) {
         m = result;
-    } else if (result is error){
+    } else {
         panic result;
     }
     return m;
@@ -939,7 +939,7 @@ function testJsonToArrayFail() {
     var result = int[].convert(j);
     if (result is int[]) {
         int[] x = result;
-    } else if (result is error) {
+    } else {
         panic result;
     }
 }

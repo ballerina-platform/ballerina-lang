@@ -21,9 +21,9 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.publisher;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -59,17 +59,19 @@ public class InitTopicPublisher extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        Struct topicProducerBObject = BallerinaAdapter.getReceiverObject(context);
-
-        Struct topicProducerConfig = topicProducerBObject.getStructField(JmsConstants.TOPIC_PUBLISHER_FIELD_CONFIG);
-        String topicPattern = JmsUtils.getTopicPattern(topicProducerConfig);
+        BMap<String, BValue> topicProducerBObject = (BMap<String, BValue>) context.getRefArgument(0);
 
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           JmsConstants.JMS_SESSION,
-                                                           Session.class,
+        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
                                                            context);
-        BMap<String, BValue> destinationBObject = (BMap<String, BValue>) context.getNullableRefArgument(2);
+        BValue arg = context.getRefArgument(2);
+        String topicPattern = null;
+        BMap<String, BValue> destinationBObject = null;
+        if (arg instanceof BString) {
+            topicPattern = arg.stringValue();
+        } else {
+            destinationBObject = (BMap<String, BValue>) arg;
+        }
         Destination destinationObject = JmsUtils.getDestination(context, destinationBObject);
 
         if (JmsUtils.isNullOrEmptyAfterTrim(topicPattern) && destinationObject == null) {

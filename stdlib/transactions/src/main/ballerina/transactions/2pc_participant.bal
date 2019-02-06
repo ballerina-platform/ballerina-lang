@@ -102,7 +102,7 @@ type RemoteParticipant object {
         if (result is error) {
             log:printError("Remote participant: " + self.participantId + " failed", err = result);
             return result;
-        } else if (result is string) {
+        } else {
             if (result == "aborted") {
                 log:printInfo("Remote participant: " + self.participantId + " aborted.");
                 return PREPARE_RESULT_ABORTED;
@@ -132,7 +132,7 @@ type RemoteParticipant object {
         if (result is error) {
             log:printError("Remote participant: " + self.participantId + " replied with an error", err = result);
             return result;
-        } else if (result is string) {
+        } else {
             if (result == NOTIFY_RESULT_ABORTED_STR) {
                 log:printInfo("Remote participant: " + self.participantId + " aborted");
                 return NOTIFY_RESULT_ABORTED;
@@ -203,7 +203,7 @@ type LocalParticipant object {
                     return self.notifyMe(action, self.participatedTxn.transactionBlockId);
                 }
             }
-        } else if (protocolName is ()) {
+        } else {
             NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
                                                                          : NOTIFY_RESULT_ABORTED;
             foreach var localProto in self.participantProtocols {

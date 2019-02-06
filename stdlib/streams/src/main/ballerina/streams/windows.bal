@@ -100,7 +100,7 @@ public type LengthWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -227,7 +227,7 @@ public type TimeWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -359,7 +359,7 @@ public type LengthBatchWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -502,7 +502,7 @@ public type TimeBatchWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -631,7 +631,7 @@ public type ExternalTimeWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -882,7 +882,7 @@ public type ExternalTimeBatchWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1195,7 +1195,7 @@ public type TimeLengthWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1348,7 +1348,7 @@ public type UniqueLengthWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1492,7 +1492,7 @@ public type DelayWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1630,8 +1630,7 @@ public type SortWindow object {
 
                     StreamEvent expiredEvent = <StreamEvent>self.sortedWindow.removeLast();
                     expiredEvent.timestamp = currentTime;
-                    streamEventChunk.addLast(expiredEvent);
-                    StreamEvent str = <StreamEvent>streamEventChunk.next();
+                    streamEventChunk.insertBeforeCurrent(expiredEvent);
                 }
             }
         }
@@ -1645,7 +1644,7 @@ public type SortWindow object {
                     StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
                     events[events.length()] = streamEvent;
                 }
-                nextProcessFuncPointer.call(streamEvents);
+                nextProcessFuncPointer.call(events);
             }
         }
     }
@@ -1667,7 +1666,7 @@ public type SortWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1779,7 +1778,7 @@ public type TimeAccumulatingWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1930,7 +1929,7 @@ public type HoppingWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1948,4 +1947,176 @@ public function hopping(any[] windowParameters, function (StreamEvent[])? nextPr
                     returns Window {
     HoppingWindow hoppingWindow = new(nextProcessPointer, windowParameters);
     return hoppingWindow;
+}
+
+public type TimeOrderWindow object {
+
+    public int timeInMillis;
+    public any[] windowParameters;
+    public LinkedList expiredEventQueue;
+    public function (StreamEvent[])? nextProcessPointer;
+    public string timestamp;
+    public boolean dropOlderEvents;
+    public MergeSort mergeSort;
+
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
+        self.timeInMillis = 0;
+        self.timestamp = "";
+        self.dropOlderEvents = false;
+        self.expiredEventQueue = new;
+        self.mergeSort = new([], []);
+        self.initParameters(windowParameters);
+    }
+
+    public function initParameters(any[] parameters) {
+        if (parameters.length() == 3) {
+            any timestampParam = parameters[0];
+            if (timestampParam is string) {
+                self.timestamp = timestampParam;
+            } else {
+                error err = error("TimeOrder window's first parameter, timestamp should be of type string");
+                panic err;
+            }
+
+            any timeInMillisParam = parameters[1];
+            if (timeInMillisParam is int) {
+                self.timeInMillis = timeInMillisParam;
+            } else {
+                error err = error("TimeOrder window's second parameter, windowTime should be of type int");
+                panic err;
+            }
+
+            any dropOlderEventsParam = parameters[2];
+            if (dropOlderEventsParam is boolean) {
+                self.dropOlderEvents = dropOlderEventsParam;
+            } else {
+                error err = error("TimeOrder window's third parameter, dropOlderEvents should be of type boolean");
+                panic err;
+            }
+        } else {
+            error err = error("TimeOrder window should only have three parameters (<string> timestamp, <int> " +
+                "windowTime, <boolean> dropOlderEvents), but found " + parameters.length() + " input attributes");
+            panic err;
+        }
+
+        (function (map<anydata>) returns anydata)[] fieldFuncs = [function (map<anydata> x) returns anydata {
+            return x[self.timestamp];
+        }];
+        string[] sortTypes = [ASCENDING];
+        self.mergeSort = new(fieldFuncs, sortTypes);
+    }
+
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        lock {
+            foreach var event in streamEvents {
+                streamEventChunk.addLast(event);
+            }
+
+            streamEventChunk.resetToFront();
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
+                int currentTime = time:currentTime().time;
+                self.expiredEventQueue.resetToFront();
+
+                while (self.expiredEventQueue.hasNext()) {
+                    StreamEvent expiredEvent = getStreamEvent(self.expiredEventQueue.next());
+                    int timeDiff = (self.getTimestamp(expiredEvent.data[self.timestamp]) - currentTime) +
+                        self.timeInMillis;
+                    if (timeDiff <= 0) {
+                        self.expiredEventQueue.removeCurrent();
+                        expiredEvent.timestamp = currentTime;
+                        streamEventChunk.insertBeforeCurrent(expiredEvent);
+                    } else {
+                        self.expiredEventQueue.resetToFront();
+                        break;
+                    }
+                }
+
+                if (streamEvent.eventType == CURRENT) {
+                    if (self.dropOlderEvents && (currentTime - self.getTimestamp(streamEvent.data[self.timestamp])) >
+                        self.timeInMillis) {
+                        streamEventChunk.removeCurrent();
+                    } else {
+                        StreamEvent clonedEvent = streamEvent.copy();
+                        clonedEvent.eventType = EXPIRED;
+                        self.expiredEventQueue.addLast(clonedEvent);
+                    }
+
+                    StreamEvent[] events = [];
+                    self.expiredEventQueue.resetToFront();
+
+                    while (self.expiredEventQueue.hasNext()) {
+                        StreamEvent streamEven = <StreamEvent>self.expiredEventQueue.next();
+                        events[events.length()] = streamEven;
+                    }
+
+                    self.mergeSort.topDownMergeSort(events);
+                    self.expiredEventQueue.clear();
+                    foreach var event in events {
+                        self.expiredEventQueue.addLast(event);
+                    }
+                }
+                self.expiredEventQueue.resetToFront();
+            }
+        }
+
+        any nextProcessFuncPointer = self.nextProcessPointer;
+        if (nextProcessFuncPointer is function (StreamEvent[])) {
+            if (streamEventChunk.getSize() != 0) {
+                StreamEvent[] events = [];
+                streamEventChunk.resetToFront();
+                while (streamEventChunk.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
+                    events[events.length()] = streamEvent;
+                }
+                nextProcessFuncPointer.call(events);
+            }
+        }
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent?, StreamEvent?)[] {
+        (StreamEvent?, StreamEvent?)[] events = [];
+        int i = 0;
+        foreach var e in self.expiredEventQueue.asArray() {
+            if (e is StreamEvent) {
+                StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
+                StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
+
+                if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i += 1;
+                    }
+                } else {
+                    events[i] = (lshEvent, rhsEvent);
+                    i += 1;
+                }
+            }
+        }
+        return events;
+    }
+
+    public function getTimestamp(any val) returns (int) {
+        if (val is int) {
+            return val;
+        } else {
+            error err = error("timestamp should be of type int");
+            panic err;
+        }
+    }
+};
+
+public function timeOrder(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+                    returns Window {
+
+    TimeOrderWindow timeOrderWindow = new(nextProcessPointer, windowParameters);
+    return timeOrderWindow;
 }

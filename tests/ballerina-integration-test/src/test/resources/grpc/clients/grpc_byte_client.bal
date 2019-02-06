@@ -88,11 +88,8 @@ public type byteServiceBlockingClient client object {
         var value = byte[].convert(result);
         if (value is byte[]) {
             return (value, resHeaders);
-        } else if (value is error) {
-            return value;
         } else {
-            error err = error("Invalid response message type");
-            return err;
+            return value;
         }
     }
 };

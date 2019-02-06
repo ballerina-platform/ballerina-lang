@@ -12,7 +12,7 @@ http:FailoverClient foBackendEP = new({
         intervalMillis: 5000,
         // Define a set of HTTP Clients that are targeted for failover.
         targets: [
-            { url: "http://localhost:3000/mock1" },
+            { url: "http://nonexistentEP/mock1" },
             { url: "http://localhost:8080/echo" },
             { url: "http://localhost:8080/mock" }
         ]
