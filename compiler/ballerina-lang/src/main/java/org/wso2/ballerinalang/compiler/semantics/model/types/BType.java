@@ -119,17 +119,15 @@ public class BType implements ValueType {
     public static class NarrowedTypes {
         public BType trueType;
         public BType falseType;
-        public BType prevType;
 
-        public NarrowedTypes(BType trueType, BType falseType, BType prevType) {
+        public NarrowedTypes(BType trueType, BType falseType) {
             this.trueType = trueType;
             this.falseType = falseType;
-            this.prevType = prevType;
         }
 
         @Override
         public String toString() {
-            return "(" + prevType + ", " + trueType + ", " + falseType + ")";
+            return "(" + trueType + ", " + falseType + ")";
         }
     }
 }

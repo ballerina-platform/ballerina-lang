@@ -130,8 +130,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         unaryExpr.narrowedTypeInfo = getNarrowedTypes(unaryExpr.expr, env).entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> entry.getKey(),
-                        entry -> new NarrowedTypes(entry.getValue().falseType, entry.getValue().trueType,
-                                entry.getValue().prevType)));
+                        entry -> new NarrowedTypes(entry.getValue().falseType, entry.getValue().trueType)));
     }
 
     @Override
@@ -174,8 +173,7 @@ public class TypeNarrower extends BLangNodeVisitor {
 
         BType trueType = getTypeIntersection(varSymbol.type, typeTestExpr.typeNode.type);
         BType falseType = types.getRemainingType(varSymbol.type, typeTestExpr.typeNode.type);
-        typeTestExpr.narrowedTypeInfo.put(getOriginalVarSymbol(varSymbol),
-                new NarrowedTypes(trueType, falseType, varSymbol.type));
+        typeTestExpr.narrowedTypeInfo.put(getOriginalVarSymbol(varSymbol), new NarrowedTypes(trueType, falseType));
     }
 
     // Private methods
@@ -236,7 +234,7 @@ public class TypeNarrower extends BLangNodeVisitor {
             trueType = getTypeUnion(lhsTrueType, tmpType);
             falseType = getTypeIntersection(lhsFalseType, rhsFalseType);
         }
-        return new NarrowedTypes(trueType, falseType, symbol.type);
+        return new NarrowedTypes(trueType, falseType);
     }
 
     private BType getTypeIntersection(BType currentType, BType targetType) {

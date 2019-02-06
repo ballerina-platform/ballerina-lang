@@ -86,7 +86,7 @@ function testTypeGuardInElse_1() returns string {
         }
 
         if (x is int) {
-            return "string: " + <string> x;
+            return "int: " + <string> x;
         }
     }
 
@@ -101,7 +101,7 @@ function testTypeGuardInElse_2() returns string {
             return "y is string: " + y;
         } else if (y is int) {
             int i = y;
-            return "y is float: " + <string> i;
+            return "y is int: " + <string> i;
         } else {
             return "x is int|string";
         }
