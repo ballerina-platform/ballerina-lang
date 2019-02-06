@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.ArrayDeque;
@@ -50,21 +51,29 @@ import java.util.stream.Collectors;
  * Analyze global variable reference patterns and reorder them in reverse dependency order.
  */
 public class GlobalVariableRefAnalyzer {
+    private static final CompilerContext.Key<GlobalVariableRefAnalyzer> REF_ANALYZER_KEY = new CompilerContext.Key<>();
+
     private final BLangDiagnosticLog dlog;
-    private final BLangPackage pkgNode;
-    private final Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
+    private BLangPackage pkgNode;
+    private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private final Map<BSymbol, NodeInfo> dependencyNodes;
     private final Deque<NodeInfo> nodeInfoStack;
     private final List<List<NodeInfo>> cycles;
     private final List<NodeInfo> dependencyOrder;
     private int curNodeId;
 
-    public GlobalVariableRefAnalyzer(BLangPackage pkgNode,
-                                     BLangDiagnosticLog dlog,
-                                     Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
-        this.pkgNode = pkgNode;
-        this.dlog = dlog;
-        this.globalNodeDependsOn = globalNodeDependsOn;
+    public static GlobalVariableRefAnalyzer getInstance(CompilerContext context) {
+        GlobalVariableRefAnalyzer refAnalyzer = context.get(REF_ANALYZER_KEY);
+        if (refAnalyzer == null) {
+            refAnalyzer = new GlobalVariableRefAnalyzer(context);
+        }
+        return refAnalyzer;
+    }
+
+    private GlobalVariableRefAnalyzer(CompilerContext context) {
+        context.put(REF_ANALYZER_KEY, this);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
+
         this.dependencyNodes = new HashMap<>();
         this.cycles = new ArrayList<>();
         this.nodeInfoStack = new ArrayDeque<>();
@@ -74,30 +83,21 @@ public class GlobalVariableRefAnalyzer {
     /**
      * Analyze the global variable references and reorder them or emit error if they contain cyclic references.
      */
-    public void analyzeAndReOrder() {
+    public void analyzeAndReOrder(BLangPackage pkgNode, Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
+        this.pkgNode = pkgNode;
+        this.globalNodeDependsOn = globalNodeDependsOn;
+        resetAnalyzer();
+
         List<BSymbol> globalVarsAndDependentFuncs = getGlobalVariablesAndDependentFunctions();
 
-        pruneDependencyRelations(this.globalNodeDependsOn);
+        pruneDependencyRelations();
 
         Set<BSymbol> sorted = new LinkedHashSet<>();
         LinkedList<BSymbol> dependencies = new LinkedList<>();
 
         for (BSymbol symbol : globalVarsAndDependentFuncs) {
-            // Only analyze unvisited nodes.
-            // Do DFS into dependency providers to detect cycles.
-            if (!dependencyNodes.containsKey(symbol)) {
-                NodeInfo node = new NodeInfo(curNodeId++, symbol);
-                dependencyNodes.put(symbol, node);
-                analyzeProvidersRecursively(node);
-            }
-            // Extract all the dependencies found in last call to analyzeProvidersRecursively
-            if (!dependencyOrder.isEmpty()) {
-                List<BSymbol> symbolsProvidersOrdered = dependencyOrder.stream()
-                        .map(nodeInfo -> nodeInfo.symbol)
-                        .collect(Collectors.toList());
-                dependencies.addAll(symbolsProvidersOrdered);
-                dependencyOrder.clear();
-            }
+            List<BSymbol> dependencyTrain = analyzeDependenciesStartingFrom(symbol);
+            dependencies.addAll(dependencyTrain);
 
             Set<BSymbol> symbolsProviders = globalNodeDependsOn.get(symbol);
             boolean symbolHasProviders = symbolsProviders != null && !symbolsProviders.isEmpty();
@@ -126,14 +126,41 @@ public class GlobalVariableRefAnalyzer {
         projectSortToTopLevelNodesList();
     }
 
-    private void pruneDependencyRelations(Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
-        List<BSymbol> dependents = new ArrayList<>(globalNodeDependsOn.keySet());
+    private List<BSymbol> analyzeDependenciesStartingFrom(BSymbol symbol) {
+        // Only analyze unvisited nodes.
+        // Do DFS into dependency providers to detect cycles.
+        if (!dependencyNodes.containsKey(symbol)) {
+            NodeInfo node = new NodeInfo(curNodeId++, symbol);
+            dependencyNodes.put(symbol, node);
+            analyzeProvidersRecursively(node);
+        }
+
+        // Extract all the dependencies found in last call to analyzeProvidersRecursively
+        if (!dependencyOrder.isEmpty()) {
+            List<BSymbol> symbolsProvidersOrdered = this.dependencyOrder.stream()
+                    .map(nodeInfo -> nodeInfo.symbol)
+                    .collect(Collectors.toList());
+            this.dependencyOrder.clear();
+            return symbolsProvidersOrdered;
+        }
+        return new ArrayList<>();
+    }
+
+    private void resetAnalyzer() {
+        this.dependencyNodes.clear();
+        this.cycles.clear();
+        this.nodeInfoStack.clear();
+        this.dependencyOrder.clear();
+    }
+
+    private void pruneDependencyRelations() {
+        List<BSymbol> dependents = new ArrayList<>(this.globalNodeDependsOn.keySet());
         Set<BSymbol> visited = new HashSet<>();
         for (BSymbol dependent : dependents) {
             // Taking a copy as we need to modify the original list.
-            List<BSymbol> providers = new ArrayList<>(globalNodeDependsOn.get(dependent));
+            List<BSymbol> providers = new ArrayList<>(this.globalNodeDependsOn.get(dependent));
             for (BSymbol provider : providers) {
-                pruneFunctions(dependent, provider, globalNodeDependsOn, visited);
+                pruneFunctions(dependent, provider, this.globalNodeDependsOn, visited);
             }
         }
     }

@@ -223,6 +223,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private Deque<BSymbol> currDependentSymbol;
+    private final GlobalVariableRefAnalyzer globalVariableRefAnalyzer;
 
     private DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
@@ -232,6 +233,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.currDependentSymbol = new ArrayDeque<>();
+        this.globalVariableRefAnalyzer = GlobalVariableRefAnalyzer.getInstance(context);
+
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
@@ -270,17 +273,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 sortedListOfNodes.add(topLevelNode);
             }
         });
-        globalVarSymbols.addAll(pkgNode.globalVars.stream().map(v -> v.symbol).collect(Collectors.toSet()));
+        pkgNode.globalVars.forEach(var -> globalVarSymbols.add(var.symbol));
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
-        analyzeGlobalVariableReferencePatterns(pkgNode);
+        globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
-    }
-
-    private void analyzeGlobalVariableReferencePatterns(BLangPackage pkgNode) {
-        GlobalVariableRefAnalyzer globalVariableRefAnalyzer = new GlobalVariableRefAnalyzer(pkgNode, dlog,
-                globalNodeDependsOn);
-        globalVariableRefAnalyzer.analyzeAndReOrder();
     }
 
     @Override
