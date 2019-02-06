@@ -122,7 +122,7 @@ public class SymbolEnv {
     public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
         if (objSymbol.methodScope == null) {
-            objSymbol.methodScope = new Scope(env.scope.owner);
+            objSymbol.methodScope = new Scope(objSymbol);
         }
         SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
         env.copyTo(symbolEnv);

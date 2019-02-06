@@ -1151,7 +1151,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (Symbols.isPublic(symbol)) {
             return true;
         }
-        if (!Symbols.isFlagOn(symbol.flags, Flags.PRIVATE)) {
+        if (!Symbols.isPrivate(symbol)) {
             return env.enclPkg.symbol.pkgID == symbol.pkgID;
         }
         if (env.enclType != null) {
