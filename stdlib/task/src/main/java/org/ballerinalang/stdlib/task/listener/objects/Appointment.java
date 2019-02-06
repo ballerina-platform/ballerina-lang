@@ -46,7 +46,6 @@ public class Appointment extends AbstractTask {
 
         this.cronExpression = cronExpression;
         this.maxRuns = -1;
-        this.addService(service);
     }
 
     public Appointment(Context context, String cronExpression, Service service, long maxRuns) {
@@ -56,7 +55,6 @@ public class Appointment extends AbstractTask {
 
         this.cronExpression = cronExpression;
         this.maxRuns = maxRuns;
-        this.addService(service);
     }
 
     /**
@@ -105,12 +103,11 @@ public class Appointment extends AbstractTask {
         ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(service);
         FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();
         FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
-        /*
-         * TODO: Why ballerina function was needed.
-         */
+
         jobData.put(AppointmentConstants.BALLERINA_PARENT_CONTEXT, context);
         jobData.put(AppointmentConstants.BALLERINA_ON_TRIGGER_FUNCTION, onTriggerFunction);
         jobData.put(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION, onErrorFunction);
+        jobData.put(AppointmentConstants.BALLERINA_SERVICE_OBJECT, service);
         return jobData;
     }
 }

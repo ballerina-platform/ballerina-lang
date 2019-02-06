@@ -19,8 +19,9 @@
 package org.ballerinalang.stdlib.task.listener.objects;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentConstants;
-import org.ballerinalang.stdlib.task.utils.TaskExecutor;
+import org.ballerinalang.stdlib.task.listener.utils.TaskExecutor;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -43,7 +44,8 @@ public class AppointmentJob implements Job {
                 (FunctionInfo) jobDataMap.get(AppointmentConstants.BALLERINA_ON_TRIGGER_FUNCTION);
         FunctionInfo onErrorFunction =
                 (FunctionInfo) jobDataMap.get(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION);
+        Service service = (Service) jobDataMap.get(AppointmentConstants.BALLERINA_SERVICE_OBJECT);
 
-        TaskExecutor.execute(context, onTriggerFunction, onErrorFunction);
+        TaskExecutor.execute(context, onTriggerFunction, onErrorFunction, service);
     }
 }

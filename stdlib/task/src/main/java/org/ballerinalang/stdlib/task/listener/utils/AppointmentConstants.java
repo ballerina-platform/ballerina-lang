@@ -22,6 +22,7 @@ package org.ballerinalang.stdlib.task.listener.utils;
  * Constants related appointments.
  */
 public class AppointmentConstants {
+    public static final String BALLERINA_SERVICE_OBJECT = "ballerina.service";
     public static final String BALLERINA_PARENT_CONTEXT = "ballerina.parent.context";
     public static final String BALLERINA_ON_TRIGGER_FUNCTION = "ballerina.onTriggerFunction";
     public static final String BALLERINA_ON_ERROR_FUNCTION = "ballerina.onErrorFunction";
