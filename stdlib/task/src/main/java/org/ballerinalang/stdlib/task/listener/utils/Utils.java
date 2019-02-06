@@ -78,7 +78,6 @@ public class Utils {
     }
 
     // Following code is reported as duplicates since all the lines doing same function call.
-    @SuppressWarnings("Duplicates")
     private static String buildCronExpression(BMap<String, BValue> record) {
         StringBuilder cronExpression = new StringBuilder();
         cronExpression.append(getStringFieldValue(record, FIELD_NAME_SECONDS)).append(" ");

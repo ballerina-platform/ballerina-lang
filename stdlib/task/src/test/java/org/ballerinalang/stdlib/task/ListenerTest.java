@@ -132,18 +132,4 @@ public class ListenerTest {
             return (((BBoolean) isPaused[0]).booleanValue() && ((BBoolean) isResumed[0]).booleanValue());
         });
     }
-
-    /*
-     * TODO:
-     * Check resources at runtime. Hence need to use compile and setup.
-     * If compiler plugin works, BCompileUtil.compile() should work.
-     */
-    @Test(
-            description = "Tests compiler error for a task with an invalid resource name",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Invalid resource function found:.*Expected: onTrigger or onError.*"
-    )
-    public void testInvalidResourceName() {
-        BCompileUtil.compileAndSetup("listener-test-src/timer/invalid_resource.bal");
-    }
 }
