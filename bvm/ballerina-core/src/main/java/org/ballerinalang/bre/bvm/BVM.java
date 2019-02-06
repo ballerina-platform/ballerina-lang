@@ -2722,8 +2722,9 @@ public class BVM {
                 double floatVal = sf.doubleRegs[i];
                 if (Double.isNaN(floatVal) || Double.isInfinite(floatVal)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                           "'float' value '" + floatVal + "' cannot be " +
-                                                                   "converted to 'byte'"));
+                                                           "'" + TypeConstants.FLOAT_TNAME + "' value '" + floatVal +
+                                                                   "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
                     handleError(ctx);
                     break;
                 }
@@ -2752,8 +2753,9 @@ public class BVM {
                 if (valueKind == DecimalValueKind.NOT_A_NUMBER || valueKind == DecimalValueKind.NEGATIVE_INFINITY ||
                         valueKind == DecimalValueKind.POSITIVE_INFINITY) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                           "'decimal' value '" + sf.refRegs[i] + "' cannot be " +
-                                                                   "converted to 'byte'"));
+                                                           "'" + TypeConstants.DECIMAL_TNAME + "' value '" +
+                                                                   sf.refRegs[i] + "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
                     handleError(ctx);
                     break;
                 }
@@ -2782,15 +2784,17 @@ public class BVM {
                 double valueToConvert = sf.doubleRegs[i];
                 if (Double.isNaN(valueToConvert) || Double.isInfinite(valueToConvert)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                           "'float' value '" + valueToConvert + "' cannot be " +
-                                                                   "converted to 'int'"));
+                                                           "'" + TypeConstants.FLOAT_TNAME + "' value '" +
+                                                                   valueToConvert + "' cannot be converted to '" +
+                                                                   TypeConstants.INT_TNAME + "'"));
                     handleError(ctx);
                     break;
                 }
 
                 if (!isFloatWithinIntRange(valueToConvert)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, "out " +
-                            "of range 'float' value '" + valueToConvert + "' cannot be converted to 'int'"));
+                            "of range '" + TypeConstants.FLOAT_TNAME + "' value '" + valueToConvert +
+                            "' cannot be converted to '" + TypeConstants.INT_TNAME + "'"));
                     handleError(ctx);
                     break;
                 }
@@ -2881,15 +2885,17 @@ public class BVM {
                         decValueKind == DecimalValueKind.NEGATIVE_INFINITY ||
                         decValueKind == DecimalValueKind.POSITIVE_INFINITY) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                           "'decimal' value '" + sf.refRegs[i] + "' cannot be " +
-                                                                   "converted to 'int'"));
+                                                           "'" + TypeConstants.DECIMAL_TNAME + "' value '" +
+                                                                   sf.refRegs[i] + "' cannot be converted to '" +
+                                                                   TypeConstants.INT_TNAME + "'"));
                     handleError(ctx);
                     break;
                 }
 
                 if (!isDecimalWithinIntRange((decimal.decimalValue()))) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                            "out of range 'decimal' value '" + decimal + "' cannot be converted to 'int'"));
+                            "out of range '" + TypeConstants.DECIMAL_TNAME + "' value '" + decimal +
+                                    "' cannot be converted to '" + TypeConstants.INT_TNAME + "'"));
                     handleError(ctx);
                     break;
                 }

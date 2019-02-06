@@ -633,6 +633,28 @@ function testSimpleTypeToUnionCastPositive() returns boolean {
     return castSuccessful && u4 == i;
 }
 
+function testDirectlyUnmatchedUnionToUnionCastPositive() returns boolean {
+    string s = "hello world";
+    string|int v1 = s;
+    string|boolean v2 = <string|boolean> v1;
+    boolean castSuccessful = s == v2;
+
+    Lead lead = { name: "Em", id: 2000, rating: 10.0 };
+    Employee|string v3 = lead;
+    Lead|int v4 = <Lead|int> v3;
+    return castSuccessful && v4 == lead && v4 === lead;
+}
+
+function testDirectlyUnmatchedUnionToUnionCastNegative_1() {
+    string|int v1 = 1;
+    string|boolean v2 = <string|boolean> v1;
+}
+
+function testDirectlyUnmatchedUnionToUnionCastNegative_2() {
+    Employee|string v3 = "lead";
+    Lead|int v4 = <Lead|int> v3;
+}
+
 function testTypeCastOnRecordLiterals() returns (string, string, string) {
     string s1 = init(<ServerModeConfig>{});
     string s2 = init(<EmbeddedModeConfig>{});

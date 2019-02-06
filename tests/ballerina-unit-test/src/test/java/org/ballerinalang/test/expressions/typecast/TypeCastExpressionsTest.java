@@ -48,8 +48,8 @@ public class TypeCastExpressionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/typeassertion/type_assertion_expr.bal");
-        resultNegative = BCompileUtil.compile("test-src/expressions/typeassertion/type_assertion_expr_negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr.bal");
+        resultNegative = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr_negative.bal");
     }
 
     @Test(dataProvider = "positiveTests")
@@ -184,6 +184,20 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'int' cannot be cast to 'string\\|boolean'\"\\}.*")
+    public void testDirectlyUnmatchedUnionToUnionCastNegativeOne() {
+        BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'string' cannot be cast to 'Lead\\|int'\"\\}.*")
+    public void testDirectlyUnmatchedUnionToUnionCastNegativeTwo() {
+        BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
     public void testStringAsInvalidBasicType() {
         BRunUtil.invoke(result, "testStringAsInvalidBasicType");
@@ -281,7 +295,8 @@ public class TypeCastExpressionsTest {
                 {"testCastToNumericType"},
                 {"testBroaderObjectCast"},
                 {"testCastOnPotentialConversion"},
-                {"testSimpleTypeToUnionCastPositive"}
+                {"testSimpleTypeToUnionCastPositive"},
+                {"testDirectlyUnmatchedUnionToUnionCastPositive"}
         };
     }
 

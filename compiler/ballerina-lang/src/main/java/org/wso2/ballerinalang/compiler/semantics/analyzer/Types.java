@@ -848,11 +848,16 @@ public class Types {
         return inferredType;
     }
 
-    public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
+    public BSymbol getImplicitCastOpSymbol(BType actualType, BType expType) {
         BSymbol symbol = symResolver.resolveImplicitCastOp(actualType, expType);
         if ((expType.tag == TypeTags.UNION || expType.tag == TypeTags.FINITE) && isValueType(actualType)) {
             symbol = symResolver.resolveImplicitCastOp(actualType, symTable.anyType);
         }
+        return symbol;
+    }
+
+    public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
+        BSymbol symbol = getImplicitCastOpSymbol(actualType, expType);
 
         if (symbol == symTable.notFoundSymbol) {
             return;
@@ -890,25 +895,49 @@ public class Types {
         return symResolver.resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
     }
 
-    BSymbol getTypeCastOperator(BType sourceType, BType targetType) {
+    BSymbol getTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
         if (isAssignable(sourceType, targetType)) {
-            return createCastOperatorSymbol(sourceType, sourceType, true, InstructionCodes.NOP);
+            if (isValueType(sourceType)) {
+                return getImplicitCastOpSymbol(sourceType, targetType);
+            }
+            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
+        if (isAssignable(targetType, sourceType)) {
+            return symResolver.createTypeCastSymbol(sourceType, targetType);
         }
 
         if (containsNumericType(targetType)) {
-            BSymbol symbol = symResolver.getNumericConversionOrCastSymbol(sourceType, targetType);
+            BSymbol symbol = symResolver.getNumericConversionOrCastSymbol(conversionExpr, sourceType, targetType);
             if (symbol != symTable.notFoundSymbol) {
                 return symbol;
             }
         }
 
-        if (isAssignable(targetType, sourceType)) {
-            return symResolver.createTypeCastSymbol(sourceType, targetType);
+        if (sourceType.tag == TypeTags.UNION) {
+            if (((BUnionType) sourceType).memberTypes.stream()
+                    .anyMatch(memType -> isAssignable(memType, targetType))) {
+                // string|int v1 = "hello world";
+                // string|boolean v2 = <string|boolean> v1;
+                return symResolver.createTypeCastSymbol(sourceType, targetType);
+            }
+
+            if (targetType.tag == TypeTags.UNION) {
+                if (((BUnionType) targetType).memberTypes.stream()
+                        .anyMatch(targetMemType -> ((BUnionType) sourceType).memberTypes.stream()
+                                .anyMatch(sourceMemType -> isAssignable(targetMemType, sourceMemType)))) {
+                    // Where `BarRecord` is a subtype of `FooRecord`.
+                    // BarRecord b1 = { ... };
+                    // FooRecord|string v1 = b1;
+                    // BarRecord|int v2 = <BarRecord|int> v1;
+                    return symResolver.createTypeCastSymbol(sourceType, targetType);
+                }
+            }
         }
 
         return symTable.notFoundSymbol;
