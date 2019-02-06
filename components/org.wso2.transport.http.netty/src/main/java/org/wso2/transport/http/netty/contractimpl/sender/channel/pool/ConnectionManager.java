@@ -60,7 +60,7 @@ public class ConnectionManager {
     public void returnChannel(TargetChannel targetChannel) throws Exception {
         if (targetChannel.getCorrelatedSource() != null) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
-            releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
+            releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getClientId().toString()));
         } else {
             releaseChannelToPool(targetChannel, this.connGlobalPool.get(targetChannel.getHttpRoute().toString()));
         }
@@ -87,13 +87,13 @@ public class ConnectionManager {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             try {
                 // Need a null check because SourceHandler side could timeout before TargetHandler side.
-                String httpRoute = targetChannel.getHttpRoute().toString();
-                if (objectPoolMap.get(httpRoute) != null) {
+                String clientId = targetChannel.getClientId().toString();
+                if (objectPoolMap.get(clientId) != null) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Invalidating connection {} to the pool",
                                   targetChannel.getChannel().id().asShortText());
                     }
-                    objectPoolMap.get(httpRoute).invalidateObject(targetChannel);
+                    objectPoolMap.get(clientId).invalidateObject(targetChannel);
                 }
             } catch (Exception e) {
                 throw new Exception("Cannot invalidate channel from pool", e);
@@ -199,6 +199,7 @@ public class ConnectionManager {
         TargetChannel targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
         targetChannel.setCorrelatedSource(sourceHandler);
         targetChannel.setConnectionManager(this);
+        targetChannel.setClientId(clientId);
         return targetChannel;
     }
 

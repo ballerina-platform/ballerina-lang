@@ -104,8 +104,8 @@ public class ConnectionPoolProxyTestCase {
 
             requestThreeResponse = executor.submit(clientWorkerThree);
 
-            // Each client has different pool. Therefore channel is different. Need to come-up with a way to detect
-            // the parent connection pool id
+            // Each client has different pool, even though underneath the same pool is shared among them. Need to
+            // come-up with a way to detect the parent connection pool id.
             assertNotEquals(requestOneResponse.get(), requestThreeResponse.get());
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testConnectionReuseForProxy", e);
