@@ -11,6 +11,9 @@ configurations {
     distBal {
         transitive false
     }
+    tools {
+        transitive false
+    }
 }
 
 dependencies {
@@ -34,6 +37,9 @@ dependencies {
     dist project(':protobuf-ballerina')
     dist project(':swagger-ballerina:swagger-to-ballerina-generator');
     dist project(':docerina');
+
+    tools project(':language-server:language-server-core');
+    tools project(':language-server:language-server-stdio-launcher');
 }
 
 def basePath = '/' + project.name + '-' + project.version + '/'
@@ -54,10 +60,16 @@ CopySpec copyBinSpec = copySpec {
     into(basePath + 'bin')
 }
 
+CopySpec copyToolsSpec = copySpec {
+    from configurations.tools
+    into(basePath + 'lib/tools/lang-server/lib')
+}
+
 task createZip(type: Zip) {
     with copyJarSpec
     with copyBaloSpec
     with copyBinSpec
+    with copyToolsSpec
 }
 
 build {

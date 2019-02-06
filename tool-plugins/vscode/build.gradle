@@ -1,9 +1,19 @@
 apply from: "$rootDir/gradle/jsProject.gradle"
 
+configurations {
+    dist {
+      transitive false
+    }
+}
+
 task npmBuild(type: Exec) {
     outputs.dir("$buildDir/out")
     outputs.cacheIf { true } 
     commandLine 'npm', 'run', 'package'
+}
+
+dependencies {
+    dist project(':composer-library')
 }
 
 build {
