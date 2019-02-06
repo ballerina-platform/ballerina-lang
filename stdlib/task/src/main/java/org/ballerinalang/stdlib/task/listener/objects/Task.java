@@ -37,6 +37,14 @@ public interface Task {
     String getId();
 
     /**
+     * Run all the services attached to the task.
+     *
+     * @param context   Ballerina context which runs the services.
+     * @throws SchedulingException  When there is a failure to stop the task after maximum number of runs specified.
+     */
+    void runServices(Context context) throws SchedulingException;
+
+    /**
      * Stop the task.
      *
      * @throws SchedulingException  If the task cannot be stopped.
@@ -77,12 +85,4 @@ public interface Task {
      * @throws SchedulingException  when the task is not already paused or any other error occurs.
      */
     void resume() throws SchedulingException;
-
-    /**
-     * Run all the services attached to the task.
-     *
-     * @param context   Ballerina context which runs the services.
-     * @throws SchedulingException  When there is a failure to stop the task after maximum number of runs specified.
-     */
-    void runServices(Context context) throws SchedulingException;
 }

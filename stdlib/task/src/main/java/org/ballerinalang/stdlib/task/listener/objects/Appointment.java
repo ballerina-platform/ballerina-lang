@@ -40,7 +40,7 @@ public class Appointment extends AbstractTask {
     private String id = TaskIdGenerator.generate();
     private String cronExpression;
 
-    public Appointment(Context context, String cronExpression, Service service) throws SchedulingException {
+    public Appointment(Context context, String cronExpression, Service service) {
         super(service);
         TaskRegistry.getInstance().addTask(this);
 
@@ -49,8 +49,7 @@ public class Appointment extends AbstractTask {
         this.addService(service);
     }
 
-    public Appointment(Context context, String cronExpression, Service service, long maxRuns)
-            throws SchedulingException {
+    public Appointment(Context context, String cronExpression, Service service, long maxRuns) {
         super(service, maxRuns);
         TaskRegistry.getInstance().addTask(this);
         this.serviceList = new ArrayList<>();
@@ -73,32 +72,8 @@ public class Appointment extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public ArrayList<Service> getServices() {
-        return this.serviceList;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addService(Service service) {
-        this.serviceList.add(service);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void pause() throws SchedulingException {
 
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removeService(Service service) {
-        this.serviceList.remove(service);
     }
 
     /**

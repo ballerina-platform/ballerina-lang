@@ -26,7 +26,6 @@ import org.ballerinalang.stdlib.task.listener.utils.TaskExecutor;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
-import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -94,30 +93,6 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public ArrayList<Service> getServices() {
-        return this.serviceList;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addService(Service service) {
-        this.serviceList.add(service);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removeService(Service service) {
-        this.serviceList.remove(service);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void pause() throws SchedulingException {
         if (this.isPaused) {
             throw new SchedulingException("Timer is already paused");
@@ -159,7 +134,7 @@ public class Timer extends AbstractTask {
                 return;
             }
             this.noOfRuns++;
-            for (Service service : serviceList) {
+            for (Service service : getServices()) {
                 ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(service);
                 callTriggerFunction(context, resourceFunctionHolder, service);
             }
