@@ -33,6 +33,7 @@ public class WebSubTestUtils {
 
     public static final String PUBLISHER_NOTIFY_URL = "http://localhost:8080/publisher/notify";
     public static final String PUBLISHER_NOTIFY_URL_TWO = "http://localhost:8080/publisherTwo/notify";
+    public static final String PUBLISHER_NOTIFY_URL_THREE = "http://localhost:8080/publisherThree/notify";
 
     public static final String HUB_MODE_INTERNAL = "internal";
     public static final String HUB_MODE_REMOTE = "remote";
@@ -52,8 +53,7 @@ public class WebSubTestUtils {
         }
     }
 
-    public static void requestUpdateWithContent(String url, String content, String contentType) throws
-            BallerinaTestException {
+    public static void requestUpdateWithContent(String url, String content) throws BallerinaTestException {
         try {
             HashMap<String, String> headers = new HashMap<>(1);
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);

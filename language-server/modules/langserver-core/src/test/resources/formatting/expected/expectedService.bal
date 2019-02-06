@@ -54,7 +54,8 @@ service serviceName4 on new http:Listener(9090) {
         });
     }
 
-    resource function send2(http:Caller caller, http:Request request) {
+    resource function send2(http:Caller caller,
+    http:Request request) {
         http:Client locationEP = new("http://www.mocky.io");
         var jsonMsg = req.getJsonPayload();
 

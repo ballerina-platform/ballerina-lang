@@ -14,10 +14,7 @@ jms:Session jmsSession = new(jmsConnection, {
     });
 
 // This initializes a queue sender.
-jms:QueueSender queueSender = new({
-        session: jmsSession,
-        queueName: "MyQueue"
-    });
+jms:QueueSender queueSender = new(jmsSession, queueName = "MyQueue");
 
 public function main() {
     // This creates a text message.

@@ -52,6 +52,6 @@ public class BidiStreamingTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString response = (BString) responses[0];
-        Assert.assertEquals(response.stringValue(), "Success: received vaild responses from server");
+        Assert.assertEquals(response.stringValue(), "Success: received valid responses from server");
     }
 }

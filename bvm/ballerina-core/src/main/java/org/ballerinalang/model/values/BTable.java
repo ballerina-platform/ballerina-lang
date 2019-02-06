@@ -68,10 +68,13 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public BTable(String tableName, BStructureType constraintType) {
+        this(constraintType);
+        this.tableName = tableName;
+    }
+
+    public BTable(BStructureType constraintType) {
         this.nextPrefetched = false;
         this.hasNextVal = false;
-        this.tableProvider = null;
-        this.tableName = tableName;
         this.constraintType = constraintType;
         this.type = new BTableType(constraintType);
     }

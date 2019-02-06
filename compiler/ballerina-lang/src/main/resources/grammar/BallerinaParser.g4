@@ -962,14 +962,6 @@ streamingAction
     :   EQUAL_GT LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-setClause
-    :   SET setAssignmentClause (COMMA setAssignmentClause)*
-    ;
-
-setAssignmentClause
-    :   variableReference ASSIGN expression
-    ;
-
 streamingInput
     :   variableReference whereClause? functionInvocation* windowClause? functionInvocation*
         whereClause? (AS alias=Identifier)?

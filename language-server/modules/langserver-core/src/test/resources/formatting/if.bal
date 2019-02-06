@@ -36,3 +36,13 @@ function name3() {
         dstPath);
     }
 }
+
+function name4() {
+    string value = "chunked";
+    if (value != "chunked" && value != "compress" && value != "deflate"
+    && value != "gzip" && value != "identity") {
+           res.statusCode = 400;
+         res.setPayload("Transfer-Encoding contains invalid data");
+         validationErrorFound = true;
+       }
+}
