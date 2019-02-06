@@ -157,6 +157,7 @@ int MULTIANEWARRAY = 197; // visitMultiANewArrayInsn
 int IFNULL = 198; // visitJumpInsn
 int IFNONNULL = 199; // -
 
+
 // asm constants
 int ACC_PUBLIC = 1;
 int ACC_PRIVATE = 2;
@@ -182,3 +183,13 @@ int ACC_ENUM = 16384;
 int ACC_MANDATED = 32768;
 int ACC_MODULE = 32768;
 int ACC_DEPRECATED = 131072;
+
+
+// jump instruction related constants
+const int JUMP = 0;
+const int GREATER_THAN_ZERO = 1;
+const int LESS_THAN_ZERO = 2;
+const int LESS_THAN_EQUAL_ZERO = 3;
+const int NOT_EQUAL_TO_ZERO = 4;
+const int IF_NOT_EQUAL = 5;
+const int IF_EQUAL = 6;
