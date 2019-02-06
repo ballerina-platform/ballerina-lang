@@ -21,7 +21,7 @@ import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import { Accordion, AccordionTitleProps, Button, Divider } from "semantic-ui-react";
 
-import { OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
+import { ExpandMode, OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
 
 import InlineEdit from "../components/utils/inline-edit";
 
@@ -33,7 +33,7 @@ import OpenApiAddParameter from "../parameter/add-parameter";
 interface OpenApiOperationProp {
     pathItem: Swagger.PathItemObject;
     path: string;
-    showType: string;
+    expandMode: ExpandMode;
 }
 
 interface OpenApiOperationState {
@@ -54,10 +54,14 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
     }
 
     public componentWillReceiveProps(nextProps: OpenApiOperationProp) {
-        const { pathItem, showType } = nextProps;
+        const { pathItem, expandMode } = nextProps;
         const activeOperations: number[] = [];
 
-        if (showType === "operations" || showType === "all") {
+        if (expandMode.isEdit) {
+            return;
+        }
+
+        if (expandMode.type === "operations" || expandMode.type === "all") {
             Object.keys(pathItem).sort().map((openApiOperation, index) => {
                 activeOperations.push(index);
             });
@@ -160,6 +164,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                     <div className="title">
                                         <p>Responses</p>
                                     </div>
+                                    <Divider />
                                     {pathItem[openApiOperation].responses &&
                                         <OpenApiResponseList
                                             responsesList={pathItem[openApiOperation].responses}
