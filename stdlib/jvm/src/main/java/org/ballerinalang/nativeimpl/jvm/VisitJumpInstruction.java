@@ -24,8 +24,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import java.util.Locale;
-
+import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFGT;
@@ -42,49 +41,53 @@ import static org.objectweb.asm.Opcodes.IF_ICMPNE;
         orgName = "ballerina", packageName = "jvm",
         functionName = "visitJumpInstruction",
         args = {
-                @Argument(name = "jumpType", type = STRING),
+                @Argument(name = "jumpType", type = INT),
                 @Argument(name = "labelId", type = STRING),
         }
 )
 public class VisitJumpInstruction extends BlockingNativeCallableUnit {
+
+    private static final int JUMP = 0;
+    private static final int GREATER_THAN_ZERO = 1;
+    private static final int LESS_THAN_ZERO = 2;
+    private static final int LESS_THAN_EQUAL_ZERO = 3;
+    private static final int NOT_EQUAL_TO_ZERO = 4;
+    private static final int IF_NOT_EQUAL = 5;
+    private static final int IF_EQUAL = 6;
 
     @Override
     public void execute(Context context) {
 
         MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
 
-        String jumpType = context.getStringArgument(0).toUpperCase(Locale.ENGLISH);
-        String labelId = context.getStringArgument(1);
+        int jumpType = (int) context.getIntArgument(0);
+        String labelId = context.getStringArgument(0);
         Label label = ASMCodeGenerator.getInstance().getLabel(labelId);
 
-        switch (JumpInstructionType.valueOf(jumpType)) {
-            case GOTO:
+        switch (jumpType) {
+            case JUMP:
                 mv.visitJumpInsn(GOTO, label);
                 break;
-            case GREATER_THAN_0:
+            case GREATER_THAN_ZERO:
                 mv.visitJumpInsn(IFGT, label);
                 break;
-            case LESS_THAN_0:
+            case LESS_THAN_ZERO:
                 mv.visitJumpInsn(IFLT, label);
                 break;
-            case IF_ICMPEQ:
+            case IF_EQUAL:
                 mv.visitJumpInsn(IF_ICMPEQ, label);
                 break;
-            case IF_ICMPNE:
+            case IF_NOT_EQUAL:
                 mv.visitJumpInsn(IF_ICMPNE, label);
                 break;
-            case NOT_EQUAL_0:
+            case NOT_EQUAL_TO_ZERO:
                 mv.visitJumpInsn(IFNE, label);
                 break;
-            case LESS_THAN_EQUAL_0:
+            case LESS_THAN_EQUAL_ZERO:
                 mv.visitJumpInsn(IFLE, label);
                 break;
             default:
                 throw new UnsupportedOperationException();
         }
-    }
-
-    enum JumpInstructionType {
-        GOTO, GREATER_THAN_0, LESS_THAN_0, NOT_EQUAL_0, LESS_THAN_EQUAL_0, IF_ICMPNE, IF_ICMPEQ;
     }
 }

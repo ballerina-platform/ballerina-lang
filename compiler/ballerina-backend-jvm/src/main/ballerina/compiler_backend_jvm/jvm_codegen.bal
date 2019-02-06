@@ -68,7 +68,7 @@ function getMainFunc(bir:Function[] funcs) returns bir:Function? {
 function generateMethodDesc(bir:Function func) {
     currentFuncName = untaint func.name.value;
     string desc = getMethodDesc(func);
-    jvm:visitMethod(ACC_PUBLIC + ACC_STATIC, currentFuncName, desc);
+    jvm:visitMethodInit(ACC_PUBLIC + ACC_STATIC, currentFuncName, desc);
 }
 
 function getMethodDesc(bir:Function func) returns string {
@@ -80,7 +80,6 @@ function getMethodDesc(bir:Function func) returns string {
     }
 
     string returnType = generateReturnType(func.typeValue.retType);
-
     return desc + returnType;
 }
 
@@ -248,10 +247,10 @@ function visitLessThanIns(bir:BinaryOp binaryIns) {
     jvm:createLabel(label2);
 
     jvm:visitNoOperandInstruction(LCMP);
-    jvm:visitJumpInstruction("less_than_0", label1);
+    jvm:visitJumpInstruction(LESS_THAN_ZERO, label1);
 
     jvm:visitNoOperandInstruction(ICONST_0);
-    jvm:visitJumpInstruction("goto", label2);
+    jvm:visitJumpInstruction(JUMP, label2);
 
     jvm:visitLabel(label1);
     jvm:visitNoOperandInstruction(ICONST_1);
@@ -272,10 +271,10 @@ function visitLessEqualIns(bir:BinaryOp binaryIns) {
     jvm:createLabel(label2);
 
     jvm:visitNoOperandInstruction(LCMP);
-    jvm:visitJumpInstruction("less_than_equal_0", label1);
+    jvm:visitJumpInstruction(LESS_THAN_EQUAL_ZERO, label1);
 
     jvm:visitNoOperandInstruction(ICONST_0);
-    jvm:visitJumpInstruction("goto", label2);
+    jvm:visitJumpInstruction(JUMP, label2);
 
     jvm:visitLabel(label1);
     jvm:visitNoOperandInstruction(ICONST_1);
@@ -296,10 +295,10 @@ function visitEqualIns(bir:BinaryOp binaryIns) {
     jvm:createLabel(label2);
 
     jvm:visitNoOperandInstruction(LCMP);
-    jvm:visitJumpInstruction("not_equal_0", label1);
+    jvm:visitJumpInstruction(NOT_EQUAL_TO_ZERO, label1);
 
     jvm:visitNoOperandInstruction(ICONST_1);
-    jvm:visitJumpInstruction("goto", label2);
+    jvm:visitJumpInstruction(JUMP, label2);
 
     jvm:visitLabel(label1);
     jvm:visitNoOperandInstruction(ICONST_0);
@@ -393,16 +392,16 @@ function visitAndIns(bir:BinaryOp binaryIns) {
     jvm:visitVariableInstruction(ILOAD, rhsOps1Index);
 
     jvm:visitNoOperandInstruction(ICONST_1);
-    jvm:visitJumpInstruction("if_icmpne", label1);
+    jvm:visitJumpInstruction(IF_NOT_EQUAL, label1);
 
     int rhsOps2Index = getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl);
     jvm:visitVariableInstruction(ILOAD, rhsOps2Index);
 
     jvm:visitNoOperandInstruction(ICONST_1);
-    jvm:visitJumpInstruction("if_icmpne", label1);
+    jvm:visitJumpInstruction(IF_NOT_EQUAL, label1);
 
     jvm:visitNoOperandInstruction(ICONST_1);
-    jvm:visitJumpInstruction("goto", label2);
+    jvm:visitJumpInstruction(JUMP, label2);
 
     jvm:visitLabel(label1);
     jvm:visitNoOperandInstruction(ICONST_0);
@@ -437,16 +436,16 @@ function visitOrIns(bir:BinaryOp binaryIns) {
     jvm:visitVariableInstruction(ILOAD, rhsOps1Index);
 
     jvm:visitNoOperandInstruction(ICONST_1);
-    jvm:visitJumpInstruction("if_icmpeq", label1);
+    jvm:visitJumpInstruction(IF_EQUAL, label1);
 
     int rhsOps2Index = getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl);
     jvm:visitVariableInstruction(ILOAD, rhsOps2Index);
 
     jvm:visitNoOperandInstruction(ICONST_1);
-    jvm:visitJumpInstruction("if_icmpeq", label1);
+    jvm:visitJumpInstruction(IF_EQUAL, label1);
 
     jvm:visitNoOperandInstruction(ICONST_0);
-    jvm:visitJumpInstruction("goto", label2);
+    jvm:visitJumpInstruction(JUMP, label2);
 
     jvm:visitLabel(label1);
     jvm:visitNoOperandInstruction(ICONST_1);
@@ -472,7 +471,7 @@ function visitTerminator(bir:BasicBlock bb) {
 }
 
 function genGoToTerm(bir:GOTO gotoIns) {
-    jvm:visitJumpInstruction("goto", currentFuncName + gotoIns.targetBB.id.value);
+    jvm:visitJumpInstruction(JUMP, currentFuncName + gotoIns.targetBB.id.value);
 }
 
 function genReturnTerm(bir:Return returnIns) {
@@ -500,8 +499,8 @@ function genBranchTerm(bir:Branch branchIns) {
 
     int opIndex = getJVMIndexOfVarRef(branchIns.op.variableDcl);
     jvm:visitVariableInstruction(ILOAD, opIndex);
-    jvm:visitJumpInstruction("greater_than_0", currentFuncName + trueBBId);
-    jvm:visitJumpInstruction("goto", currentFuncName + falseBBId);
+    jvm:visitJumpInstruction(GREATER_THAN_ZERO, currentFuncName + trueBBId);
+    jvm:visitJumpInstruction(JUMP, currentFuncName + falseBBId);
 }
 
 function genCallTerm(bir:Call callIns) {
@@ -561,7 +560,7 @@ function genCallTerm(bir:Call callIns) {
 
     }
     // goto thenBB
-    jvm:visitJumpInstruction("goto", currentFuncName + callIns.thenBB.id.value);
+    jvm:visitJumpInstruction(JUMP, currentFuncName + callIns.thenBB.id.value);
 }
 
 function generateReturnType(bir:BType? bType) returns string {
@@ -633,7 +632,7 @@ function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
 
 
 function generateMainMethod(bir:Function userMainFunc) {
-    jvm:visitMethod(ACC_PUBLIC, "__main", "([Lorg/ballerinalang/model/values/BValue;)V");
+    jvm:visitMethodInit(ACC_PUBLIC, "__main", "([Lorg/ballerinalang/model/values/BValue;)V");
     string desc = getMethodDesc(userMainFunc);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
 
@@ -675,7 +674,7 @@ function generateCast(int paramIndex, bir:BType targetType) {
 }
 
 function generateGetParamsMethod(bir:Function mainFunc) {
-    jvm:visitMethod(ACC_PUBLIC, "__getMainFuncParams", "()[Lorg/ballerinalang/model/types/BType;");
+    jvm:visitMethodInit(ACC_PUBLIC, "__getMainFuncParams", "()[Lorg/ballerinalang/model/types/BType;");
 
     bir:BType[] paramTypes = mainFunc.typeValue.paramTypes;
     jvm:visitLoadConstantInstruction(paramTypes.length());
