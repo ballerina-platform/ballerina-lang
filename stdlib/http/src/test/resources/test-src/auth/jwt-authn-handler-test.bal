@@ -56,3 +56,12 @@ function createJwtAuthProvider(string trustStorePath) returns auth:JWTAuthProvid
     auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider;
 }
+
+function generateJwt(auth:JwtHeader header, auth:JwtPayload payload, string keyStorePath) returns string|error {
+    crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
+    return auth:issueJwt(header, payload, keyStore, "ballerina", "ballerina");
+}
+
+function verifyJwt(string jwt, auth:JWTValidatorConfig config) returns auth:JwtPayload|error {
+    return auth:validateJwt(jwt, config);
+}

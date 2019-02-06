@@ -239,7 +239,7 @@ public type AuthProvider record {
     string keyAlias = "";
     string keyPassword = "";
     int expTime = 0;
-    string signingAlg = "";
+    auth:JwtSigningAlgorithm signingAlg = auth:RS512;
     boolean propagateJwt = false;
     !...;
 };
@@ -418,7 +418,7 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
     auth:InferredJwtAuthProviderConfig jwtAuthConfig = {
         issuer: authProvider.issuer == "" ? defaultIssuer : authProvider.issuer,
         expTime: authProvider.expTime == 0 ? defaultExpTime : authProvider.expTime,
-        signingAlg: authProvider.signingAlg == "" ? defaultSignAlg : authProvider.signingAlg,
+        signingAlg: authProvider.signingAlg,
         audience: authProvider.audience == "" ? defaultAudience : authProvider.audience,
         keyAlias: authProvider.keyAlias,
         keyPassword: authProvider.keyPassword,
