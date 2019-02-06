@@ -315,7 +315,7 @@ function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndp
         followRedirects: config.followRedirects,
         retryConfig: config.retryConfig,
         proxy: config.proxy,
-        connectionThrottling: config.connectionThrottling,
+        poolConfig: config.poolConfig,
         secureSocket: config.secureSocket,
         cache: config.cache,
         compression: config.compression,

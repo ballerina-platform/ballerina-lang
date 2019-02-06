@@ -648,12 +648,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.type, name, blockEnv);
                 break;
             case TUPLE_VARIABLE:
-                ((BLangTupleVariable) variable).memberVariables.parallelStream()
-                        .forEach(memberVariable -> recursivelyDefineVariables(memberVariable, blockEnv));
+                ((BLangTupleVariable) variable).memberVariables.forEach(memberVariable ->
+                        recursivelyDefineVariables(memberVariable, blockEnv));
                 break;
             case RECORD_VARIABLE:
-                ((BLangRecordVariable) variable).variableList.parallelStream()
-                        .forEach(value ->recursivelyDefineVariables(value.valueBindingPattern, blockEnv));
+                ((BLangRecordVariable) variable).variableList.forEach(value ->
+                        recursivelyDefineVariables(value.valueBindingPattern, blockEnv));
                 break;
         }
     }
