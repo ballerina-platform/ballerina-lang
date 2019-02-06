@@ -1283,10 +1283,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
         switch (iExpr.builtInMethod) {
-            case STAMP:
-                genNode(iExpr.requiredArgs.get(0), this.env);
-                emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
-                break;
             case CONVERT:
                 int opcode = ((BOperatorSymbol) iExpr.symbol).opcode;
                 BLangExpression expr = iExpr.requiredArgs.get(0);

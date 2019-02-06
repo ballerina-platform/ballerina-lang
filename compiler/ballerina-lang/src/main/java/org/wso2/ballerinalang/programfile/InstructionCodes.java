@@ -94,7 +94,6 @@ public interface InstructionCodes {
 
     int IS_LIKE = 60;
 
-    int STAMP = 62;
 
     int ERROR = 65;
     int PANIC = 66;

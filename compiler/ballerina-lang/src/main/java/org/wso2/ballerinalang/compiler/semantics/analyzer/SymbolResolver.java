@@ -472,7 +472,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (types.isAssignable(variableSourceType, targetType)) {
             List<BType> paramTypes = new ArrayList<>();
             paramTypes.add(variableSourceType);
-            return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
+            return symTable.createOperator(name, paramTypes, targetType, -1);
         }
         if (types.isStampingAllowed(variableSourceType, targetType)) {
             List<BType> unionReturnTypes = new ArrayList<>();
@@ -485,7 +485,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             }, false);
             List<BType> paramTypes = new ArrayList<>();
             paramTypes.add(variableSourceType);
-            return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
+            return symTable.createOperator(name, paramTypes, returnType, -1);
         }
         return symTable.invalidUsageSymbol;
     }

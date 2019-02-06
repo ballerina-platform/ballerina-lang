@@ -95,7 +95,6 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.IS_LIKE] = "is_like";
 
-        mnemonics[InstructionCodes.STAMP] = "stamp";
 
         mnemonics[InstructionCodes.ERROR] = "error";
         mnemonics[InstructionCodes.PANIC] = "panic";
