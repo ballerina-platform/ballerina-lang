@@ -254,16 +254,6 @@
       "insertText":"ProxyConfig"
     },
     {
-      "label":"ConnectionThrottling",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":{
-        "left":"Provides configurations for throttling connections of the endpoint.\n"
-      },
-      "sortText":"171",
-      "insertText":"ConnectionThrottling"
-    },
-    {
       "label":"AuthConfig",
       "kind":"Class",
       "detail":"BType",
@@ -282,6 +272,16 @@
       },
       "sortText":"171",
       "insertText":"HttpTimeoutError"
+    },
+    {
+      "label":"PoolConfiguration",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":{
+        "left":"Configurations for managing HTTP client connection pool.\n"
+      },
+      "sortText":"171",
+      "insertText":"PoolConfiguration"
     },
     {
       "label":"TrustStore",
