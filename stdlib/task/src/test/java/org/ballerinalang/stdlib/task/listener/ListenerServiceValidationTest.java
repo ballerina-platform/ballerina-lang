@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.listener;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
