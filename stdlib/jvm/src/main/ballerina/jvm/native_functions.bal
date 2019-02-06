@@ -20,14 +20,14 @@ public extern function classWriterVisit(string className);
 
 public extern function classWriterEnd();
 
-public extern function visitMethod(int access, string name, string descriptor);
+public extern function visitMethodInit(int access, string name, string descriptor);
 
 public extern function visitMethodCode();
 
 public extern function visitMethodEnd();
 
-public extern function visitMethodInstruction(int opcode, string className, string methodName, string methodDescriptor,
-                                                    boolean isInterface);
+public extern function visitMethodInstruction(int opcode, string className, string methodName,
+                                                string methodDescriptor, boolean isInterface);
 
 public extern function visitNoOperandInstruction(int opcode);
 
@@ -43,7 +43,7 @@ public extern function createLabel(string labelId);
 
 public extern function visitLabel(string labelId);
 
-public extern function visitJumpInstruction(string jumpType, string labelId);
+public extern function visitJumpInstruction(int jumpType, string labelId);
 
 public extern function visitMaxStackValues(int maxStack, int maxLocal);
 

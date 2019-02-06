@@ -32,14 +32,14 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "visitMethod",
+        functionName = "visitMethodInit",
         args = {
                 @Argument(name = "access", type = INT),
                 @Argument(name = "name", type = STRING),
                 @Argument(name = "descriptor", type = STRING)
         }
 )
-public class VisitMethod extends BlockingNativeCallableUnit {
+public class VisitMethodInit extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -52,4 +52,3 @@ public class VisitMethod extends BlockingNativeCallableUnit {
         ASMCodeGenerator.getInstance().setMethodVisitor(mv);
     }
 }
-
