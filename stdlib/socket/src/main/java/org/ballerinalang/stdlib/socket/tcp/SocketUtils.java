@@ -139,7 +139,7 @@ public class SocketUtils {
      * @return {@link Map} that contains the {@link Resource} instances
      */
     public static Map<String, Resource> getResourceRegistry(Service service) {
-        Map<String, Resource> registry = new HashMap<>(3);
+        Map<String, Resource> registry = new HashMap<>(5);
         byte resourceCount = 0;
         for (Resource resource : service.getResources()) {
             switch (resource.getName()) {

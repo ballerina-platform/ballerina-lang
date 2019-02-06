@@ -22,30 +22,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This queue will hold all the read ready sockets until read through
- * {@link org.ballerinalang.stdlib.socket.endpoint.tcp.client.Read} action.
+ * This map will hold all the read pending action that coming through
+ * {@link org.ballerinalang.stdlib.socket.endpoint.tcp.client.Read} action until new content ready.
  *
  * @since 0.995.0
  */
-public class ReadReadyQueue {
-    private Map<Integer, SocketReader> queue = new HashMap<>();
+public class ReadPendingSocketMap {
+    private Map<Integer, ReadPendingCallback> queue = new HashMap<>();
 
-    private ReadReadyQueue() {
+    private ReadPendingSocketMap() {
     }
 
     private static class LazyHolder {
-        private static final ReadReadyQueue INSTANCE = new ReadReadyQueue();
+        private static final ReadPendingSocketMap INSTANCE = new ReadPendingSocketMap();
     }
 
-    public static ReadReadyQueue getInstance() {
+    public static ReadPendingSocketMap getInstance() {
         return LazyHolder.INSTANCE;
     }
 
-    public void add(SocketReader socketReader) {
-        queue.put(socketReader.getSocketService().getSocketChannel().hashCode(), socketReader);
+    public void add(Integer hashId, ReadPendingCallback readPendingCallback) {
+        queue.put(hashId, readPendingCallback);
     }
 
-    public SocketReader get(Integer hashId) {
+    public ReadPendingCallback remove(int hashId) {
         return queue.remove(hashId);
+    }
+
+    public ReadPendingCallback get(int hashId) {
+        return queue.get(hashId);
+    }
+
+    public boolean isPending(int hashId) {
+        return queue.containsKey(hashId);
     }
 }

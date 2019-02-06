@@ -18,12 +18,18 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTupleType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
@@ -33,6 +39,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.AbstractSelectableChannel;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -59,6 +66,8 @@ public class SelectorManager {
     private ConcurrentLinkedQueue<ChannelRegisterCallback> registerPendingSockets = new ConcurrentLinkedQueue<>();
     private ConcurrentLinkedQueue<Integer> readReadySockets = new ConcurrentLinkedQueue<>();
     private final Object startStopLock = new Object();
+    private static final BTupleType readTupleType = new BTupleType(
+            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
 
     private SelectorManager() throws IOException {
         selector = Selector.open();
@@ -170,22 +179,23 @@ public class SelectorManager {
                 channelRegisterCallback.notifyFailure("Socket already closed");
                 continue;
             }
-            channelRegisterCallback.notifyRegister(channelRegisterCallback.getInitialInterest() == SelectionKey.OP_READ);
+            channelRegisterCallback
+                    .notifyRegister(channelRegisterCallback.getInitialInterest() == SelectionKey.OP_READ);
         }
     }
 
-    private synchronized void invokeReadReadyResources() {
+    private void invokeReadReadyResources() {
         Integer socketHashCode;
         while ((socketHashCode = readReadySockets.poll()) != null) {
             // Removing an entry from the readReadySockets queue is fine. This will cleanup the last entry that add due
             // execution of TCPSocketReadCallback.
-            final SocketReader socketReader = ReadReadyQueue.getInstance().get(socketHashCode);
+            final SocketReader socketReader = ReadReadySocketMap.getInstance().remove(socketHashCode);
             // SocketReader can be null if there is no new read ready notification.
             if (socketReader == null) {
                 continue;
             }
             final SocketService socketService = socketReader.getSocketService();
-            invokeReadReady(socketService);
+            invokeReadReadyResource(socketService);
         }
     }
 
@@ -234,11 +244,48 @@ public class SelectorManager {
         // This will prevent the busy loop.
         key.interestOps(0);
         // Add to the read ready queue. Content will be read through the caller->read action.
-        ReadReadyQueue.getInstance().add(new SocketReader(socketService, key));
-        invokeReadReady(socketService);
+        ReadReadySocketMap.getInstance().add(new SocketReader(socketService, key));
+        invokeRead(key.channel().hashCode());
     }
 
-    private void invokeReadReady(SocketService socketService) {
+    public void invokeRead(int socketHashId) {
+        // Check whether is there any caller->read pending action and read ready socket.
+        if (ReadPendingSocketMap.getInstance().isPending(socketHashId)) {
+            if (ReadReadySocketMap.getInstance().isReadReady(socketHashId)) {
+                // Read ready socket available.
+                final SocketReader socketReader = ReadReadySocketMap.getInstance().remove(socketHashId);
+                final ReadPendingCallback callback = ReadPendingSocketMap.getInstance().remove(socketHashId);
+                SocketChannel socketChannel = (SocketChannel) socketReader.getSocketService().getSocketChannel();
+                BValueArray contentTuple = new BValueArray(readTupleType);
+                ByteBuffer buffer = null;
+                try {
+                    buffer = ByteBuffer.allocate(socketChannel.socket().getReceiveBufferSize());
+                    int read = socketChannel.read(buffer);
+                    if (read < 0) {
+                        SelectorManager.getInstance().unRegisterChannel(socketChannel);
+                    } else {
+                        // Re-register for read ready events.
+                        socketReader.getSelectionKey().interestOps(SelectionKey.OP_READ);
+                    }
+                    contentTuple.add(0, new BValueArray(SocketUtils.getByteArrayFromByteBuffer(buffer)));
+                    contentTuple.add(1, new BInteger(read));
+                    callback.getContext().setReturnValues(contentTuple);
+                    callback.getCallback().notifySuccess();
+                } catch (IOException e) {
+                    callback.getContext()
+                            .setReturnValues(SocketUtils.createSocketError(callback.getContext(), "Read failed."));
+                }
+
+            }
+            // If read pending socket not available then do nothing. Above will invoke once read ready socket connect.
+        } else {
+            // No caller->read pending actions hence try to dispatch to onReadReady resource if read ready available.
+            final SocketReader socketReader = ReadReadySocketMap.getInstance().get(socketHashId);
+            invokeReadReadyResource(socketReader.getSocketService());
+        }
+    }
+
+    private void invokeReadReadyResource(SocketService socketService) {
         // If lock is not available then already inside the resource.
         // If lock is available then invoke the resource dispatch.
         if (socketService.getResourceLock().tryAcquire()) {
