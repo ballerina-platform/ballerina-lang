@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -224,6 +225,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
@@ -2466,7 +2468,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr = createCloneInvocation(rewriteExpr(workerSendNode.expr));
+        workerSendNode.expr = visitCloneInvocation(rewriteExpr(workerSendNode.expr));
         if (workerSendNode.keyExpr != null) {
             workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
         }
@@ -2475,7 +2477,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        syncSendExpr.expr = createCloneInvocation(rewriteExpr(syncSendExpr.expr));
+        syncSendExpr.expr = visitCloneInvocation(rewriteExpr(syncSendExpr.expr));
         result = syncSendExpr;
     }
 
@@ -3164,7 +3166,10 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 break;
             case CLONE:
-                result = createCloneInvocation(iExpr.expr);
+                result = visitCloneInvocation(iExpr.expr);
+                break;
+            case LENGTH:
+                result = visitLengthInvocation(iExpr);
                 break;
             case FREEZE:
             case IS_FROZEN:
@@ -3174,7 +3179,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (iExpr.symbol.kind == SymbolKind.CAST_OPERATOR) {
                     BCastOperatorSymbol symbol = (BCastOperatorSymbol) iExpr.symbol;
                     BInvokableType type = (BInvokableType) symbol.type;
-                    result = createTypeCastExpr(createCloneInvocation(iExpr.requiredArgs.get(0)),
+                    result = createTypeCastExpr(visitCloneInvocation(iExpr.requiredArgs.get(0)),
                                                 type.paramTypes.get(1), symbol);
                 } else if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
                     result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
@@ -3189,31 +3194,49 @@ public class Desugar extends BLangNodeVisitor {
             case REASON:
             case DETAIL:
             case ITERATE:
-                result = visitBuiltInMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
-                        Lists.of(iExpr.expr.type), iExpr.type);
+                result = visitUtilMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
+                        Lists.of(symTable.errorType), iExpr.type);
                 break;
             default:
                 result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
         }
     }
 
-    private BLangExpression visitBuiltInMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod ,
-                                                         List<BLangExpression> requiredArgs, List<BType> paramTypes, 
-                                                         BType retType) {
+    private BLangExpression createInbuiltMethodInvocation(DiagnosticPos pos, PackageID packageID,
+                                                          BLangBuiltInMethod builtInMethod,
+                                                          List<BLangExpression> requiredArgs,
+                                                          List<BType> paramTypes, BType retType) {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BInvokableSymbol cloneSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC,
-                                                            names.fromString(builtInMethod.getName()), UTILS, opType,
-                                                            null);
-        return ASTBuilderUtil.createInvocationExprMethod(pos, cloneSymbol, requiredArgs,
+        BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC,
+                                                                names.fromString(builtInMethod.getName()), packageID,
+                                                                opType, null);
+        return ASTBuilderUtil.createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
                                                          new ArrayList<>(), new ArrayList<>(), symResolver);
     }
 
-    private BLangExpression createCloneInvocation(BLangExpression expr) {
+    private BLangExpression visitUtilMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
+                                                      List<BLangExpression> requiredArgs,
+                                                      List<BType> paramTypes, BType retType) {
+        return createInbuiltMethodInvocation(pos, UTILS, builtInMethod, requiredArgs, paramTypes, retType);
+    }
+
+    private BLangExpression visitCloneInvocation(BLangExpression expr) {
         if (types.isValueType(expr.type)) {
             return expr;
         }
-        return visitBuiltInMethodInvocation(expr.pos, BLangBuiltInMethod.CLONE, Lists.of(expr),
-                                            Lists.of(symTable.anydataType), symTable.anydataType);
+        return visitUtilMethodInvocation(expr.pos, BLangBuiltInMethod.CLONE, Lists.of(expr),
+                                         Lists.of(symTable.anydataType), symTable.anydataType);
+    }
+
+    private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
+        if (iExpr.expr.type.tag == TypeTags.STRING) {
+            // Builtin module provides string.length() function hence reusing it.
+            return createInbuiltMethodInvocation(iExpr.pos, BUILTIN,
+                                                 BLangBuiltInMethod.STRING_LENGTH, Lists.of(iExpr.expr),
+                                                 Lists.of(symTable.stringType), symTable.intType);
+        }
+        return visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.LENGTH, Lists.of(iExpr.expr),
+                                         Lists.of(symTable.anydataType), symTable.intType);
     }
 
     private void visitFreezeBuiltInMethodInvocation(BLangInvocation iExpr) {
@@ -3231,8 +3254,8 @@ public class Desugar extends BLangNodeVisitor {
         if (iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN) {
             retType = symTable.booleanType;
         }
-        result = visitBuiltInMethodInvocation(iExpr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
-                Lists.of(symTable.anydataType), retType);
+        result = visitUtilMethodInvocation(iExpr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
+                                           Lists.of(symTable.anydataType), retType);
     }
 
     private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {
@@ -3370,7 +3393,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode visitConvertStampMethod(DiagnosticPos pos, BLangExpression expr,
                                               List<BLangExpression> requiredArgs, BInvokableSymbol invokableSymbol) {
         return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol,
-                                                  Lists.of(createCloneInvocation(requiredArgs.get(0))),
+                                                  Lists.of(visitCloneInvocation(requiredArgs.get(0))),
                                                   symResolver, BLangBuiltInMethod.STAMP);
 
     }

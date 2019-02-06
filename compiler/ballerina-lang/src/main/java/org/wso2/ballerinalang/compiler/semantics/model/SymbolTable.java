@@ -534,14 +534,14 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.REASON, errorType, stringType, InstructionCodes.NOP);
 
         // Length methods.
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, stringType, intType, InstructionCodes.LENGTH);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, arrayType, intType, InstructionCodes.LENGTH);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tupleType, intType, InstructionCodes.LENGTH);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, mapType, intType, InstructionCodes.LENGTH);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, recordType, intType, InstructionCodes.LENGTH);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, jsonType, intType, InstructionCodes.LENGTH);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, xmlType, intType, InstructionCodes.LENGTH);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tableType, intType, InstructionCodes.LENGTH);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, stringType, intType);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, arrayType, intType);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tupleType, intType);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, mapType, intType);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, recordType, intType);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, jsonType, intType);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, xmlType, intType);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tableType, intType);
 
         // float related methods.
         defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, floatType, booleanType, InstructionCodes.NOP);

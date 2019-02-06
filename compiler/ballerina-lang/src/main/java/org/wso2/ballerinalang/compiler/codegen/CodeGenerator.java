@@ -1283,10 +1283,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
         switch (iExpr.builtInMethod) {
-            case LENGTH:
-                Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-                emit(InstructionCodes.LENGTH, iExpr.expr.regIndex, typeCPIndex, regIndex);
-                break;
             case STAMP:
                 genNode(iExpr.requiredArgs.get(0), this.env);
                 emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
@@ -1299,7 +1295,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 iExpr.regIndex = convExprRegIndex;
                 genNode(expr, this.env);
                 if (opcode == InstructionCodes.CONVERT) {
-                    typeCPIndex = getTypeCPIndex(((BInvokableType) iExpr.symbol.type).paramTypes.get(1));
+                    Operand typeCPIndex = getTypeCPIndex(((BInvokableType) iExpr.symbol.type).paramTypes.get(1));
                     emit(opcode, expr.regIndex, typeCPIndex, convExprRegIndex);
                 } else {
                     emit(opcode, expr.regIndex, convExprRegIndex);

@@ -382,10 +382,6 @@ public class BVM {
                 case InstructionCodes.IS_LIKE:
                     execBinaryOpCodes(strand, sf, opcode, operands);
                     break;
-
-                case InstructionCodes.LENGTH:
-                    calculateLength(strand, operands, sf);
-                    break;
                 case InstructionCodes.TYPELOAD:
                     cpIndex = operands[0];
                     j = operands[1];
@@ -4349,45 +4345,7 @@ public class BVM {
         }
         return null;
     }
-
-    private static void calculateLength(Strand ctx, int[] operands, StackFrame sf) {
-        int i = operands[0];
-        int cpIndex = operands[1];
-        int j = operands[2];
-
-        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
-        int typeTag = typeRefCPEntry.getType().getTag();
-        if (typeTag == TypeTags.STRING_TAG) {
-            sf.longRegs[j] = sf.stringRegs[i].length();
-            return;
-        }
-
-        BValue entity = sf.refRegs[i];
-        if (entity == null) {
-            handleNullRefError(ctx);
-            return;
-        }
-
-        if (typeTag == TypeTags.XML_TAG) {
-            sf.longRegs[j] = ((BXML) entity).length();
-            return;
-        } else if (typeTag == TypeTags.TABLE_TAG) {
-            BTable bTable = (BTable) entity;
-            int tableLength = bTable.length();
-            sf.longRegs[j] = tableLength;
-            return;
-        } else if (entity instanceof BMap) {
-            sf.longRegs[j] = ((BMap) entity).size();
-            return;
-        } else if (entity instanceof BNewArray) {
-            sf.longRegs[j] = ((BNewArray) entity).size();
-            return;
-        }
-
-        sf.longRegs[j] = -1;
-        return;
-    }
-
+    
     private static boolean execWait(Strand strand, int[] operands) {
         int c = operands[0];
         TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[1]];

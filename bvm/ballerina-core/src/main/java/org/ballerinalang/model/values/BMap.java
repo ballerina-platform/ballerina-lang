@@ -202,7 +202,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      * Get the size of the map.
      * @return returns the size of the map
      */
-    public int size() {
+    public long size() {
         readLock.lock();
         try {
             return map.size();

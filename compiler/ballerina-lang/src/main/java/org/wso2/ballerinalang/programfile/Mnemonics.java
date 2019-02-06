@@ -267,7 +267,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
         
         mnemonics[InstructionCodes.FLUSH] = "flush";
-        mnemonics[InstructionCodes.LENGTH] = "length_of";
         mnemonics[InstructionCodes.WAITALL] = "wait_all";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "new_struct";
