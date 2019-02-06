@@ -84,8 +84,8 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
 
         return (
             <Form className="add-operation">
-                <Segment basic clearing>
-                    <Button size="mini" floated="right" onClick={(e: any) => {
+                <Segment basic clearing className="close-segment">
+                    <Button size="mini" className="btn-close" floated="right" onClick={(e: any) => {
                         handleOnClose(e);
                         this.setState({
                             operationMethods: [],

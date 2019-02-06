@@ -109,11 +109,10 @@ public final class BFunctionCompletionItemBuilder {
 
         docMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
         String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
+                + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR
                 + CommonUtil.MD_LINE_SEPARATOR + "---  " + CommonUtil.MD_LINE_SEPARATOR + "**Parameters**"
-                + CommonUtil.MD_LINE_SEPARATOR;
-        documentation += (description == null) ? "" : (CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR
-                + description);
-        String params = parameters.stream()
+                + CommonUtil.MD_LINE_SEPARATOR
+                + parameters.stream()
                 .map(parameter -> {
                     Optional<BVarSymbol> defaultVal = defaultParams.stream()
                             .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(parameter.getName()))
@@ -128,12 +127,10 @@ public final class BFunctionCompletionItemBuilder {
                 })
                 .collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR));
 
-        documentation += (params == null) ? "" : params;
-
         if (!(bInvokableSymbol.retType instanceof BNilType)
                 && bInvokableSymbol.retType != null
                 && bInvokableSymbol.retType.tsymbol != null) {
-            documentation += CommonUtil.MD_LINE_SEPARATOR
+            documentation = CommonUtil.MARKDOWN_MARKUP_KIND + documentation + CommonUtil.MD_LINE_SEPARATOR
                     + CommonUtil.MD_LINE_SEPARATOR + "**Return**" + CommonUtil.MD_LINE_SEPARATOR
                     + bInvokableSymbol.retType.tsymbol.toString();
         }
