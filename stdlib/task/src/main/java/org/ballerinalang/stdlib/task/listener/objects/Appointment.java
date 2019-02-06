@@ -21,10 +21,13 @@ package org.ballerinalang.stdlib.task.listener.objects;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.listener.utils.AppointmentJob;
+import org.ballerinalang.stdlib.task.listener.utils.AppointmentConstants;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentManager;
+import org.ballerinalang.stdlib.task.listener.utils.ResourceFunctionHolder;
 import org.ballerinalang.stdlib.task.listener.utils.TaskIdGenerator;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
+import org.ballerinalang.util.codegen.FunctionInfo;
+import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
 import java.util.ArrayList;
@@ -33,19 +36,17 @@ import java.util.ArrayList;
  * Represents an appointment.
  */
 public class Appointment extends AbstractTask {
+
     private String id = TaskIdGenerator.generate();
+    private String cronExpression;
 
     public Appointment(Context context, String cronExpression, Service service) throws SchedulingException {
         super(service);
         TaskRegistry.getInstance().addTask(this);
 
-        try {
-            AppointmentManager.getInstance().schedule(id, AppointmentJob.class, context, cronExpression);
-            this.maxRuns = -1;
-            this.addService(service);
-        } catch (SchedulerException e) {
-            throw new SchedulingException(e);
-        }
+        this.cronExpression = cronExpression;
+        this.maxRuns = -1;
+        this.addService(service);
     }
 
     public Appointment(Context context, String cronExpression, Service service, long maxRuns)
@@ -54,13 +55,9 @@ public class Appointment extends AbstractTask {
         TaskRegistry.getInstance().addTask(this);
         this.serviceList = new ArrayList<>();
 
-        try {
-            AppointmentManager.getInstance().schedule(id, AppointmentJob.class, context, cronExpression);
-            this.maxRuns = maxRuns;
-            this.addService(service);
-        } catch (SchedulerException e) {
-            throw new SchedulingException(e);
-        }
+        this.cronExpression = cronExpression;
+        this.maxRuns = maxRuns;
+        this.addService(service);
     }
 
     /**
@@ -101,7 +98,7 @@ public class Appointment extends AbstractTask {
      */
     @Override
     public void removeService(Service service) {
-
+        this.serviceList.remove(service);
     }
 
     /**
@@ -116,6 +113,29 @@ public class Appointment extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void runServices(Context context) {
+    public void runServices(Context context) throws SchedulingException {
+        for (Service service : this.serviceList) {
+            JobDataMap jobDataMap = getJobDataMapFromService(context, service);
+            try {
+                AppointmentManager.getInstance().schedule(id, AppointmentJob.class, jobDataMap, cronExpression);
+            } catch (SchedulerException e) {
+                throw new SchedulingException("Failed to schedule Task: " + this.id + ". " + e.getMessage());
+            }
+        }
+    }
+
+    private JobDataMap getJobDataMapFromService(Context context, Service service) {
+        JobDataMap jobData = new JobDataMap();
+
+        ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(service);
+        FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();
+        FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
+        /*
+         * TODO: Why ballerina function was needed.
+         */
+        jobData.put(AppointmentConstants.BALLERINA_PARENT_CONTEXT, context);
+        jobData.put(AppointmentConstants.BALLERINA_ON_TRIGGER_FUNCTION, onTriggerFunction);
+        jobData.put(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION, onErrorFunction);
+        return jobData;
     }
 }

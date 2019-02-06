@@ -44,7 +44,7 @@ public class ListenerTest {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() == 4);
+            return (((BInteger) count[0]).intValue() == 3);
         });
     }
 
@@ -56,7 +56,7 @@ public class ListenerTest {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() == 4);
+            return (((BInteger) count[0]).intValue() == 3);
         });
     }
 
@@ -85,7 +85,7 @@ public class ListenerTest {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() == 4);
+            return (((BInteger) count[0]).intValue() == 3);
         });
     }
 
@@ -135,12 +135,15 @@ public class ListenerTest {
 
     /*
      * TODO:
-     * Compiler plugin does not hit. Check !
+     * Check resources at runtime. Hence need to use compile and setup.
+     * If compiler plugin works, BCompileUtil.compile() should work.
      */
     @Test(
-            description = "Tests compiler error for a task with an invalid resource name"
+            description = "Tests compiler error for a task with an invalid resource name",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*Invalid resource function found:.*Expected: onTrigger or onError.*"
     )
     public void testInvalidResourceName() {
-        CompileResult compileResult = BCompileUtil.compile("listener-test-src/timer/invalid_resource.bal");
+        BCompileUtil.compileAndSetup("listener-test-src/timer/invalid_resource.bal");
     }
 }

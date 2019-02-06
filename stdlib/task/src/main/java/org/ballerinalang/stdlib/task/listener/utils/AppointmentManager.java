@@ -18,8 +18,6 @@
  */
 package org.ballerinalang.stdlib.task.listener.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.stdlib.task.appointment.AppointmentConstants;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -60,12 +58,9 @@ public class AppointmentManager {
         return instance;
     }
 
-    public void schedule(String taskId, Class<? extends Job> jobClass, Context context, String cronExpression)
+    public void schedule(String taskId, Class<? extends Job> jobClass, JobDataMap jobData, String cronExpression)
             throws SchedulerException {
-        JobDataMap jobData = new JobDataMap();
-        jobData.put(AppointmentConstants.BALLERINA_PARENT_CONTEXT, context);
         JobDetail job = newJob(jobClass).usingJobData(jobData).withIdentity(taskId).build();
-
         CronTrigger trigger = newTrigger().withIdentity(taskId).withSchedule(cronSchedule(cronExpression))
                         .build();
 

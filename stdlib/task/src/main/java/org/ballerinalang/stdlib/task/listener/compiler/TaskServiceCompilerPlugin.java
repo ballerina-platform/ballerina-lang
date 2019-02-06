@@ -37,10 +37,15 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURC
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 
+/*
+ * TODO:
+ * Compiler plugin will not hit as we do not have any parameters passed into the resource function.
+ * Until this is fixed, cannot validate the resources at compile time.
+ */
 /**
  * Compiler plugin for validating Ballerina Task Service.
+ *
  */
-
 @SupportedResourceParamTypes(
         expectedListenerType = @SupportedResourceParamTypes.Type(
                 packageName = PACKAGE_NAME, name = LISTENER_STRUCT_NAME

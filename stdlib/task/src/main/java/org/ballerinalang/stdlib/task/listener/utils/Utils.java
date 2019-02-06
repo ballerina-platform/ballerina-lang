@@ -21,11 +21,14 @@ package org.ballerinalang.stdlib.task.listener.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Objects;
 
@@ -38,6 +41,8 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_N
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_SECONDS;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_YEAR;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_ERROR;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ERROR_CODE;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ERROR_MESSAGE;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ERROR_RECORD;
@@ -92,6 +97,24 @@ public class Utils {
             return struct.get(fieldName).stringValue();
         } else {
             return "* ";
+        }
+    }
+
+    /*
+     * TODO:
+     * Runtime validation is done as compiler plugin does not work right now.
+     * When compiler plugins can be run for the resources without parameters, this will be redundant.
+     */
+    public static void validateService(Service service) throws BLangRuntimeException {
+        Resource[] resources = service.getResources();
+        if (resources.length != 1 && resources.length != 2) {
+            throw new BLangRuntimeException("Invalid number of resources found in service " + service.getName());
+        }
+        for (Resource resource : resources) {
+            if (!RESOURCE_ON_TRIGGER.equals(resource.getName()) && !RESOURCE_ON_ERROR.equals(resource.getName())) {
+                throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
+                        + ". Expected: " + RESOURCE_ON_TRIGGER + " or " + RESOURCE_ON_ERROR + ".");
+            }
         }
     }
 }

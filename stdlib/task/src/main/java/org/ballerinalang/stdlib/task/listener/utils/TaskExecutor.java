@@ -46,10 +46,11 @@ public class TaskExecutor {
             BMap<String, BValue> task = (BMap<String, BValue>) parentCtx.getRefArgument(0);
             List<BValue> onTriggerFunctionArgs = new ArrayList<>();
             onTriggerFunctionArgs.add(service.getBValue());
+
             // Invoke the onTrigger function.
             BValue[] results = BVMExecutor.executeFunction(onTriggerFunction.getPackageInfo().getProgramFile(),
-                    onTriggerFunction,
-                    onTriggerFunctionArgs.toArray(new BValue[0]));
+                    onTriggerFunction, onTriggerFunctionArgs.toArray(new BValue[0]));
+
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;

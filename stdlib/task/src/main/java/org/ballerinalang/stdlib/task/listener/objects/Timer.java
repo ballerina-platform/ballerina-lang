@@ -21,17 +21,15 @@ package org.ballerinalang.stdlib.task.listener.objects;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.listener.utils.ResourceFunctionHolder;
 import org.ballerinalang.stdlib.task.listener.utils.TaskExecutor;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 
 /**
  * Represents a Timer object used to create and run Timers.
@@ -138,9 +136,9 @@ public class Timer extends AbstractTask {
         this.isPaused = false;
     }
 
-    private static void callTriggerFunction(Context parentCtx, FunctionInfo onTriggerFunction,
-                                            FunctionInfo onErrorFunction, Service service) {
-        TaskExecutor.execute(parentCtx, onTriggerFunction, onErrorFunction, service);
+    private static void callTriggerFunction(Context context, ResourceFunctionHolder functionHolder, Service service) {
+        TaskExecutor.execute(context,
+                functionHolder.getOnTriggerFunction(), functionHolder.getOnErrorFunction(), service);
     }
 
     /**
@@ -162,15 +160,8 @@ public class Timer extends AbstractTask {
             }
             this.noOfRuns++;
             for (Service service : serviceList) {
-                FunctionInfo onTriggerFunction, onErrorFunction;
-                if (RESOURCE_ON_TRIGGER.equals(service.getResources()[0].getName())) {
-                    onTriggerFunction = service.getResources()[0].getResourceInfo();
-                    onErrorFunction = service.getResources()[1].getResourceInfo();
-                } else {
-                    onErrorFunction = service.getResources()[0].getResourceInfo();
-                    onTriggerFunction = service.getResources()[1].getResourceInfo();
-                }
-                callTriggerFunction(context, onTriggerFunction, onErrorFunction, service);
+                ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(service);
+                callTriggerFunction(context, resourceFunctionHolder, service);
             }
         };
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);

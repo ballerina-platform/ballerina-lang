@@ -51,6 +51,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_TA
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.getCronExpressionFromAppointmentRecord;
+import static org.ballerinalang.stdlib.task.listener.utils.Utils.validateService;
 
 /**
  * Native function to attach a service to the listener.
@@ -70,6 +71,8 @@ public class Register extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
+        // Validate service at runtime, as compiler plugin not available.
+        validateService(service);
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
         BMap<String, BValue> configurations = (BMap<String, BValue>) taskStruct.get(LISTENER_CONFIGURATION_MEMBER_NAME);
 
