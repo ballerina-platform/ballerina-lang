@@ -3175,6 +3175,15 @@ public class Desugar extends BLangNodeVisitor {
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
                 break;
+            case STAMP:
+                LinkedHashSet<BType> returnTypes = new LinkedHashSet<>();
+                returnTypes.add(symTable.errorType);
+                returnTypes.add(symTable.anyType);
+                result = visitUtilMethodInvocation(iExpr.expr.pos,
+                                                   iExpr.builtInMethod, Lists.of(iExpr.expr, iExpr.requiredArgs.get(0)),
+                                                   Lists.of(symTable.typeDesc, symTable.anydataType),
+                                                   new BUnionType(null, returnTypes, false));
+                break;
             case CONVERT:
                 if (iExpr.symbol.kind == SymbolKind.CAST_OPERATOR) {
                     BCastOperatorSymbol symbol = (BCastOperatorSymbol) iExpr.symbol;

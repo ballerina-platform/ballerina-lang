@@ -20,6 +20,13 @@
 # + return - Clone of the given value
 extern function clone(anydata value) returns anydata;
 
+# Stamp the value to given type.
+#
+# + stampType - Type to be stamped
+# + value - Value to be stamped
+# + return - Stamped value
+extern function stamp(typedesc stampType, anydata value) returns anydata|error;
+
 # Freeze a given value.
 #
 # + value - Value to be frozen
