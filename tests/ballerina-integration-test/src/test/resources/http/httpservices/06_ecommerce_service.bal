@@ -44,7 +44,7 @@ service Ecommerce on serviceEndpoint5 {
         var clientResponse = productsService->get(untaint reqPath, message = clientRequest);
         if (clientResponse is http:Response) {
             _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+        } else {
             io:println("Error occurred while reading product response");
         }
     }
@@ -58,7 +58,7 @@ service Ecommerce on serviceEndpoint5 {
         var jsonReq = req.getJsonPayload();
         if (jsonReq is json) {
             clientRequest.setPayload(untaint jsonReq);
-        } else if (jsonReq is error) {
+        } else {
             io:println("Error occurred while reading products payload");
         }
 
@@ -66,7 +66,7 @@ service Ecommerce on serviceEndpoint5 {
         var clientRes = productsService->post("/productsservice", clientRequest);
         if (clientRes is http:Response) {
             clientResponse = clientRes;
-        } else if (clientRes is error) {
+        } else {
             io:println("Error occurred while reading locator response");
         }
         _ = caller->respond(clientResponse);
@@ -81,7 +81,7 @@ service Ecommerce on serviceEndpoint5 {
         var clientResponse = productsService->get("/orderservice/orders", message = clientRequest);
         if (clientResponse is http:Response) {
             _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+        } else {
             io:println("Error occurred while reading orders response");
         }
     }
@@ -95,7 +95,7 @@ service Ecommerce on serviceEndpoint5 {
         var clientResponse = productsService->post("/orderservice/orders", clientRequest);
         if (clientResponse is http:Response) {
             _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+        } else {
             io:println("Error occurred while writing orders respons");
         }
     }
@@ -109,7 +109,7 @@ service Ecommerce on serviceEndpoint5 {
         var clientResponse = productsService->get("/customerservice/customers", message = clientRequest);
         if (clientResponse is http:Response) {
             _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+        } else {
             io:println("Error occurred while reading customers response");
         }
     }
@@ -123,7 +123,7 @@ service Ecommerce on serviceEndpoint5 {
         var clientResponse = productsService->post("/customerservice/customers", clientRequest);
         if (clientResponse is http:Response) {
             _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+        } else {
             io:println("Error occurred while writing customers response");
         }
     }
@@ -168,7 +168,7 @@ service productmgt on serviceEndpoint5 {
         var result = json.convert(self.productsMap[prodId]);
         if (result is json) {
             res.setPayload(result);
-        } else if (result is error) {
+        } else {
             res.setPayload(result.reason());
         }
         _ = caller->respond(res);
@@ -188,7 +188,7 @@ service productmgt on serviceEndpoint5 {
             http:Response res = new;
             res.setPayload(payload);
             _ = caller->respond(res);
-        } else if (jsonReq is error) {
+        } else {
             io:println("Error occurred while reading bank locator request");
         }
     }

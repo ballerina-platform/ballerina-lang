@@ -269,7 +269,7 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
                     if (resolvedURI is string) {
                         return performRedirection(resolvedURI, redirectClient, redirectMethod, request,
                             response);
-                    } else if (resolvedURI is error) {
+                    } else {
                         redirectClient.currentRedirectCount = 0;
                         return resolvedURI;
                     }
