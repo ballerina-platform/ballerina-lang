@@ -1577,12 +1577,10 @@ public class Types {
      * @param literalExpr literal expression
      * @return returns true if assignable, false otherwise
      */
-    boolean isLiteralAssignableToFiniteType(BType type,
-                                            BLangLiteral literalExpr) {
+    boolean isLiteralAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
         if (type.tag == TypeTags.FINITE) {
             BFiniteType expType = (BFiniteType) type;
-            boolean foundMember = expType.valueSpace
-                    .stream()
+            boolean foundMember = expType.valueSpace.stream()
                     .anyMatch(memberLiteral -> {
                         if (((BLangLiteral) memberLiteral).value == null) {
                             return literalExpr.value == null;

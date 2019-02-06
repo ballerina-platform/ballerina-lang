@@ -696,7 +696,9 @@ public class CompiledPackageSymbolEnter {
                 valueCPIndex = documentDataStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = decimalEntry.getValue();
-                // Type tag of the literal is float
+                // Type tag of the literal is float's tag (literal.typeTag), whereas the literal.type.tag should be
+                // that of the decimal type. This is because when the expected type of constant is decimal its
+                // literal's type needs to be set to decimal.
                 literal.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_STRING:
