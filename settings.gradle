@@ -162,7 +162,7 @@ project(':plugin-vscode').projectDir = file('tool-plugins/vscode')
 buildCache {
     remote(HttpBuildCache) {
         url = "http://192.168.58.132:5071/cache/"
-        enabled = true
+        enabled = false
         push = true
     }
 }
