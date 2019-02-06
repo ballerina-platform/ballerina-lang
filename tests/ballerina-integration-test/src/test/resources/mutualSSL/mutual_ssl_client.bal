@@ -46,10 +46,10 @@ public function main() {
         var payload = resp.getTextPayload();
         if (payload is string) {
             io:println(payload);
-        } else if (payload is error) {
+        } else {
             io:println(<string> payload.detail().message);
         }
-    } else if (resp is error) {
+    } else {
         io:println(<string> resp.detail().message);
     }
 }

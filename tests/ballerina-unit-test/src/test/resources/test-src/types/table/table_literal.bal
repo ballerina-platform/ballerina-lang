@@ -573,7 +573,7 @@ function testRemoveWithInvalidRecordType() returns string {
     var ret = dt.remove(isBelow35Invalid);
     if (ret is int) {
         returnStr = <string>ret;
-    } else if (ret is error) {
+    } else {
         returnStr = <string>ret.detail().message;
     }
     return returnStr;
@@ -594,7 +594,7 @@ function testRemoveWithInvalidParamType() returns string {
     var ret = dt.remove(isBelow35InvalidParam);
     if (ret is int) {
         returnStr = <string>ret;
-    } else if (ret is error) {
+    } else {
         returnStr = <string>ret.detail().message;
     }
     return returnStr;

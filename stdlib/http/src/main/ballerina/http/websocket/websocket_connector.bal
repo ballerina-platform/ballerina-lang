@@ -41,7 +41,7 @@ type WebSocketConnector object {
             text = string.convert(data);
         } else if (data is byte[]) {
             text = encoding:byteArrayToString(data);
-        } else if (data is json) {
+        } else {
             text = data.toString();
         }
         return self.externPushText(text, finalFrame);
