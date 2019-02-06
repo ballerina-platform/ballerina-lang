@@ -37,7 +37,7 @@ import java.util.List;
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
 
 /**
- * Class to test type assertion expressions.
+ * Class to test type cast expressions.
  *
  * @since 0.985.0
  */

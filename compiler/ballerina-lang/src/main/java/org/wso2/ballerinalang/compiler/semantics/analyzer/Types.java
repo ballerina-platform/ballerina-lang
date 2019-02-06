@@ -890,23 +890,18 @@ public class Types {
         return symResolver.resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
     }
 
-    BSymbol getTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
+    BSymbol getTypeCastOperator(BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
         if (isAssignable(sourceType, targetType)) {
-            if (isValueType(sourceType)) {
-                // we reach here if the source type is a simple basic type and the target type is a union type
-                // containing the source type.
-                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
-            }
-            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            return createCastOperatorSymbol(sourceType, sourceType, true, InstructionCodes.NOP);
         }
 
         if (containsNumericType(targetType)) {
-            BSymbol symbol = symResolver.getNumericConversionOrCastSymbol(conversionExpr, sourceType, targetType);
+            BSymbol symbol = symResolver.getNumericConversionOrCastSymbol(sourceType, targetType);
             if (symbol != symTable.notFoundSymbol) {
                 return symbol;
             }

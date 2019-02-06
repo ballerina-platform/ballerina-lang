@@ -63,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -288,8 +287,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getCastOperator(sourceType, targetType);
     }
 
-    BSymbol resolveTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
-        return types.getTypeCastOperator(conversionExpr, sourceType, targetType);
+    BSymbol resolveTypeCastOperator(BType sourceType, BType targetType) {
+        return types.getTypeCastOperator(sourceType, targetType);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
@@ -546,8 +545,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_CAST);
     }
 
-    BSymbol getNumericConversionOrCastSymbol(BLangTypeConversionExpr conversionExpr, BType sourceType,
-                                             BType targetType) {
+    BSymbol getNumericConversionOrCastSymbol(BType sourceType, BType targetType) {
         if (targetType.tag == TypeTags.UNION &&
                 ((BUnionType) targetType).memberTypes.stream()
                         .filter(memType -> types.isBasicNumericType(memType)).count() > 1) {
@@ -562,8 +560,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (types.isBasicNumericType(sourceType)) {
                 // i.e., a conversion from a numeric type to another numeric type in a union.
                 // int|string u1 = <int|string> 1.0;
-                types.setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
-                return createTypeCastSymbol(sourceType, targetType);
+                return resolveOperator(Names.CONVERSION_OP,
+                                       Lists.of(sourceType, ((BUnionType) targetType).memberTypes.stream()
+                                               .filter (bType -> types.isBasicNumericType(bType))
+                                               .findFirst()
+                                               .get()));
             }
 
             switch (sourceType.tag) {
