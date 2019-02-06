@@ -35,7 +35,6 @@ import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
-import * as compareVersions from 'compare-versions';
 export class BallerinaExtension {
 
     public ballerinaHome: string;
@@ -182,11 +181,45 @@ export class BallerinaExtension {
         });
     }
 
+    /**
+     * Compares plugin's versions with the used ballerina distribution's version
+     * Uses only the major and minor versions according to the semver spec.
+     * First two numbers will be used when version string is not semver (eg. 0.990-r1)
+     * Returns 1 if plugin version is higher than ballerina's; -1 if plugin version is lower
+     * than ballerina's; 0 if the versions match.
+     *
+     * @returns {number}
+     */
+    compareVersions(pluginVersion: string, ballerinaVersion: string): number {
+        const toInt = (i: string) => {
+            return parseInt(i, 10);
+        };
+        const numMatchRegexp = /\d+/g;
+        
+        const [pluginMajor, pluginMinor] = pluginVersion.match(numMatchRegexp)!.map(toInt);
+        const [ballerinaMajor, ballerinaMinor] = ballerinaVersion.match(numMatchRegexp)!.map(toInt);
+
+        if (pluginMajor > ballerinaMajor) {
+            return 1;
+        }
+
+        if (pluginMajor < ballerinaMajor) {
+            return -1;
+        }
+
+        if (pluginMinor > ballerinaMinor) {
+            return 1;
+        }
+
+        if (pluginMinor < ballerinaMinor) {
+            return -1;
+        }
+
+        return 0;
+    }
+
     checkCompatibleVersion(pluginVersion: string, ballerinaVersion: string): void {
-        const pluginVersionParts = pluginVersion.split(".");
-        pluginVersionParts[2] = "*"; // Match with any patch version
-        const pluginMinorVersion = pluginVersionParts.join(".");
-        const versionCheck = compareVersions(pluginMinorVersion, ballerinaVersion);
+        const versionCheck = this.compareVersions(pluginVersion, ballerinaVersion);
 
         if (versionCheck > 0) {
             // Plugin version is greater

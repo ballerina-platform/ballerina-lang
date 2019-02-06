@@ -344,7 +344,7 @@ public class HttpConstants {
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
     public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
     public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
-
+    public static final int CLIENT_GLOBAL_POOL_INDEX = 1;
     
     //Client Endpoint Config
     public static final String CLIENT_EP_CHUNKING = "chunking";
@@ -361,6 +361,16 @@ public class HttpConstants {
     public static final String CONNECTION_THROTTLING_WAIT_TIME = "waitTime";
     public static final String CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION =
             "maxActiveStreamsPerConnection";
+
+    //Client connection pooling configs
+    public static final String CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
+    public static final String CONNECTION_POOLING_MAX_IDLE_CONNECTIONS = "maxIdleConnections";
+    public static final String CONNECTION_POOLING_WAIT_TIME = "waitTimeinMillis";
+    public static final String CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION = "maxActiveStreamsPerConnection";
+    public static final String HTTP_CLIENT_CONNECTION_POOL = "PoolConfiguration";
+    public static final String CONNECTION_MANAGER = "ConnectionManager";
+    public static final int POOL_CONFIG_INDEX = 1;
+    public static final String USER_DEFINED_POOL_CONFIG = "poolConfig";
 
     //FollowRedirect field names
     public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";

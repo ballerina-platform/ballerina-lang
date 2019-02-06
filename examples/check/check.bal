@@ -18,10 +18,16 @@ function scale(string num) returns int|error {
 
 public function main() {
     // Passing a valid integer as a `string` will return an `int`.
-    int|error x = parse("12");
-    io:println(x);
+    int|error w = parse("12");
+    io:println(w);
 
     // Passing a random `string` will return an `error`.
-    int|error y = parse("invalid");
+    int|error x = parse("invalid");
+    io:println(x);
+
+    int|error y = scale("12");
     io:println(y);
+
+    int|error z = scale("Invalid");
+    io:println(z);
 }
