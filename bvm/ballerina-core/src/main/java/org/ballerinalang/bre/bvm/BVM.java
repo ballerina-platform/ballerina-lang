@@ -504,9 +504,6 @@ public class BVM {
                 case InstructionCodes.ERROR:
                     createNewError(operands, strand, sf);
                     break;
-                case InstructionCodes.STAMP:
-                    handleStampBuildInMethod(strand, operands, sf);
-                    break;
                 case InstructionCodes.CONVERT:
                     handleConvertBuildInMethod(strand, sf, operands);
                     break;
@@ -991,54 +988,6 @@ public class BVM {
         sf.refRegs[l] = (BRefType<?>) BLangVMErrors
                 .createError(strand, true, (BErrorType) typeRefCPEntry.getType(), sf.stringRegs[j],
                         (BMap<String, BValue>) sf.refRegs[k]);
-    }
-
-    private static void handleStampBuildInMethod(Strand ctx, int[] operands, StackFrame sf) {
-
-        int i = operands[0];
-        int j = operands[1];
-        int k = operands[2];
-
-        BRefType<?> valueToBeStamped = sf.refRegs[i];
-        BType stampType = ((TypeRefCPEntry) sf.constPool[j]).getType();
-        BType targetType;
-
-        if (stampType.getTag() == TypeTags.UNION_TAG) {
-            List<BType> memberTypes = new ArrayList<>(((BUnionType) stampType).getMemberTypes());
-            targetType = new BUnionType(memberTypes);
-
-            Predicate<BType> errorPredicate = e -> e.getTag() == TypeTags.ERROR_TAG;
-            ((BUnionType) targetType).getMemberTypes().removeIf(errorPredicate);
-
-            if (((BUnionType) targetType).getMemberTypes().size() == 1) {
-                targetType = ((BUnionType) stampType).getMemberTypes().get(0);
-            }
-        } else {
-            targetType = stampType;
-        }
-
-        if (!checkIsLikeType(valueToBeStamped, targetType)) {
-            BError error;
-            if (valueToBeStamped != null) {
-                error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                                valueToBeStamped.getType(), targetType));
-            } else {
-                error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
-            }
-            sf.refRegs[k] = error;
-            return;
-        }
-        try {
-            if (valueToBeStamped != null) {
-                valueToBeStamped.stamp(targetType, new ArrayList<>());
-            }
-            sf.refRegs[k] = valueToBeStamped;
-        } catch (BallerinaException e) {
-            BError error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR, e.getDetail());
-            sf.refRegs[k] = error;
-        }
     }
 
     private static void handleConvertBuildInMethod(Strand strand, StackFrame sf, int[] operands) {
