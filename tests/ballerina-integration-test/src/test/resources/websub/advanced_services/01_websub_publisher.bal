@@ -80,11 +80,7 @@ service publisher on publisherServiceEP {
             panic payload;
         }
 
-        if (subscriber == "8383") {
-            checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_ONE, "http://localhost:8383/websub");
-        } else if (subscriber == "8484") {
-            checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_ONE, "http://localhost:8484/websub");
-        }
+        checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
         var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_ONE, untaint <json> payload);
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
