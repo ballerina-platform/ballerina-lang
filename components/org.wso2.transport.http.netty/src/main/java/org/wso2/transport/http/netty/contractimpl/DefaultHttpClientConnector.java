@@ -29,7 +29,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
-import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -57,6 +56,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
@@ -67,6 +67,7 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 public class DefaultHttpClientConnector implements HttpClientConnector {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpClientConnector.class);
+    private final UUID clientId;
 
     private ConnectionManager connectionManager;
     private Http2ConnectionManager http2ConnectionManager;
@@ -80,7 +81,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     private ForwardedExtensionConfig forwardedExtensionConfig;
     private EventLoopGroup clientEventGroup;
     private BootstrapConfiguration bootstrapConfig;
-    private GenericObjectPool clientConnectionPool;
 
     public DefaultHttpClientConnector(ConnectionManager connectionManager, SenderConfiguration senderConfiguration,
         BootstrapConfiguration bootstrapConfig, EventLoopGroup clientEventGroup) {
@@ -93,6 +93,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         }
         this.clientEventGroup = clientEventGroup;
         this.bootstrapConfig = bootstrapConfig;
+        this.clientId = UUID.randomUUID();
     }
 
     @Override
@@ -177,15 +178,10 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 }
             }
 
-            if (clientConnectionPool == null) {
-                clientConnectionPool = connectionManager.getClientConnectionPool(route, srcHandler, senderConfiguration,
-                                                                                 bootstrapConfig, clientEventGroup);
-            }
-
-            TargetChannel targetChannel = (TargetChannel) clientConnectionPool.borrowObject();
-            targetChannel.setCorrelatedSource(srcHandler);
-            targetChannel.setConnectionManager(connectionManager);
-
+            // Look for the connection from http connection manager
+            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration,
+                                                                                bootstrapConfig, clientEventGroup,
+                                                                                clientId);
             Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
             outboundMsgHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
             httpResponseFuture = outboundMsgHolder.getResponseFuture();

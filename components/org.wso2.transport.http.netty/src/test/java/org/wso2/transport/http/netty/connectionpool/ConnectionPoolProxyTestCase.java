@@ -46,7 +46,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
@@ -104,7 +104,9 @@ public class ConnectionPoolProxyTestCase {
 
             requestThreeResponse = executor.submit(clientWorkerThree);
 
-            assertEquals(requestOneResponse.get(), requestThreeResponse.get());
+            // Each client has different pool. Therefore channel is different. Need to come-up with a way to detect
+            // the parent connection pool id
+            assertNotEquals(requestOneResponse.get(), requestThreeResponse.get());
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testConnectionReuseForProxy", e);
         }
