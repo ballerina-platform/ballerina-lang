@@ -52,6 +52,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ER
  */
 @SuppressWarnings("Duplicates")
 public class Utils {
+
     private Utils() {
         // Do nothing.
     }
@@ -107,14 +108,38 @@ public class Utils {
      */
     public static void validateService(Service service) throws BLangRuntimeException {
         Resource[] resources = service.getResources();
-        if (resources.length != 1 && resources.length != 2) {
-            throw new BLangRuntimeException("Invalid number of resources found in service " + service.getName());
-        }
-        for (Resource resource : resources) {
-            if (!RESOURCE_ON_TRIGGER.equals(resource.getName()) && !RESOURCE_ON_ERROR.equals(resource.getName())) {
-                throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
-                        + ". Expected: " + RESOURCE_ON_TRIGGER + " or " + RESOURCE_ON_ERROR + ".");
+        if (resources.length == 1) {
+            if (isNotOnTriggerResource(resources[0])) {
+                throw new BLangRuntimeException(
+                        "Invalid resource definition. If there's only one resource, it should be "
+                                + RESOURCE_ON_TRIGGER + ". Found " + resources[0].getName() + " instead.");
             }
+            return;
+        } else if (resources.length == 2) {
+            validateResource(resources[0]);
+            validateResource(resources[1]);
+            // Check whether the service includes onTrigger() resource. Throw if fails.
+            if (isNotOnTriggerResource(resources[0]) && isNotOnTriggerResource(resources[1])) {
+                throw new BLangRuntimeException("Incorrect resources found. Service " + service.getName()
+                        + " must include " + RESOURCE_ON_TRIGGER + " resource.");
+            }
+            return;
         }
+        throw new BLangRuntimeException("Invalid number of resources found in service " + service.getName());
+    }
+
+    private static void validateResource(Resource resource) {
+        if (isNotOnTriggerResource(resource) && isNotOnErrorResource(resource)) {
+            throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
+                    + ". Expected: " + RESOURCE_ON_TRIGGER + " or " + RESOURCE_ON_ERROR + ".");
+        }
+    }
+
+    private static boolean isNotOnTriggerResource(Resource resource) {
+        return !RESOURCE_ON_TRIGGER.equals(resource.getName());
+    }
+
+    private static boolean isNotOnErrorResource(Resource resource) {
+        return !RESOURCE_ON_ERROR.equals(resource.getName());
     }
 }

@@ -57,6 +57,7 @@ public class ResourceFunctionHolder {
         return this.onErrorFunction;
     }
 
+    // Resources now have full name, hence we need to build full name for validate resource.
     private String getResourceFullName(BType serviceType, String resourceName) {
         return serviceType.getName() + "." + resourceName;
     }
