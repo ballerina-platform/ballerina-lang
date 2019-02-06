@@ -79,7 +79,7 @@ service InitiatorService on coordinatorListener {
         var initiatedTxn = initiatedTransactions[txnId];
         if (initiatedTxn is ()) {
             respondToBadRequest(conn, "Transaction-Unknown. Invalid TID:" + txnId);
-        } else if (initiatedTxn is TwoPhaseCommitTransaction) {
+        } else {
             if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
                 respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
             } else if (!protocolCompatible(initiatedTxn.coordinationType,
@@ -113,7 +113,7 @@ service InitiatorService on coordinatorListener {
                     } else {
                         log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
                     }
-                } else if (resPayload is error) {
+                } else {
                     panic resPayload;
                 }
             }

@@ -286,7 +286,7 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
             var serviceResponse = invokeEndpoint(path, request, requestAction, loadBalanceClient);
             if (serviceResponse is Response) {
                 return serviceResponse;
-            } else if (serviceResponse is error) {
+            } else {
                 if (lb.failover) {
                     loadBlancerInRequest = check createFailoverRequest(loadBlancerInRequest, requestEntity);
                     loadBalanceActionErrorData.httpActionErr[lbErrorIndex] = serviceResponse;
@@ -296,7 +296,7 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
                     return serviceResponse;
                 }
             }
-        } else if (loadBalanceClient is error) {
+        } else {
             return loadBalanceClient;
         }
     }

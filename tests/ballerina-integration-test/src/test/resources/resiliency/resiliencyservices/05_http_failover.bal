@@ -79,7 +79,7 @@ service failoverDemoService04 on failoverEP04 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = 500;
             response.setPayload(<string> backendRes.detail().message);
@@ -101,7 +101,7 @@ service failoverDemoService04 on failoverEP04 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = 500;
             response.setPayload(<string> backendRes.detail().message);
@@ -123,7 +123,7 @@ service failoverDemoService04 on failoverEP04 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = 500;
             response.setPayload(<string> backendRes.detail().message);
@@ -147,7 +147,7 @@ service failoverDemoService04 on failoverEP04 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = 500;
             response.setPayload(<string> backendRes.detail().message);
@@ -202,7 +202,7 @@ service mock04 on backendEP04 {
                 log:printError(<string> mimeEntity.detail().message);
                 response.setPayload("Error in decoding multiparts!");
                 response.statusCode = 500;
-            } else if (mimeEntity is mime:Entity[]) {
+            } else {
                 foreach var bodyPart in mimeEntity {
                     if (bodyPart.hasHeader(mime:CONTENT_TYPE)
                         && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
