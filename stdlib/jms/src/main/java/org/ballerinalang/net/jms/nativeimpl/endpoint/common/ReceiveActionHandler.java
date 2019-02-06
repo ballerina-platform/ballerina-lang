@@ -24,10 +24,8 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import javax.jms.JMSException;
@@ -39,33 +37,27 @@ import javax.jms.MessageConsumer;
  */
 public class ReceiveActionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReceiveActionHandler.class);
-
     private ReceiveActionHandler() {
     }
 
     public static void handle(Context context) {
 
         Struct connectorBObject = BallerinaAdapter.getReceiverObject(context);
-        MessageConsumer messageConsumer = BallerinaAdapter.getNativeObject(connectorBObject,
-                                                                           Constants.JMS_CONSUMER_OBJECT,
-                                                                           MessageConsumer.class,
-                                                                           context
-                                                                          );
-        SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(connectorBObject,
-                                                                             Constants.SESSION_CONNECTOR_OBJECT,
-                                                                             SessionConnector.class,
-                                                                             context);
+        MessageConsumer messageConsumer = BallerinaAdapter.
+                getNativeObject(connectorBObject, JmsConstants.JMS_CONSUMER_OBJECT, MessageConsumer.class, context);
+        SessionConnector sessionConnector = BallerinaAdapter.
+                getNativeObject(connectorBObject, JmsConstants.SESSION_CONNECTOR_OBJECT, SessionConnector.class,
+                                context);
         long timeInMilliSeconds = context.getIntArgument(0);
 
         try {
             sessionConnector.handleTransactionBlock(context);
             Message message = messageConsumer.receive(timeInMilliSeconds);
             if (Objects.nonNull(message)) {
-                BMap<String, BValue> messageBObject = BLangConnectorSPIUtil.createBStruct(context,
-                                                                             Constants.BALLERINA_PACKAGE_JMS,
-                                                                             Constants.JMS_MESSAGE_STRUCT_NAME);
-                messageBObject.addNativeData(Constants.JMS_MESSAGE_OBJECT, message);
+                BMap<String, BValue> messageBObject = BLangConnectorSPIUtil.
+                        createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
+                                      JmsConstants.JMS_MESSAGE_STRUCT_NAME);
+                messageBObject.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, message);
                 context.setReturnValues(messageBObject);
             } else {
                 context.setReturnValues();

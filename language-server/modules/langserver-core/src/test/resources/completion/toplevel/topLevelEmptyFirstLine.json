@@ -102,6 +102,14 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"final",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"final ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"const",
       "kind":"Keyword",
       "detail":"Keyword",
@@ -126,6 +134,14 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"listener",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"listener ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"channel",
       "kind":"Keyword",
       "detail":"BType",
@@ -143,7 +159,9 @@
       "label":"TableConfig",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"TableConfig represents properties used during table initialization.\n",
+      "documentation":{
+        "left":"TableConfig represents properties used during table initialization.\n"
+      },
       "sortText":"170",
       "insertText":"TableConfig"
     },

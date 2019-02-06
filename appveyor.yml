@@ -45,3 +45,20 @@ build_script:
 cache:
   - C:\maven\ -> appveyor.yml
   - C:\Users\appveyor\.m2\ -> pom.xml
+  - composer\node_modules -> composer\package.json
+  - tool-plugins\vscode\node_modules -> tool-plugins\vscode\package.json
+  - tool-plugins\theia\node_modules -> tool-plugins\theia\package.json
+  - tool-plugins\theia\browser-app\node_modules ->\package.json
+  - composer\packages\bbe\node_modules -> composer\packages\bbe\package.json
+  - composer\packages\font\node_modules -> composer\packages\font\package.json
+  - composer\packages\theme\node_modules -> composer\packages\theme\package.json
+  - composer\packages\diagram\node_modules -> composer\packages\diagram\package.json
+  - composer\packages\tracing\node_modules -> composer\packages\tracing\package.json
+  - composer\packages\ast-model\node_modules -> composer\packages\ast-model\package.json
+  - composer\packages\api-designer\node_modules -> composer\packages\api-designer\package.json
+  - composer\packages\distribution\node_modules -> composer\packages\distribution\package.json
+  - composer\packages\lang-service\node_modules -> composer\packages\lang-service\package.json
+  - composer\packages\documentation\node_modules -> composer\packages\documentation\package.json
+  - composer\tools\composer-cli\node_modules -> composer\tools\composer-cli\package.json
+  - tests\composer-integration-tests\node_modules\package.json -> tests\composer-integration-tests\package.json 
+  - '%APPDATA%\npm-cache'

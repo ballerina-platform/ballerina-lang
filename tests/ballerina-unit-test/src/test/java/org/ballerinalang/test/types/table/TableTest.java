@@ -38,6 +38,7 @@ import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -61,6 +62,7 @@ public class TableTest {
     private CompileResult resultNegative;
     private CompileResult nillableMappingNegativeResult;
     private CompileResult nillableMappingResult;
+    private CompileResult service;
     private static final String DB_NAME_H2 = "TEST_DATA_TABLE_H2";
     private TestDatabase testDatabase;
     private static final String TABLE_TEST = "TableTest";
@@ -83,6 +85,7 @@ public class TableTest {
         nillableMappingNegativeResult = BCompileUtil
                 .compile("test-src/types/table/table_nillable_mapping_negative.bal");
         nillableMappingResult = BCompileUtil.compile("test-src/types/table/table_nillable_mapping.bal");
+        service = BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
     }
 
     @Test(groups = TABLE_TEST, description = "Check retrieving primitive types.")
@@ -1220,8 +1223,6 @@ public class TableTest {
     @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
           dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService() {
-        CompileResult service =
-                BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar1", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
 
@@ -1284,8 +1285,6 @@ public class TableTest {
     @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
           dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService_2() {
-        CompileResult service =
-                BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar2", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
 
@@ -1393,5 +1392,23 @@ public class TableTest {
         Assert.assertTrue(Pattern.matches(
                 ".*Number of fields in the constraint type is lower than column count of the result set.*",
                 retVal[0].stringValue()));
+    }
+
+    @Test(groups = TABLE_TEST,
+          description = "Test type checking constrained cursor table with closed constraint")
+    public void testTypeCheckingConstrainedCursorTableWithClosedConstraint() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeCheckingConstrainedCursorTableWithClosedConstraint");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void closeConnectionPool() {
+        BRunUtil.invokeStateful(service, "closeConnectionPool");
     }
 }

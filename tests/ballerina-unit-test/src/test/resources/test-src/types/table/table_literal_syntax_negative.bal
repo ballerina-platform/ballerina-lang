@@ -20,7 +20,7 @@ type Person record {
     float salary;
     string name;
     boolean married = false;
-    !...
+    !...;
 };
 
 type Employee object {

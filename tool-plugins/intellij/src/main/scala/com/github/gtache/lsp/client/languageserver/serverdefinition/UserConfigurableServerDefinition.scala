@@ -50,9 +50,4 @@ trait UserConfigurableServerDefinition extends LanguageServerDefinition {
 
   private val LOG: Logger = Logger.getInstance(classOf[UserConfigurableServerDefinition])
 
-  /**
-    * @return The array corresponding to the server definition
-    */
-  def toArray: Array[String]
-
 }

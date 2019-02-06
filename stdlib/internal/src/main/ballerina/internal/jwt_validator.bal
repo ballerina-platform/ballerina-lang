@@ -16,6 +16,7 @@
 
 import ballerina/log;
 import ballerina/time;
+import ballerina/encoding;
 
 # Represents JWT validator configurations.
 # + issuer - Expected issuer
@@ -44,11 +45,8 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
     var jwtComponents = getJWTComponents(jwtToken);
     if (jwtComponents is string[]) {
         encodedJWTComponents = jwtComponents;
-    } else if (jwtComponents is error) {
-        return jwtComponents;
     } else {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
-        return jwtError;
+        return jwtComponents;
     }
 
     string[] aud = [];
@@ -57,26 +55,20 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
     var decodedJwt = parseJWT(encodedJWTComponents);
     if (decodedJwt is (JwtHeader, JwtPayload)) {
         (header, payload) = decodedJwt;
-    } else if (decodedJwt is error) {
-        return decodedJwt;
     } else {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
-        return jwtError;
+        return decodedJwt;
     }
 
     var jwtValidity = validateJWT(encodedJWTComponents, header, payload, config);
     if (jwtValidity is error) {
         return jwtValidity;
-    } else if (jwtValidity is boolean) {
+    } else {
         if (jwtValidity) {
             return payload;
         } else {
             error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
             return jwtError;
         }
-    } else {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
-        return jwtError;
     }
 }
 
@@ -98,7 +90,7 @@ function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload
     var decodedJWTComponents = getDecodedJWTComponents(encodedJWTComponents);
     if (decodedJWTComponents is (json, json)) {
         (headerJson, payloadJson) = decodedJWTComponents;
-    } else if (decodedJWTComponents is error) {
+    } else {
         return decodedJWTComponents;
     }
 
@@ -108,23 +100,25 @@ function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload
 }
 
 function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, json)|error) {
-    string jwtHeader = check urlDecode(encodedJWTComponents[0]).base64Decode();
-    string jwtPayload = check urlDecode(encodedJWTComponents[1]).base64Decode();
+    string jwtHeader = encoding:byteArrayToString(check
+        encoding:decodeBase64(urlDecode(encodedJWTComponents[0])));
+    string jwtPayload = encoding:byteArrayToString(check
+        encoding:decodeBase64(urlDecode(encodedJWTComponents[1])));
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
     var jsonHeader = parseJson(jwtHeader);
     if (jsonHeader is json) {
         jwtHeaderJson = jsonHeader;
-    } else if (jsonHeader is error) {
+    } else {
         return jsonHeader;
     }
 
-    var jsonPayloaad = parseJson(jwtPayload);
-    if (jsonPayloaad is json) {
-        jwtPayloadJson = jsonPayloaad;
-    } else if (jsonPayloaad is error) {
-        return jsonPayloaad;
+    var jsonPayload = parseJson(jwtPayload);
+    if (jsonPayload is json) {
+        jwtPayloadJson = jsonPayload;
+    } else {
+        return jsonPayload;
     }
     return (jwtHeaderJson, jwtPayloadJson);
 }

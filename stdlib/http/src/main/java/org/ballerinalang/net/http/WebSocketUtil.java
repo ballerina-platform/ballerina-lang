@@ -81,8 +81,8 @@ public class WebSocketUtil {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         int maxFrameSize = wsService.getMaxFrameSize();
-        ServerHandshakeFuture future = webSocketHandshaker.handshake(subProtocols, true, idleTimeoutInSeconds * 1000,
-                                                                     headers, maxFrameSize);
+        ServerHandshakeFuture future = webSocketHandshaker.handshake(subProtocols, idleTimeoutInSeconds * 1000, headers,
+                                                                     maxFrameSize);
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {

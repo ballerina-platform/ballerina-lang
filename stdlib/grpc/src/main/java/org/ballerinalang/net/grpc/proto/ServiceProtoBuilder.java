@@ -128,6 +128,11 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
                         .parent).functions).stream().filter(var -> DESCRIPTOR_MAP.equals(((BLangFunction) var)
                         .getName().getValue())).findFirst();
 
+                for (AnnotationAttachmentNode annonNodes : serviceNode.getAnnotationAttachments()) {
+                    if (ANN_SERVICE_DESCRIPTOR.equals(annonNodes.getAnnotationName().getValue())) {
+                        return;
+                    }
+                }
                 if (rootDescriptor.isPresent() && descriptorMapFunc.isPresent()) {
                     addDescriptorAnnotation(serviceNode, (String) ((BLangLiteral) rootDescriptor.get().getValue())
                             .getValue());
@@ -171,11 +176,6 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
     }
 
     private void addDescriptorAnnotation(ServiceNode serviceNode, String rootDescriptor) {
-        for (AnnotationAttachmentNode annonNodes : serviceNode.getAnnotationAttachments()) {
-            if (ANN_SERVICE_DESCRIPTOR.equals(annonNodes.getAnnotationName().getValue())) {
-                return;
-            }
-        }
         BLangService service = (BLangService) serviceNode;
         DiagnosticPos pos = service.pos;
         // Create Annotation Attachment.

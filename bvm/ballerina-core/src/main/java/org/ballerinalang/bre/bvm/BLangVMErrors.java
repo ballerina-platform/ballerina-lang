@@ -115,6 +115,11 @@ public class BLangVMErrors {
         return createError(context, errorMessage);
     }
 
+    public static BError createCancelledFutureError(Strand context) {
+        String errorMessage = "future is already cancelled";
+        return createError(context, errorMessage);
+    }
+
     public static BError createTypeConversionError(Strand context, String errorMessage) {
         return createError(context, BallerinaErrorReasons.CONVERSION_ERROR, errorMessage);
     }

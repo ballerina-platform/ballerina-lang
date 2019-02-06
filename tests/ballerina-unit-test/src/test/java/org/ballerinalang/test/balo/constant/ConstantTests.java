@@ -261,4 +261,16 @@ public class ConstantTests {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.0);
     }
+
+    @Test
+    public void testNilWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithoutType");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testNilWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithType");
+        Assert.assertNull(returns[0]);
+    }
 }

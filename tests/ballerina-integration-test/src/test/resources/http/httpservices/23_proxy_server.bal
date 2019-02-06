@@ -43,7 +43,7 @@ service proxyService on new http:Listener(9219) {
     }
     resource function sayHello (http:Caller caller, http:Request req) {
         string url = untaint req.rawPath;
-        sendRequest(url, req, caller);
+        sendRequest(url, untaint req, caller);
     }
 }
 
@@ -58,7 +58,7 @@ function sendRequest(string url, http:Request req, http:Caller caller) {
     var response = clientEP->forward("", req);
     if (response is http:Response) {
         _ = listenerEP->respond(response);
-    } else if (response is error) {
+    } else {
         _ = listenerEP->respond(response.reason());
     }
 }

@@ -56,7 +56,7 @@ service echo on ep {
     // The authentication and authorization settings can be overridden at
     // resource level.
     // The hello resource would inherit the `authentication:{enabled:true}` flag
-    // from the service level, and define 'hello' as the scope for the resource.
+    // from the service level, and define `hello` as the scope for the resource.
     resource function hello(http:Caller caller, http:Request req) {
         _ = caller->respond("Hello, World!!!");
     }

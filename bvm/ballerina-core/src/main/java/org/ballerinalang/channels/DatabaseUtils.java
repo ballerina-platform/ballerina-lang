@@ -244,6 +244,13 @@ public class DatabaseUtils {
         return dbOptions == null ? jdbcUrl.toString() : jdbcUrl.append(dbOptions).toString();
     }
 
+    public static void close() {
+        if (hikariDataSource != null) {
+            hikariDataSource.close();
+            hikariDataSource = null;
+        }
+    }
+
     private static Connection getDBConnection() throws SQLException {
 
         if (hikariDataSource == null) {

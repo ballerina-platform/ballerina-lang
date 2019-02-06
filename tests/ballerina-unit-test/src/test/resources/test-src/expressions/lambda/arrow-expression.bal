@@ -65,7 +65,7 @@ function testClosureWithCasting() returns float {
 type Person record {
    string name;
     int age;
-    !...
+    !...;
 };
 
 function testRecordTypeWithArrowExpr() returns Person {

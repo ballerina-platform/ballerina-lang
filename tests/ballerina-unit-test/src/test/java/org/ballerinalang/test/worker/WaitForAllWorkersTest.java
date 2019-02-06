@@ -60,7 +60,8 @@ public class WaitForAllWorkersTest {
     public void sendToFork() {
         BRunUtil.invoke(result, "testWaitForAllWorkers", new BValue[0]);
         String s = getSysOut();
-        Assert.assertEquals(s, "Finishing Default Worker\nFinishing Worker w2\n");
+        Assert.assertEquals(s, "Finishing Default Worker" + System.lineSeparator() + "Finishing Worker w2"
+                + System.lineSeparator());
     }
 
     @AfterMethod

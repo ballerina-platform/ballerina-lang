@@ -30,14 +30,14 @@ type Intern record {
     string name;
     boolean intern;
     int salary;
-    !...
+    !...;
 };
 
 // Assignable to Person type
 type Student record {
     string name;
     int studentId;
-    !...
+    !...;
 };
 
 Person person1 = { name: "John" };

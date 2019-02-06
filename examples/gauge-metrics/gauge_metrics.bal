@@ -9,7 +9,9 @@ import ballerina/observe;
 observe:Gauge globalGauge = new("global_gauge", desc = "Global gauge defined");
 
 // Make sure you start the service with `--observe`, or metrics enabled.
-@http:ServiceConfig { basePath: "/online-store-service" }
+@http:ServiceConfig {
+    basePath: "/online-store-service"
+}
 service onlineStoreService on new http:Listener(9090) {
 
     @http:ResourceConfig {
@@ -83,7 +85,7 @@ service onlineStoreService on new http:Listener(9090) {
 
         io:println("------------------------------------------");
 
-        //Send reponse to the client.
+        //Send response to the client.
         http:Response res = new;
         // Use a util method to set a string payload.
         res.setPayload("Order Processed!");

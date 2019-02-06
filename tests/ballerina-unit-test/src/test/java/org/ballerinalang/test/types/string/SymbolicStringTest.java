@@ -146,36 +146,6 @@ public class SymbolicStringTest {
     }
 
     @Test
-    public void testBase64EncodeString() {
-        BValue[] returns = BRunUtil.invoke(result, "testBase64EncodeString");
-        Assert.assertEquals(returns[0].stringValue(), "SGVsbG9Xb3JsZA==");
-    }
-
-    @Test
-    public void testBase16ToBase64Encoding() {
-        BValue[] returns = BRunUtil.invoke(result, "testBase16ToBase64Encoding");
-        Assert.assertEquals(returns[0].stringValue(), "/93d");
-    }
-
-    @Test
-    public void testBase64ToBase16Encoding() {
-        BValue[] returns = BRunUtil.invoke(result, "testBase64ToBase16Encoding");
-        Assert.assertEquals(returns[0].stringValue(), "48656C6C6F2042616C6C6572696E61");
-    }
-
-    @Test
-    public void testHMACValueFromBase16ToBase64Encoding() {
-        BValue[] returns = BRunUtil.invoke(result, "testHMACValueFromBase16ToBase64Encoding");
-        Assert.assertEquals(returns[0].stringValue(), "TEMPNUuD0bKeT91tIPBEUA==");
-    }
-
-    @Test
-    public void testHMACValueFromBase64ToBase16Encoding() {
-        BValue[] returns = BRunUtil.invoke(result, "testHMACValueFromBase64ToBase16Encoding");
-        Assert.assertEquals(returns[0].stringValue(), "4C430F354B83D1B29E4FDD6D20F04450");
-    }
-
-    @Test
     public void testStringArrays() {
         BValue[] returns = BRunUtil.invoke(result, "testStringArray");
         Assert.assertEquals(returns[0].stringValue(), "hello");

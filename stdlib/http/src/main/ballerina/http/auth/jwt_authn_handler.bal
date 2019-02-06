@@ -44,17 +44,19 @@ public type HttpJwtAuthnHandler object {
     public function handle (Request req) returns (boolean);
 };
 
-function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
+public function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
     string authHeader = "";
     var headerValue = trap req.getHeader(AUTH_HEADER);
     if (headerValue is string) {
         authHeader = headerValue;
-    } else if (headerValue is error) {
+    } else {
+        string reason = headerValue.reason();
         log:printDebug(function() returns string {
-            return "Error in retrieving header " + AUTH_HEADER + ": " + headerValue.reason();
+            return "Error in retrieving header " + AUTH_HEADER + ": " + reason;
         });
         return false;
     }
+
     if (authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
         if (authHeaderComponents.length() == 2) {
@@ -67,12 +69,12 @@ function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
     return false;
 }
 
-function HttpJwtAuthnHandler.handle (Request req) returns (boolean) {
+public function HttpJwtAuthnHandler.handle (Request req) returns (boolean) {
     string jwtToken = extractJWTToken(req);
     var authenticated = self.jwtAuthenticator.authenticate(jwtToken);
     if (authenticated is boolean) {
         return authenticated;
-    } else if (authenticated is error) {
+    } else {
         log:printError("Error while validating JWT token ", err = authenticated);
     }
     return false;

@@ -2,6 +2,7 @@ package com.github.gtache.lsp.actions
 
 import com.github.gtache.lsp.PluginMain
 import com.github.gtache.lsp.editor.EditorEventManager
+import com.github.gtache.lsp.settings.BallerinaLSPState
 import com.intellij.codeInsight.actions.{LayoutCodeDialog, ShowReformatFileDialog, TextRangeType}
 import com.intellij.lang.LanguageFormatting
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
@@ -24,7 +25,9 @@ class LSPShowReformatDialogAction extends ShowReformatFileDialog with DumbAware 
     val project = e.getData(CommonDataKeys.PROJECT)
     if (editor != null) {
       val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-      if (LanguageFormatting.INSTANCE.allForLanguage(file.getLanguage).isEmpty && PluginMain.isExtensionSupported(FileDocumentManager.getInstance().getFile(editor.getDocument).getExtension)) {
+      if (BallerinaLSPState.getInstance().alwaysSendRequests ||
+        (LanguageFormatting.INSTANCE.allForLanguage(file.getLanguage).isEmpty
+          && PluginMain.isExtensionSupported(FileDocumentManager.getInstance().getFile(editor.getDocument).getExtension))) {
 
         val hasSelection = editor.getSelectionModel.hasSelection
         val dialog = new LayoutCodeDialog(project, file, hasSelection, HELP_ID)

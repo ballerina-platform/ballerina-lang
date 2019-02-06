@@ -247,6 +247,7 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(packageVarInfo.signatureCPIndex);
             dataOutStream.writeInt(packageVarInfo.flags);
             dataOutStream.writeInt(packageVarInfo.globalMemIndex);
+            dataOutStream.writeBoolean(packageVarInfo.isIdentifierLiteral);
 
             writeAttributeInfoEntries(dataOutStream, packageVarInfo.getAttributeInfoEntries());
         }
@@ -613,6 +614,8 @@ public class PackageInfoWriter {
 
         dataOutStream.writeInt(localVariableInfo.scopeStartLineNumber);
         dataOutStream.writeInt(localVariableInfo.scopeEndLineNumber);
+
+        dataOutStream.writeBoolean(localVariableInfo.isIdentifierLiteral);
 
         int[] attachmentsIndexes = localVariableInfo.attachmentIndexes;
         dataOutStream.writeShort(attachmentsIndexes.length);

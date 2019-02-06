@@ -6,7 +6,7 @@ import ballerina/log;
 //in the request. When chunking is set to auto, chunking is done as specified in the request.
 
 http:Client clientEndpoint = new("http://localhost:9090",
-                                config = {chunking: http:CHUNKING_NEVER});
+                                 config = {chunking: http:CHUNKING_NEVER});
 
 service chunkingSample on new http:Listener(9092) {
 
@@ -27,8 +27,8 @@ service chunkingSample on new http:Listener(9092) {
             }
         } else {
             http:Response errorResponse = new;
-            json errMsg = { "error": "error occurred while invoking the service" };
-            errorResponse.setPayload(errMsg);
+            json msg = { "error": "An error occurred while invoking the service." };
+            errorResponse.setPayload(msg);
             var response = caller->respond(errorResponse);
             if (response is error) {
                log:printError("Error sending response", err = response);

@@ -17,11 +17,13 @@
 
 package org.ballerinalang.test.channels;
 
+import org.ballerinalang.channels.DatabaseUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -95,5 +97,10 @@ public class BasicChannelsTest {
         BValue[] returns = BRunUtil.invoke(result, "primitiveTypeChannels");
         Assert.assertEquals(returns.length, 1, "Basic channel test, simple types channels test failed");
         Assert.assertEquals(returns[0].stringValue(), "true", "Incorrect msg returned from channel");
+    }
+
+    @AfterClass
+    public void reset() {
+        DatabaseUtils.close();
     }
 }

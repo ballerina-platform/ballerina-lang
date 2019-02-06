@@ -20,14 +20,14 @@ type Foo record {
 
 type ClosedFoo record {
     int ca = 0;
-    !...
+    !...;
 };
 
 type Employee record {
     int id;
     string name;
     float salary;
-    !...
+    !...;
 };
     
 type Person record {
@@ -41,7 +41,7 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children = ();
-    !...
+    !...;
 };
 
 function testLiteralValueAssignment() returns (anydata, anydata, anydata, anydata) {

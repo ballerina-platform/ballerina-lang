@@ -33,7 +33,7 @@ public type ClientEndpointConfig record {
     string password = "";
     sql:PoolOptions poolOptions = {};
     map<any> dbOptions = {};
-    !...
+    !...;
 };
 
 # Represents an MySQL client endpoint.

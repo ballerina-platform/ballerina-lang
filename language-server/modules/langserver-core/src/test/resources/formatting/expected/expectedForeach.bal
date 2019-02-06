@@ -23,7 +23,7 @@ function testArrayWithTupleInTupleWithoutType() returns string {
 
     (int, (string, float))[] arr = [(1, ("A", 2.0)), (2, ("B", 3.0)), (3, ("C", 4.0))];
     foreach var (i, (s, f)) in arr {
-        (string, float) isd = (s,f);
+        (string, float) isd = (s, f);
     }
     return output;
 }
@@ -34,7 +34,7 @@ function testArrayWithTupleInTupleWithType() returns string {
     (int, (string, float))[] arr = [(1, ("A", 2.0)), (2, ("B", 3.0)), (3, ("C", 4.0))];
 
     foreach (int, (string, float)) (i, (s, f)) in arr {
-        (int, (string, float)) asd = (i, (s,f));
+        (int, (string, float)) asd = (i, (s, f));
     }
     return output;
 }
