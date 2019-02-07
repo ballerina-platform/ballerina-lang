@@ -27,9 +27,6 @@ const int CACHE_CLEANUP_INTERVAL = 5000;
 # Map which stores all of the caches.
 map<Cache> cacheMap = {};
 
-# Cleanup task which cleans the cache periodically.
-task:Timer cacheCleanupTimer = createCacheCleanupTask();
-
 # Represents a cache entry.
 #
 # + value - cache value
@@ -309,12 +306,84 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
     }
 }
 
-# Creates a new cache cleanup task.
-#
-# + return - cache cleanup task ID
-function createCacheCleanupTask() returns task:Timer {
-    (function () returns error?) onTriggerFunction = runCacheExpiry;
-    task:Timer timer = new(onTriggerFunction, (), CACHE_CLEANUP_INTERVAL, delay = CACHE_CLEANUP_START_DELAY);
-    timer.start();
-    return timer;
+task:TimerConfiguration cacheCleanupTimerConfiguration = {
+    interval: CACHE_CLEANUP_INTERVAL,
+    delay: CACHE_CLEANUP_START_DELAY
+};
+
+listener task:Listener cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
+
+# Cleanup task which cleans the cache periodically.
+service cacheCleanupTask on cacheCleanupTimer {
+    resource function onTrigger() {
+        // We need to keep track of empty caches. We remove these to prevent OOM issues.
+        int emptyCacheCount = 0;
+        string[] emptyCacheKeys = [];
+
+        // Iterate through all caches.
+        int keyIndex = 0;
+        string[] currentCacheKeys = cacheMap.keys();
+        int cacheKeysLength = currentCacheKeys.length();
+        while (keyIndex < cacheKeysLength) {
+
+            string currentCacheKey = currentCacheKeys[keyIndex];
+            keyIndex += 1;
+            Cache? currentCache = cacheMap[currentCacheKey];
+            if (currentCache is ()) {
+                continue;
+            } else {
+                // Get the expiry time of the current cache
+                int currentCacheExpiryTime = currentCache.expiryTimeMillis;
+
+                // Create a new array to store keys of cache entries which needs to be removed.
+                string[] cachesToBeRemoved = [];
+
+                int cachesToBeRemovedIndex = 0;
+                // Iterate through all keys.
+                int entrykeyIndex = 0;
+                string[] entryKeys = currentCache.entries.keys();
+                int entryKeysLength = entryKeys.length();
+                while (entrykeyIndex < entryKeysLength) {
+
+                    var key = entryKeys[entrykeyIndex];
+                    entrykeyIndex += 1;
+                    CacheEntry? entry = currentCache.entries[key];
+                    if (entry is ()) {
+                        continue;
+                    } else {
+                        // Get the current system time.
+                        int currentSystemTime = time:currentTime().time;
+
+                        // Check whether the cache entry needs to be removed.
+                        if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
+                            cachesToBeRemoved[cachesToBeRemovedIndex] = key;
+                            cachesToBeRemovedIndex += 1;
+                        }
+                    }
+                }
+
+                // Iterate through the key list which needs to be removed.
+                int currentKeyIndex = 0;
+                while(currentKeyIndex < cachesToBeRemovedIndex) {
+                    string key = cachesToBeRemoved[currentKeyIndex];
+                    // Remove the cache entry.
+                    _ = currentCache.entries.remove(key);
+                    currentKeyIndex += 1;
+                }
+
+                // If there are no entries, we add that cache key to the `emptyCacheKeys`.
+                int size = currentCache.entries.length();
+                if (size == 0) {
+                    emptyCacheKeys[emptyCacheCount] = currentCacheKey;
+                    emptyCacheCount += 1;
+                }
+            }
+        }
+
+        // We iterate though all empty cache keys and remove them from the `cacheMap`.
+        foreach var emptyCacheKey in emptyCacheKeys {
+            _ = cacheMap.remove(emptyCacheKey);
+        }
+        return ();
+    }
 }
