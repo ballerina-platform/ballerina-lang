@@ -341,8 +341,8 @@ function testToJsonComplex() returns json {
         poolOptions: { maximumPoolSize: 1 }
     });
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
-                    float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", ());
+        float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array, string_array
+        from MixTypes where row_id =1", ());
 
     json convertedVal = getJsonConversionResult(tableOrError);
     testDB.stop();
