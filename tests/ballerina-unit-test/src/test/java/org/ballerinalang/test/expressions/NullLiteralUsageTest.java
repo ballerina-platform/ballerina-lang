@@ -117,7 +117,6 @@ public class NullLiteralUsageTest {
     public void testNullInFnParams() {
         BValue[] returns = BRunUtil.invoke(result, "testNullInFnParams");
         assertNull(returns[0]);
-
     }
 
     @Test
