@@ -42,8 +42,8 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
     /**
      * Constructor of the server connector
      *
-     * @param context - context of which the server connector is called.
-     * @param taskId - task ID of the task which is bound to the service.
+     * @param context Context of which the server connector is called.
+     * @param taskId  Task ID of the task which is bound to the service.
      */
     public TaskServerConnectorImpl(Context context, String taskId) {
         this.taskId = taskId;
