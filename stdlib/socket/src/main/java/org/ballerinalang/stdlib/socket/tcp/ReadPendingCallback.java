@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.socket.tcp;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 
+import java.nio.ByteBuffer;
+
 /**
  * Hello.
  */
@@ -28,10 +30,14 @@ public class ReadPendingCallback {
 
     private Context context;
     private CallableUnitCallback callback;
+    private final int expectedLength;
+    private int currentLength;
+    private ByteBuffer buffer;
 
-    public ReadPendingCallback(Context context, CallableUnitCallback callback) {
+    public ReadPendingCallback(Context context, CallableUnitCallback callback, int expectedLength) {
         this.context = context;
         this.callback = callback;
+        this.expectedLength = expectedLength;
     }
 
     public Context getContext() {
@@ -40,5 +46,25 @@ public class ReadPendingCallback {
 
     public CallableUnitCallback getCallback() {
         return callback;
+    }
+
+    public int getExpectedLength() {
+        return expectedLength;
+    }
+
+    public int getCurrentLength() {
+        return currentLength;
+    }
+
+    public void updateCurrentLength(int currentLength) {
+        this.currentLength += currentLength;
+    }
+
+    public ByteBuffer getBuffer() {
+        return buffer;
+    }
+
+    public void setBuffer(ByteBuffer buffer) {
+        this.buffer = buffer;
     }
 }

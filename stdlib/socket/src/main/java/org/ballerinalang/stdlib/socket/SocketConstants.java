@@ -47,4 +47,7 @@ public class SocketConstants {
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
     public static final String SOCKET_SERVICE = "socketService";
     public static final String IS_CLIENT = "isClient";
+
+    // If default length pass as the read length then the entire buffer read.
+    public static final int DEFAULT_EXPECTED_READ_LENGTH = -100;
 }

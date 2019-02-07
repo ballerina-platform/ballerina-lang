@@ -56,8 +56,10 @@ public class Read implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
+        int expectedLength = (int) context.getIntArgument(0);
         SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
-        ReadPendingSocketMap.getInstance().add(socketChannel.hashCode(), new ReadPendingCallback(context, callback));
+        final ReadPendingCallback readPendingCallback = new ReadPendingCallback(context, callback, expectedLength);
+        ReadPendingSocketMap.getInstance().add(socketChannel.hashCode(), readPendingCallback);
         log.debug("Notify to invokeRead");
         SelectorManager.getInstance().invokeRead(socketChannel.hashCode());
     }

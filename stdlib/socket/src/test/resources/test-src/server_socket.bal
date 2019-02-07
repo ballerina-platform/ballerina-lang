@@ -26,7 +26,7 @@ service echoServer on server {
     }
 
     resource function onReadReady(socket:Caller caller) {
-        var result = caller->read();
+        var result = caller->read(lenght = 6);
         if (result is (byte[], int)) {
             var (content, length) = result;
             if (length > 0) {
