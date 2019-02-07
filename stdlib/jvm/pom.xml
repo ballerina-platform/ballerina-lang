@@ -139,7 +139,9 @@
     </build>
 
     <properties>
-        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
+        <maven.checkstyleplugin.excludes>
+            **/generated/**,**/org/ballerinalang/nativeimpl/jvm/BallerinaProgram**
+        </maven.checkstyleplugin.excludes>
     </properties>
 
 </project>
