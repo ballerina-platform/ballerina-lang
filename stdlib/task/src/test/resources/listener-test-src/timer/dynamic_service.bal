@@ -16,15 +16,13 @@
 
 import ballerina/task;
 
-task:TimerConfiguration configuration = {
-    interval: 2000,
-    delay: 1000
-};
-
 public function main() {
-    task:Listener timer = new(configuration);
-    var result = timer.__attach(timerService, {});
-    result = timer.__start();
+    task:Listener timer = new({
+            interval: 2000,
+            delay: 1000
+        });
+    var result = timer.attach(timerService);
+    result = timer.start();
 }
 
 int count = 0;
