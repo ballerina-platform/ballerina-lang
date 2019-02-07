@@ -31,6 +31,13 @@ function genJVMClassFile(byte[] birBinary, string progName) returns byte[] {
 function generateJVMClass(bir:Package pkg) returns byte[] {
     jvm:classWriterInit();
     jvm:classWriterVisit(className);
+
+    bir:Function? mainFunc = getMainFunc(pkg.functions);
+    if (mainFunc is bir:Function) {
+        generateMainMethod(mainFunc);
+        generateGetParamsMethod(mainFunc);
+    }
+
     generateMethods(pkg.functions);
     jvm:classWriterEnd();
     return jvm:getClassFileContent();
@@ -45,9 +52,26 @@ function generateMethods(bir:Function[] funcs) {
     }
 }
 
+function getMainFunc(bir:Function[] funcs) returns bir:Function? {
+    bir:Function? userMainFunc = ();
+    foreach var func in funcs {
+        if(func.name.value == "main") {
+            userMainFunc = untaint func;
+            break;
+        }
+    }
+
+    return userMainFunc;
+}
+
+
 function generateMethodDesc(bir:Function func) {
     currentFuncName = untaint func.name.value;
+    string desc = getMethodDesc(func);
+    jvm:visitMethodInit(ACC_PUBLIC + ACC_STATIC, currentFuncName, desc);
+}
 
+function getMethodDesc(bir:Function func) returns string {
     string desc = "(";
     int i = 0;
     while (i < func.argsCount) {
@@ -56,10 +80,7 @@ function generateMethodDesc(bir:Function func) {
     }
 
     string returnType = generateReturnType(func.typeValue.retType);
-
-    desc = desc + returnType;
-
-    jvm:visitMethodInit(ACC_PUBLIC + ACC_STATIC, currentFuncName, desc);
+    return desc + returnType;
 }
 
 function getFunctionArgDesc(bir:BType bType) returns string {
@@ -607,6 +628,90 @@ function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
         indexMap.add(varDcl);
     }
     return indexMap.getIndex(varDcl);
+}
+
+
+function generateMainMethod(bir:Function userMainFunc) {
+    jvm:visitMethodInit(ACC_PUBLIC, "__main", "([Lorg/ballerinalang/model/values/BValue;)V");
+    string desc = getMethodDesc(userMainFunc);
+    bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
+
+    // load and cast param values
+    int paramIndex = 0;
+    foreach var paramType in paramTypes {
+        generateCast(paramIndex, paramType);
+        paramIndex += 1;
+    }
+
+    // invoke the user's main method
+    jvm:visitMethodInstruction(INVOKESTATIC, className, "main", desc, false);
+
+    jvm:visitNoOperandInstruction(RETURN);
+    jvm:visitMaxStackValues(paramTypes.length() + 5, 10);
+    jvm:visitMethodEnd();
+}
+
+function generateCast(int paramIndex, bir:BType targetType) {
+    // load BValue array
+    jvm:visitVariableInstruction(ALOAD, 1);
+
+    // load value[i]
+    jvm:visitLoadConstantInstruction(paramIndex);
+    jvm:visitNoOperandInstruction(L2I);
+    jvm:visitNoOperandInstruction(AALOAD);
+
+    jvm:visitTypeInstruction(CHECKCAST, "org/ballerinalang/model/values/BValueType");
+    if (targetType is bir:BTypeInt) {
+        jvm:visitMethodInstruction(INVOKEVIRTUAL, "org/ballerinalang/model/values/BValueType", "intValue", "()J", false);
+    } else if (targetType is bir:BTypeString) {
+        jvm:visitMethodInstruction(INVOKEVIRTUAL, "org/ballerinalang/model/values/BValueType", "stringValue", "()Ljava/lang/String;", false);
+    } else if (targetType is bir:BTypeBoolean) {
+        jvm:visitMethodInstruction(INVOKEVIRTUAL, "org/ballerinalang/model/values/BValueType", "booleanValue", "()Z", false);
+    } else {
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
+        panic err;
+    }
+}
+
+function generateGetParamsMethod(bir:Function mainFunc) {
+    jvm:visitMethodInit(ACC_PUBLIC, "__getMainFuncParams", "()[Lorg/ballerinalang/model/types/BType;");
+
+    bir:BType[] paramTypes = mainFunc.typeValue.paramTypes;
+    jvm:visitLoadConstantInstruction(paramTypes.length());
+    jvm:visitNoOperandInstruction(L2I);
+    jvm:visitTypeInstruction(ANEWARRAY, "org/ballerinalang/model/types/BType");
+    jvm:visitVariableInstruction(ASTORE, 1);
+
+    int i = 0;
+    foreach var paramType in paramTypes {
+        jvm:visitVariableInstruction(ALOAD, 1);
+        jvm:visitLoadConstantInstruction(i);
+        jvm:visitNoOperandInstruction(L2I);
+
+        string typeFieldName = getBType(paramType);
+        jvm:visitFieldInstruction(GETSTATIC, "org/ballerinalang/model/types/BTypes", typeFieldName, 
+                "Lorg/ballerinalang/model/types/BType;");
+        jvm:visitNoOperandInstruction(AASTORE);
+        i += 1;
+    }
+
+    jvm:visitVariableInstruction(ALOAD, 1);
+    jvm:visitNoOperandInstruction(ARETURN);
+    jvm:visitMaxStackValues(paramTypes.length() + 5, 2);
+    jvm:visitMethodEnd();
+}
+
+function getBType(bir:BType bType) returns string {
+    if (bType is bir:BTypeInt) {
+        return "typeInt";
+    } else if (bType is bir:BTypeString) {
+        return "typeString";
+    } else if (bType is bir:BTypeBoolean) {
+        return "typeBoolean";
+    } else {
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
+        panic err;
+    }
 }
 
 type BalToJVMIndexMap object {

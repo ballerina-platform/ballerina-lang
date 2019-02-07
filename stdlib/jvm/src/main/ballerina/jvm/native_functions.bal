@@ -48,3 +48,5 @@ public extern function visitJumpInstruction(int jumpType, string labelId);
 public extern function visitMaxStackValues(int maxStack, int maxLocal);
 
 public extern function getClassFileContent() returns byte[];
+
+public extern function visitFieldInstruction(int opcode, string className, string fieldName, string fieldDescriptor);
