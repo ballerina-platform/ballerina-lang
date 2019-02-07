@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -82,6 +83,9 @@ public class GlobalVariableRefAnalyzer {
 
     /**
      * Analyze the global variable references and reorder them or emit error if they contain cyclic references.
+     *
+     * @param pkgNode package to be analyzed.
+     * @param globalNodeDependsOn symbol dependency relationship.
      */
     public void analyzeAndReOrder(BLangPackage pkgNode, Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
         this.pkgNode = pkgNode;
@@ -236,18 +240,21 @@ public class GlobalVariableRefAnalyzer {
     }
 
     private List<BSymbol> getGlobalVariablesAndDependentFunctions() {
-        List<BSymbol> globalVars = this.pkgNode.globalVars.stream()
-                .filter(v -> v.symbol != null)
-                .map(v -> v.symbol)
-                .collect(Collectors.toCollection(ArrayList::new));
+        List<BSymbol> dependents = new ArrayList<>();
 
-        List<BSymbol> funcs = this.globalNodeDependsOn.keySet().stream()
-                .filter(symbol -> !globalVars.contains(symbol))
-                .collect(Collectors.toList());
+        for (BSymbol s : globalNodeDependsOn.keySet()) {
+            if ((s.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
+                dependents.add(s);
+            }
+        }
 
-        funcs.addAll(globalVars);
+        for (BLangSimpleVariable var : this.pkgNode.globalVars) {
+            if (var.symbol != null) {
+                dependents.add(var.symbol);
+            }
+        }
 
-        return funcs;
+        return dependents;
     }
 
     private void moveAndAppendToSortedList(BSymbol symbol, List<BSymbol> moveFrom, Set<BSymbol> sorted) {
@@ -276,35 +283,39 @@ public class GlobalVariableRefAnalyzer {
         }
         // Cycle detected.
         if (node.id == node.lowLink) {
-            List<NodeInfo> cycle = new ArrayList<>();
-
-            while (!nodeInfoStack.isEmpty()) {
-                NodeInfo cNode = nodeInfoStack.pop();
-                cNode.onStack = false;
-                cNode.lowLink = node.id;
-                cycle.add(cNode);
-                if (cNode.id == node.id) {
-                    break;
-                }
-            }
-            cycles.add(cycle);
-            if (cycle.size() > 1) {
-                cycle = new ArrayList<>(cycle);
-                Collections.reverse(cycle);
-                List<BSymbol> symbolsOfCycle = cycle.stream()
-                        .map(n -> n.symbol)
-                        .collect(Collectors.toList());
-
-                if (doesContainAGlobalVar(symbolsOfCycle)) {
-                    emitError(symbolsOfCycle);
-                }
-            }
+            handleCyclicReferenceError(node);
         }
         dependencyOrder.add(node);
         return node.lowLink;
     }
 
-    private void emitError(List<BSymbol> symbolsOfCycle) {
+    private void handleCyclicReferenceError(NodeInfo node) {
+        List<NodeInfo> cycle = new ArrayList<>();
+
+        while (!nodeInfoStack.isEmpty()) {
+            NodeInfo cNode = nodeInfoStack.pop();
+            cNode.onStack = false;
+            cNode.lowLink = node.id;
+            cycle.add(cNode);
+            if (cNode.id == node.id) {
+                break;
+            }
+        }
+        cycles.add(cycle);
+        if (cycle.size() > 1) {
+            cycle = new ArrayList<>(cycle);
+            Collections.reverse(cycle);
+            List<BSymbol> symbolsOfCycle = cycle.stream()
+                    .map(n -> n.symbol)
+                    .collect(Collectors.toList());
+
+            if (doesContainAGlobalVar(symbolsOfCycle)) {
+                emitErrorMessage(symbolsOfCycle);
+            }
+        }
+    }
+
+    private void emitErrorMessage(List<BSymbol> symbolsOfCycle) {
         Optional<BSymbol> firstGlobalVar = symbolsOfCycle.stream().filter(s -> s.kind != SymbolKind.FUNCTION).findAny();
         if (!firstGlobalVar.isPresent()) {
             return;

@@ -186,7 +186,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -216,7 +215,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private Map<BSymbol, InitStatus> uninitializedVars;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
-    private Set<BSymbol> globalVarSymbols;
     private boolean flowTerminated = false;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
@@ -251,7 +249,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.uninitializedVars = new HashMap<>();
         this.globalNodeDependsOn = new LinkedHashMap<>();
-        this.globalVarSymbols = new HashSet<>();
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
         return pkgNode;
@@ -270,7 +267,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 sortedListOfNodes.add(topLevelNode);
             }
         });
-        pkgNode.globalVars.forEach(var -> globalVarSymbols.add(var.symbol));
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
@@ -563,14 +559,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) invocationExpr.symbol;
             BSymbol curDependent = this.currDependentSymbol.peek();
-            if (curDependent != null && isGlobalVar(curDependent)) {
+            if (curDependent != null && isGlobalVarSymbol(curDependent)) {
                 addDependency(curDependent, invokableProviderSymbol);
             }
         }
     }
 
-    private boolean isGlobalVar(BSymbol symbol) {
-        return globalVarSymbols.contains(symbol);
+    private boolean isGlobalVarSymbol(BSymbol symbol) {
+        return symbol.owner.tag == SymTag.PACKAGE &&
+                (symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE;
     }
 
     /**
@@ -1152,7 +1149,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkVarRef(BSymbol symbol, DiagnosticPos pos) {
-        observeGlobalVariableReference(symbol);
+        recordGlobalVariableReferenceRelationship(symbol);
 
         InitStatus initStatus = this.uninitializedVars.get(symbol);
         if (initStatus == null) {
@@ -1167,14 +1164,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.dlog.error(pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, symbol.name);
     }
 
-    private void observeGlobalVariableReference(BSymbol symbol) {
+    private void recordGlobalVariableReferenceRelationship(BSymbol symbol) {
         BSymbol ownerSymbol = this.env.scope.owner;
         boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
         // Restrict to observations made in pkg level.
-        if (isInPkgLevel && isGlobalVar(symbol)) {
+        if (isInPkgLevel && isGlobalVarSymbol(symbol)) {
             BSymbol dependent = this.currDependentSymbol.peek();
             addDependency(dependent, symbol);
-        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && isGlobalVar(symbol)) {
+        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && isGlobalVarSymbol(symbol)) {
             // Global variable ref from non package level.
             BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) ownerSymbol;
             addDependency(invokableOwnerSymbol, symbol);
