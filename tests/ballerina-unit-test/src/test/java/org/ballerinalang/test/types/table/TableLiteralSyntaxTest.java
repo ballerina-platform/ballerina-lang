@@ -166,6 +166,10 @@ public class TableLiteralSyntaxTest {
         byte[] byteArrExpected = ByteArrayUtils.decodeBase64(b64);
         BValueArray byteArrReturned = (BValueArray) returns[5];
         ByteArrayUtils.assertJBytesWithBBytes(byteArrExpected, byteArrReturned);
+        //Decimal Array
+        BValueArray retDecimalArrValue = (BValueArray) returns[6];
+        Assert.assertEquals(retDecimalArrValue.getRefValue(0).value(), new BigDecimal("11.11"));
+        Assert.assertEquals(retDecimalArrValue.getRefValue(1).value(), new BigDecimal("22.22"));
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")
