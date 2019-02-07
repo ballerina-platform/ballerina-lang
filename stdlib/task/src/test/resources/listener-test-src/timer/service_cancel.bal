@@ -35,9 +35,9 @@ service timerService on timer {
         if (count == 3) {
             var result = timer.cancel();
             if (result is error) {
-                count = 10;
+                count = -1000;
             } else {
-                count = 20;
+                count = 1000;
             }
         }
     }

@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -38,18 +39,19 @@ public class AppointmentTest {
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
-            return (((BInteger) configs[0]).intValue() == 3);
+            return (((BInteger) configs[0]).intValue() > 3);
         });
     }
 
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testDynamicService() {
         CompileResult compileResult = BCompileUtil.compileAndSetup("listener-test-src/appointment/dynamic_service.bal");
-        BRunUtil.invoke(compileResult, "main");
+        BValue[] inputs = {new BString("0/2 * * * * ?")};
+        BRunUtil.invoke(compileResult, "runService", inputs);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
-            return (((BInteger) configs[0]).intValue() == 3);
+            return (((BInteger) configs[0]).intValue() > 3);
         });
     }
 }

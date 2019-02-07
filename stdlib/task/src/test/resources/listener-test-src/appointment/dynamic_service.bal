@@ -16,8 +16,8 @@
 
 import ballerina/task;
 
-public function main() {
-    task:Listener appointment = new({ cronExpression: "* * * * * ? *" });
+function runService(string cronExpression) {
+    task:Listener appointment = new({ cronExpression: cronExpression });
     var result = appointment.attach(appointmentService);
     result = appointment.start();
 }

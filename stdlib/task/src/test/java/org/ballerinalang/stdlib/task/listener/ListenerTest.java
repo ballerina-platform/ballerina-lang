@@ -44,7 +44,7 @@ public class ListenerTest {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() == 3);
+            return (((BInteger) count[0]).intValue() > 3);
         });
     }
 
@@ -56,7 +56,7 @@ public class ListenerTest {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() == 3);
+            return (((BInteger) count[0]).intValue() > 3);
         });
     }
 
@@ -85,7 +85,7 @@ public class ListenerTest {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() == 3);
+            return (((BInteger) count[0]).intValue() > 3);
         });
     }
 
@@ -107,7 +107,7 @@ public class ListenerTest {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() == 20);
+            return (((BInteger) count[0]).intValue() == 1000);
         });
     }
 
