@@ -59,4 +59,9 @@ public class TaskConstants {
     public static final String TASK_IS_PAUSED_FIELD = "isPaused";
 
     public static final int TASK_STRUCT_POSITION_VALUE = 0;
+
+    public static final String APPOINTMENT_SERVICE_OBJECT = "ballerina.service";
+    public static final String APPOINTMENT_PARENT_CONTEXT = "ballerina.parent.context";
+    public static final String APPOINTMENT_ON_TRIGGER_FUNCTION = "ballerina.onTriggerFunction";
+    public static final String APPOINTMENT_ON_ERROR_FUNCTION = "ballerina.onErrorFunction";
 }

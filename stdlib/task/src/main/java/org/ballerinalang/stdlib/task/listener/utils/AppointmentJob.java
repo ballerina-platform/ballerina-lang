@@ -25,10 +25,10 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
-import static org.ballerinalang.stdlib.task.listener.utils.AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION;
-import static org.ballerinalang.stdlib.task.listener.utils.AppointmentConstants.BALLERINA_ON_TRIGGER_FUNCTION;
-import static org.ballerinalang.stdlib.task.listener.utils.AppointmentConstants.BALLERINA_PARENT_CONTEXT;
-import static org.ballerinalang.stdlib.task.listener.utils.AppointmentConstants.BALLERINA_SERVICE_OBJECT;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_ON_ERROR_FUNCTION;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_ON_TRIGGER_FUNCTION;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_PARENT_CONTEXT;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_SERVICE_OBJECT;
 
 /**
  * Represents a Quartz job related to an appointment.
@@ -41,10 +41,10 @@ public class AppointmentJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
-        Context balParentContext = (Context) jobDataMap.get(BALLERINA_PARENT_CONTEXT);
-        FunctionInfo onTriggerFunction = (FunctionInfo) jobDataMap.get(BALLERINA_ON_TRIGGER_FUNCTION);
-        FunctionInfo onErrorFunction = (FunctionInfo) jobDataMap.get(BALLERINA_ON_ERROR_FUNCTION);
-        Service service = (Service) jobDataMap.get(BALLERINA_SERVICE_OBJECT);
+        Context balParentContext = (Context) jobDataMap.get(APPOINTMENT_PARENT_CONTEXT);
+        FunctionInfo onTriggerFunction = (FunctionInfo) jobDataMap.get(APPOINTMENT_ON_TRIGGER_FUNCTION);
+        FunctionInfo onErrorFunction = (FunctionInfo) jobDataMap.get(APPOINTMENT_ON_ERROR_FUNCTION);
+        Service service = (Service) jobDataMap.get(APPOINTMENT_SERVICE_OBJECT);
 
         TaskExecutor.execute(balParentContext, onTriggerFunction, onErrorFunction, service);
     }
