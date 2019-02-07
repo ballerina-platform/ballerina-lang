@@ -566,7 +566,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isGlobalVarSymbol(BSymbol symbol) {
-        return symbol.owner.tag == SymTag.PACKAGE &&
+        return symbol != null &&
+                symbol.owner != null &&
+                symbol.owner.tag == SymTag.PACKAGE &&
                 (symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE;
     }
 
