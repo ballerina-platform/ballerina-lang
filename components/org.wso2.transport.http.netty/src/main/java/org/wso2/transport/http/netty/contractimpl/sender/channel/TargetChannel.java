@@ -45,7 +45,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.InetSocketAddress;
 import java.util.Locale;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -70,7 +69,7 @@ public class TargetChannel {
 
     private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
     private HttpResponseFuture httpInboundResponseFuture;
-    private UUID clientId;
+    private String trgHlrConnPoolId;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
@@ -116,12 +115,12 @@ public class TargetChannel {
         return httpRoute;
     }
 
-    public UUID getClientId() {
-        return clientId;
+    public String getTrgHlrConnPoolId() {
+        return trgHlrConnPoolId;
     }
 
-    public void setClientId(UUID clientId) {
-        this.clientId = clientId;
+    public void setTrgHlrConnPoolId(String trgHlrConnPoolId) {
+        this.trgHlrConnPoolId = trgHlrConnPoolId;
     }
 
     public SourceHandler getCorrelatedSource() {

@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
+    private final String connectionManagerId;
 
     private PoolConfiguration poolConfiguration;
     private final Map<String, GenericObjectPool> connGlobalPool;
@@ -51,6 +52,7 @@ public class ConnectionManager {
         if (poolConfiguration.getNumberOfPools() == 1) {
             this.poolManagementPolicy = PoolManagementPolicy.LOCK_DEFAULT_POOLING;
         }
+        this.connectionManagerId = "-" + UUID.randomUUID().toString();
     }
 
     private GenericObjectPool createPoolForRoute(PoolableTargetChannelFactory poolableTargetChannelFactory) {
@@ -60,7 +62,7 @@ public class ConnectionManager {
     public void returnChannel(TargetChannel targetChannel) throws Exception {
         if (targetChannel.getCorrelatedSource() != null) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
-            releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getClientId().toString()));
+            releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getTrgHlrConnPoolId()));
         } else {
             releaseChannelToPool(targetChannel, this.connGlobalPool.get(targetChannel.getHttpRoute().toString()));
         }
@@ -87,13 +89,13 @@ public class ConnectionManager {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             try {
                 // Need a null check because SourceHandler side could timeout before TargetHandler side.
-                String clientId = targetChannel.getClientId().toString();
-                if (objectPoolMap.get(clientId) != null) {
+                String poolId = targetChannel.getTrgHlrConnPoolId();
+                if (objectPoolMap.containsKey(poolId)) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Invalidating connection {} to the pool",
                                   targetChannel.getChannel().id().asShortText());
                     }
-                    objectPoolMap.get(clientId).invalidateObject(targetChannel);
+                    objectPoolMap.get(poolId).invalidateObject(targetChannel);
                 }
             } catch (Exception e) {
                 throw new Exception("Cannot invalidate channel from pool", e);
@@ -136,41 +138,38 @@ public class ConnectionManager {
      * @param senderConfig      Represents the client configurations
      * @param bootstrapConfig   Represents the bootstrap info related to client connection creation
      * @param clientEventGroup  Represents the eventloop group that the client channel should be bound to
-     * @param clientId          Represents the unique id for client
      * @return the target channel which is requested for given parameters.
      * @throws Exception to notify any errors occur during retrieving the target channel
      */
     public TargetChannel borrowTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
                                              SenderConfiguration senderConfig, BootstrapConfiguration bootstrapConfig,
-                                             EventLoopGroup clientEventGroup, UUID clientId) throws Exception {
+                                             EventLoopGroup clientEventGroup) throws Exception {
         GenericObjectPool trgHlrConnPool;
+        String trgHlrConnPoolId = httpRoute.toString() + connectionManagerId;
 
         if (sourceHandler != null) {
-            EventLoopGroup group;
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
-            group = ctx.channel().eventLoop();
+            EventLoopGroup group = ctx.channel().eventLoop();
             Class eventLoopClass = ctx.channel().getClass();
 
             if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
-                // This is faster than the above one (about 2k difference)
                 Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
-                trgHlrConnPool = srcHlrConnPool.get(clientId.toString());
+                trgHlrConnPool = srcHlrConnPool.get(trgHlrConnPoolId);
                 if (trgHlrConnPool == null) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
                             new PoolableTargetChannelFactory(group, eventLoopClass, httpRoute, senderConfig,
                                                              bootstrapConfig, this);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
-                    srcHlrConnPool.put(clientId.toString(), trgHlrConnPool);
+                    srcHlrConnPool.put(trgHlrConnPoolId, trgHlrConnPool);
                 }
             } else {
                 Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
-                trgHlrConnPool = srcHlrConnPool.get(clientId.toString());
+                trgHlrConnPool = srcHlrConnPool.get(trgHlrConnPoolId);
                 if (trgHlrConnPool == null) {
                     synchronized (this) {
                         if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                             PoolableTargetChannelFactory poolableTargetChannelFactory =
-                                    new PoolableTargetChannelFactory(group,
-                                                                     eventLoopClass, httpRoute, senderConfig,
+                                    new PoolableTargetChannelFactory(group, eventLoopClass, httpRoute, senderConfig,
                                                                      bootstrapConfig, this);
                             trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                             this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
@@ -178,17 +177,16 @@ public class ConnectionManager {
                         trgHlrConnPool = this.connGlobalPool.get(httpRoute.toString());
                         trgHlrConnPool = createPoolForRoutePerSrcHndlr(trgHlrConnPool);
                     }
-                    srcHlrConnPool.put(clientId.toString(), trgHlrConnPool);
+                    srcHlrConnPool.put(trgHlrConnPoolId, trgHlrConnPool);
                 }
             }
         } else {
             Class cl = NioSocketChannel.class;
-            EventLoopGroup group = clientEventGroup;
             synchronized (this) {
                 if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
-                            new PoolableTargetChannelFactory(group, cl,
-                                                             httpRoute, senderConfig, bootstrapConfig, this);
+                            new PoolableTargetChannelFactory(clientEventGroup, cl, httpRoute, senderConfig,
+                                                             bootstrapConfig, this);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
@@ -199,7 +197,7 @@ public class ConnectionManager {
         TargetChannel targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
         targetChannel.setCorrelatedSource(sourceHandler);
         targetChannel.setConnectionManager(this);
-        targetChannel.setClientId(clientId);
+        targetChannel.setTrgHlrConnPoolId(trgHlrConnPoolId);
         return targetChannel;
     }
 
