@@ -23,11 +23,11 @@
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
         <version>0.990.3-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>spec-conformance-tests</artifactId>
+    <artifactId>ballerina-spec-conformance-tests</artifactId>
     <packaging>pom</packaging>
 
     <name>Ballerina - Spec Conformance Tests</name>
@@ -44,7 +44,7 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-                                <unzip src="${basedir}/../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip" dest="${project.build.directory}" />
+                                <unzip src="${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip" dest="${project.build.directory}" />
                             </tasks>
                         </configuration>
                         <goals>
@@ -90,15 +90,15 @@
                                             <structure name="Ballerina Coverage Report">
                                                 <group name="ballerina">
                                                     <classfiles>
-                                                        <fileset dir="${project.build.directory}/../../bvm/ballerina-core/target/classes"/>
-                                                        <fileset dir="${project.build.directory}/../../compiler/ballerina-lang/target/classes">
+                                                        <fileset dir="${project.build.directory}/../../../bvm/ballerina-core/target/classes"/>
+                                                        <fileset dir="${project.build.directory}/../../../compiler/ballerina-lang/target/classes">
                                                             <exclude
                                                                     name="org/wso2/ballerinalang/compiler/parser/antlr4/*"/>
                                                         </fileset>
                                                     </classfiles>
                                                     <sourcefiles encoding="UTF-8">
-                                                        <fileset dir="${project.build.directory}/../../bvm/ballerina-core/src/main/java"/>
-                                                        <fileset dir="${project.build.directory}/../../compiler/ballerina-lang/src/main/java"/>
+                                                        <fileset dir="${project.build.directory}/../../../bvm/ballerina-core/src/main/java"/>
+                                                        <fileset dir="${project.build.directory}/../../../compiler/ballerina-lang/src/main/java"/>
                                                     </sourcefiles>
                                                 </group>
                                             </structure>
@@ -149,17 +149,6 @@
                         <argument>${project.version}</argument>
                         <argument>${jacoco.agent.argLine}</argument>
                     </arguments>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemPropertyVariables>
-                        <ballerina.agent.path>
-                            ${project.build.directory}/ballerina-integration-test-utils-${project.version}.jar
-                        </ballerina.agent.path>
-                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
