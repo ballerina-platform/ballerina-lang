@@ -33,8 +33,19 @@ import static org.awaitility.Awaitility.await;
 
 public class AppointmentTest {
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
-    public void testCreateTimer() {
+    public void testCreateAppointment() {
         CompileResult compileResult = BCompileUtil.compileAndSetup("listener-test-src/appointment/simple_service.bal");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(configs.length, 1);
+            return (((BInteger) configs[0]).intValue() == 3);
+        });
+    }
+
+    @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
+    public void testDynamicService() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup("listener-test-src/appointment/dynamic_service.bal");
+        BRunUtil.invoke(compileResult, "main");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
