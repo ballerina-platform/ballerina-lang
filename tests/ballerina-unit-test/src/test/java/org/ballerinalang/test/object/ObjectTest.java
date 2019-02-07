@@ -653,4 +653,15 @@ public class ObjectTest {
         BAssertUtil.validateError(result, i,
                 "undefined function 'decrementAndUpdateSalary' in object 'Person'", 54, 13);
     }
+
+    @Test
+    public void testAbstractClientObject() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_client_object_method.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAbstractClientObject");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 15000);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 12500);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 15000);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 12500);
+    }
 }

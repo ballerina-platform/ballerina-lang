@@ -37,6 +37,7 @@ public class AbstractObjectTest {
     public void testAbstractObjectNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
+        Assert.assertEquals(negativeResult.getErrorCount(), 13);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 8, 18);
@@ -57,6 +58,8 @@ public class AbstractObjectTest {
                 "can not be declared as private", 80, 5);
         BAssertUtil.validateError(negativeResult, index++, "cannot find function signature for function 'getName' in " +
                 "object 'Bar'", 87, 1);
+        BAssertUtil.validateError(negativeResult, index,
+                "extern function: 'getName' not allowed in abstract object 'Person7'", 93, 5);
     }
 
     @Test

@@ -66,6 +66,7 @@ public enum DiagnosticCode {
     PRIVATE_OBJECT_CONSTRUCTOR("private.object.constructor"),
     PRIVATE_FIELD_ABSTRACT_OBJECT("private.field.abstract.object"),
     PRIVATE_FUNC_ABSTRACT_OBJECT("private.function.abstract.object"),
+    EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
