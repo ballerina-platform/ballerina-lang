@@ -22,9 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentConstants;
+import org.ballerinalang.stdlib.task.listener.utils.AppointmentJob;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentManager;
 import org.ballerinalang.stdlib.task.listener.utils.ResourceFunctionHolder;
-import org.ballerinalang.stdlib.task.listener.utils.TaskIdGenerator;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.JobDataMap;
@@ -36,9 +36,8 @@ import java.util.ArrayList;
  * Represents an appointment.
  */
 public class Appointment extends AbstractTask {
-
-    private String id = TaskIdGenerator.generate();
     private String cronExpression;
+    boolean isPaused = false;
 
     public Appointment(Context context, String cronExpression, Service service) {
         super(service);
@@ -71,7 +70,9 @@ public class Appointment extends AbstractTask {
      */
     @Override
     public void pause() throws SchedulingException {
-
+        if (isPaused) {
+            throw new SchedulingException("Appointment " + this.getId() + " is already paused.");
+        }
     }
 
     /**

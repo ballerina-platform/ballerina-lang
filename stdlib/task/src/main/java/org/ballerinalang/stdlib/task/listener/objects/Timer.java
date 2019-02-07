@@ -95,7 +95,7 @@ public class Timer extends AbstractTask {
     @Override
     public void pause() throws SchedulingException {
         if (this.isPaused) {
-            throw new SchedulingException("Timer is already paused");
+            throw new SchedulingException("Timer" + this.getId() + "is already paused");
         }
         this.isPaused = true;
     }
