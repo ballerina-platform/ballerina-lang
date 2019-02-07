@@ -14,6 +14,9 @@ configurations {
     tools {
         transitive false
     }
+    toolsZip {
+        transitive false
+    }
 }
 
 dependencies {
@@ -38,8 +41,9 @@ dependencies {
     dist project(':swagger-ballerina:swagger-to-ballerina-generator');
     dist project(':docerina');
 
-    tools project(':language-server:language-server-core');
+    toolsZip project(path: ':language-server:language-server-core', configuration: 'dist');
     tools project(':language-server:language-server-stdio-launcher');
+    tools project(path: ':language-server:language-server-core');
 }
 
 def basePath = '/' + project.name + '-' + project.version + '/'
@@ -60,16 +64,30 @@ CopySpec copyBinSpec = copySpec {
     into(basePath + 'bin')
 }
 
+CopySpec copyToolsBin = copySpec {
+    from ('resources')
+    into(basePath + 'lib/tools/lang-server/launcher')
+}
+
+CopySpec copyToolsZipSpec = copySpec {
+    configurations.toolsZip.asFileTree.each {
+        println(zipTree(it))
+        from(zipTree(it))
+    }
+    into(basePath + 'lib/tools/lang-server')
+}
+
 CopySpec copyToolsSpec = copySpec {
     from configurations.tools
     into(basePath + 'lib/tools/lang-server/lib')
 }
-
 task createZip(type: Zip) {
     with copyJarSpec
     with copyBaloSpec
     with copyBinSpec
     with copyToolsSpec
+    with copyToolsZipSpec
+    with copyToolsBin
 }
 
 build {
