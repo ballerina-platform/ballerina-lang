@@ -24,6 +24,11 @@ import java.util.UUID;
  */
 public class TaskIdGenerator {
 
+    /**
+     * Generate a unique ID for a Task.
+     *
+     * @return String value of the generated UUID.
+     */
     public static String generate() {
         return UUID.randomUUID().toString();
     }

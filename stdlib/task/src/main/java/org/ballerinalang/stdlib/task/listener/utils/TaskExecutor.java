@@ -51,6 +51,7 @@ public class TaskExecutor {
             return;
         }
 
+        // Get resource functions from service
         ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(service);
         FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
         FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();

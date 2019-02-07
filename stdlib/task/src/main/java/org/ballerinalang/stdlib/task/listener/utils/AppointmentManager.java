@@ -38,6 +38,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
  * Manages appointments.
  */
 public class AppointmentManager {
+
     private static final AppointmentManager instance = new AppointmentManager();
 
     // Ballerina task ID to Quart JobKey map
@@ -54,20 +55,39 @@ public class AppointmentManager {
         }
     }
 
+    /**
+     * Get singleton Appointment Manager instance.
+     *
+     * @return Appointment Manager Instance.
+     */
     public static AppointmentManager getInstance() {
         return instance;
     }
 
+    /**
+     * Schedule an Appointment.
+     *
+     * @param taskId         Task appointment ID which is going to be scheduled.
+     * @param jobClass       Schedule Job class.
+     * @param jobData        Map containing the details of the job.
+     * @param cronExpression Cron expression in which the Appointment is scheduled.
+     * @throws SchedulerException if scheduling is failed.
+     */
     public void schedule(String taskId, Class<? extends Job> jobClass, JobDataMap jobData, String cronExpression)
             throws SchedulerException {
         JobDetail job = newJob(jobClass).usingJobData(jobData).withIdentity(taskId).build();
         CronTrigger trigger = newTrigger().withIdentity(taskId).withSchedule(cronSchedule(cronExpression))
-                        .build();
+                .build();
 
         scheduler.scheduleJob(job, trigger);
         quartzJobs.put(taskId, job.getKey());
     }
 
+    /**
+     * Stops the scheduled Appointment.
+     *
+     * @param taskId ID of the task which should be stopped.
+     */
     public void stop(String taskId) {
         if (quartzJobs.containsKey(taskId)) {
             try {

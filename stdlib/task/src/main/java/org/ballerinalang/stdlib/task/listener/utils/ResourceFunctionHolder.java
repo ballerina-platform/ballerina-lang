@@ -22,7 +22,6 @@ package org.ballerinalang.stdlib.task.listener.utils;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Objects;
 
@@ -30,14 +29,19 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURC
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 
 /**
- * Object to store <code>onError</code> and <code>onTrigger</code> function information.
+ * Class to extract the resource functions from a service.
  */
 public class ResourceFunctionHolder {
 
     private FunctionInfo onTriggerFunction = null;
     private FunctionInfo onErrorFunction = null;
 
-    public ResourceFunctionHolder(Service service) throws BLangRuntimeException {
+    /**
+     * Creates a resource function holder from a service object.
+     *
+     * @param service Ballerina service object from which the resource functions should be extracted.
+     */
+    public ResourceFunctionHolder(Service service) {
         String onErrorResourceFullName = getResourceFullName(service.getBValue().getType(), RESOURCE_ON_ERROR);
         String onTriggerResourceFullName = getResourceFullName(service.getBValue().getType(), RESOURCE_ON_TRIGGER);
 
@@ -49,15 +53,31 @@ public class ResourceFunctionHolder {
         }
     }
 
+    /**
+     * Get the <code>onTrigger</code> function
+     *
+     * @return onTrigger function related to the service.
+     */
     public FunctionInfo getOnTriggerFunction() {
         return this.onTriggerFunction;
     }
 
+    /**
+     * Get the <code>onError</code> function
+     *
+     * @return onError function related to the service.
+     */
     public FunctionInfo getOnErrorFunction() {
         return this.onErrorFunction;
     }
 
-    // Resources now have full name, hence we need to build full name for validate resource.
+    /**
+     * Buildup the full name of a resource function.
+     *
+     * @param serviceType  Ballerina service type.
+     * @param resourceName Particular resource name to build up the full name.
+     * @return Full name of the resource function.
+     */
     private String getResourceFullName(BType serviceType, String resourceName) {
         return serviceType.getName() + "." + resourceName;
     }

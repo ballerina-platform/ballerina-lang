@@ -35,6 +35,9 @@ public class AppointmentJob implements Job {
     public AppointmentJob() {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();

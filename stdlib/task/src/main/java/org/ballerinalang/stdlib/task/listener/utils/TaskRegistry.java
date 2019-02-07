@@ -35,16 +35,33 @@ public class TaskRegistry {
     private TaskRegistry() {
     }
 
+    /**
+     * Get singleton Task Registry instance.
+     *
+     * @return Task Registry instance.
+     */
     public static TaskRegistry getInstance() {
         return instance;
     }
 
+    /**
+     * Add a task to the registery.
+     *
+     * @param task task to be added to the registry.
+     */
     public void addTask(Task task) {
         String taskId = task.getId();
         checkDuplicateTask(taskId);
         taskMap.put(taskId, task);
     }
 
+    /**
+     * Checks fro a task is available in the registry, and return it.
+     *
+     * @param taskID Task ID to look for.
+     * @return Task object with the provided ID.
+     * @throws SchedulingException if the task with provided ID does not found.
+     */
     public Task getTask(String taskID) throws SchedulingException {
         if (Objects.nonNull(taskMap.get(taskID))) {
             return taskMap.get(taskID);
@@ -53,12 +70,23 @@ public class TaskRegistry {
         }
     }
 
+    /**
+     * Check for a task is already available with the same ID.
+     *
+     * @param taskId Task ID to look for.
+     */
     private void checkDuplicateTask(String taskId) {
         if (taskMap.containsKey(taskId)) {
             throw new IllegalArgumentException("Task with ID " + taskId + " already exists");
         }
     }
 
+    /**
+     * Removes a Task from the registry.
+     *
+     * @param taskId ID of the task to be removed.
+     * @throws SchedulingException if a task is not available with the provided ID.
+     */
     public void remove(String taskId) throws SchedulingException {
         if (taskMap.containsKey(taskId)) {
             taskMap.remove(taskId);
