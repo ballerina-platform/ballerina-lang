@@ -31,6 +31,7 @@ import org.ballerinalang.stdlib.task.listener.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.listener.impl.TaskServerConnectorImpl;
 
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_PAUSED_FIELD;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_POSITION_VALUE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
@@ -56,9 +57,9 @@ public class Start extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
-        String taskId = task.get(TIMER_TASK_ID_FIELD).stringValue();
-        boolean isRunning = ((BBoolean) task.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_POSITION_VALUE);
+        String taskId = taskStruct.get(TIMER_TASK_ID_FIELD).stringValue();
+        boolean isRunning = ((BBoolean) taskStruct.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
         if (isRunning) {
             String errorMessage = "Cannot start the task:" + " Task is already running.";
             context.setReturnValues(createError(context, errorMessage));
@@ -67,8 +68,8 @@ public class Start extends BlockingNativeCallableUnit {
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(context, taskId);
         try {
             serverConnector.start();
-            task.put(TIMER_IS_RUNNING_FIELD, new BBoolean(true));
-            task.put(TASK_IS_PAUSED_FIELD, new BBoolean(false));
+            taskStruct.put(TIMER_IS_RUNNING_FIELD, new BBoolean(true));
+            taskStruct.put(TASK_IS_PAUSED_FIELD, new BBoolean(false));
         } catch (SchedulingException e) {
             context.setReturnValues(createError(context, e.getMessage()));
         }

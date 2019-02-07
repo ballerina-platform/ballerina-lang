@@ -30,7 +30,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
-import java.util.ArrayList;
+import static org.quartz.CronExpression.isValidExpression;
 
 /**
  * Represents an appointment.
@@ -38,19 +38,22 @@ import java.util.ArrayList;
 public class Appointment extends AbstractTask {
     private String cronExpression;
 
-    public Appointment(Context context, String cronExpression, Service service) {
-        super(service);
+    public Appointment(Context context, String cronExpression) throws SchedulingException {
+        super();
+        if (!validateCronExpression(cronExpression)) {
+            throw new SchedulingException("Invalid cron expression provided.");
+        }
         TaskRegistry.getInstance().addTask(this);
-
         this.cronExpression = cronExpression;
         this.maxRuns = -1;
     }
 
-    public Appointment(Context context, String cronExpression, Service service, long maxRuns) {
-        super(service, maxRuns);
+    public Appointment(Context context, String cronExpression, long maxRuns)  throws SchedulingException {
+        super();
+        if (!validateCronExpression(cronExpression)) {
+            throw new SchedulingException("Invalid cron expression provided.");
+        }
         TaskRegistry.getInstance().addTask(this);
-        this.serviceList = new ArrayList<>();
-
         this.cronExpression = cronExpression;
         this.maxRuns = maxRuns;
     }
@@ -91,5 +94,9 @@ public class Appointment extends AbstractTask {
         jobData.put(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION, onErrorFunction);
         jobData.put(AppointmentConstants.BALLERINA_SERVICE_OBJECT, service);
         return jobData;
+    }
+
+    private boolean validateCronExpression(String cronExpression) {
+        return isValidExpression(cronExpression);
     }
 }

@@ -38,23 +38,19 @@ public abstract class AbstractTask implements Task {
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
      *
-     * @param service service attached to the task.
      */
-    protected AbstractTask(Service service) {
+    protected AbstractTask() {
         this.serviceList = new ArrayList<>();
-        this.addService(service);
         this.maxRuns = -1;
     }
 
     /**
      * Constructor to create a task with limited (maximum) number of runs.
      *
-     * @param service Service attached to the task.
      * @param maxRuns Maximum number of runs allowed.
      */
-    protected AbstractTask(Service service, long maxRuns) {
+    protected AbstractTask(long maxRuns) {
         this.serviceList = new ArrayList<>();
-        this.addService(service);
         this.maxRuns = maxRuns;
         this.noOfRuns = 0;
     }

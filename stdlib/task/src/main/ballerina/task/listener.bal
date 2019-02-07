@@ -66,6 +66,10 @@ public type Listener object {
             }
         }
         self.listenerConfiguration = configs;
+        var initResult = self.init();
+        if (initResult is error) {
+            panic initResult;
+        }
     }
 
     public function __attach(service s, map<any> annotationData) returns error? {
@@ -79,6 +83,8 @@ public type Listener object {
     public function __stop() returns error? {
         return self.stop();
     }
+
+    extern function init() returns error?;
 
     extern function register(service s, map<any> annotationData) returns error?;
 

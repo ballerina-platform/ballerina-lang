@@ -44,11 +44,10 @@ public class Timer extends AbstractTask {
      * @param context  The ballerina context.
      * @param delay    The initial delay.
      * @param interval The interval between two task executions.
-     * @param service  Service attached to the listener.
      * @throws SchedulingException if cannot create the scheduler.
      */
-    public Timer(Context context, long delay, long interval, Service service) throws SchedulingException {
-        super(service);
+    public Timer(Context context, long delay, long interval) throws SchedulingException {
+        super();
         if (delay < 0 || interval < 0) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
         }
@@ -64,12 +63,11 @@ public class Timer extends AbstractTask {
      * @param context   The ballerina context.
      * @param delay     The initial delay.
      * @param interval  The interval between two task executions.
-     * @param service   Service attached to the listener.
      * @param maxRuns   Number of times after which the timer will turn off.
      * @throws SchedulingException if cannot create the scheduler.
      */
-    public Timer(Context context, long delay, long interval, Service service, long maxRuns) throws SchedulingException {
-        super(service, maxRuns);
+    public Timer(Context context, long delay, long interval, long maxRuns) throws SchedulingException {
+        super(maxRuns);
         if (delay < 0 || interval < 0) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
         }

@@ -55,14 +55,14 @@ public class Stop extends BlockingNativeCallableUnit {
 
     @Override
     public void execute (Context context) {
-        BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
-        boolean isRunning = ((BBoolean) task.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
+        boolean isRunning = ((BBoolean) taskStruct.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
         if (!isRunning) {
             String errorMessage = "Cannot stop the task: Task is not running.";
             context.setReturnValues(createError(context, errorMessage));
             return;
         }
-        String taskId = task.get(TIMER_TASK_ID_FIELD).stringValue();
+        String taskId = taskStruct.get(TIMER_TASK_ID_FIELD).stringValue();
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(context, taskId);
         try {
             serverConnector.stop();
