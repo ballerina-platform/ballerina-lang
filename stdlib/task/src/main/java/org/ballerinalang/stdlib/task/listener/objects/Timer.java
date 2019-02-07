@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.task.listener.objects;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.listener.utils.ResourceFunctionHolder;
 import org.ballerinalang.stdlib.task.listener.utils.TaskExecutor;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -86,9 +85,8 @@ public class Timer extends AbstractTask {
         super.stop();
     }
 
-    private static void callTriggerFunction(Context context, ResourceFunctionHolder functionHolder, Service service) {
-        TaskExecutor.execute(context,
-                functionHolder.getOnTriggerFunction(), functionHolder.getOnErrorFunction(), service);
+    private static void callTriggerFunction(Context context, Service service) {
+        TaskExecutor.execute(context, service);
     }
 
     /**
@@ -107,8 +105,7 @@ public class Timer extends AbstractTask {
             }
             this.noOfRuns++;
             for (Service service : getServices()) {
-                ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(service);
-                callTriggerFunction(context, resourceFunctionHolder, service);
+                callTriggerFunction(context, service);
             }
         };
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
