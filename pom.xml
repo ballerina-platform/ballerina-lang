@@ -1850,6 +1850,7 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
             </modules>
         </profile>
         <profile>
