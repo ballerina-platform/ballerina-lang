@@ -485,12 +485,12 @@ returns error? {
                 log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
                                 + "], topic[" + subscriptionDetails.topic + "]");
             } else {
-                log:printError("Error delievering content to callback[" + callback + "] for topic["
+                log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
         } else {
             string errCause = <string> contentDistributionResponse.detail().message;
-            log:printError("Error delievering content to callback[" + callback + "] for topic["
+            log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: " + errCause);
         }
     }
