@@ -85,7 +85,7 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
                     <Button size="mini" floated="right" onClick={() => {
                         onClose(index);
                     }}>
-                        <i className="fw fw-close icon"></i>
+                        <i className="fw fw-close btn-close"></i>
                     </Button>
                 </div>
                 <Form.Field>

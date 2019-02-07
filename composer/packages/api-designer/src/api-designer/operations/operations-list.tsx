@@ -167,6 +167,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                     <div className="title">
                                         <p>Responses</p>
                                     </div>
+                                    <Divider />
                                     {pathItem[openApiOperation].responses &&
                                         <OpenApiResponseList
                                             responsesList={pathItem[openApiOperation].responses}
