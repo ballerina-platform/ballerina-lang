@@ -35,8 +35,16 @@ import static org.quartz.CronExpression.isValidExpression;
  * Represents an appointment.
  */
 public class Appointment extends AbstractTask {
+
     private String cronExpression;
 
+    /**
+     * Creates an Appointment object with provided cron expression.
+     *
+     * @param context        Ballerina context which creating the Appointment.
+     * @param cronExpression Cron expression for which the Appointment triggers.
+     * @throws SchedulingException When provided cron expression is invalid.
+     */
     public Appointment(Context context, String cronExpression) throws SchedulingException {
         super();
         if (!validateCronExpression(cronExpression)) {
@@ -47,7 +55,16 @@ public class Appointment extends AbstractTask {
         this.maxRuns = -1;
     }
 
-    public Appointment(Context context, String cronExpression, long maxRuns)  throws SchedulingException {
+    /**
+     * Creates an Appointment object with provided cron expression,
+     * which will stop after running provided number of times.
+     *
+     * @param context        Ballerina context which creating the Appointment.
+     * @param cronExpression Cron expression for which the Appointment triggers.
+     * @param maxRuns        Number of times after which the Appointment will cancel.
+     * @throws SchedulingException When provided cron expression is invalid.
+     */
+    public Appointment(Context context, String cronExpression, long maxRuns) throws SchedulingException {
         super();
         if (!validateCronExpression(cronExpression)) {
             throw new SchedulingException("Invalid cron expression provided.");

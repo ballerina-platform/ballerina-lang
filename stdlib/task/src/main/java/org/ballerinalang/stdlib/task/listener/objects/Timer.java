@@ -43,7 +43,7 @@ public class Timer extends AbstractTask {
      * @param context  The ballerina context.
      * @param delay    The initial delay.
      * @param interval The interval between two task executions.
-     * @throws SchedulingException if cannot create the scheduler.
+     * @throws SchedulingException When provided configuration values are invalid.
      */
     public Timer(Context context, long delay, long interval) throws SchedulingException {
         super();
@@ -63,7 +63,7 @@ public class Timer extends AbstractTask {
      * @param delay     The initial delay.
      * @param interval  The interval between two task executions.
      * @param maxRuns   Number of times after which the timer will turn off.
-     * @throws SchedulingException if cannot create the scheduler.
+     * @throws SchedulingException When provided configuration values are invalid.
      */
     public Timer(Context context, long delay, long interval, long maxRuns) throws SchedulingException {
         super(maxRuns);

@@ -32,43 +32,43 @@ public interface Task {
     /**
      * Get the registered ID of the task.
      *
-     * @return  taskId
+     * @return taskId
      */
     String getId();
 
     /**
      * Run all the services attached to the task.
      *
-     * @param context   Ballerina context which runs the services.
-     * @throws SchedulingException  When there is a failure to stop the task after maximum number of runs specified.
+     * @param context Ballerina context which runs the services.
+     * @throws SchedulingException When there is a failure to stop the task after maximum number of runs specified.
      */
     void runServices(Context context) throws SchedulingException;
 
     /**
      * Stop the task.
      *
-     * @throws SchedulingException  If the task cannot be stopped.
+     * @throws SchedulingException If the task cannot be stopped.
      */
     void stop() throws SchedulingException;
 
     /**
      * Get list of attached services of the task.
      *
-     * @return  Services List
+     * @return Services List
      */
     ArrayList<Service> getServices();
 
     /**
      * Add particular service to the registry of the Task.
      *
-     * @param service   Service which needs to be attached to the task.
+     * @param service Service which needs to be attached to the task.
      */
     void addService(Service service);
 
     /**
      * Remove particular service from the registry of the Task.
      *
-     * @param service   Service which needs to be detached from the task.
+     * @param service Service which needs to be detached from the task.
      */
     void removeService(Service service);
 }

@@ -37,7 +37,6 @@ public abstract class AbstractTask implements Task {
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
-     *
      */
     protected AbstractTask() {
         this.serviceList = new ArrayList<>();
