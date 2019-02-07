@@ -297,13 +297,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+                || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE
+                || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
             analyzeDef(typeDefinition.typeNode, env);
         }
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.TYPE);
             annotationAttachment.accept(this);
+        });
+    }
+
+    @Override
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        finiteTypeNode.valueSpace.forEach(val -> {
+            if (val.type.tag == TypeTags.NIL && "null".equals(((BLangLiteral) val).originalValue)) {
+                dlog.error(val.pos, DiagnosticCode.INVALID_USE_OF_NULL_LITERAL);
+            }
         });
     }
 

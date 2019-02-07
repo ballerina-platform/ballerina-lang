@@ -64,3 +64,11 @@ function testNullWithMatch() returns string {
 
     return "";
 }
+
+type Foo2 1|2|null|3|4;
+
+type Foo3 ();
+
+function testNullWithFiniteType() {
+    Foo3 f = null;
+}

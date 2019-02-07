@@ -182,8 +182,8 @@ public class Types {
         return symTable.semanticError;
     }
 
-    public void validateNullLiteralUsage(BLangExpression expr, BType expType) {
-        if (expr.hasNullLiteral && !isJSONContext(expType)) {
+    public void validateNullLiteralUsage(BLangExpression expr, BType targetType) {
+        if (expr.hasNullLiteral && !isJSONContext(targetType)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_USE_OF_NULL_LITERAL);
             expr.hasNullLiteral = false;
         }

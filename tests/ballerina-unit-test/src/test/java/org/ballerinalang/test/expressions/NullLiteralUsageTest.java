@@ -46,7 +46,7 @@ public class NullLiteralUsageTest {
         CompileResult result = BCompileUtil.compile("test-src/expressions/null_literal_usage_negative.bal");
         int index = 0;
 
-        assertEquals(result.getErrorCount(), 14);
+        assertEquals(result.getErrorCount(), 16);
         validateError(result, index++, errorMsg, 17, 13);
         validateError(result, index++, errorMsg, 20, 18);
         validateError(result, index++, errorMsg, 22, 15);
@@ -60,7 +60,9 @@ public class NullLiteralUsageTest {
         validateError(result, index++, errorMsg, 42, 45);
         validateError(result, index++, errorMsg, 50, 20);
         validateError(result, index++, errorMsg, 54, 17);
-        validateError(result, index, errorMsg, 62, 9);
+        validateError(result, index++, errorMsg, 62, 9);
+        validateError(result, index++, errorMsg, 68, 15);
+        validateError(result, index, errorMsg, 73, 14);
     }
 
     @Test

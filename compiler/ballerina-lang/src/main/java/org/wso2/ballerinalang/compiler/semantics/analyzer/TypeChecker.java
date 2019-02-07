@@ -264,6 +264,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Object literalValue = literalExpr.value;
 
+        if (literalType.tag == TypeTags.NIL && "null".equals(literalExpr.originalValue)) {
+            this.hasNullLiteral = true;
+        }
+
         if (literalType.tag == TypeTags.INT) {
             if (expType.tag == TypeTags.FLOAT) {
                 literalType = symTable.floatType;
@@ -314,10 +318,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = literalType;
                 return;
             }
-        }
-
-        if (literalType.tag == TypeTags.NIL && "null".equals(literalExpr.originalValue)) {
-            this.hasNullLiteral = true;
         }
 
         resultType = types.checkType(literalExpr, literalType, expType);
