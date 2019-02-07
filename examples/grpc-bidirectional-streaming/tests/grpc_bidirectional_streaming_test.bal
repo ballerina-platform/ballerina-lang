@@ -8,7 +8,7 @@ ChatClient chatEp = new("http://localhost:9090");
 boolean received = false;
 string responseMsg = "";
 
-//@test:Config
+@test:Config
 function testBidiStreamingService() {
     grpc:StreamingClient ep;
     // Executes unary non-blocking call registering server message listener.
