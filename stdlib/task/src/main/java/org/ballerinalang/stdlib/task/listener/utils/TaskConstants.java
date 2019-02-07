@@ -54,6 +54,7 @@ public class TaskConstants {
     public static final String TASK_ERROR_RECORD = "TaskError";
     public static final String TASK_ERROR_MESSAGE = "message";
 
-    public static final String TASK_TASK_ID_FIELD = "taskId";
+    public static final String TASK_ID_FIELD = "taskId";
     public static final String TASK_IS_RUNNING_FIELD = "isRunning";
+    public static final String TASK_IS_PAUSED_FIELD = "isPaused";
 }

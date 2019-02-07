@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 public class Timer extends AbstractTask {
     private long interval, delay;
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-    private boolean isPaused = false;
 
     /**
      * Creates a Timer object.
@@ -89,28 +88,6 @@ public class Timer extends AbstractTask {
         super.stop();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void pause() throws SchedulingException {
-        if (this.isPaused) {
-            throw new SchedulingException("Timer" + this.getId() + "is already paused");
-        }
-        this.isPaused = true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void resume() throws SchedulingException {
-        if (!this.isPaused) {
-            throw new SchedulingException("Timer is already running.");
-        }
-        this.isPaused = false;
-    }
-
     private static void callTriggerFunction(Context context, ResourceFunctionHolder functionHolder, Service service) {
         TaskExecutor.execute(context,
                 functionHolder.getOnTriggerFunction(), functionHolder.getOnErrorFunction(), service);
@@ -122,9 +99,6 @@ public class Timer extends AbstractTask {
     @Override
     public void runServices(Context context) {
         final Runnable schedulerFunc = () -> {
-            if (this.isPaused) {
-                return;
-            }
             if (this.maxRuns > 0 && this.maxRuns == noOfRuns) {
                 try {
                     this.stop();

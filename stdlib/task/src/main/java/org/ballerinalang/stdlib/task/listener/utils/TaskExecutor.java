@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BMap;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_PAUSED_FIELD;
+
 /**
  * This class invokes the Ballerina onTrigger function, and if an error occurs while invoking that function, it invokes
  * the onError function.
@@ -39,11 +42,16 @@ import java.util.List;
 @SuppressWarnings("Duplicates")
 public class TaskExecutor {
 
-    public static void execute(Context parentCtx, FunctionInfo onTriggerFunction, FunctionInfo onErrorFunction,
+    public static void execute(Context context, FunctionInfo onTriggerFunction, FunctionInfo onErrorFunction,
                                Service service) {
         boolean isErrorFnCalled = false;
+        BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
+        boolean isPaused = ((BBoolean) task.get(TASK_IS_PAUSED_FIELD)).booleanValue();
+
+        if (isPaused) {
+            return;
+        }
         try {
-            BMap<String, BValue> task = (BMap<String, BValue>) parentCtx.getRefArgument(0);
             List<BValue> onTriggerFunctionArgs = new ArrayList<>();
             onTriggerFunctionArgs.add(service.getBValue());
 
@@ -67,7 +75,7 @@ public class TaskExecutor {
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
                 BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(), onErrorFunction,
-                        BLangVMErrors.createError(parentCtx, e.getMessage()));
+                        BLangVMErrors.createError(context, e.getMessage()));
             }
         }
     }

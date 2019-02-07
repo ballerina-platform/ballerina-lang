@@ -37,7 +37,6 @@ import java.util.ArrayList;
  */
 public class Appointment extends AbstractTask {
     private String cronExpression;
-    boolean isPaused = false;
 
     public Appointment(Context context, String cronExpression, Service service) {
         super(service);
@@ -63,24 +62,6 @@ public class Appointment extends AbstractTask {
     public void stop() throws SchedulingException {
         AppointmentManager.getInstance().stop(id);
         super.stop();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void pause() throws SchedulingException {
-        if (isPaused) {
-            throw new SchedulingException("Appointment " + this.getId() + " is already paused.");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void resume() throws SchedulingException {
-
     }
 
     /**

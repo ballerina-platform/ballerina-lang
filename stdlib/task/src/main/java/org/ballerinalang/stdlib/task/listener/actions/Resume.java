@@ -26,16 +26,14 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.listener.objects.Task;
-import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
+import org.ballerinalang.stdlib.task.listener.utils.Utils;
 
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_PAUSED_FIELD;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 
 /**
@@ -56,18 +54,18 @@ public class Resume extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        String taskId = taskStruct.get(TIMER_TASK_ID_FIELD).stringValue();
         boolean isRunning = ((BBoolean) taskStruct.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
         if (!isRunning) {
             String errorMessage = "Cannot resume the task: Task is not started.";
             context.setReturnValues(createError(context, errorMessage));
             return;
         }
-        try {
-            Task task = TaskRegistry.getInstance().getTask(taskId);
-            task.resume();
-        } catch (SchedulingException e) {
-            context.setReturnValues(createError(context, e.getMessage()));
+        boolean isPaused = ((BBoolean) taskStruct.get(TASK_IS_PAUSED_FIELD)).booleanValue();
+        if (!isPaused) {
+            String errorMessage = "Cannot resume the task: Task is already running.";
+            context.setReturnValues(Utils.createError(context, errorMessage));
+            return;
         }
+        taskStruct.put(TASK_IS_PAUSED_FIELD, new BBoolean(false));
     }
 }

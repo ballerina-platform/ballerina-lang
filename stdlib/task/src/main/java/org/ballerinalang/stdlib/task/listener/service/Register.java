@@ -46,8 +46,8 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENE
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.getCronExpressionFromAppointmentRecord;
@@ -84,8 +84,8 @@ public class Register extends BlockingNativeCallableUnit {
             long delay = ((BInteger) configurations.get(FIELD_NAME_DELAY)).intValue();
 
             try {
-                if (Objects.nonNull(taskStruct.get(TASK_TASK_ID_FIELD))) {
-                    task = TaskRegistry.getInstance().getTask(taskStruct.get(TASK_TASK_ID_FIELD).stringValue());
+                if (Objects.nonNull(taskStruct.get(TASK_ID_FIELD))) {
+                    task = TaskRegistry.getInstance().getTask(taskStruct.get(TASK_ID_FIELD).stringValue());
                     task.addService(service);
                 } else {
                     if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
@@ -94,7 +94,7 @@ public class Register extends BlockingNativeCallableUnit {
                     } else {
                         task = new Timer(context, delay, interval, service);
                     }
-                    taskStruct.put(TASK_TASK_ID_FIELD, new BString(task.getId()));
+                    taskStruct.put(TASK_ID_FIELD, new BString(task.getId()));
                     taskStruct.put(TASK_IS_RUNNING_FIELD, new BBoolean(false));
                 }
             } catch (SchedulingException e) {
@@ -104,8 +104,8 @@ public class Register extends BlockingNativeCallableUnit {
         } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
             try {
                 String cronExpression = getCronExpressionFromAppointmentRecord(configurations);
-                if (Objects.nonNull(taskStruct.get(TASK_TASK_ID_FIELD))) {
-                    task = TaskRegistry.getInstance().getTask(taskStruct.get(TASK_TASK_ID_FIELD).stringValue());
+                if (Objects.nonNull(taskStruct.get(TASK_ID_FIELD))) {
+                    task = TaskRegistry.getInstance().getTask(taskStruct.get(TASK_ID_FIELD).stringValue());
                     task.addService(service);
                 } else {
                     if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
@@ -114,7 +114,7 @@ public class Register extends BlockingNativeCallableUnit {
                     } else {
                         task = new Appointment(context, cronExpression, service);
                     }
-                    taskStruct.put(TASK_TASK_ID_FIELD, new BString(task.getId()));
+                    taskStruct.put(TASK_ID_FIELD, new BString(task.getId()));
                     taskStruct.put(TASK_IS_RUNNING_FIELD, new BBoolean(false));
                 }
             } catch (SchedulingException e) {
