@@ -62,6 +62,4 @@ public class TaskConstants {
 
     public static final String APPOINTMENT_SERVICE_OBJECT = "ballerina.service";
     public static final String APPOINTMENT_PARENT_CONTEXT = "ballerina.parent.context";
-    public static final String APPOINTMENT_ON_TRIGGER_FUNCTION = "ballerina.onTriggerFunction";
-    public static final String APPOINTMENT_ON_ERROR_FUNCTION = "ballerina.onErrorFunction";
 }

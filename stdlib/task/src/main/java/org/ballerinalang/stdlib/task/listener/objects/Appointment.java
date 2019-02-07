@@ -23,14 +23,10 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentJob;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentManager;
-import org.ballerinalang.stdlib.task.listener.utils.ResourceFunctionHolder;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_ON_ERROR_FUNCTION;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_ON_TRIGGER_FUNCTION;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_PARENT_CONTEXT;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_SERVICE_OBJECT;
 import static org.quartz.CronExpression.isValidExpression;
@@ -87,14 +83,7 @@ public class Appointment extends AbstractTask {
 
     private JobDataMap getJobDataMapFromService(Context context, Service service) {
         JobDataMap jobData = new JobDataMap();
-
-        ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(service);
-        FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();
-        FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
-
         jobData.put(APPOINTMENT_PARENT_CONTEXT, context);
-        jobData.put(APPOINTMENT_ON_TRIGGER_FUNCTION, onTriggerFunction);
-        jobData.put(APPOINTMENT_ON_ERROR_FUNCTION, onErrorFunction);
         jobData.put(APPOINTMENT_SERVICE_OBJECT, service);
         return jobData;
     }

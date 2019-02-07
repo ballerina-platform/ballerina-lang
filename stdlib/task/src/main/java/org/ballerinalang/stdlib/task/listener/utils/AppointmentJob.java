@@ -20,13 +20,10 @@ package org.ballerinalang.stdlib.task.listener.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_ON_ERROR_FUNCTION;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_ON_TRIGGER_FUNCTION;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_PARENT_CONTEXT;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_SERVICE_OBJECT;
 
@@ -41,11 +38,9 @@ public class AppointmentJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
-        Context balParentContext = (Context) jobDataMap.get(APPOINTMENT_PARENT_CONTEXT);
-        FunctionInfo onTriggerFunction = (FunctionInfo) jobDataMap.get(APPOINTMENT_ON_TRIGGER_FUNCTION);
-        FunctionInfo onErrorFunction = (FunctionInfo) jobDataMap.get(APPOINTMENT_ON_ERROR_FUNCTION);
+        Context context = (Context) jobDataMap.get(APPOINTMENT_PARENT_CONTEXT);
         Service service = (Service) jobDataMap.get(APPOINTMENT_SERVICE_OBJECT);
 
-        TaskExecutor.execute(balParentContext, onTriggerFunction, onErrorFunction, service);
+        TaskExecutor.execute(context, service);
     }
 }

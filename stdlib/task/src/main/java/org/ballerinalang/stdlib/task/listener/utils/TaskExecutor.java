@@ -79,4 +79,44 @@ public class TaskExecutor {
             }
         }
     }
+
+    public static void execute(Context context, Service service) {
+        boolean isErrorFnCalled = false;
+        BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
+        boolean isPaused = ((BBoolean) task.get(TASK_IS_PAUSED_FIELD)).booleanValue();
+        ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(service);
+        FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
+        FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();
+
+        if (isPaused) {
+            return;
+        }
+        try {
+            List<BValue> onTriggerFunctionArgs = new ArrayList<>();
+            onTriggerFunctionArgs.add(service.getBValue());
+
+            // Invoke the onTrigger function.
+            BValue[] results = BVMExecutor.executeFunction(onTriggerFunction.getPackageInfo().getProgramFile(),
+                    onTriggerFunction, onTriggerFunctionArgs.toArray(new BValue[0]));
+
+            // If there are results, that mean an error has been returned
+            if (onErrorFunction != null && results.length > 0 && results[0] != null) {
+                isErrorFnCalled = true;
+                BFunctionPointer errorFunction = (BFunctionPointer) task.get(TaskConstants.RESOURCE_ON_ERROR);
+                List<BValue> onErrorFunctionArgs = new ArrayList<>();
+                for (BClosure closure : errorFunction.getClosureVars()) {
+                    onErrorFunctionArgs.add(closure.value());
+                }
+                onErrorFunctionArgs.addAll(Arrays.asList(results));
+                BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(),
+                        onErrorFunction, onErrorFunctionArgs.toArray(new BValue[0]));
+            }
+        } catch (RuntimeException e) {
+            //Call the onError function in case of error.
+            if (onErrorFunction != null && !isErrorFnCalled) {
+                BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(), onErrorFunction,
+                        BLangVMErrors.createError(context, e.getMessage()));
+            }
+        }
+    }
 }
