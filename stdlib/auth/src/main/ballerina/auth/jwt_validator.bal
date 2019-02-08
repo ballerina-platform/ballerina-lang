@@ -235,7 +235,7 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
         return jwtError;
     }
     if (config["validateCertificate"] is ()) {
-        config["validateCertificate"] = true;
+        config.validateCertificate = true;
     }
     if (config.validateCertificate == true && !check validateCertificate(config)) {
         error jwtError = error(AUTH_ERROR_CODE, { message : "Public key certificate validity period has passed" });

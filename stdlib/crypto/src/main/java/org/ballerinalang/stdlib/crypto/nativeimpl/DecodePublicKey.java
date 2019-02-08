@@ -34,7 +34,6 @@ import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.transport.http.netty.common.Util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -77,8 +76,8 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
         PublicKey publicKey = null;
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore != null) {
-            File keyStoreFile = new File(Util.substituteVariables(keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD)
-                    .stringValue()));
+            File keyStoreFile = new File(CryptoUtils
+                    .substituteVariables(keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).stringValue()));
             try (FileInputStream fileInputStream = new FileInputStream(keyStoreFile)) {
                 KeyStore keystore = KeyStore.getInstance(Constants.KEYSTORE_TYPE_PKCS12);
                 try {

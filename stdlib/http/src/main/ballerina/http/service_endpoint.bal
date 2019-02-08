@@ -234,6 +234,7 @@ public type AuthProvider record {
     string audience = "";
     TrustStore? trustStore = ();
     string certificateAlias = "";
+    boolean validateCertificate?;
     int clockSkew = 0;
     KeyStore? keyStore = ();
     string keyAlias = "";
@@ -395,6 +396,10 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
             clockSkew: authProvider.clockSkew,
             trustStore: trustStore
         };
+        var validateCertificate = authProvider["validateCertificate"];
+        if (validateCertificate is boolean) {
+            jwtConfig.validateCertificate = validateCertificate;
+        }
         auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
         return jwtAuthnHandler;

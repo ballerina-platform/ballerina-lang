@@ -116,7 +116,7 @@ public class JWTAuthnHandlerTest {
         jwtHeader.put("alg", new BString("RS256"));
         jwtHeader.put("typ", new BString("JWT"));
 
-        long time = 32475251189000l;
+        long time = 32475251189000L;
         BMap<String, BValue> jwtBody = new BMap<>();
         jwtBody.put("sub", new BString("John"));
         jwtBody.put("iss", new BString("wso2"));
