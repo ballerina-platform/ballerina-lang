@@ -43,7 +43,7 @@ function testSelectData() returns string {
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
     json j = getJsonConversionResult(x);
     returnData = io:sprintf("%s", j);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnData;
 }
 
@@ -67,11 +67,42 @@ function testGeneratedKeyOnInsert() returns string {
     } else {
         ret = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return ret;
 }
 
+<<<<<<< HEAD
 function testBatchUpdate() returns string {
+=======
+function testCallProcedure() returns (string) {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+    string returnData = "";
+    var x = trap testDB->call("{call InsertPersonDataInfo(100,'James')}", ());
+
+    if (x is table<record {}>[]) {
+        var j = json.convert(x[0]);
+        if (j is json) {
+            returnData = io:sprintf("%s", j);
+        } else if (j is error) {
+            returnData = j.reason();
+        }
+    } else if (x is ()) {
+        returnData = "";
+    } else if (x is error) {
+        returnData = x.reason();
+    }
+    _ = h2:releaseConnectionPool(testDB);
+    return returnData;
+}
+
+function testBatchUpdate() returns (string) {
+>>>>>>> Update dbclient usages with pool shutdown logic
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -110,7 +141,7 @@ function testBatchUpdate() returns string {
     } else {
         returnVal = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnVal;
 }
 
@@ -140,7 +171,7 @@ function testInvalidArrayofQueryParameters() returns string {
     } else {
         returnData = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnData;
 }
 

@@ -97,7 +97,7 @@ function checkTableCount(string tablePrefix) returns (int) {
             }
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return count;
 }
 

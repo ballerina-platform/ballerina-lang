@@ -44,7 +44,7 @@ function testConnectionPoolProperties1() returns json {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return j;
 }
 
@@ -60,7 +60,7 @@ function testConnectionPoolProperties2() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return j;
 }
 
@@ -75,7 +75,7 @@ function testConnectionPoolProperties3() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return j;
 }
 
@@ -92,7 +92,7 @@ function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return j;
 }
 
@@ -112,7 +112,7 @@ function testConnectorWithWorkers() returns (json) {
         var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
         json j = getJsonConversionResult(dt);
-        testDB.stop();
+        _ = h2:releaseConnectionPool(testDB);
         return j;
     }
     worker w2 {
@@ -134,7 +134,7 @@ function testConnectorWithDataSourceClass() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return j;
 }
 
@@ -151,7 +151,7 @@ function testConnectorWithDataSourceClassAndProps() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return j;
 }
 
@@ -167,7 +167,7 @@ function testConnectorWithDataSourceClassWithoutURL() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return j;
 }
 
@@ -185,7 +185,7 @@ function testConnectorWithDataSourceClassURLPriority() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return j;
 }
 
@@ -203,7 +203,7 @@ function testPropertiesGetUsedOnlyIfDataSourceGiven() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return j;
 }
 
