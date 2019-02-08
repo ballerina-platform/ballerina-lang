@@ -101,7 +101,7 @@ public class Utils {
      */
     public static void validateService(Service service) throws BLangRuntimeException {
         Resource[] resources = service.getResources();
-        if (resources.length > 2 || resources.length < 1) {
+        if (resources.length > 2 || resources.length < 1) { // Done
             throw new BLangRuntimeException("Invalid number of resources found in service " + service.getName()
                     + ". Task service can only included one or two resource functions");
         }
@@ -113,16 +113,20 @@ public class Utils {
             }
             validateResource(resource);
         }
-        if (!isOnTriggerFound) {
-            throw new BLangRuntimeException("Invalid resources found. Service " + service.getName()
+        if (!isOnTriggerFound) { // Done
+            throw new BLangRuntimeException("Resource validation failed. Service " + service.getName()
                     + " must include resource function: \'" + RESOURCE_ON_TRIGGER + "\'.");
         }
     }
 
     private static void validateResource(Resource resource) {
-        if (!isOnTriggerResource(resource) && !isOnErrorResource(resource)) {
+        if (!isOnTriggerResource(resource) && !isOnErrorResource(resource)) { // Done
             throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
                     + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\' or \'" + RESOURCE_ON_ERROR + "\'.");
+        }
+        if (resource.getParamDetails().size() > 0) { // Done
+            throw new BLangRuntimeException("Invalid resource definition. Resource \'" + resource.getName()
+                    + "\' cannot have any parameters.");
         }
     }
 
