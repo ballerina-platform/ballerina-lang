@@ -21,7 +21,7 @@ under the License.
 
 <suite name="ballerina-spec-conformance-test-suite">
     <!-- Ballerina Language Specification Test Cases. -->
-    <test name="ballerina-spec-conformance-test" preserve-order="true" parallel="true">
+    <test name="ballerina-spec-conformance-test" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.spec.SpecConformanceTests"/>
         </classes>

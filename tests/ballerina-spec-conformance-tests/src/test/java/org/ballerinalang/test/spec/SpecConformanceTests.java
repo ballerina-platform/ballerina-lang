@@ -18,17 +18,8 @@
 
 package org.ballerinalang.test.spec;
 
-import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.testerina.core.BTestRunner;
-import org.ballerinalang.testerina.core.TesterinaConstants;
-import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.testerina.util.BTestUtil;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 
 import static org.testng.Assert.assertFalse;
 
@@ -41,17 +32,6 @@ public class SpecConformanceTests {
 
     @Test
     public void testSpecConformance() {
-        BTestRunner testRunner = new BTestRunner();
-        Path sourceRootPath = LauncherUtils.getSourceRootPath(Paths.get("").toString());
-        SourceDirectory sourceDirectory = new FileSystemProjectDirectory(sourceRootPath);
-        List<String> sourceFileList = sourceDirectory.getSourcePackageNames();
-        Path[] paths = sourceFileList.stream()
-                .map(Paths::get)
-                .sorted()
-                .toArray(Path[]::new);
-        TesterinaUtils.setManifestConfigs(sourceRootPath);
-        testRunner.runTest(sourceRootPath.toString(), paths, null, true);
-        TesterinaUtils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
-        assertFalse(testRunner.getTesterinaReport().isFailure());
+        assertFalse(BTestUtil.runTestsInPackage("", true).isFailure());
     }
 }
