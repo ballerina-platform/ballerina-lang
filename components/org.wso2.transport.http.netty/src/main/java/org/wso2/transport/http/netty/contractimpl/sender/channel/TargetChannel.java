@@ -69,6 +69,7 @@ public class TargetChannel {
 
     private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
     private HttpResponseFuture httpInboundResponseFuture;
+    private String trgHlrConnPoolId;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
@@ -114,8 +115,12 @@ public class TargetChannel {
         return httpRoute;
     }
 
-    public void setHttpRoute(HttpRoute httpRoute) {
-        this.httpRoute = httpRoute;
+    public String getTrgHlrConnPoolId() {
+        return trgHlrConnPoolId;
+    }
+
+    public void setTrgHlrConnPoolId(String trgHlrConnPoolId) {
+        this.trgHlrConnPoolId = trgHlrConnPoolId;
     }
 
     public SourceHandler getCorrelatedSource() {
