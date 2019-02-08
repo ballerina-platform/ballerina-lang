@@ -53,10 +53,6 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ER
 @SuppressWarnings("Duplicates")
 public class Utils {
 
-    private Utils() {
-        // Do nothing.
-    }
-
     public static BError createError(Context context, String message) {
         BMap<String, BValue> taskErrorRecord = createTaskErrorRecord(context);
         taskErrorRecord.put(TASK_ERROR_MESSAGE, new BString(message));
@@ -79,17 +75,15 @@ public class Utils {
 
     // Following code is reported as duplicates since all the lines doing same function call.
     private static String buildCronExpression(BMap<String, BValue> record) {
-        StringBuilder cronExpression = new StringBuilder();
-        cronExpression.append(getStringFieldValue(record, FIELD_NAME_SECONDS)).append(" ");
-        cronExpression.append(getStringFieldValue(record, FIELD_NAME_MINUTES)).append(" ");
-        cronExpression.append(getStringFieldValue(record, FIELD_NAME_HOURS)).append(" ");
-        cronExpression.append(getStringFieldValue(record, FIELD_NAME_DAYS_OF_MONTH)).append(" ");
-        cronExpression.append(getStringFieldValue(record, FIELD_NAME_MONTHS)).append(" ");
-        cronExpression.append(getStringFieldValue(record, FIELD_NAME_DAYS_OF_WEEK)).append(" ");
-        cronExpression.append(getStringFieldValue(record, FIELD_NAME_YEAR));
 
-        String result = cronExpression.toString().trim();
-        return result;
+        String cronExpression = getStringFieldValue(record, FIELD_NAME_SECONDS) + " " +
+                getStringFieldValue(record, FIELD_NAME_MINUTES) + " " +
+                getStringFieldValue(record, FIELD_NAME_HOURS) + " " +
+                getStringFieldValue(record, FIELD_NAME_DAYS_OF_MONTH) + " " +
+                getStringFieldValue(record, FIELD_NAME_MONTHS) + " " +
+                getStringFieldValue(record, FIELD_NAME_DAYS_OF_WEEK) + " " +
+                getStringFieldValue(record, FIELD_NAME_YEAR);
+        return cronExpression.trim();
     }
 
     private static String getStringFieldValue(BMap<String, BValue> struct, String fieldName) {

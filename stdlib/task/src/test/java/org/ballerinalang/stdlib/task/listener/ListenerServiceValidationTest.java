@@ -37,7 +37,8 @@ public class ListenerServiceValidationTest {
     @Test(
             description = "Tests compiler error for a task with an invalid resource name.",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Invalid resource function found:.*Expected: onTrigger or onError.*"
+            expectedExceptionsMessageRegExp =
+                    ".*Invalid resource function found: timerStart. Expected: 'onTrigger' or 'onError'.*"
     )
     public void testInvalidResourceName() {
         BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_resource.bal");
@@ -47,7 +48,7 @@ public class ListenerServiceValidationTest {
             description = "Tests compiler error for a task without onTrigger resource.",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    ".*Invalid resource function found: onStart. Expected: onTrigger or onError.*"
+                    ".*Invalid resource function found: onStart. Expected: 'onTrigger' or 'onError'.*"
     )
     public void testResourceWithoutOnTrigger() {
         BCompileUtil.compileAndSetup("listener-test-src/service-validation/missing_on_trigger_resource.bal");
@@ -57,7 +58,8 @@ public class ListenerServiceValidationTest {
             description = "Tests compiler error for a task with more than two resource functions.",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    ".*Invalid number of resources found in service.*"
+                    ".*Invalid number of resources found in service timerService." +
+                            "Task service can only included one or two resource functions"
     )
     public void testInvalidNumberOfResources() {
         BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_number_of_resources.bal");
@@ -67,7 +69,7 @@ public class ListenerServiceValidationTest {
             description = "Tests compiler error for a task with invalid single resource function.",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    ".*Invalid resource definition. If there's only one resource, it should be.*"
+                    ".*Invalid resource function found: timerStart. Expected: 'onTrigger' or 'onError'.*"
     )
     public void testInvalidSingleResources() {
         BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_single_resource.bal");
