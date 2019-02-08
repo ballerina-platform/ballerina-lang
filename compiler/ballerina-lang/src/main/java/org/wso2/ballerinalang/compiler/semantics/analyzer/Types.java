@@ -1858,10 +1858,6 @@ public class Types {
         return false;
     }
 
-    public BType getRemainingType(BType originalType, LinkedHashSet<BType> typesToRemove) {
-        return getRemainingType(originalType, new BUnionType(null, typesToRemove, false));
-    }
-
     public BType getRemainingType(BType originalType, BType typeToRemove) {
         if (originalType.tag != TypeTags.UNION) {
             return originalType;
@@ -1876,6 +1872,12 @@ public class Types {
         removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isAssignable(type, removeType)));
 
         if (remainingTypes.size() == 1) {
+            return remainingTypes.get(0);
+        }
+
+        if (remainingTypes.isEmpty()) {
+            return symTable.semanticError;
+        } else if (remainingTypes.size() == 1) {
             return remainingTypes.get(0);
         }
 
@@ -1915,7 +1917,7 @@ public class Types {
         return errorLiftedType;
     }
 
-    private List<BType> getAllTypes(BType type) {
+    public List<BType> getAllTypes(BType type) {
         if (type.tag != TypeTags.UNION) {
             return Lists.of(type);
         }

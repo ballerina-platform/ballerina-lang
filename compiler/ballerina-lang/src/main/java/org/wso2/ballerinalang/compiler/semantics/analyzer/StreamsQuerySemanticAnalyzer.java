@@ -894,11 +894,17 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         BSymbol symbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, name,
                 names.fromIdNode(invocationExpr.name), SymTag.INVOKABLE);
         if (symbol != symTable.notFoundSymbol) {
+            invocationExpr.symbol = symbol;
             BSymbol typeSymbol = symbol.type.getReturnType().tsymbol;
             if (typeSymbol == aggregatorTypeSymbol || typeSymbol == windowTypeSymbol) {
+                invocationExpr.typeChecked = true;
                 invocationExpr.argExprs.forEach(arg -> arg.accept(this));
+                invocationExpr.requiredArgs = invocationExpr.argExprs;
                 return true;
             }
+
+            invocationExpr.argExprs.forEach(arg -> arg.accept(this));
+            invocationExpr.requiredArgs = invocationExpr.argExprs;
             typeChecker.checkExpr(invocationExpr, env);
             return true;
         }

@@ -51,7 +51,7 @@ service retryDemoService on serviceEndpoint1 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             string errCause = <string> backendResponse.detail().message;
@@ -120,7 +120,7 @@ service mockHelloService on serviceEndpoint1 {
                         }
                     }
                     response.setBodyParts(untaint bodyParts, contentType = untaint req.getContentType());
-                } else if (bodyParts is error) {
+                } else {
                     log:printError(bodyParts.reason());
                     response.setPayload("Error in decoding multiparts!");
                     response.statusCode = 500;
