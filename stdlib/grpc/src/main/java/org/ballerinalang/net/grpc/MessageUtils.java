@@ -64,11 +64,13 @@ import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
  * @since 1.0.0
  */
 public class MessageUtils {
+
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR = "Unknown Error";
 
     /** maximum buffer to be read is 16 KB. */
     private static final int MAX_BUFFER_LENGTH = 16384;
+    private static final String GOOGLE_PROTOBUF_EMPTY = "google.protobuf.Empty";
 
     public static BMap<String, BValue> getHeaderStruct(ProgramFile programFile) {
         return BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
@@ -238,7 +240,7 @@ public class MessageUtils {
         if (messageDescriptor == null) {
             return false;
         }
-        return "google.protobuf.Empty".equals(messageDescriptor.getFullName());
+        return GOOGLE_PROTOBUF_EMPTY.equals(messageDescriptor.getFullName());
     }
 
     /** Closes an InputStream, ignoring IOExceptions. */

@@ -57,7 +57,7 @@ public class Message {
     private int memoizedSize = -1;
     private HttpHeaders headers;
     private BValue bMessage = null;
-    private com.google.protobuf.Descriptors.Descriptor descriptor = null;
+    private Descriptors.Descriptor descriptor = null;
 
     private boolean isError = false;
     private Throwable error;
