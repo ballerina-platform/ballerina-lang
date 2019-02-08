@@ -1127,6 +1127,10 @@ public class SQLDatasourceUtils {
     public static BError getSQLConnectorError(Context context, Throwable throwable) {
         String detailedErrorMessage =
             throwable.getMessage() != null ? throwable.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+        return getSQLConnectorError(context, detailedErrorMessage);
+    }
+
+    public static BError getSQLConnectorError(Context context, String detailedErrorMessage) {
         BMap<String, BValue> sqlClientErrorDetailRecord = BLangConnectorSPIUtil
                 .createBStruct(context, Constants.SQL_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME,
                         detailedErrorMessage);
@@ -1164,15 +1168,15 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-        if (poolOptions == null) {
+        boolean userProvidedPoolOptionsNotPresent;
+        if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
             poolOptions = globalPoolOptions;
         }
         String jdbcUrl = constructJDBCURL(dbType, host, port, name, username, password, urlOptions);
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl(jdbcUrl)
-                .withPoolOptions(poolOptions).withUsername(username).withPassword(password).withDbName(name)
-                .build();
-        return createSQLClient(context, sqlDatasourceParams, poolOptions);
+                .withPoolOptions(poolOptions).withUsername(username).withPassword(password).withDbName(name).build();
+        return createSQLClient(context, sqlDatasourceParams, poolOptions, userProvidedPoolOptionsNotPresent);
     }
 
     public static BMap<String, BValue> createSQLDBClient(Context context,
@@ -1184,17 +1188,18 @@ public class SQLDatasourceUtils {
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-        if (poolOptions == null) {
+        boolean userProvidedPoolOptionsNotPresent;
+        if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
             poolOptions = globalPoolOptions;
         }
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("")
-                .withPoolOptions(poolOptions).withJdbcUrl(url).withUsername(username)
-                .withPassword(password).withDbName("").withDbOptionsMap(dbOptions).build();
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("").withPoolOptions(poolOptions)
+                .withJdbcUrl(url).withUsername(username).withPassword(password).withDbName("")
+                .withDbOptionsMap(dbOptions).build();
 
-        return createSQLClient(context, sqlDatasourceParams, poolOptions);
+        return createSQLClient(context, sqlDatasourceParams, poolOptions, userProvidedPoolOptionsNotPresent);
     }
 
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
@@ -1218,7 +1223,8 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-        if (poolOptions == null) {
+        boolean userProvidedPoolOptionsNotPresent;
+        if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
             poolOptions = globalPoolOptions;
         }
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
@@ -1226,7 +1232,7 @@ public class SQLDatasourceUtils {
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptions)
                 .withJdbcUrl(jdbcUrl).withDbType(dbType).withUsername(username).withPassword(password).withDbName(name)
                 .build();
-        return createSQLClient(context, sqlDatasourceParams, poolOptions);
+        return createSQLClient(context, sqlDatasourceParams, poolOptions, userProvidedPoolOptionsNotPresent);
     }
 
     private static String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
@@ -1335,10 +1341,11 @@ public class SQLDatasourceUtils {
     }
 
     private static BMap<String, BValue> createSQLClient(Context context,
-            SQLDatasource.SQLDatasourceParams sqlDatasourceParams,
-            org.ballerinalang.connector.api.Struct poolOptions) {
+            SQLDatasource.SQLDatasourceParams sqlDatasourceParams, org.ballerinalang.connector.api.Struct poolOptions,
+            boolean isGlobalPoolUsed) {
         Map<String, SQLDatasource> hikariDatasourceMap = createPoolMapIfNotExists(poolOptions);
-        SQLDatasource sqlDatasource = createDataSourceIfNotExists(hikariDatasourceMap, sqlDatasourceParams);
+        SQLDatasource sqlDatasource = createDataSourceIfNotExists(hikariDatasourceMap, sqlDatasourceParams,
+                isGlobalPoolUsed);
         BMap<String, BValue> sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
         sqlClient.addNativeData(Constants.SQL_CLIENT, sqlDatasource);
@@ -1363,7 +1370,7 @@ public class SQLDatasourceUtils {
     }
 
     private static SQLDatasource createDataSourceIfNotExists(final Map<String, SQLDatasource> hikariDatasourceMap,
-            SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
+            SQLDatasource.SQLDatasourceParams sqlDatasourceParams, boolean isGlobalDatasource) {
         SQLDatasource sqlDatasource;
         if (hikariDatasourceMap.containsKey(sqlDatasourceParams.getJdbcUrl())) {
             sqlDatasource = hikariDatasourceMap.get(sqlDatasourceParams.getJdbcUrl());
@@ -1373,7 +1380,7 @@ public class SQLDatasourceUtils {
                     sqlDatasource = hikariDatasourceMap.get(sqlDatasourceParams.getJdbcUrl());
                 } else {
                     sqlDatasource = new SQLDatasource();
-                    sqlDatasource.init(sqlDatasourceParams);
+                    sqlDatasource.init(sqlDatasourceParams, isGlobalDatasource);
                     hikariDatasourceMap.put(sqlDatasourceParams.getJdbcUrl(), sqlDatasource);
                 }
             }

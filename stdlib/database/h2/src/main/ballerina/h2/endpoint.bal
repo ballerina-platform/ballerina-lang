@@ -141,8 +141,22 @@ public type Client client object {
 
     # Stops the JDBC client.
     public function stop() {
-        sql:close(self.sqlClient);
+
+    }
+
+    function closeSqlClient() returns error? {
+        return sql:close(self.sqlClient);
     }
 };
 
 extern function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client;
+
+# This function shuts down the internal connection pool used by the
+# provided client.
+# WARNING: Use with care as improper usage might result in closing shared connection pools
+# causing the user clients to become unusable
+#
+# + sqlClient - The Client object whose connection pool needs to be shut down.
+public function releaseConnectionPool(Client h2Client) returns error? {
+    return h2Client.closeSqlClient();
+}
