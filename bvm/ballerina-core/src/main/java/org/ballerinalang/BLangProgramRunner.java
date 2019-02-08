@@ -59,6 +59,7 @@ public class BLangProgramRunner {
 
     public static BValue[] runMainFunc(ProgramFile programFile, String[] args) {
         BValue[] entryFuncResult;
+        boolean mainRunSuccessful = false;
         if (!programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
@@ -73,8 +74,9 @@ public class BLangProgramRunner {
         try {
             entryFuncResult = BVMExecutor.executeEntryFunction(programFile, functionInfo,
                                                                extractEntryFuncArgs(functionInfo, args));
+            mainRunSuccessful = true;
         } finally {
-            if (!programFile.isServiceEPAvailable()) {
+            if (!mainRunSuccessful || !programFile.isServiceEPAvailable()) {
                 if (debugger.isDebugEnabled()) {
                     debugger.notifyExit();
                 }
@@ -93,8 +95,7 @@ public class BLangProgramRunner {
     }
 
     public static FunctionInfo getMainFunctionInfo(PackageInfo entryPkgInfo) {
-        String errorMsg = "'main' function not found in '"
-                            + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
+        String errorMsg = "'main' function not found in '" + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
 
         FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(MAIN_FUNCTION_NAME);
         if (functionInfo == null) {

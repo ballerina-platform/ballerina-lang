@@ -19,11 +19,15 @@ package org.ballerinalang.launcher;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
@@ -78,6 +82,12 @@ import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
  * @since 0.8.0
  */
 public class LauncherUtils {
+
+    private static final String STATUS_CODE = "statusCode";
+    private static final int DEFAULT_ERROR_RETURN_STATUS_CODE = 1;
+    private static final int MAX_ERROR_RETURN_STATUS_CODE = 255;
+
+    private static PrintStream errStream = System.err;
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
                                   String configFilePath, String[] args, boolean offline, boolean observeFlag) {
@@ -154,26 +164,35 @@ public class LauncherUtils {
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
     }
 
+    @SuppressWarnings("unchecked")
     public static void runMain(ProgramFile programFile, String[] args) {
         BValue[] result;
+        int statusCode = 0;
         try {
             result = BLangProgramRunner.runMainFunc(programFile, args);
+            if (result[0] != null && result[0].getType().getTag() == TypeTags.ERROR) {
+                // If an error occurred on main function execution, the program should terminate.
+                BError returnedError = (BError) result[0];
+                errStream.print(prepareErrorReturnedErrorMessage(returnedError));
+
+                if (returnedError.details != null) {
+                    BMap<String, BValue> details =  (BMap<String, BValue>) returnedError.details;
+                    statusCode = getStatusCode(details);
+                }
+            } else if (programFile.isServiceEPAvailable()) {
+                return;
+            }
         } catch (BLangUsageException | BallerinaException e) {
             throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
         }
 
-        // If an error occurred on main function execution, the program should terminate.
-        if (programFile.isServiceEPAvailable() &&
-                (result[0] == null || result[0].getType().getTag() != TypeTags.ERROR)) {
-            return;
-        }
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
             ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
             // Ignore the error
         }
-        Runtime.getRuntime().exit(0);
+        Runtime.getRuntime().exit(statusCode);
     }
 
     public static void runServices(ProgramFile programFile) {
@@ -412,5 +431,25 @@ public class LauncherUtils {
         } catch (RuntimeException e) {
             throw new BLangRuntimeException(e.getMessage(), e);
         }
+    }
+
+    private static int getStatusCode(BMap<String, BValue> errorDetails) {
+        if (!errorDetails.hasKey(STATUS_CODE)) {
+            return DEFAULT_ERROR_RETURN_STATUS_CODE;
+        }
+
+        BValue specifiedStatusCode = errorDetails.get(STATUS_CODE);
+        if (specifiedStatusCode.getType().getTag() == TypeTags.INT) {
+            long specifiedIntCode = ((BInteger) specifiedStatusCode).intValue();
+            if (specifiedIntCode >= DEFAULT_ERROR_RETURN_STATUS_CODE &&
+                    specifiedIntCode <= MAX_ERROR_RETURN_STATUS_CODE) {
+                return (int) specifiedIntCode;
+            }
+        }
+        return DEFAULT_ERROR_RETURN_STATUS_CODE;
+    }
+
+    private static String prepareErrorReturnedErrorMessage(BError error) {
+        return "error: " + BLangVMErrors.getErrorMessage(error);
     }
 }
