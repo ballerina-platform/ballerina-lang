@@ -107,14 +107,15 @@ public class Utils {
      */
     public static void validateService(Service service) throws BLangRuntimeException {
         Resource[] resources = service.getResources();
-        if (resources.length == 1) {
+        if (resources.length > 2 || resources.length < 1) {
+            throw new BLangRuntimeException("Invalid number of resources found in service " + service.getName());
+        } else if (resources.length == 1) {
             if (isNotOnTriggerResource(resources[0])) {
                 throw new BLangRuntimeException(
                         "Invalid resource definition. If there's only one resource, it should be "
                                 + RESOURCE_ON_TRIGGER + ". Found " + resources[0].getName() + " instead.");
             }
-            return;
-        } else if (resources.length == 2) {
+        } else {
             validateResource(resources[0]);
             validateResource(resources[1]);
             // Check whether the service includes onTrigger() resource. Throw if fails.
@@ -122,9 +123,7 @@ public class Utils {
                 throw new BLangRuntimeException("Incorrect resources found. Service " + service.getName()
                         + " must include " + RESOURCE_ON_TRIGGER + " resource.");
             }
-            return;
         }
-        throw new BLangRuntimeException("Invalid number of resources found in service " + service.getName());
     }
 
     private static void validateResource(Resource resource) {
