@@ -225,6 +225,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod.SIMPLE_VALUE_CONVERT;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
@@ -3176,25 +3177,20 @@ public class Desugar extends BLangNodeVisitor {
                 visitFreezeBuiltInMethodInvocation(iExpr);
                 break;
             case STAMP:
-                LinkedHashSet<BType> returnTypes = new LinkedHashSet<>();
-                returnTypes.add(symTable.errorType);
-                returnTypes.add(symTable.anyType);
-                result = visitUtilMethodInvocation(iExpr.expr.pos,
-                                                   iExpr.builtInMethod, Lists.of(iExpr.expr, iExpr.requiredArgs.get(0)),
-                                                   Lists.of(symTable.typeDesc, symTable.anydataType),
-                                                   new BUnionType(null, returnTypes, false));
+                result = visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
+                                                       iExpr.requiredArgs.get(0));
                 break;
             case CONVERT:
-                if (iExpr.symbol.kind == SymbolKind.CAST_OPERATOR) {
-                    BCastOperatorSymbol symbol = (BCastOperatorSymbol) iExpr.symbol;
-                    BInvokableType type = (BInvokableType) symbol.type;
+                if (types.isValueType(iExpr.requiredArgs.get(0).type)) {
                     result = createTypeCastExpr(visitCloneInvocation(iExpr.requiredArgs.get(0)),
-                                                type.paramTypes.get(1), symbol);
+                                                ((BInvokableType) iExpr.symbol.type).paramTypes.get(1),
+                                                (BOperatorSymbol) iExpr.symbol);
                 } else if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
-                    result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                    result = visitTypeConversionInvocation(iExpr.expr.pos, SIMPLE_VALUE_CONVERT,
+                                                                              iExpr.expr, iExpr.requiredArgs.get(0));
                 } else {
-                    result = visitConvertStampMethod(iExpr.pos, iExpr.expr,
-                                                     iExpr.requiredArgs, (BInvokableSymbol) iExpr.symbol);
+                    result = visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
+                                                           iExpr.requiredArgs.get(0));
                 }
                 break;
             case CALL:
@@ -3237,6 +3233,12 @@ public class Desugar extends BLangNodeVisitor {
                                          Lists.of(symTable.anydataType), symTable.anydataType);
     }
 
+    private BLangExpression visitTypeConversionInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
+                                                          BLangExpression typeDesc, BLangExpression valExpr) {
+        return visitUtilMethodInvocation(pos, builtInMethod, Lists.of(typeDesc, valExpr),
+                                         Lists.of(symTable.typeDesc, symTable.anydataType), symTable.anydataType);
+    }
+    
     private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
         if (iExpr.expr.type.tag == TypeTags.STRING) {
             // Builtin module provides string.length() function hence reusing it.
@@ -3395,18 +3397,11 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.pos = expr.pos;
         conversionExpr.expr = expr;
         conversionExpr.type = targetType;
+        conversionExpr.targetType = targetType;
         conversionExpr.conversionSymbol = symbol;
         return conversionExpr;
     }
 
-    private BLangNode visitConvertStampMethod(DiagnosticPos pos, BLangExpression expr,
-                                              List<BLangExpression> requiredArgs, BInvokableSymbol invokableSymbol) {
-        return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol,
-                                                  Lists.of(visitCloneInvocation(requiredArgs.get(0))),
-                                                  symResolver, BLangBuiltInMethod.STAMP);
-
-    }
-    
     private BType getElementType(BType type) {
         if (type.tag != TypeTags.ARRAY) {
             return type;
