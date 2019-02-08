@@ -54,8 +54,14 @@ public class SQLDatasource implements BValue {
     private String databaseProductName;
     private String connectorId;
     private boolean xaConn;
+    private boolean isGlobalDatasource;
 
     public boolean init(SQLDatasourceParams sqlDatasourceParams) {
+        return init(sqlDatasourceParams, false);
+    }
+
+    public boolean init(SQLDatasourceParams sqlDatasourceParams, boolean isGlobalDatasource) {
+        this.isGlobalDatasource = isGlobalDatasource;
         databaseName = sqlDatasourceParams.dbName;
         peerAddress = sqlDatasourceParams.jdbcUrl;
         buildDataSource(sqlDatasourceParams);
@@ -129,6 +135,10 @@ public class SQLDatasource implements BValue {
         hikariDataSource.close();
     }
 
+    public boolean isGlobalDatasource() {
+        return isGlobalDatasource;
+    }
+
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
         try {
             HikariConfig config = new HikariConfig();
@@ -196,6 +206,9 @@ public class SQLDatasource implements BValue {
                 config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
             }
             hikariDataSource = new HikariDataSource(config);
+            if (isGlobalDatasource) {
+                Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
+            }
         } catch (Throwable t) {
             String message = "error in sql connector configuration:" + t.getMessage();
             if (t.getCause() != null) {

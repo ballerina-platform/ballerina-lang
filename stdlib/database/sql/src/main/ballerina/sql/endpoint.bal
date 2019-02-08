@@ -100,5 +100,5 @@ extern function nativeUpdateWithGeneratedKeys(Client sqlClient, @sensitive strin
 # An internal function used by clients to shutdown the connection pool.
 #
 # + sqlClient - The Client object which represents the connection pool.
-public extern function close(Client sqlClient);
+public extern function close(Client sqlClient) returns error?;
 
