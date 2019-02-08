@@ -108,36 +108,35 @@ public class Utils {
     public static void validateService(Service service) throws BLangRuntimeException {
         Resource[] resources = service.getResources();
         if (resources.length > 2 || resources.length < 1) {
-            throw new BLangRuntimeException("Invalid number of resources found in service " + service.getName());
-        } else if (resources.length == 1) {
-            if (isNotOnTriggerResource(resources[0])) {
-                throw new BLangRuntimeException(
-                        "Invalid resource definition. If there's only one resource, it should be "
-                                + RESOURCE_ON_TRIGGER + ". Found " + resources[0].getName() + " instead.");
+            throw new BLangRuntimeException("Invalid number of resources found in service " + service.getName()
+                    + ". Task service can only included one or two resource functions");
+        }
+
+        boolean isOnTriggerFound = false;
+        for (Resource resource : resources) {
+            if (isOnTriggerResource(resource)) {
+                isOnTriggerFound = true;
             }
-        } else {
-            validateResource(resources[0]);
-            validateResource(resources[1]);
-            // Check whether the service includes onTrigger() resource. Throw if fails.
-            if (isNotOnTriggerResource(resources[0]) && isNotOnTriggerResource(resources[1])) {
-                throw new BLangRuntimeException("Incorrect resources found. Service " + service.getName()
-                        + " must include " + RESOURCE_ON_TRIGGER + " resource.");
-            }
+            validateResource(resource);
+        }
+        if (!isOnTriggerFound) {
+            throw new BLangRuntimeException("Invalid resources found. Service " + service.getName()
+                    + " must include resource function: \'" + RESOURCE_ON_TRIGGER + "\'.");
         }
     }
 
     private static void validateResource(Resource resource) {
-        if (isNotOnTriggerResource(resource) && isNotOnErrorResource(resource)) {
+        if (!isOnTriggerResource(resource) && !isOnErrorResource(resource)) {
             throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
-                    + ". Expected: " + RESOURCE_ON_TRIGGER + " or " + RESOURCE_ON_ERROR + ".");
+                    + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\' or \'" + RESOURCE_ON_ERROR + "\'.");
         }
     }
 
-    private static boolean isNotOnTriggerResource(Resource resource) {
-        return !RESOURCE_ON_TRIGGER.equals(resource.getName());
+    private static boolean isOnTriggerResource(Resource resource) {
+        return RESOURCE_ON_TRIGGER.equals(resource.getName());
     }
 
-    private static boolean isNotOnErrorResource(Resource resource) {
-        return !RESOURCE_ON_ERROR.equals(resource.getName());
+    private static boolean isOnErrorResource(Resource resource) {
+        return RESOURCE_ON_ERROR.equals(resource.getName());
     }
 }
