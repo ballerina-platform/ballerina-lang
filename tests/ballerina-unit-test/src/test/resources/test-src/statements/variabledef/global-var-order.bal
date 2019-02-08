@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,16 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/io;
+int j = incI();
+int k = incI();
+int i = 0;
 
-service wsClientService = @http:WebSocketServiceConfig {} service {
+function getIJK() returns (int, int, int) {
+    return (i, j, k);
+}
 
-    resource function onOpen(http:WebSocketClient caller) {
-    }
-
-    resource function onIdleTimeout(http:WebSocketClient caller) {
-    }
-};
-
-http:WebSocketClient wsClient = new("wss://echo.websocket.org", config = {callbackService: wsClientService});
+function incI() returns int {
+    i = i + 1;
+    return i;
+}
