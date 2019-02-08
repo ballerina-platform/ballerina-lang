@@ -34,6 +34,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -44,6 +46,8 @@ import javax.crypto.spec.SecretKeySpec;
  * @since 0.95.1
  */
 public class CryptoUtils {
+
+    private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
     private CryptoUtils() {
 
@@ -146,5 +150,42 @@ public class CryptoUtils {
                 Constants.CRYPTO_ERROR);
         errorRecord.put(Constants.MESSAGE, new BString(errMsg));
         return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.ENCODING_ERROR_CODE, errorRecord);
+    }
+
+    public static String substituteVariables(String value) {
+        Matcher matcher = varPattern.matcher(value);
+        boolean found = matcher.find();
+        if (!found) {
+            return value;
+        } else {
+            StringBuffer sb = new StringBuffer();
+
+            do {
+                String sysPropKey = matcher.group(1);
+                String sysPropValue = getSystemVariableValue(sysPropKey, null);
+                if (sysPropValue == null || sysPropValue.length() == 0) {
+                    throw new RuntimeException("System property " + sysPropKey + " is not specified");
+                }
+
+                sysPropValue = sysPropValue.replace("\\", "\\\\");
+                matcher.appendReplacement(sb, sysPropValue);
+            } while(matcher.find());
+
+            matcher.appendTail(sb);
+            return sb.toString();
+        }
+    }
+
+    public static String getSystemVariableValue(String variableName, String defaultValue) {
+        String value;
+        if (System.getProperty(variableName) != null) {
+            value = System.getProperty(variableName);
+        } else if (System.getenv(variableName) != null) {
+            value = System.getenv(variableName);
+        } else {
+            value = defaultValue;
+        }
+
+        return value;
     }
 }

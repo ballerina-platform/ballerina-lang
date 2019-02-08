@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/time;
+
 # The key algorithms supported by crypto module.
 public type KeyAlgorithm RSA;
 
@@ -51,8 +53,32 @@ public type PrivateKey record {
 # Public key used in cryptographic operations.
 #
 # + algorithm - Key algorithm
+# + certificate - Public key certificate
 public type PublicKey record {
     KeyAlgorithm algorithm;
+    Certificate? certificate;
+    !...;
+};
+
+# X509 public key certificate information.
+#
+# + version0 - Version number
+# + serial - Serial number
+# + issuer - Issuer name
+# + subject - Subject name
+# + notBefore - Not before validity period of certificate
+# + notAfter - Not after validity period of certificate
+# + signature - Raw signature bits
+# + signingAlgorithm - Signature algorithm
+public type Certificate record {
+    int version0;
+    int serial;
+    string issuer;
+    string subject;
+    time:Time notBefore;
+    time:Time notAfter;
+    byte[] signature;
+    string signingAlgorithm;
     !...;
 };
 
