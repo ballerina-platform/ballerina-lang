@@ -104,7 +104,7 @@ public class Timer extends AbstractTask {
                 return;
             }
             this.noOfRuns++;
-            for (Service service : getServices()) {
+            for (Service service : getServicesMap().values()) {
                 callTriggerFunction(context, service);
             }
         };

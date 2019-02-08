@@ -88,7 +88,7 @@ public class Appointment extends AbstractTask {
      */
     @Override
     public void runServices(Context context) throws SchedulingException {
-        for (Service service : this.serviceList) {
+        for (Service service : this.getServicesMap().values()) {
             JobDataMap jobDataMap = getJobDataMapFromService(context, service);
             try {
                 AppointmentManager.getInstance().schedule(id, AppointmentJob.class, jobDataMap, cronExpression);

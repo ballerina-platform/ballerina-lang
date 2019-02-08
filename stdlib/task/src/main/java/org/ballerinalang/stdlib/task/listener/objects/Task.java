@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Ballerina task interface.
@@ -52,11 +52,19 @@ public interface Task {
     void stop() throws SchedulingException;
 
     /**
-     * Get list of attached services of the task.
+     * Get map of attached services of the task.
      *
-     * @return Services List
+     * @return Services Map
      */
-    ArrayList<Service> getServices();
+    HashMap<String, Service> getServicesMap();
+
+    /**
+     * Get map of attached services of the task.
+     *
+     * @param serviceName Service name of which the service should be retrieved.
+     * @return Service object with the provided name.
+     */
+    Service getService(String serviceName);
 
     /**
      * Add particular service to the registry of the Task.
@@ -68,7 +76,7 @@ public interface Task {
     /**
      * Remove particular service from the registry of the Task.
      *
-     * @param service Service which needs to be detached from the task.
+     * @param serviceName Name of the service which needs to be detached from the task.
      */
-    void removeService(Service service);
+    void removeService(String serviceName);
 }

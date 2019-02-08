@@ -24,7 +24,7 @@ import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Abstract class which represents a ballerina task.
@@ -32,14 +32,14 @@ import java.util.ArrayList;
 public abstract class AbstractTask implements Task {
 
     protected String id = TaskIdGenerator.generate();
-    protected ArrayList<Service> serviceList;
+    HashMap<String, Service> serviceMap;
     protected long noOfRuns, maxRuns;
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
      */
     protected AbstractTask() {
-        this.serviceList = new ArrayList<>();
+        this.serviceMap = new HashMap<>();
         this.maxRuns = -1;
     }
 
@@ -49,7 +49,7 @@ public abstract class AbstractTask implements Task {
      * @param maxRuns Maximum number of runs allowed.
      */
     protected AbstractTask(long maxRuns) {
-        this.serviceList = new ArrayList<>();
+        this.serviceMap = new HashMap<>();
         this.maxRuns = maxRuns;
         this.noOfRuns = 0;
     }
@@ -59,23 +59,31 @@ public abstract class AbstractTask implements Task {
      */
     @Override
     public void addService(Service service) {
-        this.serviceList.add(service);
+        this.serviceMap.put(service.getName(), service);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void removeService(Service service) {
-        this.serviceList.remove(service);
+    public void removeService(String serviceName) {
+        this.serviceMap.remove(serviceName);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ArrayList<Service> getServices() {
-        return this.serviceList;
+    public HashMap<String, Service> getServicesMap() {
+        return this.serviceMap;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Service getService(String serviceName) {
+        return this.serviceMap.get(serviceName);
     }
 
     /**
