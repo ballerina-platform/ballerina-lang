@@ -918,12 +918,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordVar.restParam != null) {
-            boolean hasAnyTypeField = recordVarType.fields.stream()
-                    .map(field -> field.type)
-                    .anyMatch(fieldType -> !types.isAnydata(fieldType));
-            ((BLangVariable) recordVar.restParam).type = new BMapType(TypeTags.MAP, hasAnyTypeField ?
-                    symTable.anyType : types.isAnydata(recordVarType.restFieldType) ?
-                    symTable.anydataType : symTable.anyType, null);
+            ((BLangVariable) recordVar.restParam).type =
+                    new BMapType(TypeTags.MAP, recordHasAnyTypeField(recordVarType) ?
+                            symTable.anyType : symTable.anydataType, null);
             symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
 
@@ -1234,12 +1231,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (lhsVarRef.restParam != null) {
-            boolean hasAnyTypeField = rhsRecordType.fields.stream()
-                    .map(field -> field.type)
-                    .anyMatch(fieldType -> !types.isAnydata(fieldType));
-            types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, new BMapType(TypeTags.MAP, hasAnyTypeField ?
-                            symTable.anyType : types.isAnydata(rhsRecordType.restFieldType) ?
-                            symTable.anydataType : symTable.anyType, null),
+            types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
+                    new BMapType(TypeTags.MAP, recordHasAnyTypeField(rhsRecordType) ?
+                            symTable.anyType : symTable.anydataType, null),
                     ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
@@ -1247,6 +1241,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         checkReadonlyAssignment(lhsVarRef);
 
         checkConstantAssignment(lhsVarRef);
+    }
+
+    private boolean recordHasAnyTypeField(BRecordType recordType) {
+        boolean hasAnyTypedField = recordType.fields.stream()
+                .map(field -> field.type)
+                .anyMatch(fieldType -> !types.isAnydata(fieldType));
+        return hasAnyTypedField || !types.isAnydata(recordType.restFieldType);
     }
 
     private void checkTupleVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef varRef, BType rhsType,
