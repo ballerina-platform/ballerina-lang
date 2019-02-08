@@ -21,6 +21,10 @@ type Info record {
    string firstName;
 };
 
+public type Result record {
+    int val;
+};
+
 function testGlobalConnectionPoolSingleDestination() returns json[] {
     return drainGlobalPool("TEST_SQL_CONNECTION_POOL_1");
 }
@@ -303,6 +307,111 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns json[
     return returnArray;
 }
 
+function testShutDownUnsharedLocalConnectionPool() returns (json, json) {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_1",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 2, connectionTimeout: 1000 }
+        });
+
+    var result = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
+    json retVal1 = getJsonConversionResult(result);
+    _ = h2:releaseConnectionPool(testDB);
+    var resultAfterPoolShutDown = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
+    json retVal2 = getJsonConversionResult(resultAfterPoolShutDown);
+    return (retVal1, retVal2);
+}
+
+sql:PoolOptions poolOptions3 = { maximumPoolSize: 1, connectionTimeout: 1000 };
+function testShutDownSharedConnectionPool() returns (json, json, json, json) {
+    h2:Client testDB1 = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_1",
+            username: "SA",
+            password: "",
+            poolOptions: poolOptions3
+        });
+
+    h2:Client testDB2 = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_1",
+            username: "SA",
+            password: "",
+            poolOptions: poolOptions3
+        });
+
+    var result1 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
+    json retVal1 = getJsonConversionResult(result1);
+
+    var result2 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
+    json retVal2 = getJsonConversionResult(result2);
+
+    _ = h2:releaseConnectionPool(testDB1);
+
+    var result3 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
+    json retVal3 = getJsonConversionResult(result3);
+
+    var result4 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
+    json retVal4 = getJsonConversionResult(result4);
+
+    return (retVal1, retVal2, retVal3, retVal4);
+}
+
+sql:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeout: 1000 };
+function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json, json, json) {
+    h2:Client testDB1 = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_1",
+            username: "SA",
+            password: "",
+            poolOptions: poolOptions3
+        });
+
+    h2:Client testDB2 = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_2",
+            username: "SA",
+            password: "",
+            poolOptions: poolOptions3
+        });
+    var result1 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
+    json retVal1 = getJsonConversionResult(result1);
+
+    var result2 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
+    json retVal2 = getJsonConversionResult(result2);
+
+    _ = h2:releaseConnectionPool(testDB1);
+
+    var result3 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
+    json retVal3 = getJsonConversionResult(result3);
+
+    var result4 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
+    json retVal4 = getJsonConversionResult(result4);
+
+    return (retVal1, retVal2, retVal3, retVal4);
+}
+
+function testShutDwonGlobalPool() returns (json, error?, json) {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_1",
+            username: "SA",
+            password: ""
+        });
+
+    var result1 = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
+    json retVal1 = getJsonConversionResult(result1);
+
+    var retVal2 = h2:releaseConnectionPool(testDB);
+
+    var result2 = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
+    json retVal3 = getJsonConversionResult(result2);
+
+    return (retVal1, retVal2, retVal3);
+}
+
 function getJsonConversionResultOfTuple((table<record{}>|error, table<record{}>|error) t) returns json[] {
     table<record{}>|error x; table<record{}>|error y;
     (x, y) = t;
@@ -319,7 +428,7 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
             _ = io:sprintf("%s", retVal);
-        } else if (jsonConversionResult is error) {
+        } else {
             retVal = {"Error" : string.convert(jsonConversionResult.detail().message)};
         }
     } else {
