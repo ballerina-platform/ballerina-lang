@@ -67,7 +67,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
      */
     public static class BLangArrayAccessExpr extends BLangIndexBasedAccess {
 
-        public BLangArrayAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr) {
+        public BLangArrayAccessExpr(DiagnosticPos pos, BLangExpression varRef, BLangExpression indexExpr) {
             this.pos = pos;
             this.expr = varRef;
             this.indexExpr = indexExpr;
@@ -86,13 +86,13 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
 
         public boolean except = true;
 
-        public BLangMapAccessExpr(DiagnosticPos pos, BLangVariableReference varExpr, BLangExpression keyExpr) {
+        public BLangMapAccessExpr(DiagnosticPos pos, BLangExpression varExpr, BLangExpression keyExpr) {
             this.pos = pos;
             this.expr = varExpr;
             this.indexExpr = keyExpr;
         }
 
-        public BLangMapAccessExpr(DiagnosticPos pos, BLangVariableReference varExpr, BLangExpression keyExpr,
+        public BLangMapAccessExpr(DiagnosticPos pos, BLangExpression varExpr, BLangExpression keyExpr,
                 boolean except) {
             this.pos = pos;
             this.expr = varExpr;
@@ -111,7 +111,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
      */
     public static class BLangJSONAccessExpr extends BLangIndexBasedAccess {
 
-        public BLangJSONAccessExpr(DiagnosticPos pos, BLangVariableReference varExpr, BLangExpression keyExpr) {
+        public BLangJSONAccessExpr(DiagnosticPos pos, BLangExpression varExpr, BLangExpression keyExpr) {
             this.pos = pos;
             this.expr = varExpr;
             this.indexExpr = keyExpr;
@@ -130,14 +130,14 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
 
         public FieldKind fieldType;
         
-        public BLangXMLAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr) {
+        public BLangXMLAccessExpr(DiagnosticPos pos, BLangExpression varRef, BLangExpression indexExpr) {
             this.pos = pos;
             this.expr = varRef;
             this.indexExpr = indexExpr;
             this.fieldType = FieldKind.SINGLE;
         }
 
-        public BLangXMLAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr,
+        public BLangXMLAccessExpr(DiagnosticPos pos, BLangExpression varRef, BLangExpression indexExpr,
                 FieldKind fieldType) {
             this.pos = pos;
             this.expr = varRef;
@@ -158,7 +158,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
 
         public boolean except;
 
-        public BLangStructFieldAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression keyExpr,
+        public BLangStructFieldAccessExpr(DiagnosticPos pos, BLangExpression varRef, BLangExpression keyExpr,
                                           BVarSymbol fieldSymbol, boolean except) {
             this.pos = pos;
             this.expr = varRef;
@@ -178,7 +178,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
      */
     public static class BLangTupleAccessExpr extends BLangIndexBasedAccess {
 
-        public BLangTupleAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr) {
+        public BLangTupleAccessExpr(DiagnosticPos pos, BLangExpression varRef, BLangExpression indexExpr) {
             this.pos = pos;
             this.expr = varRef;
             this.indexExpr = indexExpr;

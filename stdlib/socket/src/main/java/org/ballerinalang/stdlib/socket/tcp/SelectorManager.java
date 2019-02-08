@@ -259,7 +259,6 @@ public class SelectorManager {
                 SocketReader socketReader = ReadReadySocketMap.getInstance().remove(socketHashId);
                 ReadPendingCallback callback = ReadPendingSocketMap.getInstance().remove(socketHashId);
                 SocketChannel socketChannel = (SocketChannel) socketReader.getSocketService().getSocketChannel();
-                BValueArray contentTuple = new BValueArray(readTupleType);
                 ByteBuffer buffer;
                 try {
                     if (callback.getExpectedLength() == DEFAULT_EXPECTED_READ_LENGTH) {
@@ -275,7 +274,7 @@ public class SelectorManager {
                         callback.updateCurrentLength(read);
                         // Re-register for read ready events.
                         socketReader.getSelectionKey().interestOps(SelectionKey.OP_READ);
-                        selector.wakeup();
+//                        selector.wakeup();
                         if (callback.getBuffer() == null) {
                             callback.setBuffer(ByteBuffer.allocate(buffer.capacity()));
                         }
@@ -288,14 +287,16 @@ public class SelectorManager {
                             return;
                         }
                     }
-                    final byte[] bytes = SocketUtils.getByteArrayFromByteBuffer(callback.getBuffer());
+                    byte[] bytes = SocketUtils
+                            .getByteArrayFromByteBuffer(callback.getBuffer() == null ? buffer : callback.getBuffer());
+                    BValueArray contentTuple = new BValueArray(readTupleType);
                     contentTuple.add(0, new BValueArray(bytes));
                     contentTuple.add(1, new BInteger(callback.getCurrentLength()));
                     callback.getContext().setReturnValues(contentTuple);
                     callback.getCallback().notifySuccess();
                 } catch (IOException e) {
                     callback.getContext()
-                            .setReturnValues(SocketUtils.createSocketError(callback.getContext(), "Read failed."));
+                            .setReturnValues(SocketUtils.createSocketError(callback.getContext(), e.getMessage()));
                     callback.getCallback().notifySuccess();
                 } catch (Throwable e) {
                     e.printStackTrace();
