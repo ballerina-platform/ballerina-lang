@@ -40,7 +40,7 @@ import ballerina/crypto;
     !...;
 };
 
-# Sets the jwt access token to the AuthContext
+# Sets the jwt access token to the AuthenticationContext
 #
 # + username - user name
 # + authConfig - authentication provider configurations that supports generating JWT for client interactions
@@ -49,9 +49,9 @@ function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig)
     JwtPayload payload = createPayload(username, authConfig);
     var token = issueJwt(header, payload, authConfig.keyStore, authConfig.keyAlias, authConfig.keyPassword);
     if (token is string) {
-        runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
-        authContext.scheme = "jwt";
-        authContext.authToken = token;
+        runtime:AuthenticationContext authenticationContext = runtime:getInvocationContext().authenticationContext;
+        authenticationContext.scheme = "jwt";
+        authenticationContext.authToken = token;
     }
 }
 

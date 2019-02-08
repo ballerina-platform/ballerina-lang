@@ -26,13 +26,16 @@ import ballerina/io;
 # + audience - Expected audience
 # + clockSkew - Clock skew in seconds
 # + trustStore - Trust store used for signature verification
-# + certificateAlias - Token signed key alias
+# + certificateAlias - Token signed public key certificate alias
+# + validateCertificate - Validate public key certificate notBefore and notAfter periods
 public type JWTValidatorConfig record {
     string issuer;
     string audience;
     int clockSkew = 0;
     crypto:TrustStore trustStore;
     string certificateAlias;
+    boolean validateCertificate?;
+    !...;
 };
 
 # Validity given JWT string.
@@ -231,6 +234,13 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
                         { message : "Mandatory fields(Issuer,Subject, Expiration time or Audience) are empty in the given JSON Web Token." });
         return jwtError;
     }
+    if (config["validateCertificate"] is ()) {
+        config["validateCertificate"] = true;
+    }
+    if (config.validateCertificate == true && !check validateCertificate(config)) {
+        error jwtError = error(AUTH_ERROR_CODE, { message : "Public key certificate validity period has passed" });
+        return jwtError;
+    }
     var signatureValidationResult = validateSignature(encodedJWTComponents, jwtHeader, config);
     if (signatureValidationResult is error) {
         error jwtError = error(AUTH_ERROR_CODE, { message : signatureValidationResult.reason() });
@@ -272,11 +282,29 @@ function validateMandatoryFields(JwtPayload jwtPayload) returns (boolean) {
     return true;
 }
 
+function validateCertificate(JWTValidatorConfig config) returns boolean|error {
+    crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = config.trustStore,
+                                                              keyAlias = config.certificateAlias);
+    time:Time currTimeInGmt = time:toTimeZone(time:currentTime(), "GMT");
+    int currTimeInGmtMillis = currTimeInGmt.time;
+
+    var certificate = publicKey.certificate;
+    if (certificate is crypto:Certificate) {
+        int notBefore = certificate.notBefore.time;
+        int notAfter = certificate.notAfter.time;
+        if (currTimeInGmtMillis >= notBefore && currTimeInGmtMillis <= notAfter) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config)
 returns boolean|error {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     byte[] signPart = check encoding:decodeBase64Url(encodedJWTComponents[2]);
-    crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = config.trustStore, keyAlias = config.certificateAlias);
+    crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = config.trustStore,
+                                                              keyAlias = config.certificateAlias);
     if (jwtHeader.alg == RS256) {
         return crypto:verifyRsaSha256Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
     } else if (jwtHeader.alg == RS384) {

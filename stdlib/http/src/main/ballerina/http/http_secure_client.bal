@@ -322,7 +322,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
             }
         } else if (scheme == JWT_AUTH) {
-            string authToken = runtime:getInvocationContext().authContext.authToken;
+            string authToken = runtime:getInvocationContext().authenticationContext.authToken;
             if (authToken == EMPTY_STRING) {
                 error err = error(HTTP_ERROR_CODE, { message: "Authentication token is not set at invocation context" });
                 return err;

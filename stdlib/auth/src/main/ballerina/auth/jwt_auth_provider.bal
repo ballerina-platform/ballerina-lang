@@ -44,7 +44,7 @@ public type JWTAuthProvider object {
         if (self.authCache.hasKey(jwtToken)) {
             var payload = self.authenticateFromCache(jwtToken);
             if (payload is JwtPayload) {
-                self.setAuthContext(payload, jwtToken);
+                self.setAuthenticationContext(payload, jwtToken);
                 return true;
             } else {
                 return false;
@@ -53,7 +53,7 @@ public type JWTAuthProvider object {
 
         var payload = validateJwt(jwtToken, self.jwtAuthProviderConfig);
         if (payload is JwtPayload) {
-            self.setAuthContext(payload, jwtToken);
+            self.setAuthenticationContext(payload, jwtToken);
             self.addToAuthenticationCache(jwtToken, payload.exp, payload);
             return true;
         } else {
@@ -62,8 +62,8 @@ public type JWTAuthProvider object {
     }
 
     function authenticateFromCache(string jwtToken) returns JwtPayload|() {
-        var context = trap <CachedJWTAuthContext>self.authCache.get(jwtToken);
-        if (context is CachedJWTAuthContext) {
+        var context = trap <CachedJWTAuthenticationContext>self.authCache.get(jwtToken);
+        if (context is CachedJWTAuthenticationContext) {
             // convert to current time and check the expiry time
             if (context.expiryTime > (time:currentTime().time / 1000)) {
                 JwtPayload payload = context.jwtPayload;
@@ -77,34 +77,34 @@ public type JWTAuthProvider object {
     }
 
     function addToAuthenticationCache(string jwtToken, int exp, JwtPayload payload) {
-        CachedJWTAuthContext cachedContext = {jwtPayload : payload, expiryTime : exp};
+        CachedJWTAuthenticationContext cachedContext = {jwtPayload : payload, expiryTime : exp};
         self.authCache.put(jwtToken, cachedContext);
         log:printDebug(function() returns string {
             return "Add authenticated user :" + payload.sub + " to the cache";
         });
     }
 
-    function setAuthContext(JwtPayload jwtPayload, string jwtToken) {
-        runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-        userPrincipal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
+    function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) {
+        runtime:Principal principal = runtime:getInvocationContext().principal;
+        principal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
         // By default set sub as username.
-        userPrincipal.username = jwtPayload.sub;
-        userPrincipal.claims = jwtPayload.customClaims;
+        principal.username = jwtPayload.sub;
+        principal.claims = jwtPayload.customClaims;
         if (jwtPayload.customClaims.hasKey(SCOPES)) {
             var scopeString = jwtPayload.customClaims[SCOPES];
             if (scopeString is string) {
-                userPrincipal.scopes = scopeString.split(" ");
+                principal.scopes = scopeString.split(" ");
             }
         }
         if (jwtPayload.customClaims.hasKey(USERNAME)) {
             var name = jwtPayload.customClaims[USERNAME];
             if (name is string) {
-                userPrincipal.username = name;
+                principal.username = name;
             }
         }
-        runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
-        authContext.scheme = AUTH_TYPE_JWT;
-        authContext.authToken = jwtToken;
+        runtime:AuthenticationContext authenticationContext = runtime:getInvocationContext().authenticationContext;
+        authenticationContext.scheme = AUTH_TYPE_JWT;
+        authenticationContext.authToken = jwtToken;
     }
 
 };
@@ -121,16 +121,18 @@ const string AUTH_TYPE_JWT = "jwt";
 # + clockSkew - Time in seconds to mitigate clock skew
 # + trustStore - Trust store used for signature verification
 # + certificateAlias - Token signed key alias
+# + validateCertificate - Validate public key certificate notBefore and notAfter periods
 public type JWTAuthProviderConfig record {
     string issuer;
     string audience;
     int clockSkew = 0;
     crypto:TrustStore trustStore;
     string certificateAlias;
+    boolean validateCertificate?;
     !...;
 };
 
-type CachedJWTAuthContext record {
+type CachedJWTAuthenticationContext record {
     JwtPayload jwtPayload;
     int expiryTime;
     !...;

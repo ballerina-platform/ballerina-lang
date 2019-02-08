@@ -41,8 +41,8 @@ public class InvocationContextUtils {
 
     public static final String INVOCATION_CONTEXT_PROPERTY = "InvocationContext";
     public static final String STRUCT_TYPE_INVOCATION_CONTEXT = "InvocationContext";
-    public static final String STRUCT_TYPE_AUTH_CONTEXT = "AuthContext";
-    public static final String STRUCT_TYPE_USER_PRINCIPAL = "UserPrincipal";
+    public static final String STRUCT_TYPE_AUTHENTICATION_CONTEXT = "AuthenticationContext";
+    public static final String STRUCT_TYPE_PRINCIPAL = "Principal";
 
     public static InvocationContext getInvocationContext(Context context) {
         InvocationContext invocationContext = (InvocationContext) context.getProperty(InvocationContextUtils
@@ -66,12 +66,12 @@ public class InvocationContextUtils {
     private static InvocationContext initInvocationContext(Context context) {
         BMap<String, BValue> userPrincipalStruct = createUserPrincipal(context);
         UserPrincipal userPrincipal = new UserPrincipal(userPrincipalStruct);
-        BMap<String, BValue> authContextStruct = createAuthContext(context);
-        AuthContext authContext = new AuthContext(authContextStruct);
+        BMap<String, BValue> authContextStruct = createAuthenticationContext(context);
+        AuthenticationContext authenticationContext = new AuthenticationContext(authContextStruct);
         BMap<String, BValue> invocationContextStruct =
                 createInvocationContext(context, userPrincipalStruct, authContextStruct);
         InvocationContext invocationContext = new InvocationContext(
-                invocationContextStruct, userPrincipal, authContext);
+                invocationContextStruct, userPrincipal, authenticationContext);
         return invocationContext;
     }
 
@@ -92,15 +92,16 @@ public class InvocationContextUtils {
                 authContext, new BMap());
     }
 
-    private static BMap<String, BValue> createAuthContext(Context context) {
-        StructureTypeInfo authContextInfo = getStructInfo(context, BALLERINA_RUNTIME_PKG, STRUCT_TYPE_AUTH_CONTEXT);
+    private static BMap<String, BValue> createAuthenticationContext(Context context) {
+        StructureTypeInfo authContextInfo = getStructInfo(context, BALLERINA_RUNTIME_PKG,
+                STRUCT_TYPE_AUTHENTICATION_CONTEXT);
         String scheme = "";
         String authToken = "";
         return BLangVMStructs.createBStruct(authContextInfo, scheme, authToken);
     }
 
     private static BMap<String, BValue> createUserPrincipal(Context context) {
-        StructureTypeInfo authContextInfo = getStructInfo(context, BALLERINA_RUNTIME_PKG, STRUCT_TYPE_USER_PRINCIPAL);
+        StructureTypeInfo authContextInfo = getStructInfo(context, BALLERINA_RUNTIME_PKG, STRUCT_TYPE_PRINCIPAL);
         String userId = "";
         String username = "";
         BMap<String, BString> claims = new BMap<>();

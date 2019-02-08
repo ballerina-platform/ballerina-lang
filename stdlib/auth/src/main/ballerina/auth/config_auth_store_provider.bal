@@ -30,10 +30,10 @@ public type ConfigAuthStoreProvider object {
     public function authenticate(string user, string password) returns boolean {
         boolean isAuthenticated = password == self.readPassword(user);
             if(isAuthenticated){
-                runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-                userPrincipal.userId = user;
+                runtime:Principal principal = runtime:getInvocationContext().principal;
+                principal.userId = user;
                 // By default set userId as username.
-                userPrincipal.username = user;
+                principal.username = user;
             }
             return isAuthenticated;
         }

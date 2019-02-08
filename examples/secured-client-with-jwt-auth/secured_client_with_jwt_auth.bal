@@ -23,8 +23,8 @@ public function main() {
         "KE3DZgssvgPgI9PBItnkipQ3CqqXWhV-RFBkVBEGPDYXTUVGbXhdNOBSwKw5ZoVJrCU" +
         "iNG5XD0K4sgN9udVTi3EMKNMnVQaq399k6RYPAy3vIhByS6QZtRjOG8X93WJw-9GLiH" +
         "vcabuid80lnrs2-mAEcstgiHVw";
-    runtime:getInvocationContext().authContext.scheme = "jwt";
-    runtime:getInvocationContext().authContext.authToken = token;
+    runtime:getInvocationContext().authenticationContext.scheme = "jwt";
+    runtime:getInvocationContext().authenticationContext.authToken = token;
 
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");

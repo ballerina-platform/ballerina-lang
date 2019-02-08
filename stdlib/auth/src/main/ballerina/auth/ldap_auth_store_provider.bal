@@ -103,10 +103,10 @@ public type LdapAuthStoreProvider object {
     public function authenticate(string username, string password) returns boolean {
         boolean isAuthenticated = self.doAuthenticate(username, password);
         if (isAuthenticated) {
-            runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-            userPrincipal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
+            runtime:Principal principal = runtime:getInvocationContext().principal;
+            principal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
             // By default set userId as username.
-            userPrincipal.username = username;
+            principal.username = username;
         }
         return isAuthenticated;
     }
