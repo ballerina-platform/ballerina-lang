@@ -63,7 +63,7 @@ public class Resume extends BlockingNativeCallableUnit {
         }
         boolean isPaused = ((BBoolean) taskStruct.get(TASK_IS_PAUSED_FIELD)).booleanValue();
         if (!isPaused) {
-            String errorMessage = "Cannot resume the task: Task is already running.";
+            String errorMessage = "Cannot resume the task: Task is not paused.";
             context.setReturnValues(Utils.createError(context, errorMessage));
             return;
         }
