@@ -95,7 +95,7 @@ function testInsertTableData() returns (int) {
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 3, 5000.75, 'USA')");
     int insertCount = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return insertCount;
 }
 
@@ -109,7 +109,7 @@ function testCreateTable() returns (int) {
         });
     var result = testDB->update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))");
     int returnValue = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnValue;
 }
 
@@ -124,7 +124,7 @@ function testUpdateTableData() returns (int) {
 
     var result = testDB->update("Update Customers set country = 'UK' where registrationID = 1");
     int updateCount = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return updateCount;
 }
 
@@ -150,7 +150,7 @@ function testGeneratedKeyOnInsert() returns (string) {
     } else  if (x is error) {
         returnVal = x.reason();
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnVal;
 }
 
@@ -176,7 +176,7 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
     } else if (x is error) {
         returnVal = x.reason();
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnVal;
 }
 
@@ -209,7 +209,7 @@ function testGeneratedKeyWithColumn() returns (string) {
     } else if (x is error){
         returnVal = x.reason();
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnVal;
 }
 
@@ -223,7 +223,7 @@ function testSelectData() returns (string) {
         });
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ResultCustomers);
     string firstName = getTableFirstNameColumn(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return firstName;
 }
 
@@ -253,7 +253,7 @@ function testSelectIntFloatData() returns (int, int, float, float) {
             }
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (int_type, long_type, float_type, double_type);
 }
 
@@ -278,7 +278,7 @@ function testCallProcedure() returns (string, string) {
     }
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
     string firstName = getTableFirstNameColumn(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (firstName, returnValue);
 }
 
@@ -299,7 +299,7 @@ function testCallProcedureWithResultSet() returns (string) {
     } else if (ret is ()) {
         firstName = "error";
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return firstName;
 }
 
@@ -313,7 +313,7 @@ function testQueryParameters() returns (string) {
         });
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, 1);
     string firstName = getTableFirstNameColumn(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return firstName;
 }
 
@@ -329,7 +329,7 @@ function testQueryParameters2() returns (string) {
     sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 1 };
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, p1);
     string firstName = getTableFirstNameColumn(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return firstName;
 }
 
@@ -352,7 +352,7 @@ function testInsertTableDataWithParameters() returns (int) {
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", para1, para2, para3, para4, para5);
     int insertCount = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return insertCount;
 }
 
@@ -368,7 +368,7 @@ function testInsertTableDataWithParameters2() returns (int) {
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", "Anne", "James", 3, 5000.75, "UK");
     int insertCount = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return insertCount;
 }
 
@@ -385,7 +385,7 @@ function testInsertTableDataWithParameters3() returns (int) {
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", s1, "James", 3, 5000.75, "UK");
     int insertCount = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return insertCount;
 }
 
@@ -410,7 +410,7 @@ function testArrayofQueryParameters() returns (string) {
         lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", ResultCustomers,
         para0, para1, para2, para3);
     string firstName = getTableFirstNameColumn(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return firstName;
 }
 
@@ -444,7 +444,7 @@ function testBoolArrayofQueryParameters() returns (int) {
             }
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return value;
 }
 
@@ -481,7 +481,7 @@ function testBlobArrayQueryParameter() returns int {
             }
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return value;
 }
 
@@ -535,7 +535,7 @@ function testArrayInParameters() returns (int, int[], int[], float[],
             }
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (insertCount, int_arr, long_arr, double_arr, string_arr, boolean_arr, float_arr);
 }
 
@@ -568,7 +568,7 @@ function testOutParameters() returns (any, any, any, any, any, any, any,
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
 
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
 
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -594,7 +594,7 @@ function testBlobOutInOutParameters() returns (any, any) {
 
     _ = testDB->call("{call TestOUTINOUTParamsBlob(?,?,?,?)}", (), paraID1, paraID2, paraBlobOut, paraBlobInOut);
 
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
 
     return (paraBlobOut.value, paraBlobInOut.value);
 }
@@ -627,7 +627,7 @@ function testNullOutParameters() returns (any, any, any, any, any, any,
     _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
     paraBinary.value);
@@ -651,7 +651,7 @@ function testNullOutInOutBlobParameters() returns (any, any) {
     sql:Parameter paraBlobInOut = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_INOUT };
 
     _ = testDB->call("{call TestOUTINOUTParamsBlob(?,?,?,?)}", (), paraID1, paraID2, paraBlobOut, paraBlobInOut);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (paraBlobOut.value, paraBlobInOut.value);
 }
 
@@ -685,7 +685,7 @@ function testINParameters() returns (int) {
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
     int insertCount = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return insertCount;
 }
 
@@ -715,7 +715,7 @@ function testBlobInParameter() returns (int, byte[]) {
             }
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (insertCount, blobVal);
 }
 
@@ -760,7 +760,7 @@ function testINParametersWithDirectValues() returns (int, int, float,
             }
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (i, l, f, d, b, s, n, dec, real);
 }
 
@@ -818,7 +818,7 @@ function testINParametersWithDirectVariables() returns (int, int, float,
             }
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (i, l, f, d, b, s, n, dec, real);
 }
 
@@ -852,7 +852,7 @@ function testNullINParameterValues() returns (int) {
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
     int insertCount = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return insertCount;
 }
 
@@ -871,7 +871,7 @@ function testNullINParameterBlobValue() returns (int) {
     var result = testDB->update("INSERT INTO BlobTable (row_id, blob_type) VALUES (?,?)",
         paraID, paraBlob);
     int insertCount = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return insertCount;
 }
 
@@ -905,7 +905,7 @@ function testINOutParameters() returns (any, any, any, any, any, any,
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
     paraBinary.value);
@@ -939,7 +939,7 @@ function testNullINOutParameters() returns (any, any, any, any, any, any
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
     paraBinary.value);
@@ -955,7 +955,7 @@ function testEmptySQLType() returns (int) {
         });
     var result = testDB->update("Insert into Customers (firstName) values (?)", "Anne");
     int insertCount = getIntResult(result);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return insertCount;
 }
 
@@ -977,7 +977,7 @@ function testArrayOutParameters() returns (any, any, any, any, any, any)
     sql:Parameter para5 = { sqlType: sql:TYPE_ARRAY, direction: sql:DIRECTION_OUT };
     sql:Parameter para6 = { sqlType: sql:TYPE_ARRAY, direction: sql:DIRECTION_OUT };
     _ = testDB->call("{call TestArrayOutParams(?,?,?,?,?,?)}", (), para1, para2, para3, para4, para5, para6);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (para1.value, para2.value, para3.value, para4.value, para5.value, para6.value);
 }
 
@@ -1013,7 +1013,7 @@ function testArrayInOutParameters() returns (any, any, any, any, any,
     _ = testDB->call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8);
 
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value);
 }
 
@@ -1045,7 +1045,7 @@ function testBatchUpdate() returns (int[]) {
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
     int[] updateCount = getBatchUpdateCount(ret);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return updateCount;
 }
 
@@ -1069,7 +1069,7 @@ function testBatchUpdateWithValues() returns int[] {
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
                             creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     int[] updateCount = getBatchUpdateCount(ret);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return updateCount;
 }
 
@@ -1097,7 +1097,7 @@ function testBatchUpdateWithVariables() returns int[] {
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
                             creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     int[] updateCount = getBatchUpdateCount(ret);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return updateCount;
 }
 
@@ -1152,7 +1152,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     var dt = testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
         ResultCount);
     int count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (updateCount, count);
 }
 
@@ -1168,7 +1168,7 @@ function testBatchUpdateWithNullParam() returns (int[]) {
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values ('Alex','Smith',20,3400.5,'Colombo')");
     int[] updateCount = getBatchUpdateCount(ret);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return updateCount;
 }
 
@@ -1217,7 +1217,7 @@ function testDateTimeInParameters() returns (int[]) {
     int insertCount3 = getIntResult(result3);
     returnValues[2] = insertCount3;
 
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnValues;
 }
 
@@ -1244,7 +1244,7 @@ function testDateTimeNullInValues() returns (string) {
                 from DateTimeTypes where row_id = 33", ResultDates);
     json j = getJsonConversionResult(dt);
     string data = io:sprintf("%s", j);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return data;
 }
 
@@ -1273,7 +1273,7 @@ function testDateTimeNullOutValues() returns (int) {
 
     var dt = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", ResultCount);
     int count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return count;
 }
 
@@ -1293,7 +1293,7 @@ function testDateTimeNullInOutValues() returns (any, any, any, any) {
     sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: null, direction: sql:DIRECTION_INOUT };
 
     _ = testDB->call("{call TestDateINOUTParams(?,?,?,?,?)}", (), para1, para2, para3, para4, para5);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (para2.value, para3.value, para4.value, para5.value);
 }
 
@@ -1325,7 +1325,7 @@ function testDateTimeOutParams(int time, int date, int timestamp)
 
     var dt = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", ResultCount);
     int count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return count;
 }
 
@@ -1340,7 +1340,7 @@ function testStructOutParameters() returns (any) {
 
     sql:Parameter para1 = { sqlType: sql:TYPE_STRUCT, direction: sql:DIRECTION_OUT };
     _ = testDB->call("{call TestStructOut(?)}", (), para1);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return para1.value;
 }
 
@@ -1375,7 +1375,7 @@ function testComplexTypeRetrieval() returns (string, string, string,
     j = getJsonConversionResult(dt4);
     s4 = io:sprintf("%s", j);
 
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (s1, s2, s3, s4);
 }
 
@@ -1413,7 +1413,7 @@ function testSelectLoadToMemory() returns (CustomerFullName[],
             i += 1;
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (fullNameArray1, fullNameArray2, fullNameArray3);
 }
 
@@ -1447,7 +1447,7 @@ function testLoadToMemorySelectAfterTableClose() returns (
             e = ret;
         }
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return (fullNameArray1, fullNameArray2, e);
 }
 
@@ -1472,7 +1472,7 @@ function testCloseConnectionPool(string connectionCountQuery)
         });
     var dt = testDB->select(connectionCountQuery, ResultCount);
     int count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return count;
 }
 

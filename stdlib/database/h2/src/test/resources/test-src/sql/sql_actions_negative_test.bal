@@ -43,7 +43,7 @@ function testSelectData() returns (string) {
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
     json j = getJsonConversionResult(x);
     returnData = io:sprintf("%s", j);
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnData;
 }
 
@@ -67,7 +67,7 @@ function testGeneratedKeyOnInsert() returns (string) {
     } else if (x is error) {
         ret = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return ret;
 }
 
@@ -94,7 +94,7 @@ function testCallProcedure() returns (string) {
     } else if (x is error) {
         returnData = x.reason();
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnData;
 }
 
@@ -137,7 +137,7 @@ function testBatchUpdate() returns (string) {
     } else if (x is error) {
         returnVal = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnVal;
 }
 
@@ -167,7 +167,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
     } else if (x is error) {
         returnData = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return returnData;
 }
 
@@ -204,7 +204,7 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(
     } else if (ret is error) {
         retVal = ret;
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return retVal;
 }
 
@@ -242,7 +242,7 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string 
     } else if (ret is error) {
         retVal = ret;
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return retVal;
 }
 
@@ -279,7 +279,7 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
     } else if (ret is error) {
         retVal = ret;
     }
-    testDB.stop();
+    _ = h2:releaseConnectionPool(testDB);
     return retVal;
 }
 
