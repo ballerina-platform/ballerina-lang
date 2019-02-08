@@ -25,7 +25,21 @@ extern function clone(anydata value) returns anydata;
 # + stampType - Type to be stamped
 # + value - Value to be stamped
 # + return - Stamped value
-extern function stamp(typedesc stampType, anydata value) returns anydata|error;
+extern function stamp(typedesc stampType, anydata value) returns anydata;
+
+# Convert value to given type which can be stampable.
+#
+# + convertType - Type to be converted
+# + value - Value to be converted
+# + return - Converted value
+extern function convert(typedesc convertType, anydata value) returns anydata;
+
+# Convert simple value to given type.
+#
+# + convertType - Type to be converted
+# + value - Value to be converted
+# + return - Converted value
+extern function simpleValueConvert(typedesc convertType, anydata value) returns anydata;
 
 # Freeze a given value.
 #
