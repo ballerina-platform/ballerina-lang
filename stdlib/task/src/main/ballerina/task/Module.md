@@ -9,20 +9,26 @@ registration, which is denoted using `delay`. Use the `interval` to specify the 
 If the `delay` is not specified, the `interval` is taken as the `delay`. The `delay` and `interval` times are defined 
 in milliseconds.
 
-The tasks that need to be executed is defined in the `onTriggerFunction` function.  If an error is returned when 
-executing the `onTriggerFunction` function, the `onErrorFunction` is executed.
+The tasks that need to be executed is defined in the resource function `onTrigger()`.  If an error is returned when 
+executing the `onTrigger()` resource function, the `onError()` resource is executed.
 
 The example given below defines the `doTask` function as the  `onTriggerFunction` function. It is executed a second 
 after the task registers and runs every 0.5 seconds. If the function returns an error, the  `onError` function is 
 executed. This function is responsible for handling errors that takes place while doing the specified task.
 
 ```ballerina
-
-    (function() returns error?) onTriggerFunction = doTask;
-    (function(error)) onErrorFunction = onError;
-    timer = new task:Timer(onTriggerFunction, onErrorFunction, 500, delay = 1000);
-    timer.start();
-
+    listener task:Listener timer = new({
+        interval: 1000,
+        delay: 5000
+    });
+    service timerService on timer {
+        resource function onTrigger() {
+            // Logic to execute on the triggering of the timer.
+        }
+        resource function onError() {
+            // Logic to execute when an error is occurred.
+        }
+    }
 ```
 
 ### Task appointments
@@ -30,17 +36,25 @@ executed. This function is responsible for handling errors that takes place whil
 A task appointment is similar to a real-world appointment. The task appointment is configured to run at a given time 
 pattern. A cron expression is used to define the time, and the frequency a task appointment needs to run. 
 
-The `onTriggerFunction` function of the task is called when the appointment is due.  If an error is returned when 
-executing the `onTriggerFunction` function, the `onErrorFunction` is called.
+The `onTrigger()` resource function of the task is called when the appointment is due.  If an error is returned when 
+executing the `onTrigger()` resource function, the `onError()` resource is called.
 
-The example given below triggers the `onTrigger` function every 5 seconds. If an error is returned, the `cleanupError` 
+The example given below triggers the `onTrigger()` function every 5 seconds. If an error is returned, the `onError()` 
 function is called.
 
 ```ballerina
-    (function() returns error?) onTriggerFunction = onTrigger;
-    (function (error)) onErrorFunction = cleanupError;
-    app = new task:Appointment(onTriggerFunction, onErrorFunction, "0/05 * * * * ?");
-    app.schedule();
+
+    listener task:Listener appointment = new({
+            cronExpression: "0/05 * * * * ?"
+    });
+    service timerService on timer {
+        resource function onTrigger() {
+            // Logic to execute on the triggering of the timer.
+        }
+        resource function onError() {
+            // Logic to execute when an error is occurred.
+        }
+    }
 ```
 
 ## Samples
@@ -60,12 +74,38 @@ import ballerina/task;
 int count = 0;
 task:Timer? timer = ();
 
-public function main(string... args) {
-    io:println("tasks sample is running");
-    scheduleTimer(1000,1000);
-    // Keep the program running for 100*1000 milliseconds.
-    runtime:sleep(100*1000);
+public function main() {
+    task:Listener timer = new({
+            interval: 2000,
+            delay: 1000
+    });
+    var result = timer.attach(timerService);
+    result = timer.start();
 }
+
+service timerService = service {
+    resource function onTrigger() {
+        count = count + 1;
+        if(count == 10) {
+            error e = error("Task cannot be performed when the count is 10");
+            //The ‘onError’ function is called when the error is returned.
+            return e;
+        }
+    
+        if(count == 20) {
+            var stopResult = stopTask();
+            if (stopResult is error) {
+                return stopResult;
+            }
+        }
+        io:println("on trigger : count value is: " + count);
+        return;
+    }
+
+    resource function onError() {
+        count = count - 1;
+    }
+};
 
 function scheduleTimer(int delay, int interval) {
     // Point to the trigger function.

@@ -23,8 +23,6 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BClosure;
-import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -67,11 +65,7 @@ public class TaskExecutor {
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
-                BFunctionPointer errorFunction = (BFunctionPointer) task.get(TaskConstants.RESOURCE_ON_ERROR);
                 List<BValue> onErrorFunctionArgs = new ArrayList<>();
-                for (BClosure closure : errorFunction.getClosureVars()) {
-                    onErrorFunctionArgs.add(closure.value());
-                }
                 onErrorFunctionArgs.addAll(Arrays.asList(results));
                 BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(),
                         onErrorFunction, onErrorFunctionArgs.toArray(new BValue[0]));
