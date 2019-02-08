@@ -119,7 +119,7 @@ public remote function Client.registerTopic(string topic) returns error? {
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
-    } else if (registrationResponse is error) {
+    } else {
         string errCause = <string> registrationResponse.detail().message;
         map<any> errorDetail = { message : "Error sending topic registration request: " + errCause };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -140,7 +140,7 @@ public remote function Client.unregisterTopic(string topic) returns error? {
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
-    } else if (unregistrationResponse is error) {
+    } else {
         string errCause = <string> unregistrationResponse.detail().message;
         map<any> errorDetail = { message : "Error sending topic unregistration request: " + errCause };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -176,7 +176,7 @@ public remote function Client.publishUpdate(string topic, string|xml|json|byte[]
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
-    } else if (response is error) {
+    } else {
         map<any> errorDetail = { message : "Publish failed for topic [" + topic + "]" };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
@@ -204,7 +204,7 @@ public remote function Client.notifyUpdate(string topic, map<string>? headers = 
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
-    } else if (response is error) {
+    } else {
         map<any> errorDetail = { message : "Update availability notification failed for topic [" + topic + "]" };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
@@ -271,7 +271,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                                 errCause };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
-    } else if (response is http:Response) {
+    } else {
         int responseStatusCode = response.statusCode;
         if (responseStatusCode == http:TEMPORARY_REDIRECT_307
                 || responseStatusCode == http:PERMANENT_REDIRECT_308) {
@@ -290,7 +290,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
             string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
             if (responsePayload is string) {
                 errorMessage = errorMessage + " - " + responsePayload;
-            } else if responsePayload is error {
+            } else {
                 string errCause = <string> responsePayload.detail().message;
                 errorMessage = errorMessage + " - Error occurred identifying cause: " + errCause;
             }
@@ -304,9 +304,6 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
             SubscriptionChangeResponse subscriptionChangeResponse = {hub:hub, topic:topic, response:response};
             return subscriptionChangeResponse;
         }
-    } else {
-        error webSubError = error(WEBSUB_ERROR_CODE);
-        return webSubError;
     }
 }
 

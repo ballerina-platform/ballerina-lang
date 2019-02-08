@@ -18,7 +18,7 @@ public function main() returns error? {
 
     // Hashing input value using SHA256 hashing algorithm, and printing hash value using Hex encoding.
     output = crypto:hashSha256(inputArr);
-    io:println("Hec encoded hash with SHA256: " + encoding:encodeHex(output));
+    io:println("Hex encoded hash with SHA256: " + encoding:encodeHex(output));
 
     // Hashing input value using SHA384 hashing algorithm, and printing hash value using Base64 encoding.
     output = crypto:hashSha384(inputArr);
@@ -63,7 +63,7 @@ public function main() returns error? {
 
 
     // Obtaining reference to a RSA private key stored within a PKCS#12 or PFX format archive file.
-    crypto:KeyStore keyStore = { path: "sampleKeystore.p12", password: "ballerina" };
+    crypto:KeyStore keyStore = { path: "crypto/sampleKeystore.p12", password: "ballerina" };
     var privateKey = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
         keyPassword = "ballerina");
 
