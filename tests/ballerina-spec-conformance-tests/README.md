@@ -96,7 +96,7 @@ Once a deviation is fixed, the relevant tests in the `deviation` directory need 
 
 ### Running the Test Suite
 
-To run all the tests, navigate to the `spec-conformance-tests` project and use the Ballerina `test` command.
+To run all the tests, navigate to the `ballerina-spec-conformance-tests` project and use the Ballerina `test` command.
 ```cmd
 $ ballerina test --experimental
 ```

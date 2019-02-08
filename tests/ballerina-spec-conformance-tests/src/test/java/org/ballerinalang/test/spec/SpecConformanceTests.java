@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.spec.tests;
+package org.ballerinalang.test.spec;
 
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.testerina.core.BTestRunner;
