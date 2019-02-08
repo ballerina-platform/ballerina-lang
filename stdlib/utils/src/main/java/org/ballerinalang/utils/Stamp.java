@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -49,8 +49,8 @@ import java.util.function.Predicate;
         orgName = "ballerina",
         packageName = "utils",
         functionName = "stamp",
-        args = {@Argument(name = "stampType",type = TypeKind.TYPEDESC),
-                @Argument(name = "value",type = TypeKind.ANYDATA)},
+        args = {@Argument(name = "stampType", type = TypeKind.TYPEDESC),
+                @Argument(name = "value", type = TypeKind.ANYDATA)},
         returnType = { @ReturnType(type = TypeKind.UNION) }
 )
 public class Stamp extends BlockingNativeCallableUnit {
