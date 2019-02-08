@@ -49,6 +49,8 @@ public enum BLangBuiltInMethod {
     STAMP("stamp", true),
 
     CONVERT("convert", true),
+
+    SIMPLE_VALUE_CONVERT("simpleValueConvert", true),
     
     CALL("call", true),
 

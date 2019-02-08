@@ -273,8 +273,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWTABLE] = "new_table";
         mnemonics[InstructionCodes.NEWSTREAM] = "new_stream";
 
-        mnemonics[InstructionCodes.CONVERT] = "convert";
-
         mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
         mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 

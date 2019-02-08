@@ -478,26 +478,26 @@ public class SymbolTable {
 
         // Define conversion operators
 
-        defineConversionOperator(anyType, intType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anyType, byteType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anyType, floatType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anyType, decimalType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anyType, stringType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anyType, booleanType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anydataType, intType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anydataType, byteType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anydataType, floatType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anydataType, decimalType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anydataType, stringType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(anydataType, booleanType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(jsonType, intType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(jsonType, floatType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(jsonType, decimalType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(jsonType, stringType, false, InstructionCodes.CONVERT);
-        defineConversionOperator(jsonType, booleanType, false, InstructionCodes.CONVERT);
+        defineConversionOperator(anyType, intType, false);
+        defineConversionOperator(anyType, byteType, false);
+        defineConversionOperator(anyType, floatType, false);
+        defineConversionOperator(anyType, decimalType, false);
+        defineConversionOperator(anyType, stringType, false);
+        defineConversionOperator(anyType, booleanType, false);
+        defineConversionOperator(anydataType, intType, false);
+        defineConversionOperator(anydataType, byteType, false);
+        defineConversionOperator(anydataType, floatType, false);
+        defineConversionOperator(anydataType, decimalType, false);
+        defineConversionOperator(anydataType, stringType, false);
+        defineConversionOperator(anydataType, booleanType, false);
+        defineConversionOperator(jsonType, intType, false);
+        defineConversionOperator(jsonType, floatType, false);
+        defineConversionOperator(jsonType, decimalType, false);
+        defineConversionOperator(jsonType, stringType, false);
+        defineConversionOperator(jsonType, booleanType, false);
         
-        defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
-        defineConversionOperator(anydataType, stringType, true, InstructionCodes.ANY2SCONV);
+//        defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
+//        defineConversionOperator(anydataType, stringType, true, InstructionCodes.ANY2SCONV);
         defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, decimalType, true, InstructionCodes.I2D);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
@@ -608,6 +608,12 @@ public class SymbolTable {
                                     boolean safe,
                                     int opcode) {
         defineCastOperator(sourceType, targetType, false, safe, opcode);
+    }
+
+    private void defineConversionOperator(BType sourceType,
+                                          BType targetType,
+                                          boolean safe) {
+        defineConversionOperator(sourceType, targetType, safe, -1);
     }
 
     private void defineConversionOperator(BType sourceType,
