@@ -593,10 +593,14 @@ function testNullJsonToStruct () returns Person {
     }
 }
 
-function testNullStructToJson () returns (json | error) {
+function testNullStructToJson () returns json {
     Person? p = ();
     var j = json.convert(p);
-    return j;
+    if (j is json) {
+        return j;
+    } else {
+        panic j;
+    }
 }
 
 type PersonA record {
@@ -1027,9 +1031,9 @@ function testImplicitConversionToString() returns map<any>|error {
     string a = check string.convert(operationReq.fromInt);
     string b = check string.convert(operationReq.fromString);
     string c = check string.convert(operationReq.fromFloat);
-    string d = string.convert(fromByte);
-    string e = string.convert(fromDecimal);
-    string f = string.convert(fromBoolean);
+    string d = check string.convert(fromByte);
+    string e = check string.convert(fromDecimal);
+    string f = check string.convert(fromBoolean);
     return {"fromInt":a, "fromString":b ,"fromFloat":c, "fromByte":d, "fromDecimal": e, "fromBoolean": f };
 }
 
