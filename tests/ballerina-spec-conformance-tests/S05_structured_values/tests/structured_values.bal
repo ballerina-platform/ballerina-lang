@@ -81,8 +81,13 @@ function testMapFreezeOnContainer() {
     map<string|int|FooObjectThirteen> a3 = { one: 1, two: "two" };
     var result = a3.freeze();
     if (result is map<string|int|FooObjectThirteen>) {
-        utils:assertPanic(function () { insertMemberToMap(result, "two", 2); }, B7A_INVALID_UPDATE_REASON,
-                                IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+        var trappedResult = trap insertMemberToMap(result, "two", 2);
+        if (trappedResult is error) {
+            test:assertEquals(trappedResult.reason(), B7A_INVALID_UPDATE_REASON,
+                msg = IMMUTABLE_VALUE_UPDATE_INVALID_REASON_MESSAGE);
+        } else {
+            test:assertFail(msg = "expected expression to panic");
+        }
     }
 }
 

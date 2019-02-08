@@ -103,7 +103,7 @@ function testTableSubtype() {
 }
 
 public type BazRecordFourteen record {
-    float bazFieldOne;
+    int bazFieldOne;
     int bazFieldTwo;
 };
 

@@ -25,7 +25,7 @@ const EXPECTED_VALUE_NOT_TO_BELONG_TO_TYPE_FAILURE_MESSAGE = "expected value to 
 function testBelongsToWithArrays() {
     (int|boolean)[] a1 = [true, false, false];
     any a2 = a1;
-    if !(a2 is (int|boolean)[]) || !(a2 is anydata[]) {
+    if !(a2 is anydata[]) || !(a2 is (int|boolean)[]) {
         test:assertFail(msg = EXPECTED_VALUE_TO_BELONG_TO_TYPE_FAILURE_MESSAGE);
     }
 
@@ -38,7 +38,7 @@ function testBelongsToWithArrays() {
 function testBelongsToWithTuples() {
     (int|boolean, string|float, decimal) a3 = (false, 1.0, <decimal>5.2);
     anydata a4 = a3;
-    if !(a4 is (int|boolean, string|float, decimal)) || !(a4 is (anydata, anydata, decimal)) {
+    if !(a4 is (anydata, anydata, decimal)) || !(a4 is (int|boolean, string|float, decimal)) {
         test:assertFail(msg = EXPECTED_VALUE_TO_BELONG_TO_TYPE_FAILURE_MESSAGE);
     }
 
@@ -54,7 +54,7 @@ function testBelongsToWithMaps() {
         one: "test string 1"
     };
     any a6 = a5;
-    if !(a6 is map<string|int>) || !(a6 is map<anydata>) {
+    if !(a6 is map<anydata>) || !(a6 is map<string|int>) {
         test:assertFail(msg = EXPECTED_VALUE_TO_BELONG_TO_TYPE_FAILURE_MESSAGE);
     }
 
@@ -75,7 +75,7 @@ public type BRecord record {
 @test:Config {}
 function testBelongsToWithRecords() {
     anydata a7 = <BRecord>{ fieldOne: 1.0 };
-    if !(a7 is BRecord) || !(a7 is record {}) {
+    if !(a7 is record {}) || !(a7 is BRecord) {
         test:assertFail(msg = EXPECTED_VALUE_TO_BELONG_TO_TYPE_FAILURE_MESSAGE);
     }
 
