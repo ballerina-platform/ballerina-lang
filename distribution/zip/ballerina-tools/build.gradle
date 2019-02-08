@@ -17,6 +17,9 @@ configurations {
     toolsZip {
         transitive false
     }
+    ballerinaZip {
+        transitive false
+    }
 }
 
 dependencies {
@@ -43,7 +46,8 @@ dependencies {
 
     toolsZip project(path: ':language-server:language-server-core', configuration: 'dist');
     tools project(':language-server:language-server-stdio-launcher');
-    tools project(path: ':language-server:language-server-core');
+    tools project(':language-server:language-server-core');
+    ballerinaZip project(path: ':ballerina', configuration: 'dist');
 }
 
 def basePath = '/' + project.name + '-' + project.version + '/'
@@ -71,10 +75,19 @@ CopySpec copyToolsBin = copySpec {
 
 CopySpec copyToolsZipSpec = copySpec {
     configurations.toolsZip.asFileTree.each {
-        println(zipTree(it))
         from(zipTree(it))
     }
     into(basePath + 'lib/tools/lang-server')
+}
+
+CopySpec copyBallerinaZipSpec = copySpec {
+    configurations.ballerinaZip.asFileTree.each {
+        from(zipTree(it))  { includeEmptyDirs false }
+	    eachFile { f ->
+			f.path = f.path.replaceFirst("ballerina-$project.version/", '')
+        }
+    }
+    into(basePath)
 }
 
 CopySpec copyToolsSpec = copySpec {
@@ -88,6 +101,7 @@ task createZip(type: Zip) {
     with copyToolsSpec
     with copyToolsZipSpec
     with copyToolsBin
+    with copyBallerinaZipSpec
 }
 
 build {
