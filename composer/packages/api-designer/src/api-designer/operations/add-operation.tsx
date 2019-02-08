@@ -25,7 +25,8 @@ export interface OpenApiAddOperationProps {
     openApiJson: Swagger.OpenAPIObject;
     onAddOperation: (operation: Swagger.OperationObject) => void ;
     resourcePath: string;
-    handleOnClose: (e: React.MouseEvent) => void;
+    handleOnClose: (id: number) => void;
+    operationIndex: number;
 }
 
 export interface OpenApiAddOperationState {
@@ -80,13 +81,13 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
 
     public render() {
         const { operationMethods } = this.state;
-        const { onAddOperation, handleOnClose } = this.props;
+        const { onAddOperation, handleOnClose, operationIndex } = this.props;
 
         return (
             <Form className="add-operation">
-                <Segment basic clearing className="close-segment">
+                <Segment basic clearing>
                     <Button size="mini" className="btn-close" floated="right" onClick={(e: any) => {
-                        handleOnClose(e);
+                        handleOnClose(operationIndex);
                         this.setState({
                             operationMethods: [],
                             operationObject: {
@@ -118,6 +119,7 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
                 </Form.Group>
                 <Button size="mini" onClick={() => {
                     onAddOperation(this.state.operationObject);
+                    handleOnClose(operationIndex);
                     this.setState({
                         operationMethods: [],
                         operationObject: {

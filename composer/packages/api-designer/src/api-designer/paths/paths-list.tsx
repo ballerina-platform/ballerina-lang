@@ -35,7 +35,7 @@ interface OpenApiPathProps {
 
 interface OpenApiPathState {
     activeIndex: number[];
-    showAddOperation: boolean;
+    showAddOperation: number[];
 }
 
 class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState> {
@@ -44,7 +44,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
 
         this.state = {
             activeIndex: [],
-            showAddOperation: false,
+            showAddOperation: [],
         };
 
         this.onAccordionTitleClick = this.onAccordionTitleClick.bind(this);
@@ -54,7 +54,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
     public componentWillReceiveProps(nextProps: OpenApiPathProps) {
         const { paths, expandMode } = nextProps;
         const activePaths: number[] = [];
-        let hideForm: boolean = this.state.showAddOperation;
+        let hideForm: number[] = this.state.showAddOperation;
 
         if (expandMode.isEdit) {
             return;
@@ -69,7 +69,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
         }
 
         if (expandMode.type === "collapse") {
-            hideForm = false;
+            hideForm = [];
         }
 
         this.setState({
@@ -117,7 +117,10 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                     compact
                                                     className="add-operation-action"
                                                     circular
-                                                    onClick={this.onAddOperationClick}
+                                                    onClick={(e: React.MouseEvent) => {
+                                                        e.stopPropagation();
+                                                        this.onAddOperationClick(index);
+                                                    }}
                                                 ><i className="fw fw-add"></i>
                                                 </Button>
                                             }
@@ -131,12 +134,13 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                         </Accordion.Title>
                                         <Accordion.Content
                                             active={activeIndex.includes(index)}>
-                                            {showAddOperation &&
+                                            {showAddOperation.includes(index) &&
                                                 <AddOpenApiOperation
                                                     openApiJson={context!.openApiJson}
                                                     onAddOperation={context!.onAddOpenApiOperation}
                                                     resourcePath={openApiResource}
                                                     handleOnClose={this.onAddOperationClick}
+                                                    operationIndex={index}
                                                 />
                                             }
                                             <OpenApiOperation
@@ -155,12 +159,17 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
         );
     }
 
-    private onAddOperationClick(e: React.MouseEvent) {
-        e.stopPropagation();
-        const { showAddOperation } = this.state;
-        this.setState({
-            showAddOperation: !showAddOperation,
-        });
+    private onAddOperationClick(id: number) {
+        if (this.state.showAddOperation.includes(id)) {
+            this.setState({showAddOperation: this.state.showAddOperation.filter((index) => {
+                return index !== id;
+            })});
+
+        } else {
+            this.setState({
+                showAddOperation: [...this.state.showAddOperation, id],
+            });
+        }
     }
 
     private onAccordionTitleClick(e: React.MouseEvent, titleProps: AccordionTitleProps) {
@@ -170,6 +179,8 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
         this.setState({
             activeIndex: !activeIndex.includes(Number(index)) ?
                 [...this.state.activeIndex, Number(index)] : this.state.activeIndex.filter((i) => i !== index),
+            showAddOperation: activeIndex.includes(Number(index)) ?
+                this.state.showAddOperation.filter((i) => i !== index) : this.state.showAddOperation
         });
     }
 }
