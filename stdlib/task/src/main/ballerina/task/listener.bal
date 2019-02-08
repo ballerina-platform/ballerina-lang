@@ -103,7 +103,7 @@ public type Listener object {
     # + return - Returns error if the process failed due to any reason, nil otherwise.
     public extern function start() returns error?;
 
-    # Cancels the listenr from running. This will stop, after finish running the existing jobs.
+    # Cancels the listener from running. This will stop, after finish running the existing jobs.
     #
     # + return - Returns error if the process failed due to any reason, nil otherwise.
     public function cancel() returns error? {
@@ -124,5 +124,5 @@ public type Listener object {
     #
     # + attachedService - service which needs to be detached from the listener.
     # + return - Returns error if the process failed due to any reason, nil otherwise.
-    extern function detach(service attachedService) returns error?;
+    public extern function detach(service attachedService) returns error?;
 };
