@@ -144,7 +144,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -503,9 +502,6 @@ public class BVM {
                     break;
                 case InstructionCodes.ERROR:
                     createNewError(operands, strand, sf);
-                    break;
-                case InstructionCodes.CONVERT:
-                    handleConvertBuildInMethod(strand, sf, operands);
                     break;
                 case InstructionCodes.FPCALL:
                     i = operands[0];
@@ -988,60 +984,6 @@ public class BVM {
         sf.refRegs[l] = (BRefType<?>) BLangVMErrors
                 .createError(strand, true, (BErrorType) typeRefCPEntry.getType(), sf.stringRegs[j],
                         (BMap<String, BValue>) sf.refRegs[k]);
-    }
-
-    private static void handleConvertBuildInMethod(Strand strand, StackFrame sf, int[] operands) {
-
-        int i = operands[0];
-        int cpIndex = operands[1];
-        int j = operands[2];
-        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
-        BRefType bRefTypeValue = sf.refRegs[i];
-        if (bRefTypeValue == null) {
-            sf.refRegs[j] = null;
-            return;
-        }
-        int targetTag = typeRefCPEntry.getType().getTag();
-        try {
-            if (BTypes.isValueType(bRefTypeValue.getType())) {
-                convertValueTypes(strand, sf, j, typeRefCPEntry, bRefTypeValue, targetTag);
-                return;
-            }
-            if (targetTag == TypeTags.STRING_TAG) {
-                sf.refRegs[j] = new BString(bRefTypeValue.toString());
-                return;
-            }
-            handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
-        } catch (RuntimeException e) {
-            handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
-        }
-    }
-
-    private static void convertValueTypes(Strand strand, StackFrame sf, int resultRegIndex,
-                                          TypeRefCPEntry typeRefCPEntry, BRefType bRefTypeValue, int targetTag) {
-        switch (targetTag) {
-            case TypeTags.INT_TAG:
-                sf.refRegs[resultRegIndex] = new BInteger(((BValueType) bRefTypeValue).intValue());
-                break;
-            case TypeTags.FLOAT_TAG:
-                sf.refRegs[resultRegIndex] = new BFloat(((BValueType) bRefTypeValue).floatValue());
-                break;
-            case TypeTags.DECIMAL_TAG:
-                sf.refRegs[resultRegIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
-                break;
-            case TypeTags.STRING_TAG:
-                sf.refRegs[resultRegIndex] = new BString(bRefTypeValue.toString());
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sf.refRegs[resultRegIndex] = new BBoolean(((BValueType) bRefTypeValue).booleanValue());
-                break;
-            case TypeTags.BYTE_TAG:
-                sf.refRegs[resultRegIndex] = new BByte(((BValueType) bRefTypeValue).byteValue());
-                break;
-            default:
-                handleTypeConversionError(strand, sf, resultRegIndex, bRefTypeValue.getType(),
-                                          typeRefCPEntry.getType());
-        }
     }
 
     /**
