@@ -1144,9 +1144,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         assignNode.varRef = rewriteExpr(assignNode.varRef);
-        if (assignNode.expr.impConversionExpr == null) {
-            addConversionExprIfRequired(assignNode.expr, assignNode.varRef.type);
-        }
+        // This for closures
+        types.setImplicitCastExpr(assignNode.expr, assignNode.expr.type, assignNode.varRef.type);
         assignNode.expr = rewriteExpr(assignNode.expr);
 
         // If this is an update of a type guarded variable, then generate code
@@ -3326,7 +3325,11 @@ public class Desugar extends BLangNodeVisitor {
             result = null;
             return;
         }
-        iContext.operations.forEach(operation -> rewrite(operation.iExpr.argExprs, env));
+        for (Operation operation : iContext.operations) {
+            if (operation.iExpr.argExprs.size() > 0) {
+                operation.argExpression = rewrite(operation.iExpr.argExprs.get(0), env);
+            }
+        }
         iterableCodeDesugar.desugar(iContext);
         result = rewriteExpr(iContext.iteratorCaller);
     }

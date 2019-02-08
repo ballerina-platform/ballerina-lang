@@ -194,11 +194,11 @@ public class ClosureTest {
     }
 
     @Test(description = "Test iterable operations with lambda. This will verify whether local referred vars are " +
-            "modified within closure", enabled = false)
+            "modified within closure")
     public void testIterableOperationsVarModification() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLocalVarModifyWithinClosureScope");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 9.9);
     }
 
     @Test(description = "Test byte and boolean")

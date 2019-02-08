@@ -252,7 +252,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Lambda functions declared globally will be added to the module init function.
         // Ignore the init functions of record and object types
         if (env.node.getKind() != NodeKind.RECORD_TYPE && env.node.getKind() != NodeKind.OBJECT_TYPE) {
-            if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.PACKAGE) {
+            if (env.enclEnv != null && env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.PACKAGE) {
                 funcEnv.envCount = funcEnv.envCount + 2;
             }
         }
