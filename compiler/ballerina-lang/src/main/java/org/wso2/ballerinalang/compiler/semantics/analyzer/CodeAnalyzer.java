@@ -343,22 +343,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
 
-        BLangType returnTypeNode = funcNode.returnTypeNode;
-        if (returnTypeNode.type.tag == TypeTags.ARRAY && returnTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
-            analyzeArrayElemImplicitInitialValue(((BLangArrayType) returnTypeNode), returnTypeNode.pos);
-        } else if (returnTypeNode.type.tag == TypeTags.TUPLE && returnTypeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
-            for (BLangType memberTypeNode : ((BLangTupleTypeNode) returnTypeNode).memberTypeNodes) {
-                analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
-            }
-        } else if (returnTypeNode.type.tag == TypeTags.UNION && returnTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
-            List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) returnTypeNode).memberTypeNodes;
-            for (BLangType memberTypeNode : memberTypeNodes) {
-                analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
-            }
-        }
-
         if (isPublicInvokableNode(funcNode)) {
-            analyzeNode(returnTypeNode, invokableEnv);
+            analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
@@ -371,7 +357,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         funcNode.getKind().toString().toLowerCase());
             }
         }
-        funcNode.requiredParams.forEach(p -> visit(p));
         this.returnTypes.pop();
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
@@ -1025,12 +1010,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // Variable is a array def, elements must have implicit initial value.
         if (varNode.typeNode.type.tag == TypeTags.ARRAY) {
             analyzeArrayElemImplicitInitialValue(varNode.typeNode, varNode.pos);
-        } else if (varNode.typeNode.type.tag == TypeTags.INVOKABLE &&
-                varNode.typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
-            // Variable is a function pointer, analyze parameters.
-            for (BLangVariable param : ((BLangFunctionTypeNode) varNode.typeNode).params) {
-                analyzeArrayElemImplicitInitialValue(param.typeNode, param.pos);
-            }
         } else if (varNode.typeNode.type.tag == TypeTags.UNION
                 && varNode.typeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             // Check each member of the union.
@@ -1051,8 +1030,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (typeNode.type.tag != TypeTags.ARRAY) {
             return;
         }
-        BType elementType = ((BArrayType) typeNode.type).getElementType();
-        if (!elementType.hasImplicitInitialValue()) {
+        BArrayType arrayType = (BArrayType) typeNode.type;
+
+        if (arrayType.state != BArrayState.UNSEALED) {
+            return;
+        }
+
+        if (!arrayType.getElementType().hasImplicitInitialValue()) {
             BLangType eType = ((BLangArrayType) typeNode).elemtype;
             this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
         }
@@ -1783,7 +1767,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        analyzeExpr(bLangNamedArgsExpression.expr);
+        /* ignore */
     }
 
     @Override
