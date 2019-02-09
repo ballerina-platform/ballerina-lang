@@ -139,3 +139,7 @@ function foo5 (int|float param) {
 }
 
 error[]? errorsOpt = [];
+
+var objIniObj = new ObjInitWithParam(0);
+ObjInitWithParam[2] objWithParamsArraySealed = [objIniObj, objIniObj];
+FT[2] finiteTypeArraySealed = [1,2];
