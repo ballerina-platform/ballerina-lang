@@ -90,7 +90,7 @@ function testCall() returns (string) {
         dts = ret;
     } else if (ret is ()) {
         return "nil";
-    } else if (ret is error) {
+    } else  {
         return <string> ret.detail().message;
     }
 
@@ -124,7 +124,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         string[] b;
         (a, b) = x;
         returnVal = b[0];
-    } else if (x is error) {
+    } else {
         returnVal = <string> x.detail().message;
     }
 
@@ -162,7 +162,7 @@ function testBatchUpdate() returns (int[]) {
     int [] ret = [];
     if (x is int[]) {
         ret = x;
-    } else if (x is error) {
+    } else {
         ret = [];
     }
     testDB.stop();
@@ -275,7 +275,7 @@ function selectFunction(h2:Client testDB) returns (int[]) {
                     i += 1;
                 }
             }
-    } else if (val is error) {
+    } else {
         customerIds = [];
     }
     testDB.stop();

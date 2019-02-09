@@ -40,7 +40,7 @@ service helloContinue on new http:Listener(9090) {
             if (responseError is error) {
                 log:printError("Error sending response", err = responseError);
             }
-        } else if (result is error) {
+        } else {
             res.statusCode = 500;
             res.setPayload(untaint result.reason());
             log:printError("Failed to retrieve payload from request: " + result.reason());
@@ -65,7 +65,7 @@ service helloContinue on new http:Listener(9090) {
                 var result = part.getBodyAsString();
                 if (result is string) {
                     replyMsg += " Key:" + contentDisposition.name + " Value: " + result;
-                } else if (result is error) {
+                } else {
                     replyMsg += " Key:" + contentDisposition.name + " Value: " + result.reason();
                 }
                 i += 1;
@@ -74,7 +74,7 @@ service helloContinue on new http:Listener(9090) {
             if (responseError is error) {
                 log:printError(responseError.reason(), err = responseError);
             }
-        } else if (bodyParts is error) {
+        } else {
             log:printError(bodyParts.reason(), err = bodyParts);
         }
     }
@@ -93,7 +93,7 @@ service helloContinue on new http:Listener(9090) {
             if (responseError is error) {
                 log:printError("Error sending response", err = responseError);
             }
-        } else if (res is error) {
+        } else {
             log:printError(res.reason(), err = res);
         }
     }
@@ -105,7 +105,7 @@ service backend on new http:Listener(9224) {
         var payload = request.getTextPayload();
         if (payload is string) {
             response.setTextPayload(untaint payload);
-        } else if (payload is error) {
+        } else {
             response.setTextPayload(untaint payload.reason());
         }
         var responseError = caller->respond(response);

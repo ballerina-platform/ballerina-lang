@@ -414,7 +414,7 @@ function testToXmlWithinTransaction() returns (string, int) {
             if (result is xml) {
                 resultXml = io:sprintf("%s", result);
                 returnValue = 0;
-            } else if (result is error) {
+            } else {
                 resultXml = "<fail>error</fail>";
             }
         }
@@ -441,7 +441,7 @@ function testToJsonWithinTransaction() returns (string, int) {
             if (j is json) {
                 result = io:sprintf("%s", j);
                 returnValue = 0;
-            } else if (j is error) {
+            } else {
                 result = "<fail>error</fail>";
             }
         }
@@ -955,7 +955,7 @@ function testTablePrintAndPrintln() {
         io:println(selectRet);
         io:print(selectRet);
         selectRet.close();
-    } else if (selectRet is error) {
+    } else {
         io:print(<string>selectRet.reason());
     }
     testDB.stop();
@@ -1466,7 +1466,7 @@ function testTableAddInvalid() returns string {
         var ret = trap selectRet.add(row);
         if (ret is error) {
             s = <string>ret.detail().message;
-        } else if (ret is ()) {
+        } else {
             s = "nil";
         }
         selectRet.close();
@@ -1490,7 +1490,7 @@ function testTableRemoveInvalid() returns string {
         var ret = trap selectRet.remove(isDelete);
         if (ret is int) {
             s = <string> ret;
-        } else if (ret is error) {
+        } else {
             s = <string> ret.detail().message;
         }
         selectRet.close();
@@ -1609,10 +1609,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
             // Converting to string to make sure the json is built before returning.
             _ = jsonConversionResult.toString();
             retVal = jsonConversionResult;
-        } else if (jsonConversionResult is error) {
+        } else {
             retVal = {"Error" : <string>jsonConversionResult.detail().message};
         }
-    } else if (tableOrError is error) {
+    } else {
         retVal = {"Error" : <string>tableOrError.detail().message};
     }
     return retVal;
@@ -1626,11 +1626,11 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
             // Converting to string to make sure the xml is built before returning.
             _ = io:sprintf("%s", xmlConversionResult);
             retVal = xmlConversionResult;
-        } else if (xmlConversionResult is error) {
+        } else {
             string errorXML = <string>xmlConversionResult.detail().message;
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
-    } else if (tableOrError is error) {
+    } else {
         string errorXML = <string>tableOrError.detail().message;
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }

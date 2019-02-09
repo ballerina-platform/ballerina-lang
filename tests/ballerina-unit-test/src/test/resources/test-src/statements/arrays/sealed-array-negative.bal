@@ -70,10 +70,8 @@ function unionTestInvalidOrderedMatch(boolean | int[] | float[4] | float[] x) re
         return "matched boolean";
     } else if (x is int[]) {
         return "matched int array";
-    } else if (x is float[]) {
-        return "matched float array";
     } else {
-        return "matched sealed float array size 4";
+        return "matched float array";
     }
 }
 

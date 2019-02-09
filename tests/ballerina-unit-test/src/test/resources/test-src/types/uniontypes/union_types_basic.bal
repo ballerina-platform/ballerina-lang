@@ -47,7 +47,7 @@ function testNullableTypeBasics2() returns (int|boolean|()) {
 
     if x is float|int {
         io:println("int");
-    } else if x is int|() {
+    } else {
         io:println("null");
     }
 
@@ -99,10 +99,9 @@ function testRecordLiteralAssignment() returns string {
     Person|RecPerson x = {name:"John", id:12};
     if x is Person {
         return "Invalid";
-    } else if x is RecPerson {
+    } else {
         return <string> x.name;
     }
-    return "";
 }
 
 type Foo record {
@@ -126,13 +125,13 @@ function testUnionTypeWithMultipleRecordTypes() returns string[] {
 
     if (var1 is Foo) {
         returnValues[0] = "FOO";
-    } else if (var1 is Bar) {
+    } else {
         returnValues[0] = "BAR";
     }
 
     if (var2 is Foo) {
         returnValues[1] = "FOO";
-    } else if (var2 is Bar) {
+    } else {
         returnValues[1] = "BAR";
     }
 
