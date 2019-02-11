@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_JSON;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_INTERNAL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_REMOTE;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.PATH_SEPARATOR;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdate;
 
@@ -58,6 +59,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
+    private static final int WEBSUB_PORT = 8181;
     private BServerInstance webSubSubscriber;
     private BMainInstance subscriptionChanger;
 
@@ -114,7 +116,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
         String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{8181});
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{WEBSUB_PORT});
     }
 
     @Test
@@ -125,8 +127,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testSubscriptionAndAutomaticIntentVerification")
     public void testSubscriptionAndExplicitIntentVerification() throws BallerinaTestException {
         explicitIntentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
@@ -170,7 +172,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
             expectedExceptions = BallerinaTestException.class,
             expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*")
     public void testUnsubscription() throws BallerinaTestException {
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
         logAbsenceTestLogLeecher.waitForText(5000);
     }
 

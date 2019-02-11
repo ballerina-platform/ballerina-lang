@@ -220,17 +220,16 @@ function testConnectionFailure() {
 }
 
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
-    json retVal = {};
+    json retVal;
     if (tableOrError is table<record {}>) {
         var jsonConversionResult = json.convert(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
-        } else if (jsonConversionResult is error) {
+        } else {
             retVal = { "Error" : string.convert(jsonConversionResult.detail().message) };
         }
-    } else if (tableOrError is error) {
+    } else {
         retVal = { "Error" : string.convert(tableOrError.detail().message) };
     }
     return retVal;
 }
-

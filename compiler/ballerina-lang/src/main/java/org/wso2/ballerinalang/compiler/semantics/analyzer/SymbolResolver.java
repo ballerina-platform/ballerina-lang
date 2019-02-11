@@ -239,7 +239,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag expected tag of the symbol.
      * @return if a symbol is found return it.
      */
-    private BSymbol lookupSymbolInGivenScope(SymbolEnv env, Name name, int expSymTag) {
+    public BSymbol lookupSymbolInGivenScope(SymbolEnv env, Name name, int expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&

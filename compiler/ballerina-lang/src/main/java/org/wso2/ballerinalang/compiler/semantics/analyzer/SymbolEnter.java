@@ -656,10 +656,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void createDummyFunctionSymbol(BLangFunction funcNode) {
         // This is only to keep the flow running so that at the end there will be proper semantic errors
+        BInvokableType type = new BInvokableType(new ArrayList<>(), symTable.noType, null);
         funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
+                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, type, env.scope.owner, true);
         funcNode.symbol.scope = new Scope(funcNode.symbol);
-        funcNode.symbol.type = new BInvokableType(new ArrayList<>(), symTable.noType, null);
     }
 
     private void visitObjectAttachedFunction(BLangFunction funcNode) {
@@ -1285,6 +1285,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (symResolver.checkForUniqueSymbolInCurrentScope(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
+    }
+
+    public void defineTypeNarrowedSymbol(DiagnosticPos pos, SymbolEnv targetEnv, BVarSymbol symbol, BType type) {
+        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv);
+        varSymbol.owner = symbol.owner;
+        varSymbol.originalSymbol = symbol;
+        defineShadowedSymbol(pos, varSymbol, targetEnv);
     }
 
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {

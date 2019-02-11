@@ -346,7 +346,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 failoverClient.succeededEndpointIndex = currentIndex - 1;
                 break;
             }
-        } else if (endpointResponse is error) {
+        } else {
             error httpConnectorErr = endpointResponse;
             // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
             // endpoint configured in the failover endpoints gave the errornous response.

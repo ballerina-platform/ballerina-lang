@@ -19,7 +19,7 @@ service httpService on new http:Listener(9090) {
             log:printError("Error sending message", err = payload);
             resp.setPayload("Error in payload");
             resp.statusCode = 500;
-        } else if (payload is string) {
+        } else {
             io:println(payload);
             resp.setPayload(string `HTTP POST received: {{untaint payload}}`);
         }
