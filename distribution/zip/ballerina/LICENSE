@@ -13,7 +13,7 @@ below is and where the actual text of the license can be found.
 
 Name                                                                            Type           License
 ---------------------------------------------------------------------------------------------------------
-andes-client-3.2.55.jar                                                         bundle         apache2   3215
+andes-client-3.2.86.jar                                                         bundle         apache2   3215
 antlr4-runtime-4.5.1.wso2v1.jar                                                 bundle         bsd       11767
 apache-mime4j-core-0.7.2.jar                                                    bundle         apache2   2112
 awslambda-extension-0.990.3.jar                                                 jar            apache2   3724
