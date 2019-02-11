@@ -249,7 +249,28 @@ public class ModuleBuildTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("emptyProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
         LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found to compile",
-                                                  LeecherType.ERROR);
+                                                  LogLeecher.LeecherType.ERROR);
+        balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                          projectPath.toString());
+        clientLeecher.waitForText(3000);
+    }
+
+    /**
+     * Building an empty project without any modules.
+     *
+     * @throws BallerinaTestException When an error occurs executing the command.
+     */
+    @Test(description = "Test building a project with an invalid manifest file")
+    public void testBuildOnInvalidManifest() throws BallerinaTestException, IOException {
+        Path projectPath = tempProjectDirectory.resolve("invalidManifest");
+        initProject(projectPath, EMPTY_PROJECT_OPTS);
+
+        String invalidContent = "[project]\n org-name = \"integrationtests\"\n version = \"1.0.0";
+        Files.write(projectPath.resolve("Ballerina.toml"), invalidContent.getBytes(),
+                    StandardOpenOption.TRUNCATE_EXISTING);
+
+        LogLeecher clientLeecher = new LogLeecher("error: invalid toml syntax at Ballerina.toml:3",
+                LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           projectPath.toString());
         clientLeecher.waitForText(3000);

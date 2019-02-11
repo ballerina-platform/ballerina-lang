@@ -7,7 +7,7 @@ public function main() {
     boolean b = a is string;
     io:println("Is 'a' a string? ", b);
 
-    // Type check expression can be used as a condition of a if statement.
+    // Type check expression can be used as a condition of a `if` statement.
     if (a is int) {
         io:println("'a' is an int with value: ", a);
     } else if (a is string) {

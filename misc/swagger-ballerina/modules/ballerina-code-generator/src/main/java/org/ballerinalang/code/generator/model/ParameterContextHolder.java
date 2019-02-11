@@ -43,7 +43,14 @@ public class ParameterContextHolder {
         if (type instanceof BLangValueType) {
             context.type = ((BLangValueType) parameter.getTypeNode()).getTypeKind().typeName();
         } else if (type instanceof BLangUserDefinedType) {
-            context.type = ((BLangUserDefinedType) parameter.getTypeNode()).getTypeName().getValue();
+            String userDefType = "";
+            BLangUserDefinedType bLangUserDefinedType = (BLangUserDefinedType) parameter.getTypeNode();
+            if (bLangUserDefinedType.getPackageAlias() != null
+                    && bLangUserDefinedType.getPackageAlias().getValue() != null) {
+                userDefType += bLangUserDefinedType.getPackageAlias().getValue() + ":";
+            }
+            userDefType += bLangUserDefinedType.getTypeName().getValue();
+            context.type = userDefType;
         }
 
         // Ignore Connection and InRequest parameters
@@ -67,11 +74,7 @@ public class ParameterContextHolder {
      */
     private boolean isIgnoredType(String type) {
         // type of endpoint is returned as null
-        if (type == null  || "Request".equals(type)) {
-            return true;
-        }
-
-        return false;
+        return type == null || "Request".equals(type);
     }
 
     /**
@@ -101,7 +104,7 @@ public class ParameterContextHolder {
                 defaultValue = '\"' + name + '\"';
                 break;
             default:
-                defaultValue = "{}";
+                defaultValue = "new " + type + "()";
                 break;
         }
 

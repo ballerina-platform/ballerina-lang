@@ -31,6 +31,7 @@ import java.util.List;
 public abstract class AbstractSymbolFilter {
     /**
      * Filters the symbolInfo from the list based on a particular filter criteria.
+     *
      * @param completionContext - Completion operation context
      * @return {@link ArrayList}
      */

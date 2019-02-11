@@ -19,7 +19,7 @@ package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorError;
@@ -67,9 +67,10 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
         try {
             URI balxResource = resource.toURI();
             BValue[] returns = ExecutorUtils.executeFunction(balxResource, functionName, args);
-            if (returns.length == 1 && returns[0] instanceof BMap) {
-                BMap<String, BValue> errorRecord = (BMap<String, BValue>) returns[0];
-                return Optional.of(createEmbeddedExecutorError(errorRecord));
+            // Check if the return is an error
+            if (returns.length == 1 && returns[0] instanceof BError) {
+                BError bError = (BError) returns[0];
+                return Optional.of(createEmbeddedExecutorError(bError));
             } else {
                 return Optional.empty();
             }
@@ -98,15 +99,15 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
     
     /**
      * Creates an error object for the embedded executor.
-     * @param errorRecord The error record from the execution.
+     * @param bError The error from the execution.
      * @return Created embedded executor error.
      */
-    private EmbeddedExecutorError createEmbeddedExecutorError(BMap<String, BValue> errorRecord) {
+    private EmbeddedExecutorError createEmbeddedExecutorError(BError bError) {
         EmbeddedExecutorError error = new EmbeddedExecutorError();
-        error.setMessage(errorRecord.get("message").stringValue());
-        if (errorRecord.get("cause") != null) {
-            BMap<String, BValue> innerError = (BMap<String, BValue>) errorRecord.get("cause");
-            error.setCause(createEmbeddedExecutorError(innerError));
+        error.setMessage(bError.reason);
+        BError cause = bError.cause;
+        if (cause != null) {
+            error.setCause(createEmbeddedExecutorError(cause));
         }
         return error;
     }

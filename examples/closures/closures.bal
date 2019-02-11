@@ -2,7 +2,7 @@ import ballerina/io;
 
 int globalA = 5;
 
-// Basic example where an anonymous function with an 'if' block accesses its outer scope
+// Basic example where an anonymous function with an `if` block accesses its outer scope
 // variables.
 function basicClosure() returns (function (int) returns int) {
     int a = 3;

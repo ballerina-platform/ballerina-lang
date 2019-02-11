@@ -45,7 +45,7 @@ public function main() {
                 + <string>selectRet.detail().message);
     }
 
-    // Drop the STUDENT table.
+    // Drop the STUDENT table in the database.
     io:println("\nThe update operation - Drop student table");
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");

@@ -10,11 +10,11 @@ public type userFoo object {
     public function getAge() returns (int);
 };
 
-function userFoo.getName () returns (string) {
+public function userFoo.getName () returns (string) {
     return self.name;
 }
 
-function userFoo.getAge () returns (int) {
+public function userFoo.getAge () returns (int) {
     return self.age;
 }
 
@@ -65,6 +65,6 @@ public type FooObj object {
     public function getName() returns (string);
 };
 
-function FooObj.getName() returns (string) {
+public function FooObj.getName() returns (string) {
     return self.name;
 }

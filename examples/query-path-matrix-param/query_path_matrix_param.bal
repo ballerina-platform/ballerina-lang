@@ -1,7 +1,6 @@
 import ballerina/http;
 import ballerina/log;
 
-@http:ServiceConfig
 service sample on new http:Listener(9090) {
 
     @http:ResourceConfig {

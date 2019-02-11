@@ -21,7 +21,9 @@
       "label":"TableConfig",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"TableConfig represents properties used during table initialization.\n",
+      "documentation":{
+        "left":"TableConfig represents properties used during table initialization.\n"
+      },
       "insertText":"TableConfig"
     },
     {

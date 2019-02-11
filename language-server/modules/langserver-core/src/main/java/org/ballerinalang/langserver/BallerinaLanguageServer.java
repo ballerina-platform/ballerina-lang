@@ -15,9 +15,10 @@
  */
 package org.ballerinalang.langserver;
 
-import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.Gson;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
+import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -37,6 +38,7 @@ import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceSe
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
 import org.ballerinalang.langserver.extensions.ballerina.traces.ProviderOptions;
 import org.ballerinalang.langserver.index.LSIndexImpl;
+import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -96,6 +98,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
 
         LSAnnotationCache.initiate();
+        LSCodeLensesProviderFactory.getInstance().initiate();
     }
 
     public ExtendedLanguageClient getClient() {
@@ -122,18 +125,23 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setRenameProvider(true);
         res.getCapabilities().setWorkspaceSymbolProvider(true);
+        res.getCapabilities().setImplementationProvider(true);
+        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
-        Map<String, Boolean> experimentalClientCapabilities =
-                (LinkedTreeMap<String, Boolean>) params.getCapabilities().getExperimental();
+        Map<String, Boolean> experimentalClientCapabilities = null;
+        if (params.getCapabilities().getExperimental() != null) {
+            experimentalClientCapabilities =
+                    new Gson().fromJson(params.getCapabilities().getExperimental().toString(), HashMap.class);
+        }
 
         BallerinaWorkspaceService workspaceService = (BallerinaWorkspaceService) this.workspaceService;
         workspaceService.setExperimentalClientCapabilities(experimentalClientCapabilities);
 
         // Set AST provider and examples provider capabilities
-        HashMap<String, Object> experimentalServerCapabilities = new HashMap<String, Object>();
+        HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();
         experimentalServerCapabilities.put("astProvider", true);
         experimentalServerCapabilities.put("examplesProvider", true);
         experimentalServerCapabilities.put("apiEditorProvider", true);

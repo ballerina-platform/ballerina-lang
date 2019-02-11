@@ -30,6 +30,6 @@ import java.util.List;
 public class ParameterContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        return this.populateBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+        return this.getBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
     }
 }

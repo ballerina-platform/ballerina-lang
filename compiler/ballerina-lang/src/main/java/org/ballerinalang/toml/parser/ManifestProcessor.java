@@ -21,8 +21,8 @@ import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.ballerinalang.toml.antlr4.TomlProcessor;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.util.TomlProcessor;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -106,7 +106,7 @@ public class ManifestProcessor {
     private static Manifest getManifest(CharStream charStream) {
         Manifest manifest = new Manifest();
         ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new ManifestBuildListener(manifest), TomlProcessor.parseTomlContent(charStream));
+        walker.walk(new ManifestBuildListener(manifest), TomlProcessor.parseTomlContent(charStream, "Ballerina.toml"));
         return manifest;
     }
 }

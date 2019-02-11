@@ -1,22 +1,10 @@
 import ballerina/http;
 import ballerina/test;
 
-boolean serviceStarted;
-
-function startService() {
-    //serviceStarted = test:startServices("header-based-routing");
-}
-
-@test:Config {
-    before: "startService",
-    after: "stopService"
-}
+@test:Config
 function testFunc() returns error? {
     // Invoking the main function.
     http:Client httpEndpoint = new("http://localhost:9090");
-    // Check whether the server is started.
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
-
     json expectedJson = {
         name: "Colombo,Sri Lanka",
         longitude: -556.49,
@@ -35,8 +23,4 @@ function testFunc() returns error? {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
     return;
-}
-
-function stopService() {
-    //test:stopServices("header-based-routing");
 }

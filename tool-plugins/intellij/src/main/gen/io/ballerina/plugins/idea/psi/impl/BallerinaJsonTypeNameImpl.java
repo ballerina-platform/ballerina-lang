@@ -42,24 +42,6 @@ public class BallerinaJsonTypeNameImpl extends BallerinaCompositeElementImpl imp
   }
 
   @Override
-  @Nullable
-  public BallerinaNameReference getNameReference() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaNameReference.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getGt() {
-    return findChildByType(GT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLt() {
-    return findChildByType(LT);
-  }
-
-  @Override
   @NotNull
   public PsiElement getJson() {
     return notNullChild(findChildByType(JSON));

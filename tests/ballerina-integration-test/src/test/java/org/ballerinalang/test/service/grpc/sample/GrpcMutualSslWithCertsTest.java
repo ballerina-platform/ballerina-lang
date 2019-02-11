@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.grpc.sample;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -29,8 +30,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test mutual ssl with certificates and keys.
@@ -38,6 +42,7 @@ import java.nio.file.Paths;
 @Test(groups = "grpc-test")
 public class GrpcMutualSslWithCertsTest extends GrpcBaseTest {
     private CompileResult result;
+    private static final ConfigRegistry registry = ConfigRegistry.getInstance();
 
     @BeforeClass
     public void setup() throws Exception {
@@ -45,15 +50,19 @@ public class GrpcMutualSslWithCertsTest extends GrpcBaseTest {
     }
 
     @Test
-    public void testMutualSSLWithcerts() {
+    public void testMutualSSLWithcerts() throws IOException {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_ssl_client.bal");
+        String privateKey = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
+                "private.key").toAbsolutePath().toString());
+        String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
+                "public.crt").toAbsolutePath().toString());
+        Map<String, String> runtimeParams = new HashMap<>();
+        runtimeParams.put("client.certificate.key", privateKey);
+        runtimeParams.put("client.public.cert", publicCert);
+        registry.initRegistry(runtimeParams, null, null);
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
-        String path = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys")
-                                                           .toAbsolutePath().toString());
-        BString pathTocerts = new BString(path);
-
-        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlockingWithCerts", new BValue[] {pathTocerts});
+        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlockingWithCerts", new BValue[] {});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString responseValues = (BString) responses[0];

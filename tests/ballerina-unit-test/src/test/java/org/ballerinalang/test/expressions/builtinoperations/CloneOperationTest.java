@@ -283,22 +283,6 @@ public class CloneOperationTest {
     }
 
     @Test
-    public void testCloneConstrainedJSON() {
-        BValue[] results = BRunUtil.invoke(result, "cloneConstrainedJSON");
-
-        testConstrainedJSON((BMap) results[0], "Charlos", 1, 300.5);
-        testConstrainedJSON((BMap) results[1], "Jane", 1, 300.5);
-        testConstrainedJSON((BMap) results[2], "Jane", 1, 400.5);
-        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
-    }
-
-    private void testConstrainedJSON(BMap bMap, String name, int id, double salary) {
-        Assert.assertEquals(((BInteger) bMap.get("id")).intValue(), id);
-        Assert.assertEquals(bMap.get("name").stringValue(), name);
-        Assert.assertEquals(((BFloat) bMap.get("salary")).floatValue(), salary);
-    }
-
-    @Test
     public void testCloneTable() {
         BValue[] results = BRunUtil.invoke(result, "cloneTable");
         Assert.assertNotNull(results);

@@ -1,4 +1,4 @@
-import "@ballerina/theme";
+import "@ballerina/font";
 
 export * from "@ballerina/diagram";
 export * from "@ballerina/ballerina-by-examples";

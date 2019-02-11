@@ -9,11 +9,11 @@
     "src"
   ],
   "dependencies": {
-    "@ballerina/distribution": "^0.99.0-RC3",
-    "@ballerina/lang-service": "^0.99.0-RC3",
     "@ballerina/diagram": "^0.99.0-RC3",
-    "@ballerina/theme": "^0.99.0-RC3",
+    "@ballerina/distribution": "^0.99.0-RC3",
     "@ballerina/font": "^0.99.0-RC3",
+    "@ballerina/lang-service": "^0.99.0-RC3",
+    "@ballerina/theme": "^0.99.0-RC3",
     "@theia/callhierarchy": "next",
     "@theia/core": "next",
     "@theia/languages": "next",
@@ -23,6 +23,7 @@
     "request-promise": "^4.2.2",
     "semantic-ui-react": "^0.78.2",
     "typescript": "^3.1.6",
+    "vscode-ripgrep": "^1.2.5",
     "vscode-textmate": "^4.0.1"
   },
   "devDependencies": {

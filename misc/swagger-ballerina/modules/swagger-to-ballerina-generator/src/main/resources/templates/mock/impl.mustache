@@ -1,5 +1,5 @@
 {{#paths}}{{#value}}{{#operations}}{{#value}}
-public function {{operationId}} (http:Request _{{operationId}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}, {{requestBody.selectedMedia.schema.type}} _{{operationId}}Body{{/requestBody}}) returns http:Response {
+public function {{operationId}} (http:Request _{{operationId}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}, {{#if requestBody.selectedMedia.schema.type}}{{requestBody.selectedMedia.schema.type}} _{{operationId}}Body{{/if}}{{^requestBody.selectedMedia.schema.type}}{{#if requestBody.selectedMedia.schema.properties}}{{#requestBody}}{{#selectedMedia}}{{#schema}}{{#properties}}{{#value}}{{type}}{{/value}} {{key}}{{#unless @last}}, {{/unless}}{{/properties}}{{/schema}}{{/selectedMedia}}{{/requestBody}}{{/if}}{{/requestBody.selectedMedia.schema.type}}{{/requestBody}}) returns http:Response {
     // stub code - fill as necessary
     http:Response _{{operationId}}Res = new;
     string _{{operationId}}Payload = "Sample {{operationId}} Response";

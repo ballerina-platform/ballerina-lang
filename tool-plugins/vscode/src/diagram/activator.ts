@@ -23,6 +23,7 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
 import { join } from "path";
+import { DidChangeConfigurationParams } from 'vscode-languageclient';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -137,6 +138,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	});
 
     ballerinaExtInstance.onReady().then(() => {
+		const args: DidChangeConfigurationParams = {
+            settings: workspace.getConfiguration('ballerina'),
+        };
+        langClient.sendNotification("workspace/didChangeConfiguration", args);
         langClient.onNotification('window/showTextDocument', (location: Location) => {
             if (location.uri !== undefined) {
                 window.showTextDocument(Uri.parse(location.uri.toString()), {selection: location.range});

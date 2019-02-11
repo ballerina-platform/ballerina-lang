@@ -9,7 +9,9 @@
       "label":"isSingleton()(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Check whether the XML sequence contains only a single element.\n",
+      "documentation":{
+        "left":"Check whether the XML sequence contains only a single element.\n"
+      },
       "sortText":"121",
       "insertText":"isSingleton()",
       "insertTextFormat":"Snippet"
@@ -18,7 +20,9 @@
       "label":"isEmpty()(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Check whether the XML sequence is empty.\n",
+      "documentation":{
+        "left":"Check whether the XML sequence is empty.\n"
+      },
       "sortText":"121",
       "insertText":"isEmpty()",
       "insertTextFormat":"Snippet"
@@ -27,7 +31,9 @@
       "label":"elements()(xml)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Get all the items that are of element type in an XML sequence.\n",
+      "documentation":{
+        "left":"Get all the items that are of element type in an XML sequence.\n"
+      },
       "sortText":"121",
       "insertText":"elements()",
       "insertTextFormat":"Snippet"
@@ -36,7 +42,9 @@
       "label":"select(string qname)(xml)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Get all the items that are of element type, and matches the given qualified name, in an XML sequence.\n",
+      "documentation":{
+        "left":"Get all the items that are of element type, and matches the given qualified name, in an XML sequence.\n"
+      },
       "sortText":"121",
       "insertText":"select(${1:qname})",
       "insertTextFormat":"Snippet"
@@ -45,7 +53,9 @@
       "label":"getItemType()(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Get the type of a XML as a string. If the XML is singleton, type can be one of \u0027element\u0027, \u0027text\u0027, \u0027comment\u0027 or \u0027pi\u0027.\nReturns an empty string if the XML is not a singleton.\n",
+      "documentation":{
+        "left":"Get the type of a XML as a string. If the XML is singleton, type can be one of \u0027element\u0027, \u0027text\u0027, \u0027comment\u0027 or \u0027pi\u0027.\nReturns an empty string if the XML is not a singleton.\n"
+      },
       "sortText":"121",
       "insertText":"getItemType()",
       "insertTextFormat":"Snippet"
@@ -54,7 +64,9 @@
       "label":"getElementName()(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Get the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton.\n",
+      "documentation":{
+        "left":"Get the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton.\n"
+      },
       "sortText":"121",
       "insertText":"getElementName()",
       "insertTextFormat":"Snippet"
@@ -63,7 +75,9 @@
       "label":"getTextValue()(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Get the text value of a XML. If the XML is a sequence, concatenation of the text values of the members of the\nsequence is returned. If the XML is an element, then the text value of the sequence of children is returned. If\nthe XML is a text item, then the text is returned. Otherwise, an empty string is returned.\n",
+      "documentation":{
+        "left":"Get the text value of a XML. If the XML is a sequence, concatenation of the text values of the members of the\nsequence is returned. If the XML is an element, then the text value of the sequence of children is returned. If\nthe XML is a text item, then the text is returned. Otherwise, an empty string is returned.\n"
+      },
       "sortText":"121",
       "insertText":"getTextValue()",
       "insertTextFormat":"Snippet"
@@ -72,7 +86,9 @@
       "label":"setChildren(xml children)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Set the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed.\n",
+      "documentation":{
+        "left":"Set the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed.\n"
+      },
       "sortText":"121",
       "insertText":"setChildren(${1:children})",
       "insertTextFormat":"Snippet"
@@ -81,7 +97,9 @@
       "label":"copy()(xml)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Make a deep copy of an XML.\n",
+      "documentation":{
+        "left":"Make a deep copy of an XML.\n"
+      },
       "sortText":"121",
       "insertText":"copy()",
       "insertTextFormat":"Snippet"
@@ -90,7 +108,9 @@
       "label":"strip()(xml)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Strips any text items from an XML sequence that are all whitespace.\n",
+      "documentation":{
+        "left":"Strips any text items from an XML sequence that are all whitespace.\n"
+      },
       "sortText":"121",
       "insertText":"strip()",
       "insertTextFormat":"Snippet"
@@ -99,7 +119,9 @@
       "label":"slice(int startIndex, int endIndex)(xml)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Slice and return a subsequence of the an XML sequence.\n",
+      "documentation":{
+        "left":"Slice and return a subsequence of the an XML sequence.\n"
+      },
       "sortText":"121",
       "insertText":"slice(${1:startIndex}, ${2:endIndex})",
       "insertTextFormat":"Snippet"
@@ -108,7 +130,9 @@
       "label":"setAttributes(map attributes)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Sets the attributes to the provided attributes map.\n",
+      "documentation":{
+        "left":"Sets the attributes to the provided attributes map.\n"
+      },
       "sortText":"121",
       "insertText":"setAttributes(${1:attributes})",
       "insertTextFormat":"Snippet"
@@ -117,7 +141,9 @@
       "label":"toJSON($anonType$builtin$11 options)(json)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Converts a XML object to a JSON representation.\n",
+      "documentation":{
+        "left":"Converts a XML object to a JSON representation.\n"
+      },
       "sortText":"121",
       "insertText":"toJSON(${1:options})",
       "insertTextFormat":"Snippet"
@@ -126,7 +152,9 @@
       "label":"selectDescendants(string qname)(xml)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Searches in children recursively for elements matching the qualified name and returns a sequence containing them\nall. Does not search within a matched result.\n",
+      "documentation":{
+        "left":"Searches in children recursively for elements matching the qualified name and returns a sequence containing them\nall. Does not search within a matched result.\n"
+      },
       "sortText":"121",
       "insertText":"selectDescendants(${1:qname})",
       "insertTextFormat":"Snippet"
@@ -135,7 +163,9 @@
       "label":"removeAttribute(string qname)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Remove an attribute from an XML.\n",
+      "documentation":{
+        "left":"Remove an attribute from an XML.\n"
+      },
       "sortText":"121",
       "insertText":"removeAttribute(${1:qname})",
       "insertTextFormat":"Snippet"
@@ -144,7 +174,9 @@
       "label":"appendChildren(xml children)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Append children to an XML if its an element type XML. Error otherwise.\nNew children will be appended at the end of the existing children.\n",
+      "documentation":{
+        "left":"Append children to an XML if its an element type XML. Error otherwise.\nNew children will be appended at the end of the existing children.\n"
+      },
       "sortText":"121",
       "insertText":"appendChildren(${1:children})",
       "insertTextFormat":"Snippet"
@@ -153,7 +185,9 @@
       "label":"removeChildren(string qname)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Remove children matching the given name from an XML. This operation has no effect\nif the XML is not an element type XML.\n",
+      "documentation":{
+        "left":"Remove children matching the given name from an XML. This operation has no effect\nif the XML is not an element type XML.\n"
+      },
       "sortText":"121",
       "insertText":"removeChildren(${1:qname})",
       "insertTextFormat":"Snippet"

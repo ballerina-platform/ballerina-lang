@@ -42,15 +42,13 @@ function testNestedTypeCheck() returns (any, any, any) {
 function bar (string | int | boolean i)  returns string {
     if (i is int){
         return "int";
-    } else if (i is string | boolean) {
+    } else {
         if (i is string) {
             return "string";
-        } else if (i is boolean) {
+        } else {
             return "boolean";
         }
     }
-
-    return "n/a";
 }
 
 function testTypeInAny() returns (string) {
@@ -218,7 +216,7 @@ type A3 record {
 
 type B3 record {
     int x = 0;
-    !...
+    !...;
 };
 
 function testSealedRecordTypes() returns (boolean, boolean) {
@@ -482,11 +480,11 @@ function testAnonymousObjectEquivalency() returns (string, string, string) {
         s1 = "values: " + x.p + ", " + x.q + ", " + x.r;
     }
 
-    if(x is object {  public int p;  public string q;  public float r;  public boolean s;}) {
+    if(x is object {  public int p = 0;  public string q = "";  public float r = 0;  public boolean s = false;}) {
         s2 = "values: " + x.p + ", " + x.q + ", " + x.r + ", " + x.s;
     }
 
-    if(x is object { public int p;  public boolean q;  public float r;}) {  // shouldn't match
+    if(x is object { public int p = 0;  public boolean q = false;  public float r = 0.0;}) {  // shouldn't match
         s3 = "values: " + x.p + ", " + x.q + ", " + x.r;
     }
 

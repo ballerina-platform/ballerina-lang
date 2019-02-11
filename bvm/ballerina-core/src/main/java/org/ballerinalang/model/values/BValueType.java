@@ -24,6 +24,8 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The {@code BValueType} represents a value type value in Ballerina.
@@ -104,15 +106,15 @@ public abstract class BValueType implements BValue {
     public abstract void setType(BType type);
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
         if (type.getTag() == TypeTags.ANYDATA_TAG || type.getTag() == TypeTags.JSON_TAG) {
             return;
         }
 
         if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (BVM.checkIsLikeType(this, memberType)) {
-                    this.stamp(memberType);
+                if (BVM.checkIsLikeType(this, memberType, new ArrayList<>())) {
+                    this.stamp(memberType, unresolvedValues);
                     type = memberType;
                     break;
                 }

@@ -32,7 +32,7 @@ type ClosedValType record {
     string crs;
     boolean crb?;
     byte cry?;
-    !...
+    !...;
 };
 
 type Foo1 record {
@@ -66,7 +66,7 @@ type Employee record {
     int id;
     string name;
     float salary;
-    !...
+    !...;
 };
 
 type Address record {
@@ -86,7 +86,7 @@ type ClosedRefType record {
     xml crx;
     Person crp;
     Address cra?;
-    !...
+    !...;
 };
 
 type Foo2 record {

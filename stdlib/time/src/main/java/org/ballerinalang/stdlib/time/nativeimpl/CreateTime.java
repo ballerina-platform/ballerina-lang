@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "seconds", type = TypeKind.INT),
                 @Argument(name = "milliseconds", type = TypeKind.INT),
                 @Argument(name = "zoneID", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "Time",
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time",
                                   structPackage = "ballerina/time")},
         isPublic = true
 )

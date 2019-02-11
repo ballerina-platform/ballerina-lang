@@ -62,7 +62,7 @@ public type LdapAuthProviderConfig record {
     int readTimeout = 60000;
     int retryAttempts = 0;
     SecureClientSocket? secureClientSocket = ();
-    !...
+    !...;
 };
 
 # Configures the SSL/TLS options to be used for LDAP communication.
@@ -72,7 +72,7 @@ public type LdapAuthProviderConfig record {
 public type SecureClientSocket record {
     TrustStore? trustStore = ();
     string trustedCertFile = "";
-    !...
+    !...;
 };
 
 # A record for providing trust store related configurations.
@@ -82,7 +82,7 @@ public type SecureClientSocket record {
 public type TrustStore record {
     string path = "";
     string password = "";
-    !...
+    !...;
 };
 
 # Represents Ballerina configuration for LDAP based auth store provider

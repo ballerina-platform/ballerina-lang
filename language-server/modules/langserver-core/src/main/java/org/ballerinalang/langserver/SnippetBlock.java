@@ -48,11 +48,11 @@ public class SnippetBlock {
     /**
      * Create a given completionItem's insert text.
      *
-     * @param completionItem     CompletionItem to modify
      * @param isSnippetSupported Whether snippet is expected or plain text expected
      * @return modified Completion Item
      */
-    public CompletionItem build(CompletionItem completionItem, boolean isSnippetSupported) {
+    public CompletionItem build(boolean isSnippetSupported) {
+        CompletionItem completionItem = new CompletionItem();
         if (isSnippetSupported) {
             completionItem.setInsertText(this.snippet);
             completionItem.setInsertTextFormat(InsertTextFormat.Snippet);

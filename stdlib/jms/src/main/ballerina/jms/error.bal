@@ -21,5 +21,5 @@ public const string JMS_ERROR_CODE = "{ballerina/jms}JMSError";
 # + message - Error message
 type JMSError record {
     string message;
-    !...
+    !...;
 };
