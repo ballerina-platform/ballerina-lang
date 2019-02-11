@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
@@ -27,13 +28,19 @@ map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 service hubService =
 @http:ServiceConfig {
-    basePath:BASE_PATH
+    basePath: BASE_PATH,
+    authConfig: {
+        authentication: {
+            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", default = false)
+        },
+        scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
+    }
 }
 service {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:HUB_PATH
+        methods: ["GET"],
+        path: HUB_PATH
     }
     resource function status(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
@@ -43,8 +50,8 @@ service {
     }
 
     @http:ResourceConfig {
-        methods:["POST"],
-        path:HUB_PATH
+        methods: ["POST"],
+        path: HUB_PATH
     }
     resource function hub(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
@@ -163,7 +170,7 @@ service {
                             }
                             var fetchedPayload = fetchResponse.getPayloadAsString();
                             stringPayload = fetchedPayload is string ? fetchedPayload : "";
-                        } else if (fetchResponse is error) {
+                        } else {
                             string errorCause = <string> fetchResponse.detail().message;
                             string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                     + errorCause;
@@ -174,9 +181,6 @@ service {
                             if (responseError is error) {
                                 log:printError("Error responding on update fetch failure", err = responseError);
                             }
-                            return;
-                        } else {
-                            // should never reach here
                             return;
                         }
                     } else {
@@ -192,7 +196,7 @@ service {
                     if (binaryPayload is byte[]) {
                         WebSubContent notification = { payload:binaryPayload, contentType:contentType };
                         publishStatus = publishToInternalHub(topic, notification);
-                    } else if (binaryPayload is error) {
+                    } else {
                         string errorCause = <string> binaryPayload.detail().message;
                         string errorMessage = "Error extracting payload: " + untaint errorCause;
                         log:printError(errorMessage);
@@ -329,12 +333,12 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                 log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
                         + callback + "]");
             }
-        } else if (respStringPayload is error) {
+        } else {
             string errCause = <string> respStringPayload.detail().message;
             log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
                     + "]: Error retrieving response payload: " + errCause);
         }
-    } else if (subscriberResponse is error) {
+    } else {
         string errCause = <string> subscriberResponse.detail().message;
         log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
@@ -481,12 +485,12 @@ returns error? {
                 log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
                                 + "], topic[" + subscriptionDetails.topic + "]");
             } else {
-                log:printError("Error delievering content to callback[" + callback + "] for topic["
+                log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
-        } else if (contentDistributionResponse is error) {
+        } else {
             string errCause = <string> contentDistributionResponse.detail().message;
-            log:printError("Error delievering content to callback[" + callback + "] for topic["
+            log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: " + errCause);
         }
     }
@@ -541,4 +545,16 @@ function generateKey(string topic, string callback) returns (string) {
 function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;
+}
+
+# Construct an array of groups from the comma separed group string passed
+#
+# + groupString - comma separated string of groups
+# + return - array of groups, nil if the groups string is empty/nil
+function getArray(string groupString) returns string[]? {
+    string[] groupsArr = [];
+    if (groupString.length() == 0) {
+        return ();
+    }
+    return groupString.split(",");
 }

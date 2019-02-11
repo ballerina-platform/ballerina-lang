@@ -598,12 +598,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             finalPattern.isLastPattern = true;
         }
 
+        BLangMatchStructuredBindingPatternClause currentPattern;
+        BLangMatchStructuredBindingPatternClause precedingPattern;
         for (int i = 0; i < clauses.size(); i++) {
+            precedingPattern = clauses.get(i);
+            if (precedingPattern.typeGuardExpr != null) {
+                analyzeExpr(precedingPattern.typeGuardExpr);
+            }
+
             for (int j = i + 1; j < clauses.size(); j++) {
-                BLangVariable precedingVar = clauses.get(i).bindingPatternVariable;
-                BLangVariable currentVar = clauses.get(j).bindingPatternVariable;
+                currentPattern = clauses.get(j);
+                BLangVariable precedingVar = precedingPattern.bindingPatternVariable;
+                BLangVariable currentVar = currentPattern.bindingPatternVariable;
+
                 if (checkStructuredPatternSimilarity(precedingVar, currentVar) &&
-                        checkTypeGuardSimilarity(clauses.get(i).typeGuardExpr, clauses.get(j).typeGuardExpr)) {
+                        checkTypeGuardSimilarity(precedingPattern.typeGuardExpr, currentPattern.typeGuardExpr)) {
                     dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
                     clauses.remove(j--);
                 }
@@ -1816,7 +1825,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         analyzeNode(typeTestExpr.expr, env);
-        if (typeTestExpr.typeNode.type == symTable.semanticError) {
+        if (typeTestExpr.typeNode.type == symTable.semanticError || typeTestExpr.expr.type == symTable.semanticError) {
             return;
         }
 

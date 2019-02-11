@@ -208,7 +208,7 @@ function processWebSubNotification(http:Request request, service serviceType) re
     var payload = request.getPayloadAsString();
     if (payload is string) {
         stringPayload = payload;
-    } else if (payload is error) {
+    } else {
         string errCause = <string> payload.detail().message;
         map<any> errorDetail = { message : "Error extracting notification payload as string " +
                                         "for signature validation: " + errCause };
@@ -500,7 +500,7 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration? hub
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
                                     default = hubConfiguration.topicRegistrationRequired ?: true);
 
-    // reset the hubUrl once the other parameters are set. if url is an empty strung, create hub url with listener
+    // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
     hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
@@ -595,7 +595,7 @@ public function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:
             content.contentType = mime:APPLICATION_XML;
         } else if (payload is json) {
             content.contentType = mime:APPLICATION_JSON;
-        } else if (payload is byte[]|io:ReadableByteChannel) {
+        } else {
             content.contentType = mime:APPLICATION_OCTET_STREAM;
         }
     }
@@ -660,7 +660,7 @@ function retrieveSubscriberServiceAnnotations(service serviceType) returns Subsc
             var subscriberServiceAnnotation = trap <SubscriberServiceConfiguration> (annData.value);
             if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
                 return subscriberServiceAnnotation;
-            } else if (subscriberServiceAnnotation is error) {
+            } else {
                 return;
             }
         }

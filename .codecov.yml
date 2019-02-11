@@ -2,3 +2,7 @@ codecov:
   ci:
     - travis
     - !appveyor                # ignore CI builds by AppVeyor
+
+ignore:
+  - "compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/parser/antlr4"                # ignore ANTLR4 generated sources
+

@@ -47,7 +47,6 @@ function startThrottleQuery() returns (StockSumRecord[]) {
     outputStream.subscribe(function(StockSumRecord e) {printStockDetails(e);});
 
     inputStream.publish(s1);
-    runtime:sleep(500);
     inputStream.publish(s2);
     runtime:sleep(15000);
     inputStream.publish(s3);
