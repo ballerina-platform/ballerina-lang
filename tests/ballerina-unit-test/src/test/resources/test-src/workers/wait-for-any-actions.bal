@@ -114,10 +114,8 @@ function waitTest13() returns int {
     var result = trap wait f1 | f3;
     if (result is int) {
         return result;
-    } else if (result is error) {
-        return 0;
     } else {
-        return 1;
+        return 0;
     }
 }
 

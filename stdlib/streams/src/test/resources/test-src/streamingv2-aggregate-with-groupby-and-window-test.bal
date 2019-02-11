@@ -85,7 +85,7 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
 function foo() {
     forever {
         from inputStream where inputStream.age > 25 window length(5)
-        select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
+        select inputStream.name, inputStream.age, sum(inputStream.age) as sumAge, count() as count
         group by inputStream.name => (TeacherOutput [] teachers) {
             foreach var t in teachers {
                 outputStream.publish(t);

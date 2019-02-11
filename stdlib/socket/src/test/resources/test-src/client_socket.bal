@@ -23,9 +23,10 @@ function oneWayWrite(string msg) {
     var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
-    } else if (writeResult is error) {
+    } else {
         panic writeResult;
     }
+
     var closeResult =  socketClient->close();
     if (closeResult is error) {
         io:println(closeResult.detail().message);
@@ -40,9 +41,10 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
     var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
-    } else if (writeResult is error) {
+    } else {
         panic writeResult;
     }
+
     var shutdownResult = socketClient->shutdownWrite();
     if (shutdownResult is error) {
         panic shutdownResult;
@@ -51,7 +53,7 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
     writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
-    } else if (writeResult is error) {
+    } else {
         var closeResult = socketClient->close();
         if (closeResult is error) {
             io:println(closeResult.detail().message);
