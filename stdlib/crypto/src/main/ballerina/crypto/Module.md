@@ -160,7 +160,7 @@ public function main() returns error? {
      // Public key used for encryption.
      crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = "ballerina");
 
-     // Private key used for decryption
+     // Private key used for decryption.
      crypto:PrivateKey privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
                                                             keyPassword = "ballerina");
 
