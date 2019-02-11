@@ -88,7 +88,7 @@ public class BFiniteType extends BType implements FiniteType {
                 return containsElement(valueSpace, "0");
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
-                return containsElement(valueSpace, "0.0");
+                return containsElement(valueSpace, "0.0") || containsElement(valueSpace, "0");
             case TypeTags.BOOLEAN:
                 return containsElement(valueSpace, "false");
             default:

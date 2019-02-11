@@ -1003,25 +1003,29 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeArrayVariableImplicitInitialValue(BLangSimpleVariable varNode) {
-        if (varNode.typeNode == null || varNode.typeNode.type == null) {
+        BLangType varTypeNode = varNode.typeNode;
+        if (varTypeNode == null || varTypeNode.type == null) {
             return;
         }
         // Variable is a array def, elements must have implicit initial value.
-        if (varNode.typeNode.type.tag == TypeTags.ARRAY) {
-            analyzeArrayElemImplicitInitialValue(varNode.typeNode, varNode.pos);
-        } else if (varNode.typeNode.type.tag == TypeTags.UNION
-                && varNode.typeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+        if (varTypeNode.type.tag == TypeTags.ARRAY) {
+            analyzeArrayElemImplicitInitialValue(varTypeNode, varNode.pos);
+        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
+            // Specific handling for T[]|?, typeNode is a BLangArrayType
+            analyzeArrayElemImplicitInitialValue(varNode);
+        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             // Check each member of the union.
-            for (BLangType memberTypeNode : ((BLangUnionTypeNode) varNode.typeNode).memberTypeNodes) {
+            for (BLangType memberTypeNode : ((BLangUnionTypeNode) varTypeNode).memberTypeNodes) {
                 analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
             }
-        } else if (varNode.typeNode.type.tag == TypeTags.UNION && varNode.typeNode.getKind() == NodeKind.ARRAY_TYPE) {
-            // Specific handling for T[]|?, typeNode is a BLangArrayType
-            BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
-            if (!arrayPart.elemtype.type.hasImplicitInitialValue()) {
-                BLangType eType = arrayPart.elemtype;
-                this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
-            }
+        }
+    }
+
+    private void analyzeArrayElemImplicitInitialValue(BLangSimpleVariable varNode) {
+        BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
+        if (!arrayPart.elemtype.type.hasImplicitInitialValue()) {
+            BLangType eType = arrayPart.elemtype;
+            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
         }
     }
 
