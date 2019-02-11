@@ -225,7 +225,7 @@ public function main() returns error? {
      output = check crypto:decryptAesGcm(output, keyArr, ivArr, padding = crypto:NONE);
      io:println("AES GCM no padding decrypted value: " + encoding:byteArrayToString(output));
 
-     // Encrypt and decrypt input value using AES ECB PKCS5 padding
+     // Encrypt and decrypt input value using AES ECB PKCS5 padding.
      output = check crypto:encryptAesEcb(inputArr, keyArr);
      output = check crypto:decryptAesEcb(output, keyArr);
      io:println("AES ECB PKCS5 decrypted value: " + encoding:byteArrayToString(output));
