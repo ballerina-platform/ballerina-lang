@@ -22,11 +22,14 @@ service Chat on new grpc:Listener(9090) {
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         log:printInfo("Server received message: " + msg);
         foreach var con in self.consMap {
-            (_, ep) = con;
+            string callerId;
+            (callerId, ep) = con;
             error? err = ep->send(msg);
             if (err is error) {
                 log:printError("Error from Connector: " + err.reason() + " - "
                             + <string>err.detail().message);
+            } else {
+                log:printInfo("Server message to caller " + callerId + " sent successfully.");
             }
         }
     }
@@ -44,11 +47,14 @@ service Chat on new grpc:Listener(9090) {
         log:printInfo(msg);
         var v = self.consMap.remove(<string>caller.getId());
         foreach var con in self.consMap {
-            (_, ep) = con;
+            string callerId;
+            (callerId, ep) = con;
             error? err = ep->send(msg);
             if (err is error) {
                 log:printError("Error from Connector: " + err.reason() + " - "
                         + <string>err.detail().message);
+            } else {
+                log:printInfo("Server message to caller " + callerId + " sent successfully.");
             }
         }
     }
