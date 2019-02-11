@@ -1746,6 +1746,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
 
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1769,7 +1770,6 @@
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tests/ballerina-examples-test</module>
-                <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
 
@@ -1832,6 +1832,7 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1915,6 +1916,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
@@ -1939,7 +1941,6 @@
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-examples-test</module>
-                <module>tests/ballerina-spec-conformance-tests</module>
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>

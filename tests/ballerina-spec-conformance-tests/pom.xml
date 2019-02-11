@@ -28,127 +28,98 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-spec-conformance-tests</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <name>Ballerina - Spec Conformance Tests</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>testerina-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-runtime</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>testerina-core</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>extract-jre</id>
+                        <id>unpack-dependencies</id>
                         <phase>generate-resources</phase>
-                        <configuration>
-                            <tasks>
-                                <unzip src="${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip" dest="${project.build.directory}" />
-                            </tasks>
-                        </configuration>
                         <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>run</goal>
+                            <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <target>
-                            <delete dir="${project.build.directory}/ballerina-tools-${project.version}" includeemptydirs="true" deleteonexit="true" />
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>report-generation</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target name="mergeReports">
-                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
-                                         classpathref="maven.plugin.classpath"/>
-                                <if>
-                                    <and>
-                                        <available file="${project.build.directory}/coverage-reports/jacoco.exec"/>
-                                    </and>
-                                    <then>
-                                        <taskdef name="report" classname="org.jacoco.ant.ReportTask">
-                                            <classpath path="${basedir}/target/jacoco-jars/org.jacoco.ant.jar"/>
-                                        </taskdef>
-                                        <mkdir dir="${project.build.directory}/coverage-reports"/>
-                                        <report>
-                                            <executiondata>
-                                                <fileset dir="${project.build.directory}/coverage-reports/">
-                                                    <include name="jacoco.exec"/>
-                                                </fileset>
-                                            </executiondata>
-                                            <structure name="Ballerina Coverage Report">
-                                                <group name="ballerina">
-                                                    <classfiles>
-                                                        <fileset dir="${project.build.directory}/../../../bvm/ballerina-core/target/classes"/>
-                                                        <fileset dir="${project.build.directory}/../../../compiler/ballerina-lang/target/classes">
-                                                            <exclude
-                                                                    name="org/wso2/ballerinalang/compiler/parser/antlr4/*"/>
-                                                        </fileset>
-                                                    </classfiles>
-                                                    <sourcefiles encoding="UTF-8">
-                                                        <fileset dir="${project.build.directory}/../../../bvm/ballerina-core/src/main/java"/>
-                                                        <fileset dir="${project.build.directory}/../../../compiler/ballerina-lang/src/main/java"/>
-                                                    </sourcefiles>
-                                                </group>
-                                            </structure>
-                                            <html destdir="${project.build.directory}/coverage-reports/site"/>
-                                        </report>
-                                    </then>
-                                </if>
-                            </target>
+                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>org.jacoco.ant</artifactId>
-                        <version>${jacoco.agent.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>${ant.contrib.plugin.version}</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>ant</groupId>
-                                <artifactId>ant</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
             </plugin>
+
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <id>my-exec</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <executable>${project.build.directory}/../src/main/resources/run${script.extension}</executable>
-                    <arguments>
-                        <argument>${project.build.directory}/../</argument>
-                        <argument>${project.version}</argument>
-                        <argument>${jacoco.agent.argLine}</argument>
-                    </arguments>
+                    <argLine>-Dfile.encoding=UTF-8 ${jacoco.agent.argLine}</argLine>
+                    <systemPropertyVariables>
+                        <ballerina.home>${project.build.directory}</ballerina.home>
+                    </systemPropertyVariables>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExcludes>org.slf4j:slf4j-log4j12</classpathDependencyExcludes>
+                        <classpathDependencyExcludes>org.codehaus.woodstox:woodstox-core-asl</classpathDependencyExcludes>
+                        <classpathDependencyExcludes>org.codehaus.woodstox:stax2-api</classpathDependencyExcludes>
+                    </classpathDependencyExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -163,37 +134,31 @@
                         <configuration>
                             <append>true</append>
                             <inclNoLocationClasses>true</inclNoLocationClasses>
+                            <excludes>
+                                <exclude>org/wso2/ballerinalang/compiler/parser/antlr4/**</exclude>
+                            </excludes>
                             <propertyName>jacoco.agent.argLine</propertyName>
                             <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>it-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <dataFileIncludes>
+                                <dataFileInclude>**/coverage-reports/jacoco.exec</dataFileInclude>
+                            </dataFileIncludes>
+                            <excludes>
+                                <exclude>org/wso2/ballerinalang/compiler/parser/antlr4/**</exclude>
+                            </excludes>
+                            <outputDirectory>${project.build.directory}/coverage-reports/site</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>Windows</id>
-            <activation>
-                <os>
-                    <family>Windows</family>
-                </os>
-            </activation>
-            <properties>
-                <script.extension>.bat</script.extension>
-            </properties>
-        </profile>
-        <profile>
-            <id>unix</id>
-            <activation>
-                <os>
-                    <family>unix</family>
-                </os>
-            </activation>
-            <properties>
-                <script.extension>.sh</script.extension>
-            </properties>
-        </profile>
-    </profiles>
 </project>

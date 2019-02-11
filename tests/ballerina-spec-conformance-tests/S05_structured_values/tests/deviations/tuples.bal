@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/io;
 
 // A member of a list can be referenced by an integer index representing its position in the list.
 // For a list of length n, the indices of the members of the list, from first to last, are 0,1,...,n - 1.
