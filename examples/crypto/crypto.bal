@@ -137,7 +137,7 @@ public function main() returns error? {
      // Public key used for RSA encryption.
      crypto:PublicKey rsaPublicKey = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = "ballerina");
 
-     // Private key used for RSA decryption
+     // Private key used for RSA decryption.
      crypto:PrivateKey rsaPrivateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
                                                             keyPassword = "ballerina");
 
