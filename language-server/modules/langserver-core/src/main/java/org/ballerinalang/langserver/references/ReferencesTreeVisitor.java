@@ -74,7 +74,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -172,7 +171,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangService serviceNode) {
         BSymbol servSymbol = serviceNode.symbol;
         if (isReferenced(serviceNode.name.getValue(), servSymbol.owner, servSymbol.pkgID, servSymbol.owner.pkgID)) {
-            addLocation(serviceNode, servSymbol.pkgID.name.getValue(), servSymbol.pkgID.name.getValue());
+            addLocation(serviceNode.pos, servSymbol.pkgID.name.getValue(), servSymbol.pkgID.name.getValue());
         }
 
         List<BLangNode> serviceContent = new ArrayList<>();
@@ -193,7 +192,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (isReferenced(resourceNode.name.getValue(), resourceNode.symbol.owner, resourceNode.symbol.pkgID,
                          resourceNode.symbol.owner.pkgID)) {
             CommonUtil.replacePosition(resourceNode.getPosition(), HoverUtil.getIdentifierPosition(resourceNode));
-            addLocation(resourceNode, resourceNode.symbol.pkgID.name.getValue(),
+            addLocation(resourceNode.pos, resourceNode.symbol.pkgID.name.getValue(),
                         resourceNode.symbol.pkgID.name.getValue());
         }
 
@@ -208,10 +207,14 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
+        DiagnosticPos pos = CommonUtil.calculateEndColumnOfGivenName(varNode.getPosition(),
+                                                                     varNode.symbol.name.getValue(), "");
+        DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(varNode, pos);
         BVarSymbol varSymbol = varNode.symbol;
         if (!(varNode.type instanceof BUnionType) && isReferenced(varNode.name.getValue(), varSymbol.owner,
                                                                   varSymbol.pkgID, varSymbol.owner.pkgID)) {
-            addLocation(varNode, varSymbol.owner.pkgID.name.getValue(), varNode.pos.getSource().pkgID.name.getValue());
+            addLocation(identifierPos, varSymbol.owner.pkgID.name.getValue(),
+                        varNode.pos.getSource().pkgID.name.getValue());
         }
 
         if (varNode.typeNode != null) {
@@ -323,20 +326,21 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(), varRefExpr.variableName.value,
-                                                 varRefExpr.pkgAlias.value);
+        DiagnosticPos pos = CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(),
+                                                                     varRefExpr.variableName.value,
+                                                                     varRefExpr.pkgAlias.value);
         if (varRefExpr.symbol != null && isReferenced(varRefExpr.variableName.getValue(),
                                                       varRefExpr.symbol.owner,
                                                       varRefExpr.symbol.pkgID,
                                                       varRefExpr.symbol.owner.pkgID)) {
-            addLocation(varRefExpr, varRefExpr.symbol.owner.pkgID.name.getValue(),
+            addLocation(pos, varRefExpr.symbol.owner.pkgID.name.getValue(),
                         varRefExpr.pos.getSource().pkgID.name.getValue());
 
         } else if (varRefExpr.type.tsymbol != null && isReferenced(varRefExpr.variableName.getValue(),
                                                                    varRefExpr.type.tsymbol.owner,
                                                                    varRefExpr.type.tsymbol.pkgID,
                                                                    varRefExpr.type.tsymbol.owner.pkgID)) {
-            addLocation(varRefExpr, varRefExpr.type.tsymbol.owner.pkgID.name.getValue(),
+            addLocation(pos, varRefExpr.type.tsymbol.owner.pkgID.name.getValue(),
                         varRefExpr.pos.getSource().pkgID.name.getValue());
         }
     }
@@ -352,7 +356,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangInvocation invocationExpr) {
         BSymbol inExSymbol = invocationExpr.symbol;
         if (isReferencedRegardlessPkgs(invocationExpr.name.getValue(), inExSymbol.owner)) {
-            addLocation(invocationExpr, inExSymbol.owner.pkgID.name.getValue(),
+            addLocation(invocationExpr.pos, inExSymbol.owner.pkgID.name.getValue(),
                         invocationExpr.pos.getSource().pkgID.name.getValue());
         }
 
@@ -383,7 +387,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldBasedAccess) {
         BSymbol fbaSymbol = fieldBasedAccess.symbol;
         if (isReferenced(fieldBasedAccess.field.getValue(), fbaSymbol.owner, fbaSymbol.pkgID, fbaSymbol.owner.pkgID)) {
-            addLocation(fieldBasedAccess, fbaSymbol.owner.pkgID.name.getValue(),
+            addLocation(fieldBasedAccess.pos, fbaSymbol.owner.pkgID.name.getValue(),
                         fieldBasedAccess.pos.getSource().pkgID.name.getValue());
         }
         if (fieldBasedAccess.expr != null) {
@@ -394,14 +398,13 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         if (userDefinedType.getPosition() != null) {
-            userDefinedType.getPosition().sCol += (this.context.get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY)
-                    instanceof BLangEndpointTypeNode ? "endpoint<".length() : 0);
-            CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
-                                                     userDefinedType.pkgAlias.value);
+            DiagnosticPos pos = CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(),
+                                                                                   userDefinedType.typeName.value,
+                                                                                   userDefinedType.pkgAlias.value);
             BType udType = userDefinedType.type;
             if (udType.tsymbol != null && isReferencedRegardlessPkgs(userDefinedType.typeName.getValue(),
                                                                                    udType.tsymbol.owner)) {
-                addLocation(userDefinedType, udType.tsymbol.owner.pkgID.name.getValue(),
+                addLocation(pos, udType.tsymbol.owner.pkgID.name.getValue(),
                             userDefinedType.pos.getSource().pkgID.name.getValue());
             } else if (udType instanceof BUnionType) {
                 try {
@@ -409,7 +412,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
                     for (BType type : bUnionType.memberTypes) {
                         if (type.tsymbol != null && isReferencedRegardlessPkgs(type.tsymbol.name.getValue(),
                                                                                type.tsymbol.owner)) {
-                            addLocation(userDefinedType, type.tsymbol.owner.pkgID.name.getValue(),
+                            addLocation(pos, type.tsymbol.owner.pkgID.name.getValue(),
                                         userDefinedType.pos.getSource().pkgID.name.getValue());
                             break;
                         }
@@ -495,7 +498,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         BSymbol objectSymbol = objectTypeNode.symbol;
         if (isReferenced(objectSymbol.name.getValue(), objectSymbol.owner, objectSymbol.pkgID,
                          objectSymbol.owner.pkgID)) {
-            addLocation(objectTypeNode, objectSymbol.owner.pkgID.name.getValue(),
+            addLocation(objectTypeNode.pos, objectSymbol.owner.pkgID.name.getValue(),
                         objectTypeNode.pos.getSource().pkgID.name.getValue());
         }
 
@@ -587,7 +590,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         BTypeSymbol typeSymbol = typeDefinition.symbol;
         if (isReferenced(typeDefinition.name.value, typeSymbol.owner, typeSymbol.pkgID, typeSymbol.owner.pkgID)) {
-            addLocation(typeDefinition, typeSymbol.owner.pkgID.name.getValue(),
+            addLocation(typeDefinition.pos, typeSymbol.owner.pkgID.name.getValue(),
                         typeDefinition.pos.getSource().pkgID.name.getValue());
         }
 
@@ -605,7 +608,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangConstant constant) {
         BConstantSymbol constSymbol = constant.symbol;
         if (isReferenced(constant.name.value, constSymbol.owner, constSymbol.pkgID, constSymbol.owner.pkgID)) {
-            addLocation(constant, constSymbol.owner.pkgID.name.getValue(),
+            addLocation(constant.pos, constSymbol.owner.pkgID.name.getValue(),
                         constant.pos.getSource().pkgID.name.getValue());
         }
 
@@ -652,33 +655,35 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (this.terminateVisitor) {
             return;
         }
+        DiagnosticPos position = node.getPosition();
+        if (position != null) {
+            node.pos = new DiagnosticPos(position.src, position.sLine, position.eLine, position.sCol, position.eCol);
+        }
         node.accept(this);
     }
 
     /**
      * Get the physical source location of the given package.
      *
-     * @param bLangNode          ballerina language node references are requested for
+     * @param pos                diagnostic position
      * @param ownerPackageName   list of name compositions of the node's package name
      * @param currentPackageName list of name compositions of the current package
      * @return location of the package of the given node
      */
-    private Location getLocation(BLangNode bLangNode, String ownerPackageName, String currentPackageName) {
+    private Location getLocation(DiagnosticPos pos, String ownerPackageName, String currentPackageName) {
         Location l = new Location();
         Range r = new Range();
         TextDocumentPositionParams position = this.context.get(DocumentServiceKeys.POSITION_KEY);
         String parentPath = new LSDocument(position.getTextDocument().getUri()).getSourceRoot();
         if (parentPath != null) {
-            String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
+            String fileName = pos.getSource().getCompilationUnitName();
             Path filePath = Paths.get(CommonUtil.getPackageURI(currentPackageName, parentPath, ownerPackageName),
                                       fileName);
             l.setUri(filePath.toUri().toString());
 
             // Subtract 1 to convert the token lines and char positions to zero based indexing
-            r.setStart(new Position(bLangNode.getPosition().getStartLine() - 1,
-                                    bLangNode.getPosition().getStartColumn() - 1));
-            r.setEnd(new Position(bLangNode.getPosition().getEndLine() - 1,
-                                  bLangNode.getPosition().getEndColumn() - 1));
+            r.setStart(new Position(pos.getStartLine() - 1, pos.getStartColumn() - 1));
+            r.setEnd(new Position(pos.getEndLine() - 1, pos.getEndColumn() - 1));
             l.setRange(r);
         }
 
@@ -688,12 +693,12 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     /**
      * Add location to locations list.
      *
-     * @param node       node to calculate the location of
+     * @param pos       node position
      * @param ownerPkg   package of the owner
      * @param currentPkg package of the current node as a list of package paths
      */
-    private void addLocation(BLangNode node, String ownerPkg, String currentPkg) {
-        this.locations.add(getLocation(node, ownerPkg, currentPkg));
+    private void addLocation(DiagnosticPos pos, String ownerPkg, String currentPkg) {
+        this.locations.add(getLocation(pos, ownerPkg, currentPkg));
     }
 
     /**
@@ -704,7 +709,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
      * @param currentPkg package of the current node as a list of package paths
      */
     private void addLocation(BLangFunction node, String ownerPkg, String currentPkg) {
-        DiagnosticPos position = node.getPosition();
+        DiagnosticPos oldPos = node.getPosition();
+        DiagnosticPos position = new DiagnosticPos(oldPos.src, oldPos.sLine, oldPos.eLine, oldPos.sCol, oldPos.eCol);
 
         Set<Whitespace> wsSet = node.getWS();
         if (wsSet != null && wsSet.size() > 4 && !node.annAttachments.isEmpty()) {
@@ -716,7 +722,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
                     wsArray[0].getWs().split(CommonUtil.LINE_SEPARATOR_SPLIT).length - 1;
         }
 
-        this.locations.add(getLocation(node, ownerPkg, currentPkg));
+        this.locations.add(getLocation(position, ownerPkg, currentPkg));
     }
 
     /**

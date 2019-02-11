@@ -77,7 +77,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -173,13 +172,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         if (userDefinedType.getPosition() != null) {
-            userDefinedType.getPosition().sCol += (previousNode instanceof BLangEndpointTypeNode
-                    ? "endpoint<".length()
-                    : 0);
-            CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
-                                                     userDefinedType.pkgAlias.value);
-            if (userDefinedType.type instanceof BUnionType &&
-                    HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
+            DiagnosticPos pos = CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(),
+                                                                         userDefinedType.typeName.value,
+                                                                         userDefinedType.pkgAlias.value);
+            if (userDefinedType.type instanceof BUnionType && HoverUtil.isMatchingPosition(pos, this.position)) {
                 try {
                     BUnionType bUnionType = (BUnionType) userDefinedType.type;
                     for (BType type : bUnionType.memberTypes) {
@@ -196,8 +192,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 } catch (ClassCastException e) {
                     // Ignores
                 }
-            } else if (userDefinedType.type.tsymbol != null &&
-                    HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
+            } else if (userDefinedType.type.tsymbol != null && HoverUtil.isMatchingPosition(pos, this.position)) {
                 addPosition(userDefinedType, this.previousNode, userDefinedType.typeName.getValue(),
                             userDefinedType.type.tsymbol.pkgID, userDefinedType.type.tsymbol.kind.name(),
                             userDefinedType.type.tsymbol.kind.name(),
@@ -211,8 +206,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         setPreviousNode(varNode);
         if (varNode.symbol != null) {
-            CommonUtil.calculateEndColumnOfGivenName(varNode.getPosition(), varNode.symbol.name.getValue(), "");
-            DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(varNode);
+            DiagnosticPos pos = CommonUtil.calculateEndColumnOfGivenName(varNode.getPosition(),
+                                                                         varNode.symbol.name.getValue(), "");
+            DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(varNode, pos);
             if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
                 addPosition(varNode, this.previousNode, varNode.symbol.name.getValue(), varNode.symbol.pkgID,
                             ContextConstants.VARIABLE, ContextConstants.VARIABLE, varNode.symbol.name.getValue(),
@@ -232,10 +228,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(), varRefExpr.variableName.value,
-                                                 varRefExpr.pkgAlias.value);
+        DiagnosticPos pos = CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(),
+                                                                     varRefExpr.variableName.value,
+                                                                     varRefExpr.pkgAlias.value);
         if (varRefExpr.symbol != null && varRefExpr.symbol instanceof BEndpointVarSymbol &&
-                HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
+                HoverUtil.isMatchingPosition(pos, this.position)) {
             addPosition(varRefExpr, this.previousNode, ((BEndpointVarSymbol) varRefExpr.symbol).name.getValue(),
                         ((BEndpointVarSymbol) varRefExpr.symbol).pkgID, ContextConstants.ENDPOINT,
                         ContextConstants.ENDPOINT, varRefExpr.variableName.getValue(), varRefExpr.symbol.owner);
@@ -244,7 +241,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.OBJECT) ||
                 varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.RECORD) ||
                 varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.TYPE_DEF))
-                && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
+                && HoverUtil.isMatchingPosition(pos, this.position)) {
             if (varRefExpr.symbol != null) {
                 addPosition(varRefExpr, this.previousNode, varRefExpr.type.tsymbol.name.getValue(),
                             varRefExpr.symbol.pkgID, ContextConstants.VARIABLE, varRefExpr.type.tsymbol.kind.name(),
@@ -257,7 +254,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             }
             setTerminateVisitor(true);
         } else if (varRefExpr.pkgSymbol != null
-                && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
+                && HoverUtil.isMatchingPosition(pos, this.position)) {
             if (varRefExpr.symbol != null) {
                 addPosition(varRefExpr, this.previousNode, varRefExpr.variableName.getValue(),
                             varRefExpr.pkgSymbol.pkgID, ContextConstants.VARIABLE, ContextConstants.VARIABLE,
@@ -269,7 +266,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                             varRefExpr.type.tsymbol.owner);
             }
             setTerminateVisitor(true);
-        } else if (HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position) && varRefExpr.symbol != null) {
+        } else if (HoverUtil.isMatchingPosition(pos, this.position) && varRefExpr.symbol != null) {
             addPosition(varRefExpr, this.previousNode, varRefExpr.symbol.name.getValue(), varRefExpr.symbol.pkgID,
                         ContextConstants.VARIABLE, ContextConstants.VARIABLE, varRefExpr.variableName.getValue(),
                         varRefExpr.symbol.owner);
@@ -804,6 +801,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     private void acceptNode(BLangNode node) {
         if (this.terminateVisitor || node == null) {
             return;
+        }
+        DiagnosticPos position = node.getPosition();
+        if (position != null) {
+            node.pos = new DiagnosticPos(position.src, position.sLine, position.eLine, position.sCol, position.eCol);
         }
         node.accept(this);
     }

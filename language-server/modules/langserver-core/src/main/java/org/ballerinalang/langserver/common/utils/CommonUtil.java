@@ -194,9 +194,13 @@ public class CommonUtil {
      * @param position position of the node
      * @param name     name of the user defined type
      * @param pkgAlias package alias name of the user defined type
+     * @return DiagnosticPos
      */
-    public static void calculateEndColumnOfGivenName(DiagnosticPos position, String name, String pkgAlias) {
-        position.eCol = position.sCol + name.length() + (!pkgAlias.isEmpty() ? (pkgAlias + ":").length() : 0);
+    public static DiagnosticPos calculateEndColumnOfGivenName(DiagnosticPos position, String name, String pkgAlias) {
+        DiagnosticPos pos = new DiagnosticPos(position.src, position.sLine, position.eLine, position.sCol,
+                                              position.eCol);
+        pos.eCol = pos.sCol + name.length() + (!pkgAlias.isEmpty() ? (pkgAlias + ":").length() : 0);
+        return pos;
     }
 
     /**

@@ -452,8 +452,7 @@ public class HoverUtil {
      * @param varNode BLangSimpleVariable
      * @return position
      */
-    public static DiagnosticPos getIdentifierPosition(BLangSimpleVariable varNode) {
-        DiagnosticPos position = varNode.getPosition();
+    public static DiagnosticPos getIdentifierPosition(BLangSimpleVariable varNode, DiagnosticPos position) {
         Set<Whitespace> wsSet = varNode.getWS();
         if (wsSet != null && wsSet.size() > 0) {
             BLangType typeNode = varNode.getTypeNode();
