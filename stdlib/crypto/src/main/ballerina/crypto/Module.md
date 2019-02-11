@@ -157,7 +157,7 @@ public function main() returns error? {
 
      crypto:KeyStore keyStore = { path: "/home/ballerina/keystore.p12", password: "ballerina" };
 
-     // Public key used for encryption
+     // Public key used for encryption.
      crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = "ballerina");
 
      // Private key used for decryption
