@@ -107,6 +107,29 @@ function testRecordTypedBindingPatternWithClosedRestParam() {
 }
 
 @test:Config {}
+function testRecordTypedBindingPatternWithOnlyRestParam() {
+    BindingPattern bindingPattern = {
+        field1: 11,
+        field2: "string value",
+        field3: 16.5,
+        var4: <decimal>18.9,
+        var5: false,
+        field6: (),
+        field7: [8, 9, 10, 11]
+    };
+
+    BindingPattern { ...restParam } = bindingPattern;
+    test:assertEquals(restParam.field1, 11, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.field2, "string value", msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.field3, 16.5, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.var4, <decimal>18.9, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.var5, false, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.field6, (), msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.field7, <int[]>[8, 9, 10, 11],
+        msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+}
+
+@test:Config {}
 function testImpliedRecordTypedBindingPattern() {
     BindingPattern bindingPattern = {
         field1: 11,
@@ -183,6 +206,29 @@ function testImpliedRecordTypedBindingPatternWithClosedRestParam() {
     test:assertEquals(field1, 15, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(field2, "string value", msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(field3, 100.1, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+}
+
+@test:Config {}
+function testImpliedRecordTypedBindingPatternWithOnlyRestParam() {
+    BindingPattern bindingPattern = {
+        field1: 11,
+        field2: "string value",
+        field3: 16.5,
+        var4: <decimal>18.9,
+        var5: false,
+        field6: (),
+        field7: [8, 9, 10, 11]
+    };
+
+    var { ...restParam } = bindingPattern;
+    test:assertEquals(restParam.field1, 11, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.field2, "string value", msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.field3, 16.5, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.var4, <decimal>18.9, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.var5, false, msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.field6, (), msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(restParam.field7, <int[]>[8, 9, 10, 11],
+        msg = EXPECTED_RECORD_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
 }
 
 @test:Config {}

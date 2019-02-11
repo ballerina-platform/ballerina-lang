@@ -169,3 +169,38 @@ function testAbstractClientObjectDeclaration() {
         msg = EXPECTED_CLIENT_ABSTRACT_OBJECT_FAILURE_MESSAGE +
             "public visibility remote method declared outside to be accessible");
 }
+
+type ClientAbstractObject client abstract object {
+    public string publicStringField;
+    float floatField;
+
+    remote function getPrivateField() returns int;
+};
+
+type ObjReferenceToClientAbstractObject client object {
+    *ClientAbstractObject;
+
+    private float privateFloatField;
+
+    function __init() {
+        self.publicStringField = "string";
+        self.floatField = 3.0;
+        self.privateFloatField = 2.0;
+    }
+
+    remote function getPrivateField() returns float {
+        return self.privateFloatField;
+    }
+};
+
+@test:Config {}
+function testClientAbstractObjectDeclaration() {
+    ObjReferenceToClientAbstractObject abstractClientObj = new();
+
+    test:assertTrue(abstractClientObj.publicStringField == "string",
+        msg = EXPECTED_CLIENT_ABSTRACT_OBJECT_FAILURE_MESSAGE + "public field to be accessible");
+
+    var result = abstractClientObj->getPrivateField();
+    test:assertTrue(result == 2.0,
+        msg = EXPECTED_CLIENT_ABSTRACT_OBJECT_FAILURE_MESSAGE + "private field to be accessible via object method");
+}
