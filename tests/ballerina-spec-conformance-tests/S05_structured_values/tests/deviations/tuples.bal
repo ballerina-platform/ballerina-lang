@@ -39,28 +39,6 @@ function testTupleMemberReferenceByInvalidIntegerIndex() {
     //    "invalid reason on access by index > tuple length");
 }
 
-// A list is iterable as a sequence of its members.
-// TODO: Need to support tuple as an itereable collection
-// https://github.com/ballerina-platform/ballerina-lang/issues/13165
-@test:Config {
-    groups: ["deviation"]
-}
-function testTupleMemberIteration() {
-    //int a = 4;
-    //string b = "string 1";
-    //string c = "string 2";
-    //int d = 1;
-    //
-    //(int, string, string, int) tuple = (a, b, c, d);
-    //(int, string, string, int) tupleTwo = (a, b, c, d);
-    //int currentIndex = 0;
-    //
-    //foreach string|int intValue in tuple {
-    //    test:assertEquals(intValue, tupleTwo[currentIndex], msg = "incorrect member value found on iteration");
-    //    currentIndex = currentIndex + 1;
-    //}
-}
-
 // TODO: Fix implicit initial value for tuple
 // https://github.com/ballerina-platform/ballerina-lang/issues/13166
 @test:Config {
