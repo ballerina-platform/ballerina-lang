@@ -9,7 +9,7 @@ boolean success = false;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    io:println("io:println: Mocked");
+    io:println("The function 'io:println' was mocked");
     success = true;
 }
 
