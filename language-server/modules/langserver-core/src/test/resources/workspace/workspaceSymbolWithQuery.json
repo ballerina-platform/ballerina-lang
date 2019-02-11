@@ -99,7 +99,7 @@
         }
       },
       {
-        "name": "testDocService$$service$1.sayHello",
+        "name": "testDocService.sayHello",
         "kind": "Function",
         "location": {
           "range": {

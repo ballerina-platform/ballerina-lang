@@ -190,6 +190,14 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
         if (query != null && !query.isEmpty() && !symbolName.startsWith(query)) {
             return;
         }
+        if (symbolName.startsWith("$lambda$")) {
+            return;
+        }
+        int servicePos = symbolName.indexOf("$$service$");
+        if (servicePos > -1) {
+            int dotPos = symbolName.indexOf(".", servicePos);
+            symbolName = symbolName.substring(0, servicePos) + ((dotPos > -1) ? symbolName.substring(dotPos) : "");
+        }
         SymbolInformation lspSymbol = new SymbolInformation();
         lspSymbol.setName(symbolName);
         lspSymbol.setKind(kind);
