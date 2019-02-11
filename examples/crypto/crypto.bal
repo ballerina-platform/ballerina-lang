@@ -104,7 +104,7 @@ public function main() returns error? {
         ivArr[i] = check byte.convert(math:randomInRange(0, 255));
      }
 
-     // Encrypt and decrypt input value using AES CBC PKCS5 padding
+     // Encrypt and decrypt input value using AES CBC PKCS5 padding.
      output = check crypto:encryptAesCbc(inputArr, rsaKeyArr, ivArr);
      output = check crypto:decryptAesCbc(output, rsaKeyArr, ivArr);
      io:println("AES CBC PKCS5 decrypted value: " + encoding:byteArrayToString(output));
