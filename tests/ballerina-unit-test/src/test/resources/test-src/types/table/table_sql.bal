@@ -286,7 +286,6 @@ function testTableToString() returns table<record {}> {
     return personTableCopy;
 }
 
-
 function testSimpleSelectAllWithCondition() returns int {
     table<Person> personTable = table{};
     int recordCount = 0;
