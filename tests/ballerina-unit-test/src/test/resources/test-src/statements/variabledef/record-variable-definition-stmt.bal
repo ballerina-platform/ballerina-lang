@@ -289,3 +289,59 @@ function testIgnoreVariable() returns (string, int) {
     PersonWithAge {name, age: {age, format: _, ...rest1}, married: _, ...rest2} = p;
     return (name, age);
 }
+
+function testRecordVariableWithOnlyRestParam() returns map<anydata> {
+    PersonWithAge p = { name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE" };
+    PersonWithAge { ...rest } = p;
+    return rest;
+}
+
+type Object object {
+    private int field;
+
+    public function __init() {
+        self.field = 12;
+    }
+
+    public function getField() returns int {
+        return self.field;
+    }
+};
+
+type IntRestRecord record {
+    string name;
+    boolean married;
+    int...;
+};
+
+type ObjectRestRecord record {
+    string name;
+    boolean married;
+    Object...;
+};
+
+function testRestParameterType() returns (boolean, boolean, boolean, boolean, boolean, boolean, boolean) {
+    IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
+    IntRestRecord { name: name1, ...other1 } = rec1;
+    var { name: name2, ...other2 } = rec1;
+
+    ObjectRestRecord rec2 = { name: "A", married: true, extra: new };
+    ObjectRestRecord { name: name3, ...other3 } = rec2;
+    var { name: name4, ...other4 } = rec2;
+
+    IntRestRecord|ObjectRestRecord rec3 = rec1;
+    IntRestRecord|ObjectRestRecord { name: name5, ...other5 } = rec3;
+
+    map<string> stringMap = { a: "A", b: "B" };
+    map<string> { a, ...other6 } = stringMap;
+
+    any a1 = other1;
+    any a2 = other2;
+    any a3 = other3;
+    any a4 = other4;
+    any a5 = other5;
+    any a6 = other6;
+
+    return (a1 is map<anydata>, a2 is map<int>, a3 is map<any>, a4 is map<Object>, a5 is map<any>,
+                                                                    a5 is map<anydata>, a6 is map<anydata>);
+}
