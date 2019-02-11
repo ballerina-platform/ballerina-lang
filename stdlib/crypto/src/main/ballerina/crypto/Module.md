@@ -193,7 +193,7 @@ public function main() returns error? {
      string input = "Hello Ballerina!";
      byte[] inputArr = input.toByteArray("UTF-8");
 
-     // Randomly generate a 128 bit key
+     // Randomly generate a 128 bit key.
      byte[16] keyArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
      foreach var i in 0...15 {
         keyArr[i] = check byte.convert(math:randomInRange(0, 255));
