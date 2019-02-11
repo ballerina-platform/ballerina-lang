@@ -43,7 +43,7 @@ function multiBinaryExpression(string? s, boolean one, boolean two, boolean thre
 }
 
 function callFnWithNullLiteral(string? s, int?... nums) {
-
+    // Empty function
 }
 
 type Person record {

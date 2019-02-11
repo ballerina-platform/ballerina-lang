@@ -34,7 +34,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * Test cases for the usage of `null` literal in Ballerina code. `null` is only allowed in JSON contexts.
  *
- * @since 0.990.3
+ * @since 0.990.4
  */
 public class NullLiteralUsageTest {
 
