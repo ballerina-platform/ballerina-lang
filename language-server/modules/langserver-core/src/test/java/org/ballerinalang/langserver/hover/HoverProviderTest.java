@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.hover;
 
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -53,6 +54,7 @@ public class HoverProviderTest {
     
     @BeforeMethod
     public void clearPackageCache() {
+        LSCompilerCache.getInstance().clearAll();
         LSContextManager.getInstance().clearAllContexts();
     }
 

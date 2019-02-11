@@ -26,6 +26,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
@@ -80,6 +82,11 @@ public class CommandExecutionTest {
     @BeforeClass
     public void init() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
+    }
+
+    @BeforeMethod
+    public void resetCache() {
+        LSCompilerCache.getInstance().clearAll();
     }
 
     @Test(dataProvider = "package-import-data-provider")
@@ -239,6 +246,8 @@ public class CommandExecutionTest {
                 byte[] strToBytes = content.getBytes(Charset.defaultCharset());
                 outputStream.write(strToBytes);
             }
+            // Clear compiler cache since we are manipulating source files outside the LSP protocol
+            LSCompilerCache.getInstance().clearAll();
 
             // Compile the test file through the actual path, since it depends on the source-code
             LSCompiler compiler = new LSCompiler(ExtendedWorkspaceDocumentManagerImpl.getInstance());
@@ -361,7 +370,7 @@ public class CommandExecutionTest {
     public Object[][] testGenerationDataProvider() {
         log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_TEST);
         return new Object[][]{
-//                {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
+                {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
                 {"testGenerationForServices.json", Paths.get("testgen", "module2", "services.bal")}
         };
     }

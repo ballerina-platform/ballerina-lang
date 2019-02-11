@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -32,6 +33,7 @@ import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -57,6 +59,11 @@ public abstract class CompletionTest {
     @BeforeClass
     public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
+    }
+
+    @BeforeMethod
+    public void resetCache() {
+        LSCompilerCache.getInstance().clearAll();
     }
 
     @Test(dataProvider = "completion-data-provider")

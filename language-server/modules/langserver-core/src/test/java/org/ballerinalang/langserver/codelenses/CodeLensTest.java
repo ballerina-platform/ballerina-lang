@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.codelenses;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -60,7 +61,8 @@ public class CodeLensTest {
     }
 
     @BeforeMethod
-    public void clearPackageCache() {
+    public void clearCache() {
+        LSCompilerCache.getInstance().clearAll();
         LSContextManager.getInstance().clearAllContexts();
     }
 
