@@ -294,32 +294,32 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a incompatible JSON to a struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"incompatible convert " +
-                  "operation: 'json' value cannot be converted as 'Person'\"\\}.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"incompatible " 
+                  + "convert operation: 'json' value cannot be converted as 'Person'\"\\}.*")
     public void testJsonToStructWithMissingRequiredFields() {
         BRunUtil.invoke(compileResult, "testJsonToStructWithMissingRequiredFields");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"incompatible convert " +
-                  "operation: 'json' value cannot be converted as 'Person'\"\\}.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"incompatible " 
+                  + "convert operation: 'json' value cannot be converted as 'Person'\"\\}.*")
     public void testJsonWithIncompatibleMapToStruct() {
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleMapToStruct");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner struct to a struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"incompatible convert " +
-                  "operation: 'json' value cannot be converted as 'Person'\"\\}.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"incompatible " 
+                  + "convert operation: 'json' value cannot be converted as 'Person'\"\\}.*")
     public void testJsonWithIncompatibleStructToStruct() {
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleStructToStruct");
     }
 
     @Test(description = "Test converting a JSON array to a struct",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'json\\[\\]' value cannot be converted as "
-                  + "'Person'.*")
+          expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'json\\[\\]' value cannot be converted" 
+                  + " as 'Person'.*")
     public void testJsonArrayToStruct() {
         BRunUtil.invoke(compileResult, "testJsonArrayToStruct");
     }
@@ -334,8 +334,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a struct with map of blob to a JSON",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'Info' value cannot be converted as 'json'" 
-                  + ".*")
+          expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'Info' value cannot be converted as " 
+                  + "'json'.*")
     public void testStructWithIncompatibleTypeMapToJson() {
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeMapToJson");
     }
@@ -406,8 +406,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON integer array to string array",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"cannot convert 'null' " +
-                    "value to type 'StringArray'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"cannot convert " 
+                    + "'null' value to type 'StringArray'\"\\}.*")
     public void testNullJsonToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
         Assert.assertNull(returns[0]);
@@ -415,8 +415,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON null to string array",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"incompatible convert " +
-                  "operation: 'json' value cannot be converted as 'StringArray'\"\\}.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"incompatible " 
+                  + "convert operation: 'json' value cannot be converted as 'StringArray'\"\\}.*")
     public void testNullJsonArrayToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonArrayToArray");
     }
@@ -431,8 +431,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a null JSON to struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"cannot convert 'null' " +
-                  "value to type 'Person'\"\\}.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}ConversionError \\{\"message\":\"cannot convert " 
+                  + "'null' value to type 'Person'\"\\}.*")
     public void testNullJsonToStruct() {
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }
