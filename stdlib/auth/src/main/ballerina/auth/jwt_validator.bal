@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
-import ballerina/time;
-import ballerina/encoding;
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/internal;
 import ballerina/io;
+import ballerina/log;
+import ballerina/time;
 
 # Represents JWT validator configurations.
 # + issuer - Expected issuer

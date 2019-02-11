@@ -16,17 +16,17 @@
 
 public type ConfigJwtAuthProvider object {
 
-    public InferredJwtAuthProviderConfig configJwtAuthProviderConfig;
+    public InferredJwtIssuerConfig inferredJwtIssuerConfig;
     public ConfigAuthStoreProvider configAuthProvider = new;
 
-    public function __init(InferredJwtAuthProviderConfig configJwtAuthProviderConfig) {
-        self.configJwtAuthProviderConfig = configJwtAuthProviderConfig;
+    public function __init(InferredJwtIssuerConfig inferredJwtIssuerConfig) {
+        self.inferredJwtIssuerConfig = inferredJwtIssuerConfig;
     }
 
     public function authenticate(string username, string password) returns boolean {
         boolean isAuthenticated = self.configAuthProvider.authenticate(username, password);
         if (isAuthenticated){
-            setAuthToken(username, self.configJwtAuthProviderConfig);
+            setAuthToken(username, self.inferredJwtIssuerConfig);
         }
         return isAuthenticated;
     }

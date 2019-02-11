@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/encoding;
 import ballerina/crypto;
+import ballerina/encoding;
 
 # Issue a JWT token.
 #

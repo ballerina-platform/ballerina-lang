@@ -18,10 +18,8 @@
 
 package org.ballerinalang.test.auth;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
-import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

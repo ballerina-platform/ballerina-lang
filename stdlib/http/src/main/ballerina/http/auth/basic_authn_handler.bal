@@ -16,9 +16,9 @@
 
 
 import ballerina/auth;
+import ballerina/encoding;
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/encoding;
 
 # Authentication cache name.
 const string AUTH_CACHE = "basic_auth_cache";

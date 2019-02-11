@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
 import ballerina/internal;
 import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
-import ballerina/crypto;
 
 # Represents authentication provider configurations that supports generating JWT for client interactions.
 #
@@ -29,14 +29,14 @@ import ballerina/crypto;
 # + keyAlias - Key alias for signing newly issued JWT tokens
 # + keyPassword - Key password for signing newly issued JWT tokens
 # + signingAlg - Signing algorithm for signing newly issued JWT tokens
-    public type InferredJwtAuthProviderConfig record {
-    string issuer;
-    string audience;
-    int expTime = 0;
+public type InferredJwtIssuerConfig record {
+    string issuer = "ballerina";
+    string audience = "ballerina";
+    int expTime = 300;
     crypto:KeyStore keyStore;
     string keyAlias;
     string keyPassword;
-    JwtSigningAlgorithm signingAlg;
+    JwtSigningAlgorithm signingAlg = RS256;
     !...;
 };
 
@@ -44,7 +44,7 @@ import ballerina/crypto;
 #
 # + username - user name
 # + authConfig - authentication provider configurations that supports generating JWT for client interactions
-function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig) {
+function setAuthToken(string username, InferredJwtIssuerConfig authConfig) {
     JwtHeader header = createHeader(authConfig);
     JwtPayload payload = createPayload(username, authConfig);
     var token = issueJwt(header, payload, authConfig.keyStore, authConfig.keyAlias, authConfig.keyPassword);
@@ -55,12 +55,12 @@ function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig)
     }
 }
 
-function createHeader(InferredJwtAuthProviderConfig authConfig) returns (JwtHeader) {
+function createHeader(InferredJwtIssuerConfig authConfig) returns (JwtHeader) {
     JwtHeader header = { alg: authConfig.signingAlg, typ: "JWT" };
     return header;
 }
 
-function createPayload(string username, InferredJwtAuthProviderConfig authConfig) returns (JwtPayload) {
+function createPayload(string username, InferredJwtIssuerConfig authConfig) returns (JwtPayload) {
     string audList = authConfig.audience;
     string[] audience = audList.split(" ");
     JwtPayload payload = {

@@ -16,9 +16,9 @@
 
 
 import ballerina/cache;
-import ballerina/runtime;
-import ballerina/log;
 import ballerina/io;
+import ballerina/log;
+import ballerina/runtime;
 
 # Representation of Authorization Handler for HTTP
 #

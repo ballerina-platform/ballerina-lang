@@ -15,9 +15,9 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/crypto;
 import ballerina/log;
 import ballerina/system;
-import ballerina/crypto;
 
 /////////////////////////////
 /// HTTP Listener Endpoint ///
@@ -209,39 +209,20 @@ public type AuthCacheConfig record {
 };
 
 # Configuration for authentication providers.
-#
-# + scheme - Authentication scheme
+
 # + id - Authentication provider instance id
+# + scheme - Authentication scheme
 # + authStoreProvider - Authentication store provider (Config, LDAP, etc.) implementation
-# + authStoreProviderConfig - Auth store related configurations
-# + issuer - Identifier of the token issuer
-# + audience - Identifier of the token recipients
-# + trustStore - Trustore configurations
-# + certificateAlias - Token signed key alias
-# + clockSkew - Time in seconds to mitigate clock skew
-# + keyStore - `KeyStore` instance providing key store related configurations
-# + keyAlias - The Key Alias
-# + keyPassword - The Key password
-# + expTime - Expiry time
-# + signingAlg - The signing algorithm which is used to sign the JWT token
-# + propagateJwt - `true` if propagating authentication info as JWT
+# + ldapAuthProviderConfig - LDAP auth provider related configurations
+# + configAuthProviderConfig - Config auth provider related configurations
+# + jwtAuthProviderConfig - JWT auth provider related configurations
 public type AuthProvider record {
-    auth:InboundAuthScheme scheme;
     string id = "";
-    auth:AuthStoreProvider authStoreProvider = ();
-    auth:LdapAuthProviderConfig? authStoreProviderConfig = ();
-    string issuer = "";
-    string audience = "";
-    TrustStore? trustStore = ();
-    string certificateAlias = "";
-    boolean validateCertificate?;
-    int clockSkew = 0;
-    KeyStore? keyStore = ();
-    string keyAlias = "";
-    string keyPassword = "";
-    int expTime = 0;
-    auth:JwtSigningAlgorithm signingAlg = auth:RS512;
-    boolean propagateJwt = false;
+    InboundAuthScheme scheme;
+    AuthStoreProvider? authStoreProvider = ();
+    auth:LdapAuthProviderConfig? ldapAuthProviderConfig = ();
+    auth:ConfigAuthProviderConfig? configAuthProviderConfig = ();
+    auth:JWTAuthProviderConfig? jwtAuthProviderConfig = ();
     !...;
 };
 
@@ -315,21 +296,21 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
     auth:AuthStoreProvider authStoreProvider = new;
 
     foreach var provider in authProviderList {
-        if (provider.scheme == AUTHN_SCHEME_BASIC) {
-            if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
-                var authStoreProviderConfig = provider.authStoreProviderConfig;
-                if (authStoreProviderConfig is auth:LdapAuthProviderConfig) {
-                    auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig, instanceId);
+        if (provider.scheme == BASIC_AUTH) {
+            if (provider.authStoreProvider == LDAP_AUTH_STORE) {
+                var ldapAuthProviderConfig = provider.ldapAuthProviderConfig;
+                if (ldapAuthProviderConfig is auth:LdapAuthProviderConfig) {
+                    auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(ldapAuthProviderConfig, instanceId);
                     authStoreProvider = ldapAuthStoreProvider;
                 } else {
-                    error e = error("Authstore config not provided for : " + provider.authStoreProvider);
+                    error e = error("LDAP auth provider config not provided");
                     panic e;
                 }
-            } else if (provider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
+            } else if (provider.authStoreProvider == CONFIG_AUTH_STORE) {
                 auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
                 authStoreProvider = configAuthStoreProvider;
             } else {
-                error configError = error("Unsupported auth store provider : " + provider.authStoreProvider);
+                error configError = error("Unsupported auth store provider");
                 panic configError;
             }
         }
@@ -350,86 +331,58 @@ function createBasicAuthHandler() returns HttpAuthnHandler {
 }
 
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
-    if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
+    if (authProvider.scheme == BASIC_AUTH) {
         auth:AuthStoreProvider authStoreProvider = new;
-        if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
-            if (authProvider.propagateJwt) {
-                auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));
-                authStoreProvider = configAuthProvider;
-            } else {
+        if (authProvider.authStoreProvider == CONFIG_AUTH_STORE) {
+            var configAuthProviderConfig = authProvider.configAuthProviderConfig;
+            boolean authStoreProviderInitialized = false;
+            if (configAuthProviderConfig is auth:ConfigAuthProviderConfig) {
+                var inferredJwtIssuerConfig = configAuthProviderConfig.inferredJwtIssuerConfig;
+                if (inferredJwtIssuerConfig is auth:InferredJwtIssuerConfig) {
+                    auth:ConfigJwtAuthProvider configAuthProvider = new(inferredJwtIssuerConfig);
+                    authStoreProvider = configAuthProvider;
+                    authStoreProviderInitialized = true;
+                }
+            }
+            if (!authStoreProviderInitialized) {
                 auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
                 authStoreProvider = configAuthStoreProvider;
             }
-        } else if (authProvider.authStoreProvider == AUTH_PROVIDER_LDAP) {
-            var authStoreProviderConfig = authProvider.authStoreProviderConfig;
-            if (authStoreProviderConfig is auth:LdapAuthProviderConfig) {
-                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig, instanceId);
-                if (authProvider.propagateJwt) {
-                    auth:LdapJwtAuthProvider ldapAuthProvider =
-                    new(getInferredJwtAuthProviderConfig(authProvider),ldapAuthStoreProvider);
+        } else if (authProvider.authStoreProvider == LDAP_AUTH_STORE) {
+            var ldapAuthProviderConfig = authProvider.ldapAuthProviderConfig;
+            if (ldapAuthProviderConfig is auth:LdapAuthProviderConfig) {
+                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(ldapAuthProviderConfig, instanceId);
+                var inferredJwtIssuerConfig = ldapAuthProviderConfig.inferredJwtIssuerConfig;
+                if (inferredJwtIssuerConfig is auth:InferredJwtIssuerConfig) {
+                    auth:LdapJwtAuthProvider ldapAuthProvider = new(inferredJwtIssuerConfig, ldapAuthStoreProvider);
                     authStoreProvider = ldapAuthProvider;
                 } else {
                     authStoreProvider = ldapAuthStoreProvider;
                 }
             } else {
-                error e = error("Authstore config not provided for : " + authProvider.authStoreProvider);
+                error e = error("LDAP auth provider config not provided");
                 panic e;
             }
         } else {
-            // other auth providers are unsupported yet
-            error e = error("Invalid auth provider: " + authProvider.authStoreProvider);
+            error e = error("Unsupported auth store provider");
             panic e;
         }
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
         return basicAuthHandler;
-    } else if (authProvider.scheme == AUTH_SCHEME_JWT){
-        string trustStorePath = authProvider.trustStore.path ?: "";
-        string trustStorePassword = authProvider.trustStore.password ?: "";
-        crypto:TrustStore trustStore = {
-            path: trustStorePath,
-            password: trustStorePassword
-        };
-        auth:JWTAuthProviderConfig jwtConfig = {
-            issuer: authProvider.issuer,
-            audience: authProvider.audience,
-            certificateAlias: authProvider.certificateAlias,
-            clockSkew: authProvider.clockSkew,
-            trustStore: trustStore
-        };
-        var validateCertificate = authProvider["validateCertificate"];
-        if (validateCertificate is boolean) {
-            jwtConfig.validateCertificate = validateCertificate;
+    } else if (authProvider.scheme == JWT_AUTH){
+        var jwtAuthProviderConfig = authProvider.jwtAuthProviderConfig;
+        if (jwtAuthProviderConfig is auth:JWTAuthProviderConfig) {
+            auth:JWTAuthProvider jwtAuthProvider = new(jwtAuthProviderConfig);
+            HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
+            return jwtAuthnHandler;
+        } else {
+            error e = error("JWT auth provider config not provided");
+            panic e;
         }
-        auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
-        HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
-        return jwtAuthnHandler;
     } else {
-        error e = error("Invalid auth scheme: " + authProvider.scheme);
+        error e = error("Unsupported auth scheme");
         panic e;
     }
-}
-
-function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns auth:InferredJwtAuthProviderConfig {
-    //ConfigJwtAuthProviderConfig
-    string defaultIssuer = "ballerina";
-    string defaultAudience = "ballerina";
-    int defaultExpTime = 300; // in seconds
-    string defaultSignAlg = "RS256";
-
-    crypto:KeyStore keyStore = {
-        path: authProvider.keyStore.path ?: "",
-        password: authProvider.keyStore.password ?: ""
-    };
-    auth:InferredJwtAuthProviderConfig jwtAuthConfig = {
-        issuer: authProvider.issuer == "" ? defaultIssuer : authProvider.issuer,
-        expTime: authProvider.expTime == 0 ? defaultExpTime : authProvider.expTime,
-        signingAlg: authProvider.signingAlg,
-        audience: authProvider.audience == "" ? defaultAudience : authProvider.audience,
-        keyAlias: authProvider.keyAlias,
-        keyPassword: authProvider.keyPassword,
-        keyStore: keyStore
-    };
-    return jwtAuthConfig;
 }
 
 //////////////////////////////////

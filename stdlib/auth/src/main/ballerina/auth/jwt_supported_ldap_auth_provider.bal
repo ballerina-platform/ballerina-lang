@@ -16,20 +16,20 @@
 
 # Represents LDAP authentication provider that supports generating JWT for client interactions
 #
-# + ldapJwtAuthProviderConfig - JWT configurations
+# + inferredJwtIssuerConfig - JWT configurations
 # + ldapAuthProvider - LDAP auth store provider
 public type LdapJwtAuthProvider object {
 
-    public InferredJwtAuthProviderConfig ldapJwtAuthProviderConfig;
+    public InferredJwtIssuerConfig inferredJwtIssuerConfig;
     public LdapAuthStoreProvider ldapAuthProvider;
 
     # Provides authentication based on the configured LDAP user store
     #
-    # + ldapJwtAuthProviderConfig - Configuration for JWT token propagation
+    # + inferredJwtIssuerConfig - Configuration for JWT token propagation
     # + ldapAuthProvider - LDAP auth store provider
-    public function __init(InferredJwtAuthProviderConfig ldapJwtAuthProviderConfig,
+    public function __init(InferredJwtIssuerConfig inferredJwtIssuerConfig,
                            LdapAuthStoreProvider ldapAuthProvider) {
-        self.ldapJwtAuthProviderConfig = ldapJwtAuthProviderConfig;
+        self.inferredJwtIssuerConfig = inferredJwtIssuerConfig;
         self.ldapAuthProvider = ldapAuthProvider;
     }
 
@@ -41,7 +41,7 @@ public type LdapJwtAuthProvider object {
     public function authenticate(string username, string password) returns boolean {
         boolean isAuthenticated = self.ldapAuthProvider.authenticate(username, password);
         if (isAuthenticated){
-            setAuthToken(username, self.ldapJwtAuthProviderConfig);
+            setAuthToken(username, self.inferredJwtIssuerConfig);
         }
         return isAuthenticated;
     }

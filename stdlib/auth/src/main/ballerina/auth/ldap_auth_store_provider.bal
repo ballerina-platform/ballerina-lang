@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
 import ballerina/crypto;
+import ballerina/runtime;
 
 # Represents configurations that required for LDAP auth store.
 #
@@ -41,6 +41,7 @@ import ballerina/crypto;
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
+# + inferredJwtIssuerConfig - Inferred JWT issuer configuration used to generate JWT for client invocations
 public type LdapAuthProviderConfig record {
     string domainName;
     string connectionURL;
@@ -63,6 +64,7 @@ public type LdapAuthProviderConfig record {
     int readTimeout = 60000;
     int retryAttempts = 0;
     SecureClientSocket? secureClientSocket = ();
+    InferredJwtIssuerConfig? inferredJwtIssuerConfig = ();
     !...;
 };
 

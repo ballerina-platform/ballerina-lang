@@ -26,17 +26,19 @@ public const string AUTH_HEADER = "Authorization";
 public const string AUTH_SCHEME_BASIC = "Basic";
 # Bearer authentication scheme.
 public const string AUTH_SCHEME_BEARER = "Bearer";
-# Auth provider config name.
-public const string AUTH_PROVIDER_CONFIG = "config";
-# LDAP auth provider config name.
-public const string AUTH_PROVIDER_LDAP = "ldap";
 
-# Authn scheme basic.
-public const string AUTHN_SCHEME_BASIC = "basic";
-# Authn scheme JWT.
-public const string AUTH_SCHEME_JWT = "jwt";
-# Authn scheme OAuth2.
-public const string AUTH_SCHEME_OAUTH2 = "oauth2";
+public type InboundAuthScheme BASIC_AUTH|JWT_AUTH;
+
+public type OutboundAuthScheme BASIC_AUTH|OAUTH2|JWT_AUTH;
+
+public const BASIC_AUTH = "BASIC_AUTH";
+public const OAUTH2 = "OAUTH2";
+public const JWT_AUTH = "JWT_AUTH";
+
+public type AuthStoreProvider CONFIG_AUTH_STORE|LDAP_AUTH_STORE;
+
+public const CONFIG_AUTH_STORE = "CONFIG_AUTH_STORE";
+public const LDAP_AUTH_STORE = "LDAP_AUTH_STORE";
 
 # Extracts the basic authentication header value from the request.
 #

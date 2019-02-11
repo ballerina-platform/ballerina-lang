@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/encoding;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
-import ballerina/encoding;
 
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
@@ -300,22 +300,34 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 # + config - Client endpoint configurations
 # + return - The Error occured during HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config) returns ()|error {
-    var scheme = config.auth.scheme;
-    if (scheme is AuthScheme) {
-        if (scheme == BASIC_AUTH) {
-            string username = config.auth.username ?: "";
-            string password = config.auth.password ?: "";
-            string str = username + ":" + password;
-            string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
-            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
-        } else if (scheme == OAUTH2) {
-            string accessToken = config.auth.accessToken ?: "";
-            if (accessToken == EMPTY_STRING) {
-                return updateRequestAndConfig(req, config);
+    var auth = config.auth;
+    if (auth is AuthConfig) {
+        if (auth.scheme == BASIC_AUTH) {
+            var basicAuthConfig = auth["basicAuthConfig"];
+            if (basicAuthConfig is ()) {
+                error e = error("Basic auth config not provided");
+                panic e;
             } else {
-                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                string username = basicAuthConfig.username;
+                string password = basicAuthConfig.password;
+                string str = username + ":" + password;
+                string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
+                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
             }
-        } else if (scheme == JWT_AUTH) {
+        } else if (auth.scheme == OAUTH2) {
+            var oAuth2Config = auth["oAuth2Config"];
+            if (oAuth2Config is ()) {
+                error e = error("OAuth2 config not provided");
+                panic e;
+            } else {
+                string accessToken = oAuth2Config.accessToken;
+                if (accessToken == EMPTY_STRING) {
+                    return updateRequestAndConfig(req, config);
+                } else {
+                    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                }
+            }
+        } else if (auth.scheme == JWT_AUTH) {
             string authToken = runtime:getInvocationContext().authenticationContext.authToken;
             if (authToken == EMPTY_STRING) {
                 error err = error(HTTP_ERROR_CODE, { message: "Authentication token is not set at invocation context" });
@@ -323,7 +335,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
             }
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
         } else {
-            error err = error(HTTP_ERROR_CODE, { message: "Invalid authentication scheme. It should be basic, oauth2 or jwt" });
+            error err = error(HTTP_ERROR_CODE, { message: "Unsupported auth scheme" });
             return err;
         }
     }
@@ -338,8 +350,8 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
 function updateRequestAndConfig(Request req, ClientEndpointConfig config) returns ()|error {
     string accessToken = check getAccessTokenFromRefreshToken(config);
     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-    AuthConfig? authConfig = config.auth;
-    if (authConfig is AuthConfig) {
+    OAuth2AuthConfig? authConfig = config.auth.oAuth2Config;
+    if (authConfig is OAuth2AuthConfig) {
         authConfig.accessToken = accessToken;
     }
     return ();
@@ -351,51 +363,58 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
 # + return - AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns string|error {
     Client refreshTokenClient;
-    string refreshToken = config.auth.refreshToken ?: "";
-    string clientId = config.auth.clientId ?: "";
-    string clientSecret = config.auth.clientSecret ?: "";
-    string refreshUrl = config.auth.refreshUrl ?: "";
-    string[] scopes = config.auth.scopes ?: [];
+    var oAuth2Config = config.auth.oAuth2Config;
+    if (oAuth2Config is OAuth2AuthConfig) {
+        string refreshToken = oAuth2Config.refreshToken;
+        string clientId = oAuth2Config.clientId;
+        string clientSecret = oAuth2Config.clientSecret;
+        string refreshUrl = oAuth2Config.refreshUrl;
+        string[] scopes = oAuth2Config.scopes;
 
-    if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
-        error err = error(HTTP_ERROR_CODE,
-            { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,
-        refresh url are not provided" });
-        return err;
-    }
-
-    var simpleClient = createClient(refreshUrl, {});
-    if (simpleClient is Client) {
-        refreshTokenClient = simpleClient;
-        Request refreshTokenRequest = new;
-        string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
-        string scopeString = EMPTY_STRING;
-        foreach var requestScope in scopes {
-            scopeString = scopeString + WHITE_SPACE + requestScope;
-        }
-        if (scopeString != EMPTY_STRING) {
-            textPayload = textPayload + "&scope=" + scopeString.trim();
-        }
-        if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
-            string clientIdSecret = clientId + ":" + clientSecret;
-            refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
-                    encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
-        } else {
-            textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
-        }
-        refreshTokenRequest.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
-        Response refreshTokenResponse = check refreshTokenClient->post(EMPTY_STRING, refreshTokenRequest);
-
-        json generatedToken = check refreshTokenResponse.getJsonPayload();
-        if (refreshTokenResponse.statusCode == OK_200) {
-            return generatedToken.access_token.toString();
-        } else {
+        if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING
+            || refreshUrl == EMPTY_STRING) {
             error err = error(HTTP_ERROR_CODE,
-                { message: "Failed to generate new access token from the given refresh token" });
+                { message: "Failed to generate new access token since one or more of refresh token, client id,
+                  client secret, refresh url are not provided" });
             return err;
         }
+
+        var simpleClient = createClient(refreshUrl, {});
+        if (simpleClient is Client) {
+            refreshTokenClient = simpleClient;
+            Request refreshTokenRequest = new;
+            string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
+            string scopeString = EMPTY_STRING;
+            foreach var requestScope in scopes {
+                scopeString = scopeString + WHITE_SPACE + requestScope;
+            }
+            if (scopeString != EMPTY_STRING) {
+                textPayload = textPayload + "&scope=" + scopeString.trim();
+            }
+            if (oAuth2Config.credentialBearer == AUTH_HEADER_BEARER) {
+                string clientIdSecret = clientId + ":" + clientSecret;
+                refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
+                        encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
+            } else {
+                textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+            }
+            refreshTokenRequest.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+            Response refreshTokenResponse = check refreshTokenClient->post(EMPTY_STRING, refreshTokenRequest);
+
+            json generatedToken = check refreshTokenResponse.getJsonPayload();
+            if (refreshTokenResponse.statusCode == OK_200) {
+                return generatedToken.access_token.toString();
+            } else {
+                error err = error(HTTP_ERROR_CODE,
+                    { message: "Failed to generate new access token from the given refresh token" });
+                return err;
+            }
+        } else {
+            return simpleClient;
+        }
     } else {
-        return simpleClient;
+        error e = error("OAuth2 config not provided");
+        panic e;
     }
 }
 
@@ -408,7 +427,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
 # + return - Whether the client should retry or not
 function isRetryRequired(Response response, ClientEndpointConfig config) returns boolean {
     var scheme = config.auth.scheme;
-    if (scheme is AuthScheme) {
+    if (scheme is InboundAuthScheme) {
         if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
             return true;
         }

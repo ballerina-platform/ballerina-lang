@@ -19,6 +19,14 @@ import ballerina/runtime;
 
 const string CONFIG_USER_SECTION = "b7a.users";
 
+# Represents configurations that required for Config auth store.
+#
+# + inferredJwtIssuerConfig - Inferred JWT issuer configuration used to generate JWT for client invocations
+public type ConfigAuthProviderConfig record {
+    InferredJwtIssuerConfig? inferredJwtIssuerConfig = ();
+    !...;
+};
+
 # Represents Ballerina configuration file based auth store provider
 public type ConfigAuthStoreProvider object {
 

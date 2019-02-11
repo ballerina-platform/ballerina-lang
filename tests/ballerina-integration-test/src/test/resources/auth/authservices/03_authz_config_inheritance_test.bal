@@ -1,8 +1,8 @@
 import ballerina/http;
 
 http:AuthProvider basicAuthProvider03 = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 listener http:Listener listener03 = new(9092, config = {

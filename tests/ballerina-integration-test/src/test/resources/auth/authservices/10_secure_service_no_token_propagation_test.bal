@@ -2,8 +2,8 @@ import ballerina/http;
 
 // token propagation is set to false by default
 http:AuthProvider basicAuthProvider10 = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 listener http:Listener listener10_1 = new(9190, config = {
@@ -38,13 +38,15 @@ service passthroughService on listener10_1 {
 }
 
 http:AuthProvider jwtAuthProvider10 = {
-    scheme: "jwt",
-    issuer: "ballerina",
-    audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    scheme: http:JWT_AUTH,
+    jwtAuthProviderConfig: {
+        issuer: "ballerina",
+        audience: "ballerina",
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 };
 

@@ -1,15 +1,18 @@
 import ballerina/http;
 
 http:AuthProvider basicAuthProvider11 = {
-    scheme: "basic",
-    authStoreProvider: "config",
-    propagateJwt: true,
-    issuer: "ballerina",
-    keyAlias: "ballerina",
-    keyPassword: "ballerina",
-    keyStore: {
-        path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-        password: "ballerina"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE,
+    configAuthProviderConfig: {
+        inferredJwtIssuerConfig: {
+            issuer: "ballerina",
+            keyAlias: "ballerina",
+            keyPassword: "ballerina",
+            keyStore: {
+                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                password: "ballerina"
+            }
+        }
     }
 };
 
@@ -24,7 +27,7 @@ listener http:Listener listener11 = new(9192, config = {
 });
 
 http:Client nyseEP03 = new("http://localhost:9193", config = {
-    auth: { scheme: "JWT" }
+    auth: { scheme: http:JWT_AUTH }
 });
 
 @http:ServiceConfig { basePath: "/passthrough" }
@@ -46,13 +49,15 @@ service passthroughService03 on listener11 {
 }
 
 http:AuthProvider jwtAuthProvider03 = {
-    scheme: "jwt",
-    issuer: "ballerina",
-    audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    scheme: http:JWT_AUTH,
+    jwtAuthProviderConfig: {
+        issuer: "ballerina",
+        audience: "ballerina",
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 };
 
