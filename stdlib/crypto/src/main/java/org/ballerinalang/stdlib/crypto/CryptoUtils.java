@@ -173,7 +173,8 @@ public class CryptoUtils {
                 return;
             }
             AlgorithmParameterSpec paramSpec = buildParameterSpec(context, transformedAlgorithmMode, iv, (int) tagSize);
-            Cipher cipher = Cipher.getInstance("RSA/" + transformedAlgorithmMode + "/" + transformedAlgorithmPadding);
+            Cipher cipher = Cipher.getInstance(Constants.RSA +  "/" + transformedAlgorithmMode + "/"
+                    + transformedAlgorithmPadding);
             initCipher(cipher, cipherMode, key, paramSpec);
             context.setReturnValues(new BValueArray(cipher.doFinal(input)));
         } catch (NoSuchAlgorithmException e) {
@@ -210,7 +211,7 @@ public class CryptoUtils {
             }
             String transformedAlgorithmMode = transformAlgorithmMode(context, algorithmMode);
             String transformedAlgorithmPadding = transformAlgorithmPadding(context, algorithmPadding);
-            SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+            SecretKeySpec keySpec = new SecretKeySpec(key, Constants.AES);
             if (tagSize != -1 && Arrays.stream(VALID_GCM_TAG_SIZES).noneMatch(validSize -> validSize == tagSize)) {
                 context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid tag size. valid tag sizes" +
                         " in bytes: " + Arrays.toString(VALID_GCM_TAG_SIZES)));
@@ -244,18 +245,21 @@ public class CryptoUtils {
      */
     private static void initCipher(Cipher cipher, CipherMode cipherMode, Key key, AlgorithmParameterSpec paramSpec)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        if (cipherMode == CipherMode.ENCRYPT) {
-            if (paramSpec == null) {
-                cipher.init(Cipher.ENCRYPT_MODE, key);
-            } else {
-                cipher.init(Cipher.ENCRYPT_MODE, key, paramSpec);
-            }
-        } else {
-            if (paramSpec == null) {
-                cipher.init(Cipher.DECRYPT_MODE, key);
-            } else {
-                cipher.init(Cipher.DECRYPT_MODE, key, paramSpec);
-            }
+        switch (cipherMode) {
+            case ENCRYPT:
+                if (paramSpec == null) {
+                    cipher.init(Cipher.ENCRYPT_MODE, key);
+                } else {
+                    cipher.init(Cipher.ENCRYPT_MODE, key, paramSpec);
+                }
+                break;
+            case DECRYPT:
+                if (paramSpec == null) {
+                    cipher.init(Cipher.DECRYPT_MODE, key);
+                } else {
+                    cipher.init(Cipher.DECRYPT_MODE, key, paramSpec);
+                }
+                break;
         }
     }
 
@@ -270,23 +274,25 @@ public class CryptoUtils {
      */
     private static AlgorithmParameterSpec buildParameterSpec(Context context, String algorithmMode, byte[] iv,
                                                              int tagSize) {
-        if (algorithmMode.equals("GCM")) {
-            if (iv == null) {
-                throw new BallerinaException("GCM mode requires 16 byte IV", context);
-            } else {
-                return new GCMParameterSpec(tagSize, iv);
-            }
-        } else if (algorithmMode.equals("CBC")) {
-            if (iv == null) {
-                throw new BallerinaException("CBC mode requires 16 byte IV", context);
-            } else {
-                return new IvParameterSpec(iv);
-            }
-        } else if (algorithmMode.equals("ECB") && iv != null) {
-            throw new BallerinaException("ECB mode cannot use IV", context);
-        } else {
-            return null;
+        switch (algorithmMode) {
+            case Constants.GCM:
+                if (iv == null) {
+                    throw new BallerinaException("GCM mode requires 16 byte IV", context);
+                } else {
+                    return new GCMParameterSpec(tagSize, iv);
+                }
+            case Constants.CBC:
+                if (iv == null) {
+                    throw new BallerinaException("CBC mode requires 16 byte IV", context);
+                } else {
+                    return new IvParameterSpec(iv);
+                }
+            case Constants.ECB:
+                if (iv != null) {
+                    throw new BallerinaException("ECB mode cannot use IV", context);
+                }
         }
+        return null;
     }
 
     /**
@@ -298,7 +304,8 @@ public class CryptoUtils {
      * @throws BallerinaException if algorithm mode is not supported
      */
     private static String transformAlgorithmMode(Context context, String algorithmMode) throws BallerinaException {
-        if (!algorithmMode.equals("CBC") && !algorithmMode.equals("ECB") && !algorithmMode.equals("GCM")) {
+        if (!algorithmMode.equals(Constants.CBC) && !algorithmMode.equals(Constants.ECB)
+                && !algorithmMode.equals(Constants.GCM)) {
             throw new BallerinaException("unsupported mode: " + algorithmMode, context);
         }
         return algorithmMode;

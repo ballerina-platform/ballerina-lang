@@ -9,9 +9,9 @@ This module provides the necessary utilities that are required to hash content u
 The sample given below shows how to use hashing functions such as `hashSha512` to calculate the hash value of a byte array and then encode the byte array using a common encoding algorithm.
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
+import ballerina/io;
 
 public function main() {
      // Input value for crypto operations
@@ -43,9 +43,9 @@ The sample given below shows how to use HMAC functions such as `hmacSha512` to c
 
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
+import ballerina/io;
 
 public function main() {
      string charEncoding = "UTF-8";
@@ -84,8 +84,8 @@ The sample given below shows how to use `crc32b` function to calculate the CRC32
 
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
+import ballerina/io;
 
 public function main() {
      // Input value for cryto operations
@@ -106,9 +106,9 @@ The sample given below shows how to use signing functions such as `signRsaSha512
 
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
+import ballerina/io;
 
 public function main() returns error? {
      // Input value for cryto operations
@@ -146,9 +146,9 @@ The sample given below shows how to use encryption function `encryptRsaEcb` and 
 
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
+import ballerina/io;
 
 public function main() returns error? {
      // Input value for cryto operations.
@@ -183,9 +183,9 @@ The sample given below shows how to use encryption function `encryptAesCbc` and 
 
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
+import ballerina/io;
 import ballerina/math;
 
 public function main() returns error? {

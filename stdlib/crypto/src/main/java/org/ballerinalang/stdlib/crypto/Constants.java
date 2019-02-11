@@ -84,4 +84,10 @@ public class Constants {
 
     // GCM encryption mode
     public static final String GCM = "GCM";
+
+    // AES encryption algorithm
+    public static final String AES = "AES";
+
+    // RSA encryption algorithm
+    public static final String RSA = "RSA";
 }
