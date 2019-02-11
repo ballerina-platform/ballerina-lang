@@ -18,7 +18,7 @@ public function mockPrint(any|error... s) {
 
 @test:Config
 function testFunc() {
-    // Invoking the main function
+    // Invoking the main function.
     main();
     io:println(outputs[1]);
     test:assertEquals(outputs[0], "Is 'a' a string? ");
