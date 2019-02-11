@@ -80,10 +80,10 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public boolean hasImplicitInitialValue() {
         if (state == BArrayState.UNSEALED) {
-            return true; // Empty array.
-        } else {
-            return eType.hasImplicitInitialValue();
+            // Empty array is the implicit initial value for arrays.
+            return true;
         }
+        return eType.hasImplicitInitialValue();
     }
 
     @Override

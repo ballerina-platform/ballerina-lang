@@ -270,7 +270,6 @@ function performExecuteAction (string path, Request request, string httpVerb,
 // Handles all the actions exposed through the Failover connector.
 function performFailoverAction (string path, Request request, HttpOperation requestAction,
                                                 FailoverClient failoverClient) returns Response|error {
-
     Client foClient;
     var c = failoverClient.failoverInferredConfig.failoverClientsArray[failoverClient.succeededEndpointIndex];
     if (c is Client) {

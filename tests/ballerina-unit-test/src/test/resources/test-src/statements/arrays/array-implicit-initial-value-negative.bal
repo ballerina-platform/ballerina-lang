@@ -140,6 +140,8 @@ function foo5 (int|float param) {
 
 error[]? errorsOpt = [];
 
+// Arrays of fixed length does not have implicit initial value restriction.
 var objIniObj = new ObjInitWithParam(0);
 ObjInitWithParam[2] objWithParamsArraySealed = [objIniObj, objIniObj];
+
 FT[2] finiteTypeArraySealed = [1,2];
