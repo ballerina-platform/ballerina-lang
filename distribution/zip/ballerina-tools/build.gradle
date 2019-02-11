@@ -20,6 +20,7 @@ configurations {
     ballerinaZip {
         transitive false
     }
+    bin
 }
 
 dependencies {
@@ -47,7 +48,9 @@ dependencies {
     toolsZip project(path: ':language-server:language-server-core', configuration: 'dist');
     tools project(':language-server:language-server-stdio-launcher');
     tools project(':language-server:language-server-core');
-    ballerinaZip project(path: ':ballerina', configuration: 'dist');
+    distBal project(path: ':ballerina', configuration: 'balo');
+    dist project(path: ':ballerina', configuration: 'jar');
+    bin project(path: ':ballerina', configuration: 'bin');
 }
 
 def basePath = '/' + project.name + '-' + project.version + '/'
@@ -63,7 +66,7 @@ CopySpec copyBaloSpec = copySpec {
 }
 
 CopySpec copyBinSpec = copySpec {
-    from ('bin')
+    from configurations.bin
     filter { line -> line.replace('${project.version}', "$project.version") }
     into(basePath + 'bin')
 }
@@ -84,7 +87,7 @@ CopySpec copyBallerinaZipSpec = copySpec {
     configurations.ballerinaZip.asFileTree.each {
         from(zipTree(it))  { includeEmptyDirs false }
 	    eachFile { f ->
-			f.path = f.path.replaceFirst("ballerina-$project.version/", '')
+			f.path = f.path.replaceFirst("ballerina-${project.version}/", '')
         }
     }
     into(basePath)
@@ -94,6 +97,12 @@ CopySpec copyToolsSpec = copySpec {
     from configurations.tools
     into(basePath + 'lib/tools/lang-server/lib')
 }
+
+CopySpec examplesSpec = copySpec {
+    from fileTree(project.rootDir.path + '/examples');
+    into(basePath + '/examples')
+}
+
 task createZip(type: Zip) {
     with copyJarSpec
     with copyBaloSpec
@@ -102,6 +111,7 @@ task createZip(type: Zip) {
     with copyToolsZipSpec
     with copyToolsBin
     with copyBallerinaZipSpec
+    with examplesSpec
 }
 
 build {
