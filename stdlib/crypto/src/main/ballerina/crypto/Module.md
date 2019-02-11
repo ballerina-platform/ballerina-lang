@@ -230,7 +230,7 @@ public function main() returns error? {
      output = check crypto:decryptAesEcb(output, keyArr);
      io:println("AES ECB PKCS5 decrypted value: " + encoding:byteArrayToString(output));
 
-     // Encrypt and decrypt input value using AES ECB no padding
+     // Encrypt and decrypt input value using AES ECB no padding.
      output = check crypto:encryptAesEcb(inputArr, keyArr, padding = crypto:NONE);
      output = check crypto:decryptAesEcb(output, keyArr, padding = crypto:NONE);
      io:println("AES ECB no padding decrypted value: " + encoding:byteArrayToString(output));
