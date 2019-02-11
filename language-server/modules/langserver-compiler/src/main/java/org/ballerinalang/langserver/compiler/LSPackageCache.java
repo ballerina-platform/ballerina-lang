@@ -26,7 +26,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Package context to keep the builtin and the current package.
+ * Provides a manipulable caching layer using extension point of the B7a Package Loader.
+ *
+ * Caching layer, caches all the third-part package imports except the current package. For example
+ * standard libraries such as ballerina/http, ballerina/io ...etc.
+ * Also being used for removing already compiled BLangPackage from the CompilerContext before re-use.
  */
 public class LSPackageCache {
 
