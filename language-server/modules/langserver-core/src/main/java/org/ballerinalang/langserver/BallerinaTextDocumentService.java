@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContextManager;
@@ -687,6 +688,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 Path compilationPath = getUntitledFilePath(openedPath.toString()).orElse(openedPath);
                 lock = documentManager.openFile(compilationPath, content);
+                // Clear cache
+                String sourceRoot = LSCompilerUtil.getSourceRoot(compilationPath);
+                String moduleName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, compilationPath.toString());
+                LSCompilerCache.getInstance().clearAll(sourceRoot, moduleName);
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, openedPath, compilationPath);
             } catch (WorkspaceDocumentException e) {
@@ -706,6 +711,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 Path compilationPath = getUntitledFilePath(changedPath.toString()).orElse(changedPath);
                 lock = documentManager.updateFile(compilationPath, content);
+                // Clear cache
+                String sourceRoot = LSCompilerUtil.getSourceRoot(compilationPath);
+                String moduleName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, compilationPath.toString());
+                LSCompilerCache.getInstance().clearAll(sourceRoot, moduleName);
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 this.diagPushDebouncer.call(() -> {
                     diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, changedPath, compilationPath);
@@ -728,6 +737,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
         try {
             Path compilationPath = getUntitledFilePath(closedPath.toString()).orElse(closedPath);
+            // Clear cache
+            String sourceRoot = LSCompilerUtil.getSourceRoot(compilationPath);
+            String moduleName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, compilationPath.toString());
+            LSCompilerCache.getInstance().clearAll(sourceRoot, moduleName);
             this.documentManager.closeFile(compilationPath);
         } catch (WorkspaceDocumentException e) {
             LOGGER.error("Error occurred while closing file:" + closedPath.toString(), e);
