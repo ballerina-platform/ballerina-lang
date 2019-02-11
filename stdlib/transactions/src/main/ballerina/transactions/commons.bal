@@ -34,11 +34,33 @@ map<TwoPhaseCommitTransaction> participatedTransactions = {};
 cache:Cache httpClientCache = new;
 
 final boolean scheduleInit = scheduleTimer(1000, 60000);
+final int TIMER_INTERVAL = 60000;
+final int TIMER_DELAY = 1000;
+
+final task:TimerConfiguration timerConfiguration = {
+    interval: TIMER_INTERVAL,
+    delay: TIMER_DELAY
+};
+
+service timerService = service {
+    resource function onTrigger() returns error? {
+        return cleanupTransactions();
+    }
+};
 
 function scheduleTimer(int delay, int interval) returns boolean {
     (function() returns error?) onTriggerFunction = cleanupTransactions;
-    task:Timer timer = new(onTriggerFunction, (), interval, delay = delay);
-    timer.start();
+    task:Listener timer = new(timerConfiguration);
+
+    var result = timer.attach(timerService);
+    if (result is error) {
+        return false;
+    }
+
+    result = timer.start();
+    if (result is error) {
+        return false;
+    }
     return true;
 }
 
