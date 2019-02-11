@@ -98,7 +98,7 @@ public function main() returns error? {
         rsaKeyArr[i] = check byte.convert(math:randomInRange(0, 255));
      }
 
-     // Randomly generate a 128 bit IV for AES encryption
+     // Randomly generate a 128 bit IV for AES encryption.
      byte[16] ivArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
      foreach var i in 0...15 {
         ivArr[i] = check byte.convert(math:randomInRange(0, 255));
