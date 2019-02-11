@@ -1520,6 +1520,7 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol collectionSymbol = dataVariable.symbol;
         switch (foreach.collection.type.tag) {
             case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
             case TypeTags.XML:
             case TypeTags.MAP:
             case TypeTags.TABLE:
