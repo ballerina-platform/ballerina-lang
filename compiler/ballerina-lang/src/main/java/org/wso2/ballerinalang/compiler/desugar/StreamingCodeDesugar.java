@@ -1446,7 +1446,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangLiteral createStringLiteral(DiagnosticPos pos, String value) {
         BLangLiteral stringLit = new BLangLiteral();
         stringLit.pos = pos;
-        stringLit.typeTag = TypeTags.STRING;
         stringLit.value = value;
         stringLit.type = symTable.stringType;
         return stringLit;

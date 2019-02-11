@@ -2153,7 +2153,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         literal.pos = constant.pos;
         literal.value = ((BLangLiteral) constant.value).value;
         literal.type = ((BLangLiteral) constant.value).type;
-        literal.typeTag = ((BLangLiteral) constant.value).typeTag;
 
         DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
         constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
@@ -3639,7 +3638,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // TODO: remove RegIndex arg
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
-        prefixLiteral.typeTag = TypeTags.STRING;
         prefixLiteral.type = symTable.stringType;
         prefixLiteral.regIndex = regIndex;
         genNode(prefixLiteral, env);

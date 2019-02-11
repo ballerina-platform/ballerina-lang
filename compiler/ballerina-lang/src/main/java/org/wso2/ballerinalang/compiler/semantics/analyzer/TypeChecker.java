@@ -251,7 +251,7 @@ public class TypeChecker extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
-        BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
+        BType literalType = literalExpr.type;
 
         Object literalValue = literalExpr.value;
 
@@ -273,7 +273,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // check whether this is a byte array
-        if (literalExpr.typeTag == TypeTags.BYTE_ARRAY) {
+        if (literalType.tag == TypeTags.BYTE_ARRAY) {
             literalType = new BArrayType(symTable.byteType);
         }
 
@@ -289,7 +289,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (this.expType.tag == TypeTags.FINITE) {
             BFiniteType expType = (BFiniteType) this.expType;
-            boolean foundMember = types.isLiteralAssignableToFiniteType(expType, literalExpr);
+            boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);
             if (foundMember) {
                 types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                 resultType = literalType;
@@ -299,7 +299,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BUnionType unionType = (BUnionType) this.expType;
             boolean foundMember = unionType.memberTypes
                     .stream()
-                    .anyMatch(memberType -> types.isLiteralAssignableToFiniteType(memberType, literalExpr));
+                    .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
             if (foundMember) {
                 types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                 resultType = literalType;

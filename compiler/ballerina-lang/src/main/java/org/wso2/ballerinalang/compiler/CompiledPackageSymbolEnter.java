@@ -547,41 +547,34 @@ public class CompiledPackageSymbolEnter {
         switch (typeDesc) {
             case TypeDescriptor.SIG_BOOLEAN:
                 litExpr.value = dataInStream.readBoolean();
-                litExpr.typeTag = TypeTags.BOOLEAN;
                 break;
             case TypeDescriptor.SIG_INT:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = integerCPEntry.getValue();
-                litExpr.typeTag = TypeTags.INT;
                 break;
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
                 ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = byteCPEntry.getValue();
-                litExpr.typeTag = TypeTags.BYTE;
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = Double.toString(floatCPEntry.getValue());
-                litExpr.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = decimalEntry.getValue();
                 // Type tag of the literal is float
-                litExpr.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = stringCPEntry.getValue();
-                litExpr.typeTag = TypeTags.STRING;
                 break;
             case TypeDescriptor.SIG_NULL:
-                litExpr.typeTag = TypeTags.NIL;
                 break;
             default:
                 throw new BLangCompilerException("unknown default value type " + typeDesc);
@@ -657,7 +650,7 @@ public class CompiledPackageSymbolEnter {
         BLangLiteral constantValue = getConstantValue(attrDataMap);
         constantSymbol.literalValue = constantValue.value;
         constantSymbol.literalValueType = constantValue.type;
-        constantSymbol.literalValueTypeTag = constantValue.typeTag;
+        constantSymbol.literalValueTypeTag = constantValue. type.tag;
     }
 
     private BLangLiteral getConstantValue(Map<Kind, byte[]> attrDataMap) throws IOException {
@@ -672,44 +665,34 @@ public class CompiledPackageSymbolEnter {
         switch (typeDesc) {
             case TypeDescriptor.SIG_BOOLEAN:
                 literal.value = documentDataStream.readBoolean();
-                literal.typeTag = TypeTags.BOOLEAN;
                 break;
             case TypeDescriptor.SIG_INT:
                 valueCPIndex = documentDataStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = integerCPEntry.getValue();
-                literal.typeTag = TypeTags.INT;
                 break;
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = documentDataStream.readInt();
                 ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = byteCPEntry.getValue();
-                literal.typeTag = TypeTags.BYTE;
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = documentDataStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = floatCPEntry.getValue();
-                literal.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = documentDataStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = decimalEntry.getValue();
-                // Type tag of the literal is float's tag (literal.typeTag), whereas the literal.type.tag should be
-                // that of the decimal type. This is because when the expected type of constant is decimal its
-                // literal's type needs to be set to decimal.
-                literal.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = documentDataStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = stringCPEntry.getValue();
-                literal.typeTag = TypeTags.STRING;
                 break;
             case TypeDescriptor.SIG_NULL:
                 literal.value = null;
-                literal.typeTag = TypeTags.NIL;
                 break;
             default:
                 // Todo - Allow json and xml.

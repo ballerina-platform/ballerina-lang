@@ -817,7 +817,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         BLangLiteral literal = (BLangLiteral) variable.expr;
-        variable.symbol.defaultValue = new DefaultValueLiteral(literal.value, literal.typeTag);
+        variable.symbol.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
     }
 
     @Override
@@ -851,7 +851,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // resolve the types of any type definition which uses the constant in type node.
         constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
         constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
-        constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).typeTag;
+        constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).type.tag;
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
@@ -1232,7 +1232,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                         varDefNode.var.name);
                             } else {
                                 BLangLiteral literal = (BLangLiteral) varDefNode.var.expr;
-                                varSymbol.defaultValue = new DefaultValueLiteral(literal.value, literal.typeTag);
+                                varSymbol.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
                             }
                             return varSymbol;
                         })

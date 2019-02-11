@@ -215,7 +215,6 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = ANN_FIELD_DESCRIPTOR;
-        keyLiteral.typeTag = TypeTags.STRING;
         keyLiteral.type = symTable.stringType;
 
         BLangLiteral valueLiteral = null;
@@ -225,7 +224,6 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
             if (rootDescriptor != null) {
                 valueLiteral.value = rootDescriptor;
             }
-            valueLiteral.typeTag = TypeTags.STRING;
             valueLiteral.type = symTable.stringType;
         }
 
