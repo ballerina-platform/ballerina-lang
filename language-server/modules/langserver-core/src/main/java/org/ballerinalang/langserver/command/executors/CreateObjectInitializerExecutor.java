@@ -82,7 +82,7 @@ public class CreateObjectInitializerExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+//        context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, bLangPackage.symbol.getName().getValue());
         String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
         int finalLine = line;

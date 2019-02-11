@@ -41,12 +41,15 @@ import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.definition.GotoDefinitionSubRuleParser;
+import org.ballerinalang.langserver.definition.SymbolReferencesModel;
+import org.ballerinalang.langserver.definition.TokenReferenceFinderErrorStrategy;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
-import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStratergy;
+import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
@@ -172,7 +175,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
                                                                         CompletionCustomErrorStrategy.class,
                                                                         false);
-                context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+//                context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, bLangPackage.symbol.getName().getValue());
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
@@ -209,8 +212,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 BLangPackage currentBLangPackage = lsCompiler.getBLangPackage(hoverContext, documentManager, false,
                                                                                LSCustomErrorStrategy.class, false);
-                hoverContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                 currentBLangPackage.symbol.getName().getValue());
+//                hoverContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
+//                                 currentBLangPackage.symbol.getName().getValue());
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
@@ -247,8 +250,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(signatureContext, documentManager, false,
                                                                         LSCustomErrorStrategy.class, false);
                 signatureContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, 
-                        bLangPackage.packageID.getName().getValue());
+//                signatureContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
+//                        bLangPackage.packageID.getName().getValue());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
@@ -272,18 +275,21 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Path defFilePath = new LSDocument(fileUri).getPath();
             Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
+            Class errStrategy = TokenReferenceFinderErrorStrategy.class;
             List<Location> contents;
             try {
-                LSServiceOperationContext definitionContext = new LSServiceOperationContext();
-                definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-                definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
-                BLangPackage currentBLangPackage = lsCompiler.getBLangPackage(definitionContext, documentManager, false,
-                                                                               LSCustomErrorStrategy.class, false);
-                definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                      currentBLangPackage.symbol.getName().getValue());
-                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
-                currentBLangPackage.accept(positionTreeVisitor);
-                contents = DefinitionUtil.getDefinitionPosition(definitionContext);
+                LSServiceOperationContext context = new LSServiceOperationContext();
+                context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                context.put(DocumentServiceKeys.POSITION_KEY, position);
+                context.put(NodeContextKeys.REFERENCES_KEY, new SymbolReferencesModel());
+
+                // With the sub-rule parser, find the token
+                String documentContent = documentManager.getFileContent(compilationPath);
+                GotoDefinitionSubRuleParser.parserCompilationUnit(documentContent, context);
+
+                List<BLangPackage> projectPackages = lsCompiler
+                        .getBLangPackages(context, documentManager, false, errStrategy, true);
+                contents = DefinitionUtil.findDefinition(projectPackages, context);
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
@@ -318,8 +324,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     // fail quietly
                     return contents;
                 }
-                referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                     currentBLangPackage.symbol.getName().getValue());
+//                referenceContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
+//                                     currentBLangPackage.symbol.getName().getValue());
 
                 // Calculate position for the current package.
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
@@ -335,8 +341,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 // Run reference visitor for all the packages in project folder.
                 for (BLangPackage bLangPackage : bLangPackages) {
-                    referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                         bLangPackage.symbol.getName().getValue());
+//                    referenceContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
+//                                         bLangPackage.symbol.getName().getValue());
                     ReferenceUtil.findReferences(referenceContext, bLangPackage);
                 }
 
@@ -374,8 +380,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(symbolsContext, documentManager, false,
                                                                         LSCustomErrorStrategy.class, false);
-                symbolsContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                   bLangPackage.symbol.getName().getValue());
+//                symbolsContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
+//                                   bLangPackage.symbol.getName().getValue());
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                         .findFirst();
@@ -596,8 +602,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     return workspaceEdit;
                 }
 
-                renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                  currentBLangPackage.symbol.getName().getValue());
+//                renameContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
+//                                  currentBLangPackage.symbol.getName().getValue());
                 renameContext.put(NodeContextKeys.REFERENCE_RESULTS_KEY, contents);
 
                 // Run the position calculator for the current package.
@@ -614,8 +620,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 // Run reference visitor and rename util for project folder.
                 for (BLangPackage bLangPackage : bLangPackages) {
-                    renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                      bLangPackage.symbol.getName().getValue());
+//                    renameContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
+//                                      bLangPackage.symbol.getName().getValue());
 
                     LSContextManager lsContextManager = LSContextManager.getInstance();
                     String sourceRoot = LSCompilerUtil.getSourceRoot(compilationPath);
@@ -662,7 +668,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                        GotoImplementationCustomErrorStratergy.class, false);
+                        GotoImplementationCustomErrorStrategy.class, false);
                 implementationLocations.addAll(GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
                         position.getPosition(), lsDocument.getSourceRoot()));
             } catch (LSCompilerException e) {

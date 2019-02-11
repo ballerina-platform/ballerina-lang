@@ -151,7 +151,7 @@ public class CommonUtil {
 
     static {
         String debugLogStr = System.getProperty("ballerina.debugLog");
-        LS_DEBUG_ENABLED = debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+        LS_DEBUG_ENABLED = Boolean.parseBoolean(debugLogStr);
         BALLERINA_HOME = System.getProperty("ballerina.home");
     }
 

@@ -2,7 +2,7 @@
 
 import ballerina/io;
 
-@readonly string lastName;
+const string lastName = "";
 
 type Employee record {
     string name;
@@ -24,21 +24,29 @@ public function main (string... args) {
     func1();
 
     string[] fruits = ["apple", "banana", "cherry"];
-    foreach v in fruits {
+    foreach var v in fruits {
         io:println(v);
     }
 
-    map words = {a:"apple",b:"banana", c:"cherry"};
-    foreach k,v in words {
+    map<string> words = {a:"apple",b:"banana", c:"cherry"};
+    foreach var (k,v) in words {
         //var value =? (string)v;
         //io:println(string `words {{k}} : {{value}}`);
     }
 
-    Employee employee = {};
+    Employee employee = {
+        name: "Bob",
+        age: 40,
+        address: "London, UK"
+    };
     Employee[] employees = [employee];
 
-    foreach y,emp in employees {
-        emp = {name:"kavith"};
+    foreach Employee emp in employees {
+        emp = {
+            name: "Charlie",
+            age: 40,
+            address: "UK, London"
+        };
         io:println(string `name is {{emp.name}} {{lastName}}`);
     }
 

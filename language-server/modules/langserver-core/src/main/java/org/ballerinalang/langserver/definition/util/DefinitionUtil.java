@@ -20,28 +20,43 @@ import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.definition.DefinitionTreeVisitor;
+import org.ballerinalang.langserver.definition.LSDefinitionException;
+import org.ballerinalang.langserver.definition.SymbolReferenceFindingVisitor;
+import org.ballerinalang.langserver.definition.SymbolReferencesModel;
+import org.ballerinalang.langserver.definition.TokenReferenceModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for go to definition functionality of language server.
  */
 public class DefinitionUtil {
+
+    private DefinitionUtil() {
+    }
+
     /**
      * Get definition position for the given definition context.
      *
@@ -152,5 +167,112 @@ public class DefinitionUtil {
     private static BLangPackage getPackageOfTheOwner(PackageID packageID, LSServiceOperationContext definitionContext) {
         CompilerContext compilerContext = definitionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         return LSPackageLoader.getPackageById(compilerContext, packageID);
+    }
+
+
+    private static void prepareReferences(List<BLangPackage> modules, LSContext context) throws LSDefinitionException {
+        Map<String, Map<String, List<TokenReferenceModel>>> tokenRefs
+                = context.get(NodeContextKeys.TOKEN_REFERENCES_KEY);
+        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
+        String currentCUnitName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        Optional<BLangPackage> currentPkg = modules.stream()
+                .filter(pkg -> pkg.symbol.getName().getValue().equals(currentPkgName))
+                .findAny();
+
+        if (!currentPkg.isPresent()) {
+            throw new LSDefinitionException("Current module should be present");
+        }
+
+        Optional<BLangCompilationUnit> currentCUnit = currentPkg.get().getCompilationUnits().stream()
+                .filter(cUnit -> cUnit.name.equals(currentCUnitName))
+                .findAny();
+
+        if (!tokenRefs.containsKey(currentPkgName)
+                || !tokenRefs.get(currentPkgName).containsKey(currentCUnitName)
+                || !currentCUnit.isPresent()) {
+            throw new LSDefinitionException("Current package name or current compilation unit name is invalid");
+        }
+
+
+        List<TokenReferenceModel> currentCUnitTokens = tokenRefs.get(currentPkgName).remove(currentCUnitName);
+        context.put(NodeContextKeys.CURRENT_CUNIT_TOKENS_KEY, currentCUnitTokens);
+        SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context,
+                currentPkgName, currentCUnitTokens, true);
+
+        refVisitor.visit(currentCUnit.get());
+
+        // Prune the found symbol references
+        SymbolReferencesModel symbolReferencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        if (!symbolReferencesModel.getSymbolAtCursor().isPresent()) {
+            throw new LSDefinitionException("Symbol Reference at Cursor is Empty");
+        }
+
+        SymbolReferencesModel.Reference symbolAtCursor = symbolReferencesModel.getSymbolAtCursor().get();
+        symbolReferencesModel.getDefinitions()
+                .removeIf(reference -> reference.getSymbol() != symbolAtCursor.getSymbol());
+        symbolReferencesModel.getReferences()
+                .removeIf(reference -> reference.getSymbol() != symbolAtCursor.getSymbol());
+    }
+
+    /**
+     * Get the definition.
+     *
+     * @param modules   List of project modules
+     * @param context   Definition context
+     */
+    public static List<Location> findDefinition(List<BLangPackage> modules, LSContext context)
+            throws LSDefinitionException {
+        prepareReferences(modules, context);
+        Map<String, Map<String, List<TokenReferenceModel>>> tokenReferences
+                = context.get(NodeContextKeys.TOKEN_REFERENCES_KEY);
+
+        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        // If the definition list contains an item after the prepare reference mode, then return it.
+        // In this case, definition is in the current compilation unit it self
+        if (!referencesModel.getDefinitions().isEmpty()) {
+            return getLocations(Collections.singletonList(referencesModel.getDefinitions().get(0)), context);
+        }
+
+        // No need to handle the isPresent check since the prepareReference phase will throw exception if so
+        SymbolReferencesModel.Reference referenceAtCursor = referencesModel
+                .getSymbolAtCursor().get();
+        String cursorSymbolPkg = referenceAtCursor.getPkgName();
+
+        modules.stream()
+                .filter(bLangPackage -> bLangPackage.symbol.getName().getValue().equals(cursorSymbolPkg))
+                .findAny()
+                .ifPresent(bLangPackage -> {
+                    String pkgName = bLangPackage.symbol.getName().getValue();
+                    if (tokenReferences.containsKey(pkgName)) {
+
+                        Map<String, List<TokenReferenceModel>> cUnitMap = tokenReferences.get(pkgName);
+                        bLangPackage.getCompilationUnits()
+                                .forEach(cUnit -> {
+                                    if (!cUnitMap.containsKey(cUnit.name)) {
+                                        return;
+                                    }
+                                    SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(
+                                            context, pkgName, cUnitMap.get(cUnit.name));
+                                    refVisitor.visit(cUnit);
+                                });
+                    }
+                });
+
+        return getLocations(referencesModel.getDefinitions(), context);
+    }
+
+    private static List<Location> getLocations(List<SymbolReferencesModel.Reference> references, LSContext context) {
+        return references.stream().map(reference -> {
+            DiagnosticPos position = reference.getPosition();
+            String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
+            Position start = new Position(position.sLine, position.sCol);
+            Position end = new Position(position.eLine, position.eCol);
+            Range range = new Range(start, end);
+
+            String fileURI = Paths.get(sourceRoot).resolve(reference.getPkgName())
+                    .resolve(reference.getCompilationUnit()).toUri().toString();
+
+            return new Location(fileURI, range);
+        }).collect(Collectors.toList());
     }
 }

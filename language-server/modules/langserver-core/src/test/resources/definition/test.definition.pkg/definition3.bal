@@ -1,13 +1,10 @@
 import ballerina/http;
 
-function testSignatureHelp () {
-    endpoint http:Listener listener {
-        port: 9090
-    };
+http:Client clientEP = new("http://www.mocky.io");
 
-    http:Response res = new;
+function testSignatureHelp () {
+    http:Request req = new;
     json connectionJson = { protocol: "json" };
-    res.statusCode = 200;
-    res.setJsonPayload(untaint connectionJson);
-    listener->respond(res);
+    req.setTextPayload("Hello", contentType = "text/plain");
+    (http:Response|error) response = clientEP->get("/path", message = req);
 }

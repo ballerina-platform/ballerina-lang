@@ -52,7 +52,7 @@ public class DefinitionTest {
         TestUtil.openDocument(this.serviceEndpoint, balPath3);
     }
     
-    @Test(description = "Test goto definitions", dataProvider = "definitionsDataProvider", enabled = false)
+    @Test(description = "Test goto definitions", dataProvider = "definitionsDataProvider")
     public void testGoToDefinitions(Position position, DefinitionTestDataModel dataModel) throws IOException {
         JsonParser parser = new JsonParser();
         String actualStr = TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint);

@@ -27,27 +27,27 @@ import org.eclipse.lsp4j.Position;
  *
  * @since 0.990.3
  */
-public class GotoImplementationCustomErrorStratergy extends LSCustomErrorStrategy {
+public class GotoImplementationCustomErrorStrategy extends LSCustomErrorStrategy {
     private LSContext lsContext;
     private int line;
     private int col;
     private boolean terminateCheck = false;
+    private String relativeSourceFilePath;
 
-    public GotoImplementationCustomErrorStratergy(LSContext context) {
+    public GotoImplementationCustomErrorStrategy(LSContext context) {
         super(context);
         this.lsContext = context;
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         this.line = position.getLine();
         this.col = position.getCharacter();
+        this.relativeSourceFilePath = this.lsContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/");
     }
 
     @Override
     public void reportMatch(Parser recognizer) {
         super.reportMatch(recognizer);
 
-        if (recognizer.getContext().start.getTokenSource().getSourceName()
-                .equals(lsContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/"))
-                && !terminateCheck) {
+        if (recognizer.getSourceName().equals(relativeSourceFilePath) && !terminateCheck) {
             Token currentToken = recognizer.getCurrentToken();
             // -1 added since the ANTLR line position is not zero based
             int tokenLine = currentToken.getLine() - 1;
