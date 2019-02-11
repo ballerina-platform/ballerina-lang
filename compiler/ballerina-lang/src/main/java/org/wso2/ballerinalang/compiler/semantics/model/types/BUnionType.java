@@ -94,19 +94,15 @@ public class BUnionType extends BType implements UnionType {
         }
 
         // All members are of same type and has the implicit initial value as a member.
-        if (!memberTypes.isEmpty()) {
-            Iterator<BType> iterator = memberTypes.iterator();
-            BType firstMember;
-            for (firstMember = iterator.next(); iterator.hasNext(); ) {
-                if (firstMember != iterator.next()) {
-                    return false;
-                }
+        Iterator<BType> iterator = memberTypes.iterator();
+        BType firstMember;
+        for (firstMember = iterator.next(); iterator.hasNext(); ) {
+            if (firstMember != iterator.next()) {
+                return false;
             }
-            // Control reaching here means there is only one type in the union.
-
-            return isBasicType(firstMember.tag) && firstMember.hasImplicitInitialValue();
         }
-        return false;
+        // Control reaching this point means there is only one type in the union.
+        return isBasicType(firstMember.tag) && firstMember.hasImplicitInitialValue();
     }
 
     private boolean isBasicType(int tag) {
@@ -114,6 +110,7 @@ public class BUnionType extends BType implements UnionType {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
             case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
             case TypeTags.STRING:
                 return true;
             default:

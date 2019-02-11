@@ -341,15 +341,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (Symbols.isNative(funcNode.symbol)) {
             return;
         }
-        boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
-
         if (isPublicInvokableNode(funcNode)) {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
-            
+
+            boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
             if (!isNilableReturn && !this.statementReturns) {

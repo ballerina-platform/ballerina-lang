@@ -72,28 +72,28 @@ public class BFiniteType extends BType implements FiniteType {
             return true;
         }
         // All of the element are from same type. And elements contains implicit initial value.
-        if (!valueSpace.isEmpty()) {
-            BLangExpression firstElement = valueSpace.iterator().next();
-            boolean sameType = valueSpace.stream().allMatch(value -> value.type.tag == firstElement.type.tag);
-            if (!sameType) {
-                return false;
-            }
-
-            switch (firstElement.type.tag) {
-                case TypeTags.STRING:
-                    return containsElement(valueSpace, "\"\"");
-                case TypeTags.INT:
-                    return containsElement(valueSpace, "0");
-                case TypeTags.FLOAT:
-                    return containsElement(valueSpace, "0.0");
-                case TypeTags.BOOLEAN:
-                    return containsElement(valueSpace, "false");
-                default:
-                    return false;
-            }
-
+        if (valueSpace.isEmpty()) {
+            return false;
         }
-        return false;
+
+        BLangExpression firstElement = valueSpace.iterator().next();
+        boolean sameType = valueSpace.stream().allMatch(value -> value.type.tag == firstElement.type.tag);
+        if (!sameType) {
+            return false;
+        }
+        switch (firstElement.type.tag) {
+            case TypeTags.STRING:
+                return containsElement(valueSpace, "\"\"");
+            case TypeTags.INT:
+                return containsElement(valueSpace, "0");
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+                return containsElement(valueSpace, "0.0");
+            case TypeTags.BOOLEAN:
+                return containsElement(valueSpace, "false");
+            default:
+                return false;
+        }
     }
 
     private boolean containsElement(Set<BLangExpression> valueSpace, String element) {
