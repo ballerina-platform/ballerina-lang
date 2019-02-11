@@ -92,7 +92,7 @@ public function main() returns error? {
         io:println("invalid private key");
     }
 
-     // Randomly generate a 128 bit key for AES encryption
+     // Randomly generate a 128 bit key for AES encryption.
      byte[16] rsaKeyArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
      foreach var i in 0...15 {
         rsaKeyArr[i] = check byte.convert(math:randomInRange(0, 255));
