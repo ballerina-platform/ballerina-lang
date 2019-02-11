@@ -271,9 +271,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             }
 
             for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
-                int instrEndLimit = getInstructionsEndLimit(packageInfo);
+                int limit = getTestInstructionsPosition(packageInfo);
                 Instruction[] instructions = packageInfo.getInstructions();
-                for (int i = 0; i < instrEndLimit; i++) {
+                for (int i = 0; i < limit; i++) {
                     Instruction ins = instructions[i];
                     if (ins instanceof Instruction.InstructionCALL) {
                         // replace the function pointer of the instruction with the mock function pointer
@@ -544,7 +544,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         return bLangPackage.packageID.toString();
     }
 
-    private static int getInstructionsEndLimit(PackageInfo packageInfo) {
+    private static int getTestInstructionsPosition(PackageInfo packageInfo) {
         FunctionInfo testInitFunctionInfo = packageInfo.getTestInitFunctionInfo();
         if (testInitFunctionInfo != null) {
             return testInitFunctionInfo.getDefaultWorkerInfo().getCodeAttributeInfo().getCodeAddrs();
