@@ -1722,7 +1722,8 @@ public class BLangPackageBuilder {
 
         // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
         // consider it.
-        if (((BLangExpression) constantNode.value).getKind() == NodeKind.LITERAL) {
+        NodeKind nodeKind = ((BLangExpression) constantNode.value).getKind();
+        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
             // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
             // in type definitions.
 

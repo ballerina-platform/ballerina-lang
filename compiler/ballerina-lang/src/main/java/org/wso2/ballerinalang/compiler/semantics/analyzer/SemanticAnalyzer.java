@@ -1403,8 +1403,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
                 for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
-                    if (recLiteralKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF || (
-                            recLiteralKeyValue.key.expr.getKind() == NodeKind.LITERAL
+                    NodeKind kind = recLiteralKeyValue.key.expr.getKind();
+                    if (kind == NodeKind.SIMPLE_VARIABLE_REF || (
+                            (kind == NodeKind.LITERAL || kind == NodeKind.NUMERIC_LITERAL)
                                     && typeChecker.checkExpr(recLiteralKeyValue.key.expr, this.env).tag
                                     == TypeTags.STRING)) {
                         BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
@@ -1731,7 +1732,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         BLangExpression expression = (BLangExpression) constant.value;
-        if (expression.getKind() != NodeKind.LITERAL) {
+        if (expression.getKind() != NodeKind.LITERAL && expression.getKind() != NodeKind.NUMERIC_LITERAL) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
             return;
         }
@@ -1745,7 +1746,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else {
             // We don't have any expected type in this case since the type node is not available. So we get the type
             // from the value.
-            typeChecker.checkExpr(value, env, value.type);
+            typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
             constant.symbol.literalValueTypeTag = value.type.tag;
         }
 

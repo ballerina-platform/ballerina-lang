@@ -2257,8 +2257,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             objFieldInfo.fieldType = objField.type;
 
             // Populate default values
-            if (objField.expr != null && (objField.expr.getKind() == NodeKind.LITERAL &&
-                    objField.expr.type.getKind() != TypeKind.ARRAY)) {
+            if (objField.expr != null && (objField.expr.getKind() == NodeKind.LITERAL ||
+                    objField.expr.getKind() == NodeKind.NUMERIC_LITERAL) &&
+                    objField.expr.type.getKind() != TypeKind.ARRAY) {
                 DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
                 objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
@@ -2342,8 +2343,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             recordFieldInfo.fieldType = recordField.type;
 
             // Populate default values
-            if (recordField.expr != null && (recordField.expr.getKind() == NodeKind.LITERAL &&
-                    recordField.expr.type.getKind() != TypeKind.ARRAY)) {
+            if (recordField.expr != null && (recordField.expr.getKind() == NodeKind.LITERAL ||
+                    recordField.expr.getKind() == NodeKind.NUMERIC_LITERAL) &&
+                    recordField.expr.type.getKind() != TypeKind.ARRAY) {
                 DefaultValueAttributeInfo defaultVal
                         = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
                 recordFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);

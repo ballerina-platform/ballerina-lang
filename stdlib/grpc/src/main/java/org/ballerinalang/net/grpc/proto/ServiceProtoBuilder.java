@@ -219,7 +219,8 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
 
         BLangLiteral valueLiteral = null;
         LiteralNode literalExpression = TreeBuilder.createLiteralExpression();
-        if (literalExpression.getKind() == NodeKind.LITERAL) {
+        NodeKind nodeKind = literalExpression.getKind();
+        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
             valueLiteral = (BLangLiteral) literalExpression;
             if (rootDescriptor != null) {
                 valueLiteral.value = rootDescriptor;

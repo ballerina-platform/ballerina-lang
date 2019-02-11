@@ -905,7 +905,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                 Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        finiteType.valueSpace.addAll(finiteTypeNode.valueSpace);
+        for (BLangExpression literal : finiteTypeNode.valueSpace) {
+            ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).type.tag);
+            finiteType.valueSpace.add(literal);
+        }
         finiteTypeSymbol.type = finiteType;
 
         resultType = finiteType;
