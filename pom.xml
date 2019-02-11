@@ -1746,6 +1746,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
 
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1831,6 +1832,7 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1914,6 +1916,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
@@ -2290,7 +2293,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.260</transport.http.version>
+        <transport.http.version>6.0.262</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
