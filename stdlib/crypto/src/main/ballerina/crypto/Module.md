@@ -151,7 +151,7 @@ import ballerina/crypto;
 import ballerina/encoding;
 
 public function main() returns error? {
-     // Input value for cryto operations
+     // Input value for cryto operations.
      string input = "Hello Ballerina";
      byte[] inputArr = input.toByteArray("UTF-8");
 
