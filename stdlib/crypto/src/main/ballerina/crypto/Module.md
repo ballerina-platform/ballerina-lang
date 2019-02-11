@@ -220,7 +220,7 @@ public function main() returns error? {
      output = check crypto:decryptAesGcm(output, keyArr, ivArr);
      io:println("AES GCM PKCS5 decrypted value: " + encoding:byteArrayToString(output));
 
-     // Encrypt and decrypt input value using AES GCM no padding
+     // Encrypt and decrypt input value using AES GCM no padding.
      output = check crypto:encryptAesGcm(inputArr, keyArr, ivArr, padding = crypto:NONE);
      output = check crypto:decryptAesGcm(output, keyArr, ivArr, padding = crypto:NONE);
      io:println("AES GCM no padding decrypted value: " + encoding:byteArrayToString(output));
