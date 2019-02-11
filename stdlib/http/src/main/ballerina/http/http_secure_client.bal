@@ -22,12 +22,6 @@ import ballerina/encoding;
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
 
-public type AuthScheme BASIC_AUTH|OAUTH2|JWT_AUTH;
-
-public const BASIC_AUTH = "Basic";
-public const OAUTH2 = "OAuth2";
-public const JWT_AUTH = "JWT";
-
 # Specifies how the authentication credentials should be sent when using the refresh token to refresh the access token
 public type CredentialBearer AUTH_HEADER_BEARER|POST_BODY_BEARER;
 

@@ -212,7 +212,7 @@ public type AuthCacheConfig record {
 #
 # + scheme - Authentication scheme
 # + id - Authentication provider instance id
-# + authStoreProvider - Authentication store provider (file, LDAP, etc.) implementation
+# + authStoreProvider - Authentication store provider (Config, LDAP, etc.) implementation
 # + authStoreProviderConfig - Auth store related configurations
 # + issuer - Identifier of the token issuer
 # + audience - Identifier of the token recipients
@@ -226,9 +226,9 @@ public type AuthCacheConfig record {
 # + signingAlg - The signing algorithm which is used to sign the JWT token
 # + propagateJwt - `true` if propagating authentication info as JWT
 public type AuthProvider record {
-    string scheme = "";
+    auth:InboundAuthScheme scheme;
     string id = "";
-    string authStoreProvider = "";
+    auth:AuthStoreProvider authStoreProvider = ();
     auth:LdapAuthProviderConfig? authStoreProviderConfig = ();
     string issuer = "";
     string audience = "";

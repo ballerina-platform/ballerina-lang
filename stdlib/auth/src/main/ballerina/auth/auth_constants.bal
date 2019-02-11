@@ -16,3 +16,16 @@
 
 # Constant for the auth error code
 public final string AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
+
+public type InboundAuthScheme BASIC_AUTH|JWT;
+
+public type OutboundAuthScheme BASIC_AUTH|OAUTH2|JWT;
+
+public const BASIC_AUTH = "Basic";
+public const OAUTH2 = "OAuth2";
+public const JWT = "JWT";
+
+public type AuthStoreProvider CONFIG|LDAP;
+
+public const CONFIG = "Config";
+public const LDAP = "LDAP";
