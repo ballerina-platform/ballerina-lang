@@ -11,6 +11,9 @@ configurations {
     distBal {
         transitive false
     }
+    jar
+    balo
+    bin
 }
 
 dependencies {
@@ -164,7 +167,7 @@ CopySpec copyBaloSpec = copySpec {
 
 CopySpec copyBinSpec = copySpec {
     from ('bin')
-    filter { line -> line.replace('${project.version}', "$project.version") }
+    filter { line -> line.replace('${project.version}', "${project.version}") }
     into(basePath + 'bin')
 }
 
@@ -175,7 +178,9 @@ task createZip(type: Zip) {
 }
 
 artifacts {
-    dist createZip
+    jar configurations.dist.files
+    balo configurations.distBal.files
+    bin file('bin')
 }
 
 build {
