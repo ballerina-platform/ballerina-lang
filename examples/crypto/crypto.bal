@@ -114,7 +114,7 @@ public function main() returns error? {
      output = check crypto:decryptAesCbc(output, rsaKeyArr, ivArr, padding = crypto:NONE);
      io:println("AES CBC no padding decrypted value: " + encoding:byteArrayToString(output));
 
-     // Encrypt and decrypt input value using AES GCM PKCS5 padding
+     // Encrypt and decrypt input value using AES GCM PKCS5 padding.
      output = check crypto:encryptAesGcm(inputArr, rsaKeyArr, ivArr);
      output = check crypto:decryptAesGcm(output, rsaKeyArr, ivArr);
      io:println("AES GCM PKCS5 decrypted value: " + encoding:byteArrayToString(output));
