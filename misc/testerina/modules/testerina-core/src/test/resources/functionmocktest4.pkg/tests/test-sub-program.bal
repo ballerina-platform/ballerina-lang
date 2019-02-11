@@ -16,5 +16,5 @@ public function mockPrint(any... s) {
 @test:Config{}
 function testAssertIntEquals () {
     printSomething();
-    test:assertTrue(success, msg = "using same function inside mocking function failed");
+    test:assertTrue(success, msg = "using the same function inside the mocking function failed");
 }
