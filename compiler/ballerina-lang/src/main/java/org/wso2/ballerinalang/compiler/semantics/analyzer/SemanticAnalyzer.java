@@ -325,6 +325,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 this.dlog.error(func.pos, DiagnosticCode.PRIVATE_FUNC_ABSTRACT_OBJECT, func.name,
                         objectTypeNode.symbol.name);
             }
+            if (isAbstract && func.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(func.pos, DiagnosticCode.EXTERN_FUNC_ABSTRACT_OBJECT, func.name,
+                        objectTypeNode.symbol.name);
+            }
         });
 
         // Validate the referenced functions that don't have implementations within the function.
