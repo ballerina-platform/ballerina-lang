@@ -52,7 +52,7 @@ import java.util.function.Predicate;
         functionName = "convert",
         args = {@Argument(name = "convertType", type = TypeKind.TYPEDESC),
                 @Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.UNION) }
+        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
 )
 public class Convert extends BlockingNativeCallableUnit {
 

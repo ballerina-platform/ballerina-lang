@@ -51,7 +51,7 @@ import java.util.function.Predicate;
         functionName = "stamp",
         args = {@Argument(name = "stampType", type = TypeKind.TYPEDESC),
                 @Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.UNION) }
+        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
 )
 public class Stamp extends BlockingNativeCallableUnit {
 
