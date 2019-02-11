@@ -134,7 +134,7 @@ public function main() returns error? {
      output = check crypto:decryptAesEcb(output, rsaKeyArr, padding = crypto:NONE);
      io:println("AES ECB no padding decrypted value: " + encoding:byteArrayToString(output));
 
-     // Public key used for RSA encryption
+     // Public key used for RSA encryption.
      crypto:PublicKey rsaPublicKey = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = "ballerina");
 
      // Private key used for RSA decryption
