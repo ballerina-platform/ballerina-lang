@@ -19,8 +19,6 @@ public function main() {
     // Call the `countInfinity()` function, that runs forever in asynchronous
     // mode.
     future<()> f2 = start countInfinity();
-    // A `runtime:sleep` is added to delay the execution.
-    runtime:sleep(2000);
     // Check if the function call is done.
     io:println(f2.isDone());
     // Check if someone cancelled the asynchronous execution.
