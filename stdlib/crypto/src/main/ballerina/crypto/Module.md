@@ -199,7 +199,7 @@ public function main() returns error? {
         keyArr[i] = check byte.convert(math:randomInRange(0, 255));
      }
 
-     // Randomly generate a 128 bit IV
+     // Randomly generate a 128 bit IV.
      byte[16] ivArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
      foreach var i in 0...15 {
         ivArr[i] = check byte.convert(math:randomInRange(0, 255));
