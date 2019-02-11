@@ -210,7 +210,7 @@ public function main() returns error? {
      output = check crypto:decryptAesCbc(output, keyArr, ivArr);
      io:println("AES CBC PKCS5 decrypted value: " + encoding:byteArrayToString(output));
 
-     // Encrypt and decrypt input value using AES CBC no padding
+     // Encrypt and decrypt input value using AES CBC no padding.
      output = check crypto:encryptAesCbc(inputArr, keyArr, ivArr, padding = crypto:NONE);
      output = check crypto:decryptAesCbc(output, keyArr, ivArr, padding = crypto:NONE);
      io:println("AES CBC no padding decrypted value: " + encoding:byteArrayToString(output));
