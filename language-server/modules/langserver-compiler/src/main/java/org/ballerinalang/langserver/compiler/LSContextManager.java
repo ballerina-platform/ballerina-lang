@@ -49,6 +49,13 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * This class will hold compiler contexts against the project directory.
+ *
+ * We need to cache compiler contexts in-order to maintain a single reference to the
+ * sourceDirectoryManager, pkgLoader in {@link org.wso2.ballerinalang.compiler.Compiler}.
+ *
+ * @see org.ballerinalang.langserver.compiler.LSPackageCache.ExtendedPackageCache
+ * @see org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory
+ * @see org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory
  */
 public class LSContextManager {
     private static final LSContextManager INSTANCE = new LSContextManager();
