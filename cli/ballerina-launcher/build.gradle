@@ -12,6 +12,11 @@ dependencies {
 
 description = 'Ballerina - Launcher'
 
+processResources {
+    include '**/launcher.properties'
+    filter { String line -> line.replace('${project.version}', "${project.version}" )}
+}
+
 test {
     useTestNG()
 }
