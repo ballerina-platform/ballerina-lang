@@ -40,8 +40,6 @@ import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -62,7 +60,6 @@ public abstract class ServerCallHandler {
     static final String TOO_MANY_REQUESTS = "Too many requests";
     static final String MISSING_REQUEST = "Half-closed without a request";
     private Descriptors.MethodDescriptor methodDescriptor;
-    private static final Logger LOG = LoggerFactory.getLogger(ServerCallHandler.class);
 
     ServerCallHandler(Descriptors.MethodDescriptor methodDescriptor) {
         this.methodDescriptor = methodDescriptor;
@@ -166,9 +163,7 @@ public abstract class ServerCallHandler {
 
     void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error) {
         if (resource == null || resource.getParamDetailList() == null) {
-            String message = "Error in listener service definition. onError resource does not exists";
-            LOG.error(message);
-            throw new ServerRuntimeException(message);
+            throw new ServerRuntimeException("Error in listener service definition. onError resource does not exists");
         }
         List<ParamDetail> paramDetails = resource.getParamDetailList();
         BValue[] signatureParams = new BValue[paramDetails.size()];
@@ -197,9 +192,7 @@ public abstract class ServerCallHandler {
 
     BValue[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {
         if (resource == null || resource.getParamDetailList() == null) {
-            String message = "Error when dispatching request. Incorrect service resource definition";
-            LOG.error(message);
-            throw new ServerRuntimeException(message);
+            throw new ServerRuntimeException("Error when dispatching request. Incorrect service resource definition");
         }
         List<ParamDetail> paramDetails = resource.getParamDetailList();
         BValue[] signatureParams = new BValue[paramDetails.size()];
