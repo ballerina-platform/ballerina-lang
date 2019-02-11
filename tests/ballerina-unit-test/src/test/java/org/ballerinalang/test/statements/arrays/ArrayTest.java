@@ -103,7 +103,7 @@ public class ArrayTest {
         Assert.assertEquals(((BInteger) returnVals[1]).intValue(), 3, "Length didn't match");
     }
 
-    @Test()
+    @Test(description = "Test readable string value when containing a NIL element")
     public void testArrayStringRepresentationWithANilElement() {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testArrayWithNilElement");
         String str = returnVals[0].stringValue();
