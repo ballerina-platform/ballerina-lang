@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.freeze.State;
 import org.ballerinalang.jvm.freeze.Status;
 import org.ballerinalang.jvm.freeze.Utils;
@@ -270,7 +270,7 @@ public class ArrayValue implements RefValue {
 
     }
 
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
 
     }
 
