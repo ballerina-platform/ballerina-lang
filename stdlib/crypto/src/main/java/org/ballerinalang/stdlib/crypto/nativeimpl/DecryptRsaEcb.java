@@ -20,50 +20,41 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
-import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 
 /**
- * Extern function ballerina.crypto:signRsaSha384.
+ * Extern function ballerina.crypto:decryptRsaEcb.
  *
- * @since 0.990.3
+ * @since 0.990.4
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "crypto",
-        functionName = "signRsaSha384",
-        args = {
-                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @Argument(name = "privateKey", type = TypeKind.RECORD, structType = "PrivateKey",
-                        structPackage = "ballerina/crypto")
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @ReturnType(type = TypeKind.RECORD, structType = Constants.CRYPTO_ERROR,
-                        structPackage = Constants.CRYPTO_PACKAGE)
-        },
-        isPublic = true)
-public class SignRsaSha384 extends BlockingNativeCallableUnit {
+@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "decryptRsaEcb", isPublic = true)
+public class DecryptRsaEcb extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BValue inputBValue = context.getRefArgument(0);
-        BMap<String, BValue> privateKey = (BMap<String, BValue>) context.getRefArgument(1);
+        BMap<String, BValue> keyMap = (BMap<String, BValue>) context.getRefArgument(1);
         byte[] input = ((BValueArray) inputBValue).getBytes();
-        try {
-            context.setReturnValues(new BValueArray(CryptoUtils.sign(context, "SHA384withRSA",
-                    (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
-        } catch (InvalidKeyException e) {
+        String padding = context.getRefArgument(2).stringValue();
+        Key key;
+        if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
+            key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
+        } else if (keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY) != null) {
+            key = (PublicKey) keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
+        } else {
             context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
+            return;
         }
+        CryptoUtils.rsaEncryptDecrypt(context, CryptoUtils.CipherMode.DECRYPT, Constants.ECB, padding, key, input, null,
+                -1);
     }
 }

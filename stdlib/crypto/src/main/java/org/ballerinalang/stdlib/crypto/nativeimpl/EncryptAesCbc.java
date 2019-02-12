@@ -20,31 +20,33 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
- * Extern function ballerina.crypto:hashMd5.
+ * Extern function ballerina.crypto:encryptAesCbc.
  *
- * @since 0.990.3
+ * @since 0.990.4
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "crypto",
-        functionName = "hashMd5",
-        args = {@Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
-        isPublic = true)
-public class HashMd5 extends BlockingNativeCallableUnit {
+@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "encryptAesCbc", isPublic = true)
+public class EncryptAesCbc extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BValue inputBValue = context.getRefArgument(0);
         byte[] input = ((BValueArray) inputBValue).getBytes();
-        context.setReturnValues(new BValueArray(CryptoUtils.hash(context, "MD5", input)));
+        BValue keyBValue = context.getRefArgument(1);
+        byte[] key = ((BValueArray) keyBValue).getBytes();
+        BValue ivBValue = context.getRefArgument(2);
+        byte[] iv = null;
+        if (ivBValue != null) {
+            iv = ((BValueArray) ivBValue).getBytes();
+        }
+        String padding = context.getRefArgument(3).stringValue();
+        CryptoUtils.aesEncryptDecrypt(context, CryptoUtils.CipherMode.ENCRYPT, Constants.CBC, padding, key, input, iv,
+                -1);
     }
 }

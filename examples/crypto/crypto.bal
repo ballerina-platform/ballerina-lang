@@ -1,11 +1,12 @@
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
+import ballerina/io;
+import ballerina/math;
 
 public function main() returns error? {
 
     // Input value for crypto operations.
-    string input = "Hello Ballerina";
+    string input = "Hello Ballerina!";
     byte[] inputArr = input.toByteArray("UTF-8");
 
     // Hashing input value using MD5 hashing algorithm, and printing hash value using Hex encoding.
@@ -90,4 +91,63 @@ public function main() returns error? {
     } else {
         io:println("invalid private key");
     }
+
+     // Randomly generate a 128 bit key for AES encryption.
+     byte[16] rsaKeyArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+     foreach var i in 0...15 {
+        rsaKeyArr[i] = check byte.convert(math:randomInRange(0, 255));
+     }
+
+     // Randomly generate a 128 bit IV for AES encryption.
+     byte[16] ivArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+     foreach var i in 0...15 {
+        ivArr[i] = check byte.convert(math:randomInRange(0, 255));
+     }
+
+     // Encrypt and decrypt input value using AES CBC PKCS5 padding.
+     output = check crypto:encryptAesCbc(inputArr, rsaKeyArr, ivArr);
+     output = check crypto:decryptAesCbc(output, rsaKeyArr, ivArr);
+     io:println("AES CBC PKCS5 decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES CBC no padding.
+     output = check crypto:encryptAesCbc(inputArr, rsaKeyArr, ivArr, padding = crypto:NONE);
+     output = check crypto:decryptAesCbc(output, rsaKeyArr, ivArr, padding = crypto:NONE);
+     io:println("AES CBC no padding decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES GCM PKCS5 padding.
+     output = check crypto:encryptAesGcm(inputArr, rsaKeyArr, ivArr);
+     output = check crypto:decryptAesGcm(output, rsaKeyArr, ivArr);
+     io:println("AES GCM PKCS5 decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES GCM no padding.
+     output = check crypto:encryptAesGcm(inputArr, rsaKeyArr, ivArr, padding = crypto:NONE);
+     output = check crypto:decryptAesGcm(output, rsaKeyArr, ivArr, padding = crypto:NONE);
+     io:println("AES GCM no padding decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES ECB PKCS5 padding.
+     output = check crypto:encryptAesEcb(inputArr, rsaKeyArr);
+     output = check crypto:decryptAesEcb(output, rsaKeyArr);
+     io:println("AES ECB PKCS5 decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES ECB no padding.
+     output = check crypto:encryptAesEcb(inputArr, rsaKeyArr, padding = crypto:NONE);
+     output = check crypto:decryptAesEcb(output, rsaKeyArr, padding = crypto:NONE);
+     io:println("AES ECB no padding decrypted value: " + encoding:byteArrayToString(output));
+
+     // Public key used for RSA encryption.
+     crypto:PublicKey rsaPublicKey = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = "ballerina");
+
+     // Private key used for RSA decryption.
+     crypto:PrivateKey rsaPrivateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
+                                                            keyPassword = "ballerina");
+
+     // Encrypt and decrypt input value using RSA ECB PKCS1 padding.
+     output = check crypto:encryptRsaEcb(inputArr, rsaPublicKey);
+     output = check crypto:decryptRsaEcb(output, rsaPrivateKey);
+     io:println("RSA ECB PKCS1 decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using RSA ECB OAEPwithSHA512andMGF1 padding.
+     output = check crypto:encryptRsaEcb(inputArr, rsaPublicKey, padding = crypto:OAEPwithSHA512andMGF1);
+     output = check crypto:decryptRsaEcb(output, rsaPrivateKey, padding = crypto:OAEPwithSHA512andMGF1);
+     io:println("RSA ECB OAEPwithSHA512andMGF1 decrypted value: " + encoding:byteArrayToString(output));
 }
