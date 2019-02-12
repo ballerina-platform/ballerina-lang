@@ -30,7 +30,7 @@ listener grpc:Listener ep3 = new (9095);
 service Chat on ep3 {
     map<grpc:Caller> consMap = {};
     resource function onOpen(grpc:Caller caller) {
-        io:println(string `{{caller.getId()}} connected to chat`);
+        io:println(string `${caller.getId()} connected to chat`);
         self.consMap[<string>caller.getId()] = caller;
     }
 

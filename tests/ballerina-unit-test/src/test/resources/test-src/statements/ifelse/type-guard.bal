@@ -421,7 +421,7 @@ function testTypeGuardsWithErrorInmatch() returns string {
     error e = error("some error");
     any|error x = e;
     match x {
-        var p if p is error => return string `{{p.reason()}}`;
+        var p if p is error => return string `${p.reason()}`;
         var p => return "Internal server error";
     }
 }
