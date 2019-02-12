@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.freeze.State;
+import org.ballerinalang.jvm.freeze.Status;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -52,10 +54,10 @@ public interface RefValue {
     /**
      * Method to attempt freezing a {@link RefValue}, to disallow further modification.
      *
-     * @param freezeStatus the {@link FreezeStatus} instance to keep track of the
+     * @param freezeStatus the {@link Status} instance to keep track of the
      *            freeze result of this attempt
      */
-    default void attemptFreeze(FreezeStatus freezeStatus) {
+    default void attemptFreeze(Status freezeStatus) {
         throw new BLangFreezeException("freeze not allowed on '" + getType() + "'");
     }
 
@@ -67,7 +69,7 @@ public interface RefValue {
      * @return if freeze is successful, same value is returned. Else an error is returned
      */
     default Object freeze() {
-        FreezeStatus freezeStatus = new FreezeStatus(FreezeStatus.State.MID_FREEZE);
+        Status freezeStatus = new Status(State.MID_FREEZE);
         try {
             // if freeze is successful, set the status as frozen and the value itself as the return value
             attemptFreeze(freezeStatus);

@@ -15,9 +15,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.util;
+package org.ballerinalang.jvm.freeze;
 
-import org.ballerinalang.jvm.values.FreezeStatus;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -27,7 +26,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  *
  * @since 0.995.0
  */
-public class FreezeUtils {
+public class Utils {
 
     /**
      * Method to check if a value is open to a new freeze attempt.
@@ -37,7 +36,7 @@ public class FreezeUtils {
      * @return true if the state is unfrozen, false if not. Would throw a {@link BLangFreezeException} if the value
      *         is already part of a different freeze attempt.
      */
-    public static boolean isOpenForFreeze(FreezeStatus currentFreezeStatus, FreezeStatus receivedFreezeStatus) {
+    public static boolean isOpenForFreeze(Status currentFreezeStatus, Status receivedFreezeStatus) {
         switch (currentFreezeStatus.getState()) {
             case FROZEN:
                 return false;
@@ -57,9 +56,9 @@ public class FreezeUtils {
      * An update to a value would panic either if a value is frozen or if a value is currently in the process of
      * being frozen.
      *
-     * @param currentState the current {@link FreezeStatus.State} of the value
+     * @param currentState the current {@link Status.State} of the value
      */
-    public static void handleInvalidUpdate(FreezeStatus.State currentState) {
+    public static void handleInvalidUpdate(State currentState) {
         switch (currentState) {
             case FROZEN:
                 throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,

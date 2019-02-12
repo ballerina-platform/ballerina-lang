@@ -15,25 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values;
+package org.ballerinalang.jvm.freeze;
+
+import org.ballerinalang.jvm.values.RefValue;
 
 /**
  * Maintains the frozen status of a freezable {@link RefValue}.
  *
  * @since 0.995.0
  */
-public class FreezeStatus {
-
-    /**
-     * Representation of the current state of a freeze attempt.
-     */
-    public enum State {
-        FROZEN, MID_FREEZE, UNFROZEN;
-    }
+public class Status {
 
     private State currentState;
 
-    public FreezeStatus(State state) {
+    public Status(State state) {
         this.currentState = state;
     }
 

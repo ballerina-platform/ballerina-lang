@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.freeze.State;
+import org.ballerinalang.jvm.freeze.Status;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
@@ -40,7 +42,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static org.ballerinalang.jvm.util.FreezeUtils.handleInvalidUpdate;
+import static org.ballerinalang.jvm.freeze.Utils.handleInvalidUpdate;
 
 /**
  * Structure that represents the mapping between key value pairs in ballerina.
@@ -56,7 +58,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
-    private volatile FreezeStatus freezeStatus = new FreezeStatus(FreezeStatus.State.UNFROZEN);
+    private volatile Status freezeStatus = new Status(State.UNFROZEN);
 
     public MapValue(BType type) {
         super();
@@ -115,7 +117,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     public V put(K key, V value) {
         writeLock.lock();
         try {
-            if (freezeStatus.getState() != FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
 
@@ -131,7 +133,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     public void clear() {
         writeLock.lock();
         try {
-            if (freezeStatus.getState() != FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
             super.clear();
@@ -166,7 +168,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     public V remove(Object key) {
         writeLock.lock();
         try {
-            if (freezeStatus.getState() != FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
             return super.remove(key);
