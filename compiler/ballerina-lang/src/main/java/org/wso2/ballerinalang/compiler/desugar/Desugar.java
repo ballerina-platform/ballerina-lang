@@ -542,8 +542,10 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableType dupFuncType = (BInvokableType) dupFuncSymbol.type;
 
         // Create a map symbol for the function statement
+        BUnionType constraintTypeOfMap = new BUnionType(null,
+                new LinkedHashSet<BType>(){{ add(symTable.anyType); add(symTable.errorType); }},true);
         BVarSymbol mapSymbol = new BVarSymbol(0, names.fromString("$mapFunc$" + funClosureMapCount),
-                fucEnv.scope.owner.pkgID, new BMapType(TypeTags.MAP, symTable.anyType, null), fucEnv.scope.owner);
+                fucEnv.scope.owner.pkgID, new BMapType(TypeTags.MAP, constraintTypeOfMap, null), fucEnv.scope.owner);
         funcNode.dataHolder.mapSymbol = mapSymbol;
         fucEnv.exposedClosureHolder = funcNode.dataHolder;
 
@@ -594,7 +596,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Define the closure arguments of the function
-        BMapType mapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+        BMapType mapType = new BMapType(TypeTags.MAP, constraintTypeOfMap, null);
         // Blindly add the parameters based on the encl env count
         for (int i = 0; i < funcNode.enclEnvCount - 1; i++) {
             String mapName = "$paramsMap$" + i;
@@ -613,10 +615,6 @@ public class Desugar extends BLangNodeVisitor {
         // Pop the map symbol
         funcNode.blockSymbolsInUpperLevels.pop();
         result = funcNode;
-    }
-
-    private boolean isFunctionArgument(BVarSymbol symbol, List<BVarSymbol> params) {
-        return params.stream().anyMatch(param -> (param.name.equals(symbol.name) && param.type.tag == symbol.type.tag));
     }
 
     public void visit(BLangForever foreverStatement) {
@@ -679,9 +677,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockStmt block) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(block, env);
+        BUnionType constrainedTypeOfMap = new BUnionType(null,
+                new LinkedHashSet<BType>(){{ add(symTable.anyType); add(symTable.errorType); }},true);
         // Create a map symbol for every block statement
         BVarSymbol mapSymbol = new BVarSymbol(0, names.fromString("$mapBlock$" + blockClosureMapCount),
-                block.scope.owner.pkgID, new BMapType(TypeTags.MAP, symTable.anyType, null), block.scope.owner);
+                block.scope.owner.pkgID, new BMapType(TypeTags.MAP, constrainedTypeOfMap, null), block.scope.owner);
         block.dataHolder.mapSymbol = mapSymbol;
         blockEnv.exposedClosureHolder = block.dataHolder;
 
@@ -1501,7 +1501,9 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangCompoundAssignment compoundAssignment) {
         BLangAssignment assignStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignStmt.pos = compoundAssignment.pos;
+        compoundAssignment.varRef.lhsVar = true;
         assignStmt.setVariable(rewriteExpr((BLangVariableReference) compoundAssignment.varRef));
+        compoundAssignment.varRef.lhsVar = false;
         assignStmt.expr = rewriteExpr(compoundAssignment.modifiedExpr);
         result = assignStmt;
     }
@@ -1973,15 +1975,17 @@ public class Desugar extends BLangNodeVisitor {
             // Closures from other functions
             BVarSymbol bVarSymbol;
             BLangFunction enclFunction = (BLangFunction) env.enclInvokable;
-            if (enclFunction.closureVarsWithResolvedLevels.containsKey(varRefExpr.symbol)) {
-                Integer resolvedLevel = enclFunction.closureVarsWithResolvedLevels.get(varRefExpr.symbol);
-                bVarSymbol = enclFunction.closureResolvedMaps.get(resolvedLevel);
-            } else {
-                bVarSymbol = resolveEnvMapSymbol(env, (BVarSymbol) varRefExpr.symbol);
-            }
-            // If there is a symbol defined
-            if (bVarSymbol != null && updateClosureVars(varRefExpr, bVarSymbol)) {
-                return;
+            if (null != enclFunction) {
+                if (enclFunction.closureVarsWithResolvedLevels.containsKey(varRefExpr.symbol)) {
+                    Integer resolvedLevel = enclFunction.closureVarsWithResolvedLevels.get(varRefExpr.symbol);
+                    bVarSymbol = enclFunction.closureResolvedMaps.get(resolvedLevel);
+                } else {
+                    bVarSymbol = resolveEnvMapSymbol(env, (BVarSymbol) varRefExpr.symbol);
+                }
+                // If there is a symbol defined
+                if (bVarSymbol != null && updateClosureVars(varRefExpr, bVarSymbol)) {
+                    return;
+                }
             }
             genVarRefExpr = new BLangLocalVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT) {
