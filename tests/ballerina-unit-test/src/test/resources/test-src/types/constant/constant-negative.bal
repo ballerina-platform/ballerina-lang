@@ -246,15 +246,3 @@ function testStringTypeWithoutType() returns StringTypeWithoutType {
 // -----------------------------------------------------------
 
 const int invalidNil = ();
-
-// -----------------------------------------------------------
-
-const decimal decimalConst1 = 23.2;
-const decimal decimalConst2 = 12.1;
-const float floatConst = 23.2;
-
-type decimalLiteralType decimalConst1 | decimalConst2;
-
-function testAssigningFloatConstToDecimalFiniteType() {
-    decimalLiteralType d = floatConst; // Invalid value assingment.
-}
