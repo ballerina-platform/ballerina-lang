@@ -17,6 +17,9 @@
 import ballerina/test;
 
 const EXPECTED_CLIENT_ABSTRACT_OBJECT_FAILURE_MESSAGE = "expected referenced client abstract object's ";
+const FLOAT_VALUE_ONE = 3.0;
+const FLOAT_VALUE_TWO = 2.0;
+const STRING_FIELD = "string";
 
 // Objects are a combination of public and private fields along with a set of associated
 // functions, called methods, that can be used to manipulate them. An object’s methods are
@@ -183,9 +186,9 @@ type ObjReferenceToClientAbstractObject client object {
     private float privateFloatField;
 
     function __init() {
-        self.publicStringField = "string";
-        self.floatField = 3.0;
-        self.privateFloatField = 2.0;
+        self.publicStringField = STRING_FIELD;
+        self.floatField = FLOAT_VALUE_ONE;
+        self.privateFloatField = FLOAT_VALUE_TWO;
     }
 
     remote function getPrivateField() returns float {
@@ -197,10 +200,10 @@ type ObjReferenceToClientAbstractObject client object {
 function testClientAbstractObjectDeclaration() {
     ObjReferenceToClientAbstractObject abstractClientObj = new();
 
-    test:assertTrue(abstractClientObj.publicStringField == "string",
+    test:assertEquals(abstractClientObj.publicStringField, STRING_FIELD,
         msg = EXPECTED_CLIENT_ABSTRACT_OBJECT_FAILURE_MESSAGE + "public field to be accessible");
 
     var result = abstractClientObj->getPrivateField();
-    test:assertTrue(result == 2.0,
+    test:assertEquals(result, FLOAT_VALUE_TWO,
         msg = EXPECTED_CLIENT_ABSTRACT_OBJECT_FAILURE_MESSAGE + "private field to be accessible via object method");
 }
