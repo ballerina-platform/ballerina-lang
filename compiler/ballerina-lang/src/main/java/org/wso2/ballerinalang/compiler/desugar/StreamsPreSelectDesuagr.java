@@ -40,7 +40,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -152,6 +154,11 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         return indexExpr;
     }
 
+    public void visit(BLangTypeConversionExpr typeConversionExpr) {
+        result = desugar.addConversionExprIfRequired((BLangExpression) rewrite(typeConversionExpr.expr),
+                        typeConversionExpr.type);
+    }
+
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         indexAccessExpr.indexExpr =
@@ -207,7 +214,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         }
 
         BInvokableSymbol symbol = streamingCodeDesugar.getInvokableSymbol(invocationExpr, StreamingCodeDesugar
-                .AGGREGATOR_OBJECT_NAME);
+                .AGGREGATOR_OBJECT_NAME, true);
         if (symbol != null) {
             if (streamingCodeDesugar.isReturnTypeMatching(invocationExpr.pos, StreamingCodeDesugar
                     .AGGREGATOR_OBJECT_NAME, symbol)) {
@@ -342,6 +349,11 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     @Override
     public void visit(BLangLiteral literalExpr) {
         result = literalExpr;
+    }
+
+    @Override
+    public void visit(BLangTypedescExpr typedescExpr) {
+        result = typedescExpr;
     }
 
     @Override
