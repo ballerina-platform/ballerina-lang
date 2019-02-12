@@ -22,7 +22,6 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contract.Constants;
-import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -30,12 +29,11 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
 /**
- * A test class for disable Forwarded behaviour.
+ * A test class for default(disable) Forwarded behaviour.
  */
-public class ForwardedDisableTestCase extends ForwardedClientTemplate {
+public class ForwardedDefaultTestCase extends ForwardedClientTemplate {
     @BeforeClass
     public void setUp() {
-        senderConfiguration.setForwardedExtensionConfig(ForwardedExtensionConfig.DISABLE);
         super.setUp();
     }
 
