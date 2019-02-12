@@ -30,13 +30,13 @@ import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.objects.Task;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_POSITION_VALUE;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_STRUCT_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
  * Native function to detach a service from the listener.
@@ -56,7 +56,7 @@ public class Detach extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_POSITION_VALUE);
-        String taskId = taskStruct.get(TIMER_TASK_ID_FIELD).stringValue();
+        String taskId = taskStruct.get(TASK_ID_FIELD).stringValue();
         BMap<String, BValue> serviceStruct = (BMap) context.getRefArgument(1);
         String serviceName = BLangConnectorSPIUtil.getService(context.getProgramFile(), serviceStruct).getName();
 

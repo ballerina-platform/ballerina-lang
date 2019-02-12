@@ -21,8 +21,8 @@ package org.ballerinalang.stdlib.task.listener.objects;
 
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.listener.utils.TaskIdGenerator;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
-import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
 
 import java.util.HashMap;
 

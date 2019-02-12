@@ -23,8 +23,6 @@ under the License.
     <!-- Ballerina task Test Cases. -->
     <test name="ballerina-task-test-suite" preserve-order="true" parallel="false">
         <classes>
-            <!--<class name="org.ballerinalang.stdlib.task.AppointmentTest" />
-            <class name="org.ballerinalang.stdlib.task.TimerTest" />-->
             <class name="org.ballerinalang.stdlib.task.listener.AppointmentTest" />
             <class name="org.ballerinalang.stdlib.task.listener.ListenerServiceValidationTest"/>
             <class name="org.ballerinalang.stdlib.task.listener.ListenerTest"/>

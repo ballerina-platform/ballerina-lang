@@ -30,15 +30,15 @@ import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.listener.impl.TaskServerConnectorImpl;
 
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_PAUSED_FIELD;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_RUNNING_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_POSITION_VALUE;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_STRUCT_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TIMER_TASK_ID_FIELD;
-import static org.ballerinalang.stdlib.task.utils.Utils.createError;
+import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 
 /**
  * Native function to start the service attached to the listener.
@@ -58,8 +58,8 @@ public class Start extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_POSITION_VALUE);
-        String taskId = taskStruct.get(TIMER_TASK_ID_FIELD).stringValue();
-        boolean isRunning = ((BBoolean) taskStruct.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
+        String taskId = taskStruct.get(TASK_ID_FIELD).stringValue();
+        boolean isRunning = ((BBoolean) taskStruct.get(TASK_IS_RUNNING_FIELD)).booleanValue();
         if (isRunning) {
             String errorMessage = "Cannot start the task:" + " Task is already running.";
             context.setReturnValues(createError(context, errorMessage));
@@ -68,7 +68,7 @@ public class Start extends BlockingNativeCallableUnit {
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(context, taskId);
         try {
             serverConnector.start();
-            taskStruct.put(TIMER_IS_RUNNING_FIELD, new BBoolean(true));
+            taskStruct.put(TASK_IS_RUNNING_FIELD, new BBoolean(true));
             taskStruct.put(TASK_IS_PAUSED_FIELD, new BBoolean(false));
         } catch (SchedulingException e) {
             context.setReturnValues(createError(context, e.getMessage()));
