@@ -815,13 +815,13 @@ public class Desugar extends BLangNodeVisitor {
             // map<any> restParam = $map$0.filter($lambdaArg$0);
 
             DiagnosticPos pos = parentBlockStmt.pos;
-            BMapType anyConstrainedMapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+            BMapType restParamType = (BMapType) ((BLangVariable) parentRecordVariable.restParam).type;
             BLangVariableReference variableReference;
 
             if (parentIndexAccessExpr != null) {
-                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", anyConstrainedMapType,
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", restParamType,
                         null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
-                                anyConstrainedMapType, this.env.scope.owner));
+                                restParamType, this.env.scope.owner));
                 mapVariable.expr = parentIndexAccessExpr;
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
                 variableDef.var = mapVariable;
@@ -837,7 +837,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef restParamVarDef = ASTBuilderUtil.createVariableDefStmt(pos,
                     parentBlockStmt);
             restParamVarDef.var = restParam;
-            restParamVarDef.var.type = anyConstrainedMapType;
+            restParamVarDef.var.type = restParamType;
 
             // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
             BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVariable, pos);
@@ -859,10 +859,10 @@ public class Desugar extends BLangNodeVisitor {
             iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
             filterIterator.iContext = iterableContext;
 
-            iterableContext.resultType = anyConstrainedMapType;
+            iterableContext.resultType = restParamType;
             Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
             filterOperation.pos = pos;
-            filterOperation.collectionType = filterOperation.expectedType = anyConstrainedMapType;
+            filterOperation.collectionType = filterOperation.expectedType = restParamType;
             filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
             iterableContext.operations.add(filterOperation);
         }
@@ -1273,13 +1273,13 @@ public class Desugar extends BLangNodeVisitor {
             // map<any> restParam = $map$0.filter($lambdaArg$0);
 
             DiagnosticPos pos = parentBlockStmt.pos;
-            BMapType anyConstrainedMapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+            BMapType restParamType = (BMapType) ((BLangSimpleVarRef) parentRecordVarRef.restParam).type;
             BLangVariableReference variableReference;
 
             if (parentIndexAccessExpr != null) {
-                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", anyConstrainedMapType,
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", restParamType,
                         null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
-                                anyConstrainedMapType, this.env.scope.owner));
+                                restParamType, this.env.scope.owner));
                 mapVariable.expr = parentIndexAccessExpr;
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
                 variableDef.var = mapVariable;
@@ -1294,7 +1294,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef restParam = (BLangSimpleVarRef) parentRecordVarRef.restParam;
             BLangAssignment restParamAssignment = ASTBuilderUtil.createAssignmentStmt(pos, parentBlockStmt);
             restParamAssignment.varRef = restParam;
-            restParamAssignment.varRef.type = anyConstrainedMapType;
+            restParamAssignment.varRef.type = restParamType;
 
             // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
             BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVarRef, pos);
@@ -1316,10 +1316,10 @@ public class Desugar extends BLangNodeVisitor {
             iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
             filterIterator.iContext = iterableContext;
 
-            iterableContext.resultType = anyConstrainedMapType;
+            iterableContext.resultType = restParamType;
             Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
             filterOperation.pos = pos;
-            filterOperation.collectionType = filterOperation.expectedType = anyConstrainedMapType;
+            filterOperation.collectionType = filterOperation.expectedType = restParamType;
             filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
             iterableContext.operations.add(filterOperation);
         }
@@ -1520,6 +1520,7 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol collectionSymbol = dataVariable.symbol;
         switch (foreach.collection.type.tag) {
             case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
             case TypeTags.XML:
             case TypeTags.MAP:
             case TypeTags.TABLE:

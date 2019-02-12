@@ -167,6 +167,11 @@
     </test>
 
     <test name="ballerina-grpc-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
