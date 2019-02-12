@@ -373,7 +373,7 @@ public function Response.setPayload(string|xml|json|byte[]|io:ReadableByteChanne
         self.setBinaryPayload(payload);
     } else if (payload is io:ReadableByteChannel) {
         self.setByteChannel(payload);
-    } else if (payload is mime:Entity[]) {
+    } else {
         self.setBodyParts(payload);
     }
 }

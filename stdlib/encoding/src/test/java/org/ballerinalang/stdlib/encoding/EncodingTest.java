@@ -34,7 +34,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Test cases for ballerina.encoding native functions.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class EncodingTest {
 

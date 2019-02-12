@@ -214,7 +214,7 @@ function buildRequest(RequestMessage message) returns Request {
         request.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         request.setBodyParts(message);
     }
     return request;
@@ -236,7 +236,7 @@ function buildResponse(ResponseMessage message) returns Response {
         response.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         response.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         response.setBodyParts(message);
     }
     return response;

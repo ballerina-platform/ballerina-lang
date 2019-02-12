@@ -113,7 +113,7 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
     string strValue = "";
     if (value is int) {
         strValue = (<string>value) + ".0";
-    } else if (value is float) {
+    } else {
         strValue = <string>value;
     }
 

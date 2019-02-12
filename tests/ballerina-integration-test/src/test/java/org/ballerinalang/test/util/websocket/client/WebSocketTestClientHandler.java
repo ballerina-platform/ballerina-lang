@@ -125,6 +125,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
             } else if (frame instanceof CloseWebSocketFrame) {
                 CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) frame;
                 int statusCode = closeWebSocketFrame.statusCode();
+                receivedCloseFrame = closeWebSocketFrame.retain();
                 if (ch.isOpen()) {
                     ch.writeAndFlush(new CloseWebSocketFrame(statusCode, null)).addListener(future -> {
                         if (ch.isOpen()) {
@@ -132,7 +133,6 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
                         }
                     }).sync();
                 }
-                receivedCloseFrame = closeWebSocketFrame.retain();
             }
             if (countDownLatch != null) {
                 countDownLatch.countDown();

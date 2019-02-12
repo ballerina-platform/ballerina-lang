@@ -38,6 +38,8 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION_IN_OBJECT("undefined.function.in.object"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
+    TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
+    FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
     TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
@@ -66,7 +68,9 @@ public enum DiagnosticCode {
     PRIVATE_OBJECT_CONSTRUCTOR("private.object.constructor"),
     PRIVATE_FIELD_ABSTRACT_OBJECT("private.field.abstract.object"),
     PRIVATE_FUNC_ABSTRACT_OBJECT("private.function.abstract.object"),
+    EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
+    GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
