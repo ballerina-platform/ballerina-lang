@@ -41,8 +41,8 @@ function testFunc() {
     test:assertTrue(foundMatch(untaint outputs, "Sent response back to initiator"));
     test:assertTrue(foundMatch(untaint outputs, "Got response from bizservice"));
 
-    test:assertEquals(foundMatch(untaint outputs,  "Initiated transaction committed"));
-    test:assertEquals(foundMatch(untaint outputs, "Sent response back to client"));
+    test:assertTrue(foundMatch(untaint outputs,  "Initiated transaction committed"));
+    test:assertTrue(foundMatch(untaint outputs, "Sent response back to client"));
 }
 
 function foundMatch(string[] arr, string target) returns boolean {
