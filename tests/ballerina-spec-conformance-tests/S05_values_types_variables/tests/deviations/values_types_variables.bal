@@ -122,7 +122,7 @@ function testImplicitInitialValuesBroken() {
     //typedescArray[1] = int;
     //test:assertTrue(typedescArray[0], (), msg = "expected implicit initial value of typedesc to be ()");
 
-    One[] singletonArray = [];
+    One?[] singletonArray = [];
     singletonArray[1] = 1;
     test:assertEquals(singletonArray[0], (),
         msg = "expected implicit initial value of a singleton to be the singleton value");

@@ -23,9 +23,9 @@ const EXPECTED_VALUE_NOT_TO_BELONG_TO_TYPE_FAILURE_MESSAGE = "expected value to 
 // look like the type no matter how the value is mutated
 @test:Config {}
 function testBelongsToWithArrays() {
-    (int|boolean)[] a1 = [true, false, false];
+    (int|boolean)[3] a1 = [true, false, false];
     any a2 = a1;
-    if !(a2 is anydata[]) || !(a2 is (int|boolean)[]) {
+    if !(a2 is anydata[3]) || !(a2 is (int|boolean)[3]) {
         test:assertFail(msg = EXPECTED_VALUE_TO_BELONG_TO_TYPE_FAILURE_MESSAGE);
     }
 
