@@ -48,7 +48,7 @@ public class SenderConfiguration extends SslConfiguration {
     private ProxyServerConfiguration proxyServerConfiguration;
     private PoolConfiguration poolConfiguration;
 
-    private ForwardedExtensionConfig forwardedExtensionConfig;
+    private ForwardedExtensionConfig forwardedExtensionConfig = ForwardedExtensionConfig.DISABLE;
 
     public SenderConfiguration() {
         this.poolConfiguration = new PoolConfiguration();
