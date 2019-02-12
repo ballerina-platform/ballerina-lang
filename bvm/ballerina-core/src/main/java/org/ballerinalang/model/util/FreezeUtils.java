@@ -18,6 +18,7 @@
 package org.ballerinalang.model.util;
 
 import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.jvm.freeze.State;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -59,7 +60,7 @@ public class FreezeUtils {
      *
      * @param currentState the current {@link BVM.FreezeStatus.State} of the value
      */
-    public static void handleInvalidUpdate(BVM.FreezeStatus.State currentState) {
+    public static void handleInvalidUpdate(State currentState) {
         switch (currentState) {
             case FROZEN:
                 throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
