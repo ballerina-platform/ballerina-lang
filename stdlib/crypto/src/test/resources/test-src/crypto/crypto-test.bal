@@ -156,7 +156,6 @@ returns byte[]|error {
 }
 
 function testDecryptAesCbc(byte[] input, byte[] key, byte[] iv, crypto:AesPadding padding = "PKCS5")
-returns byte[]|error {
     return crypto:decryptAesCbc(input, key, iv, padding = padding);
 }
 
