@@ -1557,7 +1557,7 @@ public class Types {
             }
             // Check whether the member literal and the literal that needs to be tested are of same kind and check
             // the value equality between them.
-            return isSameLiteralKind((BLangLiteral) memberLiteral, literalExpr) &&
+            return memberLiteral.getKind().equals(literalExpr.getKind()) &&
                     ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
         }).count();
 
@@ -1566,10 +1566,6 @@ public class Types {
             dlog.error(literalExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, type);
         }
         return matchCount == 1;
-    }
-
-    private boolean isSameLiteralKind(BLangLiteral literal1, BLangLiteral literal2) {
-        return literal1.getKind().equals(literal2.getKind());
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {

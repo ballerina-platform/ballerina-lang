@@ -1403,11 +1403,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
                 for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
-                    NodeKind kind = recLiteralKeyValue.key.expr.getKind();
-                    if (kind == NodeKind.SIMPLE_VARIABLE_REF || (
-                            (kind == NodeKind.LITERAL || kind == NodeKind.NUMERIC_LITERAL)
-                                    && typeChecker.checkExpr(recLiteralKeyValue.key.expr, this.env).tag
-                                    == TypeTags.STRING)) {
+                    if (isValidRecordLiteralKey(recLiteralKeyValue)) {
                         BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
                         if (fieldType.tag == TypeTags.NONE) {
                             dlog.error(recLiteralKeyValue.valueExpr.pos,
@@ -1456,6 +1452,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 expression.type = symTable.errorType;
                 return expression.type;
         }
+    }
+
+    private boolean isValidRecordLiteralKey(BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue) {
+        NodeKind kind = recLiteralKeyValue.key.expr.getKind();
+        return kind == NodeKind.SIMPLE_VARIABLE_REF ||
+                ((kind == NodeKind.LITERAL || kind == NodeKind.NUMERIC_LITERAL) &&
+                        typeChecker.checkExpr(recLiteralKeyValue.key.expr, this.env).tag == TypeTags.STRING);
     }
 
     public void visit(BLangMatchStructuredBindingPatternClause patternClause) {
