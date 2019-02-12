@@ -111,7 +111,7 @@ private function ClientObject.privateMethodDecl(string argOne, int argTwo) {
 }
 
 function ClientObject.defaultVisibiltyMethodDecl(string argOne, int argTwo) returns float {
-    self.defaultVisibilityFloatField += argTwo;
+    self.privateMethodDecl(argOne, argTwo);
     return self.defaultVisibilityFloatField;
 }
 
@@ -126,7 +126,7 @@ private remote function ClientObject.privateRemoteMethodDecl(string argOne, int 
 }
 
 remote function ClientObject.defaultVisibiltyRemoteMethodDecl(string argOne, int argTwo) {
-    self.defaultVisibilityFloatField += argTwo;
+    self->privateRemoteMethodDecl(argOne, argTwo);
 }
 
 @test:Config {}

@@ -37,27 +37,6 @@ import ballerina/test;
 //    }
 //};
 
-// Visibility of fields, object initializer and methods is specified uniformly: public means that
-// access is unrestricted; private means that access is restricted to the same object; if no
-// visibility is specified explicitly, then access is restricted to the same module.
-// TODO: Accessing private methods from inside the object type descriptor is not working.
-// https://github.com/ballerina-platform/ballerina-lang/issues/13186
-//type AccessingPrivateMethodsBroken object {
-//    private function privateMethod() returns string {
-//        return "Success";
-//    }
-//
-//    function defaultMethod() returns string {
-//        return self.privateMethod();
-//    }
-//};
-//
-//@test:Config {}
-//function testAccessingPrivateMethodsBroken() {
-//    AccessingPrivateMethodsBroken obj = new;
-//    test:assertEquals(obj.defaultMethod(), "Success", msg = "expected result by accessing private object method");
-//}
-
 // The return type of the __init method must be a subtype of the union of error and nil; if
 // __init returns an error, it means that initialization of the object failed. The __init method
 // can declare parameters in the same way as any other method.
