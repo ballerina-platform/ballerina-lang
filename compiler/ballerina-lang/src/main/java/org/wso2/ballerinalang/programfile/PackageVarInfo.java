@@ -35,14 +35,17 @@ public class PackageVarInfo implements AttributeInfoPool {
     public int signatureCPIndex;
     public int flags;
     public int globalMemIndex;
+    public boolean isIdentifierLiteral;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public PackageVarInfo(int nameCPIndex, int signatureCPIndex, int flags, int globalMemIndex) {
+    public PackageVarInfo(int nameCPIndex, int signatureCPIndex, int flags, int globalMemIndex,
+                          boolean isIdentifierLiteral) {
         this.nameCPIndex = nameCPIndex;
         this.signatureCPIndex = signatureCPIndex;
         this.flags = flags;
         this.globalMemIndex = globalMemIndex;
+        this.isIdentifierLiteral = isIdentifierLiteral;
     }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {

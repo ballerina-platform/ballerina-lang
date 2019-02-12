@@ -64,6 +64,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-encoding</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-file</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -197,6 +203,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-privacy</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -385,6 +397,7 @@
                                 ballerina-cache,
                                 ballerina-config-api,
                                 ballerina-crypto,
+                                ballerina-encoding,
                                 ballerina-file,
                                 ballerina-grpc,
                                 ballerina-h2,
@@ -408,6 +421,7 @@
                                 ballerina-time,
                                 ballerina-transactions,
                                 ballerina-websub,
+                                ballerina-privacy,
                                 ballerina-llvm,
                                 ballerina-bir,
                                 <!-- other artifacts -->
@@ -467,6 +481,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-crypto-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-encoding-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
@@ -582,6 +601,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-websub-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

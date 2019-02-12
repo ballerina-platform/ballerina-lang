@@ -94,7 +94,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  * @since 0.8.0
  */
 public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
-    
+
     private Calendar utcCalendar;
     private static final BTupleType executeUpdateWithKeysTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, new BArrayType(BTypes.typeString)));
@@ -953,7 +953,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
              List<ColumnDefinition> columnDefinitions, String databaseProductName) {
         return new BCursorTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
-                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName));
+                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName),
+                structType);
     }
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,

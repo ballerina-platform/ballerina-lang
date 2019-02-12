@@ -324,7 +324,7 @@ type Person object {
 
 };
 
-function Person.externalAttachedFP() returns (function (float) returns (string)) {
+public function Person.externalAttachedFP() returns (function (float) returns (string)) {
      int b = 4;
      var foo = function (float w) returns (string) {
         string d = w + "T" + b + self.year + self.name + self.age;

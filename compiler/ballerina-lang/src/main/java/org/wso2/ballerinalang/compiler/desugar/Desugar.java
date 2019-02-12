@@ -218,7 +218,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -361,22 +360,21 @@ public class Desugar extends BLangNodeVisitor {
      * @param env           Symbol environment
      */
     private void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
+        LinkedHashSet<BType> members = new LinkedHashSet<>();
+        members.add(symTable.errorType);
+        members.add(symTable.nilType);
+        final BUnionType returnType = new BUnionType(null, members, true);
+        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), returnType, null);
+
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
-                new Name(bLangFunction.name.value), env.enclPkg.packageID, bLangFunction.type, env.enclPkg.symbol,
-                true);
+                new Name(bLangFunction.name.value), env.enclPkg.packageID, invokableType, env.enclPkg.symbol, true);
         functionSymbol.retType = bLangFunction.returnTypeNode.type;
         // Add parameters
         for (BLangVariable param : bLangFunction.requiredParams) {
             functionSymbol.params.add(param.symbol);
         }
 
-        LinkedHashSet<BType> members = new LinkedHashSet<>();
-        members.add(symTable.errorType);
-        members.add(symTable.nilType);
-        final BUnionType returnType = new BUnionType(null, members, true);
-
         functionSymbol.scope = new Scope(functionSymbol);
-        functionSymbol.type = new BInvokableType(new ArrayList<>(), returnType, null);
         bLangFunction.symbol = functionSymbol;
     }
 
@@ -817,13 +815,13 @@ public class Desugar extends BLangNodeVisitor {
             // map<any> restParam = $map$0.filter($lambdaArg$0);
 
             DiagnosticPos pos = parentBlockStmt.pos;
-            BMapType anyConstrainedMapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+            BMapType restParamType = (BMapType) ((BLangVariable) parentRecordVariable.restParam).type;
             BLangVariableReference variableReference;
 
             if (parentIndexAccessExpr != null) {
-                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", anyConstrainedMapType,
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", restParamType,
                         null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
-                                anyConstrainedMapType, this.env.scope.owner));
+                                restParamType, this.env.scope.owner));
                 mapVariable.expr = parentIndexAccessExpr;
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
                 variableDef.var = mapVariable;
@@ -839,7 +837,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef restParamVarDef = ASTBuilderUtil.createVariableDefStmt(pos,
                     parentBlockStmt);
             restParamVarDef.var = restParam;
-            restParamVarDef.var.type = anyConstrainedMapType;
+            restParamVarDef.var.type = restParamType;
 
             // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
             BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVariable, pos);
@@ -861,10 +859,10 @@ public class Desugar extends BLangNodeVisitor {
             iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
             filterIterator.iContext = iterableContext;
 
-            iterableContext.resultType = anyConstrainedMapType;
+            iterableContext.resultType = restParamType;
             Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
             filterOperation.pos = pos;
-            filterOperation.collectionType = filterOperation.expectedType = anyConstrainedMapType;
+            filterOperation.collectionType = filterOperation.expectedType = restParamType;
             filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
             iterableContext.operations.add(filterOperation);
         }
@@ -1057,25 +1055,6 @@ public class Desugar extends BLangNodeVisitor {
 
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
-
-        // If this is an update of a type guarded variable, then generate code
-        // to update the original variable as well.
-        if (assignNode.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BLangSimpleVarRef varRef = (BLangSimpleVarRef) assignNode.varRef;
-            BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
-            if (varSymbol.originalSymbol != null) {
-                BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol);
-                guardedVarRef = addConversionExprIfRequired(guardedVarRef, varSymbol.originalSymbol.type);
-                BLangSimpleVarRef originalVarRef =
-                        ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol.originalSymbol);
-                BLangAssignment updateOriginalVar =
-                        ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef, guardedVarRef);
-                updateOriginalVar = rewrite(updateOriginalVar, env);
-                result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
-                return;
-            }
-        }
-
         result = assignNode;
     }
 
@@ -1294,13 +1273,13 @@ public class Desugar extends BLangNodeVisitor {
             // map<any> restParam = $map$0.filter($lambdaArg$0);
 
             DiagnosticPos pos = parentBlockStmt.pos;
-            BMapType anyConstrainedMapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+            BMapType restParamType = (BMapType) ((BLangSimpleVarRef) parentRecordVarRef.restParam).type;
             BLangVariableReference variableReference;
 
             if (parentIndexAccessExpr != null) {
-                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", anyConstrainedMapType,
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", restParamType,
                         null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
-                                anyConstrainedMapType, this.env.scope.owner));
+                                restParamType, this.env.scope.owner));
                 mapVariable.expr = parentIndexAccessExpr;
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
                 variableDef.var = mapVariable;
@@ -1315,7 +1294,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef restParam = (BLangSimpleVarRef) parentRecordVarRef.restParam;
             BLangAssignment restParamAssignment = ASTBuilderUtil.createAssignmentStmt(pos, parentBlockStmt);
             restParamAssignment.varRef = restParam;
-            restParamAssignment.varRef.type = anyConstrainedMapType;
+            restParamAssignment.varRef.type = restParamType;
 
             // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
             BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVarRef, pos);
@@ -1337,10 +1316,10 @@ public class Desugar extends BLangNodeVisitor {
             iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
             filterIterator.iContext = iterableContext;
 
-            iterableContext.resultType = anyConstrainedMapType;
+            iterableContext.resultType = restParamType;
             Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
             filterOperation.pos = pos;
-            filterOperation.collectionType = filterOperation.expectedType = anyConstrainedMapType;
+            filterOperation.collectionType = filterOperation.expectedType = restParamType;
             filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
             iterableContext.operations.add(filterOperation);
         }
@@ -1411,7 +1390,17 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangCompoundAssignment compoundAssignment) {
         BLangAssignment assignStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignStmt.pos = compoundAssignment.pos;
-        assignStmt.setVariable(rewriteExpr((BLangVariableReference) compoundAssignment.varRef));
+        BLangVariableReference varRef = compoundAssignment.varRef;
+
+        // Create a new varRef if this is a simpleVarRef. Because this can be a
+        // narrowed type var. In that case, lhs and rhs must be visited in two
+        // different manners.
+        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            varRef = ASTBuilderUtil.createVariableRef(compoundAssignment.varRef.pos, varRef.symbol);
+            varRef.lhsVar = true;
+        }
+
+        assignStmt.setVariable(rewriteExpr(varRef));
         assignStmt.expr = rewriteExpr(compoundAssignment.modifiedExpr);
         result = assignStmt;
     }
@@ -1425,13 +1414,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         ifNode.expr = rewriteExpr(ifNode.expr);
-
-        defineTypeGuards(ifNode.pos, ifNode.ifTypeGuards, ifNode.body);
         ifNode.body = rewrite(ifNode.body, env);
-
-        if (ifNode.elseStmt != null && ifNode.elseStmt.getKind() == NodeKind.BLOCK) {
-            defineTypeGuards(ifNode.pos, ifNode.elseTypeGuards, (BLangBlockStmt) ifNode.elseStmt);
-        }
         ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
         result = ifNode;
     }
@@ -1537,6 +1520,7 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol collectionSymbol = dataVariable.symbol;
         switch (foreach.collection.type.tag) {
             case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
             case TypeTags.XML:
             case TypeTags.MAP:
             case TypeTags.TABLE:
@@ -1872,6 +1856,14 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        // Restore the original symbol
+        if ((varRefExpr.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+            BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
+            if (varSymbol.originalSymbol != null) {
+                varRefExpr.symbol = varSymbol.originalSymbol;
+            }
+        }
+
         BSymbol ownerSymbol = varRefExpr.symbol.owner;
         if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
                 varRefExpr.symbol.type.tag == TypeTags.INVOKABLE) {
@@ -1907,7 +1899,18 @@ public class Desugar extends BLangNodeVisitor {
 
         genVarRefExpr.type = varRefExpr.type;
         genVarRefExpr.pos = varRefExpr.pos;
-        result = genVarRefExpr;
+
+        if (varRefExpr.lhsVar || !types.isValueType(genVarRefExpr.type)) {
+            result = genVarRefExpr;
+            return;
+        }
+
+        // If the the variable is not used in lhs, and if the current type
+        // is a value type, then add a conversion if required. This is done
+        // to unbox a narrowed type.
+        BType targetType = genVarRefExpr.type;
+        genVarRefExpr.type = genVarRefExpr.symbol.type;
+        result = addConversionExprIfRequired(genVarRefExpr, targetType);
     }
 
     @Override
@@ -1924,12 +1927,10 @@ public class Desugar extends BLangNodeVisitor {
         if (varRefType.tag == TypeTags.OBJECT) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE &&
                     ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
-                targetVarRef = new BLangStructFunctionVarRef((BLangVariableReference) fieldAccessExpr.expr,
-                        (BVarSymbol) fieldAccessExpr.symbol);
+                targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
             } else {
-                targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
-                        (BLangVariableReference) fieldAccessExpr.expr, stringLit, (BVarSymbol) fieldAccessExpr.symbol,
-                        false);
+                targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                        (BVarSymbol) fieldAccessExpr.symbol, false);
 
                 // expr symbol is null when their is a array as the field
                 if (!enclLocks.isEmpty() && (((BLangVariableReference) fieldAccessExpr.expr).symbol != null)) {
@@ -1942,9 +1943,8 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFunctionVarRef(((BLangVariableReference) fieldAccessExpr.expr),
                         (BVarSymbol) fieldAccessExpr.symbol);
             } else {
-                targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
-                        (BLangVariableReference) fieldAccessExpr.expr, stringLit, (BVarSymbol) fieldAccessExpr.symbol,
-                        true);
+                targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                        (BVarSymbol) fieldAccessExpr.symbol, true);
 
                 // expr symbol is null when their is a array as the field
                 if (!enclLocks.isEmpty() && (((BLangVariableReference) fieldAccessExpr.expr).symbol != null)) {
@@ -1952,13 +1952,13 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
         } else if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, (BLangVariableReference) fieldAccessExpr.expr,
+            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
                     stringLit);
         } else if (varRefType.tag == TypeTags.JSON) {
-            targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, (BLangVariableReference) fieldAccessExpr.expr,
+            targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
                     stringLit);
         } else if (varRefType.tag == TypeTags.XML) {
-            targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, (BLangVariableReference) fieldAccessExpr.expr,
+            targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
                     stringLit, fieldAccessExpr.fieldKind);
         }
 
@@ -1983,19 +1983,19 @@ public class Desugar extends BLangNodeVisitor {
                     (BLangVariableReference) indexAccessExpr.expr, indexAccessExpr.indexExpr,
                     (BVarSymbol) indexAccessExpr.symbol, false);
         } else if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, (BLangVariableReference) indexAccessExpr.expr,
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr, !indexAccessExpr.type.isNullable());
         } else if (varRefType.tag == TypeTags.JSON || getElementType(varRefType).tag == TypeTags.JSON) {
-            targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, (BLangVariableReference) indexAccessExpr.expr,
+            targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.ARRAY) {
-            targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, (BLangVariableReference) indexAccessExpr.expr,
+            targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.XML) {
-            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, (BLangVariableReference) indexAccessExpr.expr,
+            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.TUPLE) {
-            targetVarRef = new BLangTupleAccessExpr(indexAccessExpr.pos, (BLangVariableReference) indexAccessExpr.expr,
+            targetVarRef = new BLangTupleAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }
 
@@ -2036,7 +2036,7 @@ public class Desugar extends BLangNodeVisitor {
             if (iExpr.exprSymbol == null) {
                 return;
             }
-            iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, (BVarSymbol) iExpr.exprSymbol);
+            iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, iExpr.exprSymbol);
             iExpr.expr = rewriteExpr(iExpr.expr);
         }
 
@@ -2084,40 +2084,9 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         ternaryExpr.expr = rewriteExpr(ternaryExpr.expr);
-
-        for (Entry<BVarSymbol, BVarSymbol> typeGuard : ternaryExpr.ifTypeGuards.entrySet()) {
-            BLangStatementExpression stmtExpr = getStmtExpression(ternaryExpr.thenExpr, typeGuard);
-            stmtExpr.type = ternaryExpr.thenExpr.type;
-            ternaryExpr.thenExpr = stmtExpr;
-        }
-
-        for (Entry<BVarSymbol, BVarSymbol> typeGuard : ternaryExpr.elseTypeGuards.entrySet()) {
-            BLangStatementExpression stmtExpr = getStmtExpression(ternaryExpr.elseExpr, typeGuard);
-            stmtExpr.type = ternaryExpr.elseExpr.type;
-            ternaryExpr.elseExpr = stmtExpr;
-        }
-
         ternaryExpr.thenExpr = rewriteExpr(ternaryExpr.thenExpr);
         ternaryExpr.elseExpr = rewriteExpr(ternaryExpr.elseExpr);
         result = ternaryExpr;
-    }
-
-    private BLangStatementExpression getStmtExpression(BLangExpression expr,
-                                                       Entry<BVarSymbol, BVarSymbol> typeGuard) {
-        BVarSymbol guardedSymbol = typeGuard.getValue();
-
-        // Create a varRef to the original variable
-        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(expr.pos, typeGuard.getKey());
-
-        // Create a variable definition
-        BLangExpression conversionExpr = addConversionExprIfRequired(varRef, guardedSymbol.type);
-        BLangSimpleVariable var = ASTBuilderUtil.createVariable(expr.pos, guardedSymbol.name.value,
-                guardedSymbol.type, conversionExpr, guardedSymbol);
-        BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(expr.pos, var);
-
-        // Create a block expression expression with the var def and the existing expression
-        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(varDef, expr);
-        return stmtExpr;
     }
 
     @Override
@@ -2465,7 +2434,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr = rewriteExpr(workerSendNode.expr);
+        List<BLangExpression> list = Lists.of(rewriteExpr(workerSendNode.expr));
+        workerSendNode.expr = appendCloneMethod(workerSendNode.expr.pos, list);
         if (workerSendNode.keyExpr != null) {
             workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
         }
@@ -2474,7 +2444,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        syncSendExpr.expr = rewriteExpr(syncSendExpr.expr);
+        List<BLangExpression> list = Lists.of(rewriteExpr(syncSendExpr.expr));
+        syncSendExpr.expr = appendCloneMethod(syncSendExpr.expr.pos, list);
         result = syncSendExpr;
     }
 
@@ -2860,19 +2831,6 @@ public class Desugar extends BLangNodeVisitor {
         ifStatement.type = symTable.booleanType;
         ifStatement.expr = typeTestExpressionNode;
         ifStatement.body = ifStatementBody;
-
-        BVarSymbol resultSymbolInIf = new BVarSymbol(0, names.fromString("$result$"), this.env.scope.owner.pkgID,
-                symTable.nilType, this.env.scope.owner);
-        Map<BVarSymbol, BVarSymbol> ifTypeGuards = new HashMap<>();
-        ifTypeGuards.put(resultSymbol, resultSymbolInIf);
-
-        BVarSymbol resultSymbolInElse = new BVarSymbol(0, names.fromString("$result$"), this.env.scope.owner.pkgID,
-                foreach.resultType, this.env.scope.owner);
-        Map<BVarSymbol, BVarSymbol> elseTypeGuards = new HashMap<>();
-        elseTypeGuards.put(resultSymbol, resultSymbolInElse);
-
-        ifStatement.ifTypeGuards = ifTypeGuards;
-        ifStatement.elseTypeGuards = elseTypeGuards;
         return ifStatement;
     }
 
@@ -3033,72 +2991,134 @@ public class Desugar extends BLangNodeVisitor {
     private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
         switch (iExpr.builtInMethod) {
             case IS_NAN:
-                BOperatorSymbol notEqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                        OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
-                BLangBinaryExpr binaryExprNaN = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
-                                                                             symTable.booleanType,
-                                                                             OperatorKind.NOT_EQUAL, notEqSymbol);
-                result = rewriteExpr(binaryExprNaN);
+                if (iExpr.expr.type.tag == TypeTags.FLOAT) {
+                    BOperatorSymbol notEqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
+                    BLangBinaryExpr binaryExprNaN = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.NOT_EQUAL,
+                                                                                    notEqSymbol);
+                    result = rewriteExpr(binaryExprNaN);
+                } else {
+                    BOperatorSymbol greaterEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.GREATER_EQUAL, symTable.decimalType, symTable.decimalType);
+                    BOperatorSymbol lessThanSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.LESS_THAN, symTable.decimalType, symTable.decimalType);
+                    BOperatorSymbol orSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.OR, symTable.booleanType, symTable.booleanType);
+                    BOperatorSymbol notSymbol = (BOperatorSymbol) symResolver.resolveUnaryOperator(
+                            iExpr.pos, OperatorKind.NOT, symTable.booleanType);
+                    BLangLiteral literalZero = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.decimalType, "0");
+                    // v >= 0
+                    BLangBinaryExpr binaryExprLHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, literalZero,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.GREATER_EQUAL,
+                                                                                    greaterEqualSymbol);
+                    // v < 0
+                    BLangBinaryExpr binaryExprRHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, literalZero,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.LESS_THAN,
+                                                                                    lessThanSymbol);
+                    // v >= 0 || v < 0
+                    BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprLHS,
+                                                                                    binaryExprRHS,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.OR, orSymbol);
+                    // Final expression: !(v >= 0 || v < 0)
+                    BLangUnaryExpr finalExprNaN = ASTBuilderUtil.createUnaryExpr(iExpr.pos, binaryExpr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.NOT, notSymbol);
+                    result = rewriteExpr(finalExprNaN);
+                }
                 break;
             case IS_FINITE:
-                BOperatorSymbol equalSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
-                                                                                                  symTable.floatType,
-                                                                                                  symTable.floatType);
-                BOperatorSymbol notEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                        OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
-                BOperatorSymbol andEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                        OperatorKind.AND, symTable.booleanType, symTable.booleanType);
-                // v==v
-                BLangBinaryExpr binaryExprLHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.EQUAL, equalSymbol);
-                // v != positive_infinity
-                BLangLiteral posInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                          Double.POSITIVE_INFINITY);
-                BLangBinaryExpr nestedLHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, posInfLiteral, iExpr.expr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.NOT_EQUAL, notEqualSymbol);
+                if (iExpr.expr.type.tag == TypeTags.FLOAT) {
+                    BOperatorSymbol equalSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.EQUAL, symTable.floatType, symTable.floatType);
+                    BOperatorSymbol notEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
+                    BOperatorSymbol andEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.AND, symTable.booleanType, symTable.booleanType);
+                    // v==v
+                    BLangBinaryExpr binaryExprLHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, equalSymbol);
+                    // v != positive_infinity
+                    BLangLiteral posInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                                    Double.POSITIVE_INFINITY);
+                    BLangBinaryExpr nestedLHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, posInfLiteral,
+                                                                                    iExpr.expr, symTable.booleanType,
+                                                                                    OperatorKind.NOT_EQUAL,
+                                                                                    notEqualSymbol);
 
-                // v != negative_infinity
-                BLangLiteral negInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                          Double.NEGATIVE_INFINITY);
-                BLangBinaryExpr nestedRHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, negInfLiteral, iExpr.expr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.NOT_EQUAL, notEqualSymbol);
-                // v != positive_infinity && v != negative_infinity
-                BLangBinaryExpr binaryExprRHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, nestedLHSExpr, nestedRHSExpr,
-                                                                                symTable.booleanType, OperatorKind.AND,
-                                                                                andEqualSymbol);
-                // Final expression : v==v && v != positive_infinity && v != negative_infinity
-                BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprLHS, binaryExprRHS,
-                                                                             symTable.booleanType, OperatorKind.AND,
-                                                                             andEqualSymbol);
-                result = rewriteExpr(binaryExpr);
+                    // v != negative_infinity
+                    BLangLiteral negInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                                    Double.NEGATIVE_INFINITY);
+                    BLangBinaryExpr nestedRHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, negInfLiteral,
+                                                                                    iExpr.expr, symTable.booleanType,
+                                                                                    OperatorKind.NOT_EQUAL,
+                                                                                    notEqualSymbol);
+                    // v != positive_infinity && v != negative_infinity
+                    BLangBinaryExpr binaryExprRHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, nestedLHSExpr,
+                                                                                    nestedRHSExpr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.AND, andEqualSymbol);
+                    // Final expression : v==v && v != positive_infinity && v != negative_infinity
+                    BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprLHS,
+                                                                                    binaryExprRHS, symTable.booleanType,
+                                                                                    OperatorKind.AND, andEqualSymbol);
+                    result = rewriteExpr(binaryExpr);
+                } else {
+                    BOperatorSymbol isEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.EQUAL, symTable.decimalType, symTable.decimalType);
+                    // v == v
+                    BLangBinaryExpr finalExprFinite = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, isEqualSymbol);
+                    result = rewriteExpr(finalExprFinite);
+                }
                 break;
             case IS_INFINITE:
-                BOperatorSymbol eqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
-                                                                                                  symTable.floatType,
-                                                                                                  symTable.floatType);
-                BOperatorSymbol orSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR,
-                                                                                               symTable.booleanType,
-                                                                                               symTable.booleanType);
-                // v == positive_infinity
-                BLangLiteral posInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                          Double.POSITIVE_INFINITY);
-                BLangBinaryExpr binaryExprPosInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, posInflitExpr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.EQUAL, eqSymbol);
-                // v == negative_infinity
-                BLangLiteral negInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                          Double.NEGATIVE_INFINITY);
-                BLangBinaryExpr binaryExprNegInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, negInflitExpr,
-                                                                                symTable.booleanType,
-                                                                                OperatorKind.EQUAL, eqSymbol);
-                // v == positive_infinity || v == negative_infinity
-                BLangBinaryExpr binaryExprInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprPosInf,
-                                                                                binaryExprNegInf, symTable.booleanType,
-                                                                                OperatorKind.OR, orSymbol);
-                result = rewriteExpr(binaryExprInf);
+                if (iExpr.expr.type.tag == TypeTags.FLOAT) {
+                    BOperatorSymbol eqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.EQUAL, symTable.floatType, symTable.floatType);
+                    BOperatorSymbol orSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.OR, symTable.booleanType, symTable.booleanType);
+                    // v == positive_infinity
+                    BLangLiteral posInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                                    Double.POSITIVE_INFINITY);
+                    BLangBinaryExpr binaryExprPosInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr,
+                                                                                    posInflitExpr, symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, eqSymbol);
+                    // v == negative_infinity
+                    BLangLiteral negInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                                    Double.NEGATIVE_INFINITY);
+                    BLangBinaryExpr binaryExprNegInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr,
+                                                                                    negInflitExpr, symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, eqSymbol);
+                    // v == positive_infinity || v == negative_infinity
+                    BLangBinaryExpr binaryExprInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprPosInf,
+                                                                                    binaryExprNegInf,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.OR, orSymbol);
+                    result = rewriteExpr(binaryExprInf);
+                } else {
+                    BLangLiteral literalZero = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.decimalType, "0");
+                    BLangLiteral literalOne = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.decimalType, "1");
+                    BOperatorSymbol isEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.EQUAL, symTable.decimalType, symTable.decimalType);
+                    BOperatorSymbol divideSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                            OperatorKind.DIV, symTable.decimalType, symTable.decimalType);
+                    // 1/v
+                    BLangBinaryExpr divideExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, literalOne, iExpr.expr,
+                                                                                    symTable.decimalType,
+                                                                                    OperatorKind.DIV, divideSymbol);
+                    // Final expression: 1/v == 0
+                    BLangBinaryExpr finalExprInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, divideExpr, literalZero,
+                                                                                    symTable.booleanType,
+                                                                                    OperatorKind.EQUAL, isEqualSymbol);
+                    result = rewriteExpr(finalExprInf);
+                }
                 break;
             case CLONE:
                 if (types.isValueType(iExpr.expr.type)) {
@@ -3115,7 +3135,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (iExpr.symbol.kind == SymbolKind.CAST_OPERATOR) {
                     BCastOperatorSymbol symbol = (BCastOperatorSymbol) iExpr.symbol;
                     BInvokableType type = (BInvokableType) symbol.type;
-                    result = createTypeCastExpr(visitConvertCloneMethod(iExpr.pos, iExpr.requiredArgs),
+                    result = createTypeCastExpr(appendCloneMethod(iExpr.pos, iExpr.requiredArgs),
                                                 type.paramTypes.get(1), symbol);
                 } else if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
                     result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
@@ -3149,6 +3169,7 @@ public class Desugar extends BLangNodeVisitor {
     private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {
         Name funcPointerName = ((BLangVariableReference) iExpr.expr).symbol.name;
         if (iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            iExpr.symbol = ((BLangVariableReference) iExpr.expr).symbol;
             iExpr.expr = null;
         } else {
             iExpr.expr = ((BLangAccessExpression) iExpr.expr).expr;
@@ -3299,7 +3320,7 @@ public class Desugar extends BLangNodeVisitor {
 
     }
 
-    private BLangExpression visitConvertCloneMethod(DiagnosticPos pos, List<BLangExpression> requiredArgs) {
+    private BLangExpression appendCloneMethod(DiagnosticPos pos, List<BLangExpression> requiredArgs) {
         BLangExpression sourceExpression = requiredArgs.get(0);
         if (types.isValueType(sourceExpression.type)) {
             return sourceExpression;
@@ -3509,9 +3530,6 @@ public class Desugar extends BLangNodeVisitor {
      * @return if else statement node
      */
     private BLangIf generateIfElseStmt(BLangMatchBindingPatternClause pattern, BLangSimpleVariable matchExprVar) {
-
-        Map<BVarSymbol, BVarSymbol> typeGuards = new HashMap<>();
-
         BLangExpression ifCondition = createPatternIfCondition(pattern, matchExprVar.symbol);
         if (NodeKind.MATCH_TYPED_PATTERN_CLAUSE == pattern.getKind()) {
             BLangBlockStmt patternBody = getMatchPatternBody(pattern, matchExprVar);
@@ -3540,7 +3558,6 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             if (structuredPattern.typeGuardExpr != null) {
-
                 BLangStatementExpression stmtExpr = ASTBuilderUtil
                         .createStatementExpression(varDefStmt, structuredPattern.typeGuardExpr);
                 stmtExpr.type = symTable.booleanType;
@@ -3550,16 +3567,12 @@ public class Desugar extends BLangNodeVisitor {
                                 (BOperatorSymbol) symResolver
                                         .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType,
                                                 symTable.booleanType));
-
-                typeGuards = structuredPattern.typeGuards;
-
             } else {
                 structuredPattern.body.stmts.add(0, varDefStmt);
             }
         }
 
         BLangIf ifNode = ASTBuilderUtil.createIfElseStmt(pattern.pos, ifCondition, pattern.body, null);
-        ifNode.ifTypeGuards = typeGuards;
         return ifNode;
     }
 
@@ -4165,7 +4178,7 @@ public class Desugar extends BLangNodeVisitor {
             return false;
         }
 
-        BLangVariableReference varRef = (BLangVariableReference) ((BLangAccessExpression) expr).expr;
+        BLangExpression varRef = ((BLangAccessExpression) expr).expr;
         if (varRef.type.isNullable()) {
             return true;
         }
@@ -4180,7 +4193,7 @@ public class Desugar extends BLangNodeVisitor {
         return blockStmt;
     }
 
-    private List<BLangStatement> createLHSSafeNavigation(BLangVariableReference expr, BType type,
+    private List<BLangStatement> createLHSSafeNavigation(BLangExpression expr, BType type,
                                                          BLangExpression rhsExpr, boolean safeAssignment) {
         List<BLangStatement> stmts = new ArrayList<>();
         NodeKind kind = expr.getKind();
@@ -4190,8 +4203,7 @@ public class Desugar extends BLangNodeVisitor {
             if (accessExpr.expr != null) {
                 this.accessExprStack.push(accessExpr);
                 // If the parent of current expr is the root, terminate
-                stmts.addAll(createLHSSafeNavigation((BLangVariableReference) accessExpr.expr, type, rhsExpr,
-                        safeAssignment));
+                stmts.addAll(createLHSSafeNavigation(accessExpr.expr, type, rhsExpr, safeAssignment));
 
                 this.accessExprStack.pop();
             }
@@ -4220,7 +4232,7 @@ public class Desugar extends BLangNodeVisitor {
         return stmts;
     }
 
-    private BLangIf getSafeNaviDefaultInitStmt(BLangVariableReference accessExpr) {
+    private BLangIf getSafeNaviDefaultInitStmt(BLangExpression accessExpr) {
         // Create if-condition. eg:
         // if (a.b == () )
         BLangVariableReference accessExprForNullCheck = cloneExpression(accessExpr);
@@ -4242,10 +4254,10 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createIfElseStmt(accessExpr.pos, ifCondition, ifBody, null);
     }
 
-    private BLangVariableReference cloneExpression(BLangVariableReference expr) {
+    private BLangVariableReference cloneExpression(BLangExpression expr) {
         switch (expr.getKind()) {
             case SIMPLE_VARIABLE_REF:
-                return ASTBuilderUtil.createVariableRef(expr.pos, (BVarSymbol) ((BLangSimpleVarRef) expr).symbol);
+                return ASTBuilderUtil.createVariableRef(expr.pos, ((BLangSimpleVarRef) expr).symbol);
             case FIELD_BASED_ACCESS_EXPR:
             case INDEX_BASED_ACCESS_EXPR:
             case INVOCATION:
@@ -4470,23 +4482,6 @@ public class Desugar extends BLangNodeVisitor {
         objectSymbol.attachedFuncs.add(objectSymbol.initializerFunc);
         objectTypeNode.initFunction = initFunction;
         return initFunction;
-    }
-
-    private void defineTypeGuards(DiagnosticPos pos, Map<BVarSymbol, BVarSymbol> typeGuards, BLangBlockStmt target) {
-        for (Entry<BVarSymbol, BVarSymbol> typeGuard : typeGuards.entrySet()) {
-            BVarSymbol guardedSymbol = typeGuard.getValue();
-
-            // Create a varRef to the original variable
-            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, typeGuard.getKey());
-
-            // Create a variable definition and add it to the beginning of the if-body
-            // i.e: T x = <T> y
-            BLangExpression conversionExpr = addConversionExprIfRequired(varRef, guardedSymbol.type);
-            BLangSimpleVariable var = ASTBuilderUtil
-                    .createVariable(pos, guardedSymbol.name.value, guardedSymbol.type, conversionExpr, guardedSymbol);
-            BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos, var);
-            target.stmts.add(0, varDef);
-        }
     }
 
     private BLangExpression getInitExpr(BType type, BLangTypeInit typeInitExpr) {

@@ -26,7 +26,6 @@ import org.apache.axiom.om.OMText;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.TableJSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;
@@ -245,24 +244,10 @@ public class JSONUtils {
         }
 
         BMap<String, BValue> json = new BMap<>(targetType);
-        if (targetType.getConstrainedType() == null) {
-            for (Entry<String, BValue> structField : map.getMap().entrySet()) {
-                String key = structField.getKey();
-                BValue value = structField.getValue();
-                populateJSON(json, key, value, BTypes.typeJSON);
-            }
-        } else {
-            if (!BVM.checkCast(map, targetType.getConstrainedType())) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                        targetType, map.getType());
-            }
-
-            for (Entry<String, BField> fieldEntry :
-                    ((BStructureType) targetType.getConstrainedType()).getFields().entrySet()) {
-                String key = fieldEntry.getKey();
-                BValue value = map.get(key);
-                populateJSON(json, key, value, fieldEntry.getValue().fieldType);
-            }
+        for (Entry<String, BValue> structField : map.getMap().entrySet()) {
+            String key = structField.getKey();
+            BValue value = structField.getValue();
+            populateJSON(json, key, value, BTypes.typeJSON);
         }
         return json;
     }

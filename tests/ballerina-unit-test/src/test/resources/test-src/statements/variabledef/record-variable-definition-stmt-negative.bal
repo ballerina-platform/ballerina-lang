@@ -67,13 +67,13 @@ Person gPerson = {name: "Peter", married: true, extra: "extra"};
 type ClosedFoo record {
     int a;
     ClosedBar b;
-    !...
+    !...;
 };
 
 type ClosedBar record {
     float a;
     string b;
-    !...
+    !...;
 };
 
 function testClosedBindingPattern() {
@@ -127,14 +127,14 @@ type UnionRec1 record {
     string var1;
     string var2;
     string var3?;
-    int...
+    int...;
 };
 
 type UnionRec2 record {
     boolean var1;
     boolean var2;
     boolean var3;
-    float...
+    float...;
 };
 
 function testUnionRecordVariable() returns (string|boolean, string|boolean, string|boolean, int|float) { // incompatible types

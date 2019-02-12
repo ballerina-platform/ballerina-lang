@@ -20,15 +20,14 @@ listener http:Listener helloWorldEP = new(9095, config = helloWorldEPConfig);
     basePath: "/hello"
 }
 service helloWorld on helloWorldEP {
+
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-
     resource function sayHello(http:Caller caller, http:Request req) {
         // Send the response back to the caller.
         var result = caller->respond("Hello World!");
-
         if (result is error) {
             log:printError("Error in responding ", err = result);
         }

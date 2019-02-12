@@ -23,7 +23,7 @@ type Person record {
 type Employee record {
     string name;
     boolean intern;
-    !...
+    !...;
 };
 
 Person person1 = { name: "John" };

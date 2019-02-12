@@ -43,6 +43,6 @@ public function privatePersonAsParamAndReturn(PrivatePerson p) returns (PrivateP
     return p;
 }
 
-function PrivatePerson.getPrivatePersonName() returns (string) {
+public function PrivatePerson.getPrivatePersonName() returns (string) {
     return self.name;
 }

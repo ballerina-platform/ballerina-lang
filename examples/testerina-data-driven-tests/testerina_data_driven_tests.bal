@@ -20,7 +20,7 @@ function testAddingValues(string fValue, string sValue, string result) {
     test:assertEquals(value1 + value2, result1, msg = "Incorrect Sum");
 }
 
-// The data provider function that returns a string value-set.
+// The data provider function that returns a `string` value-set.
 function stringDataProvider() returns (string[][]) {
     return [["1", "2", "3"], ["10", "20", "30"], ["5", "6", "11"]];
 }

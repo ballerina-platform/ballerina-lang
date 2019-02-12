@@ -19,6 +19,7 @@ package org.ballerinalang.database.table;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.DataIterator;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BTable;
@@ -35,8 +36,8 @@ import java.util.Map;
  */
 public class BCursorTable extends BTable {
 
-    public BCursorTable(DataIterator dataIterator) {
-        super();
+    public BCursorTable(DataIterator dataIterator, BStructureType constraintType) {
+        super(constraintType);
         this.iterator = dataIterator;
     }
 

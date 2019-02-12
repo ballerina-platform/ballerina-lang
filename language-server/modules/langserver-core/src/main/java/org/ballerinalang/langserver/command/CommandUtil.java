@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
@@ -41,12 +42,14 @@ import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -85,8 +88,9 @@ public class CommandUtil {
      * @param line             Node line
      * @return {@link List}    List of commands for the line
      */
-    public static List<Command> getCommandForNodeType(String topLevelNodeType, String docUri, int line) {
-        List<Command> commands = new ArrayList<>();
+    public static List<Either<Command, CodeAction>> getCommandForNodeType(String topLevelNodeType, String docUri,
+                                                                          int line) {
+        List<Either<Command, CodeAction>> commands = new ArrayList<>();
         if (UtilSymbolKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
             commands.add(getInitializerGenerationCommand(docUri, line));
         }
@@ -105,12 +109,12 @@ public class CommandUtil {
      * @param lsCompiler       LS Compiler
      * @return {@link Command}  Test Generation command
      */
-    public static List<Command> getTestGenerationCommand(String topLevelNodeType, String docUri,
+    public static List<Either<Command, CodeAction>> getTestGenerationCommand(String topLevelNodeType, String docUri,
                                                          CodeActionParams params,
                                                          WorkspaceDocumentManager documentManager,
                                                          LSCompiler lsCompiler) {
         LSServiceOperationContext context = new LSServiceOperationContext();
-        List<Command> commands = new ArrayList<>();
+        List<Either<Command, CodeAction>> commands = new ArrayList<>();
         List<Object> args = new ArrayList<>();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
         Position position = params.getRange().getStart();
@@ -124,10 +128,11 @@ public class CommandUtil {
         }
 
         if (isService) {
-            commands.add(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
-                                     CommandConstants.CMD_CREATE_TEST, args));
+            commands.add(Either.forLeft(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
+                    CommandConstants.CMD_CREATE_TEST, args)));
         } else if (isFunction) {
-            commands.add(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE, CommandConstants.CMD_CREATE_TEST, args));
+            commands.add(Either.forLeft(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE,
+                    CommandConstants.CMD_CREATE_TEST, args)));
         }
         return commands;
     }
@@ -147,9 +152,10 @@ public class CommandUtil {
      * @param params     Code Action parameters
      * @return {@link List}     List of commands related to the given diagnostic
      */
-    public static List<Command> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params) {
+    public static List<Either<Command, CodeAction>> getCommandsByDiagnostic(Diagnostic diagnostic,
+                                                                            CodeActionParams params) {
         String diagnosticMessage = diagnostic.getMessage();
-        List<Command> commands = new ArrayList<>();
+        List<Either<Command, CodeAction>> commands = new ArrayList<>();
         Position position = params.getRange().getStart();
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE,
                                                       "" + position.getLine());
@@ -177,8 +183,8 @@ public class CommandUtil {
                                 + pkgEntry.getFullPackageNameAlias();
                         CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME,
                                                                           pkgEntry.getFullPackageNameAlias());
-                        commands.add(new Command(commandTitle, CommandConstants.CMD_IMPORT_MODULE,
-                                                 new ArrayList<>(Arrays.asList(pkgArgument, uriArg))));
+                        commands.add(Either.forLeft(new Command(commandTitle, CommandConstants.CMD_IMPORT_MODULE,
+                                                 new ArrayList<>(Arrays.asList(pkgArgument, uriArg)))));
                     });
         } else if (isUndefinedFunction(diagnosticMessage)) {
             List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
@@ -188,11 +194,11 @@ public class CommandUtil {
                 functionName = matcher.group(1) + "(...)";
             }
             String commandTitle = CommandConstants.CREATE_FUNCTION_TITLE + functionName;
-            commands.add(new Command(commandTitle, CommandConstants.CMD_CREATE_FUNCTION, args));
+            commands.add(Either.forLeft(new Command(commandTitle, CommandConstants.CMD_CREATE_FUNCTION, args)));
         } else if (isVariableAssignmentRequired(diagnosticMessage)) {
             List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
-            commands.add(new Command(commandTitle, CommandConstants.CMD_CREATE_VARIABLE, args));
+            commands.add(Either.forLeft(new Command(commandTitle, CommandConstants.CMD_CREATE_VARIABLE, args)));
         } else if (isUnresolvedPackage(diagnosticMessage)) {
             Matcher matcher = CommandConstants.UNRESOLVED_MODULE_PATTERN.matcher(
                     diagnosticMessage.toLowerCase(Locale.ROOT)
@@ -203,7 +209,7 @@ public class CommandUtil {
                 args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName));
                 args.add(uriArg);
                 String commandTitle = CommandConstants.PULL_MOD_TITLE;
-                commands.add(new Command(commandTitle, CommandConstants.CMD_PULL_MODULE, args));
+                commands.add(Either.forLeft(new Command(commandTitle, CommandConstants.CMD_PULL_MODULE, args)));
             }
         }
         return commands;
@@ -269,12 +275,13 @@ public class CommandUtil {
     public static ApplyWorkspaceEditParams applySingleTextEdit(String editText, Range range,
                                                                VersionedTextDocumentIdentifier identifier,
                                                                LanguageClient client) {
-        WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+
         ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
         TextEdit textEdit = new TextEdit(range, editText);
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(identifier,
                                                                  Collections.singletonList(textEdit));
-        workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+        Either<TextDocumentEdit, ResourceOperation> documentChange = Either.forLeft(textDocumentEdit);
+        WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(documentChange));
         applyWorkspaceEditParams.setEdit(workspaceEdit);
         if (client != null) {
             client.applyEdit(applyWorkspaceEditParams);
@@ -285,13 +292,13 @@ public class CommandUtil {
     /**
      * Apply a workspace edit for the current instance.
      *
-     * @param textDocumentEdits List of document edits for current session
+     * @param documentChanges   List of either document edits or set of resource changes for current session
      * @param client            Language Client
-     * @return {@link Object}       workspace edit parameters
+     * @return {@link Object}   workspace edit parameters
      */
-    public static Object applyWorkspaceEdit(List<TextDocumentEdit> textDocumentEdits, LanguageClient client) {
-        WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-        workspaceEdit.setDocumentChanges(textDocumentEdits);
+    public static Object applyWorkspaceEdit(List<Either<TextDocumentEdit, ResourceOperation>> documentChanges,
+                                            LanguageClient client) {
+        WorkspaceEdit workspaceEdit = new WorkspaceEdit(documentChanges);
         ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams(workspaceEdit);
         if (client != null) {
             client.applyEdit(applyWorkspaceEditParams);
@@ -352,40 +359,28 @@ public class CommandUtil {
         return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNRESOLVED_MODULE);
     }
 
-    /**
-     * Get the command for auto documentation Generation.
-     *
-     * @param nodeType Type of the node on which the documentation generated
-     * @param docUri   Document Uri
-     * @param line     Line of the command being executed
-     * @return {@link Command}  Document Generation command
-     */
-    private static Command getDocGenerationCommand(String nodeType, String docUri, int line) {
+    private static Either<Command, CodeAction> getDocGenerationCommand(String nodeType, String docUri, int line) {
         CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType);
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
+        List<Object> args = new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart));
 
-        return new Command(CommandConstants.ADD_DOCUMENTATION_TITLE, CommandConstants.CMD_ADD_DOCUMENTATION,
-                new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart)));
+        return Either.forLeft(new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
+                CommandConstants.CMD_ADD_DOCUMENTATION, args));
     }
 
-    /**
-     * Get the command for generate all documentation.
-     *
-     * @param docUri Document Uri
-     * @return {@link Command}  All Document Generation command
-     */
-    private static Command getAllDocGenerationCommand(String docUri) {
+    private static Either<Command, CodeAction> getAllDocGenerationCommand(String docUri) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
-        return new Command(CommandConstants.ADD_ALL_DOC_TITLE, CommandConstants.CMD_ADD_ALL_DOC,
-                new ArrayList<>(Collections.singletonList(docUriArg)));
+        List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));
+        return Either.forLeft(new Command(CommandConstants.ADD_ALL_DOC_TITLE, CommandConstants.CMD_ADD_ALL_DOC, args));
     }
 
-    private static Command getInitializerGenerationCommand(String docUri, int line) {
+    private static Either<Command, CodeAction> getInitializerGenerationCommand(String docUri, int line) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument startLineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
-        return new Command(CommandConstants.CREATE_INITIALIZER_TITLE, CommandConstants.CMD_CREATE_INITIALIZER,
-                           new ArrayList<>(Arrays.asList(docUriArg, startLineArg)));
+        List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, startLineArg));
+        return Either.forLeft(new Command(CommandConstants.CREATE_INITIALIZER_TITLE,
+                CommandConstants.CMD_CREATE_INITIALIZER, args));
     }
 
     /**
@@ -396,7 +391,7 @@ public class CommandUtil {
 
         private String argumentV;
 
-        CommandArgument(String argumentK, String argumentV) {
+        public CommandArgument(String argumentK, String argumentV) {
             this.argumentK = argumentK;
             this.argumentV = argumentV;
         }

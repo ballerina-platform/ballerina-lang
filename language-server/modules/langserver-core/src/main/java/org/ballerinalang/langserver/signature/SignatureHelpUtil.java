@@ -18,13 +18,17 @@ package org.ballerinalang.langserver.signature;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
+import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
+import org.eclipse.lsp4j.SignatureInformationCapabilities;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -36,7 +40,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -125,9 +128,10 @@ public class SignatureHelpUtil {
         functions.removeIf(symbolInfo -> !CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol));
         List<SignatureInformation> signatureInformationList = functions
                 .stream()
-                .map(symbolInfo
-                        -> getSignatureInformation((BInvokableSymbol) symbolInfo.getScopeEntry().symbol, funcName))
-                .filter(Objects::nonNull)
+                .map(symbolInfo -> getSignatureInformation((BInvokableSymbol) symbolInfo.getScopeEntry().symbol,
+                        funcName, ctx))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
 
         SignatureHelp signatureHelp = new SignatureHelp();
@@ -141,25 +145,25 @@ public class SignatureHelpUtil {
     /**
      * Get the signature information for the given Ballerina function.
      *
-     * @param bInvokableSymbol BLang Invokable symbol
+     * @param bInvokableSymbol                  BLang Invokable symbol
+     * @param signatureCtx                      Lang Server Signature Help Context
      * @return {@link SignatureInformation}     Signature information for the function
      */
-    private static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol, String funcName) {
+    private static Optional<SignatureInformation> getSignatureInformation(BInvokableSymbol bInvokableSymbol,
+                                                                          String funcName, LSContext signatureCtx) {
         List<ParameterInformation> parameterInformationList = new ArrayList<>();
         SignatureInformation signatureInformation = new SignatureInformation();
         List<String> nameComps = Arrays.asList(bInvokableSymbol.getName().getValue().split("\\."));
         
         if (!funcName.equals(CommonUtil.getLastItem(nameComps))) {
-            return null;
+            return Optional.empty();
         }
 
-        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol);
+        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol, signatureCtx);
         // Join the function parameters to generate the function's signature
         String paramsJoined = signatureInfoModel.getParameterInfoModels().stream().map(parameterInfoModel -> {
             // For each of the parameters, create a parameter info instance
-            ParameterInformation parameterInformation =
-                    new ParameterInformation(parameterInfoModel.paramValue, parameterInfoModel.description);
-            parameterInformationList.add(parameterInformation);
+            parameterInformationList.add(getParameterInformation(parameterInfoModel));
 
             return parameterInfoModel.toString();
         }).collect(Collectors.joining(", "));
@@ -167,22 +171,23 @@ public class SignatureHelpUtil {
         signatureInformation.setParameters(parameterInformationList);
         signatureInformation.setDocumentation(signatureInfoModel.signatureDescription);
 
-        return signatureInformation;
+        return Optional.of(signatureInformation);
     }
 
     /**
      * Get the required signature information filled model.
      *
      * @param bInvokableSymbol                  Invokable symbol
+     * @param signatureCtx                      Lang Server Signature Help Context
      * @return {@link SignatureInfoModel}       SignatureInfoModel containing signature information
      */
-    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol) {
+    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol, LSContext signatureCtx) {
         Map<String, String> paramDescMap = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
         
-        signatureInfoModel.setSignatureDescription(docAttachment.description.trim());
+        signatureInfoModel.setSignatureDescription(docAttachment.description.trim(), signatureCtx);
         docAttachment.parameters.forEach(attribute ->
                 paramDescMap.put(attribute.getName(), attribute.getDescription()));
 
@@ -199,6 +204,14 @@ public class SignatureHelpUtil {
         return signatureInfoModel;
     }
 
+    private static ParameterInformation getParameterInformation(ParameterInfoModel parameterInfoModel) {
+        MarkupContent paramDocumentation = new MarkupContent();
+        paramDocumentation.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+        paramDocumentation.setValue(parameterInfoModel.description);
+
+        return new ParameterInformation(parameterInfoModel.paramValue, paramDocumentation);
+    }
+
     private static void setItemInfo(String line, int startPosition, LSServiceOperationContext signatureContext) {
         int counter = startPosition;
         String callableItemName = "";
@@ -213,7 +226,7 @@ public class SignatureHelpUtil {
                     delimiter.append(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY);
                     counter--;
                 } else {
-                    delimiter.append(String.valueOf(c));
+                    delimiter.append(c);
                 }
                 captureIdentifierAgainst(line, counter, signatureContext, delimiter.toString());
                 break;
@@ -302,7 +315,7 @@ public class SignatureHelpUtil {
 
         private List<ParameterInfoModel> parameterInfoModels;
 
-        private String signatureDescription;
+        private Either<String, MarkupContent> signatureDescription;
 
         List<ParameterInfoModel> getParameterInfoModels() {
             return parameterInfoModels;
@@ -312,8 +325,21 @@ public class SignatureHelpUtil {
             this.parameterInfoModels = parameterInfoModels;
         }
 
-        void setSignatureDescription(String signatureDescription) {
-            this.signatureDescription = signatureDescription;
+        void setSignatureDescription(String signatureDescription, LSContext signatureContext) {
+            SignatureInformationCapabilities capabilities = signatureContext
+                    .get(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY).getSignatureInformation();
+            List<String> documentationFormat = capabilities != null ? capabilities.getDocumentationFormat()
+                    : new ArrayList<>();
+            if (documentationFormat != null
+                    && !documentationFormat.isEmpty()
+                    && documentationFormat.get(0).equals(CommonUtil.MARKDOWN_MARKUP_KIND)) {
+                MarkupContent signatureMarkupContent = new MarkupContent();
+                signatureMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+                signatureMarkupContent.setValue(signatureDescription);
+                this.signatureDescription = Either.forRight(signatureMarkupContent);
+            } else {
+                this.signatureDescription = Either.forLeft(signatureDescription);
+            }
         }
     }
 }

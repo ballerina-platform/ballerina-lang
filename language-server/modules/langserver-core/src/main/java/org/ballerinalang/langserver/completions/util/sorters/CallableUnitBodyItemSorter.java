@@ -62,7 +62,7 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
     }
 
     private CompletionItem getWorkerSnippet(boolean isSnippet) {
-        return Snippet.DEF_WORKER.get().build(new CompletionItem(), isSnippet);
+        return Snippet.DEF_WORKER.get().build(isSnippet);
     }
     
     private void clearItemsIfWorkerExists(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {

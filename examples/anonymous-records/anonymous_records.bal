@@ -7,7 +7,7 @@ public type Person record {
     record {
         string city;
         string country;
-        !...
+        !...;
     } address;
 };
 
@@ -27,7 +27,7 @@ public function main() {
     record {
         string city;
         string country;
-        !...
+        !...;
     } adr = { city: "London", country: "UK" };
 
     Person jane = { name: "Jane Doe", age: 20, address: adr };

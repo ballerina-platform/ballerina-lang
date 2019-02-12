@@ -26,6 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler;
 
 /**
@@ -35,12 +36,10 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
         orgName = "ballerina",
         packageName = "jms",
         functionName = "closeSubscriber",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "DurableTopicSubscriber",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DurableTopicSubscriber",
                              structPackage = "ballerina/jms"),
         args = {
-                @Argument(name = "consumerActions",
-                          type = TypeKind.OBJECT,
+                @Argument(name = JmsConstants.METHOD_FIELD_ACTIONS, type = TypeKind.OBJECT,
                           structType = "DurableTopicSubscriberActions")
         },
         isPublic = true

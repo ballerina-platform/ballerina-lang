@@ -534,4 +534,31 @@ public class MapStampInbuiltFunctionTest {
                             "incompatible stamp operation: 'map<string>' value cannot be stamped as " +
                                     "'EmployeeClosedRecord'");
     }
+
+    @Test(description = "Test stamping to record when value has cyclic reference.")
+    public void testStampRecordToRecordWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToRecordWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Person' value has cyclic reference");
+    }
+
+    @Test(description = "Test stamping to map when value has cyclic reference.")
+    public void testStampRecordToMapWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToMapWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Person' value has cyclic reference");
+    }
+
+    @Test(description = "Test stamping to json when value has cyclic reference.")
+    public void testStampRecordToJsonWithCyclicValueReferences() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToJsonWithCyclicValueReferences");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "'Person' value has cyclic reference");
+    }
 }

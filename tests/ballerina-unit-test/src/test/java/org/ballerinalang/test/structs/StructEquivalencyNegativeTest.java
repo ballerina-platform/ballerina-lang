@@ -34,18 +34,11 @@ public class StructEquivalencyNegativeTest {
         BAssertUtil.validateError(compileResult, 0,
                                   "incompatible types: 'employee01' cannot be converted to 'person01'", 17, 18);
         BAssertUtil.validateError(compileResult, 1,
-                                  "function invocation on type 'typedesc' is not supported", 17, 18);
-        BAssertUtil.validateError(compileResult, 2,
                                   "incompatible types: 'employee02' cannot be converted to 'person02'", 36, 18);
-        BAssertUtil.validateError(compileResult, 3,
-                                  "function invocation on type 'typedesc' is not supported", 36, 18);
-        BAssertUtil.validateError(compileResult, 4,
+        BAssertUtil.validateError(compileResult, 2,
                                   "incompatible types: expected 'person03', found 'person03|error'", 54, 18);
-        BAssertUtil.validateError(compileResult, 5,
+        BAssertUtil.validateError(compileResult, 3,
                                   "incompatible types: 'employee06' cannot be converted to 'person06'", 76, 18);
-        BAssertUtil.validateError(compileResult, 6,
-                                  "function invocation on type 'typedesc' is not supported", 76, 18);
-
     }
 
     @Test(description = "Test equivalence of structs that are in the same package from a third package")

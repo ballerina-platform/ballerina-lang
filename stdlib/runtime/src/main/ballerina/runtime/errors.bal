@@ -25,7 +25,7 @@ public type CallStackElement record {
     string moduleName;
     string fileName;
     int lineNumber;
-    !...
+    !...;
 };
 
 # Retrieves the Call Stack

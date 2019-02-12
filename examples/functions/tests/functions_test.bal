@@ -19,4 +19,5 @@ function testFunc() {
     // Invoking the main function
     main();
     test:assertEquals(outputs[0], "This is a sample text");
+    test:assertEquals(outputs[1], 11);
 }
