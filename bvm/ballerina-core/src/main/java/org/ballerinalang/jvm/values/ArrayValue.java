@@ -27,7 +27,6 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
@@ -138,24 +137,24 @@ public class ArrayValue implements RefValue {
                 if (arrayType.getState() == BArrayState.CLOSED_SEALED) {
                     this.size = maxArraySize = arrayType.getSize();
                 }
-                refValues = (RefValue[]) newArrayInstance(BRefType.class);
+                refValues = (RefValue[]) newArrayInstance(RefValue.class);
                 Arrays.fill(refValues, arrayType.getElementType().getZeroValue());
             } else if (type.getTag() == TypeTags.TUPLE_TAG) {
                 BTupleType tupleType = (BTupleType) type;
                 this.size = maxArraySize = tupleType.getTupleTypes().size();
-                refValues = (RefValue[]) newArrayInstance(BRefType.class);
+                refValues = (RefValue[]) newArrayInstance(RefValue.class);
                 AtomicInteger counter = new AtomicInteger(0);
                 tupleType.getTupleTypes().forEach(memType ->
                         refValues[counter.getAndIncrement()] = memType.getEmptyValue());
             } else {
-                refValues = (RefValue[]) newArrayInstance(BRefType.class);
+                refValues = (RefValue[]) newArrayInstance(RefValue.class);
                 Arrays.fill(refValues, type.getEmptyValue());
             }
         }
     }
 
     public ArrayValue() {
-        refValues = (RefValue[]) newArrayInstance(BRefType.class);
+        refValues = (RefValue[]) newArrayInstance(RefValue.class);
     }
 
     public ArrayValue(BType type, int size) {
