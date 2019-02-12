@@ -9,9 +9,9 @@ This module provides the necessary utilities that are required to hash content u
 The sample given below shows how to use hashing functions such as `hashSha512` to calculate the hash value of a byte array and then encode the byte array using a common encoding algorithm.
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
+import ballerina/io;
 
 public function main() {
      // Input value for crypto operations
@@ -43,9 +43,9 @@ The sample given below shows how to use HMAC functions such as `hmacSha512` to c
 
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
+import ballerina/io;
 
 public function main() {
      string charEncoding = "UTF-8";
@@ -84,8 +84,8 @@ The sample given below shows how to use `crc32b` function to calculate the CRC32
 
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
+import ballerina/io;
 
 public function main() {
      // Input value for cryto operations
@@ -106,9 +106,9 @@ The sample given below shows how to use signing functions such as `signRsaSha512
 
 
 ```ballerina
-import ballerina/io;
 import ballerina/crypto;
 import ballerina/encoding;
+import ballerina/io;
 
 public function main() returns error? {
      // Input value for cryto operations
@@ -137,5 +137,101 @@ public function main() returns error? {
 
      output = check crypto:signRsaSha512(inputArr, privateKey);
      io:println("RSA-SHA512 signature: " + encoding:encodeHex(output));
+}
+```
+
+### RSA Encryption
+
+The sample given below shows how to use encryption function `encryptRsaEcb` and decryption function `decryptRsaEcb` to perform RSA encryption and decryption.
+
+
+```ballerina
+import ballerina/crypto;
+import ballerina/encoding;
+import ballerina/io;
+
+public function main() returns error? {
+     // Input value for cryto operations.
+     string input = "Hello Ballerina";
+     byte[] inputArr = input.toByteArray("UTF-8");
+
+     crypto:KeyStore keyStore = { path: "/home/ballerina/keystore.p12", password: "ballerina" };
+
+     // Public key used for encryption.
+     crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = "ballerina");
+
+     // Private key used for decryption.
+     crypto:PrivateKey privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
+                                                            keyPassword = "ballerina");
+
+     // Encrypt and decrypt input value using RSA ECB PKCS1 padding.
+     byte[] output = check crypto:encryptRsaEcb(inputArr, publicKey);
+     output = check crypto:decryptRsaEcb(output, privateKey);
+     io:println("RSA ECB PKCS1 decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using RSA ECB OAEPwithSHA512andMGF1 padding.
+     output = check crypto:encryptRsaEcb(inputArr, publicKey, padding = crypto:OAEPwithSHA512andMGF1);
+     output = check crypto:decryptRsaEcb(output, privateKey, padding = crypto:OAEPwithSHA512andMGF1);
+     io:println("RSA ECB OAEPwithSHA512andMGF1 decrypted value: " + encoding:byteArrayToString(output));
+}
+```
+
+### AES Encryption
+
+The sample given below shows how to use encryption function `encryptAesCbc` and decryption function `decryptAesCbc` to perform AES encryption and decryption.
+
+
+```ballerina
+import ballerina/crypto;
+import ballerina/encoding;
+import ballerina/io;
+import ballerina/math;
+
+public function main() returns error? {
+     // Input value for cryto operations.
+     string input = "Hello Ballerina!";
+     byte[] inputArr = input.toByteArray("UTF-8");
+
+     // Randomly generate a 128 bit key.
+     byte[16] keyArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+     foreach var i in 0...15 {
+        keyArr[i] = check byte.convert(math:randomInRange(0, 255));
+     }
+
+     // Randomly generate a 128 bit IV.
+     byte[16] ivArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+     foreach var i in 0...15 {
+        ivArr[i] = check byte.convert(math:randomInRange(0, 255));
+     }
+
+     // Encrypt and decrypt input value using AES CBC PKCS5 padding.
+     byte[] output = check crypto:encryptAesCbc(inputArr, keyArr, ivArr);
+     output = check crypto:decryptAesCbc(output, keyArr, ivArr);
+     io:println("AES CBC PKCS5 decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES CBC no padding.
+     output = check crypto:encryptAesCbc(inputArr, keyArr, ivArr, padding = crypto:NONE);
+     output = check crypto:decryptAesCbc(output, keyArr, ivArr, padding = crypto:NONE);
+     io:println("AES CBC no padding decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES GCM PKCS5 padding.
+     output = check crypto:encryptAesGcm(inputArr, keyArr, ivArr);
+     output = check crypto:decryptAesGcm(output, keyArr, ivArr);
+     io:println("AES GCM PKCS5 decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES GCM no padding.
+     output = check crypto:encryptAesGcm(inputArr, keyArr, ivArr, padding = crypto:NONE);
+     output = check crypto:decryptAesGcm(output, keyArr, ivArr, padding = crypto:NONE);
+     io:println("AES GCM no padding decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES ECB PKCS5 padding.
+     output = check crypto:encryptAesEcb(inputArr, keyArr);
+     output = check crypto:decryptAesEcb(output, keyArr);
+     io:println("AES ECB PKCS5 decrypted value: " + encoding:byteArrayToString(output));
+
+     // Encrypt and decrypt input value using AES ECB no padding.
+     output = check crypto:encryptAesEcb(inputArr, keyArr, padding = crypto:NONE);
+     output = check crypto:decryptAesEcb(output, keyArr, padding = crypto:NONE);
+     io:println("AES ECB no padding decrypted value: " + encoding:byteArrayToString(output));
 }
 ```

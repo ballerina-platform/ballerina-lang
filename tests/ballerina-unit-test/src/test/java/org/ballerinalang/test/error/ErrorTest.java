@@ -125,7 +125,7 @@ public class ErrorTest {
     @Test
     public void customErrorDetailsTest() {
         BValue[] returns = BRunUtil.invoke(basicErrorTest, "testCustomErrorDetails");
-        Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", cause:null, data:\"test\"}");
+        Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", cause:(), data:\"test\"}");
         Assert.assertEquals(((BError) returns[0]).details.getType().getTag(), TypeTags.RECORD_TYPE_TAG);
         Assert.assertEquals(((BError) returns[0]).details.getType().getName(), "TrxErrorData");
     }

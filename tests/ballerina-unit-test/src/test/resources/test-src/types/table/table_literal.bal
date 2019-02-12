@@ -364,16 +364,6 @@ function testTableWithBlobDataToStruct() returns (byte[]|error) {
     return bData;
 }
 
-function testTableWithAnyDataToJson() returns (json|error) {
-    AnyTypeTest t1 = { id: 1, anyData: "Sample Text" };
-
-    table<AnyTypeTest> dt3 = table{};
-    _ = dt3.add(t1);
-
-    json j = check json.convert(dt3);
-    return j;
-}
-
 function testStructWithDefaultDataToJson() returns (json|error) {
     Person p1 = { id: 1 };
 
