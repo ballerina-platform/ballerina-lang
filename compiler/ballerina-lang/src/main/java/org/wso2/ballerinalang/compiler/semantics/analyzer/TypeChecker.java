@@ -274,7 +274,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // check whether this is a byte array
-        if (literalType.tag == TypeTags.BYTE_ARRAY) {
+        if (literalExpr.type.tag == TypeTags.BYTE_ARRAY) {
             literalType = new BArrayType(symTable.byteType);
         }
 
