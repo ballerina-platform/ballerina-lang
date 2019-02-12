@@ -45,6 +45,8 @@ import static org.wso2.ballerinalang.compiler.desugar.StreamingCodeDesugar.AGGRE
 /**
  * This class will create an array of aggregator functions out of the select clause by visiting through all the
  * expressions in the select clause.
+ *
+ * @since 0.990.3
  */
 public class StreamingAggregatorArrayBuilder extends BLangNodeVisitor {
 
