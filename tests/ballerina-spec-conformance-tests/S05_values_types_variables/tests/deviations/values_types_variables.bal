@@ -70,21 +70,13 @@ function testDistinctStructureMembersReferringToSameValueBroken() {
 // iterable, meaning that a value of the type can be accessed as a sequence of simpler values.
 // TODO: Support iterable for Tuple type and String type
 // https://github.com/ballerina-platform/ballerina-lang/issues/13172
-// https://github.com/ballerina-platform/ballerina-lang/issues/13165
 @test:Config {
     groups: ["deviation"]
 }
 function testIterableTypesBroken() {
-    //    (int, string, boolean) iterableTuple = (100, "test string", true);
-    //    int count = 0;
-    //    foreach var variable in iterableTuple {
-    //        count += 1;
-    //    }
-    //    test:assertEquals(count, 3, msg = "expected int array to iterate 3 loops");
-    //
     //    string iterableString = "Hello Ballerina";
     //    string result = "";
-    //    foreach var char in iterableTuple {
+    //    foreach var char in iterableString {
     //        // TODO
     //    }
 }
