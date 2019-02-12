@@ -24,7 +24,7 @@ import org.ballerinalang.model.tree.NodeKind;
  * Represents numeric literals in ballerina (int, byte, float, decimal).
  * This class extends {@link BLangLiteral}.
  *
- * @since 0.991
+ * @since 0.990.4
  */
 public class BLangNumericLiteral extends BLangLiteral {
 
