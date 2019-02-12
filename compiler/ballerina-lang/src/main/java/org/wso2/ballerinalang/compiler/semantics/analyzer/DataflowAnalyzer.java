@@ -19,12 +19,14 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -174,46 +176,60 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 
+ *
  * Responsible for performing data flow analysis.
  * <p>
  * The following validations are done here:-
  * <ul>
  * <li>Uninitialized variable referencing validation</li>
  * </ul>
- * 
+ *
  * @since 0.985.0
  */
 public class DataflowAnalyzer extends BLangNodeVisitor {
 
+    private final SymbolResolver symResolver;
+    private final Names names;
     private SymbolEnv env;
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
     private Map<BSymbol, InitStatus> uninitializedVars;
+    private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private boolean flowTerminated = false;
-    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
+    private Deque<BSymbol> currDependentSymbol;
+    private final GlobalVariableRefAnalyzer globalVariableRefAnalyzer;
 
     private DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
+        this.names = Names.getInstance(context);
+        this.currDependentSymbol = new ArrayDeque<>();
+        this.globalVariableRefAnalyzer = GlobalVariableRefAnalyzer.getInstance(context);
+
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
@@ -226,12 +242,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     /**
      * Perform data-flow analysis on a package.
-     * 
+     *
      * @param pkgNode Package to perform data-flow analysis.
      * @return Data-flow analyzed package
      */
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.uninitializedVars = new HashMap<>();
+        this.globalNodeDependsOn = new LinkedHashMap<>();
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
         return pkgNode;
@@ -252,6 +269,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         });
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+        globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
@@ -301,19 +319,29 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable variable) {
-        if (variable.expr != null) {
-            analyzeNode(variable.expr, env);
-            this.uninitializedVars.remove(variable.symbol);
-            return;
+        boolean validVariable = variable.symbol != null;
+        if (validVariable) {
+            this.currDependentSymbol.push(variable.symbol);
         }
+        try {
+            if (variable.expr != null) {
+                analyzeNode(variable.expr, env);
+                this.uninitializedVars.remove(variable.symbol);
+                return;
+            }
 
-        // Handle package/object level variables
-        BSymbol owner = variable.symbol.owner;
-        if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {
-            return;
+            // Handle package/object level variables
+            BSymbol owner = variable.symbol.owner;
+            if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {
+                return;
+            }
+
+            addUninitializedVar(variable);
+        } finally {
+            if (validVariable) {
+                this.currDependentSymbol.pop();
+            }
         }
-
-        addUninitializedVar(variable);
     }
 
     @Override
@@ -514,6 +542,50 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.namedArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
+        BSymbol owner = this.env.scope.owner;
+        if (owner.kind == SymbolKind.FUNCTION) {
+            BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) owner;
+            Name name = names.fromIdNode(invocationExpr.name);
+            // Todo: we need to handle function pointer referring global variable, passed into a function.
+            // i.e 'foo' is a function pointer pointing to a function referring a global variable G1, then we pass
+            // that pointer into 'bar', now 'bar' may have a dependency on G1.
+
+            // Todo: test lambdas and function arguments
+
+            BSymbol dependsOnFunctionSym = symResolver.lookupSymbol(this.env, name, SymTag.FUNCTION);
+            if (symTable.notFoundSymbol != dependsOnFunctionSym) {
+                addDependency(invokableOwnerSymbol, dependsOnFunctionSym);
+            }
+        } else if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
+            BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) invocationExpr.symbol;
+            BSymbol curDependent = this.currDependentSymbol.peek();
+            if (curDependent != null && isGlobalVarSymbol(curDependent)) {
+                addDependency(curDependent, invokableProviderSymbol);
+            }
+        }
+    }
+
+    private boolean isGlobalVarSymbol(BSymbol symbol) {
+        return symbol != null &&
+                symbol.owner != null &&
+                symbol.owner.tag == SymTag.PACKAGE &&
+                (symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE;
+    }
+
+    /**
+     * Register dependent symbol to the provider symbol.
+     * Let global int a = b, a depend on b.
+     * Let func foo() { returns b + 1; }, where b is a global var, then foo depends on b.
+     *
+     * @param dependent dependent.
+     * @param provider object which provides a value.
+     */
+    private void addDependency(BSymbol dependent, BSymbol provider) {
+        if (dependent.pkgID != provider.pkgID) {
+            return;
+        }
+        Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new LinkedHashSet<>());
+        providers.add(provider);
     }
 
     @Override
@@ -1020,7 +1092,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     /**
      * Analyze a branch and returns the set of uninitialized variables for that branch.
      * This method will not update the current uninitialized variables set.
-     * 
+     *
      * @param node Branch node to be analyzed
      * @param env Symbol environment
      * @return Result of the branch.
@@ -1079,6 +1151,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkVarRef(BSymbol symbol, DiagnosticPos pos) {
+        recordGlobalVariableReferenceRelationship(symbol);
+
         InitStatus initStatus = this.uninitializedVars.get(symbol);
         if (initStatus == null) {
             return;
@@ -1090,6 +1164,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.dlog.error(pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, symbol.name);
+    }
+
+    private void recordGlobalVariableReferenceRelationship(BSymbol symbol) {
+        BSymbol ownerSymbol = this.env.scope.owner;
+        boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
+        // Restrict to observations made in pkg level.
+        if (isInPkgLevel && isGlobalVarSymbol(symbol)) {
+            BSymbol dependent = this.currDependentSymbol.peek();
+            addDependency(dependent, symbol);
+        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && isGlobalVarSymbol(symbol)) {
+            // Global variable ref from non package level.
+            BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) ownerSymbol;
+            addDependency(invokableOwnerSymbol, symbol);
+        }
     }
 
     private boolean isObjectMemberAccessWithSelf(BLangAccessExpression fieldAccessExpr) {

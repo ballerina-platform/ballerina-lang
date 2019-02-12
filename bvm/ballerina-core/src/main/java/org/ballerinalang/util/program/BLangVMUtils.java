@@ -20,7 +20,6 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.bre.old.WorkerData;
-import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -29,14 +28,9 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 
 import java.io.PrintStream;
 import java.math.BigDecimal;
@@ -47,84 +41,6 @@ import java.math.BigDecimal;
 public class BLangVMUtils {
 
     public static final String SERVICE_INFO_KEY = "SERVICE_INFO";
-
-    public static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
-
-        for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = paramTypes[i];
-            int argReg = argRegs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
-                    break;
-                case TypeTags.BYTE_TAG:
-                    callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
-                    break;
-                case TypeTags.STRING_TAG:
-                    callee.stringRegs[++stringRegIndex] = caller.stringRegs[argReg];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
-                    break;
-                default:
-                    callee.refRegs[++refRegIndex] = caller.refRegs[argReg];
-            }
-        }
-    }
-
-    public static void copyValuesForForkJoin(WorkerData caller, WorkerData callee, int[] argRegs) {
-        int longLocalVals = argRegs[0];
-        int doubleLocalVals = argRegs[1];
-        int stringLocalVals = argRegs[2];
-        int booleanLocalVals = argRegs[3];
-        int refLocalVals = argRegs[4];
-
-        for (int i = 0; i <= longLocalVals; i++) {
-            callee.longRegs[i] = caller.longRegs[i];
-        }
-
-        for (int i = 0; i <= doubleLocalVals; i++) {
-            callee.doubleRegs[i] = caller.doubleRegs[i];
-        }
-
-        for (int i = 0; i <= stringLocalVals; i++) {
-            callee.stringRegs[i] = caller.stringRegs[i];
-        }
-
-        for (int i = 0; i <= booleanLocalVals; i++) {
-            callee.intRegs[i] = caller.intRegs[i];
-        }
-
-        for (int i = 0; i <= refLocalVals; i++) {
-            callee.refRegs[i] = caller.refRegs[i];
-        }
-    }
-
-    public static WorkerData createWorkerDataForLocal(WorkerInfo workerInfo, WorkerExecutionContext parentCtx,
-                                                      int[] argRegs, BType[] paramTypes) {
-        WorkerData wd = createWorkerData(workerInfo);
-        BLangVMUtils.copyArgValues(parentCtx.workerLocal, wd, argRegs, paramTypes);
-        return wd;
-    }
-
-    static WorkerData createWorkerDataForLocal(WorkerInfo workerInfo, WorkerExecutionContext parentCtx,
-                                               int[] argRegs) {
-        WorkerData wd = createWorkerData(workerInfo);
-        BLangVMUtils.copyValuesForForkJoin(parentCtx.workerLocal, wd, argRegs);
-        return wd;
-    }
-
-    private static WorkerData createWorkerData(WorkerInfo workerInfo) {
-        return new WorkerData(workerInfo.getCodeAttributeInfo());
-    }
 
     @SuppressWarnings("rawtypes")
     public static void populateWorkerDataWithValues(StackFrame data, int regIndex, BValue val, BType retType) {
@@ -175,176 +91,9 @@ public class BLangVMUtils {
                 data.refRegs[regIndex] = (BRefType) val;
         }
     }
-    
-    @SuppressWarnings("rawtypes")
-    public static void populateWorkerResultWithValues(WorkerData result, BValue[] vals, BType[] types) {
-        if (vals == null) {
-            return;
-        }
-        int longRegCount = 0;
-        int doubleRegCount = 0;
-        int stringRegCount = 0;
-        int intRegCount = 0;
-        int refRegCount = 0;
 
-        for (int i = 0; i < vals.length; i++) {
-            BType retType = types[i];
-            switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    if (vals[i] == null) {
-                        result.longRegs[longRegCount++] = 0;
-                        break;
-                    }
-                    result.longRegs[longRegCount++] = ((BInteger) vals[i]).intValue();
-                    break;
-                case TypeTags.BYTE_TAG:
-                    if (vals[i] == null) {
-                        result.intRegs[intRegCount++] = 0;
-                        break;
-                    }
-                    result.intRegs[intRegCount++] = ((BByte) vals[i]).byteValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    if (vals[i] == null) {
-                        result.doubleRegs[doubleRegCount++] = 0;
-                        break;
-                    }
-                    result.doubleRegs[doubleRegCount++] = ((BFloat) vals[i]).floatValue();
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    if (vals[i] == null) {
-                        result.refRegs[refRegCount++] = new BDecimal(BigDecimal.ZERO);
-                        break;
-                    }
-                    result.refRegs[refRegCount++] = ((BDecimal) vals[i]);
-                    break;
-                case TypeTags.STRING_TAG:
-                    if (vals[i] == null) {
-                        result.stringRegs[stringRegCount++] = BLangConstants.STRING_NULL_VALUE;
-                        break;
-                    }
-                    result.stringRegs[stringRegCount++] = vals[i].stringValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    if (vals[i] == null) {
-                        result.intRegs[intRegCount++] = 0;
-                        break;
-                    }
-                    result.intRegs[intRegCount++] = ((BBoolean) vals[i]).booleanValue() ? 1 : 0;
-                    break;
-                default:
-                    result.refRegs[refRegCount++] = (BRefType) vals[i];
-            }
-        }
-    }
-
-    public static BValue[] populateReturnData(WorkerExecutionContext ctx, CallableUnitInfo callableUnitInfo,
-                                              int[] retRegs) {
-        WorkerData data = ctx.workerLocal;
-        BType[] retTypes = callableUnitInfo.getRetParamTypes();
-        BValue[] returnValues = new BValue[retTypes.length];
-        for (int i = 0; i < returnValues.length; i++) {
-            BType retType = retTypes[i];
-            switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    returnValues[i] = new BInteger(data.longRegs[retRegs[i]]);
-                    break;
-                case TypeTags.BYTE_TAG:
-                    returnValues[i] = new BByte((byte) data.intRegs[retRegs[i]]);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    returnValues[i] = new BFloat(data.doubleRegs[retRegs[i]]);
-                    break;
-                case TypeTags.STRING_TAG:
-                    returnValues[i] = new BString(data.stringRegs[retRegs[i]]);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    boolean boolValue = data.intRegs[retRegs[i]] == 1;
-                    returnValues[i] = new BBoolean(boolValue);
-                    break;
-                default:
-                    returnValues[i] = data.refRegs[retRegs[i]];
-                    break;
-            }
-        }
-        return returnValues;
-    }
-
-    public static int[] createReturnRegValues(WorkerDataIndex paramWDI, WorkerDataIndex retWDI, BType[] retTypes) {
-        int[] result = new int[retWDI.retRegs.length];
-        System.arraycopy(retWDI.retRegs, 0, result, 0, result.length);
-        for (int i = 0; i < result.length; i++) {
-            BType retType = retTypes[i];
-            switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    result[i] += paramWDI.longRegCount;
-                    break;
-                case TypeTags.BYTE_TAG:
-                    result[i] += paramWDI.intRegCount;
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    result[i] += paramWDI.doubleRegCount;
-                    break;
-                case TypeTags.STRING_TAG:
-                    result[i] += paramWDI.stringRegCount;
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    result[i] += paramWDI.intRegCount;
-                    break;
-                default:
-                    result[i] += paramWDI.refRegCount;
-                    break;
-            }
-        }
-        return result;
-    }
-    
-    @SuppressWarnings("rawtypes")
-    public static int[][] populateArgAndReturnData(WorkerExecutionContext ctx,
-                                                   CallableUnitInfo callableUnitInfo, BValue[] args) {
-        WorkerDataIndex wdi1 = callableUnitInfo.paramWorkerIndex;
-        WorkerDataIndex wdi2 = callableUnitInfo.retWorkerIndex;
-        WorkerData local = createWorkerData(wdi1, wdi2);
-        BType[] types = callableUnitInfo.getParamTypes();
-        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, refParamCount = 0;
-        for (int i = 0; i < types.length; i++) {
-            switch (types[i].getTag()) {
-                case TypeTags.INT_TAG:
-                    local.longRegs[longParamCount++] = ((BValueType) args[i]).intValue();
-                    break;
-                case TypeTags.BYTE_TAG:
-                    local.intRegs[intParamCount++] = ((BValueType) args[i]).byteValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    local.doubleRegs[doubleParamCount++] = ((BValueType) args[i]).floatValue();
-                    break;
-                case TypeTags.STRING_TAG:
-                    local.stringRegs[stringParamCount++] = args[i].stringValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    if (args[i] instanceof BString) {
-                        local.intRegs[intParamCount++] =
-                                ((BString) args[i]).value().toLowerCase().equals("true") ? 1 : 0;
-                    } else {
-                        local.intRegs[intParamCount++] = ((BValueType) args[i]).booleanValue() ? 1 : 0;
-                    }
-                    break;
-                default:
-                    local.refRegs[refParamCount++] = (BRefType) args[i];
-                    break;
-            }
-        }
-        ctx.workerLocal = local;
-        return new int[][] { wdi1.retRegs, BLangVMUtils.createReturnRegValues(
-                wdi1, wdi2, callableUnitInfo.getRetParamTypes()) };
-    }
-    
     public static WorkerData createWorkerData(WorkerDataIndex wdi) {
         return new WorkerData(wdi);
-    }
-    
-    private static WorkerData createWorkerData(WorkerDataIndex wdi1, WorkerDataIndex wdi2) {
-        return new WorkerData(wdi1, wdi2);
     }
     
     public static void mergeResultData(WorkerData sourceData, WorkerData targetData, BType[] types,
@@ -381,26 +130,7 @@ public class BLangVMUtils {
             }
         }
     }
-    
-    public static void mergeInitWorkerData(WorkerData sourceData, WorkerData targetData,
-                                           CodeAttributeInfo initWorkerCAI) {
-        for (int i = 0; i < initWorkerCAI.getMaxDoubleLocalVars(); i++) {
-            targetData.doubleRegs[i] = sourceData.doubleRegs[i];
-        }
-        for (int i = 0; i < initWorkerCAI.getMaxIntLocalVars(); i++) {
-            targetData.intRegs[i] = sourceData.intRegs[i];
-        }
-        for (int i = 0; i < initWorkerCAI.getMaxLongLocalVars(); i++) {
-            targetData.longRegs[i] = sourceData.longRegs[i];
-        }
-        for (int i = 0; i < initWorkerCAI.getMaxStringLocalVars(); i++) {
-            targetData.stringRegs[i] = sourceData.stringRegs[i];
-        }
-        for (int i = 0; i < initWorkerCAI.getMaxRefLocalVars(); i++) {
-            targetData.refRegs[i] = sourceData.refRegs[i];
-        }
-    }
-    
+
     public static void log(String msg) {
         PrintStream out = System.out;
         out.println(msg);

@@ -29,6 +29,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -209,6 +210,10 @@ public class TableIterator implements DataIterator {
                     case TypeTags.FLOAT_TAG:
                         double dValue = rs.getDouble(index);
                         value = new BFloat(dValue);
+                        break;
+                    case TypeTags.DECIMAL_TAG:
+                        BigDecimal decimalValue = rs.getBigDecimal(index);
+                        value = new BDecimal(decimalValue);
                         break;
                     case TypeTags.BOOLEAN_TAG:
                         boolean boolValue = rs.getBoolean(index);

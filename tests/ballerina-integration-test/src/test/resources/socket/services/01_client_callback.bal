@@ -37,7 +37,7 @@ service echo on echoEP {
             if (writeResult is int) {
                 io:println("Number of bytes written: ", writeResult);
                 _ = caller->accepted();
-            } else if (writeResult is error) {
+            } else {
                 string errMsg = <string>writeResult.detail().message;
                 resp.statusCode = 500;
                 resp.setPayload(errMsg);
@@ -46,7 +46,7 @@ service echo on echoEP {
                     io:println("Error sending response: ", responseError.detail().message);
                 }
             }
-        } else if (payload is error) {
+        } else {
             string errMsg = <string>payload.detail().message;
             resp.statusCode = 500;
             resp.setPayload(untaint errMsg);
@@ -69,9 +69,10 @@ service ClientService = service {
         var str = getString(content);
         if (str is string) {
             io:println(untaint str);
-        } else if (str is error) {
+        } else {
             io:println(str.reason());
         }
+
         var closeResult = caller->close();
         if (closeResult is error) {
             io:println(closeResult.detail().message);

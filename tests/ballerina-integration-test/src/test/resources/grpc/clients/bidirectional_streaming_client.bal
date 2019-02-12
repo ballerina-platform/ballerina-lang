@@ -20,8 +20,9 @@ import ballerina/io;
 import ballerina/runtime;
 
 int total = 0;
-string[2] msgs = ["", ""];
+string responseMsg = "";
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+const string RESP_MSG_FORMAT = "Failed: Invalid Response, expected %s, but received %s";
 
 public function testBidiStreaming() returns string {
     grpc:StreamingClient ep = new;
@@ -40,44 +41,48 @@ public function testBidiStreaming() returns string {
     if (connErr is error) {
         return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string>connErr.detail().message);
     }
-    runtime:sleep(3000);
+    if (!isValidResponse("Sam: Hi")) {
+        return io:sprintf(RESP_MSG_FORMAT, "Sam: Hi", responseMsg);
+    } else {
+        responseMsg = "";
+    }
+
     ChatMessage mes2 = {name:"Sam", message:"GM"};
     connErr = ep->send(mes2);
     if (connErr is error) {
         return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string>connErr.detail().message);
     }
+    if (!isValidResponse("Sam: GM")) {
+        return io:sprintf(RESP_MSG_FORMAT, "Sam: GM", responseMsg);
+    }
 
+    _ = ep->complete();
+    return "Success: received valid responses from server";
+}
+
+function isValidResponse(string expectedMsg) returns boolean {
     int waitCount = 0;
-    while(total < 2) {
+    while(responseMsg == "") {
         runtime:sleep(1000);
-        io:println("msg count: ", total);
+        io:println("response message: ", responseMsg);
         if (waitCount > 10) {
             break;
         }
         waitCount += 1;
     }
-    io:println(msgs);
-    if (msgs[0] == "Sam: Hi" || msgs[1] == "Sam: GM") {
-        response = "Success: received valid responses from server";
-    } else {
-        response = "Failed: invaild response from server";
-    }
-    _ = ep->complete();
-    return response;
+    return responseMsg == expectedMsg;
 }
-
 
 service ChatMessageListener = service {
 
     resource function onMessage(string message) {
-        msgs[total] = message;
-        total = total + 1;
-        io:println("Response received from server: " + message);
+        responseMsg = untaint message;
+        io:println("Response received from server: " + responseMsg);
     }
 
     resource function onError(error err) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string>err.detail().message);
-        io:println(msg);
+        responseMsg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string>err.detail().message);
+        io:println(responseMsg);
     }
 
     resource function onComplete() {
