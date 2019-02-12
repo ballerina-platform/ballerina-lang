@@ -148,6 +148,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -991,6 +992,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!Symbols.isPublic(varNode.symbol)) {
             if (varNode.expr == null && Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
+            }
+            return;
+        }
+
+        if (varNode.parent != null &&
+                (varNode.parent.getKind() == NodeKind.RECORD_TYPE ||
+                        varNode.parent.getKind() == NodeKind.OBJECT_TYPE)) {
+            BLangStructureTypeNode structTypeNode = (BLangStructureTypeNode) varNode.parent;
+            if (Symbols.isPublic(structTypeNode.symbol)) {
+                analyseType(varNode.type, varNode.pos);
             }
             return;
         }
