@@ -193,6 +193,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
+    private static final String NULL_LITERAL = "null";
 
     private final SymbolResolver symResolver;
     private int loopCount;
@@ -215,6 +216,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private final Stack<HashSet<BType>> returnTypes = new Stack<>();
     private boolean withinAbortedBlock;
     private boolean withinCommittedBlock;
+    private boolean isJSONContext;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -274,9 +276,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangNode myParent = parent;
         node.parent = parent;
         parent = node;
+        this.isJSONContext =
+                this.isJSONContext || node instanceof BLangExpression && ((BLangExpression) node).isJSONContext;
         node.accept(this);
         parent = myParent;
         this.env = prevEnv;
+        this.isJSONContext = false;
     }
 
     @Override
@@ -564,8 +569,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
-            types.validateNullLiteralUsage(pattern.literal, matchStmt.expr.type);
-
+            this.isJSONContext = types.isJSONContext(matchStmt.expr.type);
+            analyzeNode(pattern.literal, env);
             matchedPatterns.add(pattern);
         }
 
@@ -947,10 +952,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
-        if (objectTypeNode.isFieldAnalyseRequired && Symbols.isPublic(objectTypeNode.symbol)) {
-            objectTypeNode.fields.stream()
-                    .filter(field -> (Symbols.isPublic(field.symbol)))
-                    .forEach(field -> analyzeNode(field, objectEnv));
+        if (objectTypeNode.isFieldAnalyseRequired) {
+            objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         }
         objectTypeNode.functions.forEach(e -> this.analyzeNode(e, objectEnv));
         if (Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.CLIENT) && objectTypeNode.functions.stream()
@@ -971,10 +974,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        if (recordTypeNode.isFieldAnalyseRequired && Symbols.isPublic(recordTypeNode.symbol)) {
-            recordTypeNode.fields.stream()
-                    .filter(field -> (Symbols.isPublic(field.symbol)))
-                    .forEach(field -> analyzeNode(field, recordEnv));
+        if (recordTypeNode.isFieldAnalyseRequired) {
+            recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
         }
     }
 
@@ -1317,7 +1318,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLiteral literalExpr) {
-        /* ignore */
+        if (literalExpr.type.tag == TypeTags.NIL &&
+                NULL_LITERAL.equals(literalExpr.originalValue) &&
+                !literalExpr.isJSONContext && !this.isJSONContext) {
+            dlog.error(literalExpr.pos, DiagnosticCode.INVALID_USE_OF_NULL_LITERAL);
+        }
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {

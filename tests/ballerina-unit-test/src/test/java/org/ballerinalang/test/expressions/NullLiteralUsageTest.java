@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
@@ -38,11 +39,16 @@ import static org.testng.Assert.assertTrue;
  */
 public class NullLiteralUsageTest {
 
-    private CompileResult result = BCompileUtil.compile("test-src/expressions/null_literal_usage.bal");
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/expressions/null_literal_usage.bal");
+    }
 
     @Test
     public void testInvalidNullLiteralUsage() {
-        final String errorMsg = "null literal can only be used in JSON related contexts";
+        final String errorMsg = "null literal is only supported for 'json'";
         CompileResult result = BCompileUtil.compile("test-src/expressions/null_literal_usage_negative.bal");
         int index = 0;
 

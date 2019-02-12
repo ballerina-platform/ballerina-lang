@@ -170,7 +170,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private SymbolEnv env;
     private boolean isTypeChecked;
-    private boolean hasNullLiteral;
     private TypeNarrower typeNarrower;
 
     /**
@@ -223,7 +222,6 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> resTypes = new ArrayList<>(exprs.size());
         for (BLangExpression expr : exprs) {
             resTypes.add(checkExpr(expr, env, expType));
-            types.validateNullLiteralUsage(expr, expType);
         }
         return resTypes;
     }
@@ -241,14 +239,11 @@ public class TypeChecker extends BLangNodeVisitor {
         this.diagCode = diagCode;
         this.expType = expType;
         this.isTypeChecked = true;
-        this.hasNullLiteral = false;
 
         expr.accept(this);
 
         expr.type = resultType;
         expr.typeChecked = isTypeChecked;
-        expr.hasNullLiteral = this.hasNullLiteral;
-        this.hasNullLiteral = false;
         this.env = prevEnv;
         this.expType = preExpType;
         this.diagCode = preDiagCode;
@@ -263,10 +258,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
 
         Object literalValue = literalExpr.value;
-
-        if (literalType.tag == TypeTags.NIL && "null".equals(literalExpr.originalValue)) {
-            this.hasNullLiteral = true;
-        }
+        literalExpr.isJSONContext = types.isJSONContext(expType);
 
         if (literalType.tag == TypeTags.INT) {
             if (expType.tag == TypeTags.FLOAT) {
@@ -1265,11 +1257,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         SymbolEnv thenEnv = typeNarrower.evaluateTruth(ternaryExpr.expr, ternaryExpr.thenExpr, env);
         BType thenType = checkExpr(ternaryExpr.thenExpr, thenEnv, expType);
-        types.validateNullLiteralUsage(ternaryExpr.thenExpr, expType);
 
         SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ternaryExpr.expr, ternaryExpr.elseExpr, env);
         BType elseType = checkExpr(ternaryExpr.elseExpr, elseEnv, expType);
-        types.validateNullLiteralUsage(ternaryExpr.elseExpr, expType);
 
         if (condExprType == symTable.semanticError || thenType == symTable.semanticError ||
                 elseType == symTable.semanticError) {
@@ -1391,8 +1381,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
 
-        types.validateNullLiteralUsage(binaryExpr.rhsExpr, lhsType);
-        types.validateNullLiteralUsage(binaryExpr.lhsExpr, rhsType);
+        if (types.isJSONContext(lhsType) || types.isJSONContext(rhsType)) {
+            binaryExpr.lhsExpr.isJSONContext = true;
+            binaryExpr.rhsExpr.isJSONContext = true;
+            binaryExpr.isJSONContext = true;
+        }
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -2280,7 +2273,6 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangExpression expr = requiredArgExprs.get(i);
             BType expParamType = requiredParamTypes.get(i);
             checkExpr(expr, this.env, expParamType);
-            types.validateNullLiteralUsage(expr, expParamType);
         }
     }
 
@@ -2297,7 +2289,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             checkExpr(expr, this.env, varSym.type);
-            types.validateNullLiteralUsage(expr, varSym.type);
         }
     }
 
@@ -2316,7 +2307,6 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangExpression arg : restArgExprs) {
             BType restParamType = ((BArrayType) restParam.type).eType;
             checkExpr(arg, this.env, restParamType);
-            types.validateNullLiteralUsage(arg, restParamType);
         }
     }
 

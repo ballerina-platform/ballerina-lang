@@ -53,5 +53,8 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
 
     public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
 
-    public boolean hasNullLiteral;
+    /**
+     * Indicates whether the expression is used in a JSON context.
+     */
+    public boolean isJSONContext;
 }

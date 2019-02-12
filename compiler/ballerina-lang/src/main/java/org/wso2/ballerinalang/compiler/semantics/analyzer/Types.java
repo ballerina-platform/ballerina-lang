@@ -182,14 +182,7 @@ public class Types {
         return symTable.semanticError;
     }
 
-    public void validateNullLiteralUsage(BLangExpression expr, BType targetType) {
-        if (expr.hasNullLiteral && !isJSONContext(targetType)) {
-            dlog.error(expr.pos, DiagnosticCode.INVALID_USE_OF_NULL_LITERAL);
-            expr.hasNullLiteral = false;
-        }
-    }
-
-    private boolean isJSONContext(BType type) {
+    public boolean isJSONContext(BType type) {
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.JSON);
         }

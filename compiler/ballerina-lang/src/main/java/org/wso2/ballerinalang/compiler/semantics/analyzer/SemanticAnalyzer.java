@@ -474,7 +474,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
-        types.validateNullLiteralUsage(rhsExpr, lhsType);
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) && !types
                 .checkListenerCompatibility(env, varNode.symbol.type)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
@@ -1682,7 +1681,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.type);
-        types.validateNullLiteralUsage(returnNode.expr, this.env.enclInvokable.returnTypeNode.type);
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
