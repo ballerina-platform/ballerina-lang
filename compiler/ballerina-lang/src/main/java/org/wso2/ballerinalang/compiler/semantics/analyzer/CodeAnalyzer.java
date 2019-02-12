@@ -1023,7 +1023,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void analyzeArrayElemImplicitInitialValue(BLangSimpleVariable varNode) {
         BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
-        if (!arrayPart.elemtype.type.hasImplicitInitialValue()) {
+        if (!types.hasImplicitInitialValue(arrayPart.elemtype.type)) {
             BLangType eType = arrayPart.elemtype;
             this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
         }
@@ -1039,7 +1039,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (!arrayType.getElementType().hasImplicitInitialValue()) {
+        if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
             BLangType eType = ((BLangArrayType) typeNode).elemtype;
             this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
         }

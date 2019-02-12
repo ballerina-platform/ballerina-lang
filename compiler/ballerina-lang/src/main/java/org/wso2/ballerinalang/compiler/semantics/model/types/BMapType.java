@@ -57,9 +57,4 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType {
     public String getDesc() {
         return TypeDescriptor.SIG_MAP + constraint.getDesc();
     }
-
-    @Override
-    public boolean hasImplicitInitialValue() {
-        return true; // Empty map.
-    }
 }

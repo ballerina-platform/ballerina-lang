@@ -47,9 +47,4 @@ public class BJSONType extends BBuiltInRefType {
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
     }
-
-    @Override
-    public boolean hasImplicitInitialValue() {
-        return true;
-    }
 }

@@ -130,20 +130,4 @@ public class BType implements ValueType {
             return "(" + trueType + ", " + falseType + ")";
         }
     }
-
-    public boolean hasImplicitInitialValue() {
-        switch (tag) {
-            case INT:
-            case BYTE:
-            case FLOAT:
-            case DECIMAL:
-            case STRING:
-            case BOOLEAN:
-            case NIL:
-            case TYPEDESC:
-                return true;
-            default:
-                return false;
-        }
-    }
 }

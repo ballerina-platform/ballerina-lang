@@ -58,9 +58,4 @@ public class BRecordType extends BStructureType implements RecordType {
     public String toString() {
         return this.tsymbol.toString();
     }
-
-    @Override
-    public boolean hasImplicitInitialValue() {
-        return this.fields.stream().allMatch(f -> f.type.hasImplicitInitialValue());
-    }
 }

@@ -49,11 +49,6 @@ public class BChannelType extends BBuiltInRefType implements ConstrainedType {
     }
 
     @Override
-    public boolean hasImplicitInitialValue() {
-        return false;
-    }
-
-    @Override
     public String getDesc() {
         return TypeDescriptor.SIG_CHANNEL + constraint.getDesc();
     }

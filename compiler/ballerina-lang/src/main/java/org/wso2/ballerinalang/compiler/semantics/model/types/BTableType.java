@@ -63,9 +63,4 @@ public class BTableType extends BBuiltInRefType implements ConstrainedType {
 
         return TypeDescriptor.SIG_TABLE + constraint.getQualifiedTypeName() + ";";
     }
-
-    @Override
-    public boolean hasImplicitInitialValue() {
-        return true; // Table with no rows.
-    }
 }
