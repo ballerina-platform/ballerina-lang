@@ -17,18 +17,18 @@
 import ballerina/task;
 
 task:TimerConfiguration configuration = {
-    interval: -500,
+    interval: 2000,
     delay: 1000
 };
 
 listener task:Listener timer = new(configuration);
 
 service timerService on timer {
-    resource function onTrigger() {
+    resource function onTrigger() returns error? {
 
     }
 
-    resource function onError(error e) {
+    resource function onError(int count) {
 
     }
 }

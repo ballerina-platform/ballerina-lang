@@ -42,7 +42,7 @@ service timerService on timer {
         }
     }
 
-    resource function onError() {
+    resource function onError(error e) {
         count = count - 1;
     }
 }

@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -130,6 +131,18 @@ public class ListenerTest {
             Assert.assertEquals(isResumed.length, 1);
             Assert.assertTrue(isResumed[0] instanceof BBoolean);
             return (((BBoolean) isPaused[0]).booleanValue() && ((BBoolean) isResumed[0]).booleanValue());
+        });
+    }
+
+    @Test(description = "Tests for onError function parameter")
+    public void testOnErrorParameter() {
+        CompileResult compileResult = BCompileUtil.compile("listener-test-src/timer/service_error_return.bal");
+        BServiceUtil.runService(compileResult);
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] isPaused = BRunUtil.invokeStateful(compileResult, "getResult");
+            Assert.assertEquals(isPaused.length, 1);
+            Assert.assertTrue(isPaused[0] instanceof BString);
+            return ("test".equals(isPaused[0].stringValue()));
         });
     }
 }

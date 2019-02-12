@@ -27,7 +27,7 @@ service timerService = service {
         resultValue = 1;
     }
 
-    resource function onError() {
+    resource function onError(error e) {
         resultValue = -1;
     }
 };

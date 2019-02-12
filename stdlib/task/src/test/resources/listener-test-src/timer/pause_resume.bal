@@ -56,7 +56,7 @@ service timerService = service {
         // Do nothing
     }
 
-    resource function onError() {
+    resource function onError(error e) {
         // Do nothing
     }
 };

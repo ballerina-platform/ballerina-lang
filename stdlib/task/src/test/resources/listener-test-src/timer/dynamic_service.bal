@@ -36,7 +36,7 @@ service timerService = service {
         count = count + 1;
     }
 
-    resource function onError() {
+    resource function onError(error e) {
         count = count - 1;
     }
 };

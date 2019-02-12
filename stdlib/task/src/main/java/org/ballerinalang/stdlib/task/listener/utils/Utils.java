@@ -107,11 +107,17 @@ public class Utils {
         }
 
         boolean isOnTriggerFound = false;
+
         for (Resource resource : resources) {
             if (isOnTriggerResource(resource)) {
+                validateOnTriggerResource(resource);
                 isOnTriggerFound = true;
+            } else if (isOnErrorResource(resource)) {
+                validateOnErrorResource(resource);
+            } else {
+                throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
+                        + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\' or \'" + RESOURCE_ON_ERROR + "\'.");
             }
-            validateResource(resource);
         }
         if (!isOnTriggerFound) { // Done
             throw new BLangRuntimeException("Resource validation failed. Service " + service.getName()
@@ -119,14 +125,17 @@ public class Utils {
         }
     }
 
-    private static void validateResource(Resource resource) {
-        if (!isOnTriggerResource(resource) && !isOnErrorResource(resource)) {
-            throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
-                    + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\' or \'" + RESOURCE_ON_ERROR + "\'.");
+    private static void validateOnTriggerResource(Resource resource) {
+    }
+
+    private static void validateOnErrorResource(Resource resource) {
+        if (resource.getParamDetails().size() != 1) {
+            throw new BLangRuntimeException("Invalid resource function signature: \'"
+                    + RESOURCE_ON_ERROR + "\' should have one input parameter.");
         }
-        if (resource.getParamDetails().size() > 0) { // Done
-            throw new BLangRuntimeException("Invalid resource definition. Resource \'" + resource.getName()
-                    + "\' cannot have any parameters.");
+        if (resource.getParamDetails().get(0).getVarType() != BTypes.typeError) {
+            throw new BLangRuntimeException("Invalid resource function signature: \'"
+                    + RESOURCE_ON_ERROR + "\' function should have error as the input parameter type.");
         }
     }
 

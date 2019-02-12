@@ -21,10 +21,25 @@ task:TimerConfiguration configuration = {
     delay: 1000
 };
 
+string result = "";
+int count = 0;
+
 listener task:Listener timer = new(configuration);
 
-service timerService on timer {
-    resource function onTrigger(int value) {
+function getResult() returns string {
+    return result;
+}
 
+service timerService on timer {
+    resource function onTrigger() returns error? {
+        count = count + 1;
+        if (count > 3) {
+            error e = error("trigger error", { message: "test" });
+            return e;
+        }
+    }
+
+    resource function onError(error e) {
+        result = untaint <string>e.detail().message;
     }
 }

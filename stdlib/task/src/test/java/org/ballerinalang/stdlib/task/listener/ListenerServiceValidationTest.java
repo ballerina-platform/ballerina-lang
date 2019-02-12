@@ -100,9 +100,9 @@ public class ListenerServiceValidationTest {
             description = "Tests compiler error for a task with invalid single resource function.",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    ".*Invalid resource definition. Resource 'onTrigger' cannot have any parameters.*"
+                    ".*Invalid resource function signature:.*function should have error as the input parameter type.*"
     )
     public void testInvalidResourceSignature() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_resource_signature.bal");
+        BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_on_error_resource.bal");
     }
 }

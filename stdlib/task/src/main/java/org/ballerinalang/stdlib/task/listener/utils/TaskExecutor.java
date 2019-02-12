@@ -66,9 +66,11 @@ public class TaskExecutor {
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
                 List<BValue> onErrorFunctionArgs = new ArrayList<>();
+                // We have to pass the service BValue as a function parameter, as it is required.
+                onErrorFunctionArgs.add(service.getBValue());
                 onErrorFunctionArgs.addAll(Arrays.asList(results));
-                BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(),
-                        onErrorFunction, onErrorFunctionArgs.toArray(new BValue[0]));
+                BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(), onErrorFunction,
+                        onErrorFunctionArgs.toArray(new BValue[0]));
             }
         } catch (RuntimeException e) {
             //Call the onError function in case of error.
