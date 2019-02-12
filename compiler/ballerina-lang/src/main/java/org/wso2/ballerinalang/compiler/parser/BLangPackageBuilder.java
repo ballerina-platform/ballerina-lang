@@ -1089,13 +1089,12 @@ public class BLangPackageBuilder {
         switch (variable.getKind()) {
             case TUPLE_VARIABLE:
                 // If the variable is a tuple variable, we need to set the final flag to the all member variables.
-                ((BLangTupleVariable) variable).memberVariables.parallelStream()
-                        .forEach(this::markVariableAsFinal);
+                ((BLangTupleVariable) variable).memberVariables.forEach(this::markVariableAsFinal);
                 break;
             case RECORD_VARIABLE:
                 // If the variable is a record variable, we need to set the final flag to the all the variables in
                 // the record.
-                ((BLangRecordVariable) variable).variableList.parallelStream()
+                ((BLangRecordVariable) variable).variableList.stream()
                         .map(BLangRecordVariableKeyValue::getValue)
                         .forEach(this::markVariableAsFinal);
                 break;
@@ -3159,8 +3158,12 @@ public class BLangPackageBuilder {
 
         if (this.exprNodeStack.size() > 1) {
             List<ExpressionNode> exprList = new ArrayList<>();
-            addExprToExprNodeList(exprList, this.exprNodeStack.size() - 1);
-            streamingInput.setPostFunctionInvocations(exprList);
+            while (this.exprNodeStack.peek().getKind() == NodeKind.INVOCATION) {
+                exprList.add(this.exprNodeStack.pop());
+            }
+            if (exprList.size() > 0) {
+                streamingInput.setPostFunctionInvocations(exprList);
+            }
         }
 
         if (!this.windowClausesStack.empty()) {

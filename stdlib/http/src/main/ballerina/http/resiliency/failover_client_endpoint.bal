@@ -346,7 +346,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 failoverClient.succeededEndpointIndex = currentIndex - 1;
                 break;
             }
-        } else if (endpointResponse is error) {
+        } else {
             error httpConnectorErr = endpointResponse;
             // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
             // endpoint configured in the failover endpoints gave the errornous response.
@@ -450,7 +450,7 @@ public type FailoverClientEndpointConfiguration record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = ();
+    PoolConfiguration? poolConfig = ();
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
@@ -472,7 +472,7 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         followRedirects:foConfig.followRedirects,
         retryConfig:foConfig.retryConfig,
         proxy:foConfig.proxy,
-        connectionThrottling:foConfig.connectionThrottling,
+        poolConfig:foConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:foConfig.cache,
         compression:foConfig.compression,

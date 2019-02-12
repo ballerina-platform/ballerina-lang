@@ -17,8 +17,6 @@
 import ballerina/http;
 import ballerina/io;
 
-http:WebSocketClient wsClient = new("wss://echo.websocket.org", config = {callbackService: wsClientService});
-
 service wsClientService = @http:WebSocketServiceConfig {} service {
 
     resource function onOpen(http:WebSocketClient caller) {
@@ -27,3 +25,5 @@ service wsClientService = @http:WebSocketServiceConfig {} service {
     resource function onIdleTimeout(http:WebSocketClient caller) {
     }
 };
+
+http:WebSocketClient wsClient = new("wss://echo.websocket.org", config = {callbackService: wsClientService});

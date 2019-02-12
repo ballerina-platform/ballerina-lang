@@ -628,4 +628,40 @@ public class ObjectTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
+
+    @Test
+    public void testObjectPrivateMethods() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_private_method.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPrivateMethodAccess");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 15000);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 12500);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 11500);
+    }
+
+    @Test(description = "Negative test to test object private methods")
+    public void testObjectPrivateMethodsNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_private_method_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 4);
+        int i = 0;
+        BAssertUtil.validateError(result, i++,
+                "attempt to refer to non-accessible symbol 'Person.incrementSalary'", 53, 5);
+        BAssertUtil.validateError(result, i++,
+                "undefined function 'incrementSalary' in object 'Person'", 53, 5);
+        BAssertUtil.validateError(result, i++,
+                "attempt to refer to non-accessible symbol 'Person.decrementAndUpdateSalary'", 54, 13);
+        BAssertUtil.validateError(result, i,
+                "undefined function 'decrementAndUpdateSalary' in object 'Person'", 54, 13);
+    }
+
+    @Test
+    public void testAbstractClientObject() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_client_object_method.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAbstractClientObject");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 15000);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 12500);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 15000);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 12500);
+    }
 }

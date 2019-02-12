@@ -45,11 +45,8 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
     var jwtComponents = getJWTComponents(jwtToken);
     if (jwtComponents is string[]) {
         encodedJWTComponents = jwtComponents;
-    } else if (jwtComponents is error) {
-        return jwtComponents;
     } else {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
-        return jwtError;
+        return jwtComponents;
     }
 
     string[] aud = [];
@@ -58,26 +55,20 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
     var decodedJwt = parseJWT(encodedJWTComponents);
     if (decodedJwt is (JwtHeader, JwtPayload)) {
         (header, payload) = decodedJwt;
-    } else if (decodedJwt is error) {
-        return decodedJwt;
     } else {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
-        return jwtError;
+        return decodedJwt;
     }
 
     var jwtValidity = validateJWT(encodedJWTComponents, header, payload, config);
     if (jwtValidity is error) {
         return jwtValidity;
-    } else if (jwtValidity is boolean) {
+    } else {
         if (jwtValidity) {
             return payload;
         } else {
             error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
             return jwtError;
         }
-    } else {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
-        return jwtError;
     }
 }
 
@@ -99,7 +90,7 @@ function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload
     var decodedJWTComponents = getDecodedJWTComponents(encodedJWTComponents);
     if (decodedJWTComponents is (json, json)) {
         (headerJson, payloadJson) = decodedJWTComponents;
-    } else if (decodedJWTComponents is error) {
+    } else {
         return decodedJWTComponents;
     }
 
@@ -119,15 +110,15 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
     var jsonHeader = parseJson(jwtHeader);
     if (jsonHeader is json) {
         jwtHeaderJson = jsonHeader;
-    } else if (jsonHeader is error) {
+    } else {
         return jsonHeader;
     }
 
-    var jsonPayloaad = parseJson(jwtPayload);
-    if (jsonPayloaad is json) {
-        jwtPayloadJson = jsonPayloaad;
-    } else if (jsonPayloaad is error) {
-        return jsonPayloaad;
+    var jsonPayload = parseJson(jwtPayload);
+    if (jsonPayload is json) {
+        jwtPayloadJson = jsonPayload;
+    } else {
+        return jsonPayload;
     }
     return (jwtHeaderJson, jwtPayloadJson);
 }
