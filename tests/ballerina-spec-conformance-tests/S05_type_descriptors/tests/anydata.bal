@@ -16,7 +16,7 @@
 
 import ballerina/test;
 
-(anydata|error)[] anydataOrErrorArray = [a, b, errValOne, c];
+(anydata|error)[4] anydataOrErrorArray = [a, b, errValOne, c];
 map<anydata|error> anydataOrErrorMap = {
     one: a,
     two: b,

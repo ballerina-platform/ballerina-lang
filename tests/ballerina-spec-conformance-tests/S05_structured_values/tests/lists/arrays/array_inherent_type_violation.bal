@@ -38,7 +38,7 @@ function testBasicTypeArrayInherentTypeViolation() {
     anyArray = string2DArray;
 
     // `stringOrIntArray` looks like `string[]`
-    (string|int)[] stringOrIntArray = ["test string 1", "test string 2"];
+    (string|int)[2] stringOrIntArray = ["test string 1", "test string 2"];
     utils:assertPanic(function() { anyArray[0] = stringOrIntArray; },
                       INHERENT_TYPE_VIOLATION_REASON,
                       INVALID_REASON_ON_INHERENT_TYPE_VIOLATING_ARRAY_INSERTION_FAILURE_MESSAGE);
@@ -77,7 +77,7 @@ function testObjectArrayInherentTypeViolation() {
     FooObjectOne f1 = new("test string 1");
     FooObjectOne f2 = new("test string 2");
     FooObjectOne f3 = new("test string 3");
-    FooObjectOne[] fooObjectArray = [f1, f2, f3];
+    FooObjectOne[3] fooObjectArray = [f1, f2, f3];
     any[] anyArray = fooObjectArray;
 
     BarObjectOne b1 = new(1);

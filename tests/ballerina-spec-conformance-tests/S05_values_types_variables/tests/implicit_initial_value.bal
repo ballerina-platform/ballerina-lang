@@ -118,3 +118,27 @@ function testImplicitInitialValueOfJSONType() {
     jsonArray[1] = 3;
     test:assertEquals(jsonArray[0], (), msg = "expected implicit initial value of json type to be ()");
 }
+
+@test:Config {}
+function testArrayMemberTypesBroken() {
+    QuxObject?[] objectArray = [];
+}
+
+public type QuxObject object {
+    public string fooFieldOne;
+
+    public function __init(string fooFieldOne) {
+        self.fooFieldOne = fooFieldOne;
+    }
+
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
+};
+
+@test:Config {}
+function testErrorImplicitInitialValueBroken() {
+    error?[] errorArray = [];
+    error er = error("Error One");
+    errorArray[1] = er;
+}

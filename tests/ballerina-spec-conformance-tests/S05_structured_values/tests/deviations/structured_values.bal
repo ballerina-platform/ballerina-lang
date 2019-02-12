@@ -115,7 +115,7 @@ function testTableShapeOfContainters() {
 }
 function testFrozenContainerShapeAndTypeBroken() {
     int[][] a1 = [[1, 2], [1]];
-    (int|string)[] a2 = [11, 12];
+    (int|string)?[] a2 = [11, 12];
     var result = trap insertMemberToArray(a1, a1.length() - 1, a2);
     test:assertTrue(result is error, 
                     msg = "expected to not be able to add a value that violates shape");
