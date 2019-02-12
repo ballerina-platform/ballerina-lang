@@ -979,6 +979,8 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.DOUBLE;
         case TypeTags.BOOLEAN_TAG:
             return Constants.SQLDataTypes.BOOLEAN;
+        case TypeTags.DECIMAL_TAG:
+            return Constants.SQLDataTypes.DECIMAL;
         default:
             throw new BallerinaException(
                     "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());

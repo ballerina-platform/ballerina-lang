@@ -29,6 +29,7 @@ type ResultDataType record {
     int LONG_TYPE;
     float FLOAT_TYPE;
     float DOUBLE_TYPE;
+    decimal DECIMAL_TYPE;
 };
 
 type ResultCount record {
@@ -58,8 +59,8 @@ type ResultBalTypes record {
     float DOUBLE_TYPE;
     boolean BOOLEAN_TYPE;
     string STRING_TYPE;
-    float NUMERIC_TYPE;
-    float DECIMAL_TYPE;
+    decimal NUMERIC_TYPE;
+    decimal DECIMAL_TYPE;
     float REAL_TYPE;
 };
 
@@ -69,7 +70,7 @@ type Employee record {
     string address;
 };
 
-function testInsertTableData() returns (int) {
+function testInsertTableData() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -84,7 +85,7 @@ function testInsertTableData() returns (int) {
     return insertCount;
 }
 
-function testCreateTable() returns (int) {
+function testCreateTable() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -98,7 +99,7 @@ function testCreateTable() returns (int) {
     return returnValue;
 }
 
-function testUpdateTableData() returns (int) {
+function testUpdateTableData() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -113,7 +114,7 @@ function testUpdateTableData() returns (int) {
     return updateCount;
 }
 
-function testGeneratedKeyOnInsert() returns (string) {
+function testGeneratedKeyOnInsert() returns string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -166,7 +167,7 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
 }
 
 
-function testGeneratedKeyWithColumn() returns (string) {
+function testGeneratedKeyWithColumn() returns string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -198,7 +199,7 @@ function testGeneratedKeyWithColumn() returns (string) {
     return returnVal;
 }
 
-function testSelectData() returns (string) {
+function testSelectData() returns string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -212,7 +213,7 @@ function testSelectData() returns (string) {
     return firstName;
 }
 
-function testSelectIntFloatData() returns (int, int, float, float) {
+function testSelectIntFloatData() returns (int, int, float, float, decimal) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -221,12 +222,13 @@ function testSelectIntFloatData() returns (int, int, float, float) {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    var dt = testDB->select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
+    var dt = testDB->select("SELECT  int_type, long_type, float_type, double_type, decimal_type from DataTypeTable
         where row_id = 1", ResultDataType);
     int int_type = -1;
     int long_type = -1;
     float float_type = -1;
     float double_type = -1;
+    decimal decimal_type = -1;
     if (dt is table<ResultDataType>) {
         while (dt.hasNext()) {
             var rs = dt.getNext();
@@ -235,60 +237,15 @@ function testSelectIntFloatData() returns (int, int, float, float) {
                 long_type = rs.LONG_TYPE;
                 float_type = rs.FLOAT_TYPE;
                 double_type = rs.DOUBLE_TYPE;
+                decimal_type = rs.DECIMAL_TYPE;
             }
         }
     }
     testDB.stop();
-    return (int_type, long_type, float_type, double_type);
+    return (int_type, long_type, float_type, double_type, decimal_type);
 }
 
-function testCallProcedure() returns (string, string) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 2 }
-        });
-
-    string returnValue = "";
-    var ret = testDB->call("{call InsertPersonData(100,'James')}", ());
-
-    if (ret is table<record {}>[]) {
-        returnValue = "table";
-    } else if (ret is ()) {
-        returnValue = "nil";
-    } else if (ret is error) {
-        returnValue = "error";
-    }
-    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
-    string firstName = getTableFirstNameColumn(dt);
-    testDB.stop();
-    return (firstName, returnValue);
-}
-
-function testCallProcedureWithResultSet() returns (string) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    string firstName = "";
-    var ret = testDB->call("{call SelectPersonData()}", [ResultCustomers]);
-
-    if (ret is table<record {}>[]) {
-        firstName = getTableFirstNameColumn(ret[0]);
-    } else if (ret is ()) {
-        firstName = "error";
-    }
-    testDB.stop();
-    return firstName;
-}
-
-function testQueryParameters() returns (string) {
+function testQueryParameters() returns string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -302,7 +259,7 @@ function testQueryParameters() returns (string) {
     return firstName;
 }
 
-function testQueryParameters2() returns (string) {
+function testQueryParameters2() returns string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -318,7 +275,7 @@ function testQueryParameters2() returns (string) {
     return firstName;
 }
 
-function testInsertTableDataWithParameters() returns (int) {
+function testInsertTableDataWithParameters() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -341,7 +298,7 @@ function testInsertTableDataWithParameters() returns (int) {
     return insertCount;
 }
 
-function testInsertTableDataWithParameters2() returns (int) {
+function testInsertTableDataWithParameters2() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -357,7 +314,7 @@ function testInsertTableDataWithParameters2() returns (int) {
     return insertCount;
 }
 
-function testInsertTableDataWithParameters3() returns (int) {
+function testInsertTableDataWithParameters3() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -374,7 +331,7 @@ function testInsertTableDataWithParameters3() returns (int) {
     return insertCount;
 }
 
-function testArrayofQueryParameters() returns (string) {
+function testArrayofQueryParameters() returns string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -399,7 +356,7 @@ function testArrayofQueryParameters() returns (string) {
     return firstName;
 }
 
-function testBoolArrayofQueryParameters() returns (int) {
+function testBoolArrayofQueryParameters() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -470,177 +427,7 @@ function testBlobArrayQueryParameter() returns int {
     return value;
 }
 
-function testArrayInParameters() returns (int, int[], int[], float[],
-            string[], boolean[], float[]) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    int[] intArray = [1];
-    int[] longArray = [1503383034226, 1503383034224, 1503383034225];
-    float[] floatArray = [245.23, 5559.49, 8796.123];
-    float[] doubleArray = [1503383034226.23, 1503383034224.43, 1503383034225.123];
-    boolean[] boolArray = [true, false, true];
-    string[] stringArray = ["Hello", "Ballerina"];
-    sql:Parameter para2 = { sqlType: sql:TYPE_ARRAY, value: intArray };
-    sql:Parameter para3 = { sqlType: sql:TYPE_ARRAY, value: longArray };
-    sql:Parameter para4 = { sqlType: sql:TYPE_ARRAY, value: floatArray };
-    sql:Parameter para5 = { sqlType: sql:TYPE_ARRAY, value: doubleArray };
-    sql:Parameter para6 = { sqlType: sql:TYPE_ARRAY, value: boolArray };
-    sql:Parameter para7 = { sqlType: sql:TYPE_ARRAY, value: stringArray };
-
-    int[] int_arr = [];
-    int[] long_arr = [];
-    float[] double_arr = [];
-    string[] string_arr = [];
-    boolean[] boolean_arr = [];
-    float[] float_arr = [];
-
-    var result = testDB->update("INSERT INTO ArrayTypes (row_id, int_array, long_array,
-        float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", 2, para2, para3, para4,
-        para5, para6, para7);
-    int insertCount = getIntResult(result);
-
-    var dt = testDB->select("SELECT int_array, long_array, double_array, boolean_array,
-        string_array, float_array from ArrayTypes where row_id = 2", ResultArrayType);
-    if (dt is table<ResultArrayType>) {
-        while (dt.hasNext()) {
-            var rs = dt.getNext();
-            if (rs is ResultArrayType) {
-                int_arr = rs.INT_ARRAY;
-                long_arr = rs.LONG_ARRAY;
-                double_arr = rs.DOUBLE_ARRAY;
-                boolean_arr = rs.BOOLEAN_ARRAY;
-                string_arr = rs.STRING_ARRAY;
-                float_arr = rs.FLOAT_ARRAY;
-            }
-        }
-    }
-    testDB.stop();
-    return (insertCount, int_arr, long_arr, double_arr, string_arr, boolean_arr, float_arr);
-}
-
-function testOutParameters() returns (any, any, any, any, any, any, any,
-            any, any, any, any, any, any) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: "1" };
-    sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraLong = { sqlType: sql:TYPE_BIGINT, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraFloat = { sqlType: sql:TYPE_FLOAT, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraDouble = { sqlType: sql:TYPE_DOUBLE, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraBool = { sqlType: sql:TYPE_BOOLEAN, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraString = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraNumeric = { sqlType: sql:TYPE_NUMERIC, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraDecimal = { sqlType: sql:TYPE_DECIMAL, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraReal = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
-
-    _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
-        paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
-
-    testDB.stop();
-
-    return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
-    paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-    paraBinary.value);
-}
-
-function testBlobOutInOutParameters() returns (any, any) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    // OUT param
-    sql:Parameter paraID1 = { sqlType: sql:TYPE_INTEGER, value: "1" };
-    sql:Parameter paraBlobOut = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_OUT };
-
-    // INOUT param
-    sql:Parameter paraID2 = { sqlType: sql:TYPE_INTEGER, value: 5 };
-    sql:Parameter paraBlobInOut = { sqlType: sql:TYPE_BLOB, value: "YmxvYiBkYXRh", direction: sql:DIRECTION_INOUT };
-
-    _ = testDB->call("{call TestOUTINOUTParamsBlob(?,?,?,?)}", (), paraID1, paraID2, paraBlobOut, paraBlobInOut);
-
-    testDB.stop();
-
-    return (paraBlobOut.value, paraBlobInOut.value);
-}
-
-function testNullOutParameters() returns (any, any, any, any, any, any,
-            any, any, any, any, any, any, any) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: "2" };
-    sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraLong = { sqlType: sql:TYPE_BIGINT, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraFloat = { sqlType: sql:TYPE_FLOAT, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraDouble = { sqlType: sql:TYPE_DOUBLE, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraBool = { sqlType: sql:TYPE_BOOLEAN, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraString = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraNumeric = { sqlType: sql:TYPE_NUMERIC, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraDecimal = { sqlType: sql:TYPE_DECIMAL, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraReal = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
-
-    _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
-        paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
-    testDB.stop();
-    return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
-    paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-    paraBinary.value);
-}
-
-function testNullOutInOutBlobParameters() returns (any, any) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    // OUT params
-    sql:Parameter paraID1 = { sqlType: sql:TYPE_INTEGER, value: "2" };
-    sql:Parameter paraBlobOut = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_OUT };
-
-    // INOUT params
-    sql:Parameter paraID2 = { sqlType: sql:TYPE_INTEGER, value: "6" };
-    sql:Parameter paraBlobInOut = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_INOUT };
-
-    _ = testDB->call("{call TestOUTINOUTParamsBlob(?,?,?,?)}", (), paraID1, paraID2, paraBlobOut, paraBlobInOut);
-    testDB.stop();
-    return (paraBlobOut.value, paraBlobInOut.value);
-}
-
-function testINParameters() returns (int) {
+function testINParameters() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -704,8 +491,7 @@ function testBlobInParameter() returns (int, byte[]) {
     return (insertCount, blobVal);
 }
 
-function testINParametersWithDirectValues() returns (int, int, float,
-        float, boolean, string, float, float, float) {
+function testINParametersWithDirectValues() returns (int, int, float, float, boolean, string, decimal, decimal, float) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -727,8 +513,8 @@ function testINParametersWithDirectValues() returns (int, int, float,
     float d = -1;
     boolean b = false;
     string s = "";
-    float n = -1;
-    float dec = -1;
+    decimal n = -1;
+    decimal dec = -1;
     float real = -1;
     if (dt is table<ResultBalTypes>) {
         while (dt.hasNext()) {
@@ -750,7 +536,7 @@ function testINParametersWithDirectValues() returns (int, int, float,
 }
 
 function testINParametersWithDirectVariables() returns (int, int, float,
-        float, boolean, string, float, float, float) {
+        float, boolean, string, decimal, decimal, float) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -766,8 +552,8 @@ function testINParametersWithDirectVariables() returns (int, int, float,
     float doubleType = 2139095039.1;
     boolean boolType = true;
     string stringType = "Hello";
-    float numericType = 1234.567;
-    float decimalType = 1234.567;
+    decimal numericType = 1234.567;
+    decimal decimalType = 1234.567;
     float realType = 1234.567;
 
     var result = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
@@ -784,8 +570,8 @@ function testINParametersWithDirectVariables() returns (int, int, float,
     float d = -1;
     boolean b = false;
     string s = "";
-    float n = -1;
-    float dec = -1;
+    decimal n = -1;
+    decimal dec = -1;
     float real = -1;
 
     if (dt is table<ResultBalTypes>) {
@@ -807,7 +593,7 @@ function testINParametersWithDirectVariables() returns (int, int, float,
     return (i, l, f, d, b, s, n, dec, real);
 }
 
-function testNullINParameterValues() returns (int) {
+function testNullINParameterValues() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -841,7 +627,7 @@ function testNullINParameterValues() returns (int) {
     return insertCount;
 }
 
-function testNullINParameterBlobValue() returns (int) {
+function testNullINParameterBlobValue() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -860,77 +646,7 @@ function testNullINParameterBlobValue() returns (int) {
     return insertCount;
 }
 
-function testINOutParameters() returns (any, any, any, any, any, any,
-            any, any, any, any, any, any, any) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 5 };
-    sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, value: 10, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraLong = { sqlType: sql:TYPE_BIGINT, value: "9223372036854774807", direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraFloat = { sqlType: sql:TYPE_REAL, value: 123.34, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraDouble = { sqlType: sql:TYPE_DOUBLE, value: 2139095039, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraBool = { sqlType: sql:TYPE_BOOLEAN, value: true, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraString = { sqlType: sql:TYPE_VARCHAR, value: "Hello", direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraNumeric = { sqlType: sql:TYPE_NUMERIC, value: 1234.567, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraDecimal = { sqlType: sql:TYPE_DECIMAL, value: 1234.567, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraReal = { sqlType: sql:TYPE_REAL, value: 1234.567, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, value: 1, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, value: 5555, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, value: "very long text", direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction: sql
-    :
-    DIRECTION_INOUT };
-
-    _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
-        paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
-    testDB.stop();
-    return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
-    paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-    paraBinary.value);
-}
-
-function testNullINOutParameters() returns (any, any, any, any, any, any
-            , any, any, any, any, any, any, any) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: "6" };
-    sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraLong = { sqlType: sql:TYPE_BIGINT, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraFloat = { sqlType: sql:TYPE_FLOAT, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraDouble = { sqlType: sql:TYPE_DOUBLE, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraBool = { sqlType: sql:TYPE_BOOLEAN, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraString = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraNumeric = { sqlType: sql:TYPE_NUMERIC, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraDecimal = { sqlType: sql:TYPE_DECIMAL, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraReal = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_INOUT };
-
-    _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
-        paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
-    testDB.stop();
-    return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
-    paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-    paraBinary.value);
-}
-
-function testEmptySQLType() returns (int) {
+function testEmptySQLType() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -944,65 +660,7 @@ function testEmptySQLType() returns (int) {
     return insertCount;
 }
 
-function testArrayOutParameters() returns (any, any, any, any, any, any)
-{
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    string firstName;
-    sql:Parameter para1 = { sqlType: sql:TYPE_ARRAY, direction: sql:DIRECTION_OUT };
-    sql:Parameter para2 = { sqlType: sql:TYPE_ARRAY, direction: sql:DIRECTION_OUT };
-    sql:Parameter para3 = { sqlType: sql:TYPE_ARRAY, direction: sql:DIRECTION_OUT };
-    sql:Parameter para4 = { sqlType: sql:TYPE_ARRAY, direction: sql:DIRECTION_OUT };
-    sql:Parameter para5 = { sqlType: sql:TYPE_ARRAY, direction: sql:DIRECTION_OUT };
-    sql:Parameter para6 = { sqlType: sql:TYPE_ARRAY, direction: sql:DIRECTION_OUT };
-    _ = testDB->call("{call TestArrayOutParams(?,?,?,?,?,?)}", (), para1, para2, para3, para4, para5, para6);
-    testDB.stop();
-    return (para1.value, para2.value, para3.value, para4.value, para5.value, para6.value);
-}
-
-function testArrayInOutParameters() returns (any, any, any, any, any,
-            any, any) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    int[] intArray1 = [10,20,30];
-    int[] intArray2 = [10000000, 20000000, 30000000];
-    float[] floatArray1 = [2454.23, 55594.49, 87964.123];
-    float[] floatArray2 = [2454.23, 55594.49, 87964.123];
-    boolean[] booleanArray = [false, false, true];
-    string[] stringArray = ["Hello","Ballerina","Lang"];
-
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 3 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
-    sql:Parameter para3 = { sqlType: sql:TYPE_ARRAY, value: intArray1, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para4 = { sqlType: sql:TYPE_ARRAY, value: intArray2, direction: sql:
-    DIRECTION_INOUT };
-    sql:Parameter para5 = { sqlType: sql:TYPE_ARRAY, value: floatArray1, direction: sql:
-    DIRECTION_INOUT };
-    sql:Parameter para6 = { sqlType: sql:TYPE_ARRAY, value: floatArray2, direction: sql:
-    DIRECTION_INOUT };
-    sql:Parameter para7 = { sqlType: sql:TYPE_ARRAY, value: booleanArray, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para8 = { sqlType: sql:TYPE_ARRAY, value: stringArray, direction: sql:DIRECTION_INOUT };
-
-    _ = testDB->call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", (),
-        para1, para2, para3, para4, para5, para6, para7, para8);
-
-    testDB.stop();
-    return (para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value);
-}
-
-function testBatchUpdate() returns (int[]) {
+function testBatchUpdate() returns int[] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -1141,7 +799,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     return (updateCount, count);
 }
 
-function testBatchUpdateWithNullParam() returns (int[]) {
+function testBatchUpdateWithNullParam() returns int[] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -1157,7 +815,7 @@ function testBatchUpdateWithNullParam() returns (int[]) {
     return updateCount;
 }
 
-function testDateTimeInParameters() returns (int[]) {
+function testDateTimeInParameters() returns int[] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -1206,7 +864,7 @@ function testDateTimeInParameters() returns (int[]) {
     return returnValues;
 }
 
-function testDateTimeNullInValues() returns (string) {
+function testDateTimeNullInValues() returns string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -1233,104 +891,7 @@ function testDateTimeNullInValues() returns (string) {
     return data;
 }
 
-function testDateTimeNullOutValues() returns (int) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 123 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: () };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIME, value: () };
-    sql:Parameter para4 = { sqlType: sql:TYPE_TIMESTAMP, value: () };
-    sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: () };
-
-    sql:Parameter para6 = { sqlType: sql:TYPE_DATE, direction: sql:DIRECTION_OUT };
-    sql:Parameter para7 = { sqlType: sql:TYPE_TIME, direction: sql:DIRECTION_OUT };
-    sql:Parameter para8 = { sqlType: sql:TYPE_TIMESTAMP, direction: sql:DIRECTION_OUT };
-    sql:Parameter para9 = { sqlType: sql:TYPE_DATETIME, direction: sql:DIRECTION_OUT };
-
-    _ = testDB->call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
-        para1, para2, para3, para4, para5, para6, para7, para8, para9);
-
-    var dt = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", ResultCount);
-    int count = getTableCountValColumn(dt);
-    testDB.stop();
-    return count;
-}
-
-function testDateTimeNullInOutValues() returns (any, any, any, any) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 124 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: null, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIME, value: null, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para4 = { sqlType: sql:TYPE_TIMESTAMP, value: null, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: null, direction: sql:DIRECTION_INOUT };
-
-    _ = testDB->call("{call TestDateINOUTParams(?,?,?,?,?)}", (), para1, para2, para3, para4, para5);
-    testDB.stop();
-    return (para2.value, para3.value, para4.value, para5.value);
-}
-
-function testDateTimeOutParams(int time, int date, int timestamp)
-             returns (int) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 10 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: date };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIME, value: time };
-    sql:Parameter para4 = { sqlType: sql:TYPE_TIMESTAMP, value: timestamp };
-    sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: timestamp };
-
-    sql:Parameter para6 = { sqlType: sql:TYPE_DATE, direction: sql:DIRECTION_OUT };
-    sql:Parameter para7 = { sqlType: sql:TYPE_TIME, direction: sql:DIRECTION_OUT };
-    sql:Parameter para8 = { sqlType: sql:TYPE_TIMESTAMP, direction: sql:DIRECTION_OUT };
-    sql:Parameter para9 = { sqlType: sql:TYPE_DATETIME, direction: sql:DIRECTION_OUT };
-
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
-
-    _ = testDB->call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
-        para1, para2, para3, para4, para5, para6, para7, para8, para9);
-
-    var dt = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", ResultCount);
-    int count = getTableCountValColumn(dt);
-    testDB.stop();
-    return count;
-}
-
-function testStructOutParameters() returns (any) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    sql:Parameter para1 = { sqlType: sql:TYPE_STRUCT, direction: sql:DIRECTION_OUT };
-    _ = testDB->call("{call TestStructOut(?)}", (), para1);
-    testDB.stop();
-    return para1.value;
-}
-
-function testComplexTypeRetrieval() returns (string, string, string,
-            string) {
+function testComplexTypeRetrieval() returns (string, string, string, string) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -1364,8 +925,7 @@ function testComplexTypeRetrieval() returns (string, string, string,
     return (s1, s2, s3, s4);
 }
 
-function testSelectLoadToMemory() returns (CustomerFullName[],
-            CustomerFullName[], CustomerFullName[]) {
+function testSelectLoadToMemory() returns (CustomerFullName[], CustomerFullName[], CustomerFullName[]) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -1402,8 +962,7 @@ function testSelectLoadToMemory() returns (CustomerFullName[],
     return (fullNameArray1, fullNameArray2, fullNameArray3);
 }
 
-function testLoadToMemorySelectAfterTableClose() returns (
-            CustomerFullName[], CustomerFullName[], error?) {
+function testLoadToMemorySelectAfterTableClose() returns (CustomerFullName[], CustomerFullName[], error?) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",

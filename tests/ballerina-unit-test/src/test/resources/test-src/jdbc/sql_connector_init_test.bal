@@ -17,7 +17,7 @@ sql:PoolOptions properties5 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSourc
 map<any> propertiesMap3 = { "AUTO_RECONNECT": "TRUE" };
 sql:PoolOptions properties6 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
-function testConnectionPoolProperties1() returns (json) {
+function testConnectionPoolProperties1() returns json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
