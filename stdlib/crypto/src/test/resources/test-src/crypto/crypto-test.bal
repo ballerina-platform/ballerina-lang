@@ -140,7 +140,7 @@ function testSignRsaMd5WithInvalidKey(byte[] input) returns byte[]|error {
     return crypto:signRsaMd5(input, pk);
 }
 
-function testEncryptAesEcb(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5")
+function testEncryptAesEcb(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5") returns byte[]|error {
     return crypto:encryptAesEcb(input, key, padding = padding);
 }
 
