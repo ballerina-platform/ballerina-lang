@@ -57,13 +57,24 @@ public class ListenerServiceValidationTest {
     }
 
     @Test(
-            description = "Tests compiler error for a task with invalid single resource function.",
+            description = "Tests compiler error for a task with invalid parameter for onError resource function.",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    ".*Invalid resource function signature:.*function should have error as the input parameter type.*"
+                    ".*Invalid resource function signature.*function should have error as the input parameter type.*"
     )
-    public void testInvalidOnErrorResourceSignature() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_on_error_resource.bal");
+    public void testInvalidOnErrorResourceSignatureInvalidParam() {
+        BCompileUtil.compileAndSetup(
+                "listener-test-src/service-validation/invalid_on_error_resource_invalid_param.bal");
+    }
+
+    @Test(
+            description = "Tests compiler error for a task with more than one parameter for onError resource function.",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*Invalid resource function signature.*should have one input parameter.*"
+    )
+    public void testInvalidOnErrorResourceSignatureMoreParams() {
+        BCompileUtil.compileAndSetup(
+                "listener-test-src/service-validation/invalid_on_error_resource_more_params.bal");
     }
 
     @Test(
