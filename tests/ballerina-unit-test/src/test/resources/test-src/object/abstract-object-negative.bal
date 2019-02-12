@@ -87,3 +87,8 @@ type Bar object {
 private function Bar.getName() returns string {
     return "bar";
 }
+
+// Abstract object with extern method
+type Person7 abstract object {
+    public extern function getName() returns string;
+};
