@@ -199,12 +199,10 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
      *
      * @return values as an array
      */
-    @SuppressWarnings("unchecked")
-    public V[] getValues() {
+    public Collection<V> values() {
         readLock.lock();
         try {
-            Collection<V> values = super.values();
-            return (V[]) values.toArray(new BRefType[values.size()]);
+            return super.values();
         } finally {
             readLock.unlock();
         }
