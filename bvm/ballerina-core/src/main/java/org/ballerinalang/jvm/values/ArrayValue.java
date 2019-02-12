@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.jvm.freeze.State;
 import org.ballerinalang.jvm.freeze.Status;
+import org.ballerinalang.jvm.freeze.Utils;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -46,10 +47,10 @@ import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 
 /**
- * @since 0.985.0
+ * Represent an array in ballerina.
+ * @since 0.995.0
  */
 public class ArrayValue implements RefValue {
 
@@ -488,7 +489,7 @@ public class ArrayValue implements RefValue {
     private void handleFrozenArrayValue() {
         synchronized (this) {
             if (this.freezeStatus.getState() != State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
+                Utils.handleInvalidUpdate(freezeStatus.getState());
             }
         }
     }
