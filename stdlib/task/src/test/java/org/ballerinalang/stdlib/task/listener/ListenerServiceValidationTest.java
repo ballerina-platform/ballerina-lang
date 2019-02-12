@@ -35,6 +35,38 @@ import org.testng.annotations.Test;
 public class ListenerServiceValidationTest {
 
     @Test(
+            description = "Tests compiler error for a task with more than two resource functions.",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    ".*Invalid number of resources found in service 'timerService'." +
+                            " Task service cannot include more than two resource functions.*"
+    )
+    public void testMoreThanTwoResourceFunctions() {
+        BCompileUtil.compileAndSetup("listener-test-src/service-validation/more_than_two_resource_functions.bal");
+    }
+
+    @Test(
+            description = "Tests compiler error for a task without ant resource functions.",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    ".*No resource functions found in service 'timerService'." +
+                            " Task service should include at least one resource function.*"
+    )
+    public void testNoResourceFunctions() {
+        BCompileUtil.compileAndSetup("listener-test-src/service-validation/no_resource_functions.bal");
+    }
+
+    @Test(
+            description = "Tests compiler error for a task with invalid single resource function.",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    ".*Invalid resource function signature:.*function should have error as the input parameter type.*"
+    )
+    public void testInvalidOnErrorResourceSignature() {
+        BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_on_error_resource.bal");
+    }
+
+    @Test(
             description = "Tests compiler error for a task with an invalid resource name.",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
@@ -55,28 +87,6 @@ public class ListenerServiceValidationTest {
     }
 
     @Test(
-            description = "Tests compiler error for a task with more than two resource functions.",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    ".*Invalid number of resources found in service timerService." +
-                            " Task service can only included one or two resource functions.*"
-    )
-    public void testMoreThanTwoResourceFunctions() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/more_than_two_resource_functions.bal");
-    }
-
-    @Test(
-            description = "Tests compiler error for a task with more than two resource functions.",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    ".*Invalid number of resources found in service timerService." +
-                            " Task service can only included one or two resource functions.*"
-    )
-    public void testNoResourceFunctions() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/no_resource_functions.bal");
-    }
-
-    @Test(
             description = "Tests compiler error for a task with invalid single resource function.",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
@@ -94,15 +104,5 @@ public class ListenerServiceValidationTest {
     )
     public void testInvalidSingleResources() {
         BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_single_resource.bal");
-    }
-
-    @Test(
-            description = "Tests compiler error for a task with invalid single resource function.",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    ".*Invalid resource function signature:.*function should have error as the input parameter type.*"
-    )
-    public void testInvalidResourceSignature() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_on_error_resource.bal");
     }
 }

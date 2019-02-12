@@ -101,9 +101,12 @@ public class Utils {
      */
     public static void validateService(Service service) throws BLangRuntimeException {
         Resource[] resources = service.getResources();
-        if (resources.length > 2 || resources.length < 1) {
-            throw new BLangRuntimeException("Invalid number of resources found in service " + service.getName()
-                    + ". Task service can only included one or two resource functions");
+        if (resources.length > 2) {
+            throw new BLangRuntimeException("Invalid number of resources found in service \'" + service.getName()
+                    + "\'. Task service cannot include more than two resource functions");
+        } else if (resources.length < 1) {
+            throw new BLangRuntimeException("No resource functions found in service \'" + service.getName()
+                    + "\'. Task service should include at least one resource function.");
         }
 
         boolean isOnTriggerFound = false;
@@ -119,7 +122,7 @@ public class Utils {
                         + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\' or \'" + RESOURCE_ON_ERROR + "\'.");
             }
         }
-        if (!isOnTriggerFound) { // Done
+        if (!isOnTriggerFound) {
             throw new BLangRuntimeException("Resource validation failed. Service " + service.getName()
                     + " must include resource function: \'" + RESOURCE_ON_TRIGGER + "\'.");
         }
