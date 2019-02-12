@@ -43,7 +43,7 @@ public class ResourceContextHolder {
 
     /**
      * path wil be in the the format of /foo/${bar}
-     * Note the dollar followed by curly brace. This is to support string templating.
+     * Note the dollar symbol followed by the curly braces. This is to support string templating.
      */
     private String path;
 
