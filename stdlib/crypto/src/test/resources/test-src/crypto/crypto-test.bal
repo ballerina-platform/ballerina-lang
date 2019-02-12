@@ -150,7 +150,7 @@ returns byte[]|error {
     return crypto:decryptAesEcb(input, key, padding = padding);
 }
 
-function testEncryptAesCbc(byte[] input, byte[] key, byte[] iv, crypto:AesPadding padding = "PKCS5")
+function testEncryptAesCbc(byte[] input, byte[] key, byte[] iv, crypto:AesPadding padding = "PKCS5") returns byte[]|error {
     return crypto:encryptAesCbc(input, key, iv, padding = padding);
 }
 
