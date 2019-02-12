@@ -212,7 +212,6 @@ string path, string keyStorePassword, string keyAlias) returns byte[]|error {
 }
 
 function testEncryptRsaEcbWithInvalidKey(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = ())
-returns byte[]|error {
     crypto:PrivateKey pk = {algorithm:"RSA"};
     return crypto:encryptRsaEcb(input, pk, padding = padding);
 }
