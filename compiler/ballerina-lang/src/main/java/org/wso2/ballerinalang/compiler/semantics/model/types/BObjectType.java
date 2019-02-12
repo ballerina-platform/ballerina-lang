@@ -19,8 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ObjectType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -56,22 +54,5 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public String toString() {
         return this.tsymbol.toString();
-    }
-
-    @Override
-    public boolean hasImplicitInitialValue() {
-        if (this.tsymbol instanceof BObjectTypeSymbol) { // To please the FindBugs warning, BC_UNCONFIRMED_CAST
-            BAttachedFunction initializerFunc = ((BObjectTypeSymbol) this.tsymbol).initializerFunc;
-            if (initializerFunc == null) {
-                // No __init function found.
-                return true;
-            }
-            BInvokableType initFuncType = initializerFunc.type;
-            boolean noParams = initFuncType.paramTypes.isEmpty();
-            boolean nilReturn = initFuncType.retType.tag == TypeTags.NIL;
-
-            return noParams && nilReturn;
-        }
-        return false;
     }
 }

@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -240,7 +242,7 @@ public class Types {
     private boolean isLikeAnydata(BType type) {
         return isLikeAnydata(type, new HashSet<>());
     }
-    
+
     private boolean isLikeAnydata(BType type, Set<BType> unresolvedTypes) {
         int typeTag = type.tag;
         if (typeTag == TypeTags.ANY) {
@@ -957,7 +959,7 @@ public class Types {
         return getExplicitArrayCastOperator(t, s, origT, origS, new ArrayList<>());
     }
 
-    private BSymbol getExplicitArrayCastOperator(BType t, BType s, BType origT, BType origS, 
+    private BSymbol getExplicitArrayCastOperator(BType t, BType s, BType origT, BType origS,
                                                  List<TypePair> unresolvedTypes) {
         if (t.tag == TypeTags.ARRAY && s.tag == TypeTags.ARRAY) {
             return getExplicitArrayCastOperator(((BArrayType) t).eType, ((BArrayType) s).eType, origT, origS,
@@ -1934,9 +1936,141 @@ public class Types {
         return memberTypes;
     }
 
+    public boolean hasImplicitInitialValue(BType type) {
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+            case TypeTags.NIL:
+            case TypeTags.TYPEDESC:
+            case TypeTags.JSON:
+            case TypeTags.MAP:
+            case TypeTags.NONE:
+            case TypeTags.STREAM:
+            case TypeTags.TABLE:
+            case TypeTags.XML:
+            case TypeTags.ANYDATA:
+            case TypeTags.ANY:
+                return true;
+            case TypeTags.ANNOTATION:
+            case TypeTags.CHANNEL:
+            case TypeTags.ERROR:
+            case TypeTags.FUTURE:
+            case TypeTags.INVOKABLE:
+            case TypeTags.PACKAGE:
+            case TypeTags.SEMANTIC_ERROR:
+            case TypeTags.XML_ATTRIBUTES:
+                return false;
+            default:
+                return analyzeImplicitInitialValue(type);
+        }
+    }
+
+    private boolean analyzeImplicitInitialValue(BType type) {
+        switch (type.tag) {
+            case TypeTags.ARRAY:
+                BArrayType arrayType = (BArrayType) type;
+                if (arrayType.state == BArrayState.UNSEALED) {
+                    // Empty array is the implicit initial value for arrays.
+                    return true;
+                }
+                return hasImplicitInitialValue(arrayType.eType);
+            case TypeTags.FINITE:
+                return analyzeFiniteType((BFiniteType) type);
+            case TypeTags.OBJECT:
+                return analyzeObjectType((BObjectType) type);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                return recordType.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type));
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                return tupleType.tupleTypes.stream().allMatch(this::hasImplicitInitialValue);
+            case TypeTags.UNION:
+                return analyzeUnionType((BUnionType) type);
+            default:
+                return false;
+        }
+    }
+
+    private boolean analyzeUnionType(BUnionType type) {
+        // NIL is a member.
+        if (type.memberTypes.stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
+            return true;
+        }
+
+        // All members are of same type and has the implicit initial value as a member.
+        Iterator<BType> iterator = type.memberTypes.iterator();
+        BType firstMember;
+        for (firstMember = iterator.next(); iterator.hasNext(); ) {
+            if (!isSameType(firstMember, iterator.next())) {
+                return false;
+            }
+        }
+        // Control reaching this point means there is only one type in the union.
+        return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
+    }
+
+    private boolean analyzeObjectType(BObjectType type) {
+        if (type.getKind() == TypeKind.SERVICE) {
+            return false;
+        }
+        if (type.tsymbol instanceof BObjectTypeSymbol) { // To please the FindBugs warning, BC_UNCONFIRMED_CAST
+            BAttachedFunction initializerFunc = ((BObjectTypeSymbol) type.tsymbol).initializerFunc;
+            if (initializerFunc == null) {
+                // No __init function found.
+                return true;
+            }
+            BInvokableType initFuncType = initializerFunc.type;
+            boolean noParams = initFuncType.paramTypes.isEmpty();
+            boolean nilReturn = initFuncType.retType.tag == TypeTags.NIL;
+
+            return noParams && nilReturn;
+        }
+        return false;
+    }
+
+    private boolean analyzeFiniteType(BFiniteType type) {
+        // Has NIL element as a member.
+        if (type.valueSpace.stream().anyMatch(value -> value.type.tag == TypeTags.NIL)) {
+            return true;
+        }
+        // All of the element are from same type. And elements contains implicit initial value.
+        if (type.valueSpace.isEmpty()) {
+            return false;
+        }
+
+        BLangExpression firstElement = type.valueSpace.iterator().next();
+        boolean sameType = type.valueSpace.stream()
+                .allMatch(value -> value.type.tag == firstElement.type.tag);
+        if (!sameType) {
+            return false;
+        }
+        switch (firstElement.type.tag) {
+            case TypeTags.STRING:
+                return containsElement(type.valueSpace, "\"\"");
+            case TypeTags.INT:
+                return containsElement(type.valueSpace, "0");
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+                return containsElement(type.valueSpace, "0.0") ||
+                        containsElement(type.valueSpace, "0");
+            case TypeTags.BOOLEAN:
+                return containsElement(type.valueSpace, "false");
+            default:
+                return false;
+        }
+    }
+
+    private boolean containsElement(Set<BLangExpression> valueSpace, String element) {
+        return valueSpace.stream().map(v -> (BLangLiteral) v).anyMatch(lit -> lit.originalValue.equals(element));
+    }
+
     /**
      * Type vector of size two, to hold the source and the target types.
-     * 
+     *
      * @since 0.982.0
      */
     private static class TypePair {

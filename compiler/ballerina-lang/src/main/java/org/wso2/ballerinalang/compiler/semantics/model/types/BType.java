@@ -128,4 +128,21 @@ public class BType implements ValueType {
                 return false;
         }
     }
+    /**
+     * A data holder to hold the type associated with an expression.
+     */
+    public static class NarrowedTypes {
+        public BType trueType;
+        public BType falseType;
+
+        public NarrowedTypes(BType trueType, BType falseType) {
+            this.trueType = trueType;
+            this.falseType = falseType;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + trueType + ", " + falseType + ")";
+        }
+    }
 }

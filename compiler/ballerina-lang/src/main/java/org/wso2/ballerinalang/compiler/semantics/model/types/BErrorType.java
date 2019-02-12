@@ -57,9 +57,4 @@ public class BErrorType extends BType implements ErrorType {
     public String getDesc() {
         return TypeDescriptor.SIG_ERROR + "(" + reasonType.getDesc() + detailType.getDesc() + ")";
     }
-
-    @Override
-    public boolean hasImplicitInitialValue() {
-        return false;
-    }
 }

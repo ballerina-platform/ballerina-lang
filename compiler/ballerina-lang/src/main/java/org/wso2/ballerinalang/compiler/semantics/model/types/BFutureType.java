@@ -59,9 +59,4 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
 
         return super.toString() + "<" + constraint + ">";
     }
-
-    @Override
-    public boolean hasImplicitInitialValue() {
-        return false;
-    }
 }

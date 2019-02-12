@@ -35,9 +35,4 @@ public class BPackageType extends BType {
     public TypeKind getKind() {
         return TypeKind.PACKAGE;
     }
-
-    @Override
-    public boolean hasImplicitInitialValue() {
-        return false;
-    }
 }

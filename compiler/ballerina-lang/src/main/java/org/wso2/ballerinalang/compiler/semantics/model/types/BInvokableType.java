@@ -114,9 +114,4 @@ public class BInvokableType extends BType implements InvokableType {
         types.forEach(type -> br.append(type.getDesc()));
         return br.toString();
     }
-
-    @Override
-    public boolean hasImplicitInitialValue() {
-        return false;
-    }
 }
