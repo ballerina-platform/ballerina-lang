@@ -48,7 +48,7 @@ public class NullLiteralUsageTest {
 
     @Test
     public void testInvalidNullLiteralUsage() {
-        final String errorMsg = "null literal is only supported for 'json'";
+        final String errorMsg = "'null' literal is only supported for 'json'";
         CompileResult result = BCompileUtil.compile("test-src/expressions/null_literal_usage_negative.bal");
         int index = 0;
 

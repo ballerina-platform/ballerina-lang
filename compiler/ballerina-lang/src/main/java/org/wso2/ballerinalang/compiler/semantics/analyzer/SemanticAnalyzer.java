@@ -154,6 +154,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<SemanticAnalyzer> SYMBOL_ANALYZER_KEY =
             new CompilerContext.Key<>();
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
+    private static final String NULL_LITERAL = "null";
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -311,7 +312,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
         finiteTypeNode.valueSpace.forEach(val -> {
-            if (val.type.tag == TypeTags.NIL && "null".equals(((BLangLiteral) val).originalValue)) {
+            if (val.type.tag == TypeTags.NIL && NULL_LITERAL.equals(((BLangLiteral) val).originalValue)) {
                 dlog.error(val.pos, DiagnosticCode.INVALID_USE_OF_NULL_LITERAL);
             }
         });

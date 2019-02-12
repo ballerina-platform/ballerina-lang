@@ -2270,9 +2270,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkRequiredArgs(List<BLangExpression> requiredArgExprs, List<BType> requiredParamTypes) {
         for (int i = 0; i < requiredArgExprs.size(); i++) {
-            BLangExpression expr = requiredArgExprs.get(i);
-            BType expParamType = requiredParamTypes.get(i);
-            checkExpr(expr, this.env, expParamType);
+            checkExpr(requiredArgExprs.get(i), this.env, requiredParamTypes.get(i));
         }
     }
 
@@ -2305,8 +2303,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         for (BLangExpression arg : restArgExprs) {
-            BType restParamType = ((BArrayType) restParam.type).eType;
-            checkExpr(arg, this.env, restParamType);
+            checkExpr(arg, this.env, ((BArrayType) restParam.type).eType);
         }
     }
 
