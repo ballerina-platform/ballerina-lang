@@ -349,11 +349,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         if (!isSiddhiRuntimeEnabled) {
-
-//            if (invocationExpr.expr != null) {
-//                invocationExpr.expr.accept(this);
-//            }
-
             BSymbol aggregatorTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env,
                     Names.STREAMS_MODULE, names.fromString(AGGREGATOR_OBJECT_NAME), SymTag.OBJECT);
             BSymbol windowTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, Names.STREAMS_MODULE,
