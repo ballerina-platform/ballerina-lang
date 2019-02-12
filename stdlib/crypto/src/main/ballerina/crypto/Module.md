@@ -164,7 +164,6 @@ public function main() returns error? {
      crypto:PrivateKey privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
                                                             keyPassword = "ballerina");
 
-
      // Encrypt and decrypt input value using RSA ECB PKCS1 padding.
      byte[] output = check crypto:encryptRsaEcb(inputArr, publicKey);
      output = check crypto:decryptRsaEcb(output, privateKey);
