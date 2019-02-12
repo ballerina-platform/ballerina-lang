@@ -52,7 +52,7 @@ public class HttpCarbonMessage {
 
     protected HttpMessage httpMessage;
     private EntityCollector blockingEntityCollector;
-    private Map<String, Object> properties = new HashMap<>();
+    private Map<String, Object> properties = new HashMap<>(Constants.HTTP_CARBON_MESSAGE_PROPERTIES_MAP_DEFAULT_SIZE);
 
     private MessageFuture messageFuture;
     private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
