@@ -765,6 +765,13 @@ public class Types {
                 BArrayType arrayType = (BArrayType) collectionType;
                 mapType.constraint = arrayType.eType;
                 break;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) collectionType;
+                LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
+                mapType.constraint = tupleTypes.size() == 1 ?
+                        tupleTypes.iterator().next() :
+                        new BUnionType(null, new LinkedHashSet<>(tupleType.tupleTypes), false);
+                break;
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
                 mapType.constraint = new BTupleType(new LinkedList<BType>() {{
