@@ -17,16 +17,14 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.freeze.State;
-import org.ballerinalang.jvm.freeze.Status;
+import org.ballerinalang.jvm.values.freeze.State;
+import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -42,7 +40,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static org.ballerinalang.jvm.freeze.Utils.handleInvalidUpdate;
+import static org.ballerinalang.jvm.values.freeze.Utils.handleInvalidUpdate;
 
 /**
  * Structure that represents the mapping between key value pairs in ballerina.
@@ -120,7 +118,6 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
-
             return super.put(key, value);
         } finally {
             writeLock.unlock();
@@ -186,7 +183,6 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     public K[] getKeys() {
         readLock.lock();
         try {
-
             Set<K> keys = super.keySet();
             return (K[]) keys.toArray(new String[keys.size()]);
         } finally {
@@ -199,12 +195,10 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
      *
      * @return values as an array
      */
-    @SuppressWarnings("unchecked")
-    public V[] getValues() {
+    public Collection<V> values() {
         readLock.lock();
         try {
-            Collection<V> values = super.values();
-            return (V[]) values.toArray(new BRefType[values.size()]);
+            return super.values();
         } finally {
             readLock.unlock();
         }
@@ -323,7 +317,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     private String getStringValue(Object value) {
         if (value == null) {
             return null;
-        } else if (value instanceof BString) {
+        } else if (value instanceof String) {
             return "\"" + value.toString() + "\"";
         } else {
             return value.toString();

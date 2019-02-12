@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.freeze.State;
-import org.ballerinalang.jvm.freeze.Status;
+import org.ballerinalang.jvm.values.freeze.State;
+import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;

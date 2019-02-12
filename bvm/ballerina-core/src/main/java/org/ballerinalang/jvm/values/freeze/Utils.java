@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.freeze;
+package org.ballerinalang.jvm.values.freeze;
 
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;

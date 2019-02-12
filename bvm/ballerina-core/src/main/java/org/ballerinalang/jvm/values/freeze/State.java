@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.freeze;
+package org.ballerinalang.jvm.values.freeze;
 
 /**
  * Representation of the current state of a freeze attempt.
