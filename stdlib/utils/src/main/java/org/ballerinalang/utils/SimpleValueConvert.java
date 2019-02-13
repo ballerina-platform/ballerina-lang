@@ -81,8 +81,6 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
                                                      BLangExceptionHelper.getErrorMessage(
                                                              RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                              inputValue.getType(), inputValue, targetType)));
-        } catch (BallerinaException e) {
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), e.getMessage(), e.getDetail()));
         } catch (RuntimeException e) {
             ctx.setReturnValues(BLangVMErrors
                                         .createError(ctx.getStrand(), BallerinaErrorReasons.CONVERSION_ERROR,
