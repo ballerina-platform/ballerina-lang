@@ -155,6 +155,7 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
                 </Form.Field>
                 <Button size="mini" onClick={() => {
                     onAddParameter(this.state.parameterObj);
+                    onClose(index);
                 }}>Save</Button>
             </Form>
         );

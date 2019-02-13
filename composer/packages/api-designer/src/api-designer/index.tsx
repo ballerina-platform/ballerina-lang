@@ -51,7 +51,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         this.state = {
             expandMode: {
                 isEdit: false,
-                type: ""
+                type: "collapse"
             },
             openApiJson: {
                 info: {
@@ -71,6 +71,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         this.onInlineValueChange = this.onInlineValueChange.bind(this);
         this.onExpandAll = this.onExpandAll.bind(this);
         this.handlePostAddPath = this.handlePostAddPath.bind(this);
+        this.onTitleExpand = this.onTitleExpand.bind(this);
     }
 
     public componentDidMount() {
@@ -104,6 +105,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
             onAddOpenApiPath: this.onAddOpenApiPath,
             onAddOpenApiResponse: this.onAddOpenApiResponse,
             onInlineValueChange: this.onInlineValueChange,
+            onTitleExpand: this.onTitleExpand,
             openApiJson,
         };
 
@@ -124,19 +126,27 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                     <AddOpenApiPath openApiJson={openApiJson}  onClose={this.handleShowOpenApiAddPath}
                         onAddOpenApiPath={appContext.onAddOpenApiPath} />
                 }
-                <OpenApiPathList expandMode={expandMode} paths={openApiJson.paths} />
+                <OpenApiPathList expandMode={expandMode}
+                    paths={openApiJson.paths} onTitleExpannd={this.onTitleExpand} />
             </OpenApiContextProvider>
         );
     }
 
+    private onTitleExpand(state: boolean) {
+        this.setState({
+            ...this.state,
+            expandMode: {
+                ...this.state.expandMode,
+                type: state ? "expanded" : this.state.expandMode.type
+            }
+        });
+    }
+
     private onAddOpenApiPath(path: Swagger.PathItemObject, onAdd: (state: boolean) => void) {
-        const resourceName = path.name.replace(" ", "");
+        let resourceName = path.name.replace(" ", "");
         const operations: { [index: string]: Swagger.OperationObject } = {};
 
-        if (resourceName === "") {
-            onAdd(false);
-            return;
-        }
+        resourceName = resourceName === "" ? "/" : "/" + resourceName;
 
         path.methods.forEach((method: string, index: number) => {
             let opName = resourceName;
@@ -146,7 +156,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                 opName = "resource" + opName;
             }
 
-            if (!this.state.openApiJson.paths["/" + resourceName]) {
+            if (!this.state.openApiJson.paths[resourceName]) {
                 operations[method.toLowerCase()] = {
                     operationId: index === 0 ? opName : "resource" + index,
                     responses: {},
@@ -159,15 +169,15 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
             }
         });
 
-        if (this.state.openApiJson.paths["/" + resourceName]) {
+        if (this.state.openApiJson.paths[resourceName]) {
             this.setState((prevState) => ({
                 ...prevState,
                 openApiJson: {
                     ...prevState.openApiJson,
                     paths: {
                         ...prevState.openApiJson.paths,
-                        ["/" + resourceName] : {
-                            ...prevState.openApiJson.paths["/" + resourceName],
+                        [resourceName] : {
+                            ...prevState.openApiJson.paths[resourceName],
                             ...operations
                         }
                     }
@@ -182,7 +192,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                     ...prevState.openApiJson,
                     paths: {
                         ...prevState.openApiJson.paths,
-                        ["/" + resourceName]: operations
+                        [resourceName]: operations
                     }
                 }
             }), () => {
@@ -195,7 +205,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
     private handlePostAddPath(resourceName: string, onAdd: (state: boolean) => void) {
         const { onDidAddResource, onDidChange } = this.props;
 
-        if (this.state.openApiJson.paths["/" + resourceName]) {
+        if (this.state.openApiJson.paths[resourceName]) {
 
             onAdd(true);
 
