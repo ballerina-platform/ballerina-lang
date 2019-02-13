@@ -100,7 +100,7 @@ public type LengthWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -227,7 +227,7 @@ public type TimeWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -359,7 +359,7 @@ public type LengthBatchWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -502,7 +502,7 @@ public type TimeBatchWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -631,7 +631,7 @@ public type ExternalTimeWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -882,7 +882,7 @@ public type ExternalTimeBatchWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1195,7 +1195,7 @@ public type TimeLengthWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1348,7 +1348,7 @@ public type UniqueLengthWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1492,7 +1492,7 @@ public type DelayWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1630,8 +1630,7 @@ public type SortWindow object {
 
                     StreamEvent expiredEvent = <StreamEvent>self.sortedWindow.removeLast();
                     expiredEvent.timestamp = currentTime;
-                    streamEventChunk.addLast(expiredEvent);
-                    StreamEvent str = <StreamEvent>streamEventChunk.next();
+                    streamEventChunk.insertBeforeCurrent(expiredEvent);
                 }
             }
         }
@@ -1645,7 +1644,7 @@ public type SortWindow object {
                     StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
                     events[events.length()] = streamEvent;
                 }
-                nextProcessFuncPointer.call(streamEvents);
+                nextProcessFuncPointer.call(events);
             }
         }
     }
@@ -1667,7 +1666,7 @@ public type SortWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1779,7 +1778,7 @@ public type TimeAccumulatingWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1930,7 +1929,7 @@ public type HoppingWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -2096,7 +2095,7 @@ public type TimeOrderWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }

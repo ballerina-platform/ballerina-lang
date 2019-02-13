@@ -24,7 +24,7 @@ public function main() {
     if (x is Student) {
         io:println("Alex is a student");
     } else {
-        io:println("Alex is a student");
+        io:println("Alex is not a student");
     }
 
     // Type of `x` is `Student`. But it is structurally equivalent to `Person`. 
@@ -41,6 +41,12 @@ public function main() {
     } else {
         io:println("Alex is not a vehicle");
     }
+
+    // Type check expression can be used for any expression.
+    boolean isStudent = foo("student") is Student;
+    io:println("Is foo returns a student?", isStudent);
+    isStudent = foo("vehicle") is Student;
+    io:println("Is foo returns a student?", isStudent);
 }
 
 type Person record {
@@ -49,9 +55,18 @@ type Person record {
 
 type Student record {
     string name;
-    int age;
+    int age = 0;
 };
 
 type Vehicle record {
     string brand;
 };
+
+function foo(string t) returns any {
+    if (t == "student") {
+        return <Student>{ name: "Alex" };
+    } else if (t == "vehicle"){
+        return <Vehicle>{ brand: "Honda" };
+    }
+    return "invalid type";
+}

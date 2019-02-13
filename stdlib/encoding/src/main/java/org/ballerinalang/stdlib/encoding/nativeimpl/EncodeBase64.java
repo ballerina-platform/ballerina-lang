@@ -33,7 +33,7 @@ import java.util.Base64;
 /**
  * Extern function ballerina.encoding:encodeBase64.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "encoding",

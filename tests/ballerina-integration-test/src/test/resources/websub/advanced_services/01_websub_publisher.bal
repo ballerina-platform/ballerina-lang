@@ -18,6 +18,7 @@ import ballerina/h2;
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
+import ballerina/runtime;
 import ballerina/websub;
 
 const string WEBSUB_PERSISTENCE_TOPIC_ONE = "http://one.persistence.topic.com";
@@ -70,23 +71,25 @@ service publisher on publisherServiceEP {
     }
 
     @http:ResourceConfig {
-        methods: ["POST"]
+        methods: ["POST"],
+        path: "/notify/{subscriber}"
     }
-    resource function notify(http:Caller caller, http:Request req) {
+    resource function notify(http:Caller caller, http:Request req, string subscriber) {
         var payload = req.getJsonPayload();
         if (payload is error) {
             panic payload;
         }
 
-        http:Response response = new;
-        var err = caller->accepted(message = response);
-        if (err is error) {
-            log:printError("Error responding on notify request", err = err);
-        }
-
-        err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_ONE, untaint <json> payload);
+        checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
+        var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_ONE, untaint <json> payload);
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
+        }
+
+        http:Response response = new;
+        err = caller->accepted(message = response);
+        if (err is error) {
+            log:printError("Error responding on notify request", err = err);
         }
     }
 }
@@ -114,15 +117,16 @@ service publisherTwo on publisherServiceEP {
             panic payload;
         }
 
-        http:Response response = new;
-        var err = caller->accepted(message = response);
-        if (err is error) {
-            log:printError("Error responding on notify request", err = err);
-        }
-
-        err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_TWO, untaint <json> payload);
+        checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_TWO, "http://localhost:8383/websub");
+        var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_TWO, untaint <json> payload);
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
+        }
+
+        http:Response response = new;
+        err = caller->accepted(message = response);
+        if (err is error) {
+            log:printError("Error responding on notify request", err = err);
         }
     }
 }
@@ -149,6 +153,7 @@ service publisherThree on publisherServiceEP {
         if (payload is error) {
             panic payload;
         }
+        checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8484/websub");
         var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, untaint <json> payload);
         if (err is error) {
             log:printError("Error publishing update remotely", err = err);
@@ -208,4 +213,26 @@ function startWebSubHub() returns websub:WebSubHub {
     } else {
         return result.startedUpHub;
     }
+}
+
+function checkSubscriberAvailability(string topic, string callback) {
+    int count = 0;
+    boolean subscriberAvailable = false;
+    while (!subscriberAvailable && count < 60) {
+        websub:SubscriberDetails[] topicDetails = webSubHub.getSubscribers(topic);
+        if (isSubscriberAvailable(topicDetails, callback)) {
+            return;
+        }
+        runtime:sleep(1000);
+        count += 1;
+    }
+}
+
+function isSubscriberAvailable(websub:SubscriberDetails[] topicDetails, string callback) returns boolean {
+    foreach var detail in topicDetails {
+        if (detail.callback == callback) {
+            return true;
+        }
+    }
+    return false;
 }
