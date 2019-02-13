@@ -1,19 +1,24 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/http;
 
 http:AuthProvider basicAuthProvider11 = {
     scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE,
-    configAuthProviderConfig: {
-        inferredJwtIssuerConfig: {
-            issuer: "ballerina",
-            keyAlias: "ballerina",
-            keyPassword: "ballerina",
-            keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-                password: "ballerina"
-            }
-        }
-    }
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 listener http:Listener listener11 = new(9192, config = {
@@ -26,8 +31,22 @@ listener http:Listener listener11 = new(9192, config = {
     }
 });
 
-http:Client nyseEP03 = new("http://localhost:9193", config = {
-    auth: { scheme: http:JWT_AUTH }
+http:Client nyseEP03 = new("https://localhost:9193", config = {
+    auth: {
+        scheme: http:JWT_AUTH,
+        jwtAuthConfig: {
+            inferredJwtIssuerConfig: {
+                issuer: "ballerina",
+                audience: ["ballerina"],
+                keyAlias: "ballerina",
+                keyPassword: "ballerina",
+                keyStore: {
+                    path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                    password: "ballerina"
+                }
+            }
+        }
+    }
 });
 
 @http:ServiceConfig { basePath: "/passthrough" }
@@ -42,8 +61,11 @@ service passthroughService03 on listener11 {
         if (response is http:Response) {
             _ = caller->respond(response);
         } else if (response is error) {
-            json errMsg = { "error": "error occurred while invoking the service" };
-            _ = caller->respond(errMsg);
+            http:Response resp = new;
+            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
+            resp.statusCode = 500;
+            resp.setPayload(errMsg);
+            _ = caller->respond(resp);
         }
     }
 }
