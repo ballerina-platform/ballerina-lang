@@ -74,7 +74,7 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
                 return;
             }
             if (targetType.getTag() == TypeTags.STRING_TAG) {
-                ctx.setReturnValues(new BString(inputValue.toString()));
+                ctx.setReturnValues(new BString(inputValue.stringValue()));
                 return;
             }
             ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CONVERSION_ERROR,
@@ -100,7 +100,7 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
             case TypeTags.DECIMAL_TAG:
                 return new BDecimal(((BValueType) inputValue).decimalValue());
             case TypeTags.STRING_TAG:
-                return new BString(inputValue.toString());
+                return new BString(inputValue.stringValue());
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(((BValueType) inputValue).booleanValue());
             case TypeTags.BYTE_TAG:
