@@ -31,6 +31,7 @@ import InlineEdit from "../components/utils/inline-edit";
 interface OpenApiPathProps {
     paths: Swagger.PathsObject;
     expandMode: ExpandMode;
+    onTitleExpannd: (state: boolean) => void;
 }
 
 interface OpenApiPathState {
@@ -53,11 +54,16 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
 
     public componentWillReceiveProps(nextProps: OpenApiPathProps) {
         const { paths, expandMode } = nextProps;
-        const activePaths: number[] = [];
-        let hideForm: number[] = this.state.showAddOperation;
+        let activePaths: number[] = this.state.activeIndex;
+        let hideForm: number[] = [];
 
         if (expandMode.isEdit) {
             return;
+        }
+
+        if (expandMode.type === "collapse") {
+            hideForm = [];
+            activePaths = [];
         }
 
         if (expandMode.type === "operations" || expandMode.type === "resources") {
@@ -66,10 +72,6 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                     activePaths.push(index);
                 }
             });
-        }
-
-        if (expandMode.type === "collapse") {
-            hideForm = [];
         }
 
         this.setState({
@@ -110,20 +112,6 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                     );
                                                 }}
                                             </OpenApiContextConsumer>
-                                            {activeIndex.includes(index) &&
-                                                <Button
-                                                    title="Add operation to resource."
-                                                    size="mini"
-                                                    compact
-                                                    className="add-operation-action"
-                                                    circular
-                                                    onClick={(e: React.MouseEvent) => {
-                                                        e.stopPropagation();
-                                                        this.onAddOperationClick(index);
-                                                    }}
-                                                ><i className="fw fw-add"></i>
-                                                </Button>
-                                            }
                                             <div className="path-op-container">
                                                 {Object.keys(paths[openApiResource]).map((op, opIndex) => {
                                                     return (
@@ -131,6 +119,26 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                     );
                                                 })}
                                             </div>
+                                            {activeIndex.includes(index) &&
+                                                <Button
+                                                    title="Add operation to resource."
+                                                    size="mini"
+                                                    compact
+                                                    className="add-operation-action"
+                                                    circular
+                                                    floated="right"
+                                                    onClick={(e: React.MouseEvent) => {
+                                                        e.stopPropagation();
+                                                        this.onAddOperationClick(index);
+                                                    }}
+                                                >
+                                                    {!showAddOperation.includes(index) ?
+                                                        <i className={"fw fw-add"}></i>
+                                                    :
+                                                        <i className={"fw fw-close"}></i>
+                                                    }
+                                                </Button>
+                                            }
                                         </Accordion.Title>
                                         <Accordion.Content
                                             active={activeIndex.includes(index)}>
@@ -161,10 +169,11 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
 
     private onAddOperationClick(id: number) {
         if (this.state.showAddOperation.includes(id)) {
-            this.setState({showAddOperation: this.state.showAddOperation.filter((index) => {
-                return index !== id;
-            })});
-
+            this.setState({
+                showAddOperation: this.state.showAddOperation.filter((index) => {
+                    return index !== id;
+                })
+            });
         } else {
             this.setState({
                 showAddOperation: [...this.state.showAddOperation, id],
@@ -181,6 +190,8 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                 [...this.state.activeIndex, Number(index)] : this.state.activeIndex.filter((i) => i !== index),
             showAddOperation: activeIndex.includes(Number(index)) ?
                 this.state.showAddOperation.filter((i) => i !== index) : this.state.showAddOperation
+        }, () => {
+            this.props.onTitleExpannd(true);
         });
     }
 }

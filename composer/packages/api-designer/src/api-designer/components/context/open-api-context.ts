@@ -27,6 +27,7 @@ export interface OpenApiContext {
     onAddOpenApiParameter: (operation: Swagger.ParameterObject) => void;
     onAddOpenApiResponse: (response: Swagger.ResponseObject) => void;
     onInlineValueChange: (openApiJson: Swagger.OpenAPIObject) => void;
+    onTitleExpand: (state: boolean) => void;
     expandMode: ExpandMode;
 }
 
@@ -45,6 +46,7 @@ const context = React.createContext<OpenApiContext>({
     onAddOpenApiPath: () => {/* tslint:disable:no-empty */},
     onAddOpenApiResponse: () => {/* tslint:disable:no-empty */},
     onInlineValueChange: () => {/* tslint:disable:no-empty */},
+    onTitleExpand: () => {/* tslint:disable:no-empty */},
     openApiJson: {
         info: {
             title: "",
