@@ -113,21 +113,6 @@ public class BType implements ValueType {
         return tsymbol.pkgID.toString() + ":" + tsymbol.name;
     }
 
-    public boolean hasImplicitInitialValue() {
-        switch (tag) {
-            case INT:
-            case BYTE:
-            case FLOAT:
-            case DECIMAL:
-            case STRING:
-            case BOOLEAN:
-            case NIL:
-            case TYPEDESC:
-                return true;
-            default:
-                return false;
-        }
-    }
     /**
      * A data holder to hold the type associated with an expression.
      */
