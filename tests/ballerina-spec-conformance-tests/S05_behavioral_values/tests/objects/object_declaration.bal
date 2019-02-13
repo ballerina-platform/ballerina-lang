@@ -74,14 +74,14 @@ type NormalObject object {
     }
 
     function defaultVisibiltyMethodDefn(string argOne, int argTwo) returns float {
-        self.defaultVisibilityFloatField = self.defaultVisibilityFloatField + argTwo;
+        self.privateMethodDefn(argOne, argTwo);
         return self.defaultVisibilityFloatField;
     }
 };
 
 public function NormalObject.publicMethodDecl(string argOne, int argTwo) returns float {
     self.publicStringField = argOne;
-    self.defaultVisibilityFloatField += argTwo;
+    self.privateMethodDecl(argOne, argTwo);
     return self.defaultVisibilityFloatField;
 }
 

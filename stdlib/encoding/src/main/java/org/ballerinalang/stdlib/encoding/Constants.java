@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.encoding;
 /**
  * Constants related to Ballerina encoding stdlib.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class Constants {
 

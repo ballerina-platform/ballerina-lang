@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codelenses.providers;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProvider;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -41,29 +40,12 @@ import java.util.List;
  * @since 0.990.3
  */
 @JavaSPIService("org.ballerinalang.langserver.codelenses.LSCodeLensesProvider")
-public class ServicesBasedCodeLensesProvider implements LSCodeLensesProvider {
-    private boolean isEnabled = true;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return "services.CodeLenses";
-    }
-
+public class ServicesBasedCodeLensesProvider extends AbstractCodeLensesProvider {
     public ServicesBasedCodeLensesProvider() {
+        super("services.CodeLenses");
         BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
             isEnabled = newConfig.getCodeLens().getServices().isEnabled();
         });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isEnabled() {
-        return isEnabled;
     }
 
     /**
@@ -88,9 +70,10 @@ public class ServicesBasedCodeLensesProvider implements LSCodeLensesProvider {
                 // Skip non-HTTP services
                 return;
             }
-            int line = service.getPosition().getStartLine() - 1;
-            int col = service.getPosition().getStartColumn();
-            Position pos = new Position(line, col);
+            int sLine = service.pos.sLine - 1;
+            sLine = getTopMostLocOfAnnotations(service.annAttachments, sLine);
+            sLine = getTopMostLocOfDocs(service.markdownDocumentationAttachment, sLine);
+            Position pos = new Position(sLine, 0);
             // Show API Editor
             CommandUtil.CommandArgument serviceNameArg = new CommandUtil.CommandArgument(
                     CommandConstants.ARG_KEY_SERVICE_NAME, service.name.value);

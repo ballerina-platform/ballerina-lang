@@ -57,6 +57,14 @@ function testMapOrder() returns (map<any>) {
     return m;
 }
 
+function testMapStringRepresentation() returns (map<any>) {
+    map<any> m = {};
+    m["key1"] = "Element 1";
+    m["key2"] = "Element 2";
+    m["key3"] = ();
+    return m;
+}
+
 function testEcho(string value)returns (string) {
     return value;
 }

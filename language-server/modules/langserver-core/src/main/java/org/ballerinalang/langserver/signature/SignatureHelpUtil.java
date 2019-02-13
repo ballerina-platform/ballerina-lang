@@ -185,8 +185,10 @@ public class SignatureHelpUtil {
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
-        
-        signatureInfoModel.setSignatureDescription(docAttachment.description.trim(), signatureCtx);
+
+        if (docAttachment.description != null) {
+            signatureInfoModel.setSignatureDescription(docAttachment.description.trim(), signatureCtx);
+        }
         docAttachment.parameters.forEach(attribute ->
                 paramDescMap.put(attribute.getName(), attribute.getDescription()));
 
@@ -194,7 +196,9 @@ public class SignatureHelpUtil {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
             parameterInfoModel.setParamType(bVarSymbol.getType().toString());
             parameterInfoModel.setParamValue(bVarSymbol.getName().getValue());
-            parameterInfoModel.setDescription(paramDescMap.get(bVarSymbol.getName().getValue()));
+            if (paramDescMap.containsKey(bVarSymbol.getName().getValue())) {
+                parameterInfoModel.setDescription(paramDescMap.get(bVarSymbol.getName().getValue()));
+            }
             paramModels.add(parameterInfoModel);
         });
 
