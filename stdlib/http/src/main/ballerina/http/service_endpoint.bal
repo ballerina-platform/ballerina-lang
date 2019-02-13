@@ -307,7 +307,13 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
                     panic e;
                 }
             } else if (provider.authStoreProvider == CONFIG_AUTH_STORE) {
-                auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+                var configAuthProviderConfig = provider.configAuthProviderConfig;
+                auth:ConfigAuthStoreProvider configAuthStoreProvider;
+                if (configAuthProviderConfig is auth:ConfigAuthProviderConfig) {
+                    configAuthStoreProvider = new(configAuthProviderConfig);
+                } else {
+                    configAuthStoreProvider = new({});
+                }
                 authStoreProvider = configAuthStoreProvider;
             } else {
                 error configError = error("Unsupported auth store provider");
@@ -323,42 +329,23 @@ HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negat
     return authFilters;
 }
 
-function createBasicAuthHandler() returns HttpAuthnHandler {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-    auth:AuthStoreProvider authStoreProvider = configAuthStoreProvider;
-    HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
-    return basicAuthHandler;
-}
-
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
     if (authProvider.scheme == BASIC_AUTH) {
         auth:AuthStoreProvider authStoreProvider = new;
         if (authProvider.authStoreProvider == CONFIG_AUTH_STORE) {
             var configAuthProviderConfig = authProvider.configAuthProviderConfig;
-            boolean authStoreProviderInitialized = false;
+            auth:ConfigAuthStoreProvider configAuthStoreProvider;
             if (configAuthProviderConfig is auth:ConfigAuthProviderConfig) {
-                var inferredJwtIssuerConfig = configAuthProviderConfig.inferredJwtIssuerConfig;
-                if (inferredJwtIssuerConfig is auth:InferredJwtIssuerConfig) {
-                    auth:ConfigJwtAuthProvider configAuthProvider = new(inferredJwtIssuerConfig);
-                    authStoreProvider = configAuthProvider;
-                    authStoreProviderInitialized = true;
-                }
+                configAuthStoreProvider = new(configAuthProviderConfig);
+            } else {
+                configAuthStoreProvider = new({});
             }
-            if (!authStoreProviderInitialized) {
-                auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-                authStoreProvider = configAuthStoreProvider;
-            }
+            authStoreProvider = configAuthStoreProvider;
         } else if (authProvider.authStoreProvider == LDAP_AUTH_STORE) {
             var ldapAuthProviderConfig = authProvider.ldapAuthProviderConfig;
             if (ldapAuthProviderConfig is auth:LdapAuthProviderConfig) {
                 auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(ldapAuthProviderConfig, instanceId);
-                var inferredJwtIssuerConfig = ldapAuthProviderConfig.inferredJwtIssuerConfig;
-                if (inferredJwtIssuerConfig is auth:InferredJwtIssuerConfig) {
-                    auth:LdapJwtAuthProvider ldapAuthProvider = new(inferredJwtIssuerConfig, ldapAuthStoreProvider);
-                    authStoreProvider = ldapAuthProvider;
-                } else {
-                    authStoreProvider = ldapAuthStoreProvider;
-                }
+                authStoreProvider = ldapAuthStoreProvider;
             } else {
                 error e = error("LDAP auth provider config not provided");
                 panic e;
