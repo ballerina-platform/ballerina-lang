@@ -1408,10 +1408,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
                 for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
-                    if (recLiteralKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF || (
-                            recLiteralKeyValue.key.expr.getKind() == NodeKind.LITERAL
-                                    && typeChecker.checkExpr(recLiteralKeyValue.key.expr, this.env).tag
-                                    == TypeTags.STRING)) {
+                    if (isValidRecordLiteralKey(recLiteralKeyValue)) {
                         BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
                         if (fieldType.tag == TypeTags.NONE) {
                             dlog.error(recLiteralKeyValue.valueExpr.pos,
@@ -1460,6 +1457,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 expression.type = symTable.errorType;
                 return expression.type;
         }
+    }
+
+    private boolean isValidRecordLiteralKey(BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue) {
+        NodeKind kind = recLiteralKeyValue.key.expr.getKind();
+        return kind == NodeKind.SIMPLE_VARIABLE_REF ||
+                ((kind == NodeKind.LITERAL || kind == NodeKind.NUMERIC_LITERAL) &&
+                        typeChecker.checkExpr(recLiteralKeyValue.key.expr, this.env).tag == TypeTags.STRING);
     }
 
     @Override
@@ -1728,7 +1732,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         BLangExpression expression = (BLangExpression) constant.value;
-        if (expression.getKind() != NodeKind.LITERAL) {
+        if (expression.getKind() != NodeKind.LITERAL && expression.getKind() != NodeKind.NUMERIC_LITERAL) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
             return;
         }
@@ -1738,22 +1742,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (constant.typeNode != null) {
             // Check the type of the value.
             typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
+            constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
         } else {
             // We don't have any expected type in this case since the type node is not available. So we get the type
-            // from the type tag of the value.
-            typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.typeTag));
+            // from the value.
+            typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
+            constant.symbol.literalValueTypeTag = value.type.tag;
         }
 
         // We need to update the literal value and the type tag here. Otherwise we will encounter issues when
         // creating new literal nodes in desugar because we wont be able to identify byte and decimal types.
         constant.symbol.literalValue = value.value;
-        constant.symbol.literalValueTypeTag = value.typeTag;
 
         // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified in
         // codegen when retrieving the default value.
         BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
         for (BLangExpression literal : typeNode.valueSpace) {
-            typeChecker.checkExpr(literal, env, constant.symbol.type);
+            // If the expected type of the constant is decimal, check type for the literals in the value space.
+            if (literal.type.tag == TypeTags.FLOAT && constant.symbol.literalValueType.tag == TypeTags.DECIMAL) {
+                typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
+            }
         }
     }
 

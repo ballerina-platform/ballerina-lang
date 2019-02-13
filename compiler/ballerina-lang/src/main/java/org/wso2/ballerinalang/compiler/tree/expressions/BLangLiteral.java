@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangLiteral extends BLangExpression implements LiteralNode {
 
-    public int typeTag;
     public Object value;
     public String originalValue;
 

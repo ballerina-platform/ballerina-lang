@@ -77,6 +77,8 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
@@ -133,6 +135,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
@@ -1192,10 +1195,16 @@ public class BLangPackageBuilder {
     }
 
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value, String originalValue) {
-        BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        BLangLiteral litExpr;
+        // If numeric literal create a numeric literal expression; otherwise create a literal expression
+        if (typeTag < TypeTags.DECIMAL) {
+            litExpr = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+        } else {
+            litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        }
         litExpr.addWS(ws);
         litExpr.pos = pos;
-        litExpr.typeTag = typeTag;
+        litExpr.type = new BType(typeTag, null);
         litExpr.value = value;
         litExpr.originalValue = originalValue;
         addExpressionNode(litExpr);
@@ -1712,14 +1721,15 @@ public class BLangPackageBuilder {
 
         // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
         // consider it.
-        if (((BLangExpression) constantNode.value).getKind() == NodeKind.LITERAL) {
+        NodeKind nodeKind = ((BLangExpression) constantNode.value).getKind();
+        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
             // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
             // in type definitions.
 
             // Create a new literal.
             BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
             literal.setValue(((BLangLiteral) constantNode.value).value);
-            literal.typeTag = ((BLangLiteral) constantNode.value).typeTag;
+            literal.type = ((BLangLiteral) constantNode.value).type;
 
             // Create a new finite type node.
             BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
@@ -2337,7 +2347,7 @@ public class BLangPackageBuilder {
             BLangLiteral nilLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             nilLiteral.pos = pos;
             nilLiteral.value = Names.NIL_VALUE;
-            nilLiteral.typeTag = TypeTags.NIL;
+            nilLiteral.type = new BNilType();
             retStmt.expr = nilLiteral;
         }
         addStmtToCurrentBlock(retStmt);

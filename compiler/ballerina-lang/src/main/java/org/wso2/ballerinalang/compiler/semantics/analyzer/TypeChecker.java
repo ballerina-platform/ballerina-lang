@@ -256,7 +256,8 @@ public class TypeChecker extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
-        BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
+        // Get the type matching to the tag from the symbol table.
+        BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
 
         Object literalValue = literalExpr.value;
 
@@ -278,7 +279,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // check whether this is a byte array
-        if (literalExpr.typeTag == TypeTags.BYTE_ARRAY) {
+        if (literalExpr.type.tag == TypeTags.BYTE_ARRAY) {
             literalType = new BArrayType(symTable.byteType);
         }
 
@@ -304,8 +305,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BUnionType unionType = (BUnionType) this.expType;
             boolean foundMember = unionType.memberTypes
                     .stream()
-                    .map(memberType -> types.isAssignableToFiniteType(memberType, literalExpr))
-                    .anyMatch(foundType -> foundType);
+                    .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
             if (foundMember) {
                 types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                 resultType = literalType;
@@ -2441,7 +2441,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
-        if (indexExpr.getKind() != NodeKind.LITERAL) {
+        if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.NUMERIC_LITERAL) {
             indexExpr.type = symTable.semanticError;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
             return indexExpr.type;
@@ -2512,7 +2512,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
-        if (indexExpr.getKind() != NodeKind.LITERAL) {
+        if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.NUMERIC_LITERAL) {
             indexExpr.type = symTable.semanticError;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
             return indexExpr.type;
