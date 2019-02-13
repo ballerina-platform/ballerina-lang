@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -3181,17 +3182,7 @@ public class Desugar extends BLangNodeVisitor {
                                                        iExpr.requiredArgs.get(0));
                 break;
             case CONVERT:
-                if (types.isValueType(iExpr.requiredArgs.get(0).type)) {
-                    result = createTypeCastExpr(visitCloneInvocation(iExpr.requiredArgs.get(0)),
-                                                ((BInvokableType) iExpr.symbol.type).paramTypes.get(1),
-                                                (BOperatorSymbol) iExpr.symbol);
-                } else if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
-                    result = visitTypeConversionInvocation(iExpr.expr.pos, SIMPLE_VALUE_CONVERT,
-                                                                              iExpr.expr, iExpr.requiredArgs.get(0));
-                } else {
-                    result = visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
-                                                           iExpr.requiredArgs.get(0));
-                }
+                result = visitConvertInvocation(iExpr);
                 break;
             case CALL:
                 visitCallBuiltInMethodInvocation(iExpr);
@@ -3231,6 +3222,42 @@ public class Desugar extends BLangNodeVisitor {
         }
         return visitUtilMethodInvocation(expr.pos, BLangBuiltInMethod.CLONE, Lists.of(expr),
                                          Lists.of(symTable.anydataType), symTable.anydataType);
+    }
+
+    private BLangExpression visitConvertInvocation(BLangInvocation iExpr) {
+        BType targetType = iExpr.type;
+        if (iExpr.expr instanceof BLangTypedescExpr) {
+            targetType = ((BLangTypedescExpr) iExpr.expr).resolvedType;
+        }
+        boolean safe;
+        if (!types.isValueType(targetType)) {
+            if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
+                // TODO: These should be desugared to specific util functions since convert can be done only if source
+                // shape is a member set of shapes of the target type. ex. datatable to json.
+                return createTypeCastExpr(iExpr.requiredArgs.get(0), targetType, (BOperatorSymbol) iExpr.symbol);
+            }
+            // Handle conversions which can be done with clone.stamp.
+            return visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
+                                                 iExpr.requiredArgs.get(0));
+        }
+        // Handle simple value conversion.
+        if (iExpr.symbol instanceof BCastOperatorSymbol) {
+            safe = ((BCastOperatorSymbol) iExpr.symbol).safe;
+        } else {
+            safe = ((BConversionOperatorSymbol) iExpr.symbol).safe;
+        }
+        BLangExpression inputTypeCastExpr = iExpr.requiredArgs.get(0);
+        if (types.isValueType(iExpr.requiredArgs.get(0).type)) {
+            inputTypeCastExpr = createTypeCastExpr(iExpr.requiredArgs.get(0), iExpr.requiredArgs.get(0).type,
+                                                   symTable.anydataType);
+        }
+        BLangExpression invocationExpr = visitTypeConversionInvocation(iExpr.expr.pos, SIMPLE_VALUE_CONVERT,
+                                                                       iExpr.expr, inputTypeCastExpr);
+        if (safe) {
+            return createTypeCastExpr(invocationExpr, targetType,
+                                      Symbols.createUnboxValueTypeOpSymbol(symTable.anydataType, targetType));
+        }
+        return invocationExpr;
     }
 
     private BLangExpression visitTypeConversionInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
