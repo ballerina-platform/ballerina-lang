@@ -584,7 +584,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // For object attached functions add the receiver to the attached function map
         BLangSimpleVariable receiver = funcNode.receiver;
-        if (funcNode.flagSet.contains(Flag.ATTACHED) && receiver != null) {
+        if (receiver != null && fucEnv.exposedClosureHolder.closuresExposed.contains(funcNode.receiver.symbol) &&
+                funcNode.flagSet.contains(Flag.ATTACHED)) {
             BLangLocalVarRef localVarRef = new BLangLocalVarRef(receiver.symbol);
             localVarRef.type = receiver.type;
             BVarSymbol symbol = fucEnv.exposedClosureHolder.mapSymbol;
@@ -974,6 +975,8 @@ public class Desugar extends BLangNodeVisitor {
         // }
 
         BLangFunction function = ASTBuilderUtil.createFunction(pos, "$anonFunc$" + lambdaFunctionCount++);
+        // +1 for the block statement. +1 for the lambda function created.
+        function.enclEnvCount = env.envCount + 2;
         BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
                 getStringAnyTupleType(), this.env.scope.owner);
         BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
@@ -1006,6 +1009,8 @@ public class Desugar extends BLangNodeVisitor {
         // }
 
         BLangFunction function = ASTBuilderUtil.createFunction(pos, "$anonFunc$" + lambdaFunctionCount++);
+        // +1 for the block statement. +1 for the lambda function created.
+        function.enclEnvCount = env.envCount + 2;
         BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
                 getStringAnyTupleType(), this.env.scope.owner);
         BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
@@ -1145,7 +1150,12 @@ public class Desugar extends BLangNodeVisitor {
 
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         // This for closures
-        types.setImplicitCastExpr(assignNode.expr, assignNode.expr.type, assignNode.varRef.type);
+        if (assignNode.expr.impConversionExpr != null) {
+            types.setImplicitCastExpr(assignNode.expr.impConversionExpr, assignNode.expr.impConversionExpr.type,
+                    assignNode.varRef.type);
+        } else {
+            types.setImplicitCastExpr(assignNode.expr, assignNode.expr.type, assignNode.varRef.type);
+        }
         assignNode.expr = rewriteExpr(assignNode.expr);
 
         // If this is an update of a type guarded variable, then generate code
@@ -2030,24 +2040,18 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
+        BType bType = checkIsSimpleType(varRefExpr.type) ? ((BMapType) mapSymbol.type).constraint : varRefExpr.type;
+        // Create the index based access expression
+        BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, varRefExpr.variableName.value);
+        BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos, bType, mapSymbol, indexExpr);
         if (varRefExpr.lhsVar) {
-            BType bType = checkIsSimpleType(varRefExpr.type) ? ((BMapType) mapSymbol.type).constraint : varRefExpr.type;
             // x = 1 ==> $innerMap$1["x"] = <any> 1
-            BLangIndexBasedAccess accessExpr = createIndexAccessExpr(varRefExpr, mapSymbol, bType);
             result = rewriteExpr(accessExpr);
             return true;
         }
         // int z = x + 1 ==> int z = <int>$innerMap$1["x"] + 1;
-        BLangIndexBasedAccess accessExpr = createIndexAccessExpr(varRefExpr, mapSymbol,
-                ((BMapType) mapSymbol.type).constraint);
         result = rewriteExpr(addConversionExprIfRequired(accessExpr, varRefExpr.type));
         return true;
-    }
-
-    private BLangIndexBasedAccess createIndexAccessExpr(BLangSimpleVarRef varRefExpr, BVarSymbol symbol, BType type) {
-        BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, varRefExpr.
-                variableName.value);
-        return ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos, type, symbol, indexExpr);
     }
 
     private boolean checkIsSimpleType(BType bType) {

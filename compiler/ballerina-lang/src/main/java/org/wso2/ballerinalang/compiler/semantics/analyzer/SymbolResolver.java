@@ -714,7 +714,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             entry = entry.next;
         }
 
-        if (env.enclEnv.node == null) {
+        if (env.enclEnv == null || env.enclEnv.node == null) {
             return new ClosureSymbolWrapper(symTable.notFoundSymbol, 0);
         }
 
