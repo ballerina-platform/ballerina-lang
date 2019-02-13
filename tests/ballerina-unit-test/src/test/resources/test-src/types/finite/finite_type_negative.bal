@@ -33,7 +33,7 @@ function testInvalidAssignment() {
 }
 
 // Test invalid string assignment
-function testInvalidStringAssignment() {
+function testDifferentLiteralKindsWithSameValue() {
     Finite f = "5";
 }
 
