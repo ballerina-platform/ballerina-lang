@@ -143,6 +143,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.BRACED_TUPLE_EXPR;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
+import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
 
 /**
@@ -1390,6 +1391,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         switch (expression.getKind()) {
             case LITERAL:
+            case NUMERIC_LITERAL:
                 return typeChecker.checkExpr(expression, this.env);
             case BINARY_EXPR:
                 BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expression;
@@ -1809,7 +1811,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {
         boolean error = true;
         NodeKind retryKind = retryCountExpr.getKind();
-        if (retryKind == LITERAL) {
+        if (retryKind == LITERAL || retryKind == NUMERIC_LITERAL) {
             if (retryCountExpr.type.tag == TypeTags.INT) {
                 int retryCount = Integer.parseInt(((BLangLiteral) retryCountExpr).getValue().toString());
                 if (retryCount >= 0) {
@@ -1884,7 +1886,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (kind == BRACED_TUPLE_EXPR) {
             BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expr;
             if (bracedOrTupleExpr.expressions.size() > 1 && bracedOrTupleExpr.expressions.stream()
-                    .anyMatch(literal -> literal.getKind() == LITERAL)) {
+                    .anyMatch(literal -> literal.getKind() == LITERAL || literal.getKind() == NUMERIC_LITERAL)) {
                 dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
                 return false;
             }
