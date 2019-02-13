@@ -437,11 +437,10 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }
 
-    @Test(description = "Test converting a null Struct to json",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*\\{\"message\":\"cannot convert 'null' value to type 'json'\"}.*")
+    @Test(description = "Test converting a null Struct to json")
     public void testNullStructToJson() {
-        BRunUtil.invoke(compileResult, "testNullStructToJson");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNullStructToJson");
+        Assert.assertNull(returns[0]);
     }
 
     @Test
