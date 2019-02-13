@@ -383,7 +383,7 @@ public type TimeBatchWindow object {
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
     public StreamEvent? resetEvent;
-    public task:Timer? timer;
+    public task:Listener timer;
     public function (StreamEvent[])? nextProcessPointer;
 
     public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
@@ -391,7 +391,7 @@ public type TimeBatchWindow object {
         self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
         self.resetEvent = ();
-        self.timer = ();
+        self.timer = new({ interval: self.timeInMilliSeconds });
         self.currentEventQueue = new();
         self.expiredEventQueue = ();
         self.initParameters(self.windowParameters);
@@ -426,9 +426,8 @@ public type TimeBatchWindow object {
         LinkedList outputStreamEvents = new();
         if (self.nextEmitTime == -1) {
             self.nextEmitTime = time:currentTime().time + self.timeInMilliSeconds;
-            self.timer = new
-            task:Timer(function () returns error? {return self.invokeProcess();},
-                function (error e) {self.handleError(e);}, self.timeInMilliSeconds, delay = self.timeInMilliSeconds);
+            self.timer = new ({ interval: self.timeInMilliSeconds });
+            _ = self.timer.attach(timeBatchWindowService, serviceParameter = self);
             _ = self.timer.start();
         }
 
@@ -437,11 +436,9 @@ public type TimeBatchWindow object {
 
         if (currentTime >= self.nextEmitTime) {
             self.nextEmitTime += self.timeInMilliSeconds;
-            self.timer.stop();
-            self.timer = new
-            task:Timer(function () returns error? {return self.invokeProcess();},
-                function (error e) {self.handleError(e);},
-                self.timeInMilliSeconds, delay = self.timeInMilliSeconds);
+            _ = self.timer.cancel();
+            self.timer = new ({ interval: self.timeInMilliSeconds });
+            _ = self.timer.attach(timeBatchWindowService, serviceParameter = self);
             _ = self.timer.start();
             sendEvents = true;
         } else {
@@ -513,6 +510,16 @@ public type TimeBatchWindow object {
 
     public function handleError(error e) {
         io:println("Error occured", e.reason());
+    }
+};
+
+service timeBatchWindowService = service {
+    resource function onTrigger(TimeBatchWindow timeBatchWindow) returns error? {
+        return timeBatchWindow.invokeProcess();
+    }
+
+    resource function onError(error e, TimeBatchWindow timeBatchWindow) {
+        timeBatchWindow.handleError(e);
     }
 };
 
@@ -670,7 +677,7 @@ public type ExternalTimeBatchWindow object {
     public int schedulerTimeout = 0;
     public int lastScheduledTime;
     public int lastCurrentEventTime = 0;
-    public task:Timer? timer;
+    public task:Listener timer;
     public function (StreamEvent[])? nextProcessPointer;
     public string timeStamp;
     public boolean storeExpiredEvents = false;
@@ -682,7 +689,7 @@ public type ExternalTimeBatchWindow object {
         self.windowParameters = windowParameters;
         self.timeToKeep = 0;
         self.lastScheduledTime = 0;
-        self.timer = ();
+        self.timer = new({ interval: self.schedulerTimeout });
         self.timeStamp = "";
         self.currentEventChunk = new();
         self.expiredEventChunk = new;
@@ -768,7 +775,7 @@ public type ExternalTimeBatchWindow object {
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
-        _ = self.timer.stop();
+        _ = self.timer.cancel();
         return ();
     }
 
@@ -805,9 +812,8 @@ public type ExternalTimeBatchWindow object {
 
                         // rescheduling to emit the current batch after expiring it if no further events arrive.
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                        self.timer = new
-                        task:Timer(function () returns error? {return self.invokeProcess();},
-                            function (error e) {self.handleError(e);}, self.schedulerTimeout);
+                        self.timer = new ({ interval: self.schedulerTimeout });
+                        _ = self.timer.attach(externalTimeBatchWindowService, serviceParameter = self);
                         _ = self.timer.start();
                     }
                     continue;
@@ -837,9 +843,8 @@ public type ExternalTimeBatchWindow object {
                     // triggering the last batch expiration.
                     if (self.schedulerTimeout > 0) {
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                        self.timer = new
-                        task:Timer(function () returns error? {return self.invokeProcess();},
-                            function (error e) {self.handleError(e);}, self.schedulerTimeout);
+                        self.timer = new ({ interval: self.schedulerTimeout });
+                        _ = self.timer.attach(externalTimeBatchWindowService, serviceParameter = self);
                         _ = self.timer.start();
                     }
                 }
@@ -1041,9 +1046,8 @@ public type ExternalTimeBatchWindow object {
             }
             if (self.schedulerTimeout > 0) {
                 self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                self.timer = new
-                task:Timer(function () returns error? {return self.invokeProcess();},
-                    function (error e) {self.handleError(e);}, self.schedulerTimeout);
+                self.timer = new ({ interval: self.schedulerTimeout });
+                _ = self.timer.attach(externalTimeBatchWindowService, serviceParameter = self);
                 _ = self.timer.start();
             }
         }
@@ -1056,6 +1060,16 @@ public type ExternalTimeBatchWindow object {
             error err = error("external timestamp should be of type int");
             panic err;
         }
+    }
+};
+
+service externalTimeBatchWindowService = service {
+    resource function onTrigger(ExternalTimeBatchWindow externalTimeBatchWindow) returns error? {
+        return externalTimeBatchWindow.invokeProcess();
+    }
+
+    resource function onError(error e, ExternalTimeBatchWindow externalTimeBatchWindow) {
+        externalTimeBatchWindow.handleError(e);
     }
 };
 
@@ -1370,14 +1384,14 @@ public type DelayWindow object {
     public any[] windowParameters;
     public LinkedList delayedEventQueue;
     public int lastTimestamp = 0;
-    public task:Timer? timer;
+    public task:Listener timer;
     public function (StreamEvent[])? nextProcessPointer;
 
     public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.delayInMilliSeconds = 0;
-        self.timer = ();
+        self.timer = new({ interval: self.delayInMilliSeconds });
         self.delayedEventQueue = new;
         self.initParameters(self.windowParameters);
     }
@@ -1434,9 +1448,8 @@ public type DelayWindow object {
                     if (self.lastTimestamp < streamEvent.timestamp) {
                         //calculate the remaining time to delay the current event
                         int delayInMillis = self.delayInMilliSeconds - (currentTime - streamEvent.timestamp);
-                        self.timer = new
-                        task:Timer(function () returns error? {return self.invokeProcess();},
-                            function (error e) {self.handleError(e);}, delayInMillis);
+                        self.timer = new({ interval: self.delayInMilliSeconds });
+                        _ = self.timer.attach(delayWindowService, serviceParameter = self);
                         _ = self.timer.start();
                         self.lastTimestamp = streamEvent.timestamp;
                     }
@@ -1467,7 +1480,7 @@ public type DelayWindow object {
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
-        _ = self.timer.stop();
+        _ = self.timer.cancel();
         return ();
     }
 
@@ -1499,6 +1512,16 @@ public type DelayWindow object {
             }
         }
         return events;
+    }
+};
+
+service delayWindowService = service {
+    resource function onTrigger(DelayWindow delayWindow) returns error? {
+        return delayWindow.invokeProcess();
+    }
+
+    resource function onError(error e, DelayWindow delayWindow) {
+        delayWindow.handleError(e);
     }
 };
 
@@ -1800,7 +1823,7 @@ public type HoppingWindow object {
     public any[] windowParameters;
     public LinkedList currentEventQueue;
     public StreamEvent? resetEvent;
-    public task:Timer? timer;
+    public task:Listener timer;
     public boolean isStart;
     public function (StreamEvent[])? nextProcessPointer;
 
@@ -1810,7 +1833,7 @@ public type HoppingWindow object {
         self.timeInMilliSeconds = 0;
         self.hoppingTime = 0;
         self.resetEvent = ();
-        self.timer = ();
+        self.timer = new({ interval: self.hoppingTime });
         self.currentEventQueue = new();
         self.isStart = true;
         self.initParameters(self.windowParameters);
@@ -1852,9 +1875,8 @@ public type HoppingWindow object {
     public function process(StreamEvent[] streamEvents) {
         LinkedList outputStreamEvents = new();
         if (self.isStart) {
-            self.timer = new
-            task:Timer(function () returns error? {return self.invokeProcess();},
-                function (error e) {self.handleError(e);}, self.hoppingTime, delay = self.hoppingTime);
+            self.timer = new({ interval: self.hoppingTime });
+            _ = self.timer.attach(hoppingWindowService, serviceParameter = self);
             _ = self.timer.start();
             self.isStart = false;
         }
@@ -1940,6 +1962,16 @@ public type HoppingWindow object {
 
     public function handleError(error e) {
         io:println("Error occured", e.reason());
+    }
+};
+
+service hoppingWindowService = service {
+    resource function onTrigger(HoppingWindow hoppingWindow) returns error? {
+        return hoppingWindow.invokeProcess();
+    }
+
+    resource function onError(error e, HoppingWindow hoppingWindow) {
+        hoppingWindow.handleError(e);
     }
 };
 

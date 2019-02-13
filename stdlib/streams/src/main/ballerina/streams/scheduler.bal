@@ -22,13 +22,13 @@ public type Scheduler object {
 
     private LinkedList toNotifyQueue;
     private boolean running;
-    private task:Timer? timer;
+    private task:Listener timer;
     private function (StreamEvent[] streamEvents) processFunc;
 
     public function __init(function (StreamEvent[] streamEvents) processFunc) {
         self.toNotifyQueue = new;
         self.running = false;
-        self.timer = ();
+        self.timer = new({ interval: 0 });
         self.processFunc = processFunc;
     }
 
@@ -45,12 +45,9 @@ public type Scheduler object {
                     int timeDiff = timestamp > time:currentTime().time ? timestamp - time:currentTime().time : 0;
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
-                    if (self.timer is task:Timer) {
-                        _ = self.timer.stop();
-                    }
-
-                    self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                        function (error e) {io:println("Error occured", e.reason());}, timeDiff, delay = timeDelay);
+                    _ = self.timer.cancel();
+                    self.timer = new({ interval: timeDiff, delay: timeDelay });
+                    _ = self.timer.attach(schedulerService, serviceParameter = self);
                     _ = self.timer.start();
                 }
             }
@@ -72,27 +69,37 @@ public type Scheduler object {
             currentTime = time:currentTime().time;
         }
 
-        _ = self.timer.stop();
-        self.timer = ();
+        _ = self.timer.cancel();
+        self.timer = new({ interval: 0 });
 
         first = self.toNotifyQueue.getFirst();
         currentTime = time:currentTime().time;
 
         if (first != ()) {
-            self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                function (error e) {io:println("Error occured", e.reason());}, <int>first - currentTime);
+            self.timer = new({ interval: <int>first - currentTime });
+            _ = self.timer.attach(schedulerService, serviceParameter = self);
             _ = self.timer.start();
         } else {
             lock {
                 self.running = false;
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
-                    self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                        function (error e) {io:println("Error occured", e.reason());}, 0);
+                    self.timer = new({ interval: 0 });
+                    _ = self.timer.attach(schedulerService, serviceParameter = self);
                     _ = self.timer.start();
                 }
             }
         }
         return ();
+    }
+};
+
+service schedulerService = service {
+    resource function onTrigger(Scheduler scheduler) returns error? {
+        return scheduler.sendTimerEvents();
+    }
+
+    resource function onError(error e, Scheduler scheduler) {
+        io:println("Error occured", e.reason());
     }
 };
