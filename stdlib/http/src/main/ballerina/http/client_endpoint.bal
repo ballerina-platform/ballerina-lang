@@ -336,11 +336,14 @@ public type ConnectionThrottling record {
 #
 # + scheme - Authentication scheme
 # + basicAuthConfig - Configuration for BasicAuth scheme
-# + oAuth2Config - Configuration for OAuth2 scheme
+# + oAuth2AuthConfig - Configuration for OAuth2 scheme
+# + jwtAuthConfig - Configuration for JWT scheme. If inbound authentication is JWT, sends the same JWT with client
+#                   invocation, unless reissuing is configured using InferredJwtIssuerConfig.
 public type AuthConfig record {
     OutboundAuthScheme scheme;
     BasicAuthConfig basicAuthConfig?;
-    OAuth2AuthConfig oAuth2Config?;
+    OAuth2AuthConfig oAuth2AuthConfig?;
+    JwtAuthConfig jwtAuthConfig?;
     !...;
 };
 
@@ -378,6 +381,13 @@ public type OAuth2AuthConfig record {
     string[] scopes = [];
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
+};
+
+# JwtAuthConfig record can be used to configure JWT based authentication used by the HTTP endpoint.
+#
+# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
+public type JwtAuthConfig record {
+    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig?;
 };
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {

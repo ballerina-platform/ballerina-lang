@@ -19,7 +19,7 @@ import ballerina/http;
 http:Client clientEP1 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
-        oAuth2Config: {
+        oAuth2AuthConfig: {
             refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
             clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
             clientSecret: "9205371918321623741",
@@ -32,7 +32,7 @@ http:Client clientEP1 = new("https://localhost:9095/foo", config = {
 http:Client clientEP2 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
-        oAuth2Config: {
+        oAuth2AuthConfig: {
             refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
             clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
             clientSecret: "9205371918321623741",
@@ -45,7 +45,7 @@ http:Client clientEP2 = new("https://localhost:9095/foo", config = {
 http:Client clientEP3 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
-        oAuth2Config: {
+        oAuth2AuthConfig: {
             refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
             clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
             clientSecret: "9205371918321623741",
@@ -57,7 +57,7 @@ http:Client clientEP3 = new("https://localhost:9095/foo", config = {
 http:Client clientEP4 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
-        oAuth2Config : {
+        oAuth2AuthConfig : {
             refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
             clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
             clientSecret: "9205371918321623741",
@@ -70,7 +70,7 @@ http:Client clientEP4 = new("https://localhost:9095/foo", config = {
 http:Client clientEP5 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
-        oAuth2Config: {
+        oAuth2AuthConfig: {
             refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
             clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
             clientSecret: "9205371918321623741",

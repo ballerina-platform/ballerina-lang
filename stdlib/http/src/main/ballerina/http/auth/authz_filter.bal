@@ -50,11 +50,16 @@ public type AuthzFilter object {
         string[]? scopes = getScopesForResource(resourceLevelAuthAnn, serviceLevelAuthAnn);
         boolean authorized;
         if (scopes is string[]) {
-            if (self.authzHandler.canHandle(request)) {
-                authorized = self.authzHandler.handle(runtime:getInvocationContext().principal.username,
-                    context.serviceName, context.resourceName, request.method, scopes);
+            if (scopes.length() > 0) {
+                if (self.authzHandler.canHandle(request)) {
+                    authorized = self.authzHandler.handle(runtime:getInvocationContext().principal.username,
+                        context.serviceName, context.resourceName, request.method, scopes);
+                } else {
+                    authorized = false;
+                }
             } else {
-                authorized = false;
+                // scopes are not defined, no need to authorize
+                authorized = true;
             }
         } else {
             // scopes are not defined, no need to authorize

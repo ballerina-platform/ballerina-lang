@@ -138,3 +138,23 @@ function convertIntArrayToJson(int[] arrayToConvert) returns (json) {
     }
     return jsonPayload;
 }
+
+# Represents authentication provider configurations that supports generating JWT for client interactions.
+#
+# + issuer - Expected JWT token issuer
+# + audience - Expected JWT token audience
+# + expTime - Expiry time for newly issued JWT tokens
+# + keyStore - Keystore containing the signing key
+# + keyAlias - Key alias for signing newly issued JWT tokens
+# + keyPassword - Key password for signing newly issued JWT tokens
+# + signingAlg - Signing algorithm for signing newly issued JWT tokens
+public type InferredJwtIssuerConfig record {
+    string issuer;
+    string[] audience;
+    int expTime = 300;
+    crypto:KeyStore keyStore;
+    string keyAlias;
+    string keyPassword;
+    JwtSigningAlgorithm signingAlg = RS256;
+    !...;
+};

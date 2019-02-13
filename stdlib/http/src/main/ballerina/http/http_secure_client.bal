@@ -315,12 +315,12 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
             }
         } else if (auth.scheme == OAUTH2) {
-            var oAuth2Config = auth["oAuth2Config"];
-            if (oAuth2Config is ()) {
+            var oAuth2AuthConfig = auth["oAuth2AuthConfig"];
+            if (oAuth2AuthConfig is ()) {
                 error e = error("OAuth2 config not provided");
                 panic e;
             } else {
-                string accessToken = oAuth2Config.accessToken;
+                string accessToken = oAuth2AuthConfig.accessToken;
                 if (accessToken == EMPTY_STRING) {
                     return updateRequestAndConfig(req, config);
                 } else {
@@ -328,9 +328,38 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 }
             }
         } else if (auth.scheme == JWT_AUTH) {
-            string authToken = runtime:getInvocationContext().authenticationContext.authToken;
+            var jwtAuthConfig = auth["jwtAuthConfig"];
+            string authToken = EMPTY_STRING;
+            if (jwtAuthConfig is ()) {
+                authToken = runtime:getInvocationContext().authenticationContext.authToken;
+            } else {
+                var jwtIssuerConfig = jwtAuthConfig["inferredJwtIssuerConfig"];
+                if (jwtIssuerConfig is ()) {
+                    authToken = runtime:getInvocationContext().authenticationContext.authToken;
+                } else {
+                    auth:JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
+                    auth:JwtPayload payload = {
+                        sub: runtime:getInvocationContext().principal.username,
+                        iss: jwtIssuerConfig.issuer,
+                        exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
+                        iat: time:currentTime().time / 1000,
+                        nbf: time:currentTime().time / 1000,
+                        jti: system:uuid(),
+                        aud: jwtIssuerConfig.audience
+                    };
+                    var token = auth:issueJwt(header, payload, jwtIssuerConfig.keyStore, jwtIssuerConfig.keyAlias,
+                                              jwtIssuerConfig.keyPassword);
+                    // TODO: cache the token per-user per-client and reuse it
+                    if (token is string) {
+                        authToken = token;
+                    } else {
+                        return token;
+                    }
+                }
+            }
             if (authToken == EMPTY_STRING) {
-                error err = error(HTTP_ERROR_CODE, { message: "Authentication token is not set at invocation context" });
+                error err = error(HTTP_ERROR_CODE, { message: "JWT was not used during inbound authentication.
+                                                     Provide InferredJwtIssuerConfig to issue new token." });
                 return err;
             }
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
@@ -350,7 +379,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
 function updateRequestAndConfig(Request req, ClientEndpointConfig config) returns ()|error {
     string accessToken = check getAccessTokenFromRefreshToken(config);
     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-    OAuth2AuthConfig? authConfig = config.auth.oAuth2Config;
+    OAuth2AuthConfig? authConfig = config.auth.oAuth2AuthConfig;
     if (authConfig is OAuth2AuthConfig) {
         authConfig.accessToken = accessToken;
     }
@@ -363,13 +392,13 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
 # + return - AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns string|error {
     Client refreshTokenClient;
-    var oAuth2Config = config.auth.oAuth2Config;
-    if (oAuth2Config is OAuth2AuthConfig) {
-        string refreshToken = oAuth2Config.refreshToken;
-        string clientId = oAuth2Config.clientId;
-        string clientSecret = oAuth2Config.clientSecret;
-        string refreshUrl = oAuth2Config.refreshUrl;
-        string[] scopes = oAuth2Config.scopes;
+    var oAuth2AuthConfig = config.auth.oAuth2AuthConfig;
+    if (oAuth2AuthConfig is OAuth2AuthConfig) {
+        string refreshToken = oAuth2AuthConfig.refreshToken;
+        string clientId = oAuth2AuthConfig.clientId;
+        string clientSecret = oAuth2AuthConfig.clientSecret;
+        string refreshUrl = oAuth2AuthConfig.refreshUrl;
+        string[] scopes = oAuth2AuthConfig.scopes;
 
         if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING
             || refreshUrl == EMPTY_STRING) {
@@ -391,7 +420,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
             if (scopeString != EMPTY_STRING) {
                 textPayload = textPayload + "&scope=" + scopeString.trim();
             }
-            if (oAuth2Config.credentialBearer == AUTH_HEADER_BEARER) {
+            if (oAuth2AuthConfig.credentialBearer == AUTH_HEADER_BEARER) {
                 string clientIdSecret = clientId + ":" + clientSecret;
                 refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
                         encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));

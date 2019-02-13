@@ -22,8 +22,8 @@
 # + attributes - Context attributes.
 public type InvocationContext record {
     string id;
-    Principal principal;
-    AuthenticationContext authenticationContext;
+    Principal principal?;
+    AuthenticationContext authenticationContext?;
     map<any> attributes;
     !...;
 };
