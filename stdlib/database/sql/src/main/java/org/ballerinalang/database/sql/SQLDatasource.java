@@ -52,12 +52,8 @@ public class SQLDatasource implements BValue {
     private boolean xaConn;
     private boolean isGlobalDatasource;
 
-    public boolean init(SQLDatasourceParams sqlDatasourceParams) {
-        return init(sqlDatasourceParams, false);
-    }
-
-    public boolean init(SQLDatasourceParams sqlDatasourceParams, boolean isGlobalDatasource) {
-        this.isGlobalDatasource = isGlobalDatasource;
+    public SQLDatasource init(SQLDatasourceParams sqlDatasourceParams) {
+        this.isGlobalDatasource = sqlDatasourceParams.isGlobalDatasource;
         databaseName = sqlDatasourceParams.dbName;
         peerAddress = sqlDatasourceParams.jdbcUrl;
         buildDataSource(sqlDatasourceParams);
@@ -69,7 +65,7 @@ public class SQLDatasource implements BValue {
             throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
                     e);
         }
-        return true;
+        return this;
     }
 
     /**
@@ -142,11 +138,12 @@ public class SQLDatasource implements BValue {
             config.setUsername(sqlDatasourceParams.username);
             config.setPassword(sqlDatasourceParams.password);
             //Set optional properties
-            if (sqlDatasourceParams.poolOptions != null) {
-                boolean isXA = ((BBoolean) sqlDatasourceParams.poolOptions.get(Constants.Options.IS_XA)).booleanValue();
+            if (sqlDatasourceParams.poolOptionsWrapper != null) {
+                boolean isXA = ((BBoolean) sqlDatasourceParams.poolOptionsWrapper.get(Constants.Options.IS_XA))
+                        .booleanValue();
 
-                String dataSourceClassName = sqlDatasourceParams.poolOptions.get(Constants.Options.DATASOURCE_CLASSNAME)
-                        .stringValue();
+                String dataSourceClassName = sqlDatasourceParams.poolOptionsWrapper
+                        .get(Constants.Options.DATASOURCE_CLASSNAME).stringValue();
                 if (isXA && dataSourceClassName.isEmpty()) {
                     dataSourceClassName = getXADatasourceClassName(sqlDatasourceParams.dbType,
                             sqlDatasourceParams.jdbcUrl, sqlDatasourceParams.username, sqlDatasourceParams.password);
@@ -162,44 +159,46 @@ public class SQLDatasource implements BValue {
                 } else {
                     config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
                 }
-                String connectionInitSQL = sqlDatasourceParams.poolOptions.get(Constants.Options.CONNECTION_INIT_SQL)
+                String connectionInitSQL = sqlDatasourceParams.poolOptionsWrapper
+                        .get(Constants.Options.CONNECTION_INIT_SQL)
                         .stringValue();
                 if (!connectionInitSQL.isEmpty()) {
                     config.setConnectionInitSql(connectionInitSQL);
                 }
 
-                int maximumPoolSize = (int) ((BInteger) sqlDatasourceParams.poolOptions
+                int maximumPoolSize = (int) ((BInteger) sqlDatasourceParams.poolOptionsWrapper
                         .get(Constants.Options.MAXIMUM_POOL_SIZE)).intValue();
                 if (maximumPoolSize != -1) {
                     config.setMaximumPoolSize(maximumPoolSize);
                 }
-                long connectionTimeout = ((BInteger) sqlDatasourceParams.poolOptions
+                long connectionTimeout = ((BInteger) sqlDatasourceParams.poolOptionsWrapper
                         .get(Constants.Options.CONNECTION_TIMEOUT)).intValue();
                 if (connectionTimeout != -1) {
                     config.setConnectionTimeout(connectionTimeout);
                 }
-                long idleTimeout = ((BInteger) sqlDatasourceParams.poolOptions.get(Constants.Options.IDLE_TIMEOUT))
+                long idleTimeout = ((BInteger) sqlDatasourceParams.poolOptionsWrapper
+                        .get(Constants.Options.IDLE_TIMEOUT))
                         .intValue();
                 if (idleTimeout != -1) {
                     config.setIdleTimeout(idleTimeout);
                 }
-                int minimumIdle = (int) ((BInteger) sqlDatasourceParams.poolOptions.get(Constants.Options.MINIMUM_IDLE))
-                        .intValue();
+                int minimumIdle = (int) ((BInteger) sqlDatasourceParams.poolOptionsWrapper
+                        .get(Constants.Options.MINIMUM_IDLE)).intValue();
                 if (minimumIdle != -1) {
                     config.setMinimumIdle(minimumIdle);
                 }
-                long maxLifetime = ((BInteger) sqlDatasourceParams.poolOptions.get(Constants.Options.MAX_LIFE_TIME))
-                        .intValue();
+                long maxLifetime = ((BInteger) sqlDatasourceParams.poolOptionsWrapper
+                        .get(Constants.Options.MAX_LIFE_TIME)).intValue();
                 if (maxLifetime != -1) {
                     config.setMaxLifetime(maxLifetime);
                 }
-                long validationTimeout = ((BInteger) sqlDatasourceParams.poolOptions
+                long validationTimeout = ((BInteger) sqlDatasourceParams.poolOptionsWrapper
                         .get(Constants.Options.VALIDATION_TIMEOUT)).intValue();
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }
-                boolean autoCommit = ((BBoolean) sqlDatasourceParams.poolOptions.get(Constants.Options.AUTOCOMMIT))
-                        .booleanValue();
+                boolean autoCommit = ((BBoolean) sqlDatasourceParams.poolOptionsWrapper
+                        .get(Constants.Options.AUTOCOMMIT)).booleanValue();
                 config.setAutoCommit(autoCommit);
             } else {
                 config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
@@ -311,26 +310,32 @@ public class SQLDatasource implements BValue {
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
     protected static class SQLDatasourceParams {
-         private BMap<String, BRefType> poolOptions;
-         private String jdbcUrl;
-         private String dbType;
-         private String username;
-         private String password;
-         private String dbName;
-         private BMap<String, BRefType> dbOptionsMap;
+        private PoolOptionsWrapper poolOptionsWrapper;
+        private String jdbcUrl;
+        private String dbType;
+        private String username;
+        private String password;
+        private String dbName;
+        private boolean isGlobalDatasource;
+        private BMap<String, BRefType> dbOptionsMap;
 
         private SQLDatasourceParams(SQLDatasourceParamsBuilder builder) {
-            this.poolOptions = builder.poolOptions;
+            this.poolOptionsWrapper = builder.poolOptions;
             this.jdbcUrl = builder.jdbcUrl;
             this.dbType = builder.dbType;
             this.username = builder.username;
             this.password = builder.password;
             this.dbName = builder.dbName;
+            this.isGlobalDatasource = builder.isGlobalDatasource;
             this.dbOptionsMap = builder.dbOptionsMap;
         }
 
         public String getJdbcUrl() {
             return jdbcUrl;
+        }
+
+        public PoolOptionsWrapper getPoolOptionsWrapper() {
+            return poolOptionsWrapper;
         }
     }
 
@@ -338,12 +343,13 @@ public class SQLDatasource implements BValue {
      * Builder class for SQLDatasourceParams class.
      */
     public static class SQLDatasourceParamsBuilder {
-        private BMap<String, BRefType> poolOptions;
+        private PoolOptionsWrapper poolOptions;
         private String jdbcUrl;
         private String dbType;
         private String username;
         private String password;
         private String dbName;
+        private boolean isGlobalDatasource;
         private BMap<String, BRefType> dbOptionsMap;
 
         public SQLDatasourceParamsBuilder(String dbType) {
@@ -379,13 +385,18 @@ public class SQLDatasource implements BValue {
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withPoolOptions(BMap<String, BRefType> options) {
+        public SQLDatasourceParamsBuilder withPoolOptions(PoolOptionsWrapper options) {
             this.poolOptions = options;
             return this;
         }
 
         public SQLDatasourceParamsBuilder withDbName(String dbName) {
             this.dbName = dbName;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withIsGlobalDatasource(boolean isGlobalDatasource) {
+            this.isGlobalDatasource = isGlobalDatasource;
             return this;
         }
     }

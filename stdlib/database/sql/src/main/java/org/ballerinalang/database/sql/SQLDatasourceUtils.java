@@ -1174,11 +1174,13 @@ public class SQLDatasourceUtils {
         if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
             poolOptions = globalPoolOptions;
         }
+        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
         String jdbcUrl = constructJDBCURL(dbType, host, port, name, username, password, urlOptions);
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl(jdbcUrl)
-                .withPoolOptions(poolOptions).withUsername(username).withPassword(password).withDbName(name).build();
-        return createSQLClient(context, sqlDatasourceParams, poolOptions, userProvidedPoolOptionsNotPresent);
+                .withPoolOptions(poolOptionsWrapper).withUsername(username).withPassword(password).withDbName(name)
+                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
+        return createSQLClient(context, sqlDatasourceParams);
     }
 
     public static BMap<String, BValue> createSQLDBClient(Context context, BMap<String, BValue> clientEndpointConfig,
@@ -1194,14 +1196,16 @@ public class SQLDatasourceUtils {
         if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
             poolOptions = globalPoolOptions;
         }
+        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("").withPoolOptions(poolOptions)
-                .withJdbcUrl(url).withUsername(username).withPassword(password).withDbName("")
-                .withDbOptionsMap(dbOptions).build();
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("")
+                .withPoolOptions(poolOptionsWrapper).withJdbcUrl(url).withUsername(username).withPassword(password)
+                .withDbName("").withDbOptionsMap(dbOptions).withIsGlobalDatasource(userProvidedPoolOptionsNotPresent)
+                .build();
 
-        return createSQLClient(context, sqlDatasourceParams, poolOptions, userProvidedPoolOptionsNotPresent);
+        return createSQLClient(context, sqlDatasourceParams);
     }
 
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
@@ -1229,15 +1233,16 @@ public class SQLDatasourceUtils {
         if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
             poolOptions = globalPoolOptions;
         }
+        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
         String jdbcUrl = constructJDBCURL(dbType, hostOrPath, port, name, username, password, urlOptions);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptions)
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper)
                 .withJdbcUrl(jdbcUrl).withDbType(dbType).withUsername(username).withPassword(password).withDbName(name)
-                .build();
-        return createSQLClient(context, sqlDatasourceParams, poolOptions, userProvidedPoolOptionsNotPresent);
+                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
+        return createSQLClient(context, sqlDatasourceParams);
     }
 
-    private static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
+    protected static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
             BMap<String, BRefType> poolOptions) {
         return (ConcurrentHashMap<String, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
     }
@@ -1353,49 +1358,13 @@ public class SQLDatasourceUtils {
     }
 
     private static BMap<String, BValue> createSQLClient(Context context,
-            SQLDatasource.SQLDatasourceParams sqlDatasourceParams, BMap<String, BRefType> poolOptions,
-            boolean isGlobalPoolUsed) {
-        Map<String, SQLDatasource> hikariDatasourceMap = createPoolMapIfNotExists(poolOptions);
-        SQLDatasource sqlDatasource = createDataSourceIfNotExists(hikariDatasourceMap, sqlDatasourceParams,
-                isGlobalPoolUsed);
+            SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
+        SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
+                .retrieveDatasource(sqlDatasourceParams);
         BMap<String, BValue> sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
         sqlClient.addNativeData(Constants.SQL_CLIENT, sqlDatasource);
         return sqlClient;
-    }
-
-    private static Map<String, SQLDatasource> createPoolMapIfNotExists(final BMap<String, BRefType> poolOptions) {
-        ConcurrentHashMap<String, SQLDatasource> hikariDatasourceMap = retrieveDatasourceContainer(poolOptions);
-        // map could be null only in a local pool creation scenario
-        if (hikariDatasourceMap == null) {
-            synchronized (poolOptions) {
-                hikariDatasourceMap = retrieveDatasourceContainer(poolOptions);
-                if (hikariDatasourceMap == null) {
-                    hikariDatasourceMap = new ConcurrentHashMap<>();
-                    addDatasourceContainer(poolOptions, hikariDatasourceMap);
-                }
-            }
-        }
-        return hikariDatasourceMap;
-    }
-
-    private static SQLDatasource createDataSourceIfNotExists(final Map<String, SQLDatasource> hikariDatasourceMap,
-            SQLDatasource.SQLDatasourceParams sqlDatasourceParams, boolean isGlobalDatasource) {
-        SQLDatasource sqlDatasource;
-        if (hikariDatasourceMap.containsKey(sqlDatasourceParams.getJdbcUrl())) {
-            sqlDatasource = hikariDatasourceMap.get(sqlDatasourceParams.getJdbcUrl());
-        } else {
-            synchronized (hikariDatasourceMap) {
-                if (hikariDatasourceMap.containsKey(sqlDatasourceParams.getJdbcUrl())) {
-                    sqlDatasource = hikariDatasourceMap.get(sqlDatasourceParams.getJdbcUrl());
-                } else {
-                    sqlDatasource = new SQLDatasource();
-                    sqlDatasource.init(sqlDatasourceParams, isGlobalDatasource);
-                    hikariDatasourceMap.put(sqlDatasourceParams.getJdbcUrl(), sqlDatasource);
-                }
-            }
-        }
-        return sqlDatasource;
     }
 
     private static String getString(Calendar calendar, String type) {
