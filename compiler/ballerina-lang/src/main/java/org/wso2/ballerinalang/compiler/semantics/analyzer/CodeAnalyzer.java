@@ -277,12 +277,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangNode myParent = parent;
         node.parent = parent;
         parent = node;
-        this.isJSONContext =
-                this.isJSONContext || node instanceof BLangExpression && ((BLangExpression) node).isJSONContext;
         node.accept(this);
         parent = myParent;
         this.env = prevEnv;
-        this.isJSONContext = false;
     }
 
     @Override
@@ -1541,7 +1538,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTernaryExpr ternaryExpr) {
         analyzeExpr(ternaryExpr.expr);
+        boolean isJSONCtx = getIsJSONContext(ternaryExpr.type);
+        this.isJSONContext = isJSONCtx;
         analyzeExpr(ternaryExpr.thenExpr);
+        this.isJSONContext = isJSONCtx;
         analyzeExpr(ternaryExpr.elseExpr);
     }
 
@@ -1601,7 +1601,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBinaryExpr binaryExpr) {
         if (validateBinaryExpr(binaryExpr)) {
+            boolean isJSONCtx = getIsJSONContext(binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+            this.isJSONContext = isJSONCtx;
             analyzeExpr(binaryExpr.lhsExpr);
+            this.isJSONContext = isJSONCtx;
             analyzeExpr(binaryExpr.rhsExpr);
         }
     }
@@ -1922,6 +1925,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.parent = parent;
         parent = node;
         node.accept(this);
+        this.isJSONContext = false;
         parent = myParent;
         checkAccess(node);
     }
@@ -2090,6 +2094,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             existingArgs.add(namedArg.name);
         });
+    }
+
+    private boolean getIsJSONContext(BType... arg) {
+        if (this.isJSONContext) {
+            return true;
+        }
+        for (BType type : arg) {
+            if (types.isJSONContext(type)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -52,7 +52,7 @@ public class NullLiteralUsageTest {
         CompileResult result = BCompileUtil.compile("test-src/expressions/null_literal_usage_negative.bal");
         int index = 0;
 
-        assertEquals(result.getErrorCount(), 16);
+        assertEquals(result.getErrorCount(), 20);
         validateError(result, index++, errorMsg, 17, 13);
         validateError(result, index++, errorMsg, 20, 18);
         validateError(result, index++, errorMsg, 22, 15);
@@ -68,7 +68,11 @@ public class NullLiteralUsageTest {
         validateError(result, index++, errorMsg, 54, 17);
         validateError(result, index++, errorMsg, 62, 9);
         validateError(result, index++, errorMsg, 68, 15);
-        validateError(result, index, errorMsg, 73, 14);
+        validateError(result, index++, errorMsg, 73, 14);
+        validateError(result, index++, "incompatible types: expected '()', found 'string'", 78, 18);
+        validateError(result, index++, errorMsg, 78, 67);
+        validateError(result, index++, errorMsg, 78, 74);
+        validateError(result, index, errorMsg, 78, 81);
     }
 
     @Test
@@ -150,6 +154,12 @@ public class NullLiteralUsageTest {
     @Test
     public void testNullInArray() {
         BValue[] returns = BRunUtil.invoke(result, "testNullInArray");
+        assertNull(returns[0]);
+    }
+
+    @Test
+    public void testNullInNestedTernaryExpr() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullInNestedTernaryExpr");
         assertNull(returns[0]);
     }
 }

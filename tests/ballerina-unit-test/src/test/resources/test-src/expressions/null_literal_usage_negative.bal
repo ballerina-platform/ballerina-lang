@@ -72,3 +72,8 @@ type Foo3 ();
 function testNullWithFiniteType() {
     Foo3 f = null;
 }
+
+function testNestedTernaryExpr() {
+    json j = {name:"John", age:25, location:null};
+    string? l = (j.location == null ? () : <string>j.location) == null ? null : null;
+}

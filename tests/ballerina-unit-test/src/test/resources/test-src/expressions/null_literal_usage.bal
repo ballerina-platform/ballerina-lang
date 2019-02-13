@@ -100,3 +100,9 @@ function testNullInArray() returns json {
     json[] ar = [5, null, "foo"];
     return ar[1];
 }
+
+function testNullInNestedTernaryExpr() returns json {
+    json j1 = {name:"John", age:25, location:null};
+    json j2 = (j1.location == null ? "then" : "else") == "" ? null : null;
+    return j2;
+}

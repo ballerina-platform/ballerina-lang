@@ -1381,12 +1381,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
 
-        if (types.isJSONContext(lhsType) || types.isJSONContext(rhsType)) {
-            binaryExpr.lhsExpr.isJSONContext = true;
-            binaryExpr.rhsExpr.isJSONContext = true;
-            binaryExpr.isJSONContext = true;
-        }
-
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
