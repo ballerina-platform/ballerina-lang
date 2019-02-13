@@ -61,13 +61,6 @@ public class Convert extends BlockingNativeCallableUnit {
         BType convertType = ((BTypeDescValue) ctx.getNullableRefArgument(0)).value();
         BValue inputValue = ctx.getNullableRefArgument(1);
         BValue convertedValue;
-        if (inputValue == null) {
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CONVERSION_ERROR,
-                                                          BLangExceptionHelper
-                                                                  .getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NULL,
-                                                                                   convertType)));
-            return;
-        }
         BType targetType;
         if (convertType.getTag() == TypeTags.UNION_TAG) {
             List<BType> memberTypes = new ArrayList<>(((BUnionType) convertType).getMemberTypes());
@@ -81,6 +74,20 @@ public class Convert extends BlockingNativeCallableUnit {
             }
         } else {
             targetType = convertType;
+        }
+        if (inputValue == null) {
+            if (targetType.getTag() == TypeTags.JSON_TAG || (convertType.getTag() == TypeTags.UNION_TAG &&
+                    ((BUnionType) convertType).getMemberTypes()
+                                              .stream()
+                                              .anyMatch(bType -> bType.getTag() == TypeTags.NULL_TAG))) {
+                ctx.setReturnValues((BValue) null);
+                return;
+            }
+            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CONVERSION_ERROR,
+                                                          BLangExceptionHelper
+                                                                  .getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NULL,
+                                                                                   convertType)));
+            return;
         }
         if (!BVM.checkIsLikeType(inputValue, targetType)) {
             ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CONVERSION_ERROR,

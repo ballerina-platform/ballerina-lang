@@ -58,14 +58,6 @@ public class Stamp extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context ctx) {
         BType stampType = ((BTypeDescValue) ctx.getNullableRefArgument(0)).value();
-        BValue valueToBeStamped = ctx.getNullableRefArgument(1);
-        if (valueToBeStamped == null) {
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.STAMP_ERROR,
-                                                          BLangExceptionHelper.getErrorMessage(
-                                                                  RuntimeErrors.CANNOT_STAMP_NULL,
-                                                                  stampType)));
-            return;
-        }
         BType targetType;
         if (stampType.getTag() == TypeTags.UNION_TAG) {
             List<BType> memberTypes = new ArrayList<>(((BUnionType) stampType).getMemberTypes());
@@ -79,6 +71,21 @@ public class Stamp extends BlockingNativeCallableUnit {
             }
         } else {
             targetType = stampType;
+        }
+        BValue valueToBeStamped = ctx.getNullableRefArgument(1);
+        if (valueToBeStamped == null) {
+            if (targetType.getTag() == TypeTags.JSON_TAG || (stampType.getTag() == TypeTags.UNION_TAG &&
+                    ((BUnionType) stampType).getMemberTypes()
+                                            .stream()
+                                            .anyMatch(bType -> bType.getTag() == TypeTags.NULL_TAG))) {
+                ctx.setReturnValues((BValue) null);
+                return;
+            }
+            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.STAMP_ERROR,
+                                                          BLangExceptionHelper.getErrorMessage(
+                                                                  RuntimeErrors.CANNOT_STAMP_NULL,
+                                                                  stampType)));
+            return;
         }
         if (!BVM.checkIsLikeType(valueToBeStamped, targetType)) {
             ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(),
