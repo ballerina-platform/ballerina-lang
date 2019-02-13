@@ -782,4 +782,11 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
+
+    @Test
+    public void testConvertWithFuncReturnUnion() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConvertWithFuncReturnUnion");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 125);
+    }
 }
