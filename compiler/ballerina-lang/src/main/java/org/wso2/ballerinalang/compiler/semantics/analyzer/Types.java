@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -233,10 +234,7 @@ public class Types {
     }
 
     public boolean isLikeAnydataOrNotNil(BType type) {
-        if (type.tag == TypeTags.NIL || (!isAnydata(type) && !isLikeAnydata(type))) {
-            return false;
-        }
-        return true;
+        return type.tag != TypeTags.NIL && (isAnydata(type) || isLikeAnydata(type));
     }
 
     private boolean isLikeAnydata(BType type) {
@@ -1860,11 +1858,8 @@ public class Types {
         }
 
         // We only reach here, if unconstrained and at this point it is guaranteed that the map/record is anydata
-        if (typeSet.stream().anyMatch(typeToCheck -> typeToCheck.tag == TypeTags.MAP ||
-                typeToCheck.tag == TypeTags.RECORD)) {
-            return true;
-        }
-        return false;
+        return typeSet.stream().anyMatch(typeToCheck -> typeToCheck.tag == TypeTags.MAP ||
+                typeToCheck.tag == TypeTags.RECORD);
     }
 
     public BType getRemainingType(BType originalType, BType typeToRemove) {
@@ -1937,40 +1932,14 @@ public class Types {
     }
 
     public boolean hasImplicitInitialValue(BType type) {
-        switch (type.tag) {
-            case TypeTags.INT:
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.BOOLEAN:
-            case TypeTags.NIL:
-            case TypeTags.TYPEDESC:
-            case TypeTags.JSON:
-            case TypeTags.MAP:
-            case TypeTags.NONE:
-            case TypeTags.STREAM:
-            case TypeTags.TABLE:
-            case TypeTags.XML:
-            case TypeTags.ANYDATA:
-            case TypeTags.ANY:
-                return true;
-            case TypeTags.ANNOTATION:
-            case TypeTags.CHANNEL:
-            case TypeTags.ERROR:
-            case TypeTags.FUTURE:
-            case TypeTags.INVOKABLE:
-            case TypeTags.PACKAGE:
-            case TypeTags.SEMANTIC_ERROR:
-            case TypeTags.XML_ATTRIBUTES:
-                return false;
-            default:
-                return analyzeImplicitInitialValue(type);
+        if (type.tag < TypeTags.RECORD) {
+            return true;
         }
-    }
-
-    private boolean analyzeImplicitInitialValue(BType type) {
         switch (type.tag) {
+            case TypeTags.TYPEDESC:
+            case TypeTags.STREAM:
+            case TypeTags.MAP:
+                return true;
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) type;
                 if (arrayType.state == BArrayState.UNSEALED) {
@@ -2022,7 +1991,7 @@ public class Types {
         if (type.getKind() == TypeKind.SERVICE) {
             return false;
         }
-        if (type.tsymbol instanceof BObjectTypeSymbol) { // To please the FindBugs warning, BC_UNCONFIRMED_CAST
+        if (type.tsymbol.kind == SymbolKind.OBJECT) {
             BAttachedFunction initializerFunc = ((BObjectTypeSymbol) type.tsymbol).initializerFunc;
             if (initializerFunc == null) {
                 // No __init function found.
