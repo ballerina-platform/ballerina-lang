@@ -482,13 +482,13 @@ public class SymbolTable {
         defineConversionOperator(anyType, byteType, false);
         defineConversionOperator(anyType, floatType, false);
         defineConversionOperator(anyType, decimalType, false);
-        defineConversionOperator(anyType, stringType, false);
+        defineConversionOperator(anyType, stringType, true);
         defineConversionOperator(anyType, booleanType, false);
         defineConversionOperator(anydataType, intType, false);
         defineConversionOperator(anydataType, byteType, false);
         defineConversionOperator(anydataType, floatType, false);
         defineConversionOperator(anydataType, decimalType, false);
-        defineConversionOperator(anydataType, stringType, false);
+        defineConversionOperator(anydataType, stringType, true);
         defineConversionOperator(anydataType, booleanType, false);
         defineConversionOperator(jsonType, intType, false);
         defineConversionOperator(jsonType, floatType, false);
@@ -640,7 +640,7 @@ public class SymbolTable {
         }
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType, sourceType,
-                                                                         this.rootPkgSymbol, opcode);
+                                                                         this.rootPkgSymbol, opcode, safe);
         rootScope.define(symbol.name, symbol);
     }
     
