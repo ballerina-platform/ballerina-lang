@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -541,7 +542,7 @@ public class CompiledPackageSymbolEnter {
         UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) this.env.constantPool[typeDescCPIndex];
         String typeDesc = typeDescCPEntry.getValue();
 
-        BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        BLangLiteral litExpr = createLiteralBasedOnDescriptor(typeDesc);
 
         int valueCPIndex;
         switch (typeDesc) {
@@ -656,10 +657,10 @@ public class CompiledPackageSymbolEnter {
         // Constants must have a value attribute.
         byte[] documentationBytes = attrDataMap.get(Kind.DEFAULT_VALUE_ATTRIBUTE);
         DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(documentationBytes));
-        // Create a new literal.
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         // Read the value from the stream. We need to set `value`, `valueTag` and `type` of the literal.
         String typeDesc = getUTF8CPEntryValue(documentDataStream);
+        // Create a new literal.
+        BLangLiteral literal = createLiteralBasedOnDescriptor(typeDesc);
         int valueCPIndex;
         switch (typeDesc) {
             case TypeDescriptor.SIG_BOOLEAN:
@@ -1077,6 +1078,13 @@ public class CompiledPackageSymbolEnter {
 
     private BType getBTypeFromDescriptor(String typeSig) {
         return this.typeSigReader.getBTypeFromDescriptor(new CompilerTypeCreater(), typeSig);
+    }
+
+    private BLangLiteral createLiteralBasedOnDescriptor(String typeSig) {
+        BType type = getBTypeFromDescriptor(typeSig);
+        NodeKind nodeKind = type.tag <= TypeTags.DECIMAL ? NodeKind.NUMERIC_LITERAL : NodeKind.LITERAL;
+        return nodeKind == NodeKind.LITERAL ? (BLangLiteral) TreeBuilder.createLiteralExpression() :
+                (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
     }
 
     /**
