@@ -18,54 +18,62 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     var ret = main();
-    test:assertEquals(outputs.length(), 17);
-    test:assertEquals(outputs[0], "Hex encoded hash with MD5: B7CDF48DCB2072D96987194301C9BB29");
-    test:assertEquals(outputs[1], "Base64 encoded hash with SHA1: zWtjF5XdRjnbt5Bb3h3tCLxvwfk=");
-    test:assertEquals(outputs[2], "Hex encoded hash with SHA256: 470C840787F9A5B453534EE0565C0992D76CA9100FE8A1B6F" + 
-                                  "67834A79C0C749E");
-    test:assertEquals(outputs[3], "Base64 encoded hash with SHA384: /Y+2DRQn4GMnxdh3O353e5wrpZDVEaA8gpVVLhPGKmtjy8" +
-                                  "79GjM7tvlhWTf9v+SY");
-    test:assertEquals(outputs[4], "Hex encoded hash with SHA512: A67035FC19AC1CCEE90DB79D8C06BC51938A45F9BDBBD9ADC" +
-                                  "2BAAA1AB02068543A98A6A8381CE32801FB2557C95B9FC05D120CF8B10124709A8037896CE53A31");
-    test:assertEquals(outputs[5], "Hex encoded HMAC with MD5: BD7BAF052B378B02B199ED3A48C24172");
-    test:assertEquals(outputs[6], "Base64 encoded HMAC with SHA1: H5srwqG4xiHIeBMRYGSTM6nGpLI=");
-    test:assertEquals(outputs[7], "Hex encoded HMAC with SHA256: 01699B5BD8E2EAD41FB011817C688E9F1109966FF652B156FC" +
-                                  "D1FBA0E29D58E0");
-    test:assertEquals(outputs[8], "Base64 encoded HMAC with SHA384: XZPhJQd7T9NjsVKxJFjvGGk1YkrlFU9DlMGZ3TV3eof5fEk" +
-                                  "zg+OJkLdu0tEOm45U");
-    test:assertEquals(outputs[9], "Hex encoded HMAC with SHA512: 283EE4F6A6D0E284F1391AF382764CABBE6752CF77C021F862" +
-                                  "E2178485B957B444C109B0CB19A9444F87D61CEFC638E4C304F92AA97A1CADC510BD4D964D0C62");
-    test:assertEquals(outputs[10], "CRC32B for text: 2693632d");
+    test:assertEquals(outputs.length(), 25);
+    test:assertEquals(outputs[0], "Hex encoded hash with MD5: 0605402EE16D8E96511A58FF105BC24A");
+    test:assertEquals(outputs[1], "Base64 encoded hash with SHA1: /8fwbGIevBvv2Nl3gEL9DtWas+Q=");
+    test:assertEquals(outputs[2], "Hex encoded hash with SHA256: A984A643C350B17F0738BAC0FEF17F2CD91D91E04596351D0AF" +
+                                  "670C79ADC12D5");
+    test:assertEquals(outputs[3], "Base64 encoded hash with SHA384: lselzItgAZHQmqNbkf/s2aRjBSd93O3ayc0PB0Dxk6AEo1s4" +
+                                  "4zyTz/Qp0FJO1n6b");
+    test:assertEquals(outputs[4], "Hex encoded hash with SHA512: A6F0770F1582F49396A97FBD5973AC22A3A578AC6A991786427" +
+                                  "DFEC17DBD984D8D6289771AC6F44176160A3DCD59F4A8C6B3AB97BEF0CAA5C67A3FAC78C8E946");
+    test:assertEquals(outputs[5], "Hex encoded HMAC with MD5: B69FA2CC698E0923A7EEA9D8F2B156FE");
+    test:assertEquals(outputs[6], "Base64 encoded HMAC with SHA1: AkWFajkb/gml703Zf4pPgxrjam4=");
+    test:assertEquals(outputs[7], "Hex encoded HMAC with SHA256: 13A3369B8BA326FD311D4500B06A5214A02ED2A033917108F6B" +
+                                  "9AF58B7EDE381");
+    test:assertEquals(outputs[8], "Base64 encoded HMAC with SHA384: 0AjKoWLhNPgdobGTPJs0PdkA0W9wkJtzUvXigzC1ZmXDJJsx" +
+                                  "p4icks4JrPiwHGm6");
+    test:assertEquals(outputs[9], "Hex encoded HMAC with SHA512: 27588AD08E772A6BBA5FCA5F45CF467819C8DE69A70A42BE6FE" +
+                                  "3EB09CEB3BFEB8B2976BDA8EA5C10DCFA2294B12CB0B50B22A06309BADA98AF21857904A03205");
+    test:assertEquals(outputs[10], "CRC32B for text: db9230c5");
     test:assertEquals(outputs[11], "CRC32 for xml content: 7d5c0879");
-    test:assertEquals(outputs[12], "Hex encoded RSA-MD5 signature: 72DCB9830B078303A229E47DDBEAE458FCC26EAEC277CB807" +
-                                   "BAA5F3A502D2EFD2DC42F1C83C26C46BB64D4787C93892AD8AF1116FBE56C7A2FD32A2253C33D60F" +
-                                   "C08BD44B5981874D6EA8CFE6F3DFCBF3DE69F7B5E6C6DA635C2823C02A264AB8BC139B9C9005A4F2" +
-                                   "1AFA412202004FC9247BD0B60882F52BAEFCE07E336E5FAF8E7D24A08803296076C00FFE0A1EF405" +
-                                   "D26F43EACF8F0DBEFAF9F4F1157A3BE28F31B3E7C89905C78793397A5F3342F161EC4F5C7DB60D11" +
-                                   "7EE707394A3B65CEC14DC8817E03E0CEF6B66C6FD0D14EE9E95E08E015792BF976FF15D25DF0A0C7" +
-                                   "70772CCD17A731A6FE5A77E613616B53D78C92FFE909A8D48CBADCD39B4FCB3");
-    test:assertEquals(outputs[13], "Base64 encoded RSA-SHA1 signature: D6PU5+SPqq0RZNUJe2K9+2zLWdg4NeDi8blRuK1e4WBmy" +
-                                   "4yjiWtXjxbAnhIpVuJAUDTTh2/0Bu8P8suFzkTZHFpCu3SkG9HnoDpnvdDTelEcwGViBSAkA2XR1ELDB" +
-                                   "KqvYIcXJdRVliA1CY4LTKtysrGE57iOHZXbmfyiZLLedc2EOO8sT22dzSmd8aQTNWrHcYUEVTa7Sv/sd" +
-                                   "6wFceEilfRyv49yvkuVDBi6xhyUnKR8TIcJ07lP3eBfP58olGWtS76GglOzHuQuNd5mLY0WykvCFoM9q" +
-                                   "mqrJLJrONdAuILJOoqXnfeLpyvvWyiSfd8MPx6KomGOuD/WYCQKaL/xGA==");
-    test:assertEquals(outputs[14], "Hex encoded RSA-SHA256 signature: 1FE7A13028507D0AFF1F5BFC866507AB9AEC6D690CD414" +
-                                   "D756481A1C54D01E5318FC6CA801EC4E6A70DD9AD359C9312DE2A5EE9C300D904A71418E709B0FFF" +
-                                   "10968E9C443C25CAF2A5D956CD26543C479E7F47562C8B1762DDE0159A420C3276167E678D2A4197" +
-                                   "A663C653BF3BBF78AF304A3C1A36626BB328014E99FA6A84A442F19E28BC295DD45348027D5BEFC7" +
-                                   "63E71DA42D872124B028C1CCBCC981DFCAA5B0C33AF0254296899DA4A625BA4FB7EEB8941E9A2827" +
-                                   "88B14569732E2941AAC20E2B700AC5CBF372EEEED4032B1EAAC86CA234941843BA30ECA21090AF56" +
-                                   "EEC0517BB67B2DF84E22220A81E146638064D5E79F44D10B5211F92362C65FA8E9");
-    test:assertEquals(outputs[15], "Base64 encoded RSA-SHA384 signature: MhB9YczHBxv8YapgIonZDfuAJgWj/tEnwRlyVI0gd3i" +
-                                   "4GHkvF3CIpiuBgv+PDP+rwQull95YgiJ55uOVbC86nejURgOSGGhjesQ4PK7ATKnVyObT+dc9rY+H+7v" +
-                                   "M5uCe29VZYhq5atYphJHaqwDt11yr2uy78cIwwsl0ECzSJWYtkO14O8flPL4QXWU/ksGcMcxkBtQqq7U" +
-                                   "q3ft/bRT4F0CIUSwfT5P8AHZc+g6w6/V4rUMElWb7DiOTr0J3uTpamAVBkS95mBVJAL+auZ15uYhjYSl" +
-                                   "2XzPViIA6AQ0G968WxZet2YyiW909rYeHUXMc7me8gCxeIkXTP8OUIC2HPg==");
-    test:assertEquals(outputs[16], "Hex encoded RSA-SHA512 signature: 2433A1A1733D998FFDB40C449AA3F3DCA0A8E550C546AB" +
-                                   "F9BBEBC7A79561B8134C66FC7FFD2F5E304F1D7E1B5056743DE81CDCAC8E6701B6E30709FBD3EBD0" +
-                                   "A6F13533F17239637C94D3896FA1447D9DD703F28389310DF4060493AE1EA116AC5B5E8A63A904F9" +
-                                   "1E6C87683EB9B197FC884694E0664F8E3CA947D489B8C5695FC8A0E817EDAB17734612C9CC2F3FD0" +
-                                   "A6854773F911355E746E17A27D6D45915271D81DFB5DA4BFC46A2E300C3935CBE2F18DD520425051" +
-                                   "B03C58754D839E9EFE9A5C865A36A5883A82CACF91B8FC9A23888B8B20255D4F3273A7BBF3AB601F" +
-                                   "67008F0C8385A93F32B4CF0D6D3E4D5105C94A9697FCFAA6DAB75A8DDDF3DFE52A");
+    test:assertEquals(outputs[12], "Hex encoded RSA-MD5 signature: 2CFD121E4FF2409D1B2482EBBF37D0C035884D6D858E307E4" +
+                                   "460B092D79CB20ABB624A0DFAE76B73B1FC85447BE3060A36B318813F0115B1919E5EFA7A7F9B117" +
+                                   "3EC869F56FD9448D99770E1565DB1C69A04FD0075FA0E33423A7E829A8B9C25A4DD2C68F3EEE021C" +
+                                   "0C4FF27979750B395384E280AFD87AF5274C8D2D99AD4438D9BFC9B2C5A2814212BA29CE6FF70CBE" +
+                                   "30A5C23F86B0330E143C4D8813FF10092CD313C6861706D37DF5F4BB4E9FC72354975EE1786CF24C" +
+                                   "79B9EDFA909968F198C4DA37464F3D214A68FB39956717E92D667BB5A9A7F5986BA055D431813D40" +
+                                   "53A028873499F98C94FD6B5C6FD5AEFAD432669F957AB4CE9E91C5E77B36EC0");
+    test:assertEquals(outputs[13], "Base64 encoded RSA-SHA1 signature: bYMHKKVkjbOUp9ly3AdW9/euxF94krkkF9SDk2FfbVEc0" +
+                                   "mqpGIxVoZlPiFxszurZF1YPcqOSeOehDkaHXUMfQkTjBq7XlcePtkywy0fChqw8/SWqZR8nbYv97tt8+" +
+                                   "MVTkymbm26syQLwYNLiGp/EsN6X+fJpkdakwHE+TrdE+rEFrNysGyAm1DWwc4c+l7MEmSYMUnh/GWPY5" +
+                                   "r2knOOdDA3mr+XyrsxzFRWZgO7ebVvEQfq9XkRp8kdiGVgpLS5au0jKj3EpbCdS1prFgy3grkuSJTTUQ" +
+                                   "CwgPo7WSjWbuehFGni7rbas8HIqNlyWF0qUyznJ3eqbUwZ95QqOoVWZoQ==");
+    test:assertEquals(outputs[14], "Hex encoded RSA-SHA256 signature: 215C6EA96C9E82348430C6BB02E715560B4FBD3AFCF24F" +
+                                   "BEB41FF12D4D68A797D61C4D6F822807688E4DC604E212B3CC7AC563B3CBE4E5690E2AEBAF4E3DF3" +
+                                   "5C19D4B0F7043F50501F390634303577053B029D495104C0E98BC887F0BE744EF6F726F719201907" +
+                                   "AD4E86CEF82EB030B60C384F7034A85159081E598E197BB8904A9123F39D190796DC7FD946157547" +
+                                   "C10523999B8FA956D4119DBFE3C1435911C0585CF3C537964516706772E87F247055740CC4867AC6" +
+                                   "B99D7BF699FCE1B59956C7F55368C8C88C9D47E51EF120ED3F27C3E555691A697142C78CBD72C23B" +
+                                   "81B43FA5AB67164A35F8E8C6BF1DA187D3FEB866ADD13F1FB9576A2F7887535311");
+    test:assertEquals(outputs[15], "Base64 encoded RSA-SHA384 signature: BjQ40dffGiRQ4zo1s+ld+zKhJL21RbO5sW3L2+4xmon" +
+                                   "Ut126u9D4/FZ2sM1QGGamj8btB9otiYmWr9sFm4fTs1EX6vrxcCGCAiDdkMxiRs7kShaz2x/BjJQ7cOd" +
+                                   "9OY+amwo7DQ/FAk9mNOt4lFUpjc9WyEW9F1PEJRXZQvMmVabDu8lp/Fh02lmEquG15DT5qT0jRxRJiS8" +
+                                   "CNa+97cMZdOmF2KeADfRbNJSz70mZ76MrsNxYIXYIiJzJBQod0efQr0Sr/HDn4JDVph9rpDM3p8m94Ty" +
+                                   "XvSOwxwxzZWRLEwB0ANdfDmbrW4bOpxfZZFmy1hltqNJQ9G0BcKOHsZDj6Q==");
+    test:assertEquals(outputs[16], "Hex encoded RSA-SHA512 signature: 15428FDC7B26D18B1F3EAE4569399AE6EBFD430C8F073B" +
+                                   "F2FA77EBFE1AD5645640374EA4A4AEADD252AF3A198E55E69AD2A910E28470D9B54748887DE06A5C" +
+                                   "3ED7AB12399A404359332553E051E8AE0F3EF741FAA15A21AD17A9C235E5F91D567BCCA0E5A61176" +
+                                   "89DCCADA4A33EE897514F7A8A32F12DAC0087F5DCBB094C93C792F672E1685618AC5D93AA9D30F6D" +
+                                   "8E306145EF2D1B9CFDC04D6C61B43376089A78471E8E03D97EE3B57E1B734A23F44366A99234A0AB" +
+                                   "EB1D36D01C474833B4C2BEAF430DAE06AB95A1C951645FB1E0A5E7B9EED44D40E35036F2CD2764DF" +
+                                   "6CC04FE1248E1BB772A53C8201A974109333A318CE57930494D4CB5E41D0DC8F1C");
+    test:assertEquals(outputs[17], "AES CBC PKCS5 decrypted value: Hello Ballerina!");
+    test:assertEquals(outputs[18], "AES CBC no padding decrypted value: Hello Ballerina!");
+    test:assertEquals(outputs[19], "AES GCM PKCS5 decrypted value: Hello Ballerina!");
+    test:assertEquals(outputs[20], "AES GCM no padding decrypted value: Hello Ballerina!");
+    test:assertEquals(outputs[21], "AES ECB PKCS5 decrypted value: Hello Ballerina!");
+    test:assertEquals(outputs[22], "AES ECB no padding decrypted value: Hello Ballerina!");
+    test:assertEquals(outputs[23], "RSA ECB PKCS1 decrypted value: Hello Ballerina!");
+    test:assertEquals(outputs[24], "RSA ECB OAEPwithSHA512andMGF1 decrypted value: Hello Ballerina!");
 }
