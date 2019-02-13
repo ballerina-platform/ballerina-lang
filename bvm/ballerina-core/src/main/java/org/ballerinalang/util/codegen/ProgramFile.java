@@ -79,8 +79,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    private List<AnnAttributeValue> unresolvedAnnAttrValues = new ArrayList<>();
-
     public int getMagicValue() {
         return magicValue;
     }

@@ -155,7 +155,7 @@ public class WebSocketCompilationTest {
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
                                   "onOpen resource is not supported for WebSocketClientService",
-                                  24, 5);
+                                  22, 5);
     }
 
     @Test(description = "WebSocket upgrade resource config has a no upgradeService")

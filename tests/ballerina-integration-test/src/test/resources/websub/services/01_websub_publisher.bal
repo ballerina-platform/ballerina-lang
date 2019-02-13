@@ -51,9 +51,10 @@ service publisher on publisherServiceEP {
     }
 
     @http:ResourceConfig {
-        methods: ["POST"]
+        methods: ["POST"],
+        path: "/notify/{subscriber}"
     }
-    resource function notify(http:Caller caller, http:Request req) {
+    resource function notify(http:Caller caller, http:Request req, string subscriber) {
         remoteRegisterTopic();
         string mode = "";
         string contentType = "";
@@ -72,6 +73,8 @@ service publisher on publisherServiceEP {
             log:printError("Error responding on notify request", err = err);
         }
 
+        checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
+        checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubTwo");
         if (mode == "internal") {
             err = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
             if (err is error) {
