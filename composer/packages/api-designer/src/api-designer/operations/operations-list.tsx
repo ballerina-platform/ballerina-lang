@@ -56,13 +56,17 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
 
     public componentWillReceiveProps(nextProps: OpenApiOperationProp) {
         const { pathItem, expandMode } = nextProps;
-        const activeOperations: number[] = [];
+        let activeOperations: number[] = this.state.activeOpIndex;
 
         if (expandMode.isEdit) {
             return;
         }
 
-        if (expandMode.type === "operations" || expandMode.type === "all") {
+        if (expandMode.type === "collapse" || expandMode.type === "resources") {
+            activeOperations = [];
+        }
+
+        if (expandMode.type === "operations") {
             Object.keys(pathItem).sort().map((openApiOperation, index) => {
                 activeOperations.push(index);
             });
