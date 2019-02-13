@@ -1939,6 +1939,7 @@ public class Types {
             case TypeTags.TYPEDESC:
             case TypeTags.STREAM:
             case TypeTags.MAP:
+            case TypeTags.ANY:
                 return true;
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) type;
