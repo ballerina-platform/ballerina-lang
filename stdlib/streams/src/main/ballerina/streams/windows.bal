@@ -30,7 +30,8 @@ public type Window abstract object {
 };
 
 public type LengthWindow object {
-
+    *Window;
+    *Snapshotable;
     public int size;
     public LinkedList linkedList;
     public any[] windowParameters;
@@ -108,6 +109,22 @@ public type LengthWindow object {
         }
         return events;
     }
+
+    public function saveState() returns map<any> {
+        SnapshottableStreamEvent[] eventsList = toSnapshottableEvents(self.linkedList.asArray());
+        return {
+            "eventsList": eventsList
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        var eventsList = state["eventsList"];
+        if (eventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] streamEvents = toStreamEvents(eventsList);
+            self.linkedList = new;
+            self.linkedList.addAll(streamEvents);
+        }
+    }
 };
 
 public function length(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
@@ -117,7 +134,8 @@ public function length(any[] windowParameters, function (StreamEvent[])? nextPro
 }
 
 public type TimeWindow object {
-
+    *Window;
+    *Snapshotable;
     public int timeInMillis;
     public any[] windowParameters;
     public LinkedList expiredEventQueue;
@@ -235,6 +253,15 @@ public type TimeWindow object {
         }
         return events;
     }
+
+    public function saveState() returns map<any> {
+        io:println("save state.");
+        return {};
+    }
+
+    public function restoreState(map<any> state) {
+        io:println("restore state: ", state);
+    }
 };
 
 public function time(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
@@ -244,6 +271,8 @@ public function time(any[] windowParameters, function (StreamEvent[])? nextProce
 }
 
 public type LengthBatchWindow object {
+    *Window;
+    *Snapshotable;
     public int length;
     public any[] windowParameters;
     public int count;
@@ -367,6 +396,15 @@ public type LengthBatchWindow object {
         }
         return events;
     }
+
+    public function saveState() returns map<any> {
+        io:println("save state.");
+        return {};
+    }
+
+    public function restoreState(map<any> state) {
+        io:println("restore state: ", state);
+    }
 };
 
 public function lengthBatch(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
@@ -377,6 +415,8 @@ public function lengthBatch(any[] windowParameters, function (StreamEvent[])? ne
 
 
 public type TimeBatchWindow object {
+    *Window;
+    *Snapshotable;
     public int timeInMilliSeconds;
     public any[] windowParameters;
     public int nextEmitTime = -1;
@@ -511,6 +551,15 @@ public type TimeBatchWindow object {
         return events;
     }
 
+    public function saveState() returns map<any> {
+        io:println("save state.");
+        return {};
+    }
+
+    public function restoreState(map<any> state) {
+        io:println("restore state: ", state);
+    }
+
     public function handleError(error e) {
         io:println("Error occured", e.reason());
     }
@@ -523,7 +572,8 @@ public function timeBatch(any[] windowParameters, function (StreamEvent[])? next
 }
 
 public type ExternalTimeWindow object {
-
+    *Window;
+    *Snapshotable;
     public int timeInMillis;
     public any[] windowParameters;
     public LinkedList expiredEventQueue;
@@ -640,6 +690,15 @@ public type ExternalTimeWindow object {
         return events;
     }
 
+    public function saveState() returns map<any> {
+        io:println("save state.");
+        return {};
+    }
+
+    public function restoreState(map<any> state) {
+        io:println("restore state: ", state);
+    }
+
     public function getTimestamp(any val) returns (int) {
         if (val is int) {
             return val;
@@ -658,6 +717,8 @@ public function externalTime(any[] windowParameters, function (StreamEvent[])? n
 }
 
 public type ExternalTimeBatchWindow object {
+    *Window;
+    *Snapshotable;
     public int timeToKeep;
     public LinkedList currentEventChunk;
     public LinkedList expiredEventChunk;
@@ -891,6 +952,15 @@ public type ExternalTimeBatchWindow object {
         return events;
     }
 
+    public function saveState() returns map<any> {
+        io:println("save state.");
+        return {};
+    }
+
+    public function restoreState(map<any> state) {
+        io:println("restore state: ", state);
+    }
+
     public function handleError(error e) {
         io:println("Error occured", e.reason());
     }
@@ -1066,7 +1136,8 @@ public function externalTimeBatch(any[] windowParameters, function (StreamEvent[
 }
 
 public type TimeLengthWindow object {
-
+    *Window;
+    *Snapshotable;
     public int timeInMilliSeconds;
     public int length;
     public any[] windowParameters;
@@ -1203,6 +1274,15 @@ public type TimeLengthWindow object {
         }
         return events;
     }
+
+    public function saveState() returns map<any> {
+        io:println("save state.");
+        return {};
+    }
+
+    public function restoreState(map<any> state) {
+        io:println("restore state: ", state);
+    }
 };
 
 public function timeLength(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
@@ -1212,7 +1292,8 @@ public function timeLength(any[] windowParameters, function (StreamEvent[])? nex
 }
 
 public type UniqueLengthWindow object {
-
+    *Window;
+    *Snapshotable;
     public string uniqueKey;
     public int length;
     public any[] windowParameters;
@@ -1356,6 +1437,15 @@ public type UniqueLengthWindow object {
         }
         return events;
     }
+
+    public function saveState() returns map<any> {
+        io:println("save state.");
+        return {};
+    }
+
+    public function restoreState(map<any> state) {
+        io:println("restore state: ", state);
+    }
 };
 
 public function uniqueLength(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
@@ -1365,7 +1455,8 @@ public function uniqueLength(any[] windowParameters, function (StreamEvent[])? n
 }
 
 public type DelayWindow object {
-
+    *Window;
+    *Snapshotable;
     public int delayInMilliSeconds;
     public any[] windowParameters;
     public LinkedList delayedEventQueue;
@@ -1500,6 +1591,15 @@ public type DelayWindow object {
         }
         return events;
     }
+
+    public function saveState() returns map<any> {
+        io:println("save state.");
+        return {};
+    }
+
+    public function restoreState(map<any> state) {
+        io:println("restore state: ", state);
+    }
 };
 
 public function delay(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
@@ -1509,7 +1609,8 @@ public function delay(any[] windowParameters, function (StreamEvent[])? nextProc
 }
 
 public type SortWindow object {
-
+    *Window;
+    *Snapshotable;
     public int lengthToKeep;
     public any [] windowParameters;
     public LinkedList sortedWindow;
@@ -1674,6 +1775,15 @@ public type SortWindow object {
             }
         }
         return events;
+    }
+
+    public function saveState() returns map<any> {
+        io:println("save state.");
+        return {};
+    }
+
+    public function restoreState(map<any> state) {
+        io:println("restore state: ", state);
     }
 };
 

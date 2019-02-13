@@ -21,16 +21,19 @@ public type Select object {
     private ((function (StreamEvent o) returns anydata)[])? groupbyFuncArray;
     private function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc;
     private map<Aggregator[]> aggregatorsCloneMap;
+    private string scopeName;
 
 
     function __init(function (StreamEvent[]) nextProcessorPointer, Aggregator[] aggregatorArr,
                     ((function (StreamEvent) returns anydata)[])? groupbyFuncArray,
-                    function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc) {
+                    function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc,
+                    string scopeName) {
         self.aggregatorsCloneMap = {};
         self.nextProcessorPointer = nextProcessorPointer;
         self.aggregatorArr = aggregatorArr;
         self.groupbyFuncArray = groupbyFuncArray;
         self.selectFunc = selectFunc;
+        self.scopeName = scopeName;
     }
 
     public function process(StreamEvent[] streamEvents) {
@@ -39,6 +42,9 @@ public type Select object {
             map<StreamEvent> groupedEvents = {};
             foreach var event in streamEvents {
                 if (event.eventType == RESET) {
+                    foreach var (k, v) in self.aggregatorsCloneMap {
+                        boolean stateRemoved = removeState(k);
+                    }
                     self.aggregatorsCloneMap.clear();
                 }
 
@@ -50,7 +56,11 @@ public type Select object {
                 } else {
                     int i = 0;
                     foreach var aggregator in self.aggregatorArr {
-                        aggregatorsClone[i] = aggregator.copy();
+                        string snapshotableKey = self.scopeName + groupbyKey + "$" + i;
+                        Aggregator clone = aggregator.copy();
+                        restoreState(snapshotableKey, clone);
+                        registerSnapshotable(snapshotableKey, clone);
+                        aggregatorsClone[i] = clone;
                         i += 1;
                     }
                     self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
@@ -91,9 +101,10 @@ public type Select object {
 public function createSelect(function (StreamEvent[]) nextProcPointer,
                              Aggregator[] aggregatorArr,
                              ((function (StreamEvent o) returns anydata)[])? groupbyFuncArray,
-                             function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc)
+                             function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc,
+                             string scopeName = "$scope$name")
                     returns Select {
 
-    Select select = new(nextProcPointer, aggregatorArr, groupbyFuncArray, selectFunc);
+    Select select = new(nextProcPointer, aggregatorArr, groupbyFuncArray, selectFunc, scopeName);
     return select;
 }

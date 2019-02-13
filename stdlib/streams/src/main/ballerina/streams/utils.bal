@@ -31,3 +31,45 @@ public function createResetStreamEvent(StreamEvent event) returns StreamEvent {
 public function getStreamEvent(any? anyEvent) returns StreamEvent {
     return <StreamEvent>anyEvent;
 }
+
+public function toSnapshottableEvents(StreamEvent[]|any[] events) returns SnapshottableStreamEvent[] {
+    SnapshottableStreamEvent[] evts = [];
+    if (events is StreamEvent[]) {
+        foreach StreamEvent e in events {
+            evts[evts.length()] = {
+                eventType: e.eventType,
+                timestamp: e.timestamp,
+                data: e.data
+            };
+        }
+    } else {
+        foreach var e in events {
+            if (e is StreamEvent) {
+                evts[evts.length()] = {
+                    eventType: e.eventType,
+                    timestamp: e.timestamp,
+                    data: e.data
+                };
+            }
+        }
+    }
+    return evts;
+}
+
+public function toStreamEvents(SnapshottableStreamEvent[]|any[] events) returns StreamEvent[] {
+    StreamEvent[] evts = [];
+    if (events is SnapshottableStreamEvent[]) {
+        foreach SnapshottableStreamEvent e in events {
+            StreamEvent se = new(e.data, e.eventType, e.timestamp);
+            evts[evts.length()] = se;
+        }
+    } else {
+        foreach var e in events {
+            if (e is SnapshottableStreamEvent) {
+                StreamEvent se = new(e.data, e.eventType, e.timestamp);
+                evts[evts.length()] = se;
+            }
+        }
+    }
+    return evts;
+}
