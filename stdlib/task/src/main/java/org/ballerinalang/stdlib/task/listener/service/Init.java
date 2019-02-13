@@ -46,7 +46,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_POSITION_VALUE;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.getCronExpressionFromAppointmentRecord;
@@ -67,8 +67,9 @@ import static org.ballerinalang.stdlib.task.listener.utils.Utils.getCronExpressi
 public class Init extends BlockingNativeCallableUnit {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute(Context context) {
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_POSITION_VALUE);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_REF_ARG_INDEX);
         BMap<String, BValue> configurations = (BMap<String, BValue>) taskStruct.get(LISTENER_CONFIGURATION_MEMBER_NAME);
         String configurationTypeName = configurations.getType().getName();
         Task task;

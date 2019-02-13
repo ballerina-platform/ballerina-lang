@@ -33,7 +33,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_PAUSED_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_RUNNING_FIELD;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_POSITION_VALUE;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 
 /**
@@ -52,8 +52,9 @@ import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 public class Pause extends BlockingNativeCallableUnit {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute(Context context) {
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_POSITION_VALUE);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_REF_ARG_INDEX);
         boolean isRunning = ((BBoolean) taskStruct.get(TASK_IS_RUNNING_FIELD)).booleanValue();
         if (!isRunning) {
             String errorMessage = "Cannot pause the task: Task is not started.";

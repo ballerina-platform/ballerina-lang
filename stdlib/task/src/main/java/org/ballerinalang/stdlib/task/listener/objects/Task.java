@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.task.listener.objects;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
 
 import java.util.HashMap;
@@ -56,7 +55,7 @@ public interface Task {
      *
      * @return Services Map
      */
-    HashMap<String, Service> getServicesMap();
+    HashMap<String, ServiceWithParameters> getServicesMap();
 
     /**
      * Get map of attached services of the task.
@@ -64,14 +63,14 @@ public interface Task {
      * @param serviceName Service name of which the service should be retrieved.
      * @return Service object with the provided name.
      */
-    Service getService(String serviceName);
+    ServiceWithParameters getService(String serviceName);
 
     /**
      * Add particular service to the registry of the Task.
      *
      * @param service Service which needs to be attached to the task.
      */
-    void addService(Service service);
+    void addService(ServiceWithParameters service);
 
     /**
      * Remove particular service from the registry of the Task.

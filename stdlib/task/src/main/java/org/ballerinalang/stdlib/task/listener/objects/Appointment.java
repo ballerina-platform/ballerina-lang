@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.task.listener.objects;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentJob;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentManager;
@@ -88,8 +87,8 @@ public class Appointment extends AbstractTask {
      */
     @Override
     public void runServices(Context context) throws SchedulingException {
-        for (Service service : this.getServicesMap().values()) {
-            JobDataMap jobDataMap = getJobDataMapFromService(context, service);
+        for (ServiceWithParameters serviceWithParameters : this.getServicesMap().values()) {
+            JobDataMap jobDataMap = getJobDataMapFromService(context, serviceWithParameters);
             try {
                 AppointmentManager.getInstance().schedule(id, AppointmentJob.class, jobDataMap, cronExpression);
             } catch (SchedulerException e) {
@@ -98,10 +97,10 @@ public class Appointment extends AbstractTask {
         }
     }
 
-    private JobDataMap getJobDataMapFromService(Context context, Service service) {
+    private JobDataMap getJobDataMapFromService(Context context, ServiceWithParameters serviceWithParameters) {
         JobDataMap jobData = new JobDataMap();
         jobData.put(APPOINTMENT_PARENT_CONTEXT, context);
-        jobData.put(APPOINTMENT_SERVICE_OBJECT, service);
+        jobData.put(APPOINTMENT_SERVICE_OBJECT, serviceWithParameters);
         return jobData;
     }
 

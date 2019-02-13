@@ -19,7 +19,6 @@
 
 package org.ballerinalang.stdlib.task.listener.objects;
 
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.TaskIdGenerator;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
@@ -32,7 +31,7 @@ import java.util.HashMap;
 public abstract class AbstractTask implements Task {
 
     protected String id = TaskIdGenerator.generate();
-    HashMap<String, Service> serviceMap;
+    HashMap<String, ServiceWithParameters> serviceMap;
     protected long noOfRuns, maxRuns;
 
     /**
@@ -58,7 +57,7 @@ public abstract class AbstractTask implements Task {
      * {@inheritDoc}
      */
     @Override
-    public void addService(Service service) {
+    public void addService(ServiceWithParameters service) {
         this.serviceMap.put(service.getName(), service);
     }
 
@@ -74,7 +73,7 @@ public abstract class AbstractTask implements Task {
      * {@inheritDoc}
      */
     @Override
-    public HashMap<String, Service> getServicesMap() {
+    public HashMap<String, ServiceWithParameters> getServicesMap() {
         return this.serviceMap;
     }
 
@@ -82,7 +81,7 @@ public abstract class AbstractTask implements Task {
      * {@inheritDoc}
      */
     @Override
-    public Service getService(String serviceName) {
+    public ServiceWithParameters getService(String serviceName) {
         return this.serviceMap.get(serviceName);
     }
 

@@ -21,10 +21,10 @@ package org.ballerinalang.stdlib.task.listener.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.stdlib.task.listener.objects.ServiceWithParameters;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS
 @SuppressWarnings("Duplicates")
 public class TaskExecutor {
 
-    public static void execute(Context context, Service service) {
+    public static void execute(Context context, ServiceWithParameters serviceWithParameters) {
         boolean isErrorFnCalled = false;
         BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
         boolean isPaused = ((BBoolean) task.get(TASK_IS_PAUSED_FIELD)).booleanValue();
@@ -50,13 +50,16 @@ public class TaskExecutor {
         }
 
         // Get resource functions from service
-        ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(service);
+        ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(serviceWithParameters.getService());
         FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
         FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();
 
         try {
             List<BValue> onTriggerFunctionArgs = new ArrayList<>();
-            onTriggerFunctionArgs.add(service.getBValue());
+            onTriggerFunctionArgs.add(serviceWithParameters.getService().getBValue());
+            if (onTriggerFunction.getParamTypes().length > 1) {
+                onTriggerFunctionArgs.add(serviceWithParameters.getServiceParameter());
+            }
 
             // Invoke the onTrigger function.
             BValue[] results = BVMExecutor.executeFunction(onTriggerFunction.getPackageInfo().getProgramFile(),
@@ -67,8 +70,11 @@ public class TaskExecutor {
                 isErrorFnCalled = true;
                 List<BValue> onErrorFunctionArgs = new ArrayList<>();
                 // We have to pass the service BValue as a function parameter, as it is required.
-                onErrorFunctionArgs.add(service.getBValue());
+                onErrorFunctionArgs.add(serviceWithParameters.getService().getBValue());
                 onErrorFunctionArgs.addAll(Arrays.asList(results));
+                if (onErrorFunction.getParamTypes().length > 2) {
+                    onErrorFunctionArgs.add(serviceWithParameters.getServiceParameter());
+                }
                 BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(), onErrorFunction,
                         onErrorFunctionArgs.toArray(new BValue[0]));
             }

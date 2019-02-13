@@ -54,6 +54,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 public class Stop extends BlockingNativeCallableUnit {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute (Context context) {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
         boolean isRunning = ((BBoolean) taskStruct.get(TASK_IS_RUNNING_FIELD)).booleanValue();

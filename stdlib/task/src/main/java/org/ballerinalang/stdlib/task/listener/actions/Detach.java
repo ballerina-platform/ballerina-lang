@@ -35,7 +35,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZ
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ID_FIELD;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_POSITION_VALUE;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 
 /**
@@ -54,8 +54,9 @@ import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 public class Detach extends BlockingNativeCallableUnit {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute(Context context) {
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_POSITION_VALUE);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_REF_ARG_INDEX);
         String taskId = taskStruct.get(TASK_ID_FIELD).stringValue();
         BMap<String, BValue> serviceStruct = (BMap) context.getRefArgument(1);
         String serviceName = BLangConnectorSPIUtil.getService(context.getProgramFile(), serviceStruct).getName();

@@ -57,9 +57,11 @@ public class TaskConstants {
     public static final String TASK_ID_FIELD = "taskId";
     public static final String TASK_IS_RUNNING_FIELD = "isRunning";
     public static final String TASK_IS_PAUSED_FIELD = "isPaused";
+    public static final String TASK_SERVICE_PARAMETER = "serviceParameter";
 
-    public static final int TASK_STRUCT_POSITION_VALUE = 0;
+    public static final int TASK_STRUCT_REF_ARG_INDEX = 0;
+    public static final int TASK_SERVICE_REF_ARG_INDEX = 2;
 
-    public static final String APPOINTMENT_SERVICE_OBJECT = "ballerina.service";
+    public static final String APPOINTMENT_SERVICE_OBJECT = "ballerina.service.with.parameters";
     public static final String APPOINTMENT_PARENT_CONTEXT = "ballerina.parent.context";
 }

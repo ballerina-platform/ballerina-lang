@@ -94,7 +94,11 @@ public type Listener object {
     #
     # + serviceToAttach - Service which needs to be attached to the listener.
     # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public function attach(service serviceToAttach) returns error? {
+    public function attach(service serviceToAttach, any serviceParameter = ()) returns error? {
+        if (serviceParameter != ()) {
+            map<any> serviceParameters = { serviceParameter: serviceParameter };
+            return self.register(serviceToAttach, serviceParameters);
+        }
         return self.register(serviceToAttach, {});
     }
 

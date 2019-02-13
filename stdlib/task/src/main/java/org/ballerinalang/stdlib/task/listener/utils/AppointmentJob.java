@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.task.listener.utils;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.stdlib.task.listener.objects.ServiceWithParameters;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -42,8 +42,9 @@ public class AppointmentJob implements Job {
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
         Context context = (Context) jobDataMap.get(APPOINTMENT_PARENT_CONTEXT);
-        Service service = (Service) jobDataMap.get(APPOINTMENT_SERVICE_OBJECT);
+        ServiceWithParameters serviceWithParameters = (ServiceWithParameters) jobDataMap
+                .get(APPOINTMENT_SERVICE_OBJECT);
 
-        TaskExecutor.execute(context, service);
+        TaskExecutor.execute(context, serviceWithParameters);
     }
 }

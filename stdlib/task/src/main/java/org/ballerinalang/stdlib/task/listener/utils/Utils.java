@@ -132,13 +132,13 @@ public class Utils {
     }
 
     private static void validateOnErrorResource(Resource resource) {
-        if (resource.getParamDetails().size() != 1) {
+        if (resource.getParamDetails().size() < 1) {
             throw new BLangRuntimeException("Invalid resource function signature: \'"
-                    + RESOURCE_ON_ERROR + "\' should have one input parameter.");
+                    + RESOURCE_ON_ERROR + "\' should have at least one input parameter.");
         }
         if (resource.getParamDetails().get(0).getVarType() != BTypes.typeError) {
             throw new BLangRuntimeException("Invalid resource function signature: \'"
-                    + RESOURCE_ON_ERROR + "\' function should have error as the input parameter type.");
+                    + RESOURCE_ON_ERROR + "\' function should have an error as the first input parameter.");
         }
     }
 

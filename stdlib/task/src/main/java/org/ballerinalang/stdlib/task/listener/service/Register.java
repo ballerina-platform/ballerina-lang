@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.listener.objects.ServiceWithParameters;
 import org.ballerinalang.stdlib.task.listener.objects.Task;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 
@@ -36,7 +37,9 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZ
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ID_FIELD;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_POSITION_VALUE;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_SERVICE_PARAMETER;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_SERVICE_REF_ARG_INDEX;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.validateService;
 
@@ -56,20 +59,24 @@ import static org.ballerinalang.stdlib.task.listener.utils.Utils.validateService
 public class Register extends BlockingNativeCallableUnit {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_POSITION_VALUE);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_REF_ARG_INDEX);
+        BValue serviceParameters = ((BMap<String, BValue>) context.getRefArgument(TASK_SERVICE_REF_ARG_INDEX))
+                .get(TASK_SERVICE_PARAMETER);
+        ServiceWithParameters serviceWithParameters = new ServiceWithParameters(service, serviceParameters);
 
         /* TODO:
          * Validate service at runtime, as compiler plugin not available.
-         * When compiler plugin available, remove this.
+         * When compiler plugin is available, remove this.
          */
         validateService(service);
 
         String taskId = (taskStruct.get(TASK_ID_FIELD)).stringValue();
         try {
             Task task = TaskRegistry.getInstance().getTask(taskId);
-            task.addService(service);
+            task.addService(serviceWithParameters);
         } catch (SchedulingException e) {
             context.setReturnValues(createError(context, e.getMessage()));
         }
