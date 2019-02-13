@@ -46,13 +46,24 @@ function recordVarInRecordVar() returns (string, int, string, boolean) {
 }
 
 function getPersonWithAge() returns PersonWithAge {
-    return { name: "Peter", age: { age: 29, format: "Y"}, married: true, work: "SE"};
+    return {
+        name: "Peter",
+        age: {
+            age: 29,
+            format: "Y"
+        },
+        married: true,
+        work: "SE"
+    };
 }
 
 function recordVarInRecordVar2() returns (string, Age) {
     PersonWithAge p = {
         name: "Peter",
-        age: { age: 29, format: "Y"},
+        age: {
+            age: 29,
+            format: "Y"
+        },
         married: true,
         work: "SE"
     };
@@ -80,7 +91,13 @@ function recordVarInRecordVarInRecordVar() returns (string, boolean, int, string
     PersonWithAddress personWithAdd = {
         name: "Peter",
         married: true,
-        address: { postalCode: 1000, street: { streetName: "PG", city: "Colombo 10"}}
+        address: {
+            postalCode: 1000,
+            street: {
+                streetName: "PG",
+                city: "Colombo 10"
+            }
+        }
     };
     PersonWithAddress {name: fName, married, address: {postalCode, street: {streetName: sName, city}}} = personWithAdd;
     return (fName, married, postalCode, sName, city);
@@ -103,19 +120,28 @@ function tupleVarInRecordVar() returns (string, int, string) {
 function defineThreeRecordVariables() returns (string, int) {
     PersonWithAge p1 = {
         name: "John",
-        age: { age: 30, format: "YY"},
+        age: {
+            age: 30,
+            format: "YY"
+        },
         married: true,
         work: "SE"
     };
     PersonWithAge p2 = {
         name: "Doe",
-        age: { age: 15, format: "MM"},
+        age: {
+            age: 15,
+            format: "MM"
+        },
         married: true,
         work: "SE"
     };
     PersonWithAge p3 = {
         name: "Peter",
-        age: { age: 5, format: "DD"},
+        age: {
+            age: 5,
+            format: "DD"
+        },
         married: true,
         work: "SE"
     };
@@ -165,7 +191,10 @@ function getAgeRecord() returns Age {
 function testRestParameter() returns map<any> {
     PersonWithAge p = {
         name: "John",
-        age: { age: 30, format: "YY"},
+        age: {
+            age: 30,
+            format: "YY"
+        },
         married: true,
         work: "SE",
         other: getAgeRecord()
@@ -177,7 +206,11 @@ function testRestParameter() returns map<any> {
 function testNestedRestParameter() returns (map<any>, map<any>) {
     PersonWithAge p = {
         name: "John",
-        age: { age: 30, format: "YY", year: 1990},
+        age: {
+            age: 30,
+            format: "YY",
+            year: 1990
+        },
         married: true,
         work: "SE"
     };
@@ -188,7 +221,10 @@ function testNestedRestParameter() returns (map<any>, map<any>) {
 function testVariableAssignment() returns (string, int, string, boolean, map<any>) {
     PersonWithAge person = {
         name: "Peter",
-        age: { age: 29, format: "Y"},
+        age: {
+            age: 29,
+            format: "Y"
+        },
         married: true,
         work: "SE"
     };
@@ -199,7 +235,10 @@ function testVariableAssignment() returns (string, int, string, boolean, map<any
 function testVariableAssignment2() returns (string, int, string, boolean, map<any>) {
     PersonWithAge person = {
         name: "Peter",
-        age: { age: 29, format: "Y"},
+        age: {
+            age: 29,
+            format: "Y"
+        },
         married: true,
         work: "SE"
     };
@@ -423,7 +462,11 @@ function testMapRecordVar() returns (anydata, anydata, anydata, string?, string?
 function testIgnoreVariable() returns (string, int) {
     PersonWithAge p = {
         name: "John",
-        age: { age: 30, format: "YY", year: 1990},
+        age: {
+            age: 30,
+            format: "YY",
+            year: 1990
+        },
         married: true,
         work: "SE"
     };
