@@ -310,7 +310,7 @@ function testSimpleSelectAllWithCondition() returns int {
     return recordCount;
 }
 
-function testSelectWithJoinAndWhereWithGroupByWithLimitInFunc() returns (int) {
+function testSelectWithJoinAndWhereWithGroupByWithLimitInIfCondition() returns (int) {
 
     table<Person> personTable = table{};
     table<Order> orderTable = table{};
@@ -346,7 +346,8 @@ function testSelectWithJoinAndWhereWithGroupByWithLimitInFunc() returns (int) {
     return recordCount;
 }
 
-function joinWithBallerinaSQLQuery(table<Person>|error personTable, table<Order>|error orderTable) returns table<OrderDetails> {
+function joinWithBallerinaSQLQuery(table<Person>|error personTable, table<Order>|error orderTable) returns
+        table<OrderDetails> {
     table<OrderDetails> orderDetailsTable = table{};
     if (personTable is table<Person>) {
         if (orderTable is table<Order>) {

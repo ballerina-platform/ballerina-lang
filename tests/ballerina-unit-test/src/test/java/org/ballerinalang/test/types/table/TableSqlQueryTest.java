@@ -97,9 +97,9 @@ public class TableSqlQueryTest {
     }
 
     @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where along with group by " +
-                                                   "with limit inside a function")
+                                                   "with limit inside a if block")
     public void testSelectWithJoinAndWhereWithGroupByWithLimitInFunc() {
-        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupByWithLimitInFunc");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupByWithLimitInIfCondition");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
