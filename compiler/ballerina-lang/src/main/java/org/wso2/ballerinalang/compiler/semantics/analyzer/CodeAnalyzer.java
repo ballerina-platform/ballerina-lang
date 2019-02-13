@@ -837,9 +837,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                     for (BLangRecordKeyValue literalKeyValue : mapLiteral.keyValuePairs) {
                         String literalKeyName;
-                        if (literalKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        NodeKind nodeKind = literalKeyValue.key.expr.getKind();
+                        if (nodeKind == NodeKind.SIMPLE_VARIABLE_REF) {
                             literalKeyName = ((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value;
-                        } else if (literalKeyValue.key.expr.getKind() == NodeKind.LITERAL) {
+                        } else if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
                             literalKeyName = ((BLangLiteral) literalKeyValue.key.expr).value.toString();
                         } else {
                             return false;
@@ -864,7 +865,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.FINITE:
-                if (literal.getKind() == NodeKind.LITERAL) {
+                if (literal.getKind() == NodeKind.LITERAL || literal.getKind() == NodeKind.NUMERIC_LITERAL) {
                     return types.isAssignableToFiniteType(matchType, (BLangLiteral) literal);
                 }
                 break;
@@ -1291,7 +1292,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
                 names.add(keyRef.variableName.value);
-            } else if (key.getKind() == NodeKind.LITERAL) {
+            } else if (key.getKind() == NodeKind.LITERAL || key.getKind() == NodeKind.NUMERIC_LITERAL) {
                 BLangLiteral keyLiteral = (BLangLiteral) key;
                 if (names.contains(keyLiteral.value)) {
                     String assigneeType = recordLiteral.parent.type.getKind().typeName();
@@ -1334,8 +1335,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        NodeKind nodeKind = indexAccessExpr.indexExpr.getKind();
         if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY &&
-                indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+                (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL)) {
             BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
             BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
             Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage

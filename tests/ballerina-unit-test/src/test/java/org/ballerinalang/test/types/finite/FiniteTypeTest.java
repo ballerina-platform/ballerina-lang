@@ -249,5 +249,13 @@ public class FiniteTypeTest {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDefWithFunctions2");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), "Hello".length());
     }
-}
 
+    @Test
+    public void testFiniteTypeWithConstants() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeWithConstants");
+        Assert.assertTrue(returns[0] instanceof BInteger, "Type mismatch");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5, "Value mismatch");
+        Assert.assertTrue(returns[1] instanceof BString, "Type mismatch");
+        Assert.assertEquals(returns[1].stringValue(), "s", "Value mismatch");
+    }
+}
