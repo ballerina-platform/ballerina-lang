@@ -77,8 +77,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
@@ -370,6 +369,7 @@ public class BLangPackageBuilder {
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
+    private SymbolTable symTable;
 
     private BLangDiagnosticLog dlog;
 
@@ -380,6 +380,7 @@ public class BLangPackageBuilder {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.compilerOptions = CompilerOptions.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
         this.compUnit = compUnit;
     }
 
@@ -1204,7 +1205,8 @@ public class BLangPackageBuilder {
         }
         litExpr.addWS(ws);
         litExpr.pos = pos;
-        litExpr.type = new BType(typeTag, null);
+        litExpr.type = symTable.getTypeFromTag(typeTag);
+        litExpr.type.tag = typeTag;
         litExpr.value = value;
         litExpr.originalValue = originalValue;
         addExpressionNode(litExpr);
@@ -1727,7 +1729,9 @@ public class BLangPackageBuilder {
             // in type definitions.
 
             // Create a new literal.
-            BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            BLangLiteral literal = nodeKind == NodeKind.LITERAL ?
+                    (BLangLiteral) TreeBuilder.createLiteralExpression() :
+                    (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
             literal.setValue(((BLangLiteral) constantNode.value).value);
             literal.type = ((BLangLiteral) constantNode.value).type;
 
@@ -2347,7 +2351,7 @@ public class BLangPackageBuilder {
             BLangLiteral nilLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             nilLiteral.pos = pos;
             nilLiteral.value = Names.NIL_VALUE;
-            nilLiteral.type = new BNilType();
+            nilLiteral.type = symTable.nilType;
             retStmt.expr = nilLiteral;
         }
         addStmtToCurrentBlock(retStmt);
