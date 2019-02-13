@@ -20,15 +20,11 @@ package org.ballerinalang.database.sql;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -147,68 +143,78 @@ public class SQLDatasource implements BValue {
             config.setPassword(sqlDatasourceParams.password);
             //Set optional properties
             if (sqlDatasourceParams.poolOptions != null) {
-                boolean isXA = sqlDatasourceParams.poolOptions.getBooleanField(Constants.Options.IS_XA);
-                BMap<String, BRefType<?>> dataSourceConfigMap = populatePropertiesMap(sqlDatasourceParams.dbOptionsMap);
+                boolean isXA = ((BBoolean) sqlDatasourceParams.poolOptions.get(Constants.Options.IS_XA)).booleanValue();
 
-                String dataSourceClassName = sqlDatasourceParams.poolOptions
-                        .getStringField(Constants.Options.DATASOURCE_CLASSNAME);
+                String dataSourceClassName = sqlDatasourceParams.poolOptions.get(Constants.Options.DATASOURCE_CLASSNAME)
+                        .stringValue();
                 if (isXA && dataSourceClassName.isEmpty()) {
                     dataSourceClassName = getXADatasourceClassName(sqlDatasourceParams.dbType,
                             sqlDatasourceParams.jdbcUrl, sqlDatasourceParams.username, sqlDatasourceParams.password);
                 }
                 if (!dataSourceClassName.isEmpty()) {
                     config.setDataSourceClassName(dataSourceClassName);
-                    dataSourceConfigMap = setDataSourcePropertiesMap(dataSourceConfigMap, sqlDatasourceParams.jdbcUrl,
-                            sqlDatasourceParams.username, sqlDatasourceParams.password);
+                    if (sqlDatasourceParams.dbOptionsMap == null || !sqlDatasourceParams.dbOptionsMap.getMap()
+                            .containsKey(Constants.URL)) {
+                        config.addDataSourceProperty(Constants.URL, sqlDatasourceParams.jdbcUrl);
+                    }
+                    config.addDataSourceProperty(Constants.USER, sqlDatasourceParams.username);
+                    config.addDataSourceProperty(Constants.PASSWORD, sqlDatasourceParams.password);
                 } else {
                     config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
                 }
-                String connectionInitSQL = sqlDatasourceParams.poolOptions
-                        .getStringField(Constants.Options.CONNECTION_INIT_SQL);
+                String connectionInitSQL = sqlDatasourceParams.poolOptions.get(Constants.Options.CONNECTION_INIT_SQL)
+                        .stringValue();
                 if (!connectionInitSQL.isEmpty()) {
                     config.setConnectionInitSql(connectionInitSQL);
                 }
 
-                int maximumPoolSize = (int) sqlDatasourceParams.poolOptions
-                        .getIntField(Constants.Options.MAXIMUM_POOL_SIZE);
+                int maximumPoolSize = (int) ((BInteger) sqlDatasourceParams.poolOptions
+                        .get(Constants.Options.MAXIMUM_POOL_SIZE)).intValue();
                 if (maximumPoolSize != -1) {
                     config.setMaximumPoolSize(maximumPoolSize);
                 }
-                long connectionTimeout = sqlDatasourceParams.poolOptions
-                        .getIntField(Constants.Options.CONNECTION_TIMEOUT);
+                long connectionTimeout = ((BInteger) sqlDatasourceParams.poolOptions
+                        .get(Constants.Options.CONNECTION_TIMEOUT)).intValue();
                 if (connectionTimeout != -1) {
                     config.setConnectionTimeout(connectionTimeout);
                 }
-                long idleTimeout = sqlDatasourceParams.poolOptions.getIntField(Constants.Options.IDLE_TIMEOUT);
+                long idleTimeout = ((BInteger) sqlDatasourceParams.poolOptions.get(Constants.Options.IDLE_TIMEOUT))
+                        .intValue();
                 if (idleTimeout != -1) {
                     config.setIdleTimeout(idleTimeout);
                 }
-                int minimumIdle = (int) sqlDatasourceParams.poolOptions.getIntField(Constants.Options.MINIMUM_IDLE);
+                int minimumIdle = (int) ((BInteger) sqlDatasourceParams.poolOptions.get(Constants.Options.MINIMUM_IDLE))
+                        .intValue();
                 if (minimumIdle != -1) {
                     config.setMinimumIdle(minimumIdle);
                 }
-                long maxLifetime = sqlDatasourceParams.poolOptions.getIntField(Constants.Options.MAX_LIFE_TIME);
+                long maxLifetime = ((BInteger) sqlDatasourceParams.poolOptions.get(Constants.Options.MAX_LIFE_TIME))
+                        .intValue();
                 if (maxLifetime != -1) {
                     config.setMaxLifetime(maxLifetime);
                 }
-                long validationTimeout = sqlDatasourceParams.poolOptions
-                        .getIntField(Constants.Options.VALIDATION_TIMEOUT);
+                long validationTimeout = ((BInteger) sqlDatasourceParams.poolOptions
+                        .get(Constants.Options.VALIDATION_TIMEOUT)).intValue();
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }
-                boolean autoCommit = sqlDatasourceParams.poolOptions.getBooleanField(Constants.Options.AUTOCOMMIT);
+                boolean autoCommit = ((BBoolean) sqlDatasourceParams.poolOptions.get(Constants.Options.AUTOCOMMIT))
+                        .booleanValue();
                 config.setAutoCommit(autoCommit);
-
-                if (dataSourceConfigMap != null) {
-                    setDataSourceProperties(dataSourceConfigMap, config);
-                }
             } else {
                 config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
             }
-            hikariDataSource = new HikariDataSource(config);
-            if (isGlobalDatasource) {
-                Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
+            if (sqlDatasourceParams.dbOptionsMap != null) {
+                sqlDatasourceParams.dbOptionsMap.getMap().forEach((key, value) -> {
+                    if (SQLDatasourceUtils.isSupportedDbOptionType(value)) {
+                        config.addDataSourceProperty(key, value.value());
+                    } else {
+                        throw new BallerinaException("Unsupported type for the db option: " + key);
+                    }
+                });
             }
+            hikariDataSource = new HikariDataSource(config);
+            Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
         } catch (Throwable t) {
             String message = "error in sql connector configuration:" + t.getMessage();
             if (t.getCause() != null) {
@@ -216,52 +222,6 @@ public class SQLDatasource implements BValue {
             }
             throw new BallerinaException(message);
         }
-    }
-
-    private BMap<String, BRefType> populatePropertiesMap(Map<String, Value> dataSourceConfigMap) {
-        if (dataSourceConfigMap == null) {
-            return null;
-        }
-        BMap<String, BRefType> mapProperties = null;
-        if (dataSourceConfigMap.size() > 0) {
-            mapProperties = new BMap<>();
-            for (Map.Entry<String, Value> entry : dataSourceConfigMap.entrySet()) {
-                Value propValue = entry.getValue();
-                BRefType dataValue = null;
-                switch (propValue.getType()) {
-                case INT:
-                    dataValue = new BInteger(propValue.getIntValue());
-                    break;
-                case FLOAT:
-                    dataValue = new BFloat(propValue.getFloatValue());
-                    break;
-                case BOOLEAN:
-                    dataValue = new BBoolean(propValue.getBooleanValue());
-                    break;
-                case NULL:
-                    break;
-                default:
-                    dataValue = new BString(propValue.getStringValue());
-                }
-                mapProperties.put(entry.getKey(), dataValue);
-            }
-        }
-        return mapProperties;
-    }
-
-    private BMap<String, BRefType<?>> setDataSourcePropertiesMap(BMap<String, BRefType<?>> dataSourceConfigMap,
-            String jdbcurl, String username, String password) {
-        if (dataSourceConfigMap != null) {
-            if (!dataSourceConfigMap.hasKey(Constants.URL)) {
-                dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
-            }
-        } else {
-            dataSourceConfigMap = new BMap<>();
-            dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
-        }
-        dataSourceConfigMap.put(Constants.USER, new BString(username));
-        dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
-        return dataSourceConfigMap;
     }
 
     private String getXADatasourceClassName(String dbType, String url, String userName, String password) {
@@ -319,21 +279,6 @@ public class SQLDatasource implements BValue {
         return xaDataSource;
     }
 
-    private void setDataSourceProperties(BMap<String, BRefType<?>> options, HikariConfig config) {
-        for (String key : options.keys()) {
-            BValue value = options.get(key);
-            if (value instanceof BString) {
-                config.addDataSourceProperty(key, value.stringValue());
-            } else if (value instanceof BInteger) {
-                config.addDataSourceProperty(key, ((BInteger) value).intValue());
-            } else if (value instanceof BBoolean) {
-                config.addDataSourceProperty(key, ((BBoolean) value).booleanValue());
-            } else if (value instanceof BFloat) {
-                config.addDataSourceProperty(key, ((BFloat) value).floatValue());
-            }
-        }
-    }
-
     @Override
     public String stringValue() {
         return null;
@@ -366,13 +311,13 @@ public class SQLDatasource implements BValue {
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
     protected static class SQLDatasourceParams {
-         private Struct poolOptions;
+         private BMap<String, BRefType> poolOptions;
          private String jdbcUrl;
          private String dbType;
          private String username;
          private String password;
          private String dbName;
-         private Map dbOptionsMap;
+         private BMap<String, BRefType> dbOptionsMap;
 
         private SQLDatasourceParams(SQLDatasourceParamsBuilder builder) {
             this.poolOptions = builder.poolOptions;
@@ -393,13 +338,13 @@ public class SQLDatasource implements BValue {
      * Builder class for SQLDatasourceParams class.
      */
     public static class SQLDatasourceParamsBuilder {
-        private Struct poolOptions;
+        private BMap<String, BRefType> poolOptions;
         private String jdbcUrl;
         private String dbType;
         private String username;
         private String password;
         private String dbName;
-        private Map<String, Value> dbOptionsMap;
+        private BMap<String, BRefType> dbOptionsMap;
 
         public SQLDatasourceParamsBuilder(String dbType) {
             this.dbType = dbType;
@@ -429,12 +374,12 @@ public class SQLDatasource implements BValue {
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withDbOptionsMap(Map<String, Value> dbOptionsMap) {
+        public SQLDatasourceParamsBuilder withDbOptionsMap(BMap<String, BRefType> dbOptionsMap) {
             this.dbOptionsMap = dbOptionsMap;
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withPoolOptions(Struct options) {
+        public SQLDatasourceParamsBuilder withPoolOptions(BMap<String, BRefType> options) {
             this.poolOptions = options;
             return this;
         }

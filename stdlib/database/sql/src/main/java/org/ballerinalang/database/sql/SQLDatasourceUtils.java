@@ -20,7 +20,6 @@ package org.ballerinalang.database.sql;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
@@ -35,6 +34,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -79,6 +79,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
@@ -96,6 +97,7 @@ public class SQLDatasourceUtils {
     public static final String POSTGRES_OID_COLUMN_TYPE_NAME = "oid";
     private static final int ORACLE_CURSOR_TYPE = -10;
     private static final String TIME_FIELD = "time";
+    private static final String POOL_MAP_KEY = UUID.randomUUID().toString();
 
     public static void setIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Integer val = obtainIntegerValue(value);
@@ -1159,15 +1161,15 @@ public class SQLDatasourceUtils {
     }
 
     public static BMap<String, BValue> createServerBasedDBClient(Context context, String dbType,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions,
-            org.ballerinalang.connector.api.Struct globalPoolOptions) {
-        String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
-        int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
-        String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
-        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
-        org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+            BMap<String, BValue> clientEndpointConfig, String urlOptions,
+            BMap<String, BRefType> globalPoolOptions) {
+        String host = clientEndpointConfig.get(Constants.EndpointConfig.HOST).stringValue();
+        int port = (int) ((BInteger) clientEndpointConfig.get(Constants.EndpointConfig.PORT)).intValue();
+        String name = clientEndpointConfig.get(Constants.EndpointConfig.NAME).stringValue();
+        String username = clientEndpointConfig.get(Constants.EndpointConfig.USERNAME).stringValue();
+        String password = clientEndpointConfig.get(Constants.EndpointConfig.PASSWORD).stringValue();
+        BMap<String, BRefType> poolOptions = (BMap<String, BRefType>) clientEndpointConfig
+                .get(Constants.EndpointConfig.POOL_OPTIONS);
         boolean userProvidedPoolOptionsNotPresent;
         if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
             poolOptions = globalPoolOptions;
@@ -1179,15 +1181,15 @@ public class SQLDatasourceUtils {
         return createSQLClient(context, sqlDatasourceParams, poolOptions, userProvidedPoolOptionsNotPresent);
     }
 
-    public static BMap<String, BValue> createSQLDBClient(Context context,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig,
-            org.ballerinalang.connector.api.Struct globalPoolOptions) {
-        String url = clientEndpointConfig.getStringField(Constants.EndpointConfig.URL);
-        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
-        Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
-        org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+    public static BMap<String, BValue> createSQLDBClient(Context context, BMap<String, BValue> clientEndpointConfig,
+            BMap<String, BRefType> globalPoolOptions) {
+        String url = clientEndpointConfig.get(Constants.EndpointConfig.URL).stringValue();
+        String username = clientEndpointConfig.get(Constants.EndpointConfig.USERNAME).stringValue();
+        String password = clientEndpointConfig.get(Constants.EndpointConfig.PASSWORD).stringValue();
+        BMap<String, BRefType> dbOptions = (BMap<String, BRefType>) clientEndpointConfig
+                .get(Constants.EndpointConfig.DB_OPTIONS);
+        BMap<String, BRefType> poolOptions = (BMap<String, BRefType>) clientEndpointConfig
+                .get(Constants.EndpointConfig.POOL_OPTIONS);
         boolean userProvidedPoolOptionsNotPresent;
         if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
             poolOptions = globalPoolOptions;
@@ -1203,26 +1205,26 @@ public class SQLDatasourceUtils {
     }
 
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions,
-            org.ballerinalang.connector.api.Struct globalPoolOptions) {
-        String modeRecordType = clientEndpointConfig.getName();
+            BMap<String, BValue> clientEndpointConfig, String urlOptions,
+            BMap<String, BRefType> globalPoolOptions) {
+        String modeRecordType = clientEndpointConfig.getType().getName();
         String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
         int port = -1;
         if (modeRecordType.equals(Constants.SERVER_MODE)) {
             dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
-            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);;
-            port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
+            hostOrPath = clientEndpointConfig.get(Constants.EndpointConfig.HOST).stringValue();
+            port = (int) ((BInteger) clientEndpointConfig.get(Constants.EndpointConfig.PORT)).intValue();
         } else if (modeRecordType.equals(Constants.EMBEDDED_MODE)) {
             dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
-            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);;
+            hostOrPath = clientEndpointConfig.get(Constants.EndpointConfig.PATH).stringValue();;
         }
         dbType = dbType + dbPostfix;
-        String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
-        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
-        org.ballerinalang.connector.api.Struct poolOptions = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+        String name = clientEndpointConfig.get(Constants.EndpointConfig.NAME).stringValue();
+        String username = clientEndpointConfig.get(Constants.EndpointConfig.USERNAME).stringValue();
+        String password = clientEndpointConfig.get(Constants.EndpointConfig.PASSWORD).stringValue();
+        BMap<String, BRefType> poolOptions = (BMap<String, BRefType>) clientEndpointConfig
+                .get(Constants.EndpointConfig.POOL_OPTIONS);
         boolean userProvidedPoolOptionsNotPresent;
         if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
             poolOptions = globalPoolOptions;
@@ -1233,6 +1235,16 @@ public class SQLDatasourceUtils {
                 .withJdbcUrl(jdbcUrl).withDbType(dbType).withUsername(username).withPassword(password).withDbName(name)
                 .build();
         return createSQLClient(context, sqlDatasourceParams, poolOptions, userProvidedPoolOptionsNotPresent);
+    }
+
+    private static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
+            BMap<String, BRefType> poolOptions) {
+        return (ConcurrentHashMap<String, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
+    }
+
+    protected static void addDatasourceContainer(BMap<String, BRefType> poolOptions,
+            ConcurrentHashMap<String, SQLDatasource> datasourceMap) {
+        poolOptions.addNativeData(POOL_MAP_KEY, datasourceMap);
     }
 
     private static String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
@@ -1341,7 +1353,7 @@ public class SQLDatasourceUtils {
     }
 
     private static BMap<String, BValue> createSQLClient(Context context,
-            SQLDatasource.SQLDatasourceParams sqlDatasourceParams, org.ballerinalang.connector.api.Struct poolOptions,
+            SQLDatasource.SQLDatasourceParams sqlDatasourceParams, BMap<String, BRefType> poolOptions,
             boolean isGlobalPoolUsed) {
         Map<String, SQLDatasource> hikariDatasourceMap = createPoolMapIfNotExists(poolOptions);
         SQLDatasource sqlDatasource = createDataSourceIfNotExists(hikariDatasourceMap, sqlDatasourceParams,
@@ -1352,17 +1364,15 @@ public class SQLDatasourceUtils {
         return sqlClient;
     }
 
-    private static Map<String, SQLDatasource> createPoolMapIfNotExists(
-            final org.ballerinalang.connector.api.Struct poolOptions) {
-        Map<String, SQLDatasource> hikariDatasourceMap = (Map<String, SQLDatasource>) poolOptions
-                .getNativeData(Constants.POOL_MAP_KEY);
+    private static Map<String, SQLDatasource> createPoolMapIfNotExists(final BMap<String, BRefType> poolOptions) {
+        ConcurrentHashMap<String, SQLDatasource> hikariDatasourceMap = retrieveDatasourceContainer(poolOptions);
         // map could be null only in a local pool creation scenario
         if (hikariDatasourceMap == null) {
             synchronized (poolOptions) {
-                hikariDatasourceMap = (Map<String, SQLDatasource>) poolOptions.getNativeData(Constants.POOL_MAP_KEY);
+                hikariDatasourceMap = retrieveDatasourceContainer(poolOptions);
                 if (hikariDatasourceMap == null) {
                     hikariDatasourceMap = new ConcurrentHashMap<>();
-                    poolOptions.addNativeData(Constants.POOL_MAP_KEY, hikariDatasourceMap);
+                    addDatasourceContainer(poolOptions, hikariDatasourceMap);
                 }
             }
         }
@@ -1765,28 +1775,27 @@ public class SQLDatasourceUtils {
     }
 
     public static String createJDBCDbOptions(String propertiesBeginSymbol, String separator,
-            Map<String, Value> dbOptions) {
+            BMap<String, BRefType> dbOptions) {
         StringJoiner dbOptionsStringJoiner = new StringJoiner(separator, propertiesBeginSymbol, "");
-        for (Map.Entry<String, Value> entry : dbOptions.entrySet()) {
-            String dataValue = null;
-            Value value = entry.getValue();
-            if (value != null) {
-                switch (value.getType()) {
-                case INT:
-                    dataValue = Long.toString(value.getIntValue());
-                    break;
-                case FLOAT:
-                    dataValue = Double.toString(value.getFloatValue());
-                    break;
-                case BOOLEAN:
-                    dataValue = Boolean.toString(value.getBooleanValue());
-                    break;
-                default:
-                    dataValue = value.getStringValue();
-                }
+        dbOptions.getMap().forEach((key, value) -> {
+            if (isSupportedDbOptionType(value)) {
+                dbOptionsStringJoiner
+                        .add(key + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + String.valueOf(value.value()));
+            } else {
+                throw new BallerinaException("Unsupported type for the db option: " + key);
             }
-            dbOptionsStringJoiner.add(entry.getKey() + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + dataValue);
-        }
+        });
         return dbOptionsStringJoiner.toString();
+    }
+
+    protected static boolean isSupportedDbOptionType(BValue value) {
+        boolean supported = false;
+        if (value != null) {
+            int typeTag = value.getType().getTag();
+            supported = (typeTag == TypeTags.STRING_TAG || typeTag == TypeTags.INT_TAG || typeTag == TypeTags.FLOAT_TAG
+                    || typeTag == TypeTags.BOOLEAN_TAG || typeTag == TypeTags.DECIMAL_TAG
+                    || typeTag == TypeTags.BYTE_TAG);
+        }
+        return supported;
     }
 }
