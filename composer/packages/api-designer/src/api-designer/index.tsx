@@ -116,7 +116,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
                     Add Resource
                 </Button>
                 <Button.Group floated="right" size="mini">
-                    <Button type="all" onClick={this.onExpandAll}>List Resources</Button>
+                    <Button type="all" className="sort-buttons" onClick={this.onExpandAll}>List Resources</Button>
                     <Button type="resources" onClick={this.onExpandAll}>List Operations</Button>
                     <Button type="operations" onClick={this.onExpandAll}>Expand All</Button>
                 </Button.Group>
