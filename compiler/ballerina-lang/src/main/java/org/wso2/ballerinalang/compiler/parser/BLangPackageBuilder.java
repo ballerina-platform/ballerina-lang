@@ -554,29 +554,6 @@ public class BLangPackageBuilder {
         addType(errorType);
     }
 
-    void addConstraintType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
-        BLangNameReference nameReference = nameReferenceStack.pop();
-        BLangUserDefinedType constraintType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        constraintType.pos = pos;
-        constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        constraintType.typeName = (BLangIdentifier) nameReference.name;
-        constraintType.addWS(nameReference.ws);
-        Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
-
-        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        refType.typeKind = TreeUtils.stringToTypeKind(typeName);
-        refType.pos = pos;
-        refType.addWS(refTypeWS);
-
-        BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
-        constrainedType.type = refType;
-        constrainedType.constraint = constraintType;
-        constrainedType.pos = pos;
-        constrainedType.addWS(ws);
-
-        addType(constrainedType);
-    }
-
     void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
         Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
 
@@ -800,6 +777,13 @@ public class BLangPackageBuilder {
         this.varStack.push(recordVariable);
     }
 
+    void addRecordBindingWS(Set<Whitespace> ws) {
+        if (this.varStack.size() > 0) {
+            BLangVariable var = this.varStack.peek();
+            var.addWS(ws);
+        }
+    }
+
     void addRecordVariableReference(DiagnosticPos pos, Set<Whitespace> ws, RestBindingPatternState restBindingPattern) {
         BLangRecordVarRef recordVarRef = (BLangRecordVarRef) TreeBuilder.createRecordVariableReferenceNode();
         recordVarRef.pos = pos;
@@ -947,7 +931,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false, false, true, false, true);
+        endFunctionDef(pos, null, false, false, false, false, true, false, true);
     }
 
     void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, PackageID pkgID) {
@@ -1105,13 +1089,12 @@ public class BLangPackageBuilder {
         switch (variable.getKind()) {
             case TUPLE_VARIABLE:
                 // If the variable is a tuple variable, we need to set the final flag to the all member variables.
-                ((BLangTupleVariable) variable).memberVariables.parallelStream()
-                        .forEach(this::markVariableAsFinal);
+                ((BLangTupleVariable) variable).memberVariables.forEach(this::markVariableAsFinal);
                 break;
             case RECORD_VARIABLE:
                 // If the variable is a record variable, we need to set the final flag to the all the variables in
                 // the record.
-                ((BLangRecordVariable) variable).variableList.parallelStream()
+                ((BLangRecordVariable) variable).variableList.stream()
                         .map(BLangRecordVariableKeyValue::getValue)
                         .forEach(this::markVariableAsFinal);
                 break;
@@ -1531,7 +1514,8 @@ public class BLangPackageBuilder {
     }
 
     void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
-                        boolean nativeFunc, boolean bodyExists, boolean isReceiverAttached, boolean isLambda) {
+                        boolean nativeFunc, boolean privateFunc, boolean bodyExists, boolean isReceiverAttached,
+                        boolean isLambda) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
         function.addWS(ws);
@@ -1540,6 +1524,8 @@ public class BLangPackageBuilder {
         }
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
+        } else if (privateFunc) {
+            function.flagSet.add(Flag.PRIVATE);
         }
 
         if (remoteFunc) {
@@ -1980,7 +1966,8 @@ public class BLangPackageBuilder {
         objectNode.addFunction(function);
     }
 
-    void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
+    void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc,
+                                   boolean privateFunc, boolean remoteFunc,
                                    boolean nativeFunc, boolean bodyExists, String objectName) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
@@ -1989,6 +1976,8 @@ public class BLangPackageBuilder {
 
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
+        } else if (privateFunc) {
+            function.flagSet.add(Flag.PRIVATE);
         }
 
         if (remoteFunc) {
@@ -3169,8 +3158,12 @@ public class BLangPackageBuilder {
 
         if (this.exprNodeStack.size() > 1) {
             List<ExpressionNode> exprList = new ArrayList<>();
-            addExprToExprNodeList(exprList, this.exprNodeStack.size() - 1);
-            streamingInput.setPostFunctionInvocations(exprList);
+            while (this.exprNodeStack.peek().getKind() == NodeKind.INVOCATION) {
+                exprList.add(this.exprNodeStack.pop());
+            }
+            if (exprList.size() > 0) {
+                streamingInput.setPostFunctionInvocations(exprList);
+            }
         }
 
         if (!this.windowClausesStack.empty()) {

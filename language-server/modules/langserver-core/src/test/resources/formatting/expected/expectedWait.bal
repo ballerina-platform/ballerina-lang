@@ -15,7 +15,7 @@ function waitTest27() returns map<anydata> {
     record {
         int id = 0;
         string name = "default";
-        string...
+        string...;
     } anonRec = wait {id: f1, name : f2, greet: f3};
 
     map<anydata> m = {
@@ -46,7 +46,7 @@ function add_panic(int i, int j) returns int {
         l = l + 1;
     }
     if (true) {
-        error err = error("err from panic" );
+        error err = error("err from panic");
         panic err;
     }
     return k;

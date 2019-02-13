@@ -124,7 +124,7 @@ public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIO
 public type TrustStore record {
     string path = "";
     string password = "";
-    !...
+    !...;
 };
 
 # A record for providing key store related configurations.
@@ -134,7 +134,7 @@ public type TrustStore record {
 public type KeyStore record {
     string path = "";
     string password = "";
-    !...
+    !...;
 };
 
 # A record for configuring SSL/TLS protocol and version to be used.
@@ -144,7 +144,7 @@ public type KeyStore record {
 public type Protocols record {
     string name = "";
     string[] versions = [];
-    !...
+    !...;
 };
 
 # A record for providing configurations for certificate revocation status checks.
@@ -156,7 +156,7 @@ public type ValidateCert record {
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...
+    !...;
 };
 
 # A record for providing configurations for certificate revocation status checks.
@@ -168,7 +168,7 @@ public type ServiceOcspStapling record {
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...
+    !...;
 };
 
 # A record for providing configurations for content compression.
@@ -178,7 +178,7 @@ public type ServiceOcspStapling record {
 public type CompressionConfig record {
     Compression enable = COMPRESSION_AUTO;
     string[] contentTypes = [];
-    !...
+    !...;
 };
 
 type HTTPError record {
@@ -214,7 +214,7 @@ function buildRequest(RequestMessage message) returns Request {
         request.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         request.setBodyParts(message);
     }
     return request;
@@ -236,7 +236,7 @@ function buildResponse(ResponseMessage message) returns Response {
         response.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         response.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         response.setBodyParts(message);
     }
     return response;

@@ -169,80 +169,80 @@ public type LoadBalanceActionErrorData record {
     string message = "";
     int statusCode = 0;
     error[] httpActionErr = [];
-    !...
+    !...;
 };
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
 
-remote function LoadBalanceClient.post(string path, RequestMessage message) returns Response|error {
+public remote function LoadBalanceClient.post(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
-remote function LoadBalanceClient.head(string path, RequestMessage message = ()) returns Response|error {
+public remote function LoadBalanceClient.head(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
-remote function LoadBalanceClient.patch(string path, RequestMessage message) returns Response|error {
+public remote function LoadBalanceClient.patch(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
-remote function LoadBalanceClient.put(string path, RequestMessage message) returns Response|error {
+public remote function LoadBalanceClient.put(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
-remote function LoadBalanceClient.options(string path, RequestMessage message = ()) returns Response|error {
+public remote function LoadBalanceClient.options(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
 
-remote function LoadBalanceClient.forward(string path, Request request) returns Response|error {
+public remote function LoadBalanceClient.forward(string path, Request request) returns Response|error {
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-remote function LoadBalanceClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+public remote function LoadBalanceClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
 
-remote function LoadBalanceClient.delete(string path, RequestMessage message) returns Response|error {
+public remote function LoadBalanceClient.delete(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-remote function LoadBalanceClient.get(string path, RequestMessage message = ()) returns Response|error {
+public remote function LoadBalanceClient.get(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-remote function LoadBalanceClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public remote function LoadBalanceClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-remote function LoadBalanceClient.getResponse(HttpFuture httpFuture) returns Response|error {
+public remote function LoadBalanceClient.getResponse(HttpFuture httpFuture) returns Response|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-remote function LoadBalanceClient.hasPromise(HttpFuture httpFuture) returns (boolean) {
+public remote function LoadBalanceClient.hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-remote function LoadBalanceClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public remote function LoadBalanceClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-remote function LoadBalanceClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public remote function LoadBalanceClient.getPromisedResponse(PushPromise promise) returns Response|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-remote function LoadBalanceClient.rejectPromise(PushPromise promise) {
+public remote function LoadBalanceClient.rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation
@@ -286,7 +286,7 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
             var serviceResponse = invokeEndpoint(path, request, requestAction, loadBalanceClient);
             if (serviceResponse is Response) {
                 return serviceResponse;
-            } else if (serviceResponse is error) {
+            } else {
                 if (lb.failover) {
                     loadBlancerInRequest = check createFailoverRequest(loadBlancerInRequest, requestEntity);
                     loadBalanceActionErrorData.httpActionErr[lbErrorIndex] = serviceResponse;
@@ -296,7 +296,7 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
                     return serviceResponse;
                 }
             }
-        } else if (loadBalanceClient is error) {
+        } else {
             return loadBalanceClient;
         }
     }
@@ -343,14 +343,14 @@ public type LoadBalanceClientEndpointConfiguration record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = ();
+    PoolConfiguration? poolConfig = ();
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     AuthConfig? auth = ();
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
-    !...
+    !...;
 };
 
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
@@ -365,7 +365,7 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
         followRedirects:lbConfig.followRedirects,
         retryConfig:lbConfig.retryConfig,
         proxy:lbConfig.proxy,
-        connectionThrottling:lbConfig.connectionThrottling,
+        poolConfig:lbConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:lbConfig.cache,
         compression:lbConfig.compression,

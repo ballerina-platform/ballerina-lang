@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -53,7 +53,7 @@ public class SetType extends AbstractBlockingAction {
 
         Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
         Message message = BallerinaAdapter.getNativeObject(messageStruct,
-                                                           Constants.JMS_MESSAGE_OBJECT,
+                                                           JmsConstants.JMS_MESSAGE_OBJECT,
                                                            Message.class,
                                                            context);
         String type = context.getStringArgument(0);

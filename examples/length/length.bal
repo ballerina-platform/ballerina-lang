@@ -81,5 +81,5 @@ type Student record {
     string fname;
     string lname;
     int age;
-    string...
+    string...;
 };

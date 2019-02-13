@@ -160,7 +160,6 @@ function handleResponse(http:Response|error response) {
         //Print the content type of the received data.
         if (response.hasHeader("content-type")) {
             string baseType = getBaseType(response.getContentType());
-
             if (mime:TEXT_PLAIN == baseType) {
                 var payload = response.getTextPayload();
                 if (payload is string) {

@@ -56,7 +56,9 @@ service timeoutService on new http:Listener(9090) {
 }
 
 // This sample service is used to mock connection timeouts.
-@http:ServiceConfig { basePath: "/hello" }
+@http:ServiceConfig {
+    basePath: "/hello"
+}
 service helloWorld on new http:Listener(8080) {
     @http:ResourceConfig {
         methods: ["GET"],

@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,15 +61,15 @@ public class CreateTemporaryQueue extends AbstractBlockingAction {
 
         Queue jmsDestination;
         Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject, Constants.JMS_SESSION, Session.class,
+        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
                                                            context);
-        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, Constants.BALLERINA_PACKAGE_JMS,
-                                                              Constants.JMS_DESTINATION_STRUCT_NAME);
+        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
+                                                                           JmsConstants.JMS_DESTINATION_STRUCT_NAME);
         try {
             jmsDestination = session.createTemporaryQueue();
-            bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, jmsDestination);
-            bStruct.put(Constants.DESTINATION_NAME, new BString(jmsDestination.getQueueName()));
-            bStruct.put(Constants.DESTINATION_TYPE, new BString("queue"));
+            bStruct.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, jmsDestination);
+            bStruct.put(JmsConstants.DESTINATION_NAME, new BString(jmsDestination.getQueueName()));
+            bStruct.put(JmsConstants.DESTINATION_TYPE, new BString("queue"));
         } catch (JMSException e) {
             BallerinaAdapter.returnError("Failed to create temporary destination.", context, e);
         }

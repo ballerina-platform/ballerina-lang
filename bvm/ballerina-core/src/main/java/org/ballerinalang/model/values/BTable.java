@@ -51,7 +51,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private boolean nextPrefetched;
     private TableProvider tableProvider;
     private String tableName;
-    protected BStructureType constraintType;
+    private BStructureType constraintType;
     private BValueArray primaryKeys;
     private BValueArray indices;
     private boolean tableClosed;
@@ -68,10 +68,13 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public BTable(String tableName, BStructureType constraintType) {
+        this(constraintType);
+        this.tableName = tableName;
+    }
+
+    public BTable(BStructureType constraintType) {
         this.nextPrefetched = false;
         this.hasNextVal = false;
-        this.tableProvider = null;
-        this.tableName = tableName;
         this.constraintType = constraintType;
         this.type = new BTableType(constraintType);
     }
@@ -156,7 +159,7 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
     }
 
@@ -356,7 +359,7 @@ public class BTable implements BRefType<Object>, BCollection {
         return new BTable.BTableIterator(this);
     }
 
-    protected void generateIterator() {
+    private void generateIterator() {
         this.iterator = tableProvider.createIterator(tableName, this.constraintType);
         resetIterationHelperAttributes();
     }
@@ -435,7 +438,7 @@ public class BTable implements BRefType<Object>, BCollection {
         }
 
         @Override
-        public void stamp(BType type) {
+        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
         }
     }

@@ -66,29 +66,71 @@ public type Client client object {
 
 # Represents client endpoint configuration.
 #
-# + secureSocket - The SSL configurations for the client endpoint.
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection.
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + keepAlive - Specifies whether to reuse a connection for multiple requests
+# + httpVersion - The HTTP version understood by the client
+# + chunking - The chunking behaviour of the request
+# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
+# + proxy - Proxy server related options
+# + connectionThrottling - Configurations for connection throttling
+# + secureSocket - SSL/TLS related options
+# + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientEndpointConfig record {
-    SecureSocket? secureSocket = ();
     int timeoutMillis = 60000;
-    !...
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    string httpVersion = "2.0";
+    Chunking chunking = CHUNKING_NEVER;
+    string forwarded = "disable";
+    ProxyConfig? proxy = ();
+    ConnectionThrottling? connectionThrottling = {};
+    SecureSocket? secureSocket = ();
+    Compression compression = COMPRESSION_AUTO;
+    !...;
 };
 
-# SecureSocket struct represents SSL/TLS options to be used for gRPC client invocation.
+# Proxy server configurations to be used with the HTTP client endpoint.
 #
-# + trustStore - TrustStore related options.
-# + keyStore - KeyStore related options.
-# + certFile - A file containing the certificate of the client.
-# + keyFile - A file containing the private key of the client.
-# + keyPassword - Password of the private key if it is encrypted.
-# + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts.
-# + protocol - SSL/TLS protocol related options.
-# + certValidation - Certificate validation against CRL or OCSP related options.
-# + ciphers - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-#             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
-# + verifyHostname - Enable/disable host name verification.
-# + shareSession - Enable/disable new ssl session creation.
-# + ocspStapling - Enable/disable ocsp stapling.
+# + host - Host name of the proxy server
+# + port - Proxy server port
+# + userName - Proxy server username
+# + password - proxy server password
+public type ProxyConfig record {
+    string host = "";
+    int port = 0;
+    string userName = "";
+    string password = "";
+    !...;
+};
+
+# Provides configurations for throttling connections of the endpoint.
+#
+# + maxActiveConnections - Maximum number of active connections allowed for the endpoint. The default value, -1,
+#                          indicates that the number of connections are not restricted.
+# + waitTime - Maximum waiting time for a request to grab an idle connection from the client
+# + maxActiveStreamsPerConnection - Maximum number of active streams allowed per an HTTP/2 connection
+public type ConnectionThrottling record {
+    int maxActiveConnections = -1;
+    int waitTime = 60000;
+    // In order to distribute the workload among multiple connections in HTTP/2 scenario.
+    int maxActiveStreamsPerConnection = 20000;
+    !...;
+};
+
+# Provides configurations for facilitating secure communication with a remote HTTP endpoint.
+#
+# + trustStore - Configurations associated with TrustStore
+# + keyStore - Configurations associated with KeyStore
+# + certFile - A file containing the certificate of the client
+# + keyFile - A file containing the private key of the client
+# + keyPassword - Password of the private key if it is encrypted
+# + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
+# + protocol - SSL/TLS protocol related options
+# + certValidation - Certificate validation against CRL or OCSP related options
+# + ciphers - List of ciphers to be used
+#             eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+# + verifyHostname - Enable/disable host name verification
+# + shareSession - Enable/disable new SSL session creation
+# + ocspStapling - Enable/disable OCSP stapling
 public type SecureSocket record {
     TrustStore? trustStore = ();
     KeyStore? keyStore = ();
@@ -102,5 +144,5 @@ public type SecureSocket record {
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
-    !...
+    !...;
 };

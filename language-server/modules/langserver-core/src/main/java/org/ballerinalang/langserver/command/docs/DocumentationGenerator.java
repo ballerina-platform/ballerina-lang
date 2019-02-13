@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.command.docs;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
@@ -25,10 +26,8 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -45,7 +44,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This class provides functionalities for generating documentation.
+ * This class provides functionality for generating documentation.
  *
  * @since 0.985.0
  */
@@ -75,9 +74,6 @@ public class DocumentationGenerator {
                     docAttachmentInfo = getRecordOrObjectDocumentation((BLangTypeDefinition) node);
                 }
                 break;
-            case ENDPOINT:
-                docAttachmentInfo = getEndpointNodeDocumentation((BLangEndpoint) node);
-                break;
             case SERVICE:
                 if (((BLangService) node).markdownDocumentationAttachment == null) {
                     BLangService bLangService = (BLangService) node;
@@ -94,30 +90,29 @@ public class DocumentationGenerator {
     /**
      * Get Documentation edit for node at a given position.
      *
-     * @param topLevelNodeType top level node type
-     * @param bLangPkg         BLang package
-     * @param line             position to be compared with
+     * @param topLevelNodeType  top level node type
+     * @param bLangPkg          BLang package
+     * @param line              position to be compared with
+     * @param context           Language server context
      * @return Document attachment info
      */
     public static DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType,
-                                                                          BLangPackage bLangPkg, int line) {
+                                                                          BLangPackage bLangPkg, int line,
+                                                                          LSContext context) {
         DocAttachmentInfo docAttachmentInfo = null;
         switch (topLevelNodeType) {
             case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
-                docAttachmentInfo = getFunctionDocumentationByPosition(bLangPkg, line);
-                break;
-            case UtilSymbolKeys.ENDPOINT_KEYWORD_KEY:
-                docAttachmentInfo = getEndpointDocumentationByPosition(bLangPkg, line);
+                docAttachmentInfo = getFunctionDocumentationByPosition(bLangPkg, line, context);
                 break;
             case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
-                docAttachmentInfo = getServiceDocumentationByPosition(bLangPkg, line);
+                docAttachmentInfo = getServiceDocumentationByPosition(bLangPkg, line, context);
                 break;
             case UtilSymbolKeys.RESOURCE_KEYWORD_KEY:
-                docAttachmentInfo = getResourceDocumentationByPosition(bLangPkg, line);
+                docAttachmentInfo = getResourceDocumentationByPosition(bLangPkg, line, context);
                 break;
             case UtilSymbolKeys.RECORD_KEYWORD_KEY:
             case UtilSymbolKeys.OBJECT_KEYWORD_KEY:
-                docAttachmentInfo = getTypeNodeDocumentationByPosition(bLangPkg, line);
+                docAttachmentInfo = getTypeNodeDocumentationByPosition(bLangPkg, line, context);
                 break;
             default:
                 break;
@@ -136,14 +131,14 @@ public class DocumentationGenerator {
     /**
      * Get the Documentation attachment for the function.
      *
-     * @param bLangPackage BLangPackage built
-     * @param line         Start line of the function in the source
+     * @param pkg           BLangPackage built
+     * @param line          Start line of the function in the source
+     * @param ctx           Language server operation context
      * @return {@link DocAttachmentInfo}   Documentation attachment for the function
      */
-    private static DocAttachmentInfo getFunctionDocumentationByPosition(BLangPackage bLangPackage, int line) {
+    private static DocAttachmentInfo getFunctionDocumentationByPosition(BLangPackage pkg, int line, LSContext ctx) {
         List<BLangFunction> filteredFunctions = new ArrayList<>();
-        for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
-
+        for (TopLevelNode topLevelNode : CommonUtil.getCurrentFileTopLevelNodes(pkg, ctx)) {
             if (topLevelNode instanceof BLangFunction) {
                 filteredFunctions.add((BLangFunction) topLevelNode);
             } else if (topLevelNode instanceof BLangTypeDefinition
@@ -167,13 +162,14 @@ public class DocumentationGenerator {
     /**
      * Get resource documentation by position.
      *
-     * @param bLangPackage  Current BLangPackage
+     * @param pkg           Current BLangPackage
      * @param line          cursor line
+     * @param ctx           Language server context
      * @return {@link DocAttachmentInfo} generated doc attachment information
      */
-    private static DocAttachmentInfo getResourceDocumentationByPosition(BLangPackage bLangPackage, int line) {
+    private static DocAttachmentInfo getResourceDocumentationByPosition(BLangPackage pkg, int line, LSContext ctx) {
         List<BLangFunction> filteredFunctions = new ArrayList<>();
-        bLangPackage.topLevelNodes.stream()
+        CommonUtil.getCurrentFileTopLevelNodes(pkg, ctx).stream()
                 .filter(topLevelNode -> topLevelNode instanceof BLangService)
                 .map(topLevelNode -> (BLangService) topLevelNode)
                 .forEach(bLangService -> {
@@ -243,55 +239,15 @@ public class DocumentationGenerator {
     }
 
     /**
-     * Get the Documentation attachment for the endpoint.
-     *
-     * @param bLangPackage BLangPackage built
-     * @param line         Start line of the enum in the source
-     * @return {@link DocAttachmentInfo}   Documentation attachment for the enum
-     */
-    private static DocAttachmentInfo getEndpointDocumentationByPosition(BLangPackage bLangPackage, int line) {
-        for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
-            if (topLevelNode instanceof BLangEndpoint) {
-                BLangEndpoint endpointNode = (BLangEndpoint) topLevelNode;
-                DiagnosticPos enumPos = CommonUtil.toZeroBasedPosition(endpointNode.getPosition());
-                int endpointStart = enumPos.getStartLine();
-                if (endpointStart == line) {
-                    return getEndpointNodeDocumentation(endpointNode);
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static DocAttachmentInfo getEndpointNodeDocumentation(BLangEndpoint bLangEndpoint) {
-        DiagnosticPos endpointPos = CommonUtil.toZeroBasedPosition(bLangEndpoint.getPosition());
-        List<BLangAnnotationAttachment> annotations = bLangEndpoint.getAnnotationAttachments();
-        Position docStart = getDocumentationStartPosition(bLangEndpoint.getPosition(), annotations);
-
-        return new DocAttachmentInfo(getDocumentationAttachment(null, endpointPos.getStartColumn()), docStart);
-    }
-
-    private static DocAttachmentInfo getResourceNodeDocumentation(BLangResource bLangResource) {
-        List<String> attributes = new ArrayList<>();
-        DiagnosticPos resourcePos = CommonUtil.toZeroBasedPosition(bLangResource.getPosition());
-        List<BLangAnnotationAttachment> annotations = bLangResource.getAnnotationAttachments();
-        Position docStart = getDocumentationStartPosition(bLangResource.getPosition(), annotations);
-        bLangResource.getParameters().forEach(
-                variable -> attributes.add(getDocAttributeFromBLangVariable(variable, resourcePos.getStartColumn()))
-        );
-        return new DocAttachmentInfo(getDocumentationAttachment(attributes, resourcePos.getStartColumn()), docStart);
-    }
-
-    /**
      * Get the Documentation attachment for the service.
      *
-     * @param bLangPackage BLangPackage built
-     * @param line         Start line of the service in the source
+     * @param pkg           BLangPackage built
+     * @param line          Start line of the service in the source
+     * @param ctx           Language server context
      * @return {@link DocAttachmentInfo}   Documentation attachment for the service
      */
-    private static DocAttachmentInfo getServiceDocumentationByPosition(BLangPackage bLangPackage, int line) {
-        for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
+    private static DocAttachmentInfo getServiceDocumentationByPosition(BLangPackage pkg, int line, LSContext ctx) {
+        for (TopLevelNode topLevelNode : CommonUtil.getCurrentFileTopLevelNodes(pkg, ctx)) {
             if (topLevelNode instanceof BLangService && topLevelNode.getPosition().getStartLine() - 1 == line) {
                 BLangService serviceNode = (BLangService) topLevelNode;
                 return getServiceNodeDocumentation(serviceNode);
@@ -304,12 +260,13 @@ public class DocumentationGenerator {
     /**
      * Get the Documentation attachment for the type nodes.
      *
-     * @param bLangPackage BLangPackage built
-     * @param line         Start line of the type node in the source
+     * @param pkg           BLangPackage built
+     * @param line          Start line of the type node in the source
+     * @param ctx           Language server context
      * @return {@link DocAttachmentInfo}   Documentation attachment for the type node
      */
-    private static DocAttachmentInfo getTypeNodeDocumentationByPosition(BLangPackage bLangPackage, int line) {
-        for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
+    private static DocAttachmentInfo getTypeNodeDocumentationByPosition(BLangPackage pkg, int line, LSContext ctx) {
+        for (TopLevelNode topLevelNode : CommonUtil.getCurrentFileTopLevelNodes(pkg, ctx)) {
             if (!(topLevelNode instanceof BLangTypeDefinition)) {
                 continue;
             }

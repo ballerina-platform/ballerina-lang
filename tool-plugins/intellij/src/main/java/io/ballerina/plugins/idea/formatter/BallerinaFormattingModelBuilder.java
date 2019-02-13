@@ -152,7 +152,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_BRACE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_BRACKET;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_PARENTHESIS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LENGTHOF;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LISTENER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LOCK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LT;
@@ -379,7 +378,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(FAIL).spaceIf(true)
                 .around(ONRETRY).spaceIf(true)
                 .around(RETRIES).spaceIf(true)
-                .around(LENGTHOF).spaceIf(true)
                 .around(WITH).spaceIf(true)
                 .around(IN).spaceIf(true)
                 .around(LOCK).spaceIf(true)

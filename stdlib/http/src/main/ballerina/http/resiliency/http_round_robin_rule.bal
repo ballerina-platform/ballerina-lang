@@ -29,7 +29,7 @@ public type LoadBalancerRounRobinRule object {
     public function getNextClient(Client[] loadBalanceCallerActionsArray) returns Client|error;
 };
 
-function LoadBalancerRounRobinRule.getNextClient(Client[] loadBalanceCallerActionsArray)
+public function LoadBalancerRounRobinRule.getNextClient(Client[] loadBalanceCallerActionsArray)
                                        returns Client|error {
     Client httpClient = loadBalanceCallerActionsArray[self.index];
     lock {

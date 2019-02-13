@@ -130,11 +130,11 @@ public type JWTAuthProviderConfig record {
     string certificateAlias = "";
     string trustStoreFilePath = "";
     string trustStorePassword = "";
-    !...
+    !...;
 };
 
 type CachedJWTAuthContext record {
     internal:JwtPayload jwtPayload;
     int expiryTime;
-    !...
+    !...;
 };

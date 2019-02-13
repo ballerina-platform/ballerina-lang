@@ -4,7 +4,7 @@ import { Visitor } from "../base-visitor";
 import { ASTKindChecker } from "../check-kind-util";
 import * as defaults from "../default-nodes";
 import { emitTreeModified } from "../events";
-import { traversNode } from "../model-utils";
+import { isWorkerFuture, traversNode } from "../model-utils";
 
 class SourceGenVisitor implements Visitor {
     private ws: any;
@@ -62,6 +62,10 @@ function getStartIndex(attachingNode: ASTNode, attachPointNodes: ASTNode[], inse
             if (previousNodeVar.service) {
                 previousNode = attachPointNodes[insertAt - 3];
             }
+        }
+
+        if (isWorkerFuture(previousNode)) {
+            previousNode = attachPointNodes[insertAt - 2];
         }
 
         const attachPointWS = getWS(previousNode);

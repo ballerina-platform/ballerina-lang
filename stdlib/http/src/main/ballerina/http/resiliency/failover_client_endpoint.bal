@@ -25,7 +25,7 @@ import ballerina/io;
 public type FailoverConfig record {
     int[] failoverCodes = [];
     int interval = 0;
-    !...
+    !...;
 };
 
 // TODO: This can be made package private
@@ -39,7 +39,7 @@ public type FailoverInferredConfig record {
     Client[] failoverClientsArray = [];
     boolean[] failoverCodesIndex = [];
     int failoverInterval = 0;
-    !...
+    !...;
 };
 
 # An HTTP client endpoint which provides failover support over multiple HTTP clients.
@@ -188,75 +188,75 @@ public type FailoverClient client object {
     public remote function rejectPromise(PushPromise promise);
 };
 
-remote function FailoverClient.post(string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.post(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_POST, self);
 }
 
-remote function FailoverClient.head(string path, RequestMessage message = ()) returns Response|error {
+public remote function FailoverClient.head(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_HEAD, self);
 }
 
-remote function FailoverClient.patch(string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.patch(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PATCH, self);
 }
 
-remote function FailoverClient.put(string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.put(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PUT, self);
 }
 
-remote function FailoverClient.options(string path, RequestMessage message = ()) returns Response|error {
+public remote function FailoverClient.options(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_OPTIONS, self);
 }
 
-remote function FailoverClient.forward(string path, Request request) returns Response|error {
+public remote function FailoverClient.forward(string path, Request request) returns Response|error {
     return performFailoverAction(path, request, HTTP_FORWARD, self);
 }
 
-remote function FailoverClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performExecuteAction(path, req, httpVerb, self);
 }
 
-remote function FailoverClient.delete(string path, RequestMessage message) returns Response|error {
+public remote function FailoverClient.delete(string path, RequestMessage message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_DELETE, self);
 }
 
-remote function FailoverClient.get(string path, RequestMessage message = ()) returns Response|error {
+public remote function FailoverClient.get(string path, RequestMessage message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_GET, self);
 }
 
-remote function FailoverClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public remote function FailoverClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-remote function FailoverClient.getResponse(HttpFuture httpFuture) returns (error) {
+public remote function FailoverClient.getResponse(HttpFuture httpFuture) returns (error) {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-remote function FailoverClient.hasPromise(HttpFuture httpFuture) returns (boolean) {
+public remote function FailoverClient.hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-remote function FailoverClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public remote function FailoverClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-remote function FailoverClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public remote function FailoverClient.getPromisedResponse(PushPromise promise) returns Response|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-remote function FailoverClient.rejectPromise(PushPromise promise) {
+public remote function FailoverClient.rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
@@ -346,7 +346,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 failoverClient.succeededEndpointIndex = currentIndex - 1;
                 break;
             }
-        } else if (endpointResponse is error) {
+        } else {
             error httpConnectorErr = endpointResponse;
             // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
             // endpoint configured in the failover endpoints gave the errornous response.
@@ -450,14 +450,14 @@ public type FailoverClientEndpointConfiguration record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = ();
+    PoolConfiguration? poolConfig = ();
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     AuthConfig? auth = ();
     int[] failoverCodes = [501, 502, 503, 504];
     int intervalMillis = 0;
-    !...
+    !...;
 };
 
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
@@ -472,7 +472,7 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         followRedirects:foConfig.followRedirects,
         retryConfig:foConfig.retryConfig,
         proxy:foConfig.proxy,
-        connectionThrottling:foConfig.connectionThrottling,
+        poolConfig:foConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:foConfig.cache,
         compression:foConfig.compression,

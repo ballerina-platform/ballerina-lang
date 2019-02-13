@@ -204,50 +204,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"base64Encode(charset)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Encode a given string with Base64 encoding scheme.\n"
-      },
-      "sortText":"120",
-      "insertText":"base64Encode(charset) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base64Decode(charset)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Decode a given string with Base64 encoding scheme.\n"
-      },
-      "sortText":"120",
-      "insertText":"base64Decode(charset) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base16ToBase64Encode()",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Encodes a base16 encoded string to base64 encoding.\n"
-      },
-      "sortText":"120",
-      "insertText":"base16ToBase64Encode() {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base64ToBase16Encode()",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Encodes a base64 encoded string to base16 encoding.\n"
-      },
-      "sortText":"120",
-      "insertText":"base64ToBase16Encode() {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"toByteArray(encoding)",
       "kind":"Function",
       "detail":"Snippet",

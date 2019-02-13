@@ -16,7 +16,11 @@
  * under the License.
  *
  */
- 
+
+@imagePath : "assets/images";
+@fontPath  : "assets/fonts";
+
+
 /*-------------------
        Fonts
 --------------------*/
@@ -24,13 +28,6 @@
 @iconFont          : "font-ballerina";
 @fontName          : -apple-system, BlinkMacSystemFont, Segoe WPC, Segoe UI, HelveticaNeue-Light, Ubuntu, Droid Sans, sans-serif, @iconFont;
 @googleFontName    : 'Lato';
-
-/*-------------------
-      Base Sizes
---------------------*/
-
-@emSize   : 14px;
-@fontSize : 14px;
 
 
 /*-------------------
@@ -58,3 +55,4 @@
 @teal             : #22b7b1;
 @blue             : #006faa;
 @black            : #464646;
+@green            : #6a9955;

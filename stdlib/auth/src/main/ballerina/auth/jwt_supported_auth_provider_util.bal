@@ -38,7 +38,7 @@ public type InferredJwtAuthProviderConfig record {
     string keyStoreFilePath = "";
     string keyStorePassword = "";
     string signingAlg = "";
-    !...
+    !...;
 };
 
 # Sets the jwt access token to the AuthContext

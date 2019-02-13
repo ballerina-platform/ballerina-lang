@@ -1,31 +1,31 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run foreach.bal
-Iterating over a string array :
+Iterating a string array :
 fruit: apple
 fruit: banana
 fruit: cherry
 
-Iterating over a map :
+Iterating a map :
 letter: a, word: apple
 letter: b, word: banana
 letter: c, word: cherry
 
-Iterating over a json object :
+Iterating a JSON object :
 string value: apple
 json array value: ["red", "green"]
 int value: 5
 
-Iterating over a json array :
+Iterating a JSON array :
 color 0: red
 color 1: green
 
-Iterating over an xml :
+Iterating XML :
 xml at 0: <name>Sherlock Holmes</name>
 xml at 1: <author>Sir Arthur Conan Doyle</author>
 
-Iterating over a closed integer range :
+Iterating a closed integer range :
 summation from 1 to 10 is 55
 
-Iterating over a half open integer range :
+Iterating a half open integer range :
 summation from 1 to 10 excluding 10 is 45

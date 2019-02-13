@@ -19,7 +19,7 @@
 # + pii - personally identifiable information
 type PiiData record {
     string pii;
-    !...
+    !...;
 };
 
 # Build insert query based on the table name and column names

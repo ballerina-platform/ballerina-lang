@@ -57,7 +57,7 @@ callableUnitBody
     ;
 
 functionDefinition
-    :   (PUBLIC)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC | PRIVATE)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -98,8 +98,8 @@ fieldDefinition
     ;
 
 recordRestFieldDefinition
-    :   typeName restDescriptorPredicate ELLIPSIS
-    |   sealedLiteral
+    :   typeName restDescriptorPredicate ELLIPSIS SEMICOLON
+    |   sealedLiteral SEMICOLON
     ;
 
 sealedLiteral
@@ -167,7 +167,7 @@ typeName
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
-    |   ABSTRACT? CLIENT? OBJECT LEFT_BRACE objectBody RIGHT_BRACE                              # objectTypeNameLabel
+    |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
     |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
     ;
 
@@ -207,7 +207,7 @@ builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)
     |   TYPE_FUTURE (LT typeName GT)
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
-    |   TYPE_JSON (LT nameReference GT)?
+    |   TYPE_JSON
     |   TYPE_TABLE (LT typeName GT)
     |   TYPE_STREAM (LT typeName GT)
     |   SERVICE
@@ -663,7 +663,7 @@ expression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression  # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
     |	CHECK expression										            # checkedExpression
     |   expression IS typeName                                              # typeTestExpression
@@ -784,7 +784,6 @@ floatingPointLiteral
 integerLiteral
     :   DecimalIntegerLiteral
     |   HexIntegerLiteral
-    |   BinaryIntegerLiteral
     ;
 
 emptyTupleLiteral
@@ -961,14 +960,6 @@ havingClause
 
 streamingAction
     :   EQUAL_GT LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-setClause
-    :   SET setAssignmentClause (COMMA setAssignmentClause)*
-    ;
-
-setAssignmentClause
-    :   variableReference ASSIGN expression
     ;
 
 streamingInput

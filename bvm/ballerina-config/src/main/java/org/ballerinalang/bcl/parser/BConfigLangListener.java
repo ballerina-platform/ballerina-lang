@@ -94,7 +94,7 @@ public class BConfigLangListener extends TomlBaseListener {
 
     @Override
     public void enterMlBasicString(TomlParser.MlBasicStringContext context) {
-        String stringVal = context.mlBasicBody().mlBasicChar().stream().map(x -> x.getText()).collect(
+        String stringVal = context.mlBasicBody().basicChar().stream().map(x -> x.getText()).collect(
                 Collectors.joining());
         currentValue = getResolvedStringValue(stringVal);
     }

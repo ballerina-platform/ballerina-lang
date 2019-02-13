@@ -8,10 +8,10 @@ import ballerina/log;
 http:Client httpEndpoint = new("https://www.googleapis.com/tasks/v1", config = {
     auth: {
         scheme: http:OAUTH2,
-        accessToken: "ya29.GlsKBjW1zLmpJQOohUEMjfqn8m1MU_BhkIv4YsQHbLMb8XntaKdg6kkPIi4x22ZksJ2sYFIDtVWTxjiJnkDtUk3ZROe6AVq4EIQRrazNGfeXEGdjBkR0LxIo1D_C",
-        clientId: "833478926540-a61oihs15lt3jsf7fq5roeiki0hrk4t9.apps.googleusercontent.com",
-        clientSecret: "x3-rqEnDti6lX_tsVelyfjTm",
-        refreshToken: "1/XlnjQH5Y4ueEggJWAfwZJUu74nAEwfBtFZNFfCXySYs",
+        accessToken: "ya29.GlufBimE7JZdiB_FpFtZn7p1WMtloVeMlqiYXDGF97068VvJCyK8rEFqBBkxT10E0qudipwxTjJTkU4we0hbOcHKjNTXz6JTEZYoRVn7F3-0O_bL9g71Rwek7TFI",
+        clientId: "833478926540-va43h2lhdhfc06i9eivlmaehl3o5uk1i.apps.googleusercontent.com",
+        clientSecret: "4ZsV4gwSuIoRdy6TKUXTanlw",
+        refreshToken: "1/XUtrd8DaeoopmX5xpIvGdXY09VAY6_h8fVVj9xCaKJE",
         refreshUrl: "https://www.googleapis.com/oauth2/v4/token"
     }
 });

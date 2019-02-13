@@ -567,7 +567,7 @@ type Person record {
     boolean married;
     Age age;
     (string, int) extra;
-    !...
+    !...;
 };
 
 function testVariableAssignment() returns (string, boolean, int, string) {

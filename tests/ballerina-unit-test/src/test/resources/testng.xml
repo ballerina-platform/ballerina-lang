@@ -41,6 +41,7 @@ under the License.
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*"/>
             <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>

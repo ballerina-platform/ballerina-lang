@@ -38,10 +38,9 @@ public class ResourceContextResolver extends AbstractItemResolver {
         List<CompletionItem> completionItems = new ArrayList<>();
 
         if (parserRuleContext == null) {
-            boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
+            boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                     .getSnippetSupport();
-            CompletionItem worker = Snippet.DEF_WORKER.get().build(new CompletionItem(), snippetCapability);
-            completionItems.add(worker);
+            completionItems.add(Snippet.DEF_WORKER.get().build(isSnippet));
 
             return completionItems;
         }

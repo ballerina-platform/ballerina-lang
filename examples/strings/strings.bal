@@ -1,4 +1,4 @@
-import ballerina/internal;
+import ballerina/encoding;
 import ballerina/io;
 
 public function main() {
@@ -77,7 +77,7 @@ public function main() {
     byte[] bytes = statement.toByteArray("UTF-8");
 
     // Convert a `byte` array to a string.
-    string s10 = internal:byteArrayToString(bytes, "UTF-8");
+    string s10 = encoding:byteArrayToString(bytes);
     io:println("Bytes: " + s10);
 
     // Format a `string` according to the given format arguments.

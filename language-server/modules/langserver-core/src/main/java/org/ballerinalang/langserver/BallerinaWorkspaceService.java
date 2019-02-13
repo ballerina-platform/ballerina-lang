@@ -15,6 +15,10 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.client.config.BallerinaClientConfig;
+import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
@@ -58,6 +62,8 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private DiagnosticsHelper diagnosticsHelper;
     private LSCompiler lsCompiler;
     private Map<String, Boolean> experimentalClientCapabilities;
+    private static final Gson GSON = new Gson();
+    private BallerinaClientConfigHolder configHolder = BallerinaClientConfigHolder.getInstance();
 
     BallerinaWorkspaceService(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
@@ -109,7 +115,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeConfiguration(DidChangeConfigurationParams params) {
-        // Operation not supported
+        if (!(params.getSettings() instanceof JsonObject)) {
+            return;
+        }
+        configHolder.updateConfig(GSON.fromJson((JsonObject) params.getSettings(), BallerinaClientConfig.class));
     }
 
     @Override

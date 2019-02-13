@@ -29,7 +29,7 @@ public type InMemoryConfig record {
     string password;
     sql:PoolOptions poolOptions = {};
     map<any> dbOptions = {};
-    !...
+    !...;
 };
 
 # The Client endpoint configuration for the server mode of h2 databases.
@@ -45,7 +45,7 @@ public type ServerModeConfig record {
     string host;
     int port = 9092;
     *InMemoryConfig;
-    !...
+    !...;
 };
 
 # The Client endpoint configuration for the embedded mode of h2 databases.
@@ -59,7 +59,7 @@ public type ServerModeConfig record {
 public type EmbeddedModeConfig record {
     string path;
     *InMemoryConfig;
-    !...
+    !...;
 };
 
 # Represents an H2 client endpoint.

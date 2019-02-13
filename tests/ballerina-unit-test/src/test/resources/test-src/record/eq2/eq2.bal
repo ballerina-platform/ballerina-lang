@@ -15,5 +15,5 @@ public type closedEmployee record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...
+    !...;
 };

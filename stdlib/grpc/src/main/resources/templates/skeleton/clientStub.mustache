@@ -50,14 +50,14 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 type {{messageName}} record {
     {{#fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
     {{/fieldList}}{{#each oneofFieldMap as |value key|}}{{camelcase @key}} {{@key}};
-    {{/each}}!...
+    {{/each}}!...;
 };
 {{#each oneofFieldMap}}
 public type {{camelcase @key}} {{#each this}}{{this.messageName}}{{#unless @last}}|{{/unless}}{{/each}};
 {{#each this}}
 type {{this.messageName}} record {
     {{#this.fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
-    {{/this.fieldList}}!...
+    {{/this.fieldList}}!...;
 };
 {{/each}}{{/each}}
 {{#enumList}}public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};

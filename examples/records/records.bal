@@ -4,14 +4,14 @@ type Student record {
     string name;
     int age;
     Grades grades;
-    string...
+    string...;
 };
 
 type Grades record {
     int maths;
     int physics;
     int chemistry;
-    !...
+    !...;
 };
 
 public function main() {

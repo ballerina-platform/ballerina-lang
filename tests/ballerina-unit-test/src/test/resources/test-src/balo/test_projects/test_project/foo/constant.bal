@@ -36,3 +36,7 @@ public const stringWithoutType = "Ballerina rocks";
 
 
 public type FiniteFloatType floatWithType|floatWithoutType;
+
+
+public const NilWithoutType = ();
+public const () NilWithType = ();

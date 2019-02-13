@@ -6,7 +6,7 @@ public type Person record {
     int age = 0;
     float income = 0.0;
     boolean isMarried = false;
-    !...
+    !...;
 };
 
 // Serialize record into binary.

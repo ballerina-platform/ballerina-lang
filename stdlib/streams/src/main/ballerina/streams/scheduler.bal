@@ -30,7 +30,6 @@ public type Scheduler object {
         self.running = false;
         self.timer = ();
         self.processFunc = processFunc;
-
     }
 
     public function notifyAt(int timestamp) {
@@ -42,6 +41,7 @@ public type Scheduler object {
         if (self.toNotifyQueue.getSize() == 1 && self.running == false) {
             lock {
                 if (self.running == false) {
+                    self.running = true;
                     int timeDiff = timestamp > time:currentTime().time ? timestamp - time:currentTime().time : 0;
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
@@ -55,6 +55,10 @@ public type Scheduler object {
                 }
             }
         }
+    }
+
+    public function wrapperFunc() {
+        _ = self.sendTimerEvents();
     }
 
     public function sendTimerEvents() returns error? {
@@ -79,9 +83,13 @@ public type Scheduler object {
         currentTime = time:currentTime().time;
 
         if (first != ()) {
-            self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                function (error e) {io:println("Error occured", e.reason());}, <int>first - currentTime);
-            _ = self.timer.start();
+            if (<int>first - currentTime <= 0) {
+                _ = self.wrapperFunc();
+            } else {
+                self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
+                    function (error e) {io:println("Error occured", e.reason());}, <int>first - currentTime);
+                _ = self.timer.start();
+            }
         } else {
             lock {
                 self.running = false;

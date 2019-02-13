@@ -12,10 +12,7 @@ jms:Session jmsSession = new (jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-jms:TopicPublisher publisher = new({
-    session: jmsSession,
-    topicPattern: "testDurableTopicSubscriberPublisher6"
-});
+jms:TopicPublisher publisher = new(jmsSession, topicPattern = "testDurableTopicSubscriberPublisher6");
 
 public function main () {
     // Create a Text message.
