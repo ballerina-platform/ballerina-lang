@@ -144,7 +144,12 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, 6, "tuple and expression size does not match", 49, 30);
         BAssertUtil.validateError(resultNegative, 7, "tuple index out of range: index: '-1', size: '3'", 54, 14);
         BAssertUtil.validateError(resultNegative, 8, "tuple index out of range: index: '3', size: '3'", 55, 14);
-        BAssertUtil.validateError(resultNegative, 9, "invalid index expression: expected integer literal", 57, 18);
-        BAssertUtil.validateError(resultNegative, 10, "incompatible types: expected 'int', found 'string'", 58, 16);
+        BAssertUtil.validateError(resultNegative, 9, "incompatible types: expected 'int', found 'string'", 57, 16);
+        BAssertUtil.validateError(resultNegative, 10,
+                "incompatible types: expected 'string|boolean|int', found 'float'", 63, 20);
+        BAssertUtil.validateError(resultNegative, 11,
+                "incompatible types: expected 'string', found 'string|boolean|int'", 64, 16);
+        BAssertUtil.validateError(resultNegative, 12,
+                "incompatible types: expected 'string|boolean', found 'string|boolean|int'", 65, 24);
     }
 }

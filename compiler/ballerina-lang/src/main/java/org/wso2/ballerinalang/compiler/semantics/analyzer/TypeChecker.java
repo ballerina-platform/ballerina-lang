@@ -2788,6 +2788,20 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = ((BArrayType) varRefType).getElementType();
                 }
                 break;
+            case TypeTags.TUPLE:
+                indexExprType = checkExpr(indexExpr, this.env, symTable.intType);
+                if (indexExprType.tag == TypeTags.INT) {
+                    if (indexExpr.getKind() == NodeKind.LITERAL) {
+                        int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
+                        actualType = checkTupleFieldType(indexBasedAccessExpr, varRefType, indexValue);
+                        break;
+                    }
+                    BTupleType tupleExpr = (BTupleType) indexBasedAccessExpr.expr.type;
+                    LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleExpr.tupleTypes);
+                    actualType = tupleTypes.size() == 1 ? tupleTypes.iterator().next() :
+                            new BUnionType(null, new LinkedHashSet<>(tupleExpr.tupleTypes), false);
+                }
+                break;
             case TypeTags.XML:
                 if (indexBasedAccessExpr.lhsVar) {
                     indexExpr.type = symTable.semanticError;
@@ -2797,13 +2811,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 checkExpr(indexExpr, this.env);
                 actualType = symTable.xmlType;
-                break;
-            case TypeTags.TUPLE:
-                indexExprType = checkIndexExprForTupleFieldAccess(indexExpr);
-                if (indexExprType.tag == TypeTags.INT) {
-                    int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
-                    actualType = checkTupleFieldType(indexBasedAccessExpr, varRefType, indexValue);
-                }
                 break;
             case TypeTags.SEMANTIC_ERROR:
                 indexBasedAccessExpr.indexExpr.type = symTable.semanticError;

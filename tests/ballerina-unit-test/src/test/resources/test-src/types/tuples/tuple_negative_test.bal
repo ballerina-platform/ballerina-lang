@@ -54,6 +54,13 @@ function testInvalidIndexAccess () {
     any x1 = x[-1];
     any x2 = x[3];
     int index = 0;
-    float x3 = x[index];
     any x4 = x["0"];
+}
+
+function testInvalidInsertionToTuple() {
+    (string, boolean, int) tuple = ("str", true, 10);
+    int index = 0;
+    tuple[index] = 1.1; // incompatible types: expected 'string|boolean|int', found 'float'
+    string y = tuple[index]; // incompatible types: expected 'string', found 'string|boolean|int'
+    string|boolean x = tuple[index]; // incompatible types: expected 'string|boolean', found 'string|boolean|int'
 }
