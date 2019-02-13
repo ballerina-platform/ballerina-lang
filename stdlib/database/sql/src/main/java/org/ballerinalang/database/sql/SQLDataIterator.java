@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -319,6 +320,12 @@ public class SQLDataIterator extends TableIterator {
                             struct.put(fieldName, new BFloat((double) value));
                         }
                         break;
+                    case TypeTags.DECIMAL_TAG:
+                        if (value instanceof BigDecimal) {
+                            struct.put(fieldName, new BDecimal((BigDecimal) value));
+                        } else {
+                            struct.put(fieldName, new BDecimal(new BigDecimal((double)value)));
+                        }
                     case TypeTags.STRING_TAG:
                         struct.put(fieldName, new BString((String) value));
                         break;

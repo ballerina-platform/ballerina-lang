@@ -30,6 +30,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -821,6 +822,9 @@ public class SQLDatasourceUtils {
                 break;
             case TypeTags.BOOLEAN_TAG:
                 structData[i] = ((BBoolean) bValue).booleanValue();
+                break;
+            case TypeTags.DECIMAL_TAG:
+                structData[i] = ((BDecimal) bValue).decimalValue();
                 break;
             case TypeTags.ARRAY_TAG:
                 BType elementType = ((BArrayType) field.getFieldType()).getElementType();

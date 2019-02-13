@@ -358,14 +358,16 @@ function testArrayofQueryParameters() returns string {
     int[] intDataArray = [1, 4343];
     string[] stringDataArray = ["A", "B"];
     float[] doubleArray = [233.4, 433.4];
+    decimal[] decimalArray = [1233.4, 1433.4];
     sql:Parameter para0 = { sqlType: sql:TYPE_VARCHAR, value: "Johhhn" };
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: intDataArray };
     sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: stringDataArray };
     sql:Parameter para3 = { sqlType: sql:TYPE_DOUBLE, value: doubleArray };
+    sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: decimalArray };
 
     var dt = testDB->select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
-        lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", ResultCustomers,
-        para0, para1, para2, para3);
+        lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?) or creditLimit in (?)",
+        ResultCustomers, para0, para1, para2, para3, para4);
     string firstName = getTableFirstNameColumn(dt);
     testDB.stop();
     return firstName;
