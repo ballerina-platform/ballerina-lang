@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.990.3-SNAPSHOT</version>
+    <version>0.990.4-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -1746,6 +1746,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
 
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1831,6 +1832,7 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1914,6 +1916,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
@@ -2267,7 +2270,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.990.3-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.990.4-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -2290,7 +2293,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.259</transport.http.version>
+        <transport.http.version>6.0.262</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2417,7 +2420,7 @@
         <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
-        <andes.client.version>3.2.55</andes.client.version>
+        <andes.client.version>3.2.86</andes.client.version>
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 
         <file.transport.version>6.0.53</file.transport.version>

@@ -33,7 +33,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
 
     public DefaultValueLiteral defaultValue;
 
-    // Only used in type-guards. Cache of the original symbol.
+    // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
 
     /**

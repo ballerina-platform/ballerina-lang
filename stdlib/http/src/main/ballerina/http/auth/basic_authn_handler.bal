@@ -72,7 +72,7 @@ public function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
             }
         }
         return authenticated;
-    } else if (credentials is error) {
+    } else {
         log:printError("Error in decoding basic authentication header", err = credentials);
     }
     return false;

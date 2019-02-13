@@ -369,10 +369,10 @@ public class BServerInstance implements BServer {
             process = processBuilder.start();
 
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
-            tmpInfoLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
+            tmpInfoLeechers.forEach(leecher -> serverInfoLogReader.addLeecher(leecher));
             serverInfoLogReader.start();
             serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
-            tmpErrorLeechers.forEach(leacher -> serverErrorLogReader.addLeecher(leacher));
+            tmpErrorLeechers.forEach(leecher -> serverErrorLogReader.addLeecher(leecher));
             serverErrorLogReader.start();
             log.info("Waiting for port " + agentPort + " to open");
             Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 2, false, agentHost);

@@ -285,3 +285,27 @@ function testTableToString() returns table<record {}> {
 
     return personTableCopy;
 }
+
+function testSimpleSelectAllWithCondition() returns int {
+    table<Person> personTable = table{};
+    int recordCount = 0;
+    Person p1 = { id: 1, age: 25, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 26, salary: 400.50, name: "kane", married: false };
+    Person p3 = { id: 3, age: 27, salary: 500.50, name: "jack", married: true };
+    Person p4 = { id: 4, age: 28, salary: 600.50, name: "alex", married: false };
+
+    _ = personTable.add(p1);
+    _ = personTable.add(p2);
+    _ = personTable.add(p3);
+    _ = personTable.add(p4);
+
+    if (recordCount == 0) {
+        table<Person> personTableCopy = from personTable select * limit 2;
+        while (personTableCopy.hasNext()) {
+            _ = personTableCopy.getNext();
+            recordCount = recordCount + 1;
+        }
+    }
+
+    return recordCount;
+}

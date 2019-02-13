@@ -111,4 +111,19 @@ public class Constants {
 
     // GMT timezone name used for X509 validity times
     public static final String TIMEZONE_GMT = "GMT";
+
+    // CBC encryption mode
+    public static final String CBC = "CBC";
+
+    // ECB encryption mode
+    public static final String ECB = "ECB";
+
+    // GCM encryption mode
+    public static final String GCM = "GCM";
+
+    // AES encryption algorithm
+    public static final String AES = "AES";
+
+    // RSA encryption algorithm
+    public static final String RSA = "RSA";
 }

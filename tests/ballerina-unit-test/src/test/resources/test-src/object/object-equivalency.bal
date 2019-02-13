@@ -590,10 +590,9 @@ function testObjectEqViewFromThirdPackage() returns (string|error) {
     var fooObj = trap <eq2:FooObj> barObj;
     if fooObj is error {
         panic fooObj;
-    } else if fooObj is eq2:FooObj {
+    } else {
         return fooObj.name;
     }
-    return "";
 }
 
 public type ObjectWithoutNew object {
