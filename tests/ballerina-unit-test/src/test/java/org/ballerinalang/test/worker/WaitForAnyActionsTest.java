@@ -184,7 +184,7 @@ public class WaitForAnyActionsTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+            expectedExceptionsMessageRegExp = "error: A hazardous error occurred!!! Panic!! \\{\\}.*")
     public void waitTest21() {
         BRunUtil.invoke(result, "waitTest21", new BValue[0]);
     }

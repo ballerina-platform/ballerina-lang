@@ -130,3 +130,39 @@ type UserData2 record {
     int index;
     *Data;
 };
+
+type Object object {
+    private int field;
+
+    public function __init() {
+        self.field = 12;
+    }
+
+    public function getField() returns int {
+        return self.field;
+    }
+};
+
+type IntRestRecord record {
+    string name;
+    boolean married;
+    int...;
+};
+
+type ObjectRestRecord record {
+    string name;
+    boolean married;
+    Object...;
+};
+
+function testRestParameterType() {
+    string name;
+    map<int> other1 = {};
+    map<anydata> other2 = {};
+
+    IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
+    { name, ...other1 } = rec1; // incompatible types: expected 'map<int>', found 'map<anydata>'
+
+    ObjectRestRecord rec2 = { name: "A", married: true, extra: new };
+    { name, ...other2 } = rec2; // incompatible types: expected 'map<anydata>', found 'map'
+}

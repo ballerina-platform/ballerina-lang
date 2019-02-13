@@ -75,7 +75,7 @@ function testUndefinedSymbol() returns string {
     return "";
 }
 
-function testTypeGuardInElse() returns string {
+function testTypeGuardInElse_1() returns string {
     int|string x = 5;
     if (x is int) {
         int y = x;
@@ -86,9 +86,229 @@ function testTypeGuardInElse() returns string {
         }
 
         if (x is int) {
-            return "string: " + <string> x;
+            return "int: " + <string> x;
         }
     }
 
     return "n/a";
+}
+
+function testTypeGuardInElse_2() returns string {
+    int|string|float|boolean x = true;
+    int|string|float|boolean y = false;
+    if (x is int|string) {
+        if (y is string) {
+            return "y is string: " + y;
+        } else if (y is int) {
+            int i = y;
+            return "y is int: " + <string> i;
+        } else {
+            return "x is int|string";
+        }
+    } else if (x is string) {
+        return "string: " + x;
+    } else if (x is float) {
+        float f = x;
+        return "float: " + <string> f;
+    } else {
+        if (y is int) {
+            int i = y;
+            return "x is boolean and y is int: " + <string> i;
+        } else if (y is string) {
+            return "x is boolean and y is string: " + y;
+        } else if (y is float) {
+            float f = y;
+            return "x is boolean and y is float: " + <string> f;
+        } else {
+            boolean b = y;
+            return "x is boolean and y is boolean: " + <string> b;
+        }
+    }
+}
+
+function testMultipleTypeGuardsWithAndOperator_2() returns int {
+    int|string|boolean x = 5;
+    any y = 7;
+    if (x is int|string && y is int && x is string) {
+        return x + y;
+    } else {
+        x = 5.5;
+        return -1;
+    }
+
+    x = {};
+    return -1;
+}
+
+function typeGuardInMatch((string, int)|(int, boolean)|int|float x) returns string {
+    match x {
+        var (s, i) if s is string => {return "Matched with string";}
+        var (s, i) if s is float => {return "Matched with float";}
+        var (s, i) if i is boolean => {return "Matched with boolean";}
+        var y => {return "Matched with default type - float";}
+    }
+}
+
+function testTypeGuardsWithOr_1() returns string {
+    int|string x = 5;
+    int|string y = 8;
+    if (x is int || y is int) {
+        int z = x;
+        return "x is greater than 4: " + <string> z;
+    } else {
+        string s = x;
+        return s;
+    }
+}
+
+function testTypeGuardsWithOr_2() returns string {
+    int|string|boolean x = 5;
+    int y = 8;
+    if (x is int|string) {
+        if (x is int || y > 4) {
+            int z = x;
+            return "x is greater than 4: " + <string> z;
+        } else {
+            string s = x;
+            return s;
+        }
+    } else {
+        return "x is boolean: " + x;
+    }
+}
+
+function testTypeGuardsWithBinaryOps_1() {
+    int|string|boolean|float x = 5;
+    if (((x is int|string && x is int) || (x is boolean)) && (x is float)) {
+        int y = x;
+    } else {
+        string s = x;
+    }
+}
+
+function testTypeGuardsWithBinaryOps_2() {
+    int|string|boolean|float x = 5;
+    if (((x is int|string || x is int) && (x is boolean)) || (x is float)) {
+        int y = x;
+    } else {
+        string s = x;
+    }
+}
+
+function testTypeGuardsWithBinaryOps_3() {
+    int|string|boolean|float x = 5;
+    if ((x is int|string && x is int) || (x is boolean)) {
+        int y = x;
+    } else {
+        string s = x;
+    }
+}
+
+function testTypeGuardsWithBinaryOps_4() {
+    int|string|boolean|float x = 5;
+    if ((x is string && x is int && x is float) || (x is boolean)) {
+        int y = x;
+    } else {
+        string s = x;
+    }
+}
+
+function testTypeGuardsWithBinaryOps_5() {
+    int|string|boolean|float x = 5;
+    if ((x is string && x is T && x is float) || (x is boolean)) {
+        int y = x;
+    } else {
+        string s = x;
+    }
+}
+
+type Person record {
+    string name;
+    int age;
+};
+
+type Student record {
+    *Person;
+    float gpa;
+};
+
+function testTypeGuardsWithBinaryOps_6() {
+    Student s = {name:"John", age:20, gpa:3.5};
+    Person|Student x = s;
+
+    if ((x is string && x is Person && x is float) || (x is boolean)) {
+        int y = x;
+    } else {
+        string y = x;
+    }
+}
+
+function testTypeGuardsWithErrorInmatch() returns string {
+    any a = 5;
+    match a {
+        var p if p is error => return string `{{p.reason()}}`;
+        var p => return "Internal server error";
+    }
+}
+
+public function testUpdatingTypeNarrowedVar_1() {
+    int|string|boolean x = 5;
+
+    if (x is int|string) {
+        x = true;
+        int y = x;
+
+        if (x is int) {
+            int z = x;
+        } else {
+            string z = x;
+        }
+    }
+}
+
+public function testUpdatingTypeNarrowedVar_2() returns string {
+    int|string|boolean x = 8;
+    if (x is int) {
+        if (x > 5) {
+            x = "hello";
+        }
+
+        int z = x;
+        return "int:  + ";
+    }
+
+    return "not an int";
+}
+
+public function testUpdatingTypeNarrowedVar_3() {
+    int|string|boolean x = 8;
+    int|string|boolean y = 8;
+
+    if (x is int|string) {
+        int|string a = x;
+        if (x is int) {
+            int b = x;
+            if (x > 5) {
+
+                int c = x;
+                x = "hello";
+                int d = x;
+
+                if (y is int) {
+                    int e = x;
+                    y = "hello again";
+                    int f = x;
+                }
+                int g = x;
+                string h = y;
+            }
+            int i = x;
+            string j = y;
+        }
+
+        int|string j = x;
+        string h = y;
+    }
+
+    int|string|boolean i = x;
 }

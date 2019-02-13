@@ -400,7 +400,7 @@ public function Entity.setBody(@sensitive (string|xml|json|byte[]|io:ReadableByt
         self.setByteArray(entityBody);
     } else if(entityBody is io:ReadableByteChannel) {
         self.setByteChannel(entityBody);
-    } else if (entityBody is Entity[]) {
+    } else {
         self.setBodyParts(entityBody);
     }
 }

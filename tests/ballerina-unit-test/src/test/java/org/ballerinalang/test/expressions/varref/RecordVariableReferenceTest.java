@@ -136,6 +136,14 @@ public class RecordVariableReferenceTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2002);
     }
 
+    @Test(description = "Test record var ref rest parameter types")
+    public void testRestParameterType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+    }
+
     // TODO: Uncomment below tests once record literal is supported with var ref
 //
 //    @Test(description = "Test simple record variable definition")
@@ -180,7 +188,7 @@ public class RecordVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 19);
+        Assert.assertEquals(resultNegative.getErrorCount(), 21);
         final String undefinedSymbol = "undefined symbol ";
         final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
@@ -216,5 +224,9 @@ public class RecordVariableReferenceTest {
                 "unknown type 'Data'", 126, 6);
         BAssertUtil.validateError(resultNegative, ++i,
                 "unknown type 'Data'", 131, 6);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'map<int>', found 'map<anydata>'", 164, 16);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'map<anydata>', found 'map'", 167, 16);
     }
 }
