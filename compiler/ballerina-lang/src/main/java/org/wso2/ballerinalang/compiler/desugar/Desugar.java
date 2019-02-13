@@ -3231,7 +3231,8 @@ public class Desugar extends BLangNodeVisitor {
         }
         boolean safe;
         if (!types.isValueType(targetType)) {
-            if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
+            if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR ||
+                    iExpr.symbol.kind == SymbolKind.CAST_OPERATOR) {
                 // TODO: These should be desugared to specific util functions since convert can be done only if source
                 // shape is a member set of shapes of the target type. ex. datatable to json.
                 return createTypeCastExpr(iExpr.requiredArgs.get(0), targetType, (BOperatorSymbol) iExpr.symbol);
