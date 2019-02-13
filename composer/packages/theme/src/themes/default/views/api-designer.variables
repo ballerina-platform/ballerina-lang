@@ -52,6 +52,8 @@
 @dark-api-designer-placeholder-text-color: #61affe;
 @light-api-designer-inline-text-color: #888;
 @dark-api-designer-inline-text-color: #888;
+@light-api-designer-inline-text-hover-color: darken(@light-api-designer-inline-text-color, 3%);
+@dark-api-designer-inline-text-hover-color: darken(@dark-api-designer-inline-text-color, 3%);
 @light-api-designer-icon-text-color: #333;
 @dark-api-designer-icon-text-color: #333;
 @light-api-designer-icon-hover-color: #111;

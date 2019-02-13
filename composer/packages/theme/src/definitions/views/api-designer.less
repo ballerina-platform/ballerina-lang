@@ -66,7 +66,7 @@
                 text-align: justify;
             
                 &.editing {
-            
+
                     .ui.form button {
                         outline: none;
                         box-shadow: none !important;
@@ -153,6 +153,12 @@
                         font-size: 14px;
                         font-weight: 400;
                     }
+                    .field {
+                        label {
+                            font-size: 12px;
+                            font-weight: 400;
+                        }
+                    }
                 }
                 .btn-close {
                     float: right;
@@ -196,6 +202,7 @@
                     .path-op-container {
                         display: inline;
                         float: right;
+                        margin-top: -3px;
                         
                         .label {
                             font-weight: 400;
@@ -204,6 +211,8 @@
                             padding: 5px;
                             min-width: 50px;
                             text-align: center;
+                            text-transform: uppercase;
+                            font-size: 11px;
                             
                             .gen-method-styles(border-color color);
                         }
@@ -247,6 +256,19 @@
     
                                 .gen-method-styles(border-color);
                             }
+
+                            .editing {
+                                margin-left: 4px !important;
+                                margin-top: 10px;
+                            }
+
+                            .inline-editor-span {
+                                &:hover {
+                                    margin-left: 4px !important;
+                                    cursor: text;
+                                }
+                            }
+
                             .op-method {
                                 color: ~"@{@{color}-api-designer-fill-method-text-color}";
                                 font-weight: 400;
@@ -254,6 +276,8 @@
                                 display: inline-block;
                                 min-width: 70px;
                                 text-align: center;
+                                text-transform: uppercase;
+                                font-size: 11px;
                                 
                                 .gen-method-styles(background);
                                 
@@ -337,6 +361,7 @@
 
                 input {
                     background: ~"@{@{color}-api-designer-form-background-color}";
+                    font-size: ~"@api-designer-font-size";
                 }
             }
         }
@@ -350,20 +375,30 @@
             display: block;
             width: 100%;
         }
-        
-        .inline-editor-span, .markdown {
+
+        &.url, &.contact, &.license {
+            padding-top: 10px;
+
+            .inline-editor {
+                padding-top: 0;
+            }
+        }
+
+        .inline-editor-span, .markdown, a {
             display: inline-block;
-            padding: 3px;
+            padding-right: 5px;
+            color: ~"@{@{color}-api-designer-inline-text-color}";
+            font-weight: 300;
 
             &:hover {
-                color: ~"@{@{color}-api-designer-inline-text-color}";
-                font-weight: 300;
-
+                color: ~"@{@{color}-api-designer-inline-text-hover-color}";
+                
                 .edit-icon {
                     display: inline-block;
-                    color: ~"@{@{color}-api-designer-inline-text-color}";
+                    color: ~"@{@{color}-api-designer-inline-text-hover-color}";
                     padding-left: 20px;
                     cursor: pointer;
+                    font-size: 11px;
                 }
             }
             .edit-icon {
