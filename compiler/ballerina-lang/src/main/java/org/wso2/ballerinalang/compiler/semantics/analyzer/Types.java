@@ -2001,6 +2001,11 @@ public class Types {
             return true;
         }
 
+        // Value space contains nil.
+        if (type.memberTypes.stream().anyMatch(t -> t.isNullable())) {
+            return true;
+        }
+
         // All members are of same type and has the implicit initial value as a member.
         Iterator<BType> iterator = type.memberTypes.iterator();
         BType firstMember;
