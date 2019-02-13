@@ -255,7 +255,7 @@ public class HttpCarbonMessage {
 
     public synchronized void removeMessageFuture() {
         this.messageFuture = null;
-        // To ensure that the carbon message is resuable.
+        // To ensure that the carbon message is reusable.
         passthrough = false;
     }
 
@@ -503,5 +503,24 @@ public class HttpCarbonMessage {
      */
     public ChannelHandlerContext getTargetContext() {
         return targetContext;
+    }
+
+    /**
+     * Returns the {@link FullMessageFuture} which notifies {@link FullMessageListener} when the complete content of
+     * the {@link HttpCarbonMessage} is accumulated.
+     *
+     * @return the default implementation of the {@link FullMessageFuture}.
+     */
+    public FullMessageFuture getFullHttpCarbonMessage() {
+        FullMessageFuture fullMessageFuture = new DefaultFullMessageFuture();
+        HttpFullCarbonMessage httpFullCarbonMessage = new HttpFullCarbonMessage(this.httpMessage);
+        while (!isEmpty()) {
+            HttpContent httpContent = getHttpContent();
+            httpFullCarbonMessage.addHttpContent(httpContent);
+            if (httpContent instanceof LastHttpContent) {
+                fullMessageFuture.notifySuccess(httpFullCarbonMessage);
+            }
+        }
+        return fullMessageFuture;
     }
 }
