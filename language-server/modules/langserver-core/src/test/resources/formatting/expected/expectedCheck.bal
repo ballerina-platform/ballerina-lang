@@ -6,6 +6,8 @@ function parse(string num) returns int | error {
 
 function scale1(string num) returns int | error {
     int x = check parse(num);
+    int y = 0;
+    y = check parse(num);
     return x * 10;
 }
 
