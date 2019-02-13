@@ -96,6 +96,13 @@ public class TableSqlQueryTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
+    @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where along with group by " +
+                                                   "with limit inside a function")
+    public void testSelectWithJoinAndWhereWithGroupByWithLimitInFunc() {
+        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupByWithLimitInFunc");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
     @Test(groups = "TableTest",
           description = "Verify string conversion of a table returned from ballerina sql query with no indices/primary "
                   + "keys")
