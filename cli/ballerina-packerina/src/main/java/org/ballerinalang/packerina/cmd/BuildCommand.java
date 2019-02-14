@@ -193,7 +193,7 @@ public class BuildCommand implements BLauncherCmd {
         }
         String programName = argList.get(0);
 
-        JVMCodeGen.getInstance().genJVMExecutable(projectDirPath, programName, projectDirPath);
+        JVMCodeGen.getInstance().generateJVMExecutable(projectDirPath, programName, projectDirPath);
     }
 
     /**
