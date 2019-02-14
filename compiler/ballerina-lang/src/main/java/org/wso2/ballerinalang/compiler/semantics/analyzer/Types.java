@@ -1552,23 +1552,27 @@ public class Types {
         return !notAssignable;
     }
 
-    public boolean isAssignableToFiniteType(BType type,
-                                            BLangLiteral literalExpr) {
-        if (type.tag == TypeTags.FINITE) {
-            BFiniteType expType = (BFiniteType) type;
-            boolean foundMember = expType.valueSpace
-                    .stream()
-                    .anyMatch(memberLiteral -> {
-                        if (((BLangLiteral) memberLiteral).value == null) {
-                            return literalExpr.value == null;
-                        } else {
-                            return (((BLangLiteral) memberLiteral).value.equals(literalExpr.value) &&
-                                    ((BLangLiteral) memberLiteral).typeTag == literalExpr.typeTag);
-                        }
-                    });
-            return foundMember;
+    boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
+        if (type.tag != TypeTags.FINITE) {
+            return false;
         }
-        return false;
+
+        BFiniteType expType = (BFiniteType) type;
+        long matchCount = expType.valueSpace.stream().filter(memberLiteral -> {
+            if (((BLangLiteral) memberLiteral).value == null) {
+                return literalExpr.value == null;
+            }
+            // Check whether the member literal and the literal that needs to be tested are of same kind and check
+            // the value equality between them.
+            return memberLiteral.getKind().equals(literalExpr.getKind()) &&
+                    ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
+        }).count();
+
+        // If more than one match means the value space contains ambiguous values.
+        if (matchCount > 1) {
+            dlog.error(literalExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, type);
+        }
+        return matchCount == 1;
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
