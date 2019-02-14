@@ -15,7 +15,7 @@ public function main(string... args) {
     //do nothing
 }
 
-function genJVMClassFile(byte[] birBinary, string progName) returns byte[] {
+function generateJVMExecutable(byte[] birBinary, string progName) returns JarFile {
     className = progName;
     io:ReadableByteChannel byteChannel = io:createReadableChannel(birBinary);
     bir:ChannelReader reader = new(byteChannel);
@@ -25,22 +25,31 @@ function genJVMClassFile(byte[] birBinary, string progName) returns byte[] {
     bir:TypeParser typeParser = new (birReader);
     bir:PackageParser pkgParser = new(birReader, typeParser);
     bir:Package pkg = pkgParser.parsePackage();
-    return generateJVMClass(pkg);
+    return generateJarFile(pkg);
 }
 
-function generateJVMClass(bir:Package pkg) returns byte[] {
+function generateJarFile(bir:Package pkg) returns JarFile {
+    //todo : need to generate java package here based on BIR package(s)
     jvm:classWriterInit();
     jvm:classWriterVisit(className);
+
+    map<byte[]> jarEntries = {};
+    map<string> manifestEntries = {};
 
     bir:Function? mainFunc = getMainFunc(pkg.functions);
     if (mainFunc is bir:Function) {
         generateMainMethod(mainFunc);
-        generateGetParamsMethod(mainFunc);
+        manifestEntries["Main-Class"] = className;
     }
 
     generateMethods(pkg.functions);
     jvm:classWriterEnd();
-    return jvm:getClassFileContent();
+    byte[] classContent = jvm:getClassFileContent();
+
+    jarEntries[className + ".class"] = classContent;
+
+    JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
+    return jarFile;
 }
 
 function generateMethods(bir:Function[] funcs) {
@@ -621,15 +630,17 @@ function arrayEq(byte[] x, byte[] y) returns boolean {
     return true;
 }
 
-function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
-    if (indexMap.getIndex(varDcl) == -1) {
-        indexMap.add(varDcl);
-    }
-    return indexMap.getIndex(varDcl);
-}
-
 function generateMainMethod(bir:Function userMainFunc) {
-    jvm:visitMethodInit(ACC_PUBLIC, "__main", io:sprintf("([L%s;)V", BVALUE));
+    jvm:visitMethodInit(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V");
+
+    // todo : generate the global var init class and other crt0 loading
+
+    boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
+
+    if (!isVoidFunction) {
+        jvm:visitFieldInstruction(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+    }
+
     string desc = getMethodDesc(userMainFunc);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
 
@@ -647,6 +658,10 @@ function generateMainMethod(bir:Function userMainFunc) {
     visitMapLiteral(paramIndex);
     print(paramIndex);
 
+    if (!isVoidFunction) {
+        jvm:visitMethodInstruction(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
+    }
+
     jvm:visitNoOperandInstruction(RETURN);
     jvm:visitMaxStackValues(paramTypes.length() + 5, 10);
     jvm:visitMethodEnd();
@@ -654,65 +669,26 @@ function generateMainMethod(bir:Function userMainFunc) {
 
 function generateCast(int paramIndex, bir:BType targetType) {
     // load BValue array
-    jvm:visitVariableInstruction(ALOAD, 1);
+    jvm:visitVariableInstruction(ALOAD, 0);
 
     // load value[i]
     jvm:visitLoadConstantInstruction(paramIndex);
     jvm:visitNoOperandInstruction(L2I);
     jvm:visitNoOperandInstruction(AALOAD);
 
-    jvm:visitTypeInstruction(CHECKCAST, BVALUE_TYPE);
     if (targetType is bir:BTypeInt) {
-        jvm:visitMethodInstruction(INVOKEVIRTUAL, BVALUE_TYPE, "intValue", "()J", false);
-    } else if (targetType is bir:BTypeString) {
-        jvm:visitMethodInstruction(INVOKEVIRTUAL, BVALUE_TYPE, "stringValue", 
-            io:sprintf("()L%s;", STRING_VALUE), false);
-    } else if (targetType is bir:BTypeBoolean) {
-        jvm:visitMethodInstruction(INVOKEVIRTUAL, BVALUE_TYPE, "booleanValue", "()Z", false);
+        jvm:visitMethodInstruction(INVOKESTATIC, LONG_VALUE, "parseLong", "(Ljava/lang/String;)J", false);
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
         panic err;
     }
 }
 
-function generateGetParamsMethod(bir:Function mainFunc) {
-    jvm:visitMethodInit(ACC_PUBLIC, "__getMainFuncParams", io:sprintf("()[L%s;", BTYPE));
-
-    bir:BType[] paramTypes = mainFunc.typeValue.paramTypes;
-    jvm:visitLoadConstantInstruction(paramTypes.length());
-    jvm:visitNoOperandInstruction(L2I);
-    jvm:visitTypeInstruction(ANEWARRAY, BTYPE);
-    jvm:visitVariableInstruction(ASTORE, 1);
-
-    int i = 0;
-    foreach var paramType in paramTypes {
-        jvm:visitVariableInstruction(ALOAD, 1);
-        jvm:visitLoadConstantInstruction(i);
-        jvm:visitNoOperandInstruction(L2I);
-
-        string typeFieldName = getBType(paramType);
-        jvm:visitFieldInstruction(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
-        jvm:visitNoOperandInstruction(AASTORE);
-        i += 1;
+function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
+    if (indexMap.getIndex(varDcl) == -1) {
+        indexMap.add(varDcl);
     }
-
-    jvm:visitVariableInstruction(ALOAD, 1);
-    jvm:visitNoOperandInstruction(ARETURN);
-    jvm:visitMaxStackValues(paramTypes.length() + 5, 2);
-    jvm:visitMethodEnd();
-}
-
-function getBType(bir:BType bType) returns string {
-    if (bType is bir:BTypeInt) {
-        return "typeInt";
-    } else if (bType is bir:BTypeString) {
-        return "typeString";
-    } else if (bType is bir:BTypeBoolean) {
-        return "typeBoolean";
-    } else {
-        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
-        panic err;
-    }
+    return indexMap.getIndex(varDcl);
 }
 
 function visitMapNewIns() {

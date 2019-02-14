@@ -49,8 +49,7 @@ public class ClassWriterVisit extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         ClassWriter cw = ASMCodeGenerator.getInstance().getClassWriter();
         String jvmClassName = context.getStringArgument(0);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, jvmClassName, null, Type.getInternalName(Object.class),
-                new String[] { Type.getInternalName(BallerinaProgram.class) });
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, jvmClassName, null, Type.getInternalName(Object.class), null);
         generateDefaultConstructor(cw);
     }
 
