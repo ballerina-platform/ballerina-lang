@@ -228,45 +228,79 @@ public class PackageInfoWriter {
     // Private methods
 
     private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
-                                                 ConstantInfo[] constantInfos) throws IOException {
+                                                 ConstantInfo_new[] constantInfos) throws IOException {
         dataOutStream.writeShort(constantInfos.length);
-        for (ConstantInfo constantInfo : constantInfos) {
+        for (ConstantInfo_new constantInfo : constantInfos) {
             dataOutStream.writeInt(constantInfo.nameCPIndex);
-            dataOutStream.writeInt(constantInfo.finiteTypeCPIndex);
-            dataOutStream.writeInt(constantInfo.valueTypeCPIndex);
-            dataOutStream.writeInt(constantInfo.flags);
-            dataOutStream.writeInt(constantInfo.globalMemIndex);
 
             dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
+
             if (constantInfo.isSimpleLiteral) {
+
+                dataOutStream.writeInt(constantInfo.constantValue.finiteTypeCPIndex);
+                dataOutStream.writeInt(constantInfo.constantValue.valueTypeCPIndex);
+                dataOutStream.writeInt(constantInfo.constantValue.flags);
+                dataOutStream.writeInt(constantInfo.constantValue.globalMemIndex);
+
+
+                // Todo - Add a util function?
+                switch (constantInfo.constantValue.literalValueType) {
+
+                    case TypeTags.BOOLEAN:
+                        dataOutStream.writeBoolean(constantInfo.constantValue.getBooleanValue());
+                        break;
+                    case TypeTags.INT:
+                    case TypeTags.BYTE:
+                    case TypeTags.FLOAT:
+                    case TypeTags.DECIMAL:
+                    case TypeTags.STRING:
+                        dataOutStream.writeInt(constantInfo.constantValue.valueCPEntry);
+                        break;
+                    case TypeTags.NIL:
+                        break;
+                    default:
+                        throw new RuntimeException("unexpected type tag: " + constantInfo.constantValue.literalValueType);
+                }
+
+
                 writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
-            } else {
-                writeConstantMapInfo(dataOutStream, constantInfo.recordKeyValueInfo);
             }
+
+//            dataOutStream.writeInt(constantInfo.finiteTypeCPIndex);
+//            dataOutStream.writeInt(constantInfo.valueTypeCPIndex);
+//            dataOutStream.writeInt(constantInfo.flags);
+//            dataOutStream.writeInt(constantInfo.globalMemIndex);
+//
+//            dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
+//            if (constantInfo.isSimpleLiteral) {
+//                writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
+//            } else {
+////                writeConstantMapInfo(dataOutStream, constantInfo.recordKeyValueInfo);
+//            }
         }
     }
 
-    private static void writeConstantMapInfo(DataOutputStream dataOutStream, List<KeyValueInfo> recordKeyValueInfo)
-            throws IOException {
-        dataOutStream.writeInt(recordKeyValueInfo.size());
-        for (KeyValueInfo keyValueInfo : recordKeyValueInfo) {
-            dataOutStream.writeBoolean(keyValueInfo.isTerminal);
-
-            dataOutStream.writeInt(keyValueInfo.keyCPIndex);
-            dataOutStream.writeInt(keyValueInfo.originalKeyCPIndex);
-            dataOutStream.writeInt(keyValueInfo.keyTypeDescCPIndex);
-            dataOutStream.writeInt(keyValueInfo.keyTypeDescTag);
-
-            dataOutStream.writeInt(keyValueInfo.valueCPIndex);
-            dataOutStream.writeInt(keyValueInfo.originalValueCPIndex);
-            dataOutStream.writeInt(keyValueInfo.valueTypeDescCPIndex);
-            dataOutStream.writeInt(keyValueInfo.valueTypeDescTag);
-
-            if (!keyValueInfo.isTerminal) {
-                writeConstantMapInfo(dataOutStream, keyValueInfo.children);
-            }
-        }
-    }
+//    private static void writeConstantMapInfo(DataOutputStream dataOutStream, List<KeyValueInfo> recordKeyValueInfo)
+//            throws IOException {
+//        dataOutStream.writeInt(recordKeyValueInfo.size());
+//        for (KeyValueInfo keyValueInfo : recordKeyValueInfo) {
+//            dataOutStream.writeBoolean(keyValueInfo.isTerminal);
+//
+//            dataOutStream.writeInt(keyValueInfo.keyCPIndex);
+//            dataOutStream.writeInt(keyValueInfo.originalKeyCPIndex);
+//            dataOutStream.writeInt(keyValueInfo.keyTypeDescCPIndex);
+//            dataOutStream.writeInt(keyValueInfo.keyTypeDescTag);
+//
+//            dataOutStream.writeInt(keyValueInfo.valueCPIndex);
+//            dataOutStream.writeInt(keyValueInfo.originalValueCPIndex);
+//            dataOutStream.writeInt(keyValueInfo.valueTypeDescCPIndex);
+//            dataOutStream.writeInt(keyValueInfo.valueTypeDescTag);
+//
+//            if (!keyValueInfo.isTerminal) {
+//                writeConstantMapInfo(dataOutStream, keyValueInfo.children);
+//            }
+//        }
+//    }
 
     private static void writeGlobalVarInfoEntries(DataOutputStream dataOutStream,
                                                   PackageVarInfo[] packageVarInfoEntry) throws IOException {

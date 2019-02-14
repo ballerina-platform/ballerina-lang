@@ -31,6 +31,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ConstantValueResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -250,6 +251,8 @@ public class Desugar extends BLangNodeVisitor {
     private SiddhiQueryBuilder siddhiQueryBuilder;
     private ServiceDesugar serviceDesugar;
 
+    private ConstantValueResolver constantValueResolver;
+
     private BLangNode result;
 
     private BLangStatementLink currentLink;
@@ -289,6 +292,7 @@ public class Desugar extends BLangNodeVisitor {
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
         this.serviceDesugar = ServiceDesugar.getInstance(context);
+        this.constantValueResolver =  ConstantValueResolver.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -1921,6 +1925,9 @@ public class Desugar extends BLangNodeVisitor {
                     literal.keyValuePairs.addAll(((BLangRecordLiteral) symbol.literalValue).keyValuePairs);
                     literal.type = symbol.literalValueType;
                     result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
+
+//                    result =  constantValueResolver.getValue(, );
+
                     return;
                 } else {
                     // We need to get a copy of the literal value and set it as the result. Otherwise there will be
@@ -1997,6 +2004,18 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
         } else if (varRefType.tag == TypeTags.MAP) {
+            if(fieldAccessExpr.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR){
+                BLangMapLiteral mapLiteral = (BLangMapLiteral) fieldAccessExpr.getExpression();
+                if (mapLiteral.isConst) {
+
+                    BLangLiteral value = constantValueResolver.getValue(fieldAccessExpr.field, mapLiteral);
+                    if (value == null) {
+                        // Todo - Error
+                    }
+                    result = value;
+                    return;
+                }
+            }
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
                     stringLit);
         } else if (varRefType.tag == TypeTags.JSON) {

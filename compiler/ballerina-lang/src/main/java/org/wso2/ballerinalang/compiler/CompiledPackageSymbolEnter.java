@@ -687,7 +687,6 @@ public class CompiledPackageSymbolEnter {
             int originalKeyCPIndex = dataInStream.readInt();
             int keyTypeDescCPIndex = dataInStream.readInt();
             int keyTypeDescTag = dataInStream.readInt();
-
             int valueCPIndex = dataInStream.readInt();
             int originalValueCPIndex = dataInStream.readInt();
             int valueTypeDescCPIndex = dataInStream.readInt();

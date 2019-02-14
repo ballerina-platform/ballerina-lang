@@ -2746,8 +2746,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 // Do nothing
                 break;
             default:
-                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS,
-                        varRefType);
+//                if (fieldAccessExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+//                    if (((BLangSimpleVarRef) fieldAccessExpr.expr).symbol.tag == SymTag.CONSTANT) {
+//                        // Todo - add comment
+//                        break;
+//                    }
+//                }
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
         }
 
         return actualType;

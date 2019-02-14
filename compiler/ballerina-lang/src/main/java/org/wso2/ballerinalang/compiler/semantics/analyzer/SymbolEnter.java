@@ -1011,6 +1011,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
             }
 
+            constant.symbol.type = constant.symbol.literalValueType;
+
             if (!isAllowedConstantType(constant.symbol, constant.typeNode)) {
                 // Constant might not have a typeNode.
                 if (constant.typeNode != null) {
