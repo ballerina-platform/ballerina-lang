@@ -39,7 +39,7 @@ public interface RefValue {
 
     void stamp(BType type);
 
-    Object copy(Map<RefValue, RefValue> refs);
+    Object copy(Map<Object, Object> refs);
 
     /**
      * Method to retrieve if the {@link RefValue} is frozen, if applicable. Compile time checks ensure

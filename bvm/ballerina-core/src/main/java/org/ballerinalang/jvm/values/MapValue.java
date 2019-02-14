@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.JsonGenerator;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.BField;
@@ -25,7 +26,6 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
-import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -277,7 +277,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object copy(Map<RefValue, RefValue> refs) {
+    public Object copy(Map<Object, Object> refs) {
         readLock.lock();
         try {
             if (isFrozen()) {
@@ -330,8 +330,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JsonGenerator gen = new JsonGenerator(byteOut);
         try {
-            // TODO
-            // gen.serialize(this);
+            gen.serialize(this);
             gen.flush();
         } catch (IOException e) {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);

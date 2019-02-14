@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.BArrayType;
@@ -37,7 +38,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
-import org.ballerinalang.model.values.BValueArray;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -109,7 +109,7 @@ public class TypeChecker {
 
     // Private methods
 
-    private static BType getType(Object value) {
+    public static BType getType(Object value) {
         if (value == null) {
             return BTypes.typeNull;
         } else if (value instanceof Long) {
@@ -582,11 +582,11 @@ public class TypeChecker {
 
     private static boolean checkIsLikeTupleType(Object sourceValue, BTupleType targetType,
                                                 List<TypeValuePair> unresolvedValues) {
-        if (!(sourceValue instanceof BValueArray)) {
+        if (!(sourceValue instanceof ArrayValue)) {
             return false;
         }
 
-        BValueArray source = (BValueArray) sourceValue;
+        ArrayValue source = (ArrayValue) sourceValue;
         if (source.size() != targetType.getTupleTypes().size()) {
             return false;
         }
@@ -612,18 +612,18 @@ public class TypeChecker {
 
     private static boolean checkIsLikeArrayType(Object sourceValue, BArrayType targetType,
                                                 List<TypeValuePair> unresolvedValues) {
-        if (!(sourceValue instanceof BValueArray)) {
+        if (!(sourceValue instanceof ArrayValue)) {
             return false;
         }
 
-        BValueArray source = (BValueArray) sourceValue;
+        ArrayValue source = (ArrayValue) sourceValue;
         if (BTypes.isValueType(source.elementType)) {
             return checkIsType(source.elementType, targetType.getElementType(), new ArrayList<>());
         }
 
         BType arrayElementType = targetType.getElementType();
         Object[] arrayValues = source.getValues();
-        for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
+        for (int i = 0; i < ((ArrayValue) sourceValue).size(); i++) {
             if (!checkIsLikeType(arrayValues[i], arrayElementType, unresolvedValues)) {
                 return false;
             }
@@ -648,13 +648,13 @@ public class TypeChecker {
     private static boolean checkIsLikeJSONType(Object sourceValue, BType sourceType, BJSONType targetType,
                                                List<TypeValuePair> unresolvedValues) {
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            BValueArray source = (BValueArray) sourceValue;
+            ArrayValue source = (ArrayValue) sourceValue;
             if (BTypes.isValueType(source.elementType)) {
                 return checkIsType(source.elementType, targetType, new ArrayList<>());
             }
 
             Object[] arrayValues = source.getValues();
-            for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
+            for (int i = 0; i < ((ArrayValue) sourceValue).size(); i++) {
                 if (!checkIsLikeType(arrayValues[i], targetType, unresolvedValues)) {
                     return false;
                 }
