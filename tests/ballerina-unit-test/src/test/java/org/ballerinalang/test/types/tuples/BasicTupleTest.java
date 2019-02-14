@@ -145,11 +145,18 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, 7, "tuple index out of range: index: '-1', size: '3'", 54, 14);
         BAssertUtil.validateError(resultNegative, 8, "tuple index out of range: index: '3', size: '3'", 55, 14);
         BAssertUtil.validateError(resultNegative, 9, "incompatible types: expected 'int', found 'string'", 57, 16);
-        BAssertUtil.validateError(resultNegative, 10,
-                "incompatible types: expected 'string|boolean|int', found 'float'", 63, 20);
+        BAssertUtil.validateError(resultNegative, 10, "incompatible types: expected 'int', found 'string'", 63, 24);
         BAssertUtil.validateError(resultNegative, 11,
-                "incompatible types: expected 'string', found 'string|boolean|int'", 64, 16);
+                "incompatible types: expected 'string|boolean|int', found 'float'", 69, 20);
         BAssertUtil.validateError(resultNegative, 12,
-                "incompatible types: expected 'string|boolean', found 'string|boolean|int'", 65, 24);
+                "incompatible types: expected 'string', found 'string|boolean|int'", 70, 16);
+        BAssertUtil.validateError(resultNegative, 13,
+                "incompatible types: expected 'string|boolean', found 'string|boolean|int'", 71, 24);
+        BAssertUtil.validateError(resultNegative, 14,
+                "invalid index expression: invalid finite type value space 'S1|S2'", 83, 19);
+        BAssertUtil.validateError(resultNegative, 15,
+                "invalid index expression: invalid finite type value space '3|4|5'", 84, 19);
+        BAssertUtil.validateError(resultNegative, 16,
+                "invalid index expression: invalid finite type value space '0|1|2|S1'", 85, 19);
     }
 }

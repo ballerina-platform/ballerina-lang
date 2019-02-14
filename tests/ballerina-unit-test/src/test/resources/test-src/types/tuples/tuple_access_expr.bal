@@ -204,3 +204,46 @@ function testTupleAccessToAnyAndAnydata() returns string {
     }
     return result;
 }
+
+type Bar record {
+    string fieldOne;
+    !...;
+};
+
+type FiniteOne 0|1|2;
+
+function testTupleAccessUsingFiniteType() returns string {
+    (string, boolean, Bar, float) tuple = ("string", true, { fieldOne: "string" }, 1.1);
+    FiniteOne index0 = 0;
+    FiniteOne index1 = 1;
+    FiniteOne index2 = 2;
+
+    string|boolean|Bar f1 = tuple[index0];
+    var f2 = tuple[index1];
+    string|boolean|Bar f3 = tuple[index2];
+
+    string result = "";
+    if f1 is string {
+        result += f1;
+    }
+    if f2 is boolean {
+        result += io:sprintf("%s", f2);
+    }
+    if f3 is Bar {
+        result += f3.fieldOne;
+    }
+    return result;
+}
+
+type FiniteTwo 0|1|4;
+
+function testTupleAccessUsingFiniteTypeNegative() returns string {
+    (string, boolean, Bar, float) tuple = ("string", true, { fieldOne: "string" }, 1.1);
+    FiniteTwo index0 = 0;
+    FiniteTwo index1 = 4;
+
+    string|boolean f1 = tuple[index0];
+    var f2 = tuple[index1];
+
+    return "";
+}
