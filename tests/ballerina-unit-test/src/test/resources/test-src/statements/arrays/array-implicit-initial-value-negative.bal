@@ -149,3 +149,5 @@ FT[2] finiteTypeArraySealed = [1,2];
 FandF[]|FTUnion[] unionOfArrays = [2.4];
 
 (anydata|error)[] anyOrErrorList = [];
+
+anydata[] anyDataArray = [];

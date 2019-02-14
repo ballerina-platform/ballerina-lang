@@ -122,6 +122,11 @@ function testImplicitInitialValuesBroken() {
     Union[] unionArray2 = [];
     unionArray2[1] = 2;
     test:assertEquals(unionArray2[0], (), msg = "expected implicit initial value of this union should be 0");
+
+    QuxObject[] objArray = [];
+    objArray[1] = new QuxObject();
+    test:assertEquals(objArray[0], (), msg = "expected implicit initial value of QuxObject " +
+        "should be '{fooFieldOne:\"init value\"}'");
 }
 
 public type QuuzRecord record {
@@ -132,4 +137,16 @@ public type QuuzRecord record {
 public type QuuxRecord record {
     string quuxFieldOne;
     !...;
+};
+
+public type QuxObject object {
+    public string fooFieldOne;
+
+    public function __init() {
+        self.fooFieldOne = "init value";
+    }
+
+    public function getFooFieldOne() returns string {
+        return self.fooFieldOne;
+    }
 };
