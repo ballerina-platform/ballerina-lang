@@ -46,9 +46,9 @@ import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-
 /**
  * Represent an array in ballerina.
+ * 
  * @since 0.995.0
  */
 public class ArrayValue implements RefValue {
@@ -378,7 +378,6 @@ public class ArrayValue implements RefValue {
         return byteValues.clone();
     }
 
-    @SuppressWarnings("unchecked")
     public String[] getStringArray() {
         return stringValues;
     }
@@ -465,8 +464,8 @@ public class ArrayValue implements RefValue {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JsonGenerator gen = new JsonGenerator(byteOut);
         try {
-//            TODO
-//            gen.serialize(this);
+            // TODO
+            // gen.serialize(this);
             gen.flush();
         } catch (IOException e) {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
@@ -492,7 +491,6 @@ public class ArrayValue implements RefValue {
             }
         }
     }
-
 
     protected void prepareForAdd(long index, int currentArraySize) {
         int intIndex = (int) index;

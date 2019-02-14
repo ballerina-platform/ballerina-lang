@@ -64,7 +64,6 @@ function getMainFunc(bir:Function[] funcs) returns bir:Function? {
     return userMainFunc;
 }
 
-
 function generateMethodDesc(bir:Function func) {
     currentFuncName = untaint func.name.value;
     string desc = getMethodDesc(func);
@@ -622,7 +621,6 @@ function arrayEq(byte[] x, byte[] y) returns boolean {
     return true;
 }
 
-
 function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
     if (indexMap.getIndex(varDcl) == -1) {
         indexMap.add(varDcl);
@@ -630,9 +628,8 @@ function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
     return indexMap.getIndex(varDcl);
 }
 
-
 function generateMainMethod(bir:Function userMainFunc) {
-    jvm:visitMethodInit(ACC_PUBLIC, "__main", "([Lorg/ballerinalang/model/values/BValue;)V");
+    jvm:visitMethodInit(ACC_PUBLIC, "__main", io:sprintf("([L%s;)V", BVALUE));
     string desc = getMethodDesc(userMainFunc);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
 
@@ -645,6 +642,10 @@ function generateMainMethod(bir:Function userMainFunc) {
 
     // invoke the user's main method
     jvm:visitMethodInstruction(INVOKESTATIC, className, "main", desc, false);
+
+    // TODO: remove. just for testing purpose
+    visitMapLiteral(paramIndex);
+    print(paramIndex);
 
     jvm:visitNoOperandInstruction(RETURN);
     jvm:visitMaxStackValues(paramTypes.length() + 5, 10);
@@ -660,13 +661,14 @@ function generateCast(int paramIndex, bir:BType targetType) {
     jvm:visitNoOperandInstruction(L2I);
     jvm:visitNoOperandInstruction(AALOAD);
 
-    jvm:visitTypeInstruction(CHECKCAST, "org/ballerinalang/model/values/BValueType");
+    jvm:visitTypeInstruction(CHECKCAST, BVALUE_TYPE);
     if (targetType is bir:BTypeInt) {
-        jvm:visitMethodInstruction(INVOKEVIRTUAL, "org/ballerinalang/model/values/BValueType", "intValue", "()J", false);
+        jvm:visitMethodInstruction(INVOKEVIRTUAL, BVALUE_TYPE, "intValue", "()J", false);
     } else if (targetType is bir:BTypeString) {
-        jvm:visitMethodInstruction(INVOKEVIRTUAL, "org/ballerinalang/model/values/BValueType", "stringValue", "()Ljava/lang/String;", false);
+        jvm:visitMethodInstruction(INVOKEVIRTUAL, BVALUE_TYPE, "stringValue", 
+            io:sprintf("()L%s;", STRING_VALUE), false);
     } else if (targetType is bir:BTypeBoolean) {
-        jvm:visitMethodInstruction(INVOKEVIRTUAL, "org/ballerinalang/model/values/BValueType", "booleanValue", "()Z", false);
+        jvm:visitMethodInstruction(INVOKEVIRTUAL, BVALUE_TYPE, "booleanValue", "()Z", false);
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
         panic err;
@@ -674,12 +676,12 @@ function generateCast(int paramIndex, bir:BType targetType) {
 }
 
 function generateGetParamsMethod(bir:Function mainFunc) {
-    jvm:visitMethodInit(ACC_PUBLIC, "__getMainFuncParams", "()[Lorg/ballerinalang/model/types/BType;");
+    jvm:visitMethodInit(ACC_PUBLIC, "__getMainFuncParams", io:sprintf("()[L%s;", BTYPE));
 
     bir:BType[] paramTypes = mainFunc.typeValue.paramTypes;
     jvm:visitLoadConstantInstruction(paramTypes.length());
     jvm:visitNoOperandInstruction(L2I);
-    jvm:visitTypeInstruction(ANEWARRAY, "org/ballerinalang/model/types/BType");
+    jvm:visitTypeInstruction(ANEWARRAY, BTYPE);
     jvm:visitVariableInstruction(ASTORE, 1);
 
     int i = 0;
@@ -689,8 +691,7 @@ function generateGetParamsMethod(bir:Function mainFunc) {
         jvm:visitNoOperandInstruction(L2I);
 
         string typeFieldName = getBType(paramType);
-        jvm:visitFieldInstruction(GETSTATIC, "org/ballerinalang/model/types/BTypes", typeFieldName, 
-                "Lorg/ballerinalang/model/types/BType;");
+        jvm:visitFieldInstruction(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
         jvm:visitNoOperandInstruction(AASTORE);
         i += 1;
     }
@@ -712,6 +713,58 @@ function getBType(bir:BType bType) returns string {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
     }
+}
+
+function visitMapNewIns() {
+    jvm:visitTypeInstruction(NEW, MAP_VALUE);
+    jvm:visitNoOperandInstruction(DUP);
+    jvm:visitMethodInstruction(INVOKESPECIAL, MAP_VALUE, "<init>", "()V", false);
+}
+
+function visitMapStoreIns() {
+    // TODO: visit(var_ref)
+    // TODO: visit(key_expr)
+    // TODO: visit(value_expr)
+    jvm:visitMethodInstruction(INVOKEVIRTUAL, MAP_VALUE, "put",
+        io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE), false);
+
+    // emit a pop, since we are not using the return value from the map.put()
+    jvm:visitNoOperandInstruction(POP);
+}
+
+function valueTypeToAny(bir:BType bType) {
+    if (bType is bir:BTypeInt) {
+        jvm:visitMethodInstruction(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
+    } else {
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
+        panic err;
+    }
+}
+
+# TODO: This if a function added for testing. should be removed
+#
+# + regIndex - target reg index of the created map
+function visitMapLiteral(int regIndex) {
+    map<int> m = { "apples" : 10, "organges" : 20, "grapes" : 30};
+
+    visitMapNewIns();
+    jvm:visitVariableInstruction(ASTORE, regIndex);
+
+    foreach var item in m {
+        jvm:visitVariableInstruction(ALOAD, regIndex);
+        jvm:visitLoadConstantInstruction(item[0]);
+        jvm:visitLoadConstantInstruction(item[1]);
+        valueTypeToAny("int");
+        visitMapStoreIns();
+    }
+}
+
+# Print the ref-value in the given reg index.
+# TODO: This if a function added for testing. should be removed
+function print(int regIndex) {
+    jvm:visitFieldInstruction(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+    jvm:visitVariableInstruction(ALOAD, regIndex);
+    jvm:visitMethodInstruction(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
 }
 
 type BalToJVMIndexMap object {

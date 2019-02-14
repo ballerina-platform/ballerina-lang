@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JsonGenerator;
@@ -65,6 +66,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     public MapValue() {
         super();
+        type = BTypes.typeMap;
     }
 
     /**
@@ -91,7 +93,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
      * @param except flag indicating whether to throw an exception if the key does not exists
      * @return value associated with the key
      */
-    public Object get(String key, boolean except) {
+    public V get(Object key, boolean except) {
         readLock.lock();
         try {
             if (except && !containsKey(key)) {
