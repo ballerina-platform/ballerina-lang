@@ -26,7 +26,7 @@ service echoServer on server {
     }
 
     resource function onReadReady(socket:Caller caller) {
-        var result = caller->read(lenght = 6);
+        var result = caller->read();
         if (result is (byte[], int)) {
             var (content, length) = result;
             if (length > 0) {
@@ -35,7 +35,7 @@ service echoServer on server {
             } else {
                 io:println("Client close: ", caller.remotePort);
             }
-        } else if (result is error) {
+        } else {
             io:println(result);
         }
     }

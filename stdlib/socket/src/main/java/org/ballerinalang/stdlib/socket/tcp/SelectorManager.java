@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.socket.tcp;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
@@ -29,10 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -47,8 +51,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_READ_LENGTH;
+import static java.nio.channels.SelectionKey.OP_READ;
 
 /**
  * This will manage the Selector instance and handle the accept, read and write operations.
@@ -150,8 +154,7 @@ public class SelectorManager {
             try {
                 registerChannels();
                 invokeReadReadyResources();
-                final int select = selector.select();
-                if (select == 0) {
+                if (selector.select() == 0) {
                     continue;
                 }
                 Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
@@ -251,55 +254,22 @@ public class SelectorManager {
         invokeRead(key.channel().hashCode());
     }
 
+    /**
+     * Perform the read operation for the give socket. This will either read data from the socket channel or dispatch
+     * to the onReadReady resource if resource's lock available.
+     *
+     * @param socketHashId socket hash id
+     */
     public void invokeRead(int socketHashId) {
         // Check whether is there any caller->read pending action and read ready socket.
         if (ReadPendingSocketMap.getInstance().isPending(socketHashId)) {
-            if (ReadReadySocketMap.getInstance().isReadReady(socketHashId)) {
-                // Read ready socket available.
-                SocketReader socketReader = ReadReadySocketMap.getInstance().remove(socketHashId);
-                ReadPendingCallback callback = ReadPendingSocketMap.getInstance().remove(socketHashId);
-                SocketChannel socketChannel = (SocketChannel) socketReader.getSocketService().getSocketChannel();
-                ByteBuffer buffer;
-                try {
-                    if (callback.getExpectedLength() == DEFAULT_EXPECTED_READ_LENGTH) {
-                        buffer = ByteBuffer.allocate(socketChannel.socket().getReceiveBufferSize());
-                    } else {
-                        int newBufferSize = callback.getExpectedLength() - callback.getCurrentLength();
-                        buffer = ByteBuffer.allocate(newBufferSize);
-                    }
-                    int read = socketChannel.read(buffer);
-                    if (read < 0) {
-                        SelectorManager.getInstance().unRegisterChannel(socketChannel);
-                    } else {
-                        callback.updateCurrentLength(read);
-                        // Re-register for read ready events.
-                        socketReader.getSelectionKey().interestOps(SelectionKey.OP_READ);
-//                        selector.wakeup();
-                        if (callback.getBuffer() == null) {
-                            callback.setBuffer(ByteBuffer.allocate(buffer.capacity()));
-                        }
-                        buffer.flip();
-                        callback.getBuffer().put(buffer);
-                        if (callback.getExpectedLength() != DEFAULT_EXPECTED_READ_LENGTH
-                                && callback.getExpectedLength() != callback.getCurrentLength()) {
-                            ReadPendingSocketMap.getInstance().add(socketChannel.hashCode(), callback);
-                            invokeRead(socketChannel.hashCode());
-                            return;
-                        }
-                    }
-                    byte[] bytes = SocketUtils
-                            .getByteArrayFromByteBuffer(callback.getBuffer() == null ? buffer : callback.getBuffer());
-                    BValueArray contentTuple = new BValueArray(readTupleType);
-                    contentTuple.add(0, new BValueArray(bytes));
-                    contentTuple.add(1, new BInteger(callback.getCurrentLength()));
-                    callback.getContext().setReturnValues(contentTuple);
-                    callback.getCallback().notifySuccess();
-                } catch (IOException e) {
-                    callback.getContext()
-                            .setReturnValues(SocketUtils.createSocketError(callback.getContext(), e.getMessage()));
-                    callback.getCallback().notifySuccess();
-                } catch (Throwable e) {
-                    e.printStackTrace();
+            // Lock on SocketReader instance. This instance hold the selector's selection key.
+            // This method can be invoke from both read action and from selector side. To prevent
+            // that need to synchronized.
+            synchronized (ReadReadySocketMap.getInstance().get(socketHashId)) {
+                if (ReadReadySocketMap.getInstance().isReadReady(socketHashId)) {
+                    // Read ready socket available.
+                    read(socketHashId);
                 }
             }
             // If read pending socket not available then do nothing. Above will invoke once read ready socket connect.
@@ -308,6 +278,76 @@ public class SelectorManager {
             final SocketReader socketReader = ReadReadySocketMap.getInstance().get(socketHashId);
             invokeReadReadyResource(socketReader.getSocketService());
         }
+    }
+
+    private void read(int socketHashId) {
+        SocketReader socketReader = ReadReadySocketMap.getInstance().remove(socketHashId);
+        ReadPendingCallback callback = ReadPendingSocketMap.getInstance().remove(socketHashId);
+        SocketChannel socketChannel = (SocketChannel) socketReader.getSocketService().getSocketChannel();
+        ByteBuffer buffer;
+        try {
+            buffer = createBuffer(callback, socketChannel);
+            int read = socketChannel.read(buffer);
+            if (read < 0) {
+                SelectorManager.getInstance().unRegisterChannel(socketChannel);
+            } else {
+                callback.updateCurrentLength(read);
+                // Re-register for read ready events.
+                socketReader.getSelectionKey().interestOps(SelectionKey.OP_READ);
+                if (callback.getBuffer() == null) {
+                    callback.setBuffer(ByteBuffer.allocate(buffer.capacity()));
+                }
+                buffer.flip();
+                callback.getBuffer().put(buffer);
+                if (callback.getExpectedLength() != DEFAULT_EXPECTED_READ_LENGTH
+                        && callback.getExpectedLength() != callback.getCurrentLength()) {
+                    ReadPendingSocketMap.getInstance().add(socketChannel.hashCode(), callback);
+                    invokeRead(socketChannel.hashCode());
+                    return;
+                }
+            }
+            byte[] bytes = SocketUtils
+                    .getByteArrayFromByteBuffer(callback.getBuffer() == null ? buffer : callback.getBuffer());
+            callback.getContext().setReturnValues(createReturnValue(callback, bytes));
+            callback.getCallback().notifySuccess();
+        } catch (NotYetConnectedException e) {
+            BError socketError = SocketUtils.createSocketError(callback.getContext(), "Connection not yet connected");
+            callback.getContext().setReturnValues(socketError);
+            callback.getCallback().notifySuccess();
+        } catch (CancelledKeyException | ClosedChannelException e) {
+            BError socketError = SocketUtils.createSocketError(callback.getContext(), "Connection closed");
+            callback.getContext().setReturnValues(socketError);
+            callback.getCallback().notifySuccess();
+        } catch (IOException e) {
+            log.error("Error while read.", e);
+            BError socketError = SocketUtils.createSocketError(callback.getContext(), e.getMessage());
+            callback.getContext().setReturnValues(socketError);
+            callback.getCallback().notifySuccess();
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
+            BError socketError = SocketUtils.createSocketError(callback.getContext(), "Error while on read operation");
+            callback.getContext().setReturnValues(socketError);
+            callback.getCallback().notifyFailure(socketError);
+        }
+    }
+
+    private BValueArray createReturnValue(ReadPendingCallback callback, byte[] bytes) {
+        BValueArray contentTuple = new BValueArray(readTupleType);
+        contentTuple.add(0, new BValueArray(bytes));
+        contentTuple.add(1, new BInteger(callback.getCurrentLength()));
+        return contentTuple;
+    }
+
+    private ByteBuffer createBuffer(ReadPendingCallback callback, SocketChannel socketChannel) throws SocketException {
+        ByteBuffer buffer;
+        // If length not specify in the read action then create a byte buffer to match the size of the receiver buffer.
+        if (callback.getExpectedLength() == DEFAULT_EXPECTED_READ_LENGTH) {
+            buffer = ByteBuffer.allocate(socketChannel.socket().getReceiveBufferSize());
+        } else {
+            int newBufferSize = callback.getExpectedLength() - callback.getCurrentLength();
+            buffer = ByteBuffer.allocate(newBufferSize);
+        }
+        return buffer;
     }
 
     private void invokeReadReadyResource(SocketService socketService) {

@@ -24,7 +24,9 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import java.nio.ByteBuffer;
 
 /**
- * Hello.
+ * This will hold information related to the pending read actions.
+ *
+ * @since 0.995.0
  */
 public class ReadPendingCallback {
 

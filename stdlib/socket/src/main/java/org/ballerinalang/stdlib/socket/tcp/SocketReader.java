@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.socket.tcp;
 import java.nio.channels.SelectionKey;
 
 /**
+ * This will hold the {@link SocketService} and the selector's selection key to assist the read action.
+ * Selection key needs to control the read interest.
+ *
  * @since 0.995.0
  */
 public class SocketReader {

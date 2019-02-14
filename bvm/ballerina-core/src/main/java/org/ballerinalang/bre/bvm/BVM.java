@@ -171,6 +171,10 @@ public class BVM {
      * @param strand to be executed
      */
     static void execute(Strand strand) {
+        if (strand.getError() != null) {
+            handleError(strand);
+            return;
+        }
         int i, j, k, l;
         int cpIndex;
         FunctionCallCPEntry funcCallCPEntry;

@@ -60,9 +60,9 @@ public type Client client object {
     # or currently available data in the buffer.
     # Number of bytes returned will be < 0 if the client closes the connection.
     #
-    # + lenght - - Positive integer. Represents the number of bytes which should be read
+    # + length - - Positive integer. Represents the number of bytes which should be read
     # + return - - Content as byte array and the number of bytes read or an error if encounters an error while reading
-    public remote extern function read(int lenght = -100) returns (byte[], int)|error;
+    public remote extern function read(int length = -100) returns (byte[], int)|error;
 
     # Closes the client socket connection.
     #

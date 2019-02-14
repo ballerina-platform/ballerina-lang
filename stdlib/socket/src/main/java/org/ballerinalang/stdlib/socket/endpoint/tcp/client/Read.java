@@ -30,12 +30,14 @@ import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.ReadPendingCallback;
 import org.ballerinalang.stdlib.socket.tcp.ReadPendingSocketMap;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
+import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.channels.SocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_READ_LENGTH;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -57,6 +59,11 @@ public class Read implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
         int expectedLength = (int) context.getIntArgument(0);
+        if (expectedLength != DEFAULT_EXPECTED_READ_LENGTH && expectedLength < 1) {
+            String msg = "Requested byte length need to be 1 or more";
+            callback.notifyFailure(SocketUtils.createSocketError(context, msg));
+            return;
+        }
         SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
         final ReadPendingCallback readPendingCallback = new ReadPendingCallback(context, callback, expectedLength);
         ReadPendingSocketMap.getInstance().add(socketChannel.hashCode(), readPendingCallback);

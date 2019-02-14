@@ -40,19 +40,14 @@ public class TCPSocketReadCallback extends TCPSocketCallback {
 
     @Override
     public void notifySuccess() {
-        invokePendingReadReady();
+        // Exiting from the resource, so no more further caller->read statements. Release the resource lock.
+        socketService.getResourceLock().release();
+        SelectorManager.getInstance().invokePendingReadReadyResources(socketService.getSocketChannel().hashCode());
         log.debug("Socket resource dispatch succeed.");
     }
 
     @Override
     public void notifyFailure(BError error) {
-        invokePendingReadReady();
         super.notifyFailure(error);
-    }
-
-    private void invokePendingReadReady() {
-        // Exiting from the resource, so no more further caller->read statements. Release the resource lock.
-        socketService.getResourceLock().release();
-        SelectorManager.getInstance().invokePendingReadReadyResources(socketService.getSocketChannel().hashCode());
     }
 }
