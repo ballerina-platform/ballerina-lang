@@ -21,14 +21,14 @@ package org.wso2.transport.http.netty.message;
 /**
  * Allows listeners to register and get notified.
  */
-public interface FullHttpRequestFuture {
+public interface FullHttpMessageFuture {
 
     /**
      * Set listener interested for complete {@link HttpCarbonMessage}.
      *
      * @param listener for message
      */
-    void addListener(FullHttpRequestListener listener);
+    void addListener(FullHttpMessageListener listener);
 
     /**
      * Remove listener from the future.

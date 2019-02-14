@@ -19,20 +19,20 @@
 package org.wso2.transport.http.netty.message;
 
 /**
- * Default implementation of the {@link FullHttpRequestFuture}.
+ * Default implementation of the {@link FullHttpMessageFuture}.
  */
-public class DefaultFullHttpRequestFuture implements FullHttpRequestFuture {
+public class DefaultFullHttpMessageFuture implements FullHttpMessageFuture {
 
     private HttpCarbonMessage httpCarbonMessage;
-    private FullHttpRequestListener messageListener;
+    private FullHttpMessageListener messageListener;
     private Exception error;
 
-    DefaultFullHttpRequestFuture(HttpCarbonMessage httpCarbonMessage) {
+    DefaultFullHttpMessageFuture(HttpCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
     }
 
     @Override
-    public void addListener(FullHttpRequestListener messageListener) {
+    public synchronized void addListener(FullHttpMessageListener messageListener) {
         this.messageListener = messageListener;
         if (httpCarbonMessage.isLastHttpContentArrived()) {
             notifySuccess();
@@ -42,25 +42,25 @@ public class DefaultFullHttpRequestFuture implements FullHttpRequestFuture {
     }
 
     @Override
-    public void removeListener() {
+    public synchronized void removeListener() {
         messageListener = null;
     }
 
     @Override
-    public void notifySuccess() {
-        if (messageListener != null) {
-            messageListener.onComplete();
-            removeListener();
-        }
+    public synchronized void notifySuccess() {
+            if (messageListener != null) {
+                messageListener.onComplete();
+                removeListener();
+            }
     }
 
     @Override
-    public void notifyFailure(Exception error) {
-        this.error = error;
-        if (messageListener != null) {
-            messageListener.onError(error);
-            this.error = null;
-            removeListener();
-        }
+    public synchronized void notifyFailure(Exception error) {
+            this.error = error;
+            if (messageListener != null) {
+                messageListener.onError(error);
+                this.error = null;
+                removeListener();
+            }
     }
 }

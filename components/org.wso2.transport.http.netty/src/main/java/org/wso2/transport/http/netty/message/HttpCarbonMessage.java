@@ -61,7 +61,7 @@ public class HttpCarbonMessage {
     private IOException ioException;
     private MessageStateContext httpMessageStateContext;
     private Http2MessageStateContext http2MessageStateContext;
-    private FullHttpRequestFuture fullHttpRequestFuture;
+    private FullHttpMessageFuture fullHttpMessageFuture;
 
     private long sequenceId; //Keep track of request/response order
     private ChannelHandlerContext sourceContext;
@@ -508,21 +508,25 @@ public class HttpCarbonMessage {
     }
 
     /**
-     * Returns the {@link FullHttpRequestFuture} which notifies {@link FullHttpRequestListener} when the complete
+     * Returns the {@link FullHttpMessageFuture} which notifies {@link FullHttpMessageListener} when the complete
      * content of the {@link HttpCarbonMessage} is accumulated.
      *
-     * @return the default implementation of the {@link FullHttpRequestFuture}.
+     * @return the default implementation of the {@link FullHttpMessageFuture}.
      */
-    public FullHttpRequestFuture getFullHttpCarbonMessage() {
+    public FullHttpMessageFuture getFullHttpCarbonMessage() {
         contentObservable.removeListener();
-        fullHttpRequestFuture = new DefaultFullHttpRequestFuture(this);
-        return fullHttpRequestFuture;
+        fullHttpMessageFuture = new DefaultFullHttpMessageFuture(this);
+        return fullHttpMessageFuture;
     }
 
+    /**
+     * Sets the lastHttpContentArrived flag true upon the last HTTP content arrival and notifies the
+     * {@link FullHttpMessageFuture} if available.
+     */
     public void setLastHttpContentArrived() {
         this.lastHttpContentArrived = true;
-        if (fullHttpRequestFuture != null) {
-            fullHttpRequestFuture.notifySuccess();
+        if (fullHttpMessageFuture != null) {
+            fullHttpMessageFuture.notifySuccess();
         }
     }
 
@@ -530,9 +534,14 @@ public class HttpCarbonMessage {
         return lastHttpContentArrived;
     }
 
-    public void notifyContentFailure(Exception ex) {
-        if (fullHttpRequestFuture != null) {
-            fullHttpRequestFuture.notifyFailure(ex);
+    /**
+     * Notifies {@link FullHttpMessageListener} if the content accumulation fails.
+     *
+     * @param exception of content accumulation
+     */
+    public void notifyContentFailure(Exception exception) {
+        if (fullHttpMessageFuture != null) {
+            fullHttpMessageFuture.notifyFailure(exception);
         }
     }
 }
