@@ -24,7 +24,7 @@ const EXPECTED_STAMPING_TO_BE_SUCCESSFUL_FAILURE_MESSAGE = "expected stamping to
 // and use it to create a value that belongs to a type
 @test:Config {}
 function testLooksLikeArray() {
-    (int|boolean)[] a = [true, false, false];
+    (int|boolean)[3] a = [true, false, false];
     var result1 = boolean[].stamp(a);
     test:assertTrue(result1 is boolean[], msg = EXPECTED_STAMPING_TO_BE_SUCCESSFUL_FAILURE_MESSAGE);
 }

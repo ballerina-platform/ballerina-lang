@@ -37,28 +37,3 @@ const int length = 3;
 //    string[!...] array3 = ["a", "b", "c"];
 //    test:assertEquals(array2, array3, msg = "expected fixed length array and implied length array to be equal");
 //}
-
-// The member type of an array type can be any type T (including arrays), provided only that T
-// has an implicit initial value. (When T does not have an implicit initial value, an array of T?
-// may be used instead; see Optional Types.)
-// TODO: Array member type can not be a type which has no implicit initial value
-// https://github.com/ballerina-platform/ballerina-lang/issues/13163
-@test:Config {
-    groups: ["deviation"]
-}
-@test:Config {}
-function testArrayMemberTypesBroken() {
-    QuxObject[] objectArray = []; // This should fail at compile time
-}
-
-public type QuxObject object {
-    public string fooFieldOne;
-
-    public function __init(string fooFieldOne) {
-        self.fooFieldOne = fooFieldOne;
-    }
-
-    public function getFooFieldOne() returns string {
-        return self.fooFieldOne;
-    }
-};

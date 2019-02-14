@@ -149,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -340,14 +341,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (Symbols.isNative(funcNode.symbol)) {
             return;
         }
-        boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
         if (isPublicInvokableNode(funcNode)) {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
-            
+
+            boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
             if (!isNilableReturn && !this.statementReturns) {
@@ -837,9 +838,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                     for (BLangRecordKeyValue literalKeyValue : mapLiteral.keyValuePairs) {
                         String literalKeyName;
-                        if (literalKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        NodeKind nodeKind = literalKeyValue.key.expr.getKind();
+                        if (nodeKind == NodeKind.SIMPLE_VARIABLE_REF) {
                             literalKeyName = ((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value;
-                        } else if (literalKeyValue.key.expr.getKind() == NodeKind.LITERAL) {
+                        } else if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
                             literalKeyName = ((BLangLiteral) literalKeyValue.key.expr).value.toString();
                         } else {
                             return false;
@@ -864,7 +866,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.FINITE:
-                if (literal.getKind() == NodeKind.LITERAL) {
+                if (literal.getKind() == NodeKind.LITERAL || literal.getKind() == NodeKind.NUMERIC_LITERAL) {
                     return types.isAssignableToFiniteType(matchType, (BLangLiteral) literal);
                 }
                 break;
@@ -975,6 +977,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
+        analyzeArrayVariableImplicitInitialValue(varNode);
+
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {
@@ -996,6 +1000,49 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (varNode.expr == null && ownerSymTag == SymTag.PACKAGE) {
             this.dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
+        }
+    }
+
+    private void analyzeArrayVariableImplicitInitialValue(BLangSimpleVariable varNode) {
+        BLangType varTypeNode = varNode.typeNode;
+        if (varTypeNode == null || varTypeNode.type == null) {
+            return;
+        }
+        // Variable is a array def, elements must have implicit initial value.
+        if (varTypeNode.type.tag == TypeTags.ARRAY) {
+            analyzeArrayElemImplicitInitialValue(varTypeNode, varNode.pos);
+        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
+            // Specific handling for T[]|?, typeNode is a BLangArrayType
+            analyzeArrayElemImplicitInitialValue(varNode);
+        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+            // Check each member of the union.
+            for (BLangType memberTypeNode : ((BLangUnionTypeNode) varTypeNode).memberTypeNodes) {
+                analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
+            }
+        }
+    }
+
+    private void analyzeArrayElemImplicitInitialValue(BLangSimpleVariable varNode) {
+        BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
+        if (!types.hasImplicitInitialValue(arrayPart.elemtype.type)) {
+            BLangType eType = arrayPart.elemtype;
+            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+        }
+    }
+
+    private void analyzeArrayElemImplicitInitialValue(BLangType typeNode, DiagnosticPos pos) {
+        if (typeNode.type.tag != TypeTags.ARRAY) {
+            return;
+        }
+        BArrayType arrayType = (BArrayType) typeNode.type;
+
+        if (arrayType.state != BArrayState.UNSEALED) {
+            return;
+        }
+
+        if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
+            BLangType eType = ((BLangArrayType) typeNode).elemtype;
+            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
         }
     }
 
@@ -1291,7 +1338,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
                 names.add(keyRef.variableName.value);
-            } else if (key.getKind() == NodeKind.LITERAL) {
+            } else if (key.getKind() == NodeKind.LITERAL || key.getKind() == NodeKind.NUMERIC_LITERAL) {
                 BLangLiteral keyLiteral = (BLangLiteral) key;
                 if (names.contains(keyLiteral.value)) {
                     String assigneeType = recordLiteral.parent.type.getKind().typeName();
@@ -1334,8 +1381,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        NodeKind nodeKind = indexAccessExpr.indexExpr.getKind();
         if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY &&
-                indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+                (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL)) {
             BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
             BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
             Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage
