@@ -40,12 +40,12 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PoolableTargetChannelFactory.class);
 
-    private EventLoopGroup eventLoopGroup;
-    private Class eventLoopClass;
-    private HttpRoute httpRoute;
-    private SenderConfiguration senderConfiguration;
-    private BootstrapConfiguration bootstrapConfiguration;
-    private ConnectionManager connectionManager;
+    private final EventLoopGroup eventLoopGroup;
+    private final Class eventLoopClass;
+    private final HttpRoute httpRoute;
+    private final SenderConfiguration senderConfiguration;
+    private final BootstrapConfiguration bootstrapConfiguration;
+    private final ConnectionManager connectionManager;
 
     PoolableTargetChannelFactory(EventLoopGroup eventLoopGroup, Class eventLoopClass, HttpRoute httpRoute,
                                         SenderConfiguration senderConfiguration,
@@ -65,11 +65,33 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
                 eventLoopClass, bootstrapConfiguration);
         ConnectionAvailabilityFuture connectionAvailabilityFuture = new ConnectionAvailabilityFuture();
-
         HttpClientChannelInitializer httpClientChannelInitializer = instantiateAndConfigClientInitializer(
                 senderConfiguration, clientBootstrap, httpRoute, connectionManager, connectionAvailabilityFuture);
         clientBootstrap.handler(httpClientChannelInitializer);
 
+        TargetChannel targetChannel = createNewTargetChannel(clientBootstrap, connectionAvailabilityFuture,
+                                                             httpClientChannelInitializer);
+
+        LOG.debug("Created channel: {}", httpRoute);
+
+        return targetChannel;
+    }
+
+    private TargetChannel createNewTargetChannel(Bootstrap clientBootstrap,
+                                                 ConnectionAvailabilityFuture connectionAvailabilityFuture,
+                                                 HttpClientChannelInitializer httpClientChannelInitializer) {
+
+        ChannelFuture channelFuture = connectToRemoteEndpoint(clientBootstrap);
+        connectionAvailabilityFuture.setSocketAvailabilityFuture(channelFuture);
+        connectionAvailabilityFuture.setForceHttp2(senderConfiguration.isForceHttp2());
+
+        TargetChannel targetChannel =
+                new TargetChannel(httpClientChannelInitializer, channelFuture, httpRoute, connectionAvailabilityFuture);
+        httpClientChannelInitializer.setHttp2ClientChannel(targetChannel.getHttp2ClientChannel());
+        return targetChannel;
+    }
+
+    private ChannelFuture connectToRemoteEndpoint(Bootstrap clientBootstrap) {
         // Connect to proxy server if proxy is enabled
         ChannelFuture channelFuture;
         if (senderConfiguration.getProxyServerConfiguration() != null && senderConfiguration.getScheme()
@@ -81,16 +103,31 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         } else {
             channelFuture = clientBootstrap.connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
         }
-        connectionAvailabilityFuture.setSocketAvailabilityFuture(channelFuture);
-        connectionAvailabilityFuture.setForceHttp2(senderConfiguration.isForceHttp2());
+        return channelFuture;
+    }
 
-        TargetChannel targetChannel =
-                new TargetChannel(httpClientChannelInitializer, channelFuture, httpRoute, connectionAvailabilityFuture);
-        httpClientChannelInitializer.setHttp2ClientChannel(targetChannel.getHttp2ClientChannel());
+    private Bootstrap instantiateAndConfigBootStrap(EventLoopGroup eventLoopGroup, Class eventLoopClass,
+                                                    BootstrapConfiguration bootstrapConfiguration) {
+        Bootstrap clientBootstrap = new Bootstrap();
+        clientBootstrap.channel(eventLoopClass);
+        clientBootstrap.group(eventLoopGroup);
+        clientBootstrap.option(ChannelOption.SO_KEEPALIVE, bootstrapConfiguration.isKeepAlive());
+        clientBootstrap.option(ChannelOption.TCP_NODELAY, bootstrapConfiguration.isTcpNoDelay());
+        clientBootstrap.option(ChannelOption.SO_REUSEADDR, bootstrapConfiguration.isSocketReuse());
+        clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, bootstrapConfiguration.getConnectTimeOut());
+        return clientBootstrap;
+    }
 
-        LOG.debug("Created channel: {}", httpRoute);
-
-        return targetChannel;
+    private HttpClientChannelInitializer instantiateAndConfigClientInitializer(
+            SenderConfiguration senderConfiguration, Bootstrap clientBootstrap, HttpRoute httpRoute,
+            ConnectionManager connectionManager, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
+        HttpClientChannelInitializer httpClientChannelInitializer = new HttpClientChannelInitializer(
+                senderConfiguration, httpRoute, connectionManager, connectionAvailabilityFuture);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
+                      httpRoute.getPort(), clientBootstrap);
+        }
+        return httpClientChannelInitializer;
     }
 
     @Override
@@ -123,30 +160,5 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     @Override
     public void passivateObject(Object o) throws Exception {
 
-    }
-
-
-    private Bootstrap instantiateAndConfigBootStrap(EventLoopGroup eventLoopGroup, Class eventLoopClass,
-            BootstrapConfiguration bootstrapConfiguration) {
-        Bootstrap clientBootstrap = new Bootstrap();
-        clientBootstrap.channel(eventLoopClass);
-        clientBootstrap.group(eventLoopGroup);
-        clientBootstrap.option(ChannelOption.SO_KEEPALIVE, bootstrapConfiguration.isKeepAlive());
-        clientBootstrap.option(ChannelOption.TCP_NODELAY, bootstrapConfiguration.isTcpNoDelay());
-        clientBootstrap.option(ChannelOption.SO_REUSEADDR, bootstrapConfiguration.isSocketReuse());
-        clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, bootstrapConfiguration.getConnectTimeOut());
-        return clientBootstrap;
-    }
-
-    private HttpClientChannelInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
-            Bootstrap clientBootstrap, HttpRoute httpRoute, ConnectionManager connectionManager,
-            ConnectionAvailabilityFuture connectionAvailabilityFuture) {
-        HttpClientChannelInitializer httpClientChannelInitializer = new HttpClientChannelInitializer(
-                senderConfiguration, httpRoute, connectionManager, connectionAvailabilityFuture);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
-                      httpRoute.getPort(), clientBootstrap);
-        }
-        return httpClientChannelInitializer;
     }
 }
