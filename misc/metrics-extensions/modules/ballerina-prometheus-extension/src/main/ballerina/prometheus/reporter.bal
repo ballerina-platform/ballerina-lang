@@ -48,9 +48,10 @@ service PrometheusReporter on prometheusListener {
         produces: ["application/text"]
     }
     resource function getMetrics(http:Caller caller, http:Request req) {
-        observe:Metric[] metrics = observe:getAllMetrics();
+        observe:Metric?[] metrics = observe:getAllMetrics();
         string payload = EMPTY_STRING;
-        foreach var metric in metrics {
+        foreach var m in metrics {
+            observe:Metric metric = <observe:Metric> m;
             string  qualifiedMetricName = metric.name.replaceAll("/", "_");
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);

@@ -65,6 +65,7 @@ public enum NodeKind {
     LAMBDA,
     ARROW_EXPR,
     LITERAL,
+    NUMERIC_LITERAL,
     CONSTANT,
     RECORD_LITERAL_EXPR,
     SIMPLE_VARIABLE_REF,

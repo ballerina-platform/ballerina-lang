@@ -16,48 +16,48 @@
 
 public type OrderBy object {
 
-    public function (StreamEvent[]) nextProcessorPointer;
+    public function (StreamEvent?[]) nextProcessorPointer;
 
-    public (function (map<anydata>) returns anydata)[] fieldFuncs;
+    public (function (map<anydata>) returns anydata)?[] fieldFuncs;
     // contains the field name to be sorted and the sort type (ascending/descending)
     public string[] sortTypes;
     public MergeSort mergeSort;
 
-    public function __init(function (StreamEvent[]) nextProcessorPointer,
-                           (function (map<anydata>) returns anydata)[] fieldFuncs, string[] sortTypes) {
+    public function __init(function (StreamEvent?[]) nextProcessorPointer,
+                           (function (map<anydata>) returns anydata)?[] fieldFuncs, string[] sortTypes) {
         self.nextProcessorPointer = nextProcessorPointer;
         self.fieldFuncs = fieldFuncs;
         self.sortTypes = sortTypes;
         self.mergeSort = new(self.fieldFuncs, self.sortTypes);
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         self.mergeSort.topDownMergeSort(streamEvents);
         self.nextProcessorPointer.call(streamEvents);
     }
 };
 
-public function createOrderBy(function (StreamEvent[]) nextProcessorPointer,
-                              (function (map<anydata>) returns anydata)[] fields, string[] sortFieldMetadata)
+public function createOrderBy(function (StreamEvent?[]) nextProcessorPointer,
+                              (function (map<anydata>) returns anydata)?[] fields, string[] sortFieldMetadata)
                     returns OrderBy {
     return new(nextProcessorPointer, fields, sortFieldMetadata);
 }
 
 public type MergeSort object {
 
-    public (function (map<anydata>) returns anydata)[] fieldFuncs;
+    public (function (map<anydata>) returns anydata)?[] fieldFuncs;
     // contains the field name to be sorted and the sort type (ascending/descending)
     public string[] sortTypes;
 
-    public function __init((function (map<anydata>) returns anydata)[] fieldFuncs, string[] sortTypes) {
+    public function __init((function (map<anydata>) returns anydata)?[] fieldFuncs, string[] sortTypes) {
         self.fieldFuncs = fieldFuncs;
         self.sortTypes = sortTypes;
     }
 
-    public function topDownMergeSort(StreamEvent[] a) {
+    public function topDownMergeSort(StreamEvent?[] a) {
         int index = 0;
         int n = a.length();
-        StreamEvent[] b = [];
+        StreamEvent?[] b = [];
         while (index < n) {
             b[index] = a[index];
             index += 1;
@@ -65,7 +65,7 @@ public type MergeSort object {
         self.topDownSplitMerge(b, 0, n, a);
     }
 
-    function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a) {
+    function topDownSplitMerge(StreamEvent?[] b, int iBegin, int iEnd, StreamEvent?[] a) {
         if (iEnd - iBegin < 2) {
             return;
         }
@@ -75,17 +75,17 @@ public type MergeSort object {
         self.topDownMerge(b, iBegin, iMiddle, iEnd, a);
     }
 
-    function topDownMerge(StreamEvent[] a, int iBegin, int iMiddle, int iEnd, StreamEvent[] b) {
+    function topDownMerge(StreamEvent?[] a, int iBegin, int iMiddle, int iEnd, StreamEvent?[] b) {
         int i = iBegin;
         int j = iMiddle;
 
         int k = iBegin;
         while (k < iEnd) {
-            if (i < iMiddle && (j >= iEnd || self.sortFunc(a[i], a[j], 0) < 0)) {
-                b[k] = a[i];
+            if (i < iMiddle && (j >= iEnd || self.sortFunc(<StreamEvent>a[i], <StreamEvent>a[j], 0) < 0)) {
+                b[k] = <StreamEvent>a[i];
                 i = i + 1;
             } else {
-                b[k] = a[j];
+                b[k] = <StreamEvent>a[j];
                 j = j + 1;
             }
             k += 1;
