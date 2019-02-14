@@ -37,7 +37,7 @@ public function returnMap(int n1, int n2, int n3) returns map<string> {
     return m;
 }
 
-public function complexInput(task:Timer timer) returns error? {
+public function complexInput(task:Listener timer) returns error? {
     return ();
 }
 
