@@ -74,10 +74,7 @@ public class Stamp extends BlockingNativeCallableUnit {
         }
         BValue valueToBeStamped = ctx.getNullableRefArgument(1);
         if (valueToBeStamped == null) {
-            if (targetType.getTag() == TypeTags.JSON_TAG || (stampType.getTag() == TypeTags.UNION_TAG &&
-                    ((BUnionType) stampType).getMemberTypes()
-                                            .stream()
-                                            .anyMatch(bType -> bType.getTag() == TypeTags.NULL_TAG))) {
+            if (targetType.getTag() == TypeTags.JSON_TAG) {
                 ctx.setReturnValues((BValue) null);
                 return;
             }

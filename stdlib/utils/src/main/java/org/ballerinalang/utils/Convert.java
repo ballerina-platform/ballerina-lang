@@ -76,10 +76,7 @@ public class Convert extends BlockingNativeCallableUnit {
             targetType = convertType;
         }
         if (inputValue == null) {
-            if (targetType.getTag() == TypeTags.JSON_TAG || (convertType.getTag() == TypeTags.UNION_TAG &&
-                    ((BUnionType) convertType).getMemberTypes()
-                                              .stream()
-                                              .anyMatch(bType -> bType.getTag() == TypeTags.NULL_TAG))) {
+            if (targetType.getTag() == TypeTags.JSON_TAG) {
                 ctx.setReturnValues((BValue) null);
                 return;
             }

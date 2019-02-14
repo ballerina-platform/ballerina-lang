@@ -73,22 +73,32 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
                 ctx.setReturnValues(convertValueTypes(targetType, inputValue));
                 return;
             }
-            if (targetType.getTag() == TypeTags.STRING_TAG) {
-                ctx.setReturnValues(new BString(inputValue.stringValue()));
-                return;
-            }
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CONVERSION_ERROR,
-                                                     BLangExceptionHelper.getErrorMessage(
-                                                             RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                             inputValue.getType(), inputValue, targetType)));
         } catch (RuntimeException e) {
             ctx.setReturnValues(BLangVMErrors
                                         .createError(ctx.getStrand(), BallerinaErrorReasons.CONVERSION_ERROR,
                                                      BLangExceptionHelper.getErrorMessage(
                                                              RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                              inputValue.getType(), inputValue, targetType)));
+            return;
         }
-
+        // Todo: ToString required to be handle with different built in method since it is not covered by convert
+        // function.
+        try {
+            if (targetType.getTag() == TypeTags.STRING_TAG) {
+                ctx.setReturnValues(new BString(inputValue.stringValue()));
+                return;
+            }
+            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CONVERSION_ERROR,
+                                                          BLangExceptionHelper.getErrorMessage(
+                                                                  RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION,
+                                                                  inputValue.getType(), targetType)));
+        } catch (RuntimeException e) {
+            ctx.setReturnValues(BLangVMErrors
+                                        .createError(ctx.getStrand(), BallerinaErrorReasons.CONVERSION_ERROR,
+                                                     BLangExceptionHelper.getErrorMessage(
+                                                             RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION,
+                                                             inputValue.getType(), targetType)));
+        }
     }
 
     private BValue convertValueTypes(BType targetType, BValue inputValue) {
