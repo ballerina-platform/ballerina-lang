@@ -198,7 +198,7 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, 16,
                 "field 'xArr' of type 'xml[]' is not allowed as a table column", 204, 29);
         BAssertUtil.validateError(resultNegative, 17,
-                "field 'eArr' of type 'error[]' is not allowed as a table column", 204, 29);
+                "field 'eArr' of type 'error?[]' is not allowed as a table column", 204, 29);
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")
