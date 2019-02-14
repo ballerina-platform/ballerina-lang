@@ -23,9 +23,9 @@ public type Scheduler object {
     private LinkedList toNotifyQueue;
     private boolean running;
     private task:Listener timer;
-    private function (StreamEvent[] streamEvents) processFunc;
+    private function (StreamEvent?[] streamEvents) processFunc;
 
-    public function __init(function (StreamEvent[] streamEvents) processFunc) {
+    public function __init(function (StreamEvent?[] streamEvents) processFunc) {
         self.toNotifyQueue = new;
         self.running = false;
         self.timer = new({ interval: 0 });
@@ -54,6 +54,10 @@ public type Scheduler object {
         }
     }
 
+    public function wrapperFunc() {
+        _ = self.sendTimerEvents();
+    }
+
     public function sendTimerEvents() returns error? {
         any? first = self.toNotifyQueue.getFirst();
         int currentTime = time:currentTime().time;
@@ -61,7 +65,7 @@ public type Scheduler object {
             _ = self.toNotifyQueue.removeFirst();
             map<anydata> data = {};
             StreamEvent timerEvent = new(("timer", data), "TIMER", <int>first);
-            StreamEvent[] timerEventWrapper = [];
+            StreamEvent?[] timerEventWrapper = [];
             timerEventWrapper[0] = timerEvent;
             self.processFunc.call(timerEventWrapper);
 
@@ -100,6 +104,6 @@ service schedulerService = service {
     }
 
     resource function onError(error e, Scheduler scheduler) {
-        io:println("Error occured", e.reason());
+        io:println("Error occured: ", e.reason());
     }
 };

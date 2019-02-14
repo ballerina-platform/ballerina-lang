@@ -257,11 +257,12 @@ function foo(any a) {
     //do nothing
 }
 
-function testIterableReturnLambda() returns (function (int) returns boolean)[] {
+function testIterableReturnLambda() returns (function (int) returns boolean)?[] {
 
     map<string> words = { a: "ant", b: "bear", c: "tiger"};
 
-    (function (int) returns boolean)[] lambdas = words.map(function ((string, string) input) returns (function (int) returns boolean) {
+    (function (int) returns boolean)?[] lambdas = words.map(function ((string, string) input) returns
+        (function (int) returns boolean) {
         return function (int param) returns boolean {
             return true;
         };

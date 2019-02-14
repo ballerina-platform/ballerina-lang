@@ -23,7 +23,7 @@ decimal d = 3.0;
 boolean e = true;
 () f = ();
 
-(int|boolean)[] g = [a, e];
+(int|boolean)[2] g = [a, e];
 (string, float, decimal) h = (b, c, d);
 
 map<string|FooRecord|FooObject> i = {
