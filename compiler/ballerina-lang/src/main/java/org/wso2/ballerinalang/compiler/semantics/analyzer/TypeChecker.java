@@ -2807,7 +2807,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (indexExprType.tag) {
             case TypeTags.INT:
-                if (indexExpr.getKind() == NodeKind.LITERAL) {
+                if (indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
                     actualType = checkTupleFieldType(tuple, indexValue);
                     if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
@@ -2826,7 +2826,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
                 for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
                     if (finiteMember.type.tag == TypeTags.INT) {
-                        if (finiteMember.getKind() == NodeKind.LITERAL) {
+                        if (finiteMember.getKind() == NodeKind.NUMERIC_LITERAL) {
                             int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
                             BType fieldType = checkTupleFieldType(tuple, indexValue);
                             if (fieldType.tag != TypeTags.SEMANTIC_ERROR) {
