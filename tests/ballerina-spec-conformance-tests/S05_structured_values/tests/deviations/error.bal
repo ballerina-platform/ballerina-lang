@@ -34,17 +34,6 @@ function testErrorTypeDescriptorBroken() {
         msg = "expected detail map in error to be changed");
 }
 
-// An error type does not have an implicit initial value.
-// TODO: Creating and error array should fail at compile time.
-// https://github.com/ballerina-platform/ballerina-lang/issues/13166
-@test:Config {
-    groups: ["deviation"]
-}
-function testErrorImplicitInitialValueBroken() {
-    error[] errorArray = [];
-    errorArray[1] = error("Error One");
-}
-
 // detail-type-descriptor must be a subtype of record { } (which is equivalent to map<anydata|error>).
 // TODO: The detail type descriptor must be a subtype of map<anydata|error>.
 // https://github.com/ballerina-platform/ballerina-lang/issues/13205
