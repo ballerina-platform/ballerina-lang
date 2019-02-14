@@ -20,10 +20,10 @@ package org.ballerinalang.compiler.backend.jvm;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.nativeimpl.jvm.BallerinaProgram;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
@@ -37,19 +37,19 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -66,8 +66,11 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
  */
 public class JVMCodeGen {
     private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
-    private String classFileName = "DEFAULT.class";
+    private String executableJarFileName = "DEFAULT.jar";
     private static JVMCodeGen jvmCodeGen = new JVMCodeGen();
+    private static final PrintStream console = System.out;
+    private static final String JAR_ENTRIES = "jarEntries";
+    private static final String MANIFEST_ENTRIES = "manifestEntries";
 
     private JVMCodeGen() {}
 
@@ -75,8 +78,8 @@ public class JVMCodeGen {
         return jvmCodeGen;
     }
 
-    public void genJVMExecutable(Path projectPath, String progPath, Path outputPath) {
-        classFileName = progPath.substring(0, progPath.indexOf("."));
+    public void generateJVMExecutable(Path projectPath, String progPath, Path outputPath) {
+        executableJarFileName = progPath.substring(0, progPath.indexOf("."));
         BLangPackage bLangPackage = compileProgram(projectPath, progPath);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
@@ -86,58 +89,56 @@ public class JVMCodeGen {
 
         BIREmitter birEmitterjvm = new BIREmitter();
         String birText = birEmitterjvm.emit(bir);
+        console.println(birText);
 
-        generateJVMClassFile(bir, outputPath);
-    }
-
-    private void generateJVMClassFile(BIRNode.BIRPackage bir, Path outputPath) {
-
-        final String functionName = "genJVMClassFile";
-
+        final String functionName = "generateJVMExecutable";
         URI resURI = getExecResourceURIFromThisJar();
-
         byte[] resBytes = readExecResource(resURI);
-
         ProgramFile programFile = loadProgramFile(resBytes);
-
-        Path classFileOutputPath = outputPath.resolve(classFileName.concat(".class"));
 
         BValue[] args = new BValue[2];
         BIRBinaryWriter binaryWriter = new BIRBinaryWriter(bir);
         args[0] = new BValueArray(binaryWriter.serialize());
-        args[1] = new BString(classFileName);
+        args[1] = new BString(executableJarFileName);
 
-        // Generate the class file
+        // Generate the jar file
         try {
             Debugger debugger = new Debugger(programFile);
             programFile.setDebugger(debugger);
             FunctionInfo functionInfo = programFile.getEntryPackage().getFunctionInfo(functionName);
             BValue[] result = BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
-            BValueArray bvmBytes = (BValueArray) result[0];
-            byte[] classBytes = bvmBytes.getBytes();
-            Files.write(classFileOutputPath, classBytes);
-            generateJar(outputPath, classBytes);
+            LinkedHashMap<String, BValue> classes = ((BMap<String, BValue>) result[0]).getMap();
+            generateJar(outputPath, classes);
         } catch (Exception e) {
             throw new BLangCompilerException("jvm class file generation failed: " + e.getMessage(), e);
         }
     }
 
-    private void generateJar(Path outputPath, byte[] bytes) throws FileNotFoundException, IOException {
+    private void generateJar(Path outputPath, LinkedHashMap<String, BValue> entries) throws IOException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        JarOutputStream target = new JarOutputStream(
-                new FileOutputStream(outputPath.toString() + "/" + classFileName + ".jar"), manifest);
 
-        JarEntry servicesEntry = new JarEntry("META-INF/services/" + BallerinaProgram.class.getName());
-        String spiProviderName = classFileName;
-        target.putNextEntry(servicesEntry);
-        target.write(spiProviderName.getBytes(StandardCharsets.UTF_8));
-        target.closeEntry();
+        if (entries.containsKey(MANIFEST_ENTRIES)) {
+            LinkedHashMap<String, BValue> manifestEntries = ((BMap<String, BValue>) entries.get(MANIFEST_ENTRIES)).
+                    getMap();
+            manifestEntries.forEach((k, v) -> {
+                manifest.getMainAttributes().put(new Attributes.Name(k), v.stringValue());
+            });
+        }
+        JarOutputStream target = new JarOutputStream(new FileOutputStream(outputPath.toString() + "/" +
+                executableJarFileName + ".jar"), manifest);
 
-        JarEntry entry = new JarEntry(classFileName);
-        target.putNextEntry(entry);
-        target.write(bytes);
-        target.closeEntry();
+        if (entries.containsKey(JAR_ENTRIES)) {
+            LinkedHashMap<String, BValue> jarEntries = ((BMap<String, BValue>) entries.get(JAR_ENTRIES)).getMap();
+            for (String entryName : jarEntries.keySet()) {
+                byte[] entryContent = ((BValueArray) jarEntries.get(entryName)).getBytes();
+                JarEntry entry = new JarEntry(entryName);
+                target.putNextEntry(entry);
+                target.write(entryContent);
+                target.closeEntry();
+            }
+        }
+
         target.close();
     }
 
