@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -255,7 +256,8 @@ public class TypeChecker extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
-        BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
+        // Get the type matching to the tag from the symbol table.
+        BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
 
         Object literalValue = literalExpr.value;
 
@@ -277,7 +279,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // check whether this is a byte array
-        if (literalExpr.typeTag == TypeTags.BYTE_ARRAY) {
+        if (literalExpr.type.tag == TypeTags.BYTE_ARRAY) {
             literalType = new BArrayType(symTable.byteType);
         }
 
@@ -303,8 +305,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BUnionType unionType = (BUnionType) this.expType;
             boolean foundMember = unionType.memberTypes
                     .stream()
-                    .map(memberType -> types.isAssignableToFiniteType(memberType, literalExpr))
-                    .anyMatch(foundType -> foundType);
+                    .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
             if (foundMember) {
                 types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                 resultType = literalType;
@@ -337,12 +338,41 @@ public class TypeChecker extends BLangNodeVisitor {
             List<String> columnNames = new ArrayList<>();
             for (BField field : ((BRecordType) tableConstraint).fields) {
                 columnNames.add(field.getName().getValue());
+                //Check for valid column types
+                if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.STRING ||
+                        field.type.tag == TypeTags.FLOAT || field.type.tag == TypeTags.DECIMAL ||
+                        field.type.tag == TypeTags.XML || field.type.tag == TypeTags.JSON ||
+                        field.type.tag == TypeTags.BOOLEAN || field.type.tag == TypeTags.ARRAY)) {
+                    dlog.error(tableLiteral.pos, DiagnosticCode.FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN,
+                            field.name.value, field.type);
+                }
+                //Check for valid array types as columns
+                if (field.type.tag == TypeTags.ARRAY) {
+                    BType arrayType = ((BArrayType) field.type).eType;
+                    if (!(arrayType.tag == TypeTags.INT || arrayType.tag == TypeTags.FLOAT ||
+                            arrayType.tag == TypeTags.DECIMAL || arrayType.tag == TypeTags.STRING ||
+                            arrayType.tag == TypeTags.BOOLEAN || arrayType.tag == TypeTags.BYTE)) {
+                        dlog.error(tableLiteral.pos, DiagnosticCode.FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN,
+                                field.name.value, field.type);
+                    }
+                }
             }
             for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
                 boolean contains = columnNames.contains(column.columnName);
                 if (!contains) {
-                    dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
-                            tableConstraint);
+                    dlog.error(column.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName, tableConstraint);
+                }
+                //Check for valid primary key column types
+                if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
+                    for (BField field : ((BRecordType) tableConstraint).fields) {
+                        if (field.name.value.equals(column.columnName)) {
+                            if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.STRING)) {
+                                dlog.error(column.pos, DiagnosticCode.TYPE_NOT_ALLOWED_WITH_PRIMARYKEY,
+                                        column.columnName, field.type);
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -2411,7 +2441,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
-        if (indexExpr.getKind() != NodeKind.LITERAL) {
+        if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.NUMERIC_LITERAL) {
             indexExpr.type = symTable.semanticError;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
             return indexExpr.type;
@@ -2482,7 +2512,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
-        if (indexExpr.getKind() != NodeKind.LITERAL) {
+        if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.NUMERIC_LITERAL) {
             indexExpr.type = symTable.semanticError;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
             return indexExpr.type;
