@@ -321,8 +321,9 @@ public class SQLDataIterator extends TableIterator {
                         if (value instanceof BigDecimal) {
                             struct.put(fieldName, new BDecimal((BigDecimal) value));
                         } else {
-                            struct.put(fieldName, new BDecimal(new BigDecimal((double)value)));
+                            struct.put(fieldName, new BDecimal(new BigDecimal((double) value)));
                         }
+                        break;
                     case TypeTags.STRING_TAG:
                         struct.put(fieldName, new BString((String) value));
                         break;
