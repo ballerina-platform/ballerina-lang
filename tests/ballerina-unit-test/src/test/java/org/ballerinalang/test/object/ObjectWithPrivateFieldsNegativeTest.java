@@ -75,7 +75,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateObjAccess2() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object", "private-field2");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 8);
+        Assert.assertEquals(compileResult.getErrorCount(), 7);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
 
@@ -84,9 +84,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, 2, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
         BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 5);
         BAssertUtil.validateError(compileResult, 4, expectedErrMsg1 + "'FooFamily'", 5, 13);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'FooFamily'", 10, 13);
-        BAssertUtil.validateError(compileResult, 6, expectedErrMsg1 + "'address'", 15, 13);
-        BAssertUtil.validateError(compileResult, 7, "undefined field 'address' in object 'org.foo.baz:FooEmployee'",
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'address'", 15, 13);
+        BAssertUtil.validateError(compileResult, 6, "undefined field 'address' in object 'org.foo.baz:FooEmployee'",
                 15, 13);
     }
 }
