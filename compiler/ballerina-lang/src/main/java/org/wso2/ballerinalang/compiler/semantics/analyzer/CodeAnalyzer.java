@@ -1326,7 +1326,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLiteral literalExpr) {
-        if (literalExpr.typeTag == TypeTags.NIL &&
+        if (literalExpr.type.tag == TypeTags.NIL &&
                 NULL_LITERAL.equals(literalExpr.originalValue) &&
                 !literalExpr.isJSONContext && !this.isJSONContext) {
             dlog.error(literalExpr.pos, DiagnosticCode.INVALID_USE_OF_NULL_LITERAL);

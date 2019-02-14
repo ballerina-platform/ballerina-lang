@@ -270,6 +270,7 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (expType.tag == TypeTags.BYTE) {
                 if (!isByteLiteralValue((Long) literalValue)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+                    resultType = symTable.semanticError;
                     return;
                 }
                 literalType = symTable.byteType;
