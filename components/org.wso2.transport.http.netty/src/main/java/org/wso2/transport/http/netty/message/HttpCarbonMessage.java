@@ -61,6 +61,7 @@ public class HttpCarbonMessage {
     private IOException ioException;
     private MessageStateContext httpMessageStateContext;
     private Http2MessageStateContext http2MessageStateContext;
+    private FullHttpRequestFuture fullHttpRequestFuture;
 
     private long sequenceId; //Keep track of request/response order
     private ChannelHandlerContext sourceContext;
@@ -69,6 +70,7 @@ public class HttpCarbonMessage {
     private boolean keepAlive;
     private boolean pipeliningEnabled;
     private boolean passthrough = false;
+    private boolean lastHttpContentArrived = false;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -506,21 +508,31 @@ public class HttpCarbonMessage {
     }
 
     /**
-     * Returns the {@link FullMessageFuture} which notifies {@link FullMessageListener} when the complete content of
-     * the {@link HttpCarbonMessage} is accumulated.
+     * Returns the {@link FullHttpRequestFuture} which notifies {@link FullHttpRequestListener} when the complete
+     * content of the {@link HttpCarbonMessage} is accumulated.
      *
-     * @return the default implementation of the {@link FullMessageFuture}.
+     * @return the default implementation of the {@link FullHttpRequestFuture}.
      */
-    public FullMessageFuture getFullHttpCarbonMessage() {
-        FullMessageFuture fullMessageFuture = new DefaultFullMessageFuture();
-        HttpFullCarbonMessage httpFullCarbonMessage = new HttpFullCarbonMessage(this.httpMessage);
-        while (!isEmpty()) {
-            HttpContent httpContent = getHttpContent();
-            httpFullCarbonMessage.addHttpContent(httpContent);
-            if (httpContent instanceof LastHttpContent) {
-                fullMessageFuture.notifySuccess(httpFullCarbonMessage);
-            }
+    public FullHttpRequestFuture getFullHttpCarbonMessage() {
+        contentObservable.removeListener();
+        fullHttpRequestFuture = new DefaultFullHttpRequestFuture(this);
+        return fullHttpRequestFuture;
+    }
+
+    public void setLastHttpContentArrived() {
+        this.lastHttpContentArrived = true;
+        if (fullHttpRequestFuture != null) {
+            fullHttpRequestFuture.notifySuccess();
         }
-        return fullMessageFuture;
+    }
+
+    boolean isLastHttpContentArrived() {
+        return lastHttpContentArrived;
+    }
+
+    public void notifyContentFailure(Exception ex) {
+        if (fullHttpRequestFuture != null) {
+            fullHttpRequestFuture.notifyFailure(ex);
+        }
     }
 }

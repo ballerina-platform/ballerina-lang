@@ -88,12 +88,14 @@ public class ReceivingEntityBody implements ListenerState {
                     if (isDiffered(inboundRequestMsg)) {
                         serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
                     }
+                    inboundRequestMsg.setLastHttpContentArrived();
                     sourceHandler.resetInboundRequestMsg();
                     messageStateContext.setListenerState(
                             new EntityBodyReceived(messageStateContext, sourceHandler, httpVersion));
                 }
             } catch (RuntimeException ex) {
                 httpContent.release();
+                inboundRequestMsg.notifyContentFailure(ex);
                 LOG.warn("Response already received before completing the inbound request {}", ex.getMessage());
             }
         }

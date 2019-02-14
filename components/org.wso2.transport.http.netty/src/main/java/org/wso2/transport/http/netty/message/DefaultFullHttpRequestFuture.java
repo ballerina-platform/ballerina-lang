@@ -19,30 +19,38 @@
 package org.wso2.transport.http.netty.message;
 
 /**
- * Default implementation of the {@link FullMessageFuture}.
+ * Default implementation of the {@link FullHttpRequestFuture}.
  */
-public class DefaultFullMessageFuture implements FullMessageFuture {
+public class DefaultFullHttpRequestFuture implements FullHttpRequestFuture {
 
-    private FullMessageListener messageListener;
-    private HttpFullCarbonMessage httpFullCarbonMessage;
+    private HttpCarbonMessage httpCarbonMessage;
+    private FullHttpRequestListener messageListener;
     private Exception error;
 
+    DefaultFullHttpRequestFuture(HttpCarbonMessage httpCarbonMessage) {
+        this.httpCarbonMessage = httpCarbonMessage;
+    }
+
     @Override
-    public void addListener(FullMessageListener messageListener) {
+    public void addListener(FullHttpRequestListener messageListener) {
         this.messageListener = messageListener;
-        if (httpFullCarbonMessage != null) {
-            messageListener.onComplete(httpFullCarbonMessage);
+        if (httpCarbonMessage.isLastHttpContentArrived()) {
+            notifySuccess();
         } else if (error != null) {
-            messageListener.onError(error);
+            notifyFailure(error);
         }
     }
 
     @Override
-    public void notifySuccess(HttpFullCarbonMessage httpFullCarbonMessage) {
-        this.httpFullCarbonMessage = httpFullCarbonMessage;
+    public void removeListener() {
+        messageListener = null;
+    }
+
+    @Override
+    public void notifySuccess() {
         if (messageListener != null) {
-            messageListener.onComplete(httpFullCarbonMessage);
-            this.httpFullCarbonMessage = null;
+            messageListener.onComplete();
+            removeListener();
         }
     }
 
@@ -52,6 +60,7 @@ public class DefaultFullMessageFuture implements FullMessageFuture {
         if (messageListener != null) {
             messageListener.onError(error);
             this.error = null;
+            removeListener();
         }
     }
 }

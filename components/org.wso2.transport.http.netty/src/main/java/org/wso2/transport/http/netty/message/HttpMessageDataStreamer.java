@@ -61,10 +61,6 @@ public class HttpMessageDataStreamer {
         this.pooledByteBufAllocator = pooledByteBufAllocator;
     }
 
-    public HttpMessageDataStreamer(HttpFullCarbonMessage httpFullCarbonMessage) {
-        this.httpCarbonMessage = httpFullCarbonMessage;
-    }
-
     /**
      * A class which represents the InputStream of the ByteBuffers
      * No need to worry about thread safety of this class this is called only once by
