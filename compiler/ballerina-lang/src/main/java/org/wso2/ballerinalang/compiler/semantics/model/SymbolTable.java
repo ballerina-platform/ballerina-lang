@@ -565,7 +565,7 @@ public class SymbolTable {
     }
 
     private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType) {
-        defineBuiltinMethod(method, type, Collections.emptyList(), retType, -1);
+        defineBuiltinMethod(method, type, Collections.emptyList(), retType, InstructionCodes.NOP);
     }
 
     private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType, int opcode) {
@@ -613,7 +613,7 @@ public class SymbolTable {
     private void defineConversionOperator(BType sourceType,
                                           BType targetType,
                                           boolean safe) {
-        defineConversionOperator(sourceType, targetType, safe, -1);
+        defineConversionOperator(sourceType, targetType, safe, InstructionCodes.NOP);
     }
 
     private void defineConversionOperator(BType sourceType,
