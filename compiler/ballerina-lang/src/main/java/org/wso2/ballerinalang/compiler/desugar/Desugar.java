@@ -1514,7 +1514,8 @@ public class Desugar extends BLangNodeVisitor {
         compoundAssignment.varRef.lhsVar = true;
         assignStmt.setVariable(rewriteExpr((BLangVariableReference) compoundAssignment.varRef));
         compoundAssignment.varRef.lhsVar = false;
-        assignStmt.expr = rewriteExpr(compoundAssignment.modifiedExpr);
+        assignStmt.expr = rewriteExpr(addConversionExprIfRequired(compoundAssignment.modifiedExpr,
+                assignStmt.varRef.type));
         result = assignStmt;
     }
 
