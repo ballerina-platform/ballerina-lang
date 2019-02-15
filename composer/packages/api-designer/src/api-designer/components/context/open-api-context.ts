@@ -22,7 +22,7 @@ import * as React from "react";
 
 export interface OpenApiContext {
     openApiJson: Swagger.OpenAPIObject;
-    onAddOpenApiPath: (path: Swagger.PathItemObject) => void;
+    onAddOpenApiPath: (path: Swagger.PathItemObject, onAdd: (state: boolean) => void) => void;
     onAddOpenApiOperation: (operation: Swagger.OperationObject) => void;
     onAddOpenApiParameter: (operation: Swagger.ParameterObject) => void;
     onAddOpenApiResponse: (response: Swagger.ResponseObject) => void;
