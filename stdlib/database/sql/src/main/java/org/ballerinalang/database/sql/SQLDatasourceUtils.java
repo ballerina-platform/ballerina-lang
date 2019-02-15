@@ -733,6 +733,13 @@ public class SQLDatasourceUtils {
                 arrayData[i] = ((BValueArray) value).getFloat(i);
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.DOUBLE };
+        case TypeTags.DECIMAL_TAG:
+            arrayLength = (int) ((BValueArray) value).size();
+            arrayData = new BigDecimal[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BValueArray) value).getRefValue(i).value();
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.DECIMAL };
         case TypeTags.STRING_TAG:
             arrayLength = (int) ((BValueArray) value).size();
             arrayData = new String[arrayLength];

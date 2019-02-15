@@ -320,11 +320,11 @@ public class TableIterator implements DataIterator {
             }
             return doubleDataArray;
         } else if ((firstNonNullElement instanceof BigDecimal)) {
-            BValueArray doubleDataArray = new BValueArray(BTypes.typeFloat);
+            BValueArray decimalDataArray = new BValueArray(BTypes.typeDecimal);
             for (int i = 0; i < dataArray.length; i++) {
-                doubleDataArray.add(i, ((BigDecimal) dataArray[i]).doubleValue());
+                decimalDataArray.add(i, new BDecimal((BigDecimal) dataArray[i]));
             }
-            return doubleDataArray;
+            return decimalDataArray;
         } else {
             return null;
         }
@@ -364,10 +364,9 @@ public class TableIterator implements DataIterator {
                 refValueArray.add(i, dataArray[i] != null ? new BFloat((Double) dataArray[i]) : null);
             }
         } else if (firstNonNullElement instanceof BigDecimal) {
-            refValueArray = createEmptyRefValueArray(BTypes.typeFloat, length);
+            refValueArray = createEmptyRefValueArray(BTypes.typeDecimal, length);
             for (int i = 0; i < length; i++) {
-                refValueArray
-                        .add(i, dataArray[i] != null ? new BFloat(((BigDecimal) dataArray[i]).doubleValue()) : null);
+                refValueArray.add(i, dataArray[i] != null ? new BDecimal((BigDecimal) dataArray[i]) : null);
             }
         }
         return refValueArray;
