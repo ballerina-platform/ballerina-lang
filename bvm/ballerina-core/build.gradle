@@ -19,7 +19,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.5'
     implementation 'javax.transaction:javax.transaction-api:1.2'
     implementation 'io.ballerina.messaging:broker-common:0.970.0'
-    implementation 'io.ballerina.messaging:broker-core:0.970.0'
+    implementation 'io.ballerina.messaging:broker-core:0.970.5'
     implementation project(':ballerina-streaming:siddhi-core')
     implementation project(':ballerina-streaming:siddhi-query-api')
     implementation project(':ballerina-streaming:siddhi-query-compiler')

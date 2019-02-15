@@ -1,0 +1,17 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+	implementation project(':lib-creator')
+	implementation project(':ballerina-builtin')
+	implementation project(":ballerina-launcher")
+	baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+    implementation project(':ballerina-runtime')
+
+
+    testCompile 'org.testng:testng:6.13.1'
+}
+
+description = 'Ballerina - Encoding'

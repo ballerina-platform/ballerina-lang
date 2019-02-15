@@ -38,7 +38,7 @@ dependencies {
     dist 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.53'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.262'
 
     dist 'info.picocli:picocli:3.3.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
@@ -50,7 +50,7 @@ dependencies {
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
     dist 'io.ballerina.messaging:broker-common:0.970.0'
     dist 'io.ballerina.messaging:broker-coordination:0.970.0'
-    dist 'io.ballerina.messaging:broker-core:0.970.0'
+    dist 'io.ballerina.messaging:broker-core:0.970.5'
     dist 'io.ballerina.messaging:broker-rest-runner:0.970.0'
     dist 'org.apache.geronimo.specs:geronimo-activation_1.1_spec:1.1'
     dist 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
