@@ -263,10 +263,9 @@ public class SelectorManager {
     public void invokeRead(int socketHashId) {
         // Check whether is there any caller->read pending action and read ready socket.
         if (ReadPendingSocketMap.getInstance().isPending(socketHashId)) {
-            // Lock on SocketReader instance. This instance hold the selector's selection key.
-            // This method can be invoke from both read action and from selector side. To prevent
-            // that need to synchronized.
-            synchronized (ReadReadySocketMap.getInstance().get(socketHashId)) {
+            // Lock on ReadPendingCallback instance. This will prevent duplicate invocation that happen from both
+            // read action and selector manager sides.
+            synchronized (ReadPendingSocketMap.getInstance().get(socketHashId)) {
                 if (ReadReadySocketMap.getInstance().isReadReady(socketHashId)) {
                     // Read ready socket available.
                     read(socketHashId);

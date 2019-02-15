@@ -45,13 +45,12 @@ import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
-import java.util.concurrent.RejectedExecutionException;
 
+import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
-import static java.nio.channels.SelectionKey.OP_READ;
 
 /**
  * Connect to the remote server.
@@ -81,17 +80,11 @@ public class Start implements NativeCallableUnit {
             channel.connect(new InetSocketAddress(host.stringValue(), (int) port.intValue()));
             channel.finishConnect();
             channel.configureBlocking(false);
-            if (socketService.getResources() != null) {
-                // Starting the selector since we have a callback service.
-                SelectorManager selectorManager = SelectorManager.getInstance();
-                selectorManager.start();
-                ChannelRegisterCallback registerCallback = new ChannelRegisterCallback(socketService, callback, context,
-                        OP_READ);
-                selectorManager.registerChannel(registerCallback);
-            } else {
-                context.setReturnValues();
-                callback.notifySuccess();
-            }
+            SelectorManager selectorManager = SelectorManager.getInstance();
+            selectorManager.start();
+            selectorManager.registerChannel(new ChannelRegisterCallback(socketService, callback, context, OP_READ));
+            context.setReturnValues();
+            callback.notifySuccess();
         } catch (SelectorInitializeException e) {
             log.error(e.getMessage(), e);
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initialize the selector"));
@@ -111,7 +104,7 @@ public class Start implements NativeCallableUnit {
             context.setReturnValues(
                     SocketUtils.createSocketError(context, "Unable to start the client socket: " + e.getMessage()));
             callback.notifySuccess();
-        } catch (RejectedExecutionException e) {
+        } catch (Throwable e) {
             log.error(e.getMessage(), e);
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to start the socket client."));
             callback.notifySuccess();
