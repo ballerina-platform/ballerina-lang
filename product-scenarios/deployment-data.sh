@@ -90,56 +90,38 @@ do
 done < $INPUT_DIR/infrastructure.properties
 unset IFS
 
-#export DATABASE_HOST=${CONFIG[DatabaseHost]}
-#export DATABASE_PORT=${CONFIG[DatabasePort]}
-#export DATABASE_NAME=${CONFIG[DatabaseName]}
-#export DATABASE_USERNAME=${CONFIG[DBUsername]}
-#export DATABASE_PASSWORD=${CONFIG[DBPassword]}
-DATABASE_HOST=${CONFIG[DatabaseHost]}
-DATABASE_PORT=${CONFIG[DatabasePort]}
-DATABASE_NAME=test
-DATABASE_USERNAME=${CONFIG[DBUsername]}
-DATABASE_PASSWORD=${CONFIG[DBPassword]}
+export DATABASE_HOST=${CONFIG[DatabaseHost]}
+export DATABASE_PORT=${CONFIG[DatabasePort]}
+export DATABASE_NAME=test
+export DATABASE_USERNAME=${CONFIG[DBUsername]}
+export DATABASE_PASSWORD=${CONFIG[DBPassword]}
+
 ClusterName=${CONFIG[ClusterName]};
+ClusterRegion=${CONFIG[ClusterRegion]};
+ConfigFileName=${CONFIG[ConfigFileName]};
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
-wget https://product-dist.ballerina.io/downloads/0.990.2/ballerina-linux-installer-x64-0.990.2.deb
-sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb
+wget https://product-dist.ballerina.io/nightly/0.990.3-SNAPSHOT/ballerina-linux-installer-x64-0.990.3-SNAPSHOT.deb
+sudo dpkg -i ballerina-linux-installer-x64-0.990.3-SNAPSHOT.deb --quiet
 
 ballerina version
 
-wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz
+wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
 
-tar -xvzf mysql-connector-java-5.1.47.tar.gz --directory ./
-
-sed -i "s/__DATABASE_HOST__/${DATABASE_HOST}/" product-scenarios/scenarios/1/data-service.bal
-sed -i "s/__DATABASE_PORT__/${DATABASE_PORT}/" product-scenarios/scenarios/1/data-service.bal
-sed -i "s/__DATABASE_NAME__/${DATABASE_NAME}/" product-scenarios/scenarios/1/data-service.bal
-sed -i "s/__DATABASE_USERNAME__/${DATABASE_USERNAME}/" product-scenarios/scenarios/1/data-service.bal
-sed -i "s/__DATABASE_PASSWORD__/${DATABASE_PASSWORD}/" product-scenarios/scenarios/1/data-service.bal
+tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ./
 
 ballerina build product-scenarios/scenarios/1/data-service.bal
 
+export KUBECONFIG=${INPUT_DIR}/${ConfigFileName}
+
+kubectl config view
+
+kubectl config current-context
+
 kubectl apply -f kubernetes/
 
-READY_REPLICAS=0
-START_TIME=$SECONDS
 TIMEOUT=300
-DURATION=0 #Just an initialization value
-while [ "$READY_REPLICAS" != 1 ] && [ $TIMEOUT -gt $DURATION ]
-do
-   READY_REPLICAS=$(kubectl get deployment ballerina-employee-database-service -o jsonpath='{.status.readyReplicas}')
-   echo $READY_REPLICAS
-   sleep 20s
-   DURATION=`expr $SECONDS - $START_TIME`
-   echo $DURATION
-done
-
-if [ "$READY_REPLICAS" != 1 ]; then
-	exit 1;
-fi
-
 INTERVAL=20
 bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
 

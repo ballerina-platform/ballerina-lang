@@ -34,15 +34,15 @@ type Employee record {
 
 @kubernetes:Deployment {
     image: "ballerinascenarios/employee_database_service:v1.0",
-    baseImage: "ballerina/ballerina:0.990.2",
+    baseImage: "ballerina/ballerina:0.990.3-SNAPSHOT",
     name: "ballerina-employee-database-service",
     copyFiles: [{ target: "/ballerina/runtime/bre/lib",
                 source: "mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar" }],
-    env: { "DATABASE_HOST": "__DATABASE_HOST__",
-        "DATABASE_PORT": "__DATABASE_PORT__",
-        "DATABASE_NAME": "__DATABASE_NAME__",
-        "DATABASE_USERNAME": "__DATABASE_USERNAME__",
-        "DATABASE_PASSWORD": "__DATABASE_PASSWORD__" },
+    env: { "DATABASE_HOST": "$env{DATABASE_HOST}",
+        "DATABASE_PORT": "$env{DATABASE_PORT}",
+        "DATABASE_NAME": "$env{DATABASE_NAME}",
+        "DATABASE_USERNAME": "$env{DATABASE_USERNAME}",
+        "DATABASE_PASSWORD": "$env{DATABASE_PASSWORD}" },
     username:"ballerinascenarios",
     password:"ballerina75389",
     push:true
