@@ -20,6 +20,7 @@ package org.ballerinalang.test.types.finite;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
@@ -41,5 +42,15 @@ public class FiniteTypeNegativeTest {
         validateError(result, 2,
                       "incompatible types: expected 'function (string) returns (int)', found 'function (string) " +
                               "returns (string)'", 27, 19);
+    }
+
+    @Test()
+    public void testInvalidLiteralAssignment() {
+        CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 3, "Error count mismatch");
+
+        validateError(result, 0, "incompatible types: expected '5|5|5', found 'float'", 32, 16);
+        validateError(result, 1, "incompatible types: expected '5|100', found 'string'", 37, 16);
+        validateError(result, 2, "incompatible types: expected '100.5|S', found 'float'", 42, 23);
     }
 }

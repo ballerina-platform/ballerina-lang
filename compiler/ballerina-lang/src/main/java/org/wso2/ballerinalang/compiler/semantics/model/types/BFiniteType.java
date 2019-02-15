@@ -52,7 +52,6 @@ public class BFiniteType extends BType implements FiniteType {
         return TypeKind.FINITE;
     }
 
-
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);

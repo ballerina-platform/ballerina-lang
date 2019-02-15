@@ -204,7 +204,7 @@ function testFrozenXml() {
 
 @test:Config {}
 function testArrayShapeOfContainters() {
-    (int|string)[] a1 = [1, 2];
+    (int|string)?[] a1 = [1, 2];
     var a2 = int[].convert(a1);
     test:assertTrue(a2 is int[], msg = EXPECTED_CONVERT_TO_SUCCEED_FAILURE_MESSAGE);
     a1[2] = "test string 1";
@@ -254,7 +254,7 @@ float floatVal = 1.0;
 
 @test:Config {}
 function testArrayContainerValueInherentType() {
-    (int|string)[] a1 = [1, "2"];
+    (int|string)[2] a1 = [1, "2"];
     any anyVal = intVal;
     var result = trap insertMemberToArray(a1, a1.length() - 1, anyVal);
     test:assertTrue(anyVal is int|string, msg = EXPECTED_VALUE_TO_BE_OF_SAME_OR_SUB_TYPE_FAILURE_MESSAGE);

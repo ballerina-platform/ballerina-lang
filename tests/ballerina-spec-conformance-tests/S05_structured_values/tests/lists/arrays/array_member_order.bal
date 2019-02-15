@@ -82,20 +82,20 @@ function testObjectArrayMemberOrder() {
     FooObjectThree a13 = new("test string 2");
     FooObjectThree a14 = new("test string 3");
     FooObjectThree a15 = new("test string 4");
-    FooObjectThree[] fooObjectArray = [a12, a13];
+    FooObjectThree?[] fooObjectArray = [a12, a13];
 
-    test:assertEquals(fooObjectArray[0], a12, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
-    test:assertEquals(fooObjectArray[1], a13, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
+    test:assertEquals(<FooObjectThree>fooObjectArray[0], a12, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
+    test:assertEquals(<FooObjectThree>fooObjectArray[1], a13, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
 
     fooObjectArray[2] = a14;
-    test:assertEquals(fooObjectArray[0], a12, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
-    test:assertEquals(fooObjectArray[1], a13, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
-    test:assertEquals(fooObjectArray[2], a14, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "2");
+    test:assertEquals(<FooObjectThree>fooObjectArray[0], a12, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
+    test:assertEquals(<FooObjectThree>fooObjectArray[1], a13, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
+    test:assertEquals(<FooObjectThree>fooObjectArray[2], a14, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "2");
 
     fooObjectArray[0] = a15;
-    test:assertEquals(fooObjectArray[0], a15, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
-    test:assertEquals(fooObjectArray[1], a13, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
-    test:assertEquals(fooObjectArray[2], a14, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "2");
+    test:assertEquals(<FooObjectThree>fooObjectArray[0], a15, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
+    test:assertEquals(<FooObjectThree>fooObjectArray[1], a13, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "1");
+    test:assertEquals(<FooObjectThree>fooObjectArray[2], a14, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "2");
 }
 
 public type FooRecordThree record {

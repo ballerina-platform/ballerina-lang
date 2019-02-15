@@ -28,8 +28,8 @@ function testBasicTypeArrayMemberIteration() {
     string c = "string 2";
     int d = 1;
 
-    (int|string)[] array = [a, b, c, d];
-    (int|string)[] arrayTwo = [a, b, c, d];
+    (int|string)[4] array = [a, b, c, d];
+    (int|string)[4] arrayTwo = [a, b, c, d];
     int currentIndex = 0;
 
     foreach string|int value in array {
@@ -43,8 +43,8 @@ function testRecordArrayMemberIteration() {
     int currentIndex = 0;
     FooRecordTwo e = { fooFieldOne: "test string 1" };
     BarRecordTwo f = { barFieldOne: 1 };
-    (FooRecordTwo|BarRecordTwo)[] arrayThree = [e, f];
-    (FooRecordTwo|BarRecordTwo)[] arrayFour = [e, f];
+    (FooRecordTwo|BarRecordTwo)[2] arrayThree = [e, f];
+    (FooRecordTwo|BarRecordTwo)[2] arrayFour = [e, f];
 
     foreach FooRecordTwo|BarRecordTwo value in arrayThree {
         test:assertEquals(value, arrayFour[currentIndex], msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);
@@ -58,8 +58,8 @@ function testObjectArrayMemberIteration() {
     FooObjectTwo g = new("test string 1");
     BarObjectTwo h = new(1);
     BarObjectTwo i = new(1);
-    (FooObjectTwo|BarObjectTwo)[] arrayFive = [g, h, i];
-    (FooObjectTwo|BarObjectTwo)[] arraySix = [g, h, i];
+    (FooObjectTwo|BarObjectTwo)[3] arrayFive = [g, h, i];
+    (FooObjectTwo|BarObjectTwo)[3] arraySix = [g, h, i];
 
     foreach FooObjectTwo|BarObjectTwo value in arrayFive {
         test:assertEquals(value, arraySix[currentIndex], msg = INCORRECT_MEMBER_VALUE_ON_ITERATION_FAILURE_MESSAGE);

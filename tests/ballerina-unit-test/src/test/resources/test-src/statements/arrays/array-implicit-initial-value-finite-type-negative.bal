@@ -14,20 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+// int based finite type.
+type allInitZero 0|1|2;
+type allInitNonZero 1|2|3;
 
-// The nil value can also be written null, for
-// compatibility with JSON; the use of null should be restricted to JSON-related contexts.
-// TODO: Disallow the use of `null` with () type
-// https://github.com/ballerina-platform/ballerina-lang/issues/13169
-@test:Config {
-    groups: ["deviation"]
-}
-function testNilBroken() {
-    () nil = null;
-    () nil2;
-    nil2 = null;
-    if (nil != nil2) {
-        test:assertFail(msg = "expected nil values to be equal");
-    }
-}
+allInitZero[] ar1 = [];
+allInitNonZero[] ar2 = [];
+
+// float based finite type.
+type allFloatZero 0.0|1.0|3.14;
+type allFloatNonZero 1.0|3.143;
+
+allFloatZero[] fAr1 = [];
+allFloatNonZero[] fAr2 = [];
+
+// boolean based finit type.
+type bool true|false;
+type bTrue true;
+
+bool[] bAr1 = [];
+bTrue[] bTrueAr1 = [];
+
+// string based finite type.
+type allStrInclEmpty ""|"a"|"b";
+type allStrNonEmpty "a"|"b"|"c";
+
+allStrInclEmpty[] strFiniteArr = [];
+allStrNonEmpty[] strFiniteNonEmptyArr = [];
+
+type U int|float?;
+U[] u = [];

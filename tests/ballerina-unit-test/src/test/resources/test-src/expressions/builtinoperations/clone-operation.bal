@@ -199,9 +199,9 @@ public function cloneStringArray() returns (string[], string[], string[]) {
 }
 
 public function cloneUnionArray() returns (any[], any[], any[]) {
-    (int|string|float)[] a = [1, "EE", 12.3];
-    (int|string|float)[] x = a.clone();
-    (int|string|float)[] y = a.clone();
+    (int|string|float)?[] a = [1, "EE", 12.3];
+    (int|string|float)?[] x = a.clone();
+    (int|string|float)?[] y = a.clone();
     a[0] = 100;
     y[2] = 300.5;
     return (a, x, y);

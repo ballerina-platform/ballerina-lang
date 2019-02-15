@@ -40,6 +40,8 @@ import java.nio.charset.StandardCharsets;
  */
 public class CryptoTest {
 
+    private static final int KEY_SIZE = 16; // Set to 16 to ensure compatibility with older JDKs
+
     private CompileResult compileResult;
 
     @BeforeClass
@@ -311,8 +313,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES CBC NoPadding")
     public void testEncryptAesCbcNoPadding() {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -362,8 +364,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid IV length")
     public void testEncryptAesCbcNoPaddingWithInvalidIvLength() {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -386,8 +388,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid input length")
     public void testEncryptAesCbcNoPaddingWithInvalidInputLength() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -410,8 +412,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES CBC PKCS5")
     public void testEncryptAesCbcPkcs5() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -465,8 +467,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES ECB NoPadding")
     public void testEncryptAesEcbNoPadding() {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -506,8 +508,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES ECB NoPadding using invalid input length")
     public void testEncryptAesEcbNoPaddingWithInvalidInputLength() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -525,8 +527,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES ECB PKCS5")
     public void testEncryptAesEcbPkcs5() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -570,8 +572,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES GCM NoPadding")
     public void testEncryptAesGcmNoPadding() {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -622,8 +624,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES GCM NoPadding using invalid input length")
     public void testEncryptAesGcmNoPaddingWithInvalidInputLength() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -649,8 +651,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES GCM PKCS5")
     public void testEncryptAesGcmPkcs5() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
