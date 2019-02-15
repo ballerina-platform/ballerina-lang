@@ -2411,7 +2411,7 @@
         <!-- Observability -->
         <open.tracing.version>0.31.0</open.tracing.version>
         <jaeger.version>0.24.0</jaeger.version>
-        <libthrift.version>0.10.0</libthrift.version>
+        <libthrift.version>0.12.0</libthrift.version>
         <okhttp.version>3.9.1</okhttp.version>
         <okio.version>1.13.0</okio.version>
         <hdrhistogram.version>2.1.10</hdrhistogram.version>
