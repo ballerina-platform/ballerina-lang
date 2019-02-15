@@ -26,6 +26,6 @@ function testFunc() {
     main();
     test:assertEquals(outputs[0], "[value type variables] before fork: value of integer variable is [100] value of string variable is [WSO2]");
     test:assertEquals(outputs[1], "[reference type variables] before fork: value of name is [Bert] value of city is [New York] value of postcode is [10001]");
-    test:assertEquals(outputs[2], "[value type variables] after fork: value of integer variable is [100] value of string variable is [WSO2]");
+    test:assertEquals(outputs[2], "[value type variables] after fork: value of integer variable is [123] value of string variable is [Ballerina]");
     test:assertEquals(outputs[3], "[reference type variables] after fork: value of name is [Moose] value of city is [Manhattan] value of street is [Wall Street] value of postcode is [10001]");
 }
