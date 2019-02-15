@@ -41,7 +41,7 @@ public class BidiStreamingTestCase extends GrpcBaseTest {
         TestUtils.prepareBalo(this);
     }
 
-    @Test
+    @Test(description = "Test bidirectional streaming client")
     public void testBidiStreamingClient() {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "bidirectional_streaming_client" +

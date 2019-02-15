@@ -419,6 +419,8 @@ public class BValueArray extends BNewArray implements Serializable {
             if (refValues[i] != null) {
                 sj.add((refValues[i].getType().getTag() == TypeTags.STRING_TAG)
                         ? ("\"" + refValues[i] + "\"") : refValues[i].stringValue());
+            } else {
+                sj.add("()");
             }
         }
         return sj.toString();

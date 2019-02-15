@@ -57,6 +57,7 @@ public class Message {
     private int memoizedSize = -1;
     private HttpHeaders headers;
     private BValue bMessage = null;
+    private Descriptors.Descriptor descriptor = null;
 
     private boolean isError = false;
     private Throwable error;
@@ -64,6 +65,7 @@ public class Message {
     public Message(String messageName, BValue bMessage) {
         this.messageName = messageName;
         this.bMessage = bMessage;
+        this.descriptor = MessageRegistry.getInstance().getMessageDescriptor(messageName);
     }
 
     private Message(String messageName) {
@@ -394,6 +396,9 @@ public class Message {
     }
 
     public com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+        if (descriptor != null) {
+            return descriptor;
+        }
         return MessageRegistry.getInstance().getMessageDescriptor(messageName);
     }
     

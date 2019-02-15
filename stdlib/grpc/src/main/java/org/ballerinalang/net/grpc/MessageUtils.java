@@ -17,7 +17,6 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.EmptyProto;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
@@ -51,7 +50,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -66,27 +64,32 @@ import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
  * @since 1.0.0
  */
 public class MessageUtils {
+
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR = "Unknown Error";
 
     /** maximum buffer to be read is 16 KB. */
     private static final int MAX_BUFFER_LENGTH = 16384;
+    private static final String GOOGLE_PROTOBUF_EMPTY = "google.protobuf.Empty";
 
-    public static BMap<String, BValue> getHeaderStruct(Resource resource) {
+    public static BMap<String, BValue> getHeaderStruct(ProgramFile programFile) {
+        return BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
+    }
+
+    public static boolean headersRequired(Resource resource) {
         if (resource == null || resource.getParamDetails() == null) {
             throw new RuntimeException("Invalid resource input arguments");
         }
-        BMap<String, BValue> headerStruct = null;
+        boolean headersRequired = false;
         for (ParamDetail detail : resource.getParamDetails()) {
             BType paramType = detail.getVarType();
             if (paramType != null && PROTOCOL_STRUCT_PACKAGE_GRPC.equals(paramType.getPackagePath()) &&
                     "Headers".equals(paramType.getName())) {
-                headerStruct = BLangConnectorSPIUtil.createBStruct(getProgramFile(resource),
-                        paramType.getPackagePath(), paramType.getName());
+                headersRequired = true;
                 break;
             }
         }
-        return headerStruct;
+        return headersRequired;
     }
 
     public static long copy(InputStream from, OutputStream to) throws IOException {
@@ -152,10 +155,6 @@ public class MessageUtils {
             }
         }
         return new BError(errorType, reason, refData);
-    }
-    
-    public static ProgramFile getProgramFile(Resource resource) {
-        return resource.getResourceInfo().getPackageInfo().getProgramFile();
     }
     
     /**
@@ -241,14 +240,7 @@ public class MessageUtils {
         if (messageDescriptor == null) {
             return false;
         }
-        List<Descriptors.Descriptor> descriptors = EmptyProto.getDescriptor()
-                .getMessageTypes();
-        for (Descriptors.Descriptor descriptor : descriptors) {
-            if (descriptor.getFullName().equals(messageDescriptor.getFullName())) {
-                return true;
-            }
-        }
-        return false;
+        return GOOGLE_PROTOBUF_EMPTY.equals(messageDescriptor.getFullName());
     }
 
     /** Closes an InputStream, ignoring IOExceptions. */

@@ -813,12 +813,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (variable.expr == null) {
             return;
         }
-        if (variable.expr.getKind() != NodeKind.LITERAL) {
+        if (variable.expr.getKind() != NodeKind.LITERAL && variable.expr.getKind() != NodeKind.NUMERIC_LITERAL) {
             this.dlog.error(variable.expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE, variable.name);
             return;
         }
         BLangLiteral literal = (BLangLiteral) variable.expr;
-        variable.symbol.defaultValue = new DefaultValueLiteral(literal.value, literal.typeTag);
+        variable.symbol.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
     }
 
     @Override
@@ -853,7 +853,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // resolve the types of any type definition which uses the constant in type node.
             constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
             constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
-            constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).typeTag;
+            constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).type.tag;
         } else if (((BLangExpression) constant.value).getKind() == NodeKind.RECORD_LITERAL_EXPR) {
             // We need to update the symbol type to noType here. Then it will be updated properly when
             // resolving the type node in resolveConstantTypeNode().
@@ -964,7 +964,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Get the namespace URI, only if it is statically defined. Then define the namespace symbol.
         // This namespace URI is later used by the attributes, when they lookup for duplicate attributes.
         // TODO: find a better way to get the statically defined URI.
-        if (exprs.size() == 1 && exprs.get(0).getKind() == NodeKind.LITERAL) {
+        NodeKind nodeKind = exprs.get(0).getKind();
+        if (exprs.size() == 1 && (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL)) {
             nsURI = (String) ((BLangLiteral) exprs.get(0)).value;
         }
 
@@ -990,7 +991,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (expression.getKind()) {
             case LITERAL:
             case RECORD_LITERAL_EXPR:
-                return true;
+                return ((BLangExpression) expression).getKind() != NodeKind.NUMERIC_LITERAL;
         }
         return false;
     }
@@ -1280,12 +1281,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .peek(varDefNode -> defineNode(varDefNode.var, invokableEnv))
                         .map(varDefNode -> {
                             BVarSymbol varSymbol = varDefNode.var.symbol;
-                            if (varDefNode.var.expr.getKind() != NodeKind.LITERAL) {
+                            if (varDefNode.var.expr.getKind() != NodeKind.LITERAL &&
+                                    varDefNode.var.expr.getKind() != NodeKind.NUMERIC_LITERAL) {
                                 this.dlog.error(varDefNode.var.expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE,
                                         varDefNode.var.name);
                             } else {
                                 BLangLiteral literal = (BLangLiteral) varDefNode.var.expr;
-                                varSymbol.defaultValue = new DefaultValueLiteral(literal.value, literal.typeTag);
+                                varSymbol.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
                             }
                             return varSymbol;
                         })

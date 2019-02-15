@@ -823,13 +823,13 @@ public class Desugar extends BLangNodeVisitor {
             // map<any> restParam = $map$0.filter($lambdaArg$0);
 
             DiagnosticPos pos = parentBlockStmt.pos;
-            BMapType anyConstrainedMapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+            BMapType restParamType = (BMapType) ((BLangVariable) parentRecordVariable.restParam).type;
             BLangVariableReference variableReference;
 
             if (parentIndexAccessExpr != null) {
-                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", anyConstrainedMapType,
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", restParamType,
                         null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
-                                anyConstrainedMapType, this.env.scope.owner));
+                                restParamType, this.env.scope.owner));
                 mapVariable.expr = parentIndexAccessExpr;
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
                 variableDef.var = mapVariable;
@@ -845,7 +845,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef restParamVarDef = ASTBuilderUtil.createVariableDefStmt(pos,
                     parentBlockStmt);
             restParamVarDef.var = restParam;
-            restParamVarDef.var.type = anyConstrainedMapType;
+            restParamVarDef.var.type = restParamType;
 
             // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
             BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVariable, pos);
@@ -867,10 +867,10 @@ public class Desugar extends BLangNodeVisitor {
             iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
             filterIterator.iContext = iterableContext;
 
-            iterableContext.resultType = anyConstrainedMapType;
+            iterableContext.resultType = restParamType;
             Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
             filterOperation.pos = pos;
-            filterOperation.collectionType = filterOperation.expectedType = anyConstrainedMapType;
+            filterOperation.collectionType = filterOperation.expectedType = restParamType;
             filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
             iterableContext.operations.add(filterOperation);
         }
@@ -1312,13 +1312,13 @@ public class Desugar extends BLangNodeVisitor {
             // map<any> restParam = $map$0.filter($lambdaArg$0);
 
             DiagnosticPos pos = parentBlockStmt.pos;
-            BMapType anyConstrainedMapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+            BMapType restParamType = (BMapType) ((BLangSimpleVarRef) parentRecordVarRef.restParam).type;
             BLangVariableReference variableReference;
 
             if (parentIndexAccessExpr != null) {
-                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", anyConstrainedMapType,
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", restParamType,
                         null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
-                                anyConstrainedMapType, this.env.scope.owner));
+                                restParamType, this.env.scope.owner));
                 mapVariable.expr = parentIndexAccessExpr;
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
                 variableDef.var = mapVariable;
@@ -1333,7 +1333,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef restParam = (BLangSimpleVarRef) parentRecordVarRef.restParam;
             BLangAssignment restParamAssignment = ASTBuilderUtil.createAssignmentStmt(pos, parentBlockStmt);
             restParamAssignment.varRef = restParam;
-            restParamAssignment.varRef.type = anyConstrainedMapType;
+            restParamAssignment.varRef.type = restParamType;
 
             // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
             BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVarRef, pos);
@@ -1355,10 +1355,10 @@ public class Desugar extends BLangNodeVisitor {
             iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
             filterIterator.iContext = iterableContext;
 
-            iterableContext.resultType = anyConstrainedMapType;
+            iterableContext.resultType = restParamType;
             Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
             filterOperation.pos = pos;
-            filterOperation.collectionType = filterOperation.expectedType = anyConstrainedMapType;
+            filterOperation.collectionType = filterOperation.expectedType = restParamType;
             filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
             iterableContext.operations.add(filterOperation);
         }
@@ -1559,6 +1559,7 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol collectionSymbol = dataVariable.symbol;
         switch (foreach.collection.type.tag) {
             case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
             case TypeTags.XML:
             case TypeTags.MAP:
             case TypeTags.TABLE:
@@ -1741,7 +1742,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) { // this is blob literal as byte array
+        if (literalExpr.type.tag == TypeTags.ARRAY && ((BArrayType) literalExpr.type).eType.tag == TypeTags.BYTE) {
+            // this is blob literal as byte array
             result = rewriteBlobLiteral(literalExpr);
             return;
         }
@@ -1923,7 +1925,9 @@ public class Desugar extends BLangNodeVisitor {
                     literal.isConst = true;
                     // Todo - Create copies of all of the key-value pairs?
                     literal.keyValuePairs.addAll(((BLangRecordLiteral) symbol.literalValue).keyValuePairs);
+                    // Todo - Remove?
                     literal.type = symbol.literalValueType;
+                    literal.type.tag = symbol.literalValueTypeTag;
                     result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
 
 //                    result =  constantValueResolver.getValue(, );
@@ -2982,11 +2986,10 @@ public class Desugar extends BLangNodeVisitor {
                                                          tableQueryExpression) {
         //create a literal to represent the sql query.
         BLangLiteral sqlQueryLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        sqlQueryLiteral.typeTag = TypeTags.STRING;
 
         //assign the sql query from table expression to the literal.
         sqlQueryLiteral.value = tableQueryExpression.getSqlQuery();
-        sqlQueryLiteral.type = symTable.getTypeFromTag(sqlQueryLiteral.typeTag);
+        sqlQueryLiteral.type = symTable.stringType;
         return sqlQueryLiteral;
     }
 
@@ -4462,7 +4465,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getStringLiteral(String value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.STRING;
         literal.type = symTable.stringType;
         return literal;
     }
@@ -4470,7 +4472,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getIntLiteral(long value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.INT;
         literal.type = symTable.intType;
         return literal;
     }
@@ -4478,7 +4479,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getFloatLiteral(double value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.FLOAT;
         literal.type = symTable.floatType;
         return literal;
     }
@@ -4486,7 +4486,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getDecimalLiteral(String value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.FLOAT;
         literal.type = symTable.decimalType;
         return literal;
     }
@@ -4494,14 +4493,12 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getBooleanLiteral(boolean value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.BOOLEAN;
         literal.type = symTable.booleanType;
         return literal;
     }
 
     private BLangLiteral getNullLiteral() {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.typeTag = TypeTags.NIL;
         literal.type = symTable.nilType;
         return literal;
     }

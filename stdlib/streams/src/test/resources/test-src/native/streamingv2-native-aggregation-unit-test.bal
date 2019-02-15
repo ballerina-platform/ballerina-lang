@@ -126,7 +126,7 @@ function streamFunc() {
     aggregators[14] = fMinAggregator;
 
     // create selector
-    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         aggregators,
         [function (streams:StreamEvent e) returns anydata {
             return e.data["inputStream.category"];
@@ -171,7 +171,7 @@ function streamFunc() {
         }
     );
 
-    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {select.process(e);},
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent?[] e) {select.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter
             return <int>m["inputStream.intVal"] > getValue();
@@ -180,7 +180,7 @@ function streamFunc() {
 
     inputStream.subscribe(function (InputRecord i) {
             // make it type unaware and proceed
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(i, "inputStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(i, "inputStream");
             filter.process(eventArr);
         }
     );

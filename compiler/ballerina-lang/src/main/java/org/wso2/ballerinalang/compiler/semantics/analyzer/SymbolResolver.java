@@ -906,7 +906,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : finiteTypeNode.valueSpace) {
-            ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
+            ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).type.tag);
             finiteType.valueSpace.add(literal);
         }
         finiteTypeSymbol.type = finiteType;
@@ -1151,7 +1151,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (Symbols.isPublic(symbol)) {
             return true;
         }
-        if (!Symbols.isFlagOn(symbol.flags, Flags.PRIVATE)) {
+        if (!Symbols.isPrivate(symbol)) {
             return env.enclPkg.symbol.pkgID == symbol.pkgID;
         }
         if (env.enclType != null) {

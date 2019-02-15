@@ -2351,8 +2351,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             objFieldInfo.fieldType = objField.type;
 
             // Populate default values
-            if (objField.expr != null && (objField.expr.getKind() == NodeKind.LITERAL &&
-                    objField.expr.type.getKind() != TypeKind.ARRAY)) {
+            if (isDefaultableSimpleVariable(objField)) {
                 DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
                 objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
@@ -2436,10 +2435,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             recordFieldInfo.fieldType = recordField.type;
 
             // Populate default values
-            if (recordField.expr != null && (recordField.expr.getKind() == NodeKind.LITERAL &&
-                    recordField.expr.type.getKind() != TypeKind.ARRAY)) {
-                DefaultValueAttributeInfo defaultVal
-                        = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
+            if (isDefaultableSimpleVariable(recordField)) {
+                DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
                 recordFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
 
@@ -2456,6 +2453,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
         typeDefInfo.typeInfo = recordInfo;
+    }
+
+    private boolean isDefaultableSimpleVariable(BLangSimpleVariable variable) {
+        return variable.expr != null && (variable.expr.getKind() == NodeKind.LITERAL ||
+                variable.expr.getKind() == NodeKind.NUMERIC_LITERAL) &&
+                variable.expr.type.getKind() != TypeKind.ARRAY;
     }
 
     private void createFiniteTypeTypeDef(BLangTypeDefinition typeDefinition,
@@ -3732,7 +3735,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // TODO: remove RegIndex arg
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
-        prefixLiteral.typeTag = TypeTags.STRING;
         prefixLiteral.type = symTable.stringType;
         prefixLiteral.regIndex = regIndex;
         genNode(prefixLiteral, env);

@@ -46,7 +46,7 @@ import java.security.cert.CertificateException;
 /**
  * Function for decoding private key.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
@@ -71,7 +71,7 @@ public class DecodePrivateKey extends BlockingNativeCallableUnit {
         BString keyAlias = (BString) context.getNullableRefArgument(1);
         BString keyPassword = (BString) context.getNullableRefArgument(2);
 
-        PrivateKey privateKey = null;
+        PrivateKey privateKey;
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore != null) {
             File keyStoreFile = new File(keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).stringValue());

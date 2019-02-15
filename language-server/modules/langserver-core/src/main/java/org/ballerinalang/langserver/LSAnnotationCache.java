@@ -207,6 +207,6 @@ public class LSAnnotationCache {
     private boolean isPackageProcessed(PackageID packageID) {
         return processedPackages
                 .stream()
-                .noneMatch(processedPkgId -> processedPkgId.toString().equals(packageID.toString()));
+                .anyMatch(processedPkgId -> processedPkgId.toString().equals(packageID.toString()));
     }
 }
