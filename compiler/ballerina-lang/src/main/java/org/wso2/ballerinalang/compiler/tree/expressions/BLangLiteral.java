@@ -28,6 +28,7 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     public Object value;
     public String originalValue;
+    public boolean isJSONContext;
 
     @Override
     public Object getValue() {
