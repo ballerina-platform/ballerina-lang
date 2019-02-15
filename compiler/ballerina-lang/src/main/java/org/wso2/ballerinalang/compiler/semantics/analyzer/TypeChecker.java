@@ -2826,17 +2826,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
                 for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
-                    if (finiteMember.type.tag == TypeTags.INT) {
-                        if (finiteMember.getKind() == NodeKind.NUMERIC_LITERAL) {
-                            int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
-                            BType fieldType = checkTupleFieldType(tuple, indexValue);
-                            if (fieldType.tag != TypeTags.SEMANTIC_ERROR) {
-                                possibleTypes.add(fieldType);
-                            }
-                        }
-                    } else {
+                    if (finiteMember.type.tag != TypeTags.INT) {
                         dlog.error(indexExpr.pos, DiagnosticCode.INVALID_FINITE_TYPE_INDEX_EXPR, indexExprType);
                         return actualType;
+                    }
+                    if (finiteMember.getKind() != NodeKind.NUMERIC_LITERAL) {
+                        continue;
+                    }
+                    int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
+                    BType fieldType = checkTupleFieldType(tuple, indexValue);
+                    if (fieldType.tag != TypeTags.SEMANTIC_ERROR) {
+                        possibleTypes.add(fieldType);
                     }
                 }
                 if (possibleTypes.size() == 0) {
