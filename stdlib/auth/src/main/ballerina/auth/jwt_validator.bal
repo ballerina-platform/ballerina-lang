@@ -75,9 +75,6 @@ public function validateJwt(string jwtToken, JWTValidatorConfig config) returns 
             error jwtError = error(AUTH_ERROR_CODE, { message : "Invalid JWT token" });
             return jwtError;
         }
-    } else {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "Invalid JWT token" });
-        return jwtError;
     }
 }
 
