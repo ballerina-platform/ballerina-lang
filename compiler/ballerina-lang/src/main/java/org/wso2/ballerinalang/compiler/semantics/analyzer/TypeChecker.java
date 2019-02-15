@@ -1209,9 +1209,9 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkWaitKeyValExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal, BType type) {
         BLangExpression expr;
         if (keyVal.keyExpr != null) {
-            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(keyVal.keyExpr.variableName),
+            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(((BLangSimpleVarRef) keyVal.keyExpr).variableName),
                                                       SymTag.VARIABLE);
-            keyVal.keyExpr.symbol = symbol;
+            keyVal.keyExprSymbol = symbol;
             keyVal.keyExpr.type = symbol.type;
             expr = keyVal.keyExpr;
         } else {
