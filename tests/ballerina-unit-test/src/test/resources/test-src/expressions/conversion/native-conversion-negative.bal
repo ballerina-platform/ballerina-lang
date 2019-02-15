@@ -158,7 +158,7 @@ function testIncompatibleImplicitConversion() returns int|error {
 }
 
 function testConvertRecordToRecordWithCyclicValueReferences() returns Engineer {
-    Manager p = { name: "Waruna", age: 25, parent: null };
+    Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
     Engineer e =  Engineer.convert(p); // Cyclic value will be check with isLikeType method.
@@ -166,7 +166,7 @@ function testConvertRecordToRecordWithCyclicValueReferences() returns Engineer {
 }
 
 function testConvertRecordToJsonWithCyclicValueReferences() returns json|error {
-    Manager p = { name: "Waruna", age: 25, parent: null };
+    Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
     json j =  check json.convert(p); // Cyclic value will be check with isLikeType method.
@@ -174,7 +174,7 @@ function testConvertRecordToJsonWithCyclicValueReferences() returns json|error {
 }
 
 function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|error {
-    Manager p = { name: "Waruna", age: 25, parent: null };
+    Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
     anydata a = p;

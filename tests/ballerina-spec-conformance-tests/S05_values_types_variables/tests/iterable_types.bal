@@ -29,6 +29,16 @@ function testIterableTypeArray() {
 }
 
 @test:Config {}
+function testIterableTypeTuple() {
+    (int, string, boolean) iterableTuple = (100, "test string", true);
+    int count = 0;
+    foreach int|string|boolean variable in iterableTuple {
+        count += 1;
+    }
+    test:assertEquals(count, 3, msg = "expected tuple to iterate 3 loops");
+}
+
+@test:Config {}
 function testIterableTypeMap() {
     map<string> iterableMap = { fieldOne: "valueOne", fieldTwo: "valueTwo", fieldThree: "valueThree" };
     string result = "";

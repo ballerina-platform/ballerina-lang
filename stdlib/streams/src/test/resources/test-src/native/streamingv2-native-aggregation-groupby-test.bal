@@ -111,7 +111,7 @@ function createStreamingConstruct() {
     aggregatorArr[0] = sumAggregator;
     aggregatorArr[1] = countAggregator;
 
-    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         aggregatorArr,
         [function (streams:StreamEvent e) returns anydata {
             return getGroupByField(<int>e.data["inputStream.age"]);
@@ -130,8 +130,8 @@ function createStreamingConstruct() {
     );
 
     streams:Window tmpWindow = streams:time([1000],
-        nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
-    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {tmpWindow.process(e);},
+        nextProcessPointer = function (streams:StreamEvent?[] e) {select.process(e);});
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent?[] e) {tmpWindow.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter
             return <int>m["inputStream.age"] > getValue();
@@ -140,7 +140,7 @@ function createStreamingConstruct() {
 
     inputStream.subscribe(function (Teacher t) {
             // make it type unaware and proceed
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(t, "inputStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(t, "inputStream");
             filter.process(eventArr);
         }
     );

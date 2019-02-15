@@ -1033,7 +1033,7 @@ function testBatchUpdate() returns (int[]) {
     sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
     sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
     para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
@@ -1041,7 +1041,7 @@ function testBatchUpdate() returns (int[]) {
     para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
     para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
@@ -1062,10 +1062,10 @@ function testBatchUpdateWithValues() returns int[] {
         });
 
     //Batch 1
-    myBatchType[] parameters1 = ["Alex", "Smith", 20, 3400.5, "Colombo"];
+    myBatchType?[] parameters1 = ["Alex", "Smith", 20, 3400.5, "Colombo"];
 
     //Batch 2
-    myBatchType[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
+    myBatchType?[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
 
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
                             creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
@@ -1090,10 +1090,10 @@ function testBatchUpdateWithVariables() returns int[] {
     float creditlimit = 3400.5;
     string city = "Colombo";
 
-    myBatchType[] parameters1 = [firstName1, lastName1, id, creditlimit, city];
+    myBatchType?[] parameters1 = [firstName1, lastName1, id, creditlimit, city];
 
     //Batch 2
-    myBatchType[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
+    myBatchType?[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
 
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
                             creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
@@ -1118,7 +1118,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
     sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters1 = [para0, para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters1 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 2
     para0 = { sqlType: sql:TYPE_INTEGER, value: 222 };
@@ -1127,7 +1127,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
     para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters2 = [para0, para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters2 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 3
     para0 = { sqlType: sql:TYPE_INTEGER, value: 222 };
@@ -1136,7 +1136,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
     para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters3 = [para0, para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters3 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 4
     para0 = { sqlType: sql:TYPE_INTEGER, value: 333 };
@@ -1145,7 +1145,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
     para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters4 = [para0, para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters4 = [para0, para1, para2, para3, para4, para5];
 
     var ret = testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,
         creditLimit, country) values (?,?,?,?,?,?)", parameters1, parameters2, parameters3, parameters4);
@@ -1236,7 +1236,7 @@ function testDateTimeNullInValues() returns (string) {
     sql:Parameter para2 = { sqlType: sql:TYPE_TIME, value: () };
     sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: () };
     sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: () };
-    sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
+    sql:Parameter?[] parameters = [para0, para1, para2, para3, para4];
 
     _ = testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
@@ -1288,10 +1288,10 @@ function testDateTimeNullInOutValues() returns (any, any, any, any) {
         });
 
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 124 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: null, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIME, value: null, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para4 = { sqlType: sql:TYPE_TIMESTAMP, value: null, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: null, direction: sql:DIRECTION_INOUT };
+    sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: (), direction: sql:DIRECTION_INOUT };
+    sql:Parameter para3 = { sqlType: sql:TYPE_TIME, value: (), direction: sql:DIRECTION_INOUT };
+    sql:Parameter para4 = { sqlType: sql:TYPE_TIMESTAMP, value: (), direction: sql:DIRECTION_INOUT };
+    sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: (), direction: sql:DIRECTION_INOUT };
 
     _ = testDB->call("{call TestDateINOUTParams(?,?,?,?,?)}", (), para1, para2, para3, para4, para5);
     testDB.stop();
@@ -1319,7 +1319,7 @@ function testDateTimeOutParams(int time, int date, int timestamp)
     sql:Parameter para8 = { sqlType: sql:TYPE_TIMESTAMP, direction: sql:DIRECTION_OUT };
     sql:Parameter para9 = { sqlType: sql:TYPE_DATETIME, direction: sql:DIRECTION_OUT };
 
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
+    sql:Parameter?[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
     _ = testDB->call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8, para9);

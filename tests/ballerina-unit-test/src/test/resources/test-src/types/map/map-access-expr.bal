@@ -79,7 +79,7 @@ function testGetMapValues () returns (string, string) {
                   age:25,
                   gpa:2.81,
                   status:true,
-                  info:null,
+                  info:(),
                   address:address,
                   intArray:arr,
                   addressArray:addressArray,

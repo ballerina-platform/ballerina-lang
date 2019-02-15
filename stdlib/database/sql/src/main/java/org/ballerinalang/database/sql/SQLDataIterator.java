@@ -23,10 +23,12 @@ import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -227,12 +229,8 @@ public class SQLDataIterator extends TableIterator {
                             break;
                         case Types.NUMERIC:
                         case Types.DECIMAL:
-                            double decimalValue = 0;
                             BigDecimal bigDecimalValue = rs.getBigDecimal(index);
-                            if (bigDecimalValue != null) {
-                                decimalValue = bigDecimalValue.doubleValue();
-                            }
-                            handleDoubleValue(decimalValue, bStruct, fieldName, fieldType);
+                            handleDecimalValue(bigDecimalValue, bStruct, fieldName, fieldType);
                             break;
                         case Types.BIT:
                         case Types.BOOLEAN:
@@ -385,23 +383,34 @@ public class SQLDataIterator extends TableIterator {
             throw new BallerinaException(
                     "Trying to assign an array containing NULL values to an array of a non-nillable element type");
         } else {
-            validateAndSetRefRecordField(bStruct, fieldName, ((BArrayType) nonNilType)
-                    .getElementType().getTag(), ((BArrayType) newArray.getType()).getElementType().getTag(),
-                    newArray, MISMATCHING_FIELD_ASSIGNMENT);
+            int expectedTypeTag = ((BArrayType) nonNilType).getElementType().getTag();
+            int actualTypeTag;
+            if (newArray.getType().getTag() == TypeTags.DECIMAL_TAG) {
+                actualTypeTag = TypeTags.DECIMAL_TAG;
+            } else {
+                actualTypeTag = ((BArrayType) newArray.getType()).getElementType().getTag();
+            }
+            validateAndSetRefRecordField(bStruct, fieldName, expectedTypeTag, actualTypeTag, newArray,
+                    MISMATCHING_FIELD_ASSIGNMENT);
         }
     }
 
     private void handleMappingArrayElementToUnionType(BArrayType expectedArrayType, BNewArray arrayTobeSet,
                                                       String fieldName, BMap<String, BValue> bStruct) {
-        BArrayType arrayType = (BArrayType) arrayTobeSet.getType();
-        if (arrayType.getElementType().getTag() == TypeTags.NULL_TAG) {
+        BType arrayType;
+        if (arrayTobeSet.getType().getTag() == TypeTags.DECIMAL_TAG) {
+            arrayType = BTypes.typeDecimal;
+        } else {
+            arrayType = ((BArrayType) arrayTobeSet.getType()).getElementType();
+        }
+        if (arrayType.getTag() == TypeTags.NULL_TAG) {
             bStruct.put(fieldName, arrayTobeSet);
         } else {
             BUnionType expectedArrayElementUnionType = (BUnionType) expectedArrayType.getElementType();
             BType expectedNonNilArrayElementType = retrieveNonNilType(expectedArrayElementUnionType.getMemberTypes());
-            BType actualNonNilArrayElementType = getActualNonNilArrayElementType(arrayType.getElementType());
-            validateAndSetRefRecordField(bStruct, fieldName, expectedNonNilArrayElementType
-                    .getTag(), actualNonNilArrayElementType.getTag(), arrayTobeSet, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+            BType actualNonNilArrayElementType = getActualNonNilArrayElementType(arrayType);
+            validateAndSetRefRecordField(bStruct, fieldName, expectedNonNilArrayElementType.getTag(),
+                    actualNonNilArrayElementType.getTag(), arrayTobeSet, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         }
     }
 
@@ -599,6 +608,24 @@ public class SQLDataIterator extends TableIterator {
             } else {
                 validateAndSetRefRecordField(bStruct, fieldName, TypeTags.FLOAT_TAG, fieldTypeTag,
                         new BFloat(fValue), MISMATCHING_FIELD_ASSIGNMENT);
+            }
+        }
+    }
+
+    private void handleDecimalValue(BigDecimal fValue, BMap<String, BValue> bStruct, String fieldName, BType fieldType)
+            throws SQLException {
+        boolean isOriginalValueNull = rs.wasNull();
+        int fieldTypeTag = fieldType.getTag();
+        if (fieldTypeTag == TypeTags.UNION_TAG) {
+            BRefType refValue = isOriginalValueNull ? null : new BDecimal(fValue);
+            validateAndSetRefRecordField(bStruct, fieldName, TypeTags.DECIMAL_TAG,
+                    retrieveNonNilTypeTag(fieldType), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+        } else {
+            if (isOriginalValueNull) {
+                handleNilToNonNillableFieldAssignment();
+            } else {
+                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.DECIMAL_TAG, fieldTypeTag,
+                        new BDecimal(fValue), MISMATCHING_FIELD_ASSIGNMENT);
             }
         }
     }
