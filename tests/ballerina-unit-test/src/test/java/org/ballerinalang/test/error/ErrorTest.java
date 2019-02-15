@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
@@ -42,6 +43,7 @@ public class ErrorTest {
     private static final String ERROR2 = "error2";
     private static final String ERROR3 = "error3";
     private static final String EMPTY_CURLY_BRACE = "{}";
+    private static final String CONST_ERROR_REASON = "reason one";
 
     @BeforeClass
     public void setup() {
@@ -167,5 +169,21 @@ public class ErrorTest {
         Assert.assertEquals(array.getString(3), "Error3");
         Assert.assertEquals(array.getString(4), "Something Went Wrong");
         Assert.assertEquals(array.getString(5), "1");
+    }
+
+    @Test
+    public void testErrorWithUserDefinedReasonType() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "testErrorWithUserDefinedReasonType");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).reason, CONST_ERROR_REASON);
+    }
+
+    @Test
+    public void testErrorWithConstantAsReason() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "testErrorWithConstantAsReason");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).reason, CONST_ERROR_REASON);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).details).get("message").stringValue(),
+                            "error detail message");
     }
 }

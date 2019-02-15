@@ -132,3 +132,21 @@ function panicWithReasonAndDetailRecord() {
     DetailRec detail = { message: "Something Went Wrong", statusCode: 1 };
     panic error("Error3", detail);
 }
+
+type ErrorReasons "reason one"|"reason two";
+
+const ERROR_REASON_ONE = "reason one";
+const ERROR_REASON_TWO = "reason two";
+
+type UserDefErrorOne error<ErrorReasons>;
+type UserDefErrorTwo error<ERROR_REASON_ONE, map<string>>;
+
+function testErrorWithUserDefinedReasonType() returns error {
+    UserDefErrorOne e = error(ERROR_REASON_ONE);
+    return e;
+}
+
+function testErrorWithConstantAsReason() returns error {
+    UserDefErrorTwo e = error(ERROR_REASON_ONE, { message: "error detail message" });
+    return e;
+}
