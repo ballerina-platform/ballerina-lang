@@ -46,8 +46,9 @@ public class Utils {
                 }
                 throw new BallerinaException(BallerinaErrorReasons.CONCURRENT_MODIFICATION_ERROR,
                         "concurrent 'freeze()' attempts not allowed");
+            default:
+                return true;
         }
-        return true;
     }
 
     /**
@@ -56,7 +57,7 @@ public class Utils {
      * An update to a value would panic either if a value is frozen or if a value is currently in the process of
      * being frozen.
      *
-     * @param currentState the current {@link Status.State} of the value
+     * @param currentState the current {@link State} of the value
      */
     public static void handleInvalidUpdate(State currentState) {
         switch (currentState) {
@@ -66,6 +67,8 @@ public class Utils {
             case MID_FREEZE:
                 throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
                         "modification not allowed during freeze");
+            default:
+                return;
         }
     }
 }

@@ -654,10 +654,6 @@ function generateMainMethod(bir:Function userMainFunc) {
     // invoke the user's main method
     jvm:visitMethodInstruction(INVOKESTATIC, className, "main", desc, false);
 
-    // TODO: remove. just for testing purpose
-    visitMapLiteral(paramIndex);
-    print(paramIndex);
-
     if (!isVoidFunction) {
         jvm:visitMethodInstruction(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
     }
@@ -677,7 +673,7 @@ function generateCast(int paramIndex, bir:BType targetType) {
     jvm:visitNoOperandInstruction(AALOAD);
 
     if (targetType is bir:BTypeInt) {
-        jvm:visitMethodInstruction(INVOKESTATIC, LONG_VALUE, "parseLong", "(Ljava/lang/String;)J", false);
+        jvm:visitMethodInstruction(INVOKESTATIC, LONG_VALUE, "parseLong", io:sprintf("(L%s;)J", STRING_VALUE), false);
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
         panic err;
@@ -715,32 +711,6 @@ function valueTypeToAny(bir:BType bType) {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
     }
-}
-
-# TODO: This if a function added for testing. should be removed
-#
-# + regIndex - target reg index of the created map
-function visitMapLiteral(int regIndex) {
-    map<int> m = { "apples" : 10, "organges" : 20, "grapes" : 30};
-
-    visitMapNewIns();
-    jvm:visitVariableInstruction(ASTORE, regIndex);
-
-    foreach var item in m {
-        jvm:visitVariableInstruction(ALOAD, regIndex);
-        jvm:visitLoadConstantInstruction(item[0]);
-        jvm:visitLoadConstantInstruction(item[1]);
-        valueTypeToAny("int");
-        visitMapStoreIns();
-    }
-}
-
-# Print the ref-value in the given reg index.
-# TODO: This if a function added for testing. should be removed
-function print(int regIndex) {
-    jvm:visitFieldInstruction(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-    jvm:visitVariableInstruction(ALOAD, regIndex);
-    jvm:visitMethodInstruction(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
 }
 
 type BalToJVMIndexMap object {

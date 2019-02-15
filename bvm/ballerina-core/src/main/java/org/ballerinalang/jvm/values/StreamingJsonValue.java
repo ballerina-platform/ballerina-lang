@@ -123,11 +123,6 @@ public class StreamingJsonValue extends ArrayValue {
         return super.toString();
     }
 
-//    @Override
-//    public BIterator newIterator() {
-//        return new BStreamingJSONIterator(this);
-//    }
-
     @Override
     public long size() {
         if (datasource.hasNext()) {
@@ -149,49 +144,4 @@ public class StreamingJsonValue extends ArrayValue {
             throw new BallerinaException("error occurred while building JSON: ", t);
         }
     }
-
-//    /**
-//     * {@code {@link BStreamingJSONIterator}} provides iterator implementation for Ballerina array values.
-//     *
-//     * @since 0.982.0
-//     */
-//    static class BStreamingJSONIterator implements BIterator {
-//        BStreamingJSON array;
-//        long cursor = 0;
-//
-//        BStreamingJSONIterator(BStreamingJSON value) {
-//            this.array = value;
-//        }
-//
-//        @Override
-//        public BValue getNext() {
-//            BValue value;
-//            // If the current index is loaded in to memory, then read from it
-//            if (cursor < array.size) {
-//                value = array.getBValue(cursor);
-//            } else {
-//                // Otherwise read the next value from data-source and cache it in memory
-//                BRefType<?> nextVal = array.datasource.next();
-//                array.appendToCache(nextVal);
-//                value = nextVal;
-//            }
-//
-//            this.cursor++;
-//            return value;
-//        }
-//
-//        @Override
-//        public boolean hasNext() {
-//            if (cursor < array.size) {
-//                return true;
-//            }
-//
-//            return array.datasource.hasNext();
-//        }
-//
-//        @Override
-//        public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-//
-//        }
-//    }
 }

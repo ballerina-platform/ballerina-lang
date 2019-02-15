@@ -91,7 +91,7 @@ public interface RefValue {
     }
 
     /**
-     * Default serialize implementation for {@link Value}.
+     * Default serialize implementation for {@link RefValue}.
      *
      * @param outputStream Represent the output stream that the data will be written to.
      */

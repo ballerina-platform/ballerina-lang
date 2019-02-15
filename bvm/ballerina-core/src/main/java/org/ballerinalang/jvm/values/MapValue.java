@@ -47,6 +47,9 @@ import static org.ballerinalang.jvm.values.freeze.Utils.handleInvalidUpdate;
  * Structure that represents the mapping between key value pairs in ballerina.
  * A map cannot contain duplicate keys; each key can map to at most one value.
  * 
+ * @param <K> the type of keys maintained by this map
+ * @param <V> the type of mapped values
+ * 
  * @since 0.995.0
  */
 public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
@@ -88,15 +91,15 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     /**
      * Retrieve the value for the given key from map.
+     * A {@link BallerinaException} will be thrown if the key does not exists.
      *
      * @param key key used to get the value
-     * @param except flag indicating whether to throw an exception if the key does not exists
      * @return value associated with the key
      */
-    public V get(Object key, boolean except) {
+    public V getOrThrow(Object key) {
         readLock.lock();
         try {
-            if (except && !containsKey(key)) {
+            if (!containsKey(key)) {
                 throw new BallerinaException(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
                         "cannot find key '" + key + "'");
             }
@@ -107,11 +110,16 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     }
 
     /**
-     * Insert a key value pair into the map.
-     * 
-     * @param key key related to the value
-     * @param value value related to the key
-     * @return
+     * Associates the specified value with the specified key in this map.
+     * If the map previously contained a mapping for the key, the old
+     * value is replaced.
+     *
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with <tt>key</tt>, or
+     *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
+     *         (A <tt>null</tt> return can also indicate that the map
+     *         previously associated <tt>null</tt> with <tt>key</tt>.)
      */
     @Override
     public V put(K key, V value) {
