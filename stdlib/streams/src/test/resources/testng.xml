@@ -20,7 +20,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="Ballerina-Streaming-Test-Suite">
-    <test name="ballerina-streaming-tests" enabled="true" preserve-order="true" parallel="false">
+    <test name="ballerina-streaming-tests" enabled="false" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.stdlib.streams.*"/>
         </packages>
