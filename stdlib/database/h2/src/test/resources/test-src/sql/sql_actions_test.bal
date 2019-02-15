@@ -1288,10 +1288,10 @@ function testDateTimeNullInOutValues() returns (any, any, any, any) {
         });
 
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 124 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: null, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIME, value: null, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para4 = { sqlType: sql:TYPE_TIMESTAMP, value: null, direction: sql:DIRECTION_INOUT };
-    sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: null, direction: sql:DIRECTION_INOUT };
+    sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: (), direction: sql:DIRECTION_INOUT };
+    sql:Parameter para3 = { sqlType: sql:TYPE_TIME, value: (), direction: sql:DIRECTION_INOUT };
+    sql:Parameter para4 = { sqlType: sql:TYPE_TIMESTAMP, value: (), direction: sql:DIRECTION_INOUT };
+    sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: (), direction: sql:DIRECTION_INOUT };
 
     _ = testDB->call("{call TestDateINOUTParams(?,?,?,?,?)}", (), para1, para2, para3, para4, para5);
     testDB.stop();

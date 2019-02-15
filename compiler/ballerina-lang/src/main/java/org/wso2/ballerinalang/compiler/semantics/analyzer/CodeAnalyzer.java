@@ -148,6 +148,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -193,6 +194,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
+    private static final String NULL_LITERAL = "null";
 
     private final SymbolResolver symResolver;
     private int loopCount;
@@ -215,6 +217,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private final Stack<HashSet<BType>> returnTypes = new Stack<>();
     private boolean withinAbortedBlock;
     private boolean withinCommittedBlock;
+    private boolean isJSONContext;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -564,6 +567,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
+            this.isJSONContext = types.isJSONContext(matchStmt.expr.type);
+            analyzeNode(pattern.literal, env);
             matchedPatterns.add(pattern);
         }
 
@@ -945,10 +950,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
-        if (objectTypeNode.isFieldAnalyseRequired && Symbols.isPublic(objectTypeNode.symbol)) {
-            objectTypeNode.fields.stream()
-                    .filter(field -> (Symbols.isPublic(field.symbol)))
-                    .forEach(field -> analyzeNode(field, objectEnv));
+        if (objectTypeNode.isFieldAnalyseRequired) {
+            objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         }
         objectTypeNode.functions.forEach(e -> this.analyzeNode(e, objectEnv));
         if (Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.CLIENT) && objectTypeNode.functions.stream()
@@ -969,10 +972,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        if (recordTypeNode.isFieldAnalyseRequired && Symbols.isPublic(recordTypeNode.symbol)) {
-            recordTypeNode.fields.stream()
-                    .filter(field -> (Symbols.isPublic(field.symbol)))
-                    .forEach(field -> analyzeNode(field, recordEnv));
+        if (recordTypeNode.isFieldAnalyseRequired) {
+            recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
         }
     }
 
@@ -988,6 +989,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!Symbols.isPublic(varNode.symbol)) {
             if (varNode.expr == null && Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
+            }
+            return;
+        }
+
+        if (varNode.parent != null &&
+                (varNode.parent.getKind() == NodeKind.RECORD_TYPE ||
+                        varNode.parent.getKind() == NodeKind.OBJECT_TYPE)) {
+            BLangStructureTypeNode structTypeNode = (BLangStructureTypeNode) varNode.parent;
+            if (Symbols.isPublic(structTypeNode.symbol)) {
+                analyseType(varNode.type, varNode.pos);
             }
             return;
         }
@@ -1315,7 +1326,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLiteral literalExpr) {
-        /* ignore */
+        if (literalExpr.type.tag == TypeTags.NIL &&
+                NULL_LITERAL.equals(literalExpr.originalValue) &&
+                !literalExpr.isJSONContext && !this.isJSONContext) {
+            dlog.error(literalExpr.pos, DiagnosticCode.INVALID_USE_OF_NULL_LITERAL);
+        }
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
@@ -1523,7 +1538,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTernaryExpr ternaryExpr) {
         analyzeExpr(ternaryExpr.expr);
+        boolean isJSONCtx = getIsJSONContext(ternaryExpr.type);
+        this.isJSONContext = isJSONCtx;
         analyzeExpr(ternaryExpr.thenExpr);
+        this.isJSONContext = isJSONCtx;
         analyzeExpr(ternaryExpr.elseExpr);
     }
 
@@ -1583,7 +1601,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBinaryExpr binaryExpr) {
         if (validateBinaryExpr(binaryExpr)) {
+            boolean isJSONCtx = getIsJSONContext(binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+            this.isJSONContext = isJSONCtx;
             analyzeExpr(binaryExpr.lhsExpr);
+            this.isJSONContext = isJSONCtx;
             analyzeExpr(binaryExpr.rhsExpr);
         }
     }
@@ -1904,6 +1925,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.parent = parent;
         parent = node;
         node.accept(this);
+        this.isJSONContext = false;
         parent = myParent;
         checkAccess(node);
     }
@@ -2072,6 +2094,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             existingArgs.add(namedArg.name);
         });
+    }
+
+    private boolean getIsJSONContext(BType... arg) {
+        if (this.isJSONContext) {
+            return true;
+        }
+        for (BType type : arg) {
+            if (types.isJSONContext(type)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

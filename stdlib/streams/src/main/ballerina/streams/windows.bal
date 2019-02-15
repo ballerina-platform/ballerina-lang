@@ -664,7 +664,7 @@ public type ExternalTimeBatchWindow object {
     public int timeToKeep;
     public LinkedList currentEventChunk;
     public LinkedList expiredEventChunk;
-    public StreamEvent? resetEvent = null;
+    public StreamEvent? resetEvent = ();
     public int startTime = -1;
     public boolean isStartTimeEnabled = false;
     public boolean replaceTimestampWithBatchEndTime = false;
@@ -781,7 +781,7 @@ public type ExternalTimeBatchWindow object {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
@@ -913,7 +913,7 @@ public type ExternalTimeBatchWindow object {
 
     public function flushToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents) {
         LinkedList newEventChunk = new();
-        if (self.expiredEventChunk.getFirst() != null) {
+        if (self.expiredEventChunk.getFirst() != ()) {
             // mark the timestamp for the expiredType event
             self.expiredEventChunk.resetToFront();
             while (self.expiredEventChunk.hasNext()) {
@@ -927,11 +927,11 @@ public type ExternalTimeBatchWindow object {
             }
         }
 
-        if (self.expiredEventChunk != null) {
+        if (self.expiredEventChunk != ()) {
             self.expiredEventChunk.clear();
         }
 
-        if (self.currentEventChunk.getFirst() != null) {
+        if (self.currentEventChunk.getFirst() != ()) {
             // add reset event in front of current events
             any streamEvent = self.resetEvent;
             if (streamEvent is StreamEvent) {
@@ -970,8 +970,8 @@ public type ExternalTimeBatchWindow object {
     public function appendToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents) {
         LinkedList newEventChunk = new();
         LinkedList sentEventChunk = new();
-        if (self.currentEventChunk.getFirst() != null) {
-            if (self.expiredEventChunk.getFirst() != null) {
+        if (self.currentEventChunk.getFirst() != ()) {
+            if (self.expiredEventChunk.getFirst() != ()) {
                 // mark the timestamp for the expiredType event
                 self.expiredEventChunk.resetToFront();
                 while (self.expiredEventChunk.hasNext()) {
@@ -1121,7 +1121,7 @@ public type TimeLengthWindow object {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
@@ -1153,7 +1153,7 @@ public type TimeLengthWindow object {
                         self.expiredEventChunk.addLast(clonedEvent);
                     } else {
                         StreamEvent firstEvent = getStreamEvent(self.expiredEventChunk.removeFirst());
-                        if (firstEvent != null) {
+                        if (firstEvent != ()) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
                             self.expiredEventChunk.addLast(clonedEvent);
@@ -1267,7 +1267,7 @@ public type UniqueLengthWindow object {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
@@ -1308,7 +1308,7 @@ public type UniqueLengthWindow object {
                         oldEvent.timestamp = currentTime;
                     } else {
                         StreamEvent firstEvent = getStreamEvent(self.expiredEventChunk.removeFirst());
-                        if (firstEvent != null) {
+                        if (firstEvent != ()) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
                             self.expiredEventChunk.addLast(clonedEvent);
@@ -1408,7 +1408,7 @@ public type DelayWindow object {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
@@ -1602,7 +1602,7 @@ public type SortWindow object {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
