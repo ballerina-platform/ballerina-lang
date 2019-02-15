@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -29,6 +30,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * TesterinaFunction entity class.
@@ -84,6 +86,10 @@ public class TesterinaFunction {
 
     public BValue[] invoke() throws BallerinaException {
         if (this.type == Type.TEST_INIT) {
+            // Load launcher listeners
+            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
+            listeners.forEach(listener -> listener.beforeRunProgram(true));
+
             // Invoke init functions
             TesterinaUtils.invokePackageInitFunctions(programFile);
             TesterinaUtils.invokePackageTestInitFunctions(programFile);
@@ -91,6 +97,8 @@ public class TesterinaFunction {
             //  Invoke start functions
             TesterinaUtils.invokePackageStartFunctions(programFile);
             TesterinaUtils.invokePackageTestStartFunctions(programFile);
+
+            listeners.forEach(listener -> listener.afterRunProgram(true));
 
             TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
             return new BValue[]{};

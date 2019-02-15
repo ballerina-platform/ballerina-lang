@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
+import ballerina/encoding;
 
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
@@ -311,7 +312,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
             string username = config.auth.username ?: "";
             string password = config.auth.password ?: "";
             string str = username + ":" + password;
-            string token = check str.base64Encode();
+            string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
         } else if (scheme == OAUTH2) {
             string accessToken = config.auth.accessToken ?: "";
@@ -323,12 +324,12 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
         } else if (scheme == JWT_AUTH) {
             string authToken = runtime:getInvocationContext().authContext.authToken;
             if (authToken == EMPTY_STRING) {
-                error err = error("Authentication token is not set at invocation context");
+                error err = error(HTTP_ERROR_CODE, { message: "Authentication token is not set at invocation context" });
                 return err;
             }
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
         } else {
-            error err = error("Invalid authentication scheme. It should be basic, oauth2 or jwt");
+            error err = error(HTTP_ERROR_CODE, { message: "Invalid authentication scheme. It should be basic, oauth2 or jwt" });
             return err;
         }
     }
@@ -363,7 +364,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
     string[] scopes = config.auth.scopes ?: [];
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
-        error err = error("AccessTokenError",
+        error err = error(HTTP_ERROR_CODE,
             { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,
         refresh url are not provided" });
         return err;
@@ -383,7 +384,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
         }
         if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
             string clientIdSecret = clientId + ":" + clientSecret;
-            refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
+            refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
+                    encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
         } else {
             textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
         }
@@ -394,7 +396,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
         if (refreshTokenResponse.statusCode == OK_200) {
             return generatedToken.access_token.toString();
         } else {
-            error err = error("AccessTokenError",
+            error err = error(HTTP_ERROR_CODE,
                 { message: "Failed to generate new access token from the given refresh token" });
             return err;
         }

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
@@ -141,13 +142,13 @@ public type IntentVerificationRequest object {
 
 };
 
-function IntentVerificationRequest.buildSubscriptionVerificationResponse(string expectedTopic)
+public function IntentVerificationRequest.buildSubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
 }
 
-function IntentVerificationRequest.buildUnsubscriptionVerificationResponse(string expectedTopic)
+public function IntentVerificationRequest.buildUnsubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
@@ -207,7 +208,7 @@ function processWebSubNotification(http:Request request, service serviceType) re
     var payload = request.getPayloadAsString();
     if (payload is string) {
         stringPayload = payload;
-    } else if (payload is error) {
+    } else {
         string errCause = <string> payload.detail().message;
         map<any> errorDetail = { message : "Error extracting notification payload as string " +
                                         "for signature validation: " + errCause };
@@ -231,9 +232,11 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string generatedSignature = "";
 
     if (method.equalsIgnoreCase(SHA1)) {
-        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
+        generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toByteArray("UTF-8"),
+            secret.toByteArray("UTF-8")));
     } else if (method.equalsIgnoreCase(SHA256)) {
-        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
+        generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
+            secret.toByteArray("UTF-8")));
     } else {
         map<any> errorDetail = { message : "Unsupported signature method: " + method };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -497,7 +500,7 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration? hub
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
                                     default = hubConfiguration.topicRegistrationRequired ?: true);
 
-    // reset the hubUrl once the other parameters are set. if url is an empty strung, create hub url with listener
+    // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
     hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
@@ -561,13 +564,13 @@ public type WebSubHub object {
     public extern function getSubscribers(string topic) returns SubscriberDetails[];
 };
 
-function WebSubHub.stop() returns boolean {
+public function WebSubHub.stop() returns boolean {
     // TODO: return error
     var stopResult = self.hubHttpListener.__stop();
     return stopHubService(self.hubUrl) && !(stopResult is error);
 }
 
-function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+public function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
         map<any> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
@@ -592,7 +595,7 @@ function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:Readabl
             content.contentType = mime:APPLICATION_XML;
         } else if (payload is json) {
             content.contentType = mime:APPLICATION_JSON;
-        } else if (payload is byte[]|io:ReadableByteChannel) {
+        } else {
             content.contentType = mime:APPLICATION_OCTET_STREAM;
         }
     }
@@ -600,7 +603,7 @@ function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:Readabl
     return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
-function WebSubHub.registerTopic(string topic) returns error? {
+public function WebSubHub.registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
         map<any> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -609,7 +612,7 @@ function WebSubHub.registerTopic(string topic) returns error? {
     return registerTopicAtHub(topic);
 }
 
-function WebSubHub.unregisterTopic(string topic) returns error? {
+public function WebSubHub.unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
         map<any> errorDetail = { message : "Remote topic unregistration not allowed/not required at the Hub" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -657,7 +660,7 @@ function retrieveSubscriberServiceAnnotations(service serviceType) returns Subsc
             var subscriberServiceAnnotation = trap <SubscriberServiceConfiguration> (annData.value);
             if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
                 return subscriberServiceAnnotation;
-            } else if (subscriberServiceAnnotation is error) {
+            } else {
                 return;
             }
         }

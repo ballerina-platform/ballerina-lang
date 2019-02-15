@@ -32,6 +32,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_XML;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_INTERNAL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_REMOTE;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.PATH_SEPARATOR;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdate;
 
@@ -45,6 +46,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
+    private static final int WEBSUB_PORT = 8282;
     private BServerInstance webSubSubscriber;
 
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed -" +
@@ -140,19 +142,19 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(remoteHubJsonNotificationLogLeecherTwo);
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{8282});
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{WEBSUB_PORT});
     }
 
     @Test
     public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
         intentVerificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
         intentVerificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_STRING);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_STRING);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_XML);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_XML);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_STRING);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_REMOTE, CONTENT_TYPE_STRING);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_XML);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_REMOTE, CONTENT_TYPE_XML);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")

@@ -26,7 +26,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Connection;
@@ -47,7 +47,7 @@ public class Stop implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         Struct connectionBObject = BallerinaAdapter.getReceiverObject(context);
-        Connection connection = BallerinaAdapter.getNativeObject(connectionBObject, Constants.JMS_CONNECTION,
+        Connection connection = BallerinaAdapter.getNativeObject(connectionBObject, JmsConstants.JMS_CONNECTION,
                                                                  Connection.class, context);
         try {
             connection.stop();

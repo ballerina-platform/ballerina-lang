@@ -88,6 +88,7 @@ public class SymbolTable {
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;
+    public final BSymbol invalidUsageSymbol;
     public final Scope rootScope;
 
     public final BType noType = new BNoType(TypeTags.NONE);
@@ -147,6 +148,8 @@ public class SymbolTable {
         this.rootPkgSymbol.scope = this.rootScope;
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, noType, rootPkgSymbol);
+        this.invalidUsageSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID, noType,
+                                              rootPkgSymbol);
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
         initializeType(byteType, TypeKind.BYTE.typeName());
@@ -543,6 +546,11 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, floatType, booleanType, InstructionCodes.NOP);
         defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, floatType, booleanType, InstructionCodes.NOP);
         defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, floatType, booleanType, InstructionCodes.NOP);
+
+        // Decimal related methods.
+        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, decimalType, booleanType, InstructionCodes.NOP);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, decimalType, booleanType, InstructionCodes.NOP);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, decimalType, booleanType, InstructionCodes.NOP);
 
         //clone related methods
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, anydataType, anydataType, InstructionCodes.CLONE);

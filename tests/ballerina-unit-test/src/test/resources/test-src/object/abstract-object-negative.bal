@@ -64,7 +64,7 @@ type Person5 abstract object {
     public function getName() returns string;
 };
 
-function Person5.getName() returns string {
+public function Person5.getName() returns string {
     return "my name";
 }
 
@@ -84,6 +84,11 @@ type Bar object {
     *Foo;
 };
 
-function Bar.getName() returns string {
+private function Bar.getName() returns string {
     return "bar";
 }
+
+// Abstract object with extern method
+type Person7 abstract object {
+    public extern function getName() returns string;
+};

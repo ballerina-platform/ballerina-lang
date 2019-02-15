@@ -35,26 +35,46 @@
 
 @api-designer-title-font-size: calc(@api-designer-font-size + 4px);
 
+/*--- Background Colors ---*/
 
-/*--- Text Colors ---*/
+@light-api-designer-text-background-color: @white;
+@dark-api-designer-text-background-color: @white;
 
+/*--- Colors ---*/
+
+@light-api-designer-fill-method-text-color: @white;
+@dark-api-designer-fill-method-text-color: @white;
+@light-api-designer-resource-text-color: #111;
+@dark-api-designer-resource-text-color: #111;
+@light-api-designer-resource-text-hover-color: darken(@light-api-designer-resource-text-color, 3%);
+@dark-api-designer-resource-text-hover-color: darken(@dark-api-designer-resource-text-color, 3%);
 @light-api-designer-placeholder-text-color: #61affe;
 @dark-api-designer-placeholder-text-color: #61affe;
+@light-api-designer-inline-text-color: #888;
+@dark-api-designer-inline-text-color: #888;
+@light-api-designer-icon-text-color: #333;
+@dark-api-designer-icon-text-color: #333;
+@light-api-designer-icon-hover-color: #111;
+@dark-api-designer-icon-hover-color: #333;
+@light-api-designer-action-icon-color: #9e9e9e;
+@dark-api-designer-action-icon-color: #9e9e9e;
+@light-api-designer-action-icon-hover-color: darken(@light-api-designer-action-icon-color, 3%);
+@dark-api-designer-action-icon-hover-color: darken(@dark-api-designer-action-icon-color, 3%);
+@light-api-designer-border-color: #ddd;
+@dark-api-designer-border-color: #ccc;
 
 
 /*-------------------------------
-           API Colors 
+           API Method Colors 
 --------------------------------*/
 
-@post-color: #49cc90;
-@put-color: #fca130;
-@get-color: #61affe;
-@delete-color: #f93e3e;
-@patch-color: #3a8a87;
-@head-color: #9012fe;
-@options-color: #0d5aa7;
-
-@Operation-Options: get, post, put, delete, patch, head, options;
+@methods:     post          #00c378, 
+              get           #3498db, 
+              put           #ffb33e, 
+              delete        #f44336, 
+              patch         #EC407A, 
+              head          #8e44ad, 
+              options       #276dc4;
 
 
 /*-------------------------------
@@ -71,7 +91,6 @@
 @light-api-designer-table-header-text-color: @light-api-designer-base-text-color;
 @dark-api-designer-table-header-text-color: @dark-api-designer-base-text-color;
 
-
 /*-------------------------------
               Forms
 --------------------------------*/
@@ -79,7 +98,7 @@
 @light-api-designer-form-background-color: @white;
 @dark-api-designer-form-background-color: #484848;
 
-@light-api-designer-form-button-background-color: #E0E1E2;
+@light-api-designer-form-button-background-color: #888;
 @dark-api-designer-form-button-background-color: #3e3e3e;
 @light-api-designer-form-button-hover-background-color: darken(@light-api-designer-form-button-background-color, 3%);
 @dark-api-designer-form-button-hover-background-color: darken(@dark-api-designer-form-button-background-color, 3%);
@@ -88,7 +107,6 @@
 
 @light-api-designer-form-border-color: @light-api-designer-form-button-background-color;
 @dark-api-designer-form-border-color: @dark-api-designer-form-button-background-color;
-
 
 /*-------------------------------
             Operation

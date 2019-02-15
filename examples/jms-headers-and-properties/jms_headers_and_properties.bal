@@ -15,10 +15,8 @@ jms:Session jmsSession = new(conn, {
     });
 
 // Initialize a queue receiver using the created session.
-listener jms:QueueReceiver consumerEndpoint = new({
-        session: jmsSession,
-        queueName: "MyQueue"
-    });
+listener jms:QueueReceiver consumerEndpoint = new(jmsSession,
+    queueName = "MyQueue");
 
 // Bind the created consumer to the listener service.
 service jmsListener on consumerEndpoint {
@@ -27,12 +25,11 @@ service jmsListener on consumerEndpoint {
     resource function onMessage(jms:QueueReceiverCaller consumer,
                                 jms:Message message) {
         // Create a queue sender.
-        jms:SimpleQueueSender queueSender = new({
+        jms:QueueSender queueSender = new({
                 initialContextFactory: "bmbInitialContextFactory",
                 providerUrl: "amqp://admin:admin@carbon/carbon"
-                    + "?brokerlist='tcp://localhost:5672'",
-                queueName: "RequestQueue"
-            });
+                    + "?brokerlist='tcp://localhost:5672'"
+            }, queueName = "RequestQueue");
 
         var content = message.getTextMessageContent();
         if (content is string) {
@@ -69,7 +66,8 @@ service jmsListener on consumerEndpoint {
         }
 
         // Create a new text message.
-        var msg = queueSender.createTextMessage("Hello From Ballerina!");
+        var msg = queueSender.session.createTextMessage(
+                                         "Hello From Ballerina!");
         if (msg is jms:Message) {
             // Set JMS header, Correlation ID.
             var cid = msg.setCorrelationID("Msg:1");

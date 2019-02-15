@@ -70,7 +70,7 @@ public type Listener object {
     extern function stop();
 };
 
-function Listener.init(ServiceEndpointConfiguration c) {
+public function Listener.init(ServiceEndpointConfiguration c) {
     self.config = c;
     var providers = self.config.authProviders;
     if (providers is AuthProvider[]) {

@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
@@ -199,7 +200,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
                 SnippetBlock.SnippetType.SNIPPET);
 
         // Populate the anonymous function signature completion item
-        completionItems.add(snippetBlock.build(new CompletionItem(), snippetSupport));
+        completionItems.add(snippetBlock.build(snippetSupport));
     }
 
     private String getFunctionSignature(List<BLangVariable> paramTypes, BLangType returnType)
@@ -249,7 +250,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
                 SnippetBlock.SnippetType.SNIPPET);
 
         // Populate the anonymous function signature completion item
-        completionItems.add(snippetBlock.build(new CompletionItem(), snippetSupport));
+        completionItems.add(snippetBlock.build(snippetSupport));
     }
     
     private String getAnonFunctionSnippetBody(BLangType returnType, int numberOfParams) throws LSCompletionException {
@@ -277,7 +278,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
     }
 
     private String getTypeName(BLangType bLangType) throws LSCompletionException {
-        if (bLangType instanceof BLangValueType) {
+        if (bLangType instanceof BLangValueType || bLangType instanceof BLangUnionTypeNode) {
             return bLangType.toString();
         } else if (bLangType instanceof BLangUserDefinedType) {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) bLangType;

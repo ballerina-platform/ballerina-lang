@@ -953,7 +953,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
              List<ColumnDefinition> columnDefinitions, String databaseProductName) {
         return new BCursorTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
-                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName));
+                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName),
+                structType);
     }
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,

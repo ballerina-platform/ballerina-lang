@@ -97,6 +97,12 @@ public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<B
 
   @Override
   @Nullable
+  public PsiElement getPrivate() {
+    return findChildByType(PRIVATE);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getPublic() {
     return findChildByType(PUBLIC);
   }

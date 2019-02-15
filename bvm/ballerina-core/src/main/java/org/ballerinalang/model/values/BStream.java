@@ -98,7 +98,7 @@ public class BStream implements BRefType<Object> {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
     }
 

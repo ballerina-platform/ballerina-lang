@@ -61,3 +61,11 @@ function name1() {
         } hgs;
     } sdd;
 }
+
+function name2() {
+    json msg = {
+        "response": {
+            "name": "main resource"
+        }
+    };
+}

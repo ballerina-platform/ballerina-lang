@@ -66,11 +66,11 @@ function testMapToStruct () returns Person|error {
     Person parent = {
                         name:"Parent",
                         age:50,
-                        parent:null,
-                        address:null,
-                        info:null,
-                        marks:null,
-                        a:null,
+                        parent:(),
+                        address:(),
+                        info:(),
+                        marks:(),
+                        a:(),
                         score:4.57,
                         alive:false,
                         children:()
@@ -97,11 +97,11 @@ function testNestedMapToNestedStruct() returns Person|error {
     map<any> parent = {
         name:"Parent",
         age:50,
-        parent:null,
-        address:null,
-        info:null,
-        marks:null,
-        a:null,
+        parent:(),
+        address:(),
+        info:(),
+        marks:(),
+        a:(),
         score:4.57,
         alive:false
     };
@@ -214,11 +214,11 @@ function testMapWithIncompatibleArrayToStruct () returns Person {
     Person parent = {
                         name:"Parent",
                         age:50,
-                        parent:null,
-                        address:null,
-                        info:null,
-                        marks:null,
-                        a:null,
+                        parent:(),
+                        address:(),
+                        info:(),
+                        marks:(),
+                        a:(),
                         score:5.67,
                         alive:false
                     };
@@ -708,7 +708,7 @@ function structWithComplexMapToJson() returns (json | error) {
     map<string> e = {"foo":"bar"};
     PersonA f = {};
     int [] g = [1, 8, 7];
-    map<any> m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":null};
+    map<any> m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":()};
     
     Info info = {foo : m};
     var js =  json.convert(info);
@@ -806,7 +806,7 @@ function testJsonToMapConstrainedFail() returns map<any> {
     var result = map<T1>.convert(j2);
     if (result is map<T1>) {
         m = result;
-    } else if (result is error){
+    } else {
         panic result;
     }
     return m;
@@ -939,7 +939,7 @@ function testJsonToArrayFail() {
     var result = int[].convert(j);
     if (result is int[]) {
         int[] x = result;
-    } else if (result is error) {
+    } else {
         panic result;
     }
 }

@@ -302,17 +302,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean nativeFunc = ctx.EXTERN() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
+        boolean privateFunc = ctx.PRIVATE() != null;
 
         if (ctx.Identifier() != null) {
             this.pkgBuilder
-                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
+                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc, remoteFunc,
+                            nativeFunc,
                             bodyExists, ctx.Identifier().getText());
             return;
         }
 
         boolean isReceiverAttached = ctx.typeName() != null;
 
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
                 bodyExists, isReceiverAttached, false);
     }
 
@@ -896,6 +898,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 CLOSED_REST_BINDING_PATTERN : OPEN_REST_BINDING_PATTERN);
 
         this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), restBindingPattern);
+    }
+
+    @Override
+    public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addRecordBindingWS(getWS(ctx));
     }
 
     @Override
@@ -2344,8 +2355,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             text = text.substring(1, text.length() - 1);
             text = StringEscapeUtils.unescapeJava(text);
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
-        } else if (ctx.NullLiteral() != null || ctx.emptyTupleLiteral() != null) {
+        } else if (ctx.NullLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "null");
+        } else if (ctx.emptyTupleLiteral() != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "()");
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
         } else if ((node = ctx.SymbolicStringLiteral()) != null) {
@@ -2777,42 +2790,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startSetClauseNode();
-    }
-
-    @Override
-    public void exitSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endSetClauseNode(getWS(ctx), ctx.getChildCount() / 2);
     }
 
     @Override
@@ -3344,11 +3321,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
             return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 16,
                     DiagnosticCode.HEXADECIMAL_TOO_SMALL, DiagnosticCode.HEXADECIMAL_TOO_LARGE);
-        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
-            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
-            String processedNodeValue = nodeValue.toLowerCase().replace("0b", "");
-            return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 2,
-                    DiagnosticCode.BINARY_TOO_SMALL, DiagnosticCode.BINARY_TOO_LARGE);
         }
         return null;
     }

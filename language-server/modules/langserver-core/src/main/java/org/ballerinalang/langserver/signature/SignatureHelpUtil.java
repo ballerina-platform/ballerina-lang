@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
+import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -185,8 +186,10 @@ public class SignatureHelpUtil {
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
-        
-        signatureInfoModel.setSignatureDescription(docAttachment.description.trim(), signatureCtx);
+
+        if (docAttachment.description != null) {
+            signatureInfoModel.setSignatureDescription(docAttachment.description.trim(), signatureCtx);
+        }
         docAttachment.parameters.forEach(attribute ->
                 paramDescMap.put(attribute.getName(), attribute.getDescription()));
 
@@ -194,7 +197,9 @@ public class SignatureHelpUtil {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
             parameterInfoModel.setParamType(bVarSymbol.getType().toString());
             parameterInfoModel.setParamValue(bVarSymbol.getName().getValue());
-            parameterInfoModel.setDescription(paramDescMap.get(bVarSymbol.getName().getValue()));
+            if (paramDescMap.containsKey(bVarSymbol.getName().getValue())) {
+                parameterInfoModel.setDescription(paramDescMap.get(bVarSymbol.getName().getValue()));
+            }
             paramModels.add(parameterInfoModel);
         });
 
@@ -325,8 +330,10 @@ public class SignatureHelpUtil {
         }
 
         void setSignatureDescription(String signatureDescription, LSContext signatureContext) {
-            List<String> documentationFormat = signatureContext.get(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY)
-                    .getSignatureInformation().getDocumentationFormat();
+            SignatureInformationCapabilities capabilities = signatureContext
+                    .get(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY).getSignatureInformation();
+            List<String> documentationFormat = capabilities != null ? capabilities.getDocumentationFormat()
+                    : new ArrayList<>();
             if (documentationFormat != null
                     && !documentationFormat.isEmpty()
                     && documentationFormat.get(0).equals(CommonUtil.MARKDOWN_MARKUP_KIND)) {

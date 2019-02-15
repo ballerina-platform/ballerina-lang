@@ -4,7 +4,9 @@ import ballerina/mime;
 
 http:Client clientEP = new("http://localhost:9090");
 
-@http:ServiceConfig {basePath: "/multiparts"}
+@http:ServiceConfig {
+    basePath: "/multiparts"
+}
 //Binds the listener to the service.
 service multipartDemoService on new http:Listener(9090) {
 
@@ -27,9 +29,7 @@ service multipartDemoService on new http:Listener(9090) {
             response.setPayload("Error in decoding multiparts!");
             response.statusCode = 500;
         }
-
         var result = caller->respond(response);
-
         if (result is error) {
             log:printError("Error sending response", err = result);
         }
@@ -40,13 +40,11 @@ service multipartDemoService on new http:Listener(9090) {
         path: "/encode"
     }
     resource function multipartSender(http:Caller caller, http:Request req) {
-
         //Create a json body part.
         mime:Entity jsonBodyPart = new;
         jsonBodyPart.setContentDisposition(
                         getContentDispositionForFormData("json part"));
         jsonBodyPart.setJson({"name": "wso2"});
-
         //Create an `xml` body part as a file upload.
         mime:Entity xmlFilePart = new;
         xmlFilePart.setContentDisposition(
@@ -56,10 +54,8 @@ service multipartDemoService on new http:Listener(9090) {
         // give the absolute file path instead.
         xmlFilePart.setFileAsEntityBody("./files/test.xml",
                                         contentType = mime:APPLICATION_XML);
-
         // Create an array to hold all the body parts.
         mime:Entity[] bodyParts = [jsonBodyPart, xmlFilePart];
-
         http:Request request = new;
         // Set the body parts to the request.
         // Here the content-type is set as multipart form data.
@@ -67,7 +63,6 @@ service multipartDemoService on new http:Listener(9090) {
         // eg:- `multipart/mixed`, `multipart/related` etc.
         // You need to pass the content type that suit your requirement.
         request.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
-
         var returnResponse = clientEP->post("/multiparts/decode", request);
         if (returnResponse is http:Response) {
             var result = caller->respond(returnResponse);
@@ -80,7 +75,6 @@ service multipartDemoService on new http:Listener(9090) {
                                     request!");
             response.statusCode = 500;
             var result = caller->respond(response);
-
             if (result is error) {
                 log:printError("Error sending response", err = result);
             }
@@ -101,7 +95,6 @@ function handleContent(mime:Entity bodyPart) {
             } else {
                 log:printError(string.convert(payload.detail().message));
             }
-
         } else if (mime:APPLICATION_JSON == baseType) {
             //Extracts `json` data from the body part.
             var payload = bodyPart.getJson();
@@ -110,7 +103,6 @@ function handleContent(mime:Entity bodyPart) {
             } else {
                 log:printError(string.convert(payload.detail().message));
             }
-
         } else if (mime:TEXT_PLAIN == baseType) {
             //Extracts text data from the body part.
             var payload = bodyPart.getText();

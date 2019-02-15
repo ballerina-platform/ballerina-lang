@@ -49,7 +49,7 @@ function readAllCharacters() returns string|error? {
         var readResult = readCharacters(fixedSize);
         if (readResult is string) {
             result = result + readResult;
-        } else if (readResult is error) {
+        } else {
             if (<string>readResult.detail()["message"] == "io.EOF") {
                 isDone = true;
             } else {
@@ -76,11 +76,8 @@ function readJson() returns json|error {
     var result = rch.readJson();
     if (result is json) {
         return result;
-    } else if (result is error) {
-        return result;
     } else {
-        error e = error("Unidentified type");
-        return e;
+        return result;
     }
 }
 

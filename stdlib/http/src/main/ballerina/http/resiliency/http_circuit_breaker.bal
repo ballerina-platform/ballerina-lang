@@ -56,7 +56,7 @@ public type CircuitHealth record {
     time:Time lastRequestTime?;
     time:Time lastErrorTime?;
     time:Time lastForcedOpenTime?;
-    Bucket[] totalBuckets = [];
+    Bucket?[] totalBuckets = [];
     !...;
 };
 
@@ -284,7 +284,7 @@ public type CircuitBreakerClient object {
     public function getCurrentState() returns CircuitState;
 };
 
-function CircuitBreakerClient.post(string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.post(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -297,7 +297,7 @@ function CircuitBreakerClient.post(string path, RequestMessage message) returns 
     }
 }
 
-function CircuitBreakerClient.head(string path, RequestMessage message = ()) returns Response|error {
+public function CircuitBreakerClient.head(string path, RequestMessage message = ()) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -310,7 +310,7 @@ function CircuitBreakerClient.head(string path, RequestMessage message = ()) ret
     }
 }
 
-function CircuitBreakerClient.put(string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.put(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -323,7 +323,7 @@ function CircuitBreakerClient.put(string path, RequestMessage message) returns R
     }
 }
 
-function CircuitBreakerClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -336,7 +336,7 @@ function CircuitBreakerClient.execute(string httpVerb, string path, RequestMessa
     }
 }
 
-function CircuitBreakerClient.patch(string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.patch(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -349,7 +349,7 @@ function CircuitBreakerClient.patch(string path, RequestMessage message) returns
     }
 }
 
-function CircuitBreakerClient.delete(string path, RequestMessage message) returns Response|error {
+public function CircuitBreakerClient.delete(string path, RequestMessage message) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -362,7 +362,7 @@ function CircuitBreakerClient.delete(string path, RequestMessage message) return
     }
 }
 
-function CircuitBreakerClient.get(string path, RequestMessage message = ()) returns Response|error {
+public function CircuitBreakerClient.get(string path, RequestMessage message = ()) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -375,7 +375,7 @@ function CircuitBreakerClient.get(string path, RequestMessage message = ()) retu
     }
 }
 
-function CircuitBreakerClient.options(string path, RequestMessage message = ()) returns Response|error {
+public function CircuitBreakerClient.options(string path, RequestMessage message = ()) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -388,7 +388,7 @@ function CircuitBreakerClient.options(string path, RequestMessage message = ()) 
     }
 }
 
-function CircuitBreakerClient.forward(string path, Request request) returns Response|error {
+public function CircuitBreakerClient.forward(string path, Request request) returns Response|error {
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -401,40 +401,40 @@ function CircuitBreakerClient.forward(string path, Request request) returns Resp
     }
 }
 
-function CircuitBreakerClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public function CircuitBreakerClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
     return self.httpClient->submit(httpVerb, path, <Request>message);
 }
 
-function CircuitBreakerClient.getResponse(HttpFuture httpFuture) returns Response|error {
+public function CircuitBreakerClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient->getResponse(httpFuture);
 }
 
-function CircuitBreakerClient.hasPromise(HttpFuture httpFuture) returns boolean {
+public function CircuitBreakerClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient->hasPromise(httpFuture);
 }
 
-function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient->getNextPromise(httpFuture);
 }
 
-function CircuitBreakerClient.getPromisedResponse(PushPromise promise) returns Response|error {
+public function CircuitBreakerClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient->getPromisedResponse(promise);
 }
 
-function CircuitBreakerClient.rejectPromise(PushPromise promise) {
+public function CircuitBreakerClient.rejectPromise(PushPromise promise) {
     return self.httpClient->rejectPromise(promise);
 }
 
-function CircuitBreakerClient.forceClose() {
+public function CircuitBreakerClient.forceClose() {
     self.currentCircuitState = CB_CLOSED_STATE;
 }
 
-function CircuitBreakerClient.forceOpen() {
+public function CircuitBreakerClient.forceOpen() {
     self.currentCircuitState = CB_OPEN_STATE;
     self.circuitHealth.lastForcedOpenTime = time:currentTime();
 }
 
-function CircuitBreakerClient.getCurrentState() returns CircuitState {
+public function CircuitBreakerClient.getCurrentState() returns CircuitState {
     return self.currentCircuitState;
 }
 
@@ -483,7 +483,8 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
             currentState = switchCircuitStateOpenToHalfOpenOnResetTime(circuitBreakerInferredConfig,
                                                                                     circuitHealth, currentState);
         }
-        circuitHealth.totalBuckets[currentBucketId].totalCount += 1;
+        Bucket bucket = <Bucket> circuitHealth.totalBuckets[currentBucketId];
+        bucket.totalCount += 1;
         return currentState;
     }
 }
@@ -492,7 +493,7 @@ function updataCircuitHealthAndRespond(Response|error serviceResponse, CircuitHe
                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns Response|error {
     if (serviceResponse is Response) {
         updateCircuitHealthSuccess(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
-    } else if (serviceResponse is error) {
+    } else {
         updateCircuitHealthFailure(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
     }
     return serviceResponse;
@@ -504,7 +505,8 @@ function updateCircuitHealthFailure(CircuitHealth circuitHealth,
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         circuitHealth.lastRequestSuccess = false;
         updateLastUsedBucketId(currentBucketId, circuitHealth);
-        circuitHealth.totalBuckets[currentBucketId].failureCount += 1;
+        Bucket bucket = <Bucket> circuitHealth.totalBuckets[currentBucketId];
+        bucket.failureCount += 1;
         time:Time lastUpdated = time:currentTime();
         circuitHealth.lastErrorTime = lastUpdated;
         circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
@@ -518,7 +520,8 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResp
         time:Time lastUpdated = time:currentTime();
         updateLastUsedBucketId(currentBucketId, circuitHealth);
         if (circuitBreakerInferredConfig.statusCodes[inResponse.statusCode] == true) {
-            circuitHealth.totalBuckets[currentBucketId].failureCount += 1;
+            Bucket bucket = <Bucket>circuitHealth.totalBuckets[currentBucketId];
+            bucket.failureCount += 1;
             circuitHealth.lastRequestSuccess = false;
             circuitHealth.lastErrorTime = lastUpdated;
             circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
@@ -563,7 +566,8 @@ function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
     int totalCount = 0;
     int totalFailures = 0;
 
-    foreach var bucket in circuitHealth.totalBuckets {
+    foreach var optBucket in circuitHealth.totalBuckets {
+        var bucket = <Bucket>optBucket;
         totalCount =  totalCount + bucket.failureCount + (bucket.totalCount - (bucket.failureCount + bucket.rejectedCount));
         totalFailures = totalFailures + bucket.failureCount;
     }
@@ -582,7 +586,8 @@ function getTotalRequestsCount(CircuitHealth circuitHealth) returns int {
     int totalCount = 0;
 
     foreach var bucket in circuitHealth.totalBuckets {
-        totalCount  =  totalCount + bucket.totalCount;
+        Bucket temp = <Bucket>bucket;
+        totalCount  =  totalCount + temp.totalCount;
     }
     return totalCount;
 }
@@ -608,7 +613,8 @@ function getCurrentBucketId(CircuitHealth circuitHealth, CircuitBreakerInferredC
 function updateRejectedRequestCount(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
     updateLastUsedBucketId(currentBucketId, circuitHealth);
-    circuitHealth.totalBuckets[currentBucketId].rejectedCount += 1;
+    Bucket bucket = <Bucket>circuitHealth.totalBuckets[currentBucketId];
+    bucket.rejectedCount += 1;
 }
 
 # Reset the bucket values to default ones.
@@ -672,7 +678,7 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
 #
 # + circuitHealth - Circuit Breaker health status
 function reInitializeBuckets(CircuitHealth circuitHealth) {
-    Bucket[] bucketArray = [];
+    Bucket?[] bucketArray = [];
     int bucketIndex = 0;
     while (bucketIndex < circuitHealth.totalBuckets.length()) {
         bucketArray[bucketIndex] = {};

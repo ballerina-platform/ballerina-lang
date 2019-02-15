@@ -17,8 +17,6 @@
 import ballerina/http;
 import ballerina/io;
 
-http:WebSocketClient wsClient = new("wss://echo.websocket.org", config = {callbackService: wsClientService});
-
 service wsClientService = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketClient caller, string text) {
@@ -45,3 +43,5 @@ service wsClientService = @http:WebSocketServiceConfig {} service {
 
     }
 };
+
+http:WebSocketClient wsClient = new("wss://echo.websocket.org", config = {callbackService: wsClientService});

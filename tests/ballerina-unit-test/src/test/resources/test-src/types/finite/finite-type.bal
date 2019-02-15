@@ -238,3 +238,14 @@ function testTypeDefWithFunctions2() returns int {
     return -1;
 }
 
+const int ICON = 5;
+const string SCON = "s";
+
+type FiniteType ICON|SCON;
+
+function testFiniteTypeWithConstants() returns (FiniteType, FiniteType) {
+    FiniteType f = 5;
+    FiniteType s = "s";
+
+    return (f,s);
+}

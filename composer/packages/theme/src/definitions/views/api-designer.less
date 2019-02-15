@@ -16,11 +16,33 @@
  * under the License.
  *
  */
- 
-@type    : "view";
-@element : "api-designer";
 
-@import (multiple) '../definitions.config';
+ @type : "view";
+ @element : "api-designer";
+ 
+ @import (multiple) '../../ballerina.config';
+ 
+// Gen methods mixin
+.gen-method-styles(@properties) {
+    .iter(length(@methods));
+    .iter(@i) when (@i > 0) {
+        .iter(@i - 1);
+
+        @pair:  extract(@methods, @i); 
+        @key:   extract(@pair, 1);
+        @value: extract(@pair, 2);
+
+        &.@{key} {
+            .iterproperty(length(@properties));
+            .iterproperty(@j) when (@j > 0) {
+                .iterproperty(@j - 1);
+
+                @property:  extract(@properties, @j); 
+                @{property}: @value;   
+            }
+        }
+    }
+}
 
 .api-designer(@color) {
     background: ~"@{@{color}-api-designer-background-color}";
@@ -30,300 +52,330 @@
         padding: 25px 30px;
 
         .api-visualizer {
-            .action-container {
-                margin-bottom: 1em;
-            }
-            .accordion {
-                padding-bottom: .5em !important;
-            }
-            .oas-header {
-                padding: 1em 0 0 0;
 
-                h1 {
-                    font-weight: 300;
-                    padding: 0;
-                    margin: 0;
-                    float: left;
+            .ui.header {
+                font-size: 1.4rem;
+                font-weight: 600;
 
-                    span {
-                        font-size: .5em;
-                        padding: 0 1.5em;
-                        color: #569cd6;
-                    }
-                }
-                .version {
-                    line-height: 25px;
-                    font-size: 1em;
-                    padding: 0 .8em;
-                    border: 1px solid #ccc;
-                    display: block;
-                    margin-top: .5em;
-                    float: right;
-                }
-                &:after {
-                    content: '';
-                    display: block;
-                    clear: both;
+                .sub.header {
+                    display: inline-block;
+                    margin-left: 5px;
                 }
             }
-            .oas-details {
-                padding: 1em 0 3em 0;
-
-                p {
-                    line-height: 15px;
-                    color: #929292;
-                }
-                .description {
-                    margin-bottom: 1em;
-                }
-                &:after {
-                    content: '';
-                    display: block;
-                    clear: both;
-                }
-            }
-            form {
-                input,
-                textarea,
-                .ui.selection.dropdown,
-                .ui.selection.dropdown .menu {
-                    color: ~"@{@{color}-api-designer-base-text-color}";
-                    background: ~"@{@{color}-api-designer-form-background-color}";
-                }
-                .ui.selection.dropdown .menu .item span {
-                    color: ~"@{@{color}-api-designer-base-text-color}";
-                }
-                label {
-                    color: ~"@{@{color}-api-designer-base-text-color}";
-                }
-                .ui.selection.dropdown .menu > .item {
-                    border: none;
-                }
-            }
-            .ui.message {
-                padding: 1em;
-                margin: 2em 1em 0;
-            }
+            .paragraph {
+                text-align: justify;
             
-            .ui.table {
-                background-color: ~"@{@{color}-api-designer-table-background-color}";
-                color: ~"@{@{color}-api-designer-table-text-color}";
-                border-radius: 0px;
-
-                thead tr:first-child > th {
-                    background-color:  ~"@{@{color}-api-designer-table-header-background-color}";
-                    color: ~"@{@{color}-api-designer-table-text-color}";
-                }
-            }
-            .ui.message {
-                margin: 1em 0 !important;
-            }
-            .ui.accordion {
-                .title:not(.ui) {
-                    color: ~"@{@{color}-api-designer-base-text-color}";
-                }
-            }
-
-            .resource-container {
-                margin: 1em 0;
-            }
-            
-            .resource-container::before,
-            .add-resource::before {
-                content: '';
-                display: block;
-                clear: both;
-            }
-            
-            .resource {
-                padding: 0;
-                color: ~"@{@{color}-api-designer-base-text-color}";
-            }
-            
-            .resource-content {
-                margin-left: 1.2em;
-            }
-            
-            .add-resource {
-                margin: 1em 0;
-                padding: 1em;
-                background-color: ~"@{@{color}-api-designer-add-resource-background-color}";
-            }
-            
-            .oas-resources {
-                padding: 2em 1em;
-            }
-            
-            .res-title {
-                color: ~"@{@{color}-api-designer-base-text-color}";
-                font-size: 1.2em !important;
-            }
-            
-            .add-operation-action {
-                margin-left: 1em !important;
-                display: inline-block !important;
-                color: ~"@{@{color}-api-designer-form-button-text-color}";
-                background-color: ~"@{@{color}-api-designer-form-button-background-color}";
-
-                &:hover {
-                    background-color: ~"@{@{color}-api-designer-form-button-hover-background-color}";
-                    color: ~"@{@{color}-api-designer-base-text-color}";
-                }
-            }
-
-            .operation {
-                background-color: ~"@{@{color}-api-designer-operation-background-color}";
-                margin: 0.3em 0 0 0;
-                border: 1px solid ~"@{@{color}-api-designer-operation-border-color}";
-
-                .op-title {
-                    padding: 0 !important;
-                    color: ~"@{@{color}-api-designer-base-text-color}";
-                    background-color: ~"@{@{color}-api-designer-operation-title-background-color}";
-
-                    a {
-                        color: ~"@{@{color}-api-designer-placeholder-text-color}";
-                    }
-                    .op-method {
-                        padding: .5em;
-                        display: inline-block;
-                        min-width: 6em;
-                        margin-right: 1em;
-                        text-align: center;
-                        text-transform: uppercase;
-                        font-size: .8em;
-                    }
-                    &:hover {
-                        background-color: ~"@{@{color}-api-designer-operation-title-hover-background-color}";
-                    }
-                }
-                .op-summary {
-                    font-weight: 400;
-                    font-size: .9em;
-                    color: #b9b9b9;
-                }
-                .content {
-                    padding: 0.5em 1em 1.5em 1em !important;
-                }
-                .delete-op {
-                    margin: 6px 10px;
-                    float: right;
-                    color: #b3b3b3;
-                }
-            }
-
-            .op-section {
-                margin-bottom: 1.5em;
-
-                .title {
-                    p {
-                        display: inline-block;
-                        color: ~"@{@{color}-api-designer-base-text-color}";
-                    }
-                    a {
-                        display: inline-block;
-                        line-height: 13px;
-                        padding-left: 10px;
-                        cursor: pointer;
-                    }
-                }
-            } 
-
-            .add-operation {
-                margin: -0.6em 0 1.5em 0;
-                padding: 1em;
-                background-color: ~"@{@{color}-api-designer-add-operation-background-color}";
-            }
-
-            .ui.button.add-operation-action {
-                border-radius: 50%;
-                padding: .58928571em;
-            }
-
-            .no-data {
-                padding: .7em .5em;
-                background-color: #616161;
-            }
-
-            .genOperationStyle(length(@Operation-Options));
-            .genOperationStyle(@OperationList) when (@OperationList > 0) {
-                .genOperationStyle(@OperationList - 1);
-
-                @value: extract(@Operation-Options, @OperationList);
-                @borderColor: '@{value}-color';
-
-                .operation.@{value} .content {
-                    border-left: 1px solid @@borderColor;
-                }
-                .operation.@{value} .op-title .op-method {
-                    font-weight: 600;
-                    color: @@borderColor;
-                    background-color: ~"@{@{color}-api-designer-operation-method-background-color}";
-                    border: 1px solid @@borderColor;
-                }
-
-            }
-
-            .inline-editor {
-                display: initial;
-                cursor: pointer;
-
-                span {
-                    border: 1px solid rgba(204, 204, 204, 0);
-
-                    &:hover {
-                        background-color: rgba(204, 204, 204, 0.07);
-                        border: 1px solid rgba(204, 204, 204, 0.23);
-                    }
-                }
-                .ui.form {
-                    display: inherit;
-
-                    input {
-                        background: ~"@{@{color}-api-designer-form-background-color}" !important;
-                        border-bottom: 1px solid ~"@{@{color}-api-designer-form-border-color}" !important;
-                    }
-                }
-                &.no-text span {
-                    color: ~"@{@{color}-api-designer-placeholder-text-color}";
-                    
-                    &:hover {
-                        text-decoration: underline;
-                    }
-                }
                 &.editing {
+            
                     .ui.form button {
                         outline: none;
                         box-shadow: none !important;
                         color: ~"@{@{color}-api-designer-form-button-text-color}";
                         background-color: ~"@{@{color}-api-designer-form-button-background-color}";
-
                         &:hover {
                             background-color: ~"@{@{color}-api-designer-form-button-hover-background-color}";
                         }
                     }
                     textarea {
-                        width: 100%;
+                        width: 100% !important;
                         height: 10em;
                         border: none;
                         border-bottom: 1px solid;
                     }
                 }
-                &.url .activate-edit {
-                    display: none;
+                a.activate-edit {
+                    color: ~"@{@{color}-api-designer-icon-text-color}";
+                    padding: 2px;
+                    font-size: 10px;
                 }
-                &.url:hover .activate-edit {
-                    display: inline;
-                    padding: 0 1em;
-                    outline: none;
+                &:hover {
+                    background-color: ~"@{@{color}-api-designer-text-background-color}";
+                    color: ~"@{@{color}-api-designer-inline-text-color}";
+                }
+            }
+
+            &.url,
+            &.contact,
+            &.license {
+                
+                span {
+                    padding-right: 10px;
+
+                    &:hover {
+                        padding: 5px;
+                        cursor: text;
+                        margin-top: -6px;
+                        margin-left: -10px;
+                    }
+
+                    a.activate-edit { 
+                        color: ~"@{@{color}-api-designer-inline-text-color}";
+                    }
+                }
+            }
+            .add-operation {
+                .field {
+                    label {
+                        font-size: 12px;
+                        font-weight: 600px;
+                    }
+                }
+            }
+            .add-resource {
+                margin: 1em 0;
+                padding: 1em;
+                background-color: ~"@{@{color}-api-designer-add-resource-background-color}";
+                font-size: 1em;
+
+                .field {
+                    h4 {
+                        font-weight: 400;
+                        float: left;
+                    }
+                    label {
+                        font-size: 14px;
+                        font-weight: 500; 
+                    }
+                    .labeled {
+                        border: 1px solid~"@{@{color}-api-designer-border-color}";
+                        
+                        input {
+                            border: 0
+                        }
+
+                        .label {
+                            font-size: 12px;
+                        }
+                    }
+                }
+                .fields {
+                    label {
+                        font-size: 14px;
+                        font-weight: 400;
+                    }
+                }
+                .btn-close {
+                    float: right;
+                    margin-left: 1em !important;
+                    color: ~"@{@{color}-api-designer-action-icon-color}";
+                    background-color: ~"@{@{color}-api-designer-text-background-color}";
+                    padding: 6px 7px !important;
+                    border: 1px solid~"@{@{color}-api-designer-text-background-color}" !important;
+
+                    &:hover {
+                        color: ~"@{@{color}-api-designer-action-icon-hover-color}";
+                    }
+                }
+            }
+            .ui.basic.segment.close-segment {
+                display: none !important;
+            }
+            .ui.accordion {
+                margin-top: 20px;
+                border-left: 0;
+                border-right: 0;
+                border-top: 1px solid~"@{@{color}-api-designer-border-color}";
+                border-bottom: 1px solid~"@{@{color}-api-designer-border-color}";
+                box-shadow: none;
+
+                .title {
+                    .string {
+                        display: inline;
+
+                        span {
+                            font-weight: 300;
+                            color: ~"@{@{color}-api-designer-resource-text-color}";
+                            display: inline-block;
+                            
+                            &:hover {
+                                color: ~"@{@{color}-api-designer-resource-text-hover-color}";
+                            }
+                        }
+
+                    }
+                    .path-op-container {
+                        display: inline;
+                        float: right;
+                        
+                        .label {
+                            font-weight: 400;
+                            border-width: 1px;
+                            border-style: solid;
+                            padding: 5px;
+                            min-width: 50px;
+                            text-align: center;
+                            
+                            .gen-method-styles(border-color color);
+                        }
+                    }
+                    .add-operation-action {
+                        margin-left: 1em !important;
+                        display: inline-block !important;
+                        color: ~"{@{color}-api-designer-action-icon-color}";
+                        background-color: ~"@{@{color}-api-designer-text-background-color}";
+                        border: 1px solid~"@{@{color}-api-designer-border-color}";
+                        padding: 6px 7px !important;
+    
+                        &:hover {
+                            border: 1px solid~"@{@{color}-api-designer-icon-text-color}";
+                            color: ~"@{@{color}-api-designer-icon-text-color}";
+                        }
+                    }
+                }
+                .content {
+                    .ui.accordion {
+                        margin-top: 0px;
+                        border: 0;
+
+                        .title {
+                            padding: 0;
+                            border-width: 1px;
+                            border-style: solid;
+                            margin-top: 0.5rem;
+
+                            .gen-method-styles(border-color);
+
+                            span {
+                                display: inline-block;
+                            }
+
+                            &.active {
+                                border-width: 1px 1px 0;
+                                border-style: solid;
+                                border-top-width: 1px;
+                                border-bottom-width: 0; 
+    
+                                .gen-method-styles(border-color);
+                            }
+                            .op-method {
+                                color: ~"@{@{color}-api-designer-fill-method-text-color}";
+                                font-weight: 400;
+                                padding: 8px 10px;
+                                display: inline-block;
+                                min-width: 70px;
+                                text-align: center;
+                                
+                                .gen-method-styles(background);
+                                
+                                &:hover {
+                                    border: 0;
+                                    cursor: default;
+                                    margin: 0;
+                                    padding:8px 10px;
+                                }
+                            }
+                            .string {
+                                color: ~"@{@{color}-api-designer-inline-text-color}";
+                                padding-left: 5px;
+                                
+                                span {
+                                    margin-left: 5px;
+                                    color: ~"@{@{color}-api-designer-inline-text-color}";
+                                    
+                                    &:hover {
+                                        border: 0 !important;
+                                        margin-left: 3px;
+                                        padding-left: 1px;
+                                        padding: 5px 5px 5px 1px; 
+                                        color: ~"@{@{color}-api-designer-inline-text-color}";
+                                    }
+                                }
+                            }
+                        }
+                        .content {
+                            padding-top: 10px; 
+                            padding: 0 ;
+                            border: none;
+                            padding-bottom: 10px;
+
+                            &.active {  
+                                border-width: 0px 1px;
+                                padding: 0 10px;
+                                border-bottom-width: 1px !important;
+                                border-style: solid;
+
+                                .gen-method-styles(border-color);
+
+                                .op-section {
+                                    margin-bottom: 10px; 
+
+                                    .title {
+                                        border: 0;
+                                        
+                                        p {
+                                            font-weight: 600;
+                                            color: ~"@{@{color}-api-designer-resource-text-color}";
+                                            display: inline;
+                                        }
+                                    }
+                                }
+                                .string {
+                                    padding-top: 5px;
+                                    font-weight: 400;
+                                    color: ~"@{@{color}-api-designer-resource-text-color}";
+                                    display: inline-bllock; 
+                                    padding-bottom: 10px;
+                                
+                                    span {
+                                        color: ~"@{@{color}-api-designer-inline-text-color}";
+                                        display: block !important; 
+                                        margin-top: 10px;
+                                        
+                                        &:hover {
+                                            border: 0 !important;
+                                            display: inherit;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .ui.form {
+                display: inherit;
+
+                input {
+                    background: ~"@{@{color}-api-designer-form-background-color}";
                 }
             }
         }
     }
-}
+    .inline-editor {
+        .inline-editor-textarea {
+            padding: 10px;
+            line-height: 20px;
+            text-align: justify;
+            outline: 0;
+            display: block;
+            width: 100%;
+        }
+        
+        .inline-editor-span, .markdown {
+            display: inline-block;
+            padding: 3px;
 
-body.api-designer {
-    .api-designer("light");
-}
+            &:hover {
+                color: ~"@{@{color}-api-designer-inline-text-color}";
+                font-weight: 300;
 
-.loadUIOverrides();
+                .edit-icon {
+                    display: inline-block;
+                    color: ~"@{@{color}-api-designer-inline-text-color}";
+                    padding-left: 20px;
+                    cursor: pointer;
+                }
+            }
+            .edit-icon {
+                display: none;
+            }
+        }
+    }
+}
+  
+ body.api-designer {
+     .api-designer("light");
+ }
+  
+ .loadUIOverrides();
+  

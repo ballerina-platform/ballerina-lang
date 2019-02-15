@@ -64,7 +64,7 @@ function testGeneratedKeyOnInsert() returns (string) {
     if (x is (int, string[])) {
         (_, generatedID) = x;
         ret = generatedID[0];
-    } else if (x is error) {
+    } else {
         ret = string.convert(x.detail().message);
     }
     testDB.stop();
@@ -86,12 +86,12 @@ function testCallProcedure() returns (string) {
         var j = json.convert(x[0]);
         if (j is json) {
             returnData = io:sprintf("%s", j);
-        } else if (j is error) {
+        } else {
             returnData = j.reason();
         }
     } else if (x is ()) {
         returnData = "";
-    } else if (x is error) {
+    } else {
         returnData = x.reason();
     }
     testDB.stop();
@@ -115,7 +115,7 @@ function testBatchUpdate() returns (string) {
     sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
     sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
     para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
@@ -123,7 +123,7 @@ function testBatchUpdate() returns (string) {
     para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
     para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     var x = trap testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
@@ -134,7 +134,7 @@ function testBatchUpdate() returns (string) {
         } else {
             returnVal = "success";
         }
-    } else if (x is error) {
+    } else {
         returnVal = string.convert(x.detail().message);
     }
     testDB.stop();
@@ -164,7 +164,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
         } else {
             returnData = j.reason();
         }
-    } else if (x is error) {
+    } else {
         returnData = string.convert(x.detail().message);
     }
     testDB.stop();
@@ -201,7 +201,7 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(
         retVal = (firstName1, firstName2);
     } else if (ret is ()) {
         retVal = ("", "");
-    } else if (ret is error) {
+    } else {
         retVal = ret;
     }
     testDB.stop();
@@ -239,7 +239,7 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string 
         retVal = (firstName1, firstName2);
     } else if (ret is ()) {
         retVal = ("", "");
-    } else if (ret is error) {
+    } else {
         retVal = ret;
     }
     testDB.stop();
@@ -247,7 +247,7 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string 
 }
 
 function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
-             returns (string|(string, string)|error|()) {
+             returns (string|(string, string)|error) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -257,7 +257,7 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
         });
 
     var ret = testDB->call("{call SelectPersonDataMultiple()}", ());
-    string|(string, string)|error|() retVal = ();
+    string|(string, string)|error retVal;
     if (ret is table<record {}>[]) {
         string firstName1 = "";
         string firstName2 = "";
@@ -276,7 +276,7 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
         retVal = (firstName1, firstName2);
     } else if (ret is ()) {
         retVal = "nil";
-    } else if (ret is error) {
+    } else {
         retVal = ret;
     }
     testDB.stop();
@@ -284,15 +284,15 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
 }
 
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
-    json retVal = {};
+    json retVal;
     if (tableOrError is table<record {}>) {
         var jsonConversionResult = json.convert(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
-        } else if (jsonConversionResult is error) {
+        } else {
             retVal = {"Error" : string.convert(jsonConversionResult.detail().message)};
         }
-    } else if (tableOrError is error) {
+    } else {
         retVal = {"Error" : string.convert(tableOrError.detail().message)};
     }
     return retVal;

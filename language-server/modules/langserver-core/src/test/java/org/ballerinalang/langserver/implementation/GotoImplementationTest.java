@@ -24,6 +24,8 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,6 +43,7 @@ public class GotoImplementationTest {
     private Endpoint serviceEndpoint;
     private String configRoot = "implementation" + CommonUtil.FILE_SEPARATOR + "expected";
     private JsonParser jsonParser = new JsonParser();
+    private static final Logger log = LoggerFactory.getLogger(GotoImplementationTest.class);
 
     @BeforeClass
     public void init() {
@@ -71,6 +74,7 @@ public class GotoImplementationTest {
 
     @DataProvider(name = "goto-impl-data-provider")
     public Object[][] dataProvider() {
+        log.info("Test textDocument/implementation");
         String sourcePath1 = "implementation" + CommonUtil.FILE_SEPARATOR + "source" + CommonUtil.FILE_SEPARATOR
                 + "gotoImplProject" + CommonUtil.FILE_SEPARATOR + "pkg1" + CommonUtil.FILE_SEPARATOR + "main.bal";
         String sourcePath2 = "implementation" + CommonUtil.FILE_SEPARATOR + "source" + CommonUtil.FILE_SEPARATOR

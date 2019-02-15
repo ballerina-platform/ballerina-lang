@@ -18,7 +18,8 @@
 
 import React from 'react';
 import Documentation from './Documentation';
-import { ASTUtil } from '@ballerina/ast-model'
+import { ASTUtil } from '@ballerina/ast-model';
+import { List } from 'semantic-ui-react';
 
 export default class DocPreview extends React.Component {
     getDocumentationDetails(node) {
@@ -80,6 +81,7 @@ export default class DocPreview extends React.Component {
 
     _getFunctionParameters(node) {
         const parameters = {};
+
         node.parameters.forEach(param => {
             if(!(param.name && param.name.value)) {
                 return;
@@ -90,6 +92,7 @@ export default class DocPreview extends React.Component {
                 type: ASTUtil.genSource(param.typeNode),
             };
         });
+
         node.defaultableParameters.forEach(param => {
             parameters[param.variable.name.value] = {
                 name: param.variable.name.value,
@@ -110,6 +113,8 @@ export default class DocPreview extends React.Component {
 
     _getTypeDefinitionParameters(node) {
         const parameters = {};
+        const _self = this;
+
         node.typeNode.fields.forEach(field => {
             parameters[field.name.value] = {
                 name: field.name.value,
@@ -117,6 +122,32 @@ export default class DocPreview extends React.Component {
                 defaultValue: field.initialExpression ? field.initialExpression.value: "",
             };
         });
+
+        if(node.typeNode.functions){
+            const functions = node.typeNode.functions;
+
+            Object.entries(functions).forEach(([key, childFunction]) => {
+                let paramDescriptions = {};
+
+                childFunction.markdownDocumentationAttachment.parameters.map((param) => {
+                    const name = param.parameterName.value;
+                    paramDescriptions[name] = param.parameterDocumentation;
+                });
+
+                const params = Object.entries(_self._getFunctionParameters(childFunction)).map(function(entry) {
+                    entry[1].description = paramDescriptions[entry[1].name];
+                    return entry[1];
+                });
+
+                parameters[childFunction.name.value] = {
+                    name: childFunction.name.value,
+                    type: childFunction.kind,
+                    description: childFunction.markdownDocumentationAttachment.documentation,
+                    functionParameters: params,
+                };
+            });
+        }
+
         return parameters;
     }
 
@@ -124,6 +155,7 @@ export default class DocPreview extends React.Component {
         const docElements = [];
         this.props.ast.topLevelNodes.forEach(node => {
             const documentables = ['Function', 'Service', 'TypeDefinition', 'Variable', 'Endpoint'];
+
             if (!documentables.includes(node.kind)) {
                 return;
             }
@@ -132,6 +164,7 @@ export default class DocPreview extends React.Component {
             if (node.kind === "TypeDefinition" && node.service) {
                 return;
             }
+
             if (node.kind === "Variable" && node.service) {
                 return;
             }
@@ -147,7 +180,7 @@ export default class DocPreview extends React.Component {
             }
         });
         if (docElements.length > 0) {
-            return docElements;
+            return (<List className='tree-show-line'>{docElements}</List>);
         } else {
             return <p>{"No documentation to show"}</p>
         }

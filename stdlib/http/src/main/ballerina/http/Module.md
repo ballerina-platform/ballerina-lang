@@ -47,14 +47,13 @@ There are two types of services for WebSocket. The service of the server has the
 request and perform the upgrade explicitly with custom headers, the user must create an HTTP resource with 
 WebSocket-specific configurations as follows:
 ```ballerina
- @http:ResourceConfig {
-        webSocketUpgrade: {
-            upgradePath: "/{name}",
-            upgradeService: chatApp
-        }
+@http:ResourceConfig {
+    webSocketUpgrade: {
+        upgradePath: "/{name}",
+        upgradeService: chatApp
     }
-    resource function upgrader(http:Caller caller, http:Request req, string name) {
-    }
+}
+resource function upgrader(http:Caller caller, http:Request req, string name) {
 }
 ```
 The `upgradeService` is a server callback service.
@@ -107,7 +106,7 @@ http:Client clientEndpoint = new("https://my-simple-backend.com");
 The defined `Client` endpoint can be used to call a remote service as follows:
 
 ``` ballerina
-// Send a GET request to the specified endpoint
+// Send a GET request to the specified endpoint.
 var response = clientEndpoint->get("/get?id=123");
 ```
 
@@ -122,15 +121,15 @@ Then a `Service` can be defined and attached to the above `Listener` endpoint as
 
 ```ballerina
 // By default, Ballerina assumes that the service is to be exposed via HTTP/1.1.
-@http:ServiceConfig { basePath:"/helloWorld" }
+@http:ServiceConfig { basePath: "/helloWorld" }
 service helloWorld on helloWorldEP {
 
    // All resource functions are invoked with arguments of server connector and request.
    @http:ResourceConfig {
-        methods:["POST"],
-        path:"/{name}",
-        body:"message"
-    }
+       methods: ["POST"],
+       path: "/{name}",
+       body: "message"
+   }
    resource function sayHello(http:Caller caller, http:Request req, string name, string message) {
        http:Response res = new;
        // A util method that can be used to set string payload.
