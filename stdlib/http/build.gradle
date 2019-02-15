@@ -5,7 +5,6 @@ dependencies {
 
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-mime')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-file')
     implementation project(':ballerina-io')
@@ -15,10 +14,13 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-crypto')
+    implementation project(':ballerina-internal')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-config')
+    implementation project(':ballerina-encoding')
+    implementation project(':ballerina-launcher')
 
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
@@ -34,15 +36,19 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
 
     // transitive
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
 
 
     implementation 'io.netty:netty-codec-http:4.1.19.Final'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.250'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.262'
     implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
     implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation 'org.slf4j:slf4j-api:1.7.22'
+    implementation 'org.jvnet.mimepull:mimepull:1.9.7'
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Http/WS'

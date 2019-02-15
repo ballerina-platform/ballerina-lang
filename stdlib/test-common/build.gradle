@@ -1,0 +1,12 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+dependencies {
+    implementation 'org.slf4j:slf4j-api:1.7.22'
+    implementation 'commons-logging:commons-logging:1.1.1'
+    implementation project(":ballerina-logging")
+    implementation project(":ballerina-launcher")
+    implementation project(':ballerina-lang');
+    testCompile 'org.testng:testng:6.13.1'
+}
+
+description = 'Ballerina - stdlib Tests Common'
