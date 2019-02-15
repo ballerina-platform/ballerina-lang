@@ -115,23 +115,7 @@ kubectl config view
 
 kubectl apply -f target/kubernetes/2
 
-READY_REPLICAS=0
-START_TIME=$SECONDS
 TIMEOUT=300
-DURATION=0 #Just an initialization value
-while [ "$READY_REPLICAS" != 1 ] && [ $TIMEOUT -gt $DURATION ]
-do
-   READY_REPLICAS=$(kubectl get deployment circuit-breaker-frontend-service -o jsonpath='{.status.readyReplicas}')
-   echo $READY_REPLICAS
-   sleep 20s
-   DURATION=`expr $SECONDS - $START_TIME`
-   echo $DURATION
-done
-
-if [ "$READY_REPLICAS" != 1 ]; then
-	exit 1;
-fi
-
 INTERVAL=20
 bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
 
