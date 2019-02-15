@@ -108,14 +108,14 @@ function foo() {
     aggregatorArr[0] = sumAggregator;
     aggregatorArr[1] = countAggregator;
 
-    (function (map<anydata>) returns anydata)[] fields = [function (map<anydata> x) returns anydata {
+    (function (map<anydata>) returns anydata)?[] fields = [function (map<anydata> x) returns anydata {
         return getValue(<int>x["OUTPUT.age"]);
     }];
 
     streams:OrderBy orderByProcess =
-    streams:createOrderBy(function (streams:StreamEvent[] e) {outputProcess.process(e);}, fields, ["descending"]);
+    streams:createOrderBy(function (streams:StreamEvent?[] e) {outputProcess.process(e);}, fields, ["descending"]);
 
-    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {orderByProcess.process(e);},
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {orderByProcess.process(e);},
         aggregatorArr,
         [function (streams:StreamEvent e) returns anydata {
             return e.data["inputStream.name"];
@@ -133,10 +133,10 @@ function foo() {
         }
     );
 
-    streams:Window tmpWindow = streams:lengthBatch([5], nextProcessPointer = function (streams:StreamEvent[] e)
+    streams:Window tmpWindow = streams:lengthBatch([5], nextProcessPointer = function (streams:StreamEvent?[] e)
         {select.process(e);});
 
-    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {tmpWindow.process(e);},
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent?[] e) {tmpWindow.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter
             return <int>m["inputStream.age"] > 25;
@@ -145,7 +145,7 @@ function foo() {
 
     inputStream.subscribe(function (Teacher t) {
             // make it type unaware and proceed
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(t, "inputStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(t, "inputStream");
             filter.process(eventArr);
         }
     );

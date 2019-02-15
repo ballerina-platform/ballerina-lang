@@ -2016,22 +2016,7 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatLiteralNode(JsonObject node) {
-        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
-            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
-            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
-            String indentation = this.getIndentation(formatConfig, false);
-
-            // Update whitespace for literal value.
-            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
-                    ? this.getParentIndentation(formatConfig) : indentation);
-
-            if (this.noHeightAvailable(ws.get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString())) {
-                ws.get(0).getAsJsonObject().addProperty(FormattingConstants.WS,
-                        this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()) +
-                                indentation);
-            }
-        }
+        this.modifyLiteralNode(node);
     }
 
     /**
@@ -2246,6 +2231,15 @@ public class FormattingNodeTree {
     public void formatNamedArgsExprNode(JsonObject node) {
         // TODO: fix formatting for named argument expressions.
         this.skipFormatting(node, true);
+    }
+
+    /**
+     * format Numeric Literal node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatNumericLiteralNode(JsonObject node) {
+        this.modifyLiteralNode(node);
     }
 
     /**
@@ -4480,6 +4474,24 @@ public class FormattingNodeTree {
 
     // --------- Util functions for the modifying node tree --------
 
+    private void modifyLiteralNode(JsonObject node) {
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            String indentation = this.getIndentation(formatConfig, false);
+
+            // Update whitespace for literal value.
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? this.getParentIndentation(formatConfig) : indentation);
+
+            if (this.noHeightAvailable(ws.get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString())) {
+                ws.get(0).getAsJsonObject().addProperty(FormattingConstants.WS,
+                        this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
+                                this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()) +
+                                indentation);
+            }
+        }
+    }
     private void modifyReturnTypeAnnotations(JsonObject node, String indentation) {
         if (node.has("returnTypeAnnotationAttachments")) {
             JsonArray returnTypeAnnotations = node.getAsJsonArray("returnTypeAnnotationAttachments");

@@ -77,7 +77,7 @@ public class TypeAssertionExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'string\\[2\\]', found 'string\\|int\\[2\\]'\"\\}.*")
+                    "error: expected 'string\\[2\\]', found 'string\\|int\\|null\\[2\\]'\"\\}.*")
     public void testArrayAssertionNegative() {
         BRunUtil.invoke(result, "testArrayAssertionNegative");
     }
