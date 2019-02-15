@@ -40,7 +40,7 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
     private Context context;
 
     /**
-     * Constructor of the server connector
+     * Constructor of the server connector.
      *
      * @param context Context of which the server connector is called.
      * @param taskId  Task ID of the task which is bound to the service.

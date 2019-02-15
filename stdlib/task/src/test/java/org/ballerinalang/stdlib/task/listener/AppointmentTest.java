@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
+@Test
 public class AppointmentTest {
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testCreateAppointment() {

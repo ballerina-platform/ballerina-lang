@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
+@Test
 public class ListenerTest {
 
     @Test(description = "Tests a dynamic timer")

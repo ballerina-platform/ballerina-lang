@@ -29,9 +29,7 @@ import org.testng.annotations.Test;
  * If compiler plugin works, replace BCompileUtil.compileAndSetup() with BCompileUtil.compile().
  */
 
-/**
- * Tests for Task service validation.
- */
+@Test
 public class ListenerServiceValidationTest {
 
     @Test(

@@ -54,7 +54,7 @@ public class ResourceFunctionHolder {
     }
 
     /**
-     * Get the <code>onTrigger</code> function
+     * Get the <code>onTrigger</code> function.
      *
      * @return onTrigger function related to the service.
      */
@@ -63,7 +63,7 @@ public class ResourceFunctionHolder {
     }
 
     /**
-     * Get the <code>onError</code> function
+     * Get the <code>onError</code> function.
      *
      * @return onError function related to the service.
      */
