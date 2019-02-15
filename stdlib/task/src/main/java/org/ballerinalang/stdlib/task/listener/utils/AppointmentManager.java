@@ -76,8 +76,7 @@ public class AppointmentManager {
     public void schedule(String taskId, Class<? extends Job> jobClass, JobDataMap jobData, String cronExpression)
             throws SchedulerException {
         JobDetail job = newJob(jobClass).usingJobData(jobData).withIdentity(taskId).build();
-        CronTrigger trigger = newTrigger().withIdentity(taskId).withSchedule(cronSchedule(cronExpression))
-                .build();
+        CronTrigger trigger = newTrigger().withIdentity(taskId).withSchedule(cronSchedule(cronExpression)).build();
 
         scheduler.scheduleJob(job, trigger);
         quartzJobs.put(taskId, job.getKey());
