@@ -64,10 +64,8 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
 
         tempProjectDirTwo = Files.createTempDirectory("temp-entry-func-test-two");
         clientArgs = new String[]{"-o", Paths.get(tempProjectDirTwo.toString(), "entry").toString(),
-                (new File("src/test/resources/run/balx/no_params/test_main_with_no_params.bal"))
-                        .getAbsolutePath()};
-        balClient.runMain("build", clientArgs, null, new String[0],
-                          new LogLeecher[0], tempProjectDirTwo.toString());
+                (new File("src/test/resources/run/balx/no_params/test_main_with_no_params.bal")).getAbsolutePath()};
+        balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0], tempProjectDirTwo.toString());
         generatedBalx = tempProjectDirTwo.resolve("entry.balx");
         balxPathTwo = generatedBalx.toString();
     }

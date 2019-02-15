@@ -439,12 +439,13 @@ public class LauncherUtils {
         }
 
         BValue specifiedStatusCode = errorDetails.get(STATUS_CODE);
-        if (specifiedStatusCode.getType().getTag() == TypeTags.INT) {
-            long specifiedIntCode = ((BInteger) specifiedStatusCode).intValue();
-            if (specifiedIntCode >= DEFAULT_ERROR_RETURN_STATUS_CODE &&
-                    specifiedIntCode <= MAX_ERROR_RETURN_STATUS_CODE) {
-                return (int) specifiedIntCode;
-            }
+        if (specifiedStatusCode.getType().getTag() != TypeTags.INT) {
+            return DEFAULT_ERROR_RETURN_STATUS_CODE;
+        }
+
+        long specifiedIntCode = ((BInteger) specifiedStatusCode).intValue();
+        if (specifiedIntCode >= DEFAULT_ERROR_RETURN_STATUS_CODE && specifiedIntCode <= MAX_ERROR_RETURN_STATUS_CODE) {
+            return (int) specifiedIntCode;
         }
         return DEFAULT_ERROR_RETURN_STATUS_CODE;
     }
