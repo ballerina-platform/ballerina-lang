@@ -2405,7 +2405,7 @@
 
         <mvel2.version>2.2.1.Final</mvel2.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
-        <guava.version>19.0</guava.version>
+        <guava.version>23.0</guava.version>
         <metrics.version>3.1.0</metrics.version>
 
         <!-- Observability -->
