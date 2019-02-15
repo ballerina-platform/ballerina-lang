@@ -207,7 +207,7 @@ public class ArrayFillTest {
         }
 
         assertEquals(recordArr.getBValue(index).stringValue(),
-                     "{s:\"foo\", i:10, f:12.34, b:true, d:23.45, n:null, t:(\"Pubudu\", 27), m:{\"1\":1}, x: , bt:5," +
+                     "{s:\"foo\", i:10, f:12.34, b:true, d:23.45, n:(), t:(\"Pubudu\", 27), m:{\"1\":1}, x: , bt:5," +
                              " j:{\"name\":\"Pubudu\"}, ad:10}");
     }
 
@@ -298,7 +298,8 @@ public class ArrayFillTest {
         assertEquals(unionArr.getBValue(index).stringValue(), "{name:\"John\", age:25}");
     }
 
-    @Test
+    // TODO: 2/14/19 disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13612
+    @Test(enabled = false)
     public void testUnionArrayFill4() {
         BValue[] args = new BValue[]{new BInteger(index)};
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUnionArrayFill4", args);
@@ -368,7 +369,7 @@ public class ArrayFillTest {
         assertEquals(((BBoolean) unionArr.getBValue(index)).booleanValue(), true);
     }
 
-    // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13256
+    // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13612
     @Test(enabled = false)
     public void testFiniteTypeArrayFill5() {
         BValue[] args = new BValue[]{new BInteger(index)};
@@ -469,36 +470,4 @@ public class ArrayFillTest {
                 .forEach(entry -> record.put(entry.getKey(), entry.getValue().fieldType.getZeroValue()));
         return record;
     }
-
-//    private void assertBValue(BValue actual, BValue expected) {
-//        assertBValue(actual, expected);
-//        switch (actual.getType().getTag()) {
-//            case TypeTags.INT: assertEquals(((BInteger)actual).intValue(), expected.intValue());
-//        }
-//    }
-//
-//    private void assertBValue(BInteger actual, BInteger expected) {
-//        assertEquals(actual.intValue(), expected.intValue());
-//    }
-//
-//    private void assertBValue(BFloat actual, BFloat expected) {
-//        assertEquals(actual.floatValue(), expected.floatValue());
-//    }
-//
-//    private void assertBValue(BDecimal actual, BDecimal expected) {
-//        assertEquals(actual.decimalValue(), expected.decimalValue());
-//    }
-//
-//    private void assertBValue(BBoolean actual, BBoolean expected) {
-//        assertEquals(actual.booleanValue(), expected.booleanValue());
-//    }
-//
-//    private void assertBValue(BString actual, BString expected) {
-//        assertEquals(actual.stringValue(), expected.stringValue());
-//    }
-//
-//    private void assertBValue(BMap<String, BValue> actual, BMap<String, BValue> expected) {
-//        assertEquals(actual.size(), expected.size());
-//        expected.getMap().forEach((key, value) -> assertBValue(actual.get(key), value));
-//    }
 }

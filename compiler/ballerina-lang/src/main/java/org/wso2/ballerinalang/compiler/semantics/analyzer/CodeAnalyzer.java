@@ -1052,8 +1052,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
-            BLangType eType = ((BLangArrayType) typeNode).elemtype;
-            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+            BType type = ((BLangArrayType) typeNode).elemtype.type;
+            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, type, type);
         }
     }
 

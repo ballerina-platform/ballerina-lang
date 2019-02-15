@@ -93,7 +93,7 @@ public class BFiniteType extends BType {
             }
         }
 
-        throw new IllegalStateException("Finite type '" + this.typeName + "' does not have an empty value.");
+        return null;
     }
 
     @Override

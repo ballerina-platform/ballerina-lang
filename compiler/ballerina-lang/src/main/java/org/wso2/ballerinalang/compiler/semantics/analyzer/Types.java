@@ -1996,7 +1996,7 @@ public class Types {
             }
         }
         // Control reaching this point means there is only one type in the union.
-        return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
+        return hasImplicitInitialValue(firstMember);
     }
 
     private boolean analyzeObjectType(BObjectType type) {
