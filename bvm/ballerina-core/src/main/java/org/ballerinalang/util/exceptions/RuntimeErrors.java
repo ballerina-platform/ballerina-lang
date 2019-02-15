@@ -59,7 +59,10 @@ public enum RuntimeErrors {
     INVALID_OBJECT_FIELD_ADDITION("invalid.object.field.addition", "RUNTIME_0034"),
     TYPE_ASSERTION_ERROR("type.assertion.error", "RUNTIME_0035"),
     INVALID_DYNAMICALLY_NESTED_TRANSACTION("dynamically.nested.transactions.are.not.allowed", "RUNTIME_0036"),
-    CYCLIC_VALUE_REFERENCE("cyclic.value.reference", "RUNTIME_0037");
+    CYCLIC_VALUE_REFERENCE("cyclic.value.reference", "RUNTIME_0037"),
+    CANNOT_CONVERT_NULL("cannot.convert.null", "RUNTIME_0038"),
+    INCOMPATIBLE_CONVERT_OPERATION("incompatible.convert.operation", "RUNTIME_0039"),
+    INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION("incompatible.simple.type.convert.operation", "RUNTIME_0040");
 
     private String errorMsgKey;
     private String errorCode;

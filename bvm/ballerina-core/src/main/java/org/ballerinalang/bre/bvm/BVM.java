@@ -144,7 +144,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -503,12 +502,6 @@ public class BVM {
                     break;
                 case InstructionCodes.ERROR:
                     createNewError(operands, strand, sf);
-                    break;
-                case InstructionCodes.STAMP:
-                    handleStampBuildInMethod(strand, operands, sf);
-                    break;
-                case InstructionCodes.CONVERT:
-                    handleConvertBuildInMethod(strand, sf, operands);
                     break;
                 case InstructionCodes.FPCALL:
                     i = operands[0];
@@ -991,108 +984,6 @@ public class BVM {
         sf.refRegs[l] = (BRefType<?>) BLangVMErrors
                 .createError(strand, true, (BErrorType) typeRefCPEntry.getType(), sf.stringRegs[j],
                         (BMap<String, BValue>) sf.refRegs[k]);
-    }
-
-    private static void handleStampBuildInMethod(Strand ctx, int[] operands, StackFrame sf) {
-
-        int i = operands[0];
-        int j = operands[1];
-        int k = operands[2];
-
-        BRefType<?> valueToBeStamped = sf.refRegs[i];
-        BType stampType = ((TypeRefCPEntry) sf.constPool[j]).getType();
-        BType targetType;
-
-        if (stampType.getTag() == TypeTags.UNION_TAG) {
-            List<BType> memberTypes = new ArrayList<>(((BUnionType) stampType).getMemberTypes());
-            targetType = new BUnionType(memberTypes);
-
-            Predicate<BType> errorPredicate = e -> e.getTag() == TypeTags.ERROR_TAG;
-            ((BUnionType) targetType).getMemberTypes().removeIf(errorPredicate);
-
-            if (((BUnionType) targetType).getMemberTypes().size() == 1) {
-                targetType = ((BUnionType) stampType).getMemberTypes().get(0);
-            }
-        } else {
-            targetType = stampType;
-        }
-
-        if (!checkIsLikeType(valueToBeStamped, targetType)) {
-            BError error;
-            if (valueToBeStamped != null) {
-                error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                                valueToBeStamped.getType(), targetType));
-            } else {
-                error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
-            }
-            sf.refRegs[k] = error;
-            return;
-        }
-        try {
-            if (valueToBeStamped != null) {
-                valueToBeStamped.stamp(targetType, new ArrayList<>());
-            }
-            sf.refRegs[k] = valueToBeStamped;
-        } catch (BallerinaException e) {
-            BError error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR, e.getDetail());
-            sf.refRegs[k] = error;
-        }
-    }
-
-    private static void handleConvertBuildInMethod(Strand strand, StackFrame sf, int[] operands) {
-
-        int i = operands[0];
-        int cpIndex = operands[1];
-        int j = operands[2];
-        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
-        BRefType bRefTypeValue = sf.refRegs[i];
-        if (bRefTypeValue == null) {
-            sf.refRegs[j] = null;
-            return;
-        }
-        int targetTag = typeRefCPEntry.getType().getTag();
-        try {
-            if (BTypes.isValueType(bRefTypeValue.getType())) {
-                convertValueTypes(strand, sf, j, typeRefCPEntry, bRefTypeValue, targetTag);
-                return;
-            }
-            if (targetTag == TypeTags.STRING_TAG) {
-                sf.refRegs[j] = new BString(bRefTypeValue.toString());
-                return;
-            }
-            handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
-        } catch (RuntimeException e) {
-            handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
-        }
-    }
-
-    private static void convertValueTypes(Strand strand, StackFrame sf, int resultRegIndex,
-                                          TypeRefCPEntry typeRefCPEntry, BRefType bRefTypeValue, int targetTag) {
-        switch (targetTag) {
-            case TypeTags.INT_TAG:
-                sf.refRegs[resultRegIndex] = new BInteger(((BValueType) bRefTypeValue).intValue());
-                break;
-            case TypeTags.FLOAT_TAG:
-                sf.refRegs[resultRegIndex] = new BFloat(((BValueType) bRefTypeValue).floatValue());
-                break;
-            case TypeTags.DECIMAL_TAG:
-                sf.refRegs[resultRegIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
-                break;
-            case TypeTags.STRING_TAG:
-                sf.refRegs[resultRegIndex] = new BString(bRefTypeValue.toString());
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sf.refRegs[resultRegIndex] = new BBoolean(((BValueType) bRefTypeValue).booleanValue());
-                break;
-            case TypeTags.BYTE_TAG:
-                sf.refRegs[resultRegIndex] = new BByte(((BValueType) bRefTypeValue).byteValue());
-                break;
-            default:
-                handleTypeConversionError(strand, sf, resultRegIndex, bRefTypeValue.getType(),
-                                          typeRefCPEntry.getType());
-        }
     }
 
     /**

@@ -598,6 +598,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef outputTypeRef = ASTBuilderUtil.createVariableRef(mapVarRef.pos, typeSymbol);
         //special case for varRefs of Types;
         outputTypeRef.type = symTable.typeDesc;
+        outputTypeRef.symbol.tag = TypeTags.TYPEDESC;
         BSymbol createMethodSymbol =
                 symResolver.createSymbolForConvertOperator(mapVarRef.pos,
                         names.fromBuiltInMethod(BLangBuiltInMethod.CONVERT), Lists.of(mapVarRef), outputTypeRef);

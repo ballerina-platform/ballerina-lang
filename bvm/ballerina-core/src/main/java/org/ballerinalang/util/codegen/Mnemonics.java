@@ -95,7 +95,6 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.IS_LIKE] = "is_like";
 
-        mnemonics[InstructionCodes.STAMP] = "stamp";
 
         mnemonics[InstructionCodes.ERROR] = "error";
         mnemonics[InstructionCodes.PANIC] = "panic";
@@ -273,8 +272,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWMAP] = "new_map";
         mnemonics[InstructionCodes.NEWTABLE] = "new_table";
         mnemonics[InstructionCodes.NEWSTREAM] = "new_stream";
-
-        mnemonics[InstructionCodes.CONVERT] = "convert";
 
         mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
         mnemonics[InstructionCodes.INT_RANGE] = "int_range";

@@ -94,7 +94,6 @@ public interface InstructionCodes {
 
     int IS_LIKE = 60;
 
-    int STAMP = 62;
 
     int ERROR = 65;
     int PANIC = 66;
@@ -275,8 +274,6 @@ public interface InstructionCodes {
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
     
-    int CONVERT = 218;
-
     int ITR_NEXT = 221;
     int INT_RANGE = 222;
 

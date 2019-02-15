@@ -593,10 +593,14 @@ function testNullJsonToStruct () returns Person {
     }
 }
 
-function testNullStructToJson () returns (json | error) {
+function testNullStructToJson () returns json {
     Person? p = ();
     var j = json.convert(p);
-    return j;
+    if (j is json) {
+        return j;
+    } else {
+        panic j;
+    }
 }
 
 type PersonA record {
@@ -1072,4 +1076,17 @@ function testConvertWithFuncCall() returns int {
 
 function getString(any s) returns string {
     return "5";
+}
+
+function testConvertWithFuncReturnUnion() returns int {
+    var val = getLength("125");
+    if (val is int) {
+        return val;
+    } else {
+        return -1;
+    }
+}
+
+function getLength(string s) returns int|error {
+    return int.convert(s);
 }
