@@ -59,8 +59,6 @@ public function validateJwt(string jwtToken, JWTValidatorConfig config) returns 
     var decodedJwt = parseJWT(encodedJWTComponents);
     if (decodedJwt is (JwtHeader, JwtPayload)) {
         (header, payload) = decodedJwt;
-    } else if (decodedJwt is error) {
-        return decodedJwt;
     } else {
         return decodedJwt;
     }
@@ -107,9 +105,9 @@ function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload
 
 function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, json)|error) {
     string jwtHeader = encoding:byteArrayToString(check
-        encoding:decodeBase64(urlDecode(encodedJWTComponents[0])));
+        encoding:decodeBase64Url(encodedJWTComponents[0]));
     string jwtPayload = encoding:byteArrayToString(check
-        encoding:decodeBase64(urlDecode(encodedJWTComponents[1])));
+        encoding:decodeBase64Url(encodedJWTComponents[1]));
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
@@ -125,7 +123,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
     var jsonPayload = reader.readJson();
     if (jsonPayload is json) {
         jwtPayloadJson = jsonPayload;
-    } else if (jsonPayload is error) {
+    } else {
         return jsonPayload;
     }
     return (jwtHeaderJson, jwtPayloadJson);
@@ -348,10 +346,4 @@ function convertToStringArray(json jsonData) returns (string[]) {
         outData[0] = jsonData.toString();
     }
     return outData;
-}
-
-function urlDecode(string encodedString) returns (string) {
-    string decodedString = encodedString.replaceAll("-", "+");
-    decodedString = decodedString.replaceAll("_", "/");
-    return decodedString;
 }
