@@ -38,7 +38,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.DefaultValue;
@@ -57,7 +56,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.model.types.BTypes.getTypeFromName;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETERS_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE;
@@ -80,7 +78,6 @@ public class ArgumentParser {
     private static final String NIL = "()";
     private static final String TRUE = "TRUE";
     private static final String FALSE = "FALSE";
-    private static final String BINARY_PREFIX = "0B";
     private static final String HEX_PREFIX = "0X";
 
     /**
@@ -281,13 +278,6 @@ public class ArgumentParser {
                 }
             case TypeTags.UNION_TAG:
                 return parseUnionArg((BUnionType) type, value);
-            case TypeTags.TYPEDESC_TAG:
-                try {
-                    return new BTypeDescValue(getTypeFromName(value));
-                } catch (IllegalStateException e) {
-                    throw new BLangUsageException("invalid argument '" + value + "', unsupported/unknown typedesc "
-                                                          + "expected with entry function");
-                }
             default:
                 throw new BLangUsageException(UNSUPPORTED_TYPE_PREFIX + " '" + type + "'");
         }
@@ -295,9 +285,7 @@ public class ArgumentParser {
 
     private static long getIntegerValue(String argument) {
         try {
-            if (argument.toUpperCase().startsWith(BINARY_PREFIX)) {
-                return Long.parseLong(argument.toUpperCase().replace(BINARY_PREFIX, ""), 2);
-            } else if (argument.toUpperCase().startsWith(HEX_PREFIX)) {
+            if (argument.toUpperCase().startsWith(HEX_PREFIX)) {
                 return Long.parseLong(argument.toUpperCase().replace(HEX_PREFIX, ""), 16);
             }
             return Long.parseLong(argument);
