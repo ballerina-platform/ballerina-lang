@@ -691,7 +691,7 @@ function testEmptySQLType() returns int {
         });
     var result = testDB->update("Insert into Customers (firstName) values (?)", "Anne");
     int insertCount = 0;
-    if(result is sql:Result) {
+    if (result is sql:Result) {
         insertCount = result.updatedRowCount;
     }
     testDB.stop();
