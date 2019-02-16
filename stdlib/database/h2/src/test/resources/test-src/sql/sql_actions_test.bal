@@ -652,7 +652,7 @@ function testNullINParameterValues() returns int {
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
     int insertCount = 0;
-    if(result is sql:Result) {
+    if (result is sql:Result) {
         insertCount = result.updatedRowCount;
     }
     testDB.stop();
