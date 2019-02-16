@@ -2152,8 +2152,14 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
 
+
         // Create a new constant info object.
         ConstantInfo_new constantInfo = new ConstantInfo_new(constantSymbol.name.value, constantNameCPIndex);
+
+        currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
+
+
+
 
         int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
         int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
@@ -2162,40 +2168,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         ConstantValue constantValue = new ConstantValue(finiteTypeSigCPIndex, valueTypeSigCPIndex,
                 constantSymbol.flags);
 
-        currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
-
-        if (((BLangExpression) constant.value).getKind() == NodeKind.LITERAL) {
+        if (((BLangExpression)  constant.value).getKind() == NodeKind.LITERAL) {
 
             constantInfo.isSimpleLiteral = true;
 
-            // Get the value.
-            BLangLiteral literalValue = (BLangLiteral) constant.value;
 
-            constantValue.literalValueType = literalValue.typeTag;
 
-            // Todo - Add a util function?
-            Object value = literalValue.value;
-            switch (literalValue.type.tag) {
-                case TypeTags.BOOLEAN:
-                    break;
-                case TypeTags.INT:
-                    constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new IntegerCPEntry((Long) value));
-                    break;
-                case TypeTags.BYTE:
-                    constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new ByteCPEntry((Byte) value));
-                    break;
-                case TypeTags.FLOAT:
-                    constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new FloatCPEntry((Double) value));
-                    break;
-                case TypeTags.DECIMAL:
-                case TypeTags.STRING:
-                    constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new UTF8CPEntry((String) value));
-                    break;
-                case TypeTags.NIL:
-                    break;
-                default:
-                    throw new RuntimeException("unexpected type tag: " + literalValue.typeTag);
-            }
+            processSimpleLiteral(constantValue, (BLangLiteral)  constant.value);
+
 
             constantInfo.constantValue = constantValue;
 
@@ -2206,22 +2186,97 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             // Todo - Add const map.
             // Create key-value info.
-            //            constantValue.recordKeyValueInfo = getConstantMapInfo((BLangRecordLiteral) constantSymbol
-            // .literalValue);
+            generateConstantMapInfo( (BLangRecordLiteral) constantSymbol.literalValue);
         }
+
 
         // Add documentation attributes.
         addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);
     }
 
-//    private  List<ConstantInfo_new> getConstantMapInfo(BLangRecordLiteral expression) {
+
+    private void processSimpleLiteral(ConstantValue constantValue, BLangLiteral literalValue) {
+        // Get the value.
+
+        constantValue.literalValueType = literalValue.type.tag;
+
+        // Todo - Add a util function?
+        switch (literalValue.type.tag) {
+            case TypeTags.BOOLEAN:
+                break;
+            case TypeTags.INT:
+                constantValue.valueCPEntry =
+                        currentPkgInfo.addCPEntry(new IntegerCPEntry((Long) literalValue.value));
+                break;
+            case TypeTags.BYTE:
+                constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new ByteCPEntry((Byte) literalValue.value));
+                break;
+            case TypeTags.FLOAT:
+                constantValue.valueCPEntry =
+                        currentPkgInfo.addCPEntry(new FloatCPEntry((Double) literalValue.value));
+                break;
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+                constantValue.valueCPEntry =
+                        currentPkgInfo.addCPEntry(new UTF8CPEntry((String) literalValue.value));
+                break;
+            case TypeTags.NIL:
+                break;
+            default:
+                throw new RuntimeException("unexpected type tag: " + literalValue.type.tag);
+        }
+    }
+
+    private void generateConstantMapInfo( BLangRecordLiteral expression) {
+
+        List<BLangRecordKeyValue> keyValuePairs = expression.keyValuePairs;
+
+        for (BLangRecordKeyValue keyValue : keyValuePairs) {
+
+            if (keyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                BLangLiteral expr = (BLangLiteral) keyValue.key.expr;
+
+                int keyCPIndex = addUTF8CPEntry(currentPkgInfo, expr.value.toString());
+                int originalKeyCPIndex = addUTF8CPEntry(currentPkgInfo, expr.originalValue);
+                int keyTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
+
+//                KeyValueInfo keyValueInfo = new KeyValueInfo(keyCPIndex, originalKeyCPIndex, keyTypeSigCPIndex,
+//                        expr.typeTag, -1, -1, -1, -1);
+//                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) keyValue.getValue();
+//                keyValueInfo.children = getConstantMapInfo(recordLiteral);
+//
+//                return keyValueInfo;
+            } else if (keyValue.valueExpr.getKind() == NodeKind.LITERAL) {
+
+                BLangLiteral expr = (BLangLiteral) keyValue.valueExpr;
+
+                int valueCPIndex = addUTF8CPEntry(currentPkgInfo, expr.value.toString());
+                int originalValueCPIndex = addUTF8CPEntry(currentPkgInfo, expr.originalValue);
+                int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
+
+//                KeyValueInfo keyValueInfo = new KeyValueInfo(-1, -1, -1, -1, valueCPIndex, originalValueCPIndex,
+//                        valueTypeSigCPIndex, expr.typeTag);
+//                keyValueInfo.isTerminal = true;
+//
+//                return keyValueInfo;
+            } else {
+                throw new RuntimeException("unexpected node kind");
+            }
+
+
+        }
+
+
+
+
+
 //        List<KeyValueInfo> keyValueInfoMap = new LinkedList<>();
 //        List<BLangRecordKeyValue> keyValuePairs = expression.keyValuePairs;
 //        for (BLangRecordKeyValue keyValuePair : keyValuePairs) {
 //            keyValueInfoMap.add(getConstantMapInfo(keyValuePair));
 //        }
 //        return keyValueInfoMap;
-//    }
+    }
 //
 //    private  KeyValueInfo getConstantMapInfo(BLangRecordKeyValue keyValue) {
 //        if (keyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
