@@ -1,6 +1,5 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and issue the `ballerina run` command.
-$ ballerina run elvis-operator.bal
-value is:
-The output from is check expression: value is nil
-The output from elvis operator: value is nil
+$ ballerina run elvis_operator.bal
+The output from the type-guard: value is nil
+The output from the elvis operator: value is nil

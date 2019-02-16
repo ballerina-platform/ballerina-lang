@@ -10,10 +10,10 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "build": "",
-    "test": "",
-    "test-coverage": "",
-    "watch": ""
+    "build": "node scripts/build-theme.js",
+    "test": "echo \"Error: no test specified\"",
+    "test-coverage": "echo \"Error: no test coverage specified\"",
+    "watch": "watch \"npm run build\" src"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",

@@ -20,7 +20,7 @@ import ballerina/task;
 
 public type Window abstract object {
 
-    public function process(StreamEvent[] streamEvents);
+    public function process(StreamEvent?[] streamEvents);
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
@@ -34,9 +34,9 @@ public type LengthWindow object {
     public int size;
     public LinkedList linkedList;
     public any[] windowParameters;
-    public function (StreamEvent[])? nextProcessPointer;
+    public function (StreamEvent?[])? nextProcessPointer;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.linkedList = new;
@@ -60,9 +60,10 @@ public type LengthWindow object {
         }
     }
 
-    public function process(StreamEvent[] streamEvents) {
-        StreamEvent[] outputEvents = [];
-        foreach var event in streamEvents {
+    public function process(StreamEvent?[] streamEvents) {
+        StreamEvent?[] outputEvents = [];
+        foreach var evt in streamEvents {
+            StreamEvent event = <StreamEvent>evt;
             if (self.linkedList.getSize() == self.size) {
 
                 any? anyValue = self.linkedList.removeFirst();
@@ -78,7 +79,7 @@ public type LengthWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (StreamEvent[])) {
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
             nextProcessFuncPointer.call(outputEvents);
         }
     }
@@ -100,7 +101,7 @@ public type LengthWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -110,7 +111,7 @@ public type LengthWindow object {
     }
 };
 
-public function length(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function length(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     LengthWindow lengthWindow1 = new(nextProcessPointer, windowParameters);
     return lengthWindow1;
@@ -122,16 +123,20 @@ public type TimeWindow object {
     public any[] windowParameters;
     public LinkedList expiredEventQueue;
     public LinkedList timerQueue;
-    public function (StreamEvent[])? nextProcessPointer;
+    public function (StreamEvent?[])? nextProcessPointer;
     public int lastTimestamp = -0x8000000000000000;
+    public Scheduler scheduler;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMillis = 0;
         self.expiredEventQueue = new;
         self.timerQueue = new;
         self.initParameters(windowParameters);
+        self.scheduler = new(function (StreamEvent?[] events) {
+                self.process(events);
+            });
     }
 
     public function initParameters(any[] parameters) {
@@ -150,7 +155,7 @@ public type TimeWindow object {
         }
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         lock {
             foreach var event in streamEvents {
@@ -182,11 +187,7 @@ public type TimeWindow object {
                     self.expiredEventQueue.addLast(clonedEvent);
 
                     if (self.lastTimestamp < clonedEvent.timestamp) {
-                        task:Timer timer = new task:Timer(function () returns error? {return self.invokeProcess();},
-                            function (error e) {self.handleError(e);}, self.timeInMillis,
-                            delay = self.timeInMillis - (time:currentTime().time - clonedEvent.timestamp));
-                        _ = timer.start();
-                        self.timerQueue.addLast(timer);
+                        self.scheduler.notifyAt(clonedEvent.timestamp + self.timeInMillis);
                         self.lastTimestamp = clonedEvent.timestamp;
                     }
                 } else {
@@ -197,9 +198,9 @@ public type TimeWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (StreamEvent[])) {
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
             if (streamEventChunk.getSize() != 0) {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 streamEventChunk.resetToFront();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
@@ -208,23 +209,6 @@ public type TimeWindow object {
                 nextProcessFuncPointer.call(events);
             }
         }
-    }
-
-    public function invokeProcess() returns error? {
-        map<anydata> data = {};
-        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
-        self.process(timerEventWrapper);
-        if (!self.timerQueue.isEmpty()) {
-            task:Timer timer = <task:Timer>self.timerQueue.removeFirst();
-            _ = timer.stop();
-        }
-        return ();
-    }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
     }
 
     public function getCandidateEvents(
@@ -244,7 +228,7 @@ public type TimeWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -254,7 +238,7 @@ public type TimeWindow object {
     }
 };
 
-public function time(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function time(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeWindow timeWindow1 = new(nextProcessPointer, windowParameters);
     return timeWindow1;
@@ -267,9 +251,9 @@ public type LengthBatchWindow object {
     public StreamEvent? resetEvent;
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
-    public function (StreamEvent[])? nextProcessPointer;
+    public (function (StreamEvent?[]))? nextProcessPointer;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init((function (StreamEvent?[]))? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.length = 0;
@@ -296,12 +280,13 @@ public type LengthBatchWindow object {
         }
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunks = new();
         LinkedList outputStreamEventChunk = new();
         int currentTime = time:currentTime().time;
 
-        foreach var event in streamEvents {
+        foreach var evt in streamEvents {
+            StreamEvent event = <StreamEvent> evt;
             StreamEvent clonedStreamEvent = event.copy();
             self.currentEventQueue.addLast(clonedStreamEvent);
             self.count += 1;
@@ -338,10 +323,10 @@ public type LengthBatchWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (StreamEvent[])) {
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
             streamEventChunks.resetToFront();
             while streamEventChunks.hasNext() {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 LinkedList streamEventChunk;
                 any? next = streamEventChunks.next();
                 if (next is LinkedList) {
@@ -376,7 +361,7 @@ public type LengthBatchWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -386,7 +371,7 @@ public type LengthBatchWindow object {
     }
 };
 
-public function lengthBatch(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function lengthBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     LengthBatchWindow lengthBatchWindow = new(nextProcessPointer, windowParameters);
     return lengthBatchWindow;
@@ -401,9 +386,9 @@ public type TimeBatchWindow object {
     public LinkedList? expiredEventQueue;
     public StreamEvent? resetEvent;
     public task:Timer? timer;
-    public function (StreamEvent[])? nextProcessPointer;
+    public function (StreamEvent?[])? nextProcessPointer;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
@@ -433,13 +418,13 @@ public type TimeBatchWindow object {
     public function invokeProcess() returns error? {
         map<anydata> data = {};
         StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent[] timerEventWrapper = [];
+        StreamEvent?[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
         return ();
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList outputStreamEvents = new();
         if (self.nextEmitTime == -1) {
             self.nextEmitTime = time:currentTime().time + self.timeInMilliSeconds;
@@ -465,7 +450,8 @@ public type TimeBatchWindow object {
             sendEvents = false;
         }
 
-        foreach var event in streamEvents {
+        foreach var evt in streamEvents {
+            StreamEvent event = <StreamEvent> evt;
             if (event.eventType != "CURRENT") {
                 continue;
             }
@@ -489,9 +475,9 @@ public type TimeBatchWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (StreamEvent[])) {
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
             if (outputStreamEvents.getSize() != 0) {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 outputStreamEvents.resetToFront();
                 while (outputStreamEvents.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(outputStreamEvents.next());
@@ -519,7 +505,7 @@ public type TimeBatchWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -533,7 +519,7 @@ public type TimeBatchWindow object {
     }
 };
 
-public function timeBatch(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function timeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeBatchWindow timeBatchWindow = new(nextProcessPointer, windowParameters);
     return timeBatchWindow;
@@ -544,10 +530,10 @@ public type ExternalTimeWindow object {
     public int timeInMillis;
     public any[] windowParameters;
     public LinkedList expiredEventQueue;
-    public function (StreamEvent[])? nextProcessPointer;
+    public function (StreamEvent?[])? nextProcessPointer;
     public string timeStamp;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMillis = 0;
@@ -580,7 +566,7 @@ public type ExternalTimeWindow object {
         }
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         lock {
             foreach var event in streamEvents {
@@ -618,9 +604,9 @@ public type ExternalTimeWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (StreamEvent[])) {
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
             if (streamEventChunk.getSize() != 0) {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 streamEventChunk.resetToFront();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
@@ -648,7 +634,7 @@ public type ExternalTimeWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -667,7 +653,7 @@ public type ExternalTimeWindow object {
     }
 };
 
-public function externalTime(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function externalTime(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
 
     ExternalTimeWindow timeWindow1 = new(nextProcessPointer, windowParameters);
@@ -678,7 +664,7 @@ public type ExternalTimeBatchWindow object {
     public int timeToKeep;
     public LinkedList currentEventChunk;
     public LinkedList expiredEventChunk;
-    public StreamEvent? resetEvent = null;
+    public StreamEvent? resetEvent = ();
     public int startTime = -1;
     public boolean isStartTimeEnabled = false;
     public boolean replaceTimestampWithBatchEndTime = false;
@@ -688,13 +674,13 @@ public type ExternalTimeBatchWindow object {
     public int lastScheduledTime;
     public int lastCurrentEventTime = 0;
     public task:Timer? timer;
-    public function (StreamEvent[])? nextProcessPointer;
+    public function (StreamEvent?[])? nextProcessPointer;
     public string timeStamp;
     public boolean storeExpiredEvents = false;
     public boolean outputExpectsExpiredEvents = false;
     public any[] windowParameters;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeToKeep = 0;
@@ -782,20 +768,20 @@ public type ExternalTimeBatchWindow object {
     public function invokeProcess() returns error? {
         map<anydata> data = {};
         StreamEvent timerEvent = new(("timer", data), TIMER, time:currentTime().time);
-        StreamEvent[] timerEventWrapper = [];
+        StreamEvent?[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
         _ = self.timer.stop();
         return ();
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
@@ -864,12 +850,12 @@ public type ExternalTimeBatchWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (StreamEvent[])) {
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
             if (complexEventChunks.getSize() != 0) {
                 while (complexEventChunks.hasNext()) {
-                    StreamEvent[] streamEvent;
+                    StreamEvent?[] streamEvent;
                     any? next = complexEventChunks.next();
-                    if (next is StreamEvent[]) {
+                    if (next is StreamEvent?[]) {
                         streamEvent = next;
                     } else {
                         return;
@@ -899,7 +885,7 @@ public type ExternalTimeBatchWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -927,7 +913,7 @@ public type ExternalTimeBatchWindow object {
 
     public function flushToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents) {
         LinkedList newEventChunk = new();
-        if (self.expiredEventChunk.getFirst() != null) {
+        if (self.expiredEventChunk.getFirst() != ()) {
             // mark the timestamp for the expiredType event
             self.expiredEventChunk.resetToFront();
             while (self.expiredEventChunk.hasNext()) {
@@ -941,11 +927,11 @@ public type ExternalTimeBatchWindow object {
             }
         }
 
-        if (self.expiredEventChunk != null) {
+        if (self.expiredEventChunk != ()) {
             self.expiredEventChunk.clear();
         }
 
-        if (self.currentEventChunk.getFirst() != null) {
+        if (self.currentEventChunk.getFirst() != ()) {
             // add reset event in front of current events
             any streamEvent = self.resetEvent;
             if (streamEvent is StreamEvent) {
@@ -973,7 +959,7 @@ public type ExternalTimeBatchWindow object {
         }
         self.currentEventChunk.clear();
 
-        StreamEvent[] streamEvents = [];
+        StreamEvent?[] streamEvents = [];
         while (newEventChunk.hasNext()) {
             streamEvents[streamEvents.length()] = getStreamEvent(newEventChunk.next());
         }
@@ -984,8 +970,8 @@ public type ExternalTimeBatchWindow object {
     public function appendToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents) {
         LinkedList newEventChunk = new();
         LinkedList sentEventChunk = new();
-        if (self.currentEventChunk.getFirst() != null) {
-            if (self.expiredEventChunk.getFirst() != null) {
+        if (self.currentEventChunk.getFirst() != ()) {
+            if (self.expiredEventChunk.getFirst() != ()) {
                 // mark the timestamp for the expiredType event
                 self.expiredEventChunk.resetToFront();
                 while (self.expiredEventChunk.hasNext()) {
@@ -1036,7 +1022,7 @@ public type ExternalTimeBatchWindow object {
         }
         self.currentEventChunk.clear();
 
-        StreamEvent[] streamEvents = [];
+        StreamEvent?[] streamEvents = [];
         while (newEventChunk.hasNext()) {
             streamEvents[streamEvents.length()] = getStreamEvent(newEventChunk.next());
         }
@@ -1076,7 +1062,7 @@ public type ExternalTimeBatchWindow object {
     }
 };
 
-public function externalTimeBatch(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function externalTimeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, windowParameters);
     return timeWindow1;
@@ -1089,17 +1075,19 @@ public type TimeLengthWindow object {
     public any[] windowParameters;
     public int count = 0;
     public LinkedList expiredEventChunk;
-    public function (StreamEvent[])? nextProcessPointer;
-    public task:Timer? timer;
+    public function (StreamEvent?[])? nextProcessPointer;
+    public Scheduler scheduler;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
         self.length = 0;
-        self.timer = ();
         self.expiredEventChunk = new;
         self.initParameters(windowParameters);
+        self.scheduler = new(function (StreamEvent?[] events) {
+                self.process(events);
+            });
     }
 
     public function initParameters(any[] parameters) {
@@ -1127,13 +1115,13 @@ public type TimeLengthWindow object {
         }
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
@@ -1165,15 +1153,13 @@ public type TimeLengthWindow object {
                         self.expiredEventChunk.addLast(clonedEvent);
                     } else {
                         StreamEvent firstEvent = getStreamEvent(self.expiredEventChunk.removeFirst());
-                        if (firstEvent != null) {
+                        if (firstEvent != ()) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
                             self.expiredEventChunk.addLast(clonedEvent);
                         }
                     }
-                    self.timer = new
-                    task:Timer(function () returns error? {return self.invokeProcess();},
-                        function (error e) {self.handleError(e);}, self.timeInMilliSeconds);
+                    self.scheduler.notifyAt(clonedEvent.timestamp + self.timeInMilliSeconds);
                 } else {
                     streamEventChunk.removeCurrent();
                 }
@@ -1182,9 +1168,9 @@ public type TimeLengthWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if(nextProcessFuncPointer is function (StreamEvent[])) {
+        if(nextProcessFuncPointer is function (StreamEvent?[])) {
             if (streamEventChunk.getSize() != 0) {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 streamEventChunk.resetToFront();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
@@ -1193,16 +1179,6 @@ public type TimeLengthWindow object {
                 nextProcessFuncPointer.call(events);
             }
         }
-    }
-
-    public function invokeProcess() returns error? {
-        map<anydata> data = {};
-        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
-        self.process(timerEventWrapper);
-        _ = self.timer.stop();
-        return ();
     }
 
     public function getCandidateEvents(
@@ -1222,7 +1198,7 @@ public type TimeLengthWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1230,14 +1206,9 @@ public type TimeLengthWindow object {
         }
         return events;
     }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
-    }
-
 };
 
-public function timeLength(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function timeLength(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, windowParameters);
     return timeLengthWindow1;
@@ -1251,9 +1222,9 @@ public type UniqueLengthWindow object {
     public int count = 0;
     public map<StreamEvent> uniqueMap;
     public LinkedList expiredEventChunk;
-    public function (StreamEvent[])? nextProcessPointer;
+    public function (StreamEvent?[])? nextProcessPointer;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.uniqueKey = "";
@@ -1290,13 +1261,13 @@ public type UniqueLengthWindow object {
         }
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
@@ -1337,7 +1308,7 @@ public type UniqueLengthWindow object {
                         oldEvent.timestamp = currentTime;
                     } else {
                         StreamEvent firstEvent = getStreamEvent(self.expiredEventChunk.removeFirst());
-                        if (firstEvent != null) {
+                        if (firstEvent != ()) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
                             self.expiredEventChunk.addLast(clonedEvent);
@@ -1350,9 +1321,9 @@ public type UniqueLengthWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if(nextProcessFuncPointer is function (StreamEvent[])) {
+        if(nextProcessFuncPointer is function (StreamEvent?[])) {
             if (streamEventChunk.getSize() != 0) {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 streamEventChunk.resetToFront();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
@@ -1380,7 +1351,7 @@ public type UniqueLengthWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1390,7 +1361,7 @@ public type UniqueLengthWindow object {
     }
 };
 
-public function uniqueLength(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function uniqueLength(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     UniqueLengthWindow uniqueLengthWindow1 = new(nextProcessPointer, windowParameters);
     return uniqueLengthWindow1;
@@ -1403,9 +1374,9 @@ public type DelayWindow object {
     public LinkedList delayedEventQueue;
     public int lastTimestamp = 0;
     public task:Timer? timer;
-    public function (StreamEvent[])? nextProcessPointer;
+    public function (StreamEvent?[])? nextProcessPointer;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.delayInMilliSeconds = 0;
@@ -1431,13 +1402,13 @@ public type DelayWindow object {
     }
 
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
@@ -1480,9 +1451,9 @@ public type DelayWindow object {
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if(nextProcessFuncPointer is function (StreamEvent[])) {
+        if(nextProcessFuncPointer is function (StreamEvent?[])) {
             if (streamEventChunk.getSize() != 0) {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 streamEventChunk.resetToFront();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
@@ -1496,7 +1467,7 @@ public type DelayWindow object {
     public function invokeProcess() returns error? {
         map<anydata> data = {};
         StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent[] timerEventWrapper = [];
+        StreamEvent?[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
         _ = self.timer.stop();
@@ -1524,7 +1495,7 @@ public type DelayWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1534,7 +1505,7 @@ public type DelayWindow object {
     }
 };
 
-public function delay(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function delay(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     DelayWindow delayWindow1 = new(nextProcessPointer, windowParameters);
     return delayWindow1;
@@ -1548,11 +1519,11 @@ public type SortWindow object {
     public string[] sortMetadata;
     public string[] fields;
     public string[] sortTypes;
-    public function (StreamEvent[])? nextProcessPointer;
-    public (function (map<anydata>) returns anydata)[] fieldFuncs;
+    public function (StreamEvent?[])? nextProcessPointer;
+    public (function (map<anydata>) returns anydata)?[] fieldFuncs;
     public MergeSort mergeSort;
 
-    public function __init(function (StreamEvent[])? nextProcessPointer, any [] windowParameters) {
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any [] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.sortedWindow = new;
@@ -1625,13 +1596,13 @@ public type SortWindow object {
         self.mergeSort = new(self.fieldFuncs, self.sortTypes);
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == null) {
+        if (streamEventChunk.getFirst() == ()) {
             return;
         }
 
@@ -1646,7 +1617,7 @@ public type SortWindow object {
 
                 self.sortedWindow.addLast(clonedEvent);
                 if (self.sortedWindow.getSize() > self.lengthToKeep) {
-                    StreamEvent[] events = [];
+                    StreamEvent?[] events = [];
                     self.sortedWindow.resetToFront();
 
                     while (self.sortedWindow.hasNext()) {
@@ -1662,22 +1633,21 @@ public type SortWindow object {
 
                     StreamEvent expiredEvent = <StreamEvent>self.sortedWindow.removeLast();
                     expiredEvent.timestamp = currentTime;
-                    streamEventChunk.addLast(expiredEvent);
-                    StreamEvent str = <StreamEvent>streamEventChunk.next();
+                    streamEventChunk.insertBeforeCurrent(expiredEvent);
                 }
             }
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
-        if(nextProcessFuncPointer is function (StreamEvent[])) {
+        if(nextProcessFuncPointer is function (StreamEvent?[])) {
             if (streamEventChunk.getSize() != 0) {
-                StreamEvent[] events = [];
+                StreamEvent?[] events = [];
                 streamEventChunk.resetToFront();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
                     events[events.length()] = streamEvent;
                 }
-                nextProcessFuncPointer.call(streamEvents);
+                nextProcessFuncPointer.call(events);
             }
         }
     }
@@ -1699,7 +1669,7 @@ public type SortWindow object {
                         events[i] = (lshEvent, rhsEvent);
                         i += 1;
                     }
-                } else if (conditionFunc is ()) {
+                } else {
                     events[i] = (lshEvent, rhsEvent);
                     i += 1;
                 }
@@ -1709,8 +1679,448 @@ public type SortWindow object {
     }
 };
 
-public function sort(any[] windowParameters, function(StreamEvent[])? nextProcessPointer = ())
+public function sort(any[] windowParameters, function(StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     SortWindow sortWindow1 = new(nextProcessPointer, windowParameters);
     return sortWindow1;
+}
+
+public type TimeAccumulatingWindow object {
+
+    public int timeInMillis;
+    public any[] windowParameters;
+    public LinkedList expiredEventQueue;
+    public function (StreamEvent?[])? nextProcessPointer;
+    public int lastTimestamp = -0x8000000000000000;
+    public Scheduler scheduler;
+
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
+        self.timeInMillis = 0;
+        self.expiredEventQueue = new;
+        self.initParameters(windowParameters);
+        self.scheduler = new(function (StreamEvent?[] events) { self.process(events); });
+    }
+
+    public function initParameters(any[] parameters) {
+        if (parameters.length() == 1) {
+            any parameter0 = parameters[0];
+            if (parameter0 is int) {
+                self.timeInMillis = parameter0;
+            } else {
+                error err = error("Time accumulating window expects an int parameter");
+                panic err;
+            }
+        } else {
+            error err = error("Time accumulating window should only have one parameter (<int> " +
+                "timePeriod), but found " + parameters.length() + " input attributes");
+            panic err;
+        }
+    }
+
+    public function process(StreamEvent?[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        lock {
+            foreach var event in streamEvents {
+                streamEventChunk.addLast(event);
+            }
+
+            streamEventChunk.resetToFront();
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
+                int currentTime = time:currentTime().time;
+
+                if (streamEvent.eventType == "CURRENT") {
+                    StreamEvent clonedEvent = streamEvent.copy();
+                    clonedEvent.eventType = "EXPIRED";
+                    self.expiredEventQueue.addLast(clonedEvent);
+                    self.scheduler.notifyAt(streamEvent.timestamp + self.timeInMillis);
+                    self.lastTimestamp = streamEvent.timestamp;
+                } else {
+                    streamEventChunk.clear();
+                    if ((self.lastTimestamp + self.timeInMillis) <= streamEvent.timestamp) {
+                        while (self.expiredEventQueue.hasNext()) {
+                            streamEventChunk.addLast(<StreamEvent>self.expiredEventQueue.next());
+                            self.expiredEventQueue.removeCurrent();
+                        }
+                    }
+                }
+            }
+        }
+
+        any nextProcessFuncPointer = self.nextProcessPointer;
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
+            if (streamEventChunk.getSize() != 0) {
+                StreamEvent?[] events = [];
+                streamEventChunk.resetToFront();
+                while (streamEventChunk.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
+                    events[events.length()] = streamEvent;
+                }
+                nextProcessFuncPointer.call(events);
+            }
+        }
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent?, StreamEvent?)[] {
+        (StreamEvent?, StreamEvent?)[] events = [];
+        int i = 0;
+        foreach var e in self.expiredEventQueue.asArray() {
+            if (e is StreamEvent) {
+                StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
+                StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
+
+                if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i += 1;
+                    }
+                } else {
+                    events[i] = (lshEvent, rhsEvent);
+                    i += 1;
+                }
+            }
+        }
+        return events;
+    }
+};
+
+public function timeAccum(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+                    returns Window {
+    TimeAccumulatingWindow timeAccumulatingWindow1 = new(nextProcessPointer, windowParameters);
+    return timeAccumulatingWindow1;
+}
+
+public type HoppingWindow object {
+    public int timeInMilliSeconds;
+    public int hoppingTime;
+    public any[] windowParameters;
+    public LinkedList currentEventQueue;
+    public StreamEvent? resetEvent;
+    public task:Timer? timer;
+    public boolean isStart;
+    public function (StreamEvent?[])? nextProcessPointer;
+
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
+        self.timeInMilliSeconds = 0;
+        self.hoppingTime = 0;
+        self.resetEvent = ();
+        self.timer = ();
+        self.currentEventQueue = new();
+        self.isStart = true;
+        self.initParameters(self.windowParameters);
+    }
+
+    public function initParameters(any[] parameters) {
+        if (parameters.length() == 2) {
+            any windowTimeParam = parameters[0];
+            if (windowTimeParam is int) {
+                self.timeInMilliSeconds = windowTimeParam;
+            } else {
+                error err = error("Hopping window's first parameter, windowTime should be of type int");
+                panic err;
+            }
+
+            any hoppingTimeParam = parameters[1];
+            if (hoppingTimeParam is int) {
+                self.hoppingTime = hoppingTimeParam;
+            } else {
+                error err = error("Hopping window's second parameter, hoppingTime should be of type int");
+                panic err;
+            }
+        } else {
+            error err = error("Hopping window should only have two parameters (<int> windowTime, <int> " +
+                "hoppingTime), but found " + parameters.length() + " input attributes");
+            panic err;
+        }
+    }
+
+    public function invokeProcess() returns error? {
+        map<anydata> data = {};
+        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
+        StreamEvent?[] timerEventWrapper = [timerEvent];
+        self.process(timerEventWrapper);
+        return ();
+    }
+
+    public function process(StreamEvent?[] streamEvents) {
+        LinkedList outputStreamEvents = new();
+        if (self.isStart) {
+            self.timer = new
+            task:Timer(function () returns error? {return self.invokeProcess();},
+                function (error e) {self.handleError(e);}, self.hoppingTime, delay = self.hoppingTime);
+            _ = self.timer.start();
+            self.isStart = false;
+        }
+
+        LinkedList streamEventChunk = new;
+        lock {
+            foreach var event in streamEvents {
+                streamEventChunk.addLast(event);
+            }
+
+            streamEventChunk.resetToFront();
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
+
+                if (streamEvent.eventType == "CURRENT") {
+                    StreamEvent clonedEvent = streamEvent.copy();
+                    self.currentEventQueue.addLast(clonedEvent);
+                } else {
+                    self.currentEventQueue.resetToFront();
+                    while (self.currentEventQueue.hasNext()) {
+                        StreamEvent currEvent = getStreamEvent(self.currentEventQueue.next());
+                        if (currEvent.timestamp >= (streamEvent.timestamp - self.timeInMilliSeconds)) {
+                            if (self.resetEvent is ()) {
+                                self.resetEvent = createResetStreamEvent(currEvent);
+                            }
+                            outputStreamEvents.addLast(currEvent);
+                        } else {
+                            self.currentEventQueue.removeCurrent();
+                            continue;
+                        }
+                        if (currEvent.timestamp < (streamEvent.timestamp + self.hoppingTime - self.timeInMilliSeconds)) {
+                            self.currentEventQueue.removeCurrent();
+                        }
+                    }
+                    if (!(self.resetEvent is ())) {
+                        outputStreamEvents.addFirst(self.resetEvent);
+                        self.resetEvent = ();
+                    }
+                }
+            }
+        }
+
+        any nextProcessFuncPointer = self.nextProcessPointer;
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
+            if (outputStreamEvents.getSize() != 0) {
+                StreamEvent?[] events = [];
+                outputStreamEvents.resetToFront();
+                while (outputStreamEvents.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(outputStreamEvents.next());
+                    events[events.length()] = streamEvent;
+                }
+                nextProcessFuncPointer.call(events);
+            }
+        }
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent?, StreamEvent?)[] {
+        (StreamEvent?, StreamEvent?)[] events = [];
+        int i = 0;
+        foreach var e in self.currentEventQueue.asArray() {
+            if (e is StreamEvent) {
+                StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
+                StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
+
+                if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i += 1;
+                    }
+                } else {
+                    events[i] = (lshEvent, rhsEvent);
+                    i += 1;
+                }
+            }
+        }
+        return events;
+    }
+
+    public function handleError(error e) {
+        io:println("Error occured", e.reason());
+    }
+};
+
+public function hopping(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+                    returns Window {
+    HoppingWindow hoppingWindow = new(nextProcessPointer, windowParameters);
+    return hoppingWindow;
+}
+
+public type TimeOrderWindow object {
+
+    public int timeInMillis;
+    public any[] windowParameters;
+    public LinkedList expiredEventQueue;
+    public function (StreamEvent?[])? nextProcessPointer;
+    public string timestamp;
+    public boolean dropOlderEvents;
+    public MergeSort mergeSort;
+
+    public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
+        self.timeInMillis = 0;
+        self.timestamp = "";
+        self.dropOlderEvents = false;
+        self.expiredEventQueue = new;
+        self.mergeSort = new([], []);
+        self.initParameters(windowParameters);
+    }
+
+    public function initParameters(any[] parameters) {
+        if (parameters.length() == 3) {
+            any timestampParam = parameters[0];
+            if (timestampParam is string) {
+                self.timestamp = timestampParam;
+            } else {
+                error err = error("TimeOrder window's first parameter, timestamp should be of type string");
+                panic err;
+            }
+
+            any timeInMillisParam = parameters[1];
+            if (timeInMillisParam is int) {
+                self.timeInMillis = timeInMillisParam;
+            } else {
+                error err = error("TimeOrder window's second parameter, windowTime should be of type int");
+                panic err;
+            }
+
+            any dropOlderEventsParam = parameters[2];
+            if (dropOlderEventsParam is boolean) {
+                self.dropOlderEvents = dropOlderEventsParam;
+            } else {
+                error err = error("TimeOrder window's third parameter, dropOlderEvents should be of type boolean");
+                panic err;
+            }
+        } else {
+            error err = error("TimeOrder window should only have three parameters (<string> timestamp, <int> " +
+                "windowTime, <boolean> dropOlderEvents), but found " + parameters.length() + " input attributes");
+            panic err;
+        }
+
+        (function (map<anydata>) returns anydata)?[] fieldFuncs = [function (map<anydata> x) returns anydata {
+            return x[self.timestamp];
+        }];
+        string[] sortTypes = [ASCENDING];
+        self.mergeSort = new(fieldFuncs, sortTypes);
+    }
+
+    public function process(StreamEvent?[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        lock {
+            foreach var e in streamEvents {
+                StreamEvent event = <StreamEvent> e;
+                streamEventChunk.addLast(event);
+            }
+
+            streamEventChunk.resetToFront();
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
+                int currentTime = time:currentTime().time;
+                self.expiredEventQueue.resetToFront();
+
+                while (self.expiredEventQueue.hasNext()) {
+                    StreamEvent expiredEvent = getStreamEvent(self.expiredEventQueue.next());
+                    int timeDiff = (self.getTimestamp(expiredEvent.data[self.timestamp]) - currentTime) +
+                        self.timeInMillis;
+                    if (timeDiff <= 0) {
+                        self.expiredEventQueue.removeCurrent();
+                        expiredEvent.timestamp = currentTime;
+                        streamEventChunk.insertBeforeCurrent(expiredEvent);
+                    } else {
+                        self.expiredEventQueue.resetToFront();
+                        break;
+                    }
+                }
+
+                if (streamEvent.eventType == CURRENT) {
+                    if (self.dropOlderEvents && (currentTime - self.getTimestamp(streamEvent.data[self.timestamp])) >
+                        self.timeInMillis) {
+                        streamEventChunk.removeCurrent();
+                    } else {
+                        StreamEvent clonedEvent = streamEvent.copy();
+                        clonedEvent.eventType = EXPIRED;
+                        self.expiredEventQueue.addLast(clonedEvent);
+                    }
+
+                    StreamEvent?[] events = [];
+                    self.expiredEventQueue.resetToFront();
+
+                    while (self.expiredEventQueue.hasNext()) {
+                        StreamEvent streamEven = <StreamEvent>self.expiredEventQueue.next();
+                        events[events.length()] = streamEven;
+                    }
+
+                    self.mergeSort.topDownMergeSort(events);
+                    self.expiredEventQueue.clear();
+                    foreach var e in events {
+                        StreamEvent event = <StreamEvent> e;
+                        self.expiredEventQueue.addLast(event);
+                    }
+                }
+                self.expiredEventQueue.resetToFront();
+            }
+        }
+
+        any nextProcessFuncPointer = self.nextProcessPointer;
+        if (nextProcessFuncPointer is function (StreamEvent?[])) {
+            if (streamEventChunk.getSize() != 0) {
+                StreamEvent?[] events = [];
+                streamEventChunk.resetToFront();
+                while (streamEventChunk.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
+                    events[events.length()] = streamEvent;
+                }
+                nextProcessFuncPointer.call(events);
+            }
+        }
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent?, StreamEvent?)[] {
+        (StreamEvent?, StreamEvent?)[] events = [];
+        int i = 0;
+        foreach var e in self.expiredEventQueue.asArray() {
+            if (e is StreamEvent) {
+                StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
+                StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
+
+                if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i += 1;
+                    }
+                } else {
+                    events[i] = (lshEvent, rhsEvent);
+                    i += 1;
+                }
+            }
+        }
+        return events;
+    }
+
+    public function getTimestamp(any val) returns (int) {
+        if (val is int) {
+            return val;
+        } else {
+            error err = error("timestamp should be of type int");
+            panic err;
+        }
+    }
+};
+
+public function timeOrder(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+                    returns Window {
+
+    TimeOrderWindow timeOrderWindow = new(nextProcessPointer, windowParameters);
+    return timeOrderWindow;
 }

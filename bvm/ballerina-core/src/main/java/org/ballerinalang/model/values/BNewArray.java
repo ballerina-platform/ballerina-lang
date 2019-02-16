@@ -24,6 +24,7 @@ import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.lang.reflect.Array;
+import java.util.List;
 
 import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
@@ -60,7 +61,7 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
     }
 
@@ -164,7 +165,7 @@ public abstract class BNewArray implements BRefType, BCollection {
         }
 
         @Override
-        public void stamp(BType type) {
+        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
         }
     }

@@ -9,7 +9,9 @@
       "label":"equalsIgnoreCase(string anotherString)(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Compares two strings, ignoring the case of the strings.\n",
+      "documentation":{
+        "left":"Compares two strings, ignoring the case of the strings.\n"
+      },
       "sortText":"121",
       "insertText":"equalsIgnoreCase(${1:anotherString})",
       "insertTextFormat":"Snippet"
@@ -18,7 +20,9 @@
       "label":"toUpper()(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns a string with all the characters converted to uppercase.\n",
+      "documentation":{
+        "left":"Returns a string with all the characters converted to uppercase.\n"
+      },
       "sortText":"121",
       "insertText":"toUpper()",
       "insertTextFormat":"Snippet"
@@ -27,7 +31,9 @@
       "label":"substring(int startIndex, int endIndex)(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns a new string that is the substring of the specified string.\n",
+      "documentation":{
+        "left":"Returns a new string that is the substring of the specified string.\n"
+      },
       "sortText":"121",
       "insertText":"substring(${1:startIndex}, ${2:endIndex})",
       "insertTextFormat":"Snippet"
@@ -36,7 +42,9 @@
       "label":"lastIndexOf(string substring)(int)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns the first index of the last occurence of the substring within the specified string.\n",
+      "documentation":{
+        "left":"Returns the first index of the last occurence of the substring within the specified string.\n"
+      },
       "sortText":"121",
       "insertText":"lastIndexOf(${1:substring})",
       "insertTextFormat":"Snippet"
@@ -45,7 +53,9 @@
       "label":"replaceFirst(string regex, string replaceWith)(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Replaces the first instance of the replacePattern with the replaceWith string and returns the result.\n",
+      "documentation":{
+        "left":"Replaces the first instance of the replacePattern with the replaceWith string and returns the result.\n"
+      },
       "sortText":"121",
       "insertText":"replaceFirst(${1:regex}, ${2:replaceWith})",
       "insertTextFormat":"Snippet"
@@ -54,7 +64,9 @@
       "label":"length()(int)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns the length of the specified string.\n",
+      "documentation":{
+        "left":"Returns the length of the specified string.\n"
+      },
       "sortText":"121",
       "insertText":"length()",
       "insertTextFormat":"Snippet"
@@ -63,7 +75,9 @@
       "label":"contains(string substring)(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns a Boolean value indicating whether a string contains the specified substring.\n",
+      "documentation":{
+        "left":"Returns a Boolean value indicating whether a string contains the specified substring.\n"
+      },
       "sortText":"121",
       "insertText":"contains(${1:substring})",
       "insertTextFormat":"Snippet"
@@ -72,7 +86,9 @@
       "label":"indexOf(string substring)(int)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns the first index of the first occurence of the substring within the specified string.\n",
+      "documentation":{
+        "left":"Returns the first index of the first occurence of the substring within the specified string.\n"
+      },
       "sortText":"121",
       "insertText":"indexOf(${1:substring})",
       "insertTextFormat":"Snippet"
@@ -81,7 +97,9 @@
       "label":"trim()(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns a trimmed string by omitting the leading and trailing whitespaces of the original string.\n",
+      "documentation":{
+        "left":"Returns a trimmed string by omitting the leading and trailing whitespaces of the original string.\n"
+      },
       "sortText":"121",
       "insertText":"trim()",
       "insertTextFormat":"Snippet"
@@ -90,7 +108,9 @@
       "label":"hasSuffix(string suffix)(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns a Boolean value indicating whether the string ends with specified suffix.\n",
+      "documentation":{
+        "left":"Returns a Boolean value indicating whether the string ends with specified suffix.\n"
+      },
       "sortText":"121",
       "insertText":"hasSuffix(${1:suffix})",
       "insertTextFormat":"Snippet"
@@ -99,7 +119,9 @@
       "label":"unescape()(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns an unescaped string by omitting the escape characters of the original string.\n",
+      "documentation":{
+        "left":"Returns an unescaped string by omitting the escape characters of the original string.\n"
+      },
       "sortText":"121",
       "insertText":"unescape()",
       "insertTextFormat":"Snippet"
@@ -108,7 +130,9 @@
       "label":"toLower()(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns a string with all the characters converted to lowercase.\n",
+      "documentation":{
+        "left":"Returns a string with all the characters converted to lowercase.\n"
+      },
       "sortText":"121",
       "insertText":"toLower()",
       "insertTextFormat":"Snippet"
@@ -117,7 +141,9 @@
       "label":"hasPrefix(string prefix)(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns a Boolean value indicating whether a string starts with the specified prefix.\n",
+      "documentation":{
+        "left":"Returns a Boolean value indicating whether a string starts with the specified prefix.\n"
+      },
       "sortText":"121",
       "insertText":"hasPrefix(${1:prefix})",
       "insertTextFormat":"Snippet"
@@ -126,7 +152,9 @@
       "label":"replaceAll(string regex, string replaceWith)(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Replaces each substring of the string that matches the given regular expression with the given replacement.\n",
+      "documentation":{
+        "left":"Replaces each substring of the string that matches the given regular expression with the given replacement.\n"
+      },
       "sortText":"121",
       "insertText":"replaceAll(${1:regex}, ${2:replaceWith})",
       "insertTextFormat":"Snippet"
@@ -135,7 +163,9 @@
       "label":"replace(string regex, string replaceWith)(string)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Replaces all instances of the replacePattern string with the replaceWith string and returns the result.\n",
+      "documentation":{
+        "left":"Replaces all instances of the replacePattern string with the replaceWith string and returns the result.\n"
+      },
       "sortText":"121",
       "insertText":"replace(${1:regex}, ${2:replaceWith})",
       "insertTextFormat":"Snippet"
@@ -144,7 +174,9 @@
       "label":"split(string regex)(string[])",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Splits the string with the given regular expression to produce a string array.\n",
+      "documentation":{
+        "left":"Splits the string with the given regular expression to produce a string array.\n"
+      },
       "sortText":"121",
       "insertText":"split(${1:regex})",
       "insertTextFormat":"Snippet"
@@ -153,7 +185,9 @@
       "label":"findAll(string regex)(string[]|error)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Finds all the strings matching the regular expression.\n",
+      "documentation":{
+        "left":"Finds all the strings matching the regular expression.\n"
+      },
       "sortText":"121",
       "insertText":"findAll(${1:regex})",
       "insertTextFormat":"Snippet"
@@ -162,52 +196,20 @@
       "label":"matches(string regex)(boolean|error)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Returns a Boolean value indicating whether the string matches the regular expression.\n",
+      "documentation":{
+        "left":"Returns a Boolean value indicating whether the string matches the regular expression.\n"
+      },
       "sortText":"121",
       "insertText":"matches(${1:regex})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base64Encode(string charset \u003d utf-8)(string|error)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":"Encode a given string with Base64 encoding scheme.\n",
-      "sortText":"121",
-      "insertText":"base64Encode(charset \u003d ${2:\"utf-8\"})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base64Decode(string charset \u003d utf-8)(string|error)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":"Decode a given string with Base64 encoding scheme.\n",
-      "sortText":"121",
-      "insertText":"base64Decode(charset \u003d ${2:\"utf-8\"})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base16ToBase64Encode()(string)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":"Encodes a base16 encoded string to base64 encoding.\n",
-      "sortText":"121",
-      "insertText":"base16ToBase64Encode()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"base64ToBase16Encode()(string)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":"Encodes a base64 encoded string to base16 encoding.\n",
-      "sortText":"121",
-      "insertText":"base64ToBase16Encode()",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"toByteArray(string encoding)(byte[])",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Converts string to a byte array.\n",
+      "documentation":{
+        "left":"Converts string to a byte array.\n"
+      },
       "sortText":"121",
       "insertText":"toByteArray(${1:encoding})",
       "insertTextFormat":"Snippet"

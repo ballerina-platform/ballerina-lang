@@ -134,17 +134,6 @@ public class ConstrainedMapTest {
         Assert.assertEquals(returns[1].stringValue(), "ratnasekera");
     }
 
-    @Test(description = "Test Map constrained with constrained Json.")
-    public void testConstrainedMapConstrainedWithConstrainedJson() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
-                "testConstrainedMapConstrainedWithConstrainedJson");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
-    }
-
     @Test(description = "Test Map constrained with value type array.")
     public void testConstrainedMapConstrainedWithValueTypeArray() {
         BValue[] returns = BRunUtil.invoke(compileResult,

@@ -21,15 +21,14 @@
        Fonts
 --------------------*/
 
-@fontName          : -apple-system, BlinkMacSystemFont, Segoe WPC, Segoe UI, HelveticaNeue-Light, Ubuntu, Droid Sans, sans-serif;
-@googleFontName    : 'Lato';
+@fontName          : var(--font-family), @iconFont;
 
 /*-------------------
       Base Sizes
 --------------------*/
 
-@emSize   : 12px;
-@fontSize : 12px;
+@emSize   : 13px;
+@fontSize : 13px;
 
 
 /*-------------------
@@ -40,3 +39,20 @@
 @absoluteBorderRadius: 0;
 
 @defaultBorderRadius: @absoluteBorderRadius;
+
+
+/*-------------------
+    Brand Colors
+--------------------*/
+
+@primaryColor        : @teal;
+
+
+/*-------------------
+      Site Colors
+--------------------*/
+
+/*---  Colors  ---*/
+@teal             : #22b7b1;
+@blue             : #006faa;
+@black            : #464646;

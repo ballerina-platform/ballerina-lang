@@ -22,7 +22,7 @@ service ParticipantService on new http:Listener(8889) {
         log:printInfo("Received update stockquote request");
         http:Response res = new;
 
-        // At the beginning of the transaction statement, since a transaction
+        // At the beginning of the `transaction` statement, since a transaction
         // context has been received, this service will register with the
         // initiator as a participant.
 

@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// This type represents a person.
+// This `record` type represents a person.
 type Person record {
     int id;
     int age = -1;
@@ -9,7 +9,7 @@ type Person record {
     boolean married;
 };
 
-// This type represents an order.
+// This `record` type represents an order.
 type Order record {
     int personId;
     int orderId;
@@ -17,13 +17,13 @@ type Order record {
     float amount;
 };
 
-// This type represents the summed up order details.
+// This `record` type represents the summed up order details.
 type SummedOrder record {
     int personId;
     float amount;
 };
 
-// This type represents order details (this is derived by joining the person details
+// This `record` type represents order details (this is derived by joining the person details
 //and the order details).
 type OrderDetails record {
     int orderId;
@@ -32,7 +32,7 @@ type OrderDetails record {
     float amount;
 };
 
-// This type represents the Person public profile.
+// This `record` type represents the public profile of a person.
 type PersonPublicProfile record {
     string knownName;
     int age = -1;
@@ -48,7 +48,7 @@ public function main() {
     Person p3 = { id: 3, age: 27, salary: 1200.50, name: "jack", married: true };
     Person p4 = { id: 4, age: 28, salary: 1100.50, name: "alex", married: false };
 
-    // This is the in-memory table that is constrained by the `Person` type.
+    // This is the in-memory `table` that is constrained by the `Person` type.
     table<Person> personTable = table {
         { id, age, salary, name, married },
         [p1, p2, p3, p4]
@@ -67,7 +67,7 @@ public function main() {
     { personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75 };
     Order o4 = { personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75 };
 
-    // This is the in-memory table that is constrained by the `Order` type.
+    // This is the in-memory `table` that is constrained by the `Order` type.
     table<Order> orderTable = table {
         { personId, orderId, items, amount },
         [o1, o2, o3, o4]
@@ -76,9 +76,9 @@ public function main() {
     // This prints the `Order` table content.
     printTable(queryStmt, "The orderTable: ", orderTable);
 
-    // Querying for a table always returns a new in-memory table.
+    // Querying for a `table` always returns a new in-memory `table`.
 
-    //Queries all the records in a table and returns them as another in-memory table.
+    //Queries all the records in a `table` and returns them as another in-memory `table`.
     table<Person> personTableCopy = from personTable select *;
     queryStmt = "\ntable<Person> personTableCopy = from personTable select *;";
     printTable(queryStmt,"personTableCopy: ", personTableCopy);
@@ -89,29 +89,29 @@ public function main() {
             "from personTable select * order by salary;";
     printTable(queryStmt, "orderedPersonTable: ", orderedPersonTable);
 
-    //Queries all the records in a table that match a specific filter criterion.
+    //Queries all the records in a `table` that match a specific filter criterion.
     table<Person> personTableCopyWithFilter =
                  from personTable where name == "jane" select *;
     queryStmt = "\ntable<Person> personTableCopyWithFilter = " +
             "from personTable where name == 'jane' select *;";
     printTable(queryStmt, "personTableCopyWithFilter: ", personTableCopyWithFilter);
 
-    //Queries only few fields in a table and returns the results as a new in-memory
-    //table constrained by a different type.
+    //Queries only few fields in a `table` and returns the results as a new in-memory
+    //`table` constrained by a different type.
     table<PersonPublicProfile> childTable = from personTable
                   select name as knownName, age;
     queryStmt = "\ntable<PersonPublicProfile > childTable = " +
                     "from personTable select name as knownName, age;";
     printTable(queryStmt, "childTable: ", childTable);
 
-    //This applies the `group by` clause to a table and returns a new table with the result.
+    //This applies the `group by` clause to a `table` and returns a new `table` with the result.
     table<SummedOrder> summedOrderTable = from orderTable
                   select personId, sum(amount) group by personId;
     queryStmt = "\ntable<SummedOrder> summedOrderTable = " +
             "from orderTable select personId, sum(amount) group by personId;";
     printTable(queryStmt, "summedOrderTable: ", summedOrderTable);
 
-    //Joins a table with another table and returns the selected fields in a table
+    //Joins a `table` with another `table` and returns the selected fields in a `table`
     //constrained by a different type.
     table<OrderDetails> orderDetailsTable =
                     from personTable as tempPersonTable
@@ -131,8 +131,8 @@ public function main() {
                     "tempOrderTable.amount as amount;";
     printTable(queryStmt, "orderDetailsTable: ", orderDetailsTable);
 
-    //Joins a table with another table using the `where` clause and return the selected fields in a
-    // table constrained by a different type.
+    //Joins a `table` with another `table` using the `where` clause and return the selected fields in a
+    // `table` constrained by a different type.
     table<OrderDetails> orderDetailsWithFilter =
                     from personTable
                     where name != "jane" as tempPersonTable

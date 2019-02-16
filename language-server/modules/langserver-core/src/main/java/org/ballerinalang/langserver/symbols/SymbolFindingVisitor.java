@@ -23,11 +23,13 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -50,9 +52,9 @@ import java.util.stream.Collectors;
  * A visitor for creating a flat list of symbols found in a compilation unit.
  */
 public class SymbolFindingVisitor extends LSNodeVisitor {
-    private List<SymbolInformation> symbols;
-    private String uri = "";
-    private String query = "";
+    private List<Either<SymbolInformation, DocumentSymbol>> symbols;
+    private String uri;
+    private String query;
 
     public SymbolFindingVisitor(LSServiceOperationContext documentServiceContext) {
         this.symbols = documentServiceContext.get(DocumentServiceKeys.SYMBOL_LIST_KEY);
@@ -192,7 +194,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
         lspSymbol.setName(symbolName);
         lspSymbol.setKind(kind);
         lspSymbol.setLocation(new Location(this.uri, getRange(node)));
-        this.symbols.add(lspSymbol);
+        this.symbols.add(Either.forLeft(lspSymbol));
     }
 
     private Range getRange(BLangNode node) {

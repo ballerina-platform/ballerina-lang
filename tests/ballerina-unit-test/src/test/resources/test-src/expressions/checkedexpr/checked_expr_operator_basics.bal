@@ -78,14 +78,14 @@ type Person record {
 };
 
 public type MyErrorData record {
-    !...
+    !...;
 };
 
 type MyError error<string, MyErrorData>;
 
 public type CustomErrorData record {
     string data;
-    !...
+    !...;
 };
 
 type CustomError error<string, CustomErrorData>;

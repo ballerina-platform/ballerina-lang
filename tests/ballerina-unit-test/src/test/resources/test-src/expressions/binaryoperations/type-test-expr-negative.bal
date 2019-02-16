@@ -168,7 +168,7 @@ type A3 record {
 
 type B3 record {
     int x = 0;
-    !...
+    !...;
 };
 
 function testSealedRecordTypes() returns string {

@@ -544,6 +544,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
             setVariableScopeStart(localVarInfo, varNode);
             setVariableScopeEnd(localVarInfo, varNode);
+            localVarInfo.isIdentifierLiteral = varNode.name.isLiteral;
             localVarAttrInfo.localVars.add(localVarInfo);
         } else {
             // TODO Support other variable nodes
@@ -1290,7 +1291,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case LENGTH:
                 Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-                emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
+                emit(InstructionCodes.LENGTH, iExpr.expr.regIndex, typeCPIndex, regIndex);
                 break;
             case FREEZE:
                 emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);
@@ -2152,7 +2153,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         literal.pos = constant.pos;
         literal.value = ((BLangLiteral) constant.value).value;
         literal.type = ((BLangLiteral) constant.value).type;
-        literal.typeTag = ((BLangLiteral) constant.value).typeTag;
 
         DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
         constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
@@ -2168,7 +2168,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int varNameCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.type.getDesc());
         PackageVarInfo pkgVarInfo = new PackageVarInfo(varNameCPIndex, typeSigCPIndex, varSymbol.flags,
-                varSymbol.varIndex.value);
+                varSymbol.varIndex.value, varNode.name.isLiteral);
         currentPkgInfo.pkgVarInfoMap.put(varSymbol.name.value, pkgVarInfo);
 
         LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
@@ -2257,8 +2257,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             objFieldInfo.fieldType = objField.type;
 
             // Populate default values
-            if (objField.expr != null && (objField.expr.getKind() == NodeKind.LITERAL &&
-                    objField.expr.type.getKind() != TypeKind.ARRAY)) {
+            if (isDefaultableSimpleVariable(objField)) {
                 DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
                 objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
@@ -2342,10 +2341,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             recordFieldInfo.fieldType = recordField.type;
 
             // Populate default values
-            if (recordField.expr != null && (recordField.expr.getKind() == NodeKind.LITERAL &&
-                    recordField.expr.type.getKind() != TypeKind.ARRAY)) {
-                DefaultValueAttributeInfo defaultVal
-                        = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
+            if (isDefaultableSimpleVariable(recordField)) {
+                DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
                 recordFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
 
@@ -2362,6 +2359,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
         typeDefInfo.typeInfo = recordInfo;
+    }
+
+    private boolean isDefaultableSimpleVariable(BLangSimpleVariable variable) {
+        return variable.expr != null && (variable.expr.getKind() == NodeKind.LITERAL ||
+                variable.expr.getKind() == NodeKind.NUMERIC_LITERAL) &&
+                variable.expr.type.getKind() != TypeKind.ARRAY;
     }
 
     private void createFiniteTypeTypeDef(BLangTypeDefinition typeDefinition,
@@ -3638,7 +3641,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // TODO: remove RegIndex arg
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
-        prefixLiteral.typeTag = TypeTags.STRING;
         prefixLiteral.type = symTable.stringType;
         prefixLiteral.regIndex = regIndex;
         genNode(prefixLiteral, env);

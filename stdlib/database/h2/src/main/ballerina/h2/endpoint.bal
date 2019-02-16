@@ -29,7 +29,7 @@ public type InMemoryConfig record {
     string password;
     sql:PoolOptions poolOptions = {};
     map<any> dbOptions = {};
-    !...
+    !...;
 };
 
 # The Client endpoint configuration for the server mode of h2 databases.
@@ -45,7 +45,7 @@ public type ServerModeConfig record {
     string host;
     int port = 9092;
     *InMemoryConfig;
-    !...
+    !...;
 };
 
 # The Client endpoint configuration for the embedded mode of h2 databases.
@@ -59,7 +59,7 @@ public type ServerModeConfig record {
 public type EmbeddedModeConfig record {
     string path;
     *InMemoryConfig;
-    !...
+    !...;
 };
 
 # Represents an H2 client endpoint.
@@ -122,7 +122,7 @@ public type Client client object {
     #                            is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public remote function batchUpdate(@sensitive string sqlQuery, sql:Param[]... parameters) returns int[]|error {
+    public remote function batchUpdate(@sensitive string sqlQuery, sql:Param?[]... parameters) returns int[]|error {
         return self.sqlClient->batchUpdate(sqlQuery, ...parameters);
     }
 

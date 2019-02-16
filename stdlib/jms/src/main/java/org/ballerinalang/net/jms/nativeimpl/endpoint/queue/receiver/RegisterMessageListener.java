@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandler;
 
 /**
@@ -38,9 +39,11 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
         orgName = "ballerina", packageName = "jms",
         functionName = "registerListener",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueReceiver", structPackage = "ballerina/jms"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
-                @Argument(name = "consumerActions", type = TypeKind.OBJECT, structType = "QueueReceiverCaller"),
-                @Argument(name = "data", type = TypeKind.MAP)
+        args = {
+                @Argument(name = "serviceType", type = TypeKind.TYPEDESC),
+                @Argument(name = JmsConstants.METHOD_FIELD_ACTIONS, type = TypeKind.OBJECT,
+                          structType = "QueueReceiverCaller"),
+                @Argument(name = JmsConstants.METHOD_FIELD_DATA, type = TypeKind.MAP)
         },
         isPublic = true
 )

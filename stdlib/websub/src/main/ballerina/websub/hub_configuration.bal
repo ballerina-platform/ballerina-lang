@@ -38,12 +38,8 @@ boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
 http:ClientEndpointConfig? hubClientConfig = ();
 
-final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
-final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
-final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
-final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
-final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
-//TODO:add pool options
+HubPersistenceStore? hubPersistenceStoreImpl = ();
+boolean hubPersistenceEnabled = false;
 
 # Function to attach and start the Ballerina WebSub Hub service.
 #

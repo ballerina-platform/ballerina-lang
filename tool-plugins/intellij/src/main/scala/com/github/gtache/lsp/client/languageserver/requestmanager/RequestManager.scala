@@ -74,7 +74,7 @@ trait RequestManager {
 
   def documentHighlight(params: TextDocumentPositionParams): CompletableFuture[java.util.List[_ <: DocumentHighlight]]
 
-  def documentSymbol(params: DocumentSymbolParams): CompletableFuture[java.util.List[_ <: SymbolInformation]]
+  def documentSymbol(params: DocumentSymbolParams): CompletableFuture[java.util.List[jsonrpc.messages.Either[SymbolInformation, DocumentSymbol]]]
 
   def formatting(params: DocumentFormattingParams): CompletableFuture[java.util.List[_ <: TextEdit]]
 
@@ -84,7 +84,7 @@ trait RequestManager {
 
   def definition(params: TextDocumentPositionParams): CompletableFuture[java.util.List[_ <: Location]]
 
-  def codeAction(params: CodeActionParams): CompletableFuture[java.util.List[_ <: Command]]
+  def codeAction(params: CodeActionParams): CompletableFuture[java.util.List[jsonrpc.messages.Either[Command, CodeAction]]]
 
   def codeLens(params: CodeLensParams): CompletableFuture[java.util.List[_ <: CodeLens]]
 
@@ -103,5 +103,9 @@ trait RequestManager {
   def documentColor(params: DocumentColorParams): CompletableFuture[java.util.List[ColorInformation]]
 
   def colorPresentation(params: ColorPresentationParams): CompletableFuture[java.util.List[ColorPresentation]]
+
+  def foldingRange(params: FoldingRangeRequestParams): CompletableFuture[java.util.List[FoldingRange]]
+
+  def semanticHighlighting(params: SemanticHighlightingParams): Unit
 
 }

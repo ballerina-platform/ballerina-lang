@@ -1,7 +1,7 @@
 type Department record {
     string dptName = "";
     Person[] employees = [];
-	!...
+	!...;
 };
 
 type Person record {
@@ -11,14 +11,14 @@ type Person record {
     int age = 999;
     Family family = {};
     Person? parent = ();
-	!...
+	!...;
 };
 
 type Family record {
     string spouse = "";
     int noOfChildren = 0;
     string[] children = [];
-	!...
+	!...;
 };
 
 type Employee record {
@@ -29,7 +29,7 @@ type Employee record {
     Family family = {};
     Person? parent = ();
     string designation = "";
-	!...
+	!...;
 };
 
 function testStructOfStruct () returns (string) {
@@ -109,7 +109,7 @@ type NegativeValTest record {
     int negativeSpaceInt = -8;
     float negativeFloat = -88.234;
     float negativeSpaceFloat = -24.99;
-	!...
+	!...;
 };
 
 function getStructNegativeValues () returns (int, int, float, float) {
@@ -160,7 +160,7 @@ type PersonA record {
     string fname = "";
     string lname = "";
     function() returns string fullName?;
-    !...
+    !...;
 };
 
 function testFuncPtrAsRecordField() returns string {
@@ -177,20 +177,20 @@ public type InMemoryModeConfig record {
     string username = "";
     string password = "";
     map<any> dbOptions = {};
-    !...
+    !...;
 };
 
 public type ServerModeConfig record {
     string host;
     int port;
     *InMemoryModeConfig;
-    !...
+    !...;
 };
 
 public type EmbeddedModeConfig record {
     string path;
     *InMemoryModeConfig;
-    !...
+    !...;
 };
 
 function testAmbiguityResolution() returns (string, string, string) {
@@ -214,7 +214,7 @@ type PersonB record {
     string fname = "";
     string lname = "";
     (function (string, string) returns string)? getName = ();
-    !...
+    !...;
 };
 
 function testNilableFuncPtrInvocation() returns string? {
@@ -236,20 +236,20 @@ public type A record {
     string a;
     string b;
     string c;
-    !...
+    !...;
 };
 
 public type B record {
     string f;
     int g?;
     *A;
-    !...
+    !...;
 };
 
 public type C record {
     string i;
     *A;
-    !...
+    !...;
 };
 
 function testAmbiguityResolution2() returns (string, string, string, string){

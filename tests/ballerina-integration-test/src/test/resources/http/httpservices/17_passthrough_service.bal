@@ -30,7 +30,7 @@ service passthroughService on passthroughEP1 {
         var response = nyseEP1->get("/nyseStock/stocks", message = untaint clientRequest);
         if (response is http:Response) {
             _ = caller->respond(response);
-        } else if (response is error) {
+        } else {
             _ = caller->respond({ "error": "error occurred while invoking the service" });
         }
     }
@@ -44,7 +44,7 @@ service passthroughService on passthroughEP1 {
         var response = nyseEP1->forward("/nyseStock/stocksAsMultiparts", clientRequest);
         if (response is http:Response) {
             _ = caller->respond(response);
-        } else if (response is error) {
+        } else {
             _ = caller->respond({ "error": "error occurred while invoking the service" });
         }
     }
@@ -69,7 +69,7 @@ service nyseStockQuote1 on passthroughEP1 {
         var bodyParts = clientRequest.getBodyParts();
         if (bodyParts is mime:Entity[]) {
             _ = caller->respond(untaint bodyParts);
-        } else if (bodyParts is error) {
+        } else {
             _ = caller->respond(untaint bodyParts.reason());
         }
     }

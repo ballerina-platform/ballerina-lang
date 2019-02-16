@@ -45,7 +45,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
     public static final String KEY_ZONED_DATETIME = "ZonedDateTime";
     public static final String TIME_FIELD = "time";
     public static final String ZONE_FIELD = "zone";
-    public static final String ZONE_ID_FIELD = "zoneId";
+    public static final String ZONE_ID_FIELD = "id";
     
     private StructureTypeInfo timeStructInfo;
     private StructureTypeInfo zoneStructInfo;

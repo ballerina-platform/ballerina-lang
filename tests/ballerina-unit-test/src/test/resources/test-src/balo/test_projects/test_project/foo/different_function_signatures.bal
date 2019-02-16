@@ -48,7 +48,7 @@ public function funcWithUnionTypedDefaultParam(string|int? s = "John") returns s
 
 // ------------------- Test function signature with null as default parameter value
 
-public function funcWithNilDefaultParamExpr_1(string? s = null) returns string? {
+public function funcWithNilDefaultParamExpr_1(string? s = ()) returns string? {
     return s;
 }
 
@@ -91,7 +91,7 @@ public type Person object {
     }
 };
 
-function Person.test1(int a = 77, string n = "hello") returns (int, string) {
+public function Person.test1(int a = 77, string n = "hello") returns (int, string) {
     string val = n + " world";
     int intVal = a + 10;
     return (intVal, val);

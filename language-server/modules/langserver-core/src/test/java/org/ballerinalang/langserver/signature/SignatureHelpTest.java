@@ -18,10 +18,12 @@ package org.ballerinalang.langserver.signature;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,14 +47,17 @@ public class SignatureHelpTest {
     
     private Path sourcesPath = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
 
+    private static final Logger log = LoggerFactory.getLogger(SignatureHelpTest.class);
+
     @BeforeClass
     public void init() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(dataProvider = "signature-help-data-provider")
+    @Test(dataProvider = "signature-help-data-provider", description = "Test Signature Help")
     public void test(String config, String source)
             throws WorkspaceDocumentException, IOException, InterruptedException {
+
         String configJsonPath = "signature" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -69,8 +74,10 @@ public class SignatureHelpTest {
     
     @DataProvider(name = "signature-help-data-provider")
     public Object[][] dataProvider() {
+        log.info("Test textDocument/signatureHelp");
         return new Object[][] {
                 {"functionInSameFile.json", "functionInSameFile.bal"},
+                {"functionInSameFileWithoutDocumentation.json", "functionInSameFileWithoutDocumentation.bal"},
                 {"typeAttachedFunctions.json", "typeAttachedFunctions.bal"},
                 {"functionInBuiltinPackage.json", "functionInBuiltinPackage.bal"},
                 {"endpointActions.json", "endpointActions.bal"},
@@ -82,6 +89,7 @@ public class SignatureHelpTest {
                 {"signatureWithinIfElse1.json", "signatureWithinWhile.bal"},
                 {"signatureWithinForeach.json", "signatureWithinForeach.bal"},
                 {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
+                {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
         };
     }
 

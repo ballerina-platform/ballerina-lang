@@ -24,7 +24,7 @@
 @documentation-base-light-color: @offWhite;
 @documentation-base-dark-color: @black;
 
-@documentation-icon-font: "font-ballerina";
+@documentation-icon-font: @iconFont;
 @documentation-font: @fontName, "@{documentation-icon-font}";
 @documentation-font-size: @fontSize;
 
@@ -34,3 +34,28 @@
 @dark-documentation-base-text-color: @light-documentation-background-color;
 
 @documentation-title-font-size: calc(@documentation-font-size + 4px);
+
+/*-------------------------------
+           Parameters
+--------------------------------*/
+
+@light-documentation-parameter-text-color: @green;
+@dark-documentation-parameter-text-color: @light-documentation-type-text-color;
+
+/*-------------------------------
+             Types
+--------------------------------*/
+
+@light-documentation-type-text-color: @blue;
+@dark-documentation-type-text-color: @light-documentation-type-text-color;
+
+/*-------------------------------
+             Records
+--------------------------------*/
+
+@light-documentation-records-container-background-color: darken(@light-documentation-background-color, 3%);
+@dark-documentation-records-container-background-color: darken(@dark-documentation-background-color, 3%);
+
+@documentation-records-container-padding: 0.8rem 0.5rem;
+@documentation-records-container-margin: 1rem 0 0;
+@documentation-records-padding: 0.2rem 0;

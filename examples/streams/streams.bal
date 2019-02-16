@@ -7,13 +7,13 @@ type Employee record {
 };
 
 public function main() {
-    // Define a stream constrained by the `Employee` type.
+    // Define a `stream` constrained by the `Employee` type.
     stream<Employee> employeeStream = new;
 
     // Subscribe to the `employeeStream` using a function that accepts `Employee` values.
     employeeStream.subscribe(printEmployeeName);
 
-    // Publish `Employee` values to the stream.
+    // Publish `Employee` values to the `stream`.
     Employee e1 = { id: 1, name: "Jane" };
     Employee e2 = { id: 2, name: "Anne" };
     Employee e3 = { id: 3, name: "John" };
@@ -42,13 +42,13 @@ public function main() {
     runtime:sleep(1000);
 
 
-    // Define a stream that accepts values of the `anydata` type.
+    // Define a `stream` that accepts values of the `anydata` type.
     stream<anydata> updateStream = new;
 
-    // Subscribe to the stream using a function that accepts values of the `anydata` type.
+    // Subscribe to the `stream` using a function that accepts values of the `anydata` type.
     updateStream.subscribe(printEvent);
 
-    // Publish values to the stream.
+    // Publish values to the `stream`.
     updateStream.publish("Hello Ballerina!");
     updateStream.publish(1.0);
     updateStream.publish(e1);

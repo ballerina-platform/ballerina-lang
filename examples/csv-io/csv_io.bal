@@ -47,7 +47,7 @@ public function main() {
     closeReadableCSVChannel(rCsvChannel);
     // Open a CSV channel in `read` mode which is the default mode.
     io:ReadableCSVChannel rCsvChannel2 = io:openReadableCsvFile(srcFileName);
-    // Read the `.CSV` file as a table.
+    // Read the `.CSV` file as a `table`.
     io:println("Reading  " + srcFileName + " as a table");
     var tblResult = rCsvChannel2.getTable(Employee);
     if (tblResult is table<Employee>) {
@@ -59,9 +59,8 @@ public function main() {
                         err = tblResult);
     }
     closeReadableCSVChannel(rCsvChannel2);
-    // Writing the a table to a `.CSV` file.
+    // Open a CSV channel in "write" mode and write the `table` to a `.CSV` file.
     string targetFileName = "./files/output.csv";
-    // Opening CSV channel in "write" mode.
     io:WritableCSVChannel wCsvChannel2 = io:openWritableCsvFile(targetFileName);
     io:println("Creating a table and adding data");
     table<Employee> employeeTable = createTableAndAddData();
@@ -73,7 +72,7 @@ public function main() {
     closeWritableCSVChannel(wCsvChannel2);
 }
 
-// Creates a table and adds some data.
+// Creates a `table` and adds some data.
 function createTableAndAddData() returns table<Employee> {
     table<Employee> employeeTable = table{};
     Employee[] employees = [];

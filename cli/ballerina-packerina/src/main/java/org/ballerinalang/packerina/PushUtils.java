@@ -108,6 +108,11 @@ public class PushUtils {
                                           "lowercase alphanumerics and underscores are allowed in an organization " +
                                           "name and the maximum length is 256 characters");
         }
+        if (RepoUtils.isReservedOrgName(orgName)) {
+            throw createLauncherException("invalid organization name provided \'" + orgName + "\'. 'ballerina' and " +
+                    "'ballerinax' are reserved organization names that are used by Ballerina");
+        }
+
         // Validate the module-name
         if (!RepoUtils.validatePkg(packageName)) {
             throw createLauncherException("invalid module name provided \'" + packageName + "\'. Only " +

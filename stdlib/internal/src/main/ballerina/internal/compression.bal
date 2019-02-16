@@ -19,7 +19,7 @@
 # + message - The error message
 public type CompressionError record {
     string message;
-    !...
+    !...;
 };
 
 # Decompresses a byte array into a directory.

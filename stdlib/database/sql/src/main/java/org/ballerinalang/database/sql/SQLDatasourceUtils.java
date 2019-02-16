@@ -30,6 +30,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -730,6 +731,13 @@ public class SQLDatasourceUtils {
                 arrayData[i] = ((BValueArray) value).getFloat(i);
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.DOUBLE };
+        case TypeTags.DECIMAL_TAG:
+            arrayLength = (int) ((BValueArray) value).size();
+            arrayData = new BigDecimal[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BValueArray) value).getRefValue(i).value();
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.DECIMAL };
         case TypeTags.STRING_TAG:
             arrayLength = (int) ((BValueArray) value).size();
             arrayData = new String[arrayLength];
@@ -818,6 +826,9 @@ public class SQLDatasourceUtils {
                 break;
             case TypeTags.BOOLEAN_TAG:
                 structData[i] = ((BBoolean) bValue).booleanValue();
+                break;
+            case TypeTags.DECIMAL_TAG:
+                structData[i] = ((BDecimal) bValue).decimalValue();
                 break;
             case TypeTags.ARRAY_TAG:
                 BType elementType = ((BArrayType) field.getFieldType()).getElementType();
@@ -976,6 +987,8 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.DOUBLE;
         case TypeTags.BOOLEAN_TAG:
             return Constants.SQLDataTypes.BOOLEAN;
+        case TypeTags.DECIMAL_TAG:
+            return Constants.SQLDataTypes.DECIMAL;
         default:
             throw new BallerinaException(
                     "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());

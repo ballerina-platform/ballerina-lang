@@ -16,7 +16,7 @@
 
 public type ClosedFoo record {
     string var1;
-    !...
+    !...;
 };
 
 public type OpenFoo record {
@@ -25,7 +25,7 @@ public type OpenFoo record {
 
 public type ClosedBar record {
     string var1 = "";
-    !...
+    !...;
 };
 
 public type OpenBar record {
@@ -34,12 +34,12 @@ public type OpenBar record {
 
 public type Bar2 record {
     int var1;
-    !...
+    !...;
 };
 
 public type Foo2 record {
     string var2;
-    !...
+    !...;
 };
 
 function testAmbiguousAssignment() {

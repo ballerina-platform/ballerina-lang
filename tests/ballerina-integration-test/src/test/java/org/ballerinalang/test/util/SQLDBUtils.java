@@ -202,7 +202,7 @@ public class SQLDBUtils {
      */
     public static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
         try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
-                Statement st = connection.createStatement()) {
+             Statement st = connection.createStatement()) {
             String sql = readFileToString(sqlFile);
             String[] sqlQuery = sql.trim().split("/");
             for (String query : sqlQuery) {

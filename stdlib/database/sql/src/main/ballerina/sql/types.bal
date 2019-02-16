@@ -40,7 +40,7 @@ public type PoolOptions record {
     int minimumIdle = -1;
     int maxLifetime = 1800000;
     int validationTimeout = 5000;
-    !...
+    !...;
 };
 
 # The SQL Datatype of the parameter.
@@ -139,7 +139,7 @@ public type Parameter record {
     any value = ();
     Direction direction = DIRECTION_IN;
     typedesc recordType?;
-    !...
+    !...;
 };
 
 # Result represents the output of the `update` remote function.
@@ -154,9 +154,9 @@ public type Result record {
 };
 
 # The parameter passed into the operations.
-type Param string|int|boolean|float|byte[]|Parameter;
+type Param string|int|boolean|float|decimal|byte[]|Parameter;
 
 public type DatabaseErrorData record {
     string message;
-    !...
+    !...;
 };

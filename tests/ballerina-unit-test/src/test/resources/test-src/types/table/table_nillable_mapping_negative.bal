@@ -94,7 +94,7 @@ type InvalidUnion record {
 };
 
 type InvalidUnionArrayElement record {
-    (int|string)[] val;
+    (int|string)?[] val;
 };
 
 type InvalidUnionArray record {

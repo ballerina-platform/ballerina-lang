@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -38,6 +39,7 @@ import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,6 +48,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,6 +64,7 @@ public class TableTest {
     private CompileResult resultNegative;
     private CompileResult nillableMappingNegativeResult;
     private CompileResult nillableMappingResult;
+    private CompileResult service;
     private static final String DB_NAME_H2 = "TEST_DATA_TABLE_H2";
     private TestDatabase testDatabase;
     private static final String TABLE_TEST = "TableTest";
@@ -83,18 +87,20 @@ public class TableTest {
         nillableMappingNegativeResult = BCompileUtil
                 .compile("test-src/types/table/table_nillable_mapping_negative.bal");
         nillableMappingResult = BCompileUtil.compile("test-src/types/table/table_nillable_mapping.bal");
+        service = BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
     }
 
     @Test(groups = TABLE_TEST, description = "Check retrieving primitive types.")
     public void testGetPrimitiveTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypes");
-        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(returns.length, 7);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
-        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
         Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("23.45"));
     }
 
     @Test(groups = TABLE_TEST, description = "Check table to JSON conversion.")
@@ -208,8 +214,9 @@ public class TableTest {
                 + "<element>300000000</element></LONG_ARRAY><FLOAT_TYPE>123.34</FLOAT_TYPE>"
                 + "<FLOAT_ARRAY><element>245.23</element><element>5559.49</element>"
                 + "<element>8796.123</element></FLOAT_ARRAY><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
-                + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE><DOUBLE_ARRAY>"
-                + "<element>245.23</element><element>5559.49</element><element>8796.123</element>"
+                + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE>"
+                + "<DECIMAL_TYPE>234.56</DECIMAL_TYPE>"
+                + "<DOUBLE_ARRAY><element>245.23</element><element>5559.49</element><element>8796.123</element>"
                 + "</DOUBLE_ARRAY><BOOLEAN_ARRAY><element>true</element><element>false</element>"
                 + "<element>true</element></BOOLEAN_ARRAY><STRING_ARRAY><element>Hello</element>"
                 + "<element>Ballerina</element></STRING_ARRAY></result></results>";
@@ -243,8 +250,8 @@ public class TableTest {
                 + "\"LONG_TYPE\":9223372036854774807, \"LONG_ARRAY\":[100000000, 200000000, 300000000], "
                 + "\"FLOAT_TYPE\":123.34, \"FLOAT_ARRAY\":[245.23, 5559.49, 8796.123], "
                 + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\", "
-                + "\"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], \"BOOLEAN_ARRAY\":[true, false, true], "
-                + "\"STRING_ARRAY\":[\"Hello\", \"Ballerina\"]}]";
+                + "\"DECIMAL_TYPE\":234.56, \"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], "
+                + "\"BOOLEAN_ARRAY\":[true, false, true], \"STRING_ARRAY\":[\"Hello\", \"Ballerina\"]}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -491,7 +498,7 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
-        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
         Assert.assertEquals(returns[5].stringValue(), "Hello");
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 100);
     }
@@ -567,9 +574,9 @@ public class TableTest {
     public void testHasNextWithoutConsume() {
         BValue[] returns = BRunUtil.invoke(result, "testHasNextWithoutConsume");
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(groups = TABLE_TEST, description = "Check get float and double types.")
@@ -578,8 +585,8 @@ public class TableTest {
         Assert.assertEquals(returns.length, 4);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 238999.34, DELTA);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 238999.34, DELTA);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 238999.34, DELTA);
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 238999.34, DELTA);
+        Assert.assertEquals(((BDecimal) returns[2]).decimalValue(), new BigDecimal("238999.34"));
+        Assert.assertEquals(((BDecimal) returns[3]).decimalValue(), new BigDecimal("238999.34"));
     }
 
     @Test(groups = {TABLE_TEST}, description = "Check array data insert and println on arrays")
@@ -679,13 +686,14 @@ public class TableTest {
     @Test(groups = TABLE_TEST, description = "Check retrieving data using foreach")
     public void testGetPrimitiveTypesWithForEach() {
         BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypesWithForEach");
-        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(returns.length, 7);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
-        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
         Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("23.45"));
     }
 
     @Test(groups = TABLE_TEST, description = "Check retrieving data using foreach with multiple rows")
@@ -725,10 +733,10 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039, DELTA);
-        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
         Assert.assertEquals(returns[5].stringValue(), "Hello");
-        Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567);
-        Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567);
+        Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
+        Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567, DELTA);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
@@ -1168,9 +1176,9 @@ public class TableTest {
 
         Assert.assertTrue(returns[2] instanceof BValueArray);
         BValueArray doubleArray = (BValueArray) returns[2];
-        Assert.assertEquals(doubleArray.getFloat(0), 245.23, DELTA);
-        Assert.assertEquals(doubleArray.getFloat(1), 5559.49, DELTA);
-        Assert.assertEquals(doubleArray.getFloat(2), 8796.123, DELTA);
+        Assert.assertEquals(doubleArray.getRefValue(0).value(), new BigDecimal("245.23"));
+        Assert.assertEquals(doubleArray.getRefValue(1).value(), new BigDecimal("5559.49"));
+        Assert.assertEquals(doubleArray.getRefValue(2).value(), new BigDecimal("8796.123"));
 
         Assert.assertTrue(returns[3] instanceof BValueArray);
         BValueArray stringArray = (BValueArray) returns[3];
@@ -1189,39 +1197,37 @@ public class TableTest {
 
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray intArray = (BValueArray) returns[0];
-        Assert.assertEquals(intArray.getRefValue(0), null);
+        Assert.assertNull(intArray.getRefValue(0));
         Assert.assertEquals(((BInteger) intArray.getRefValue(1)).intValue(), 2);
         Assert.assertEquals(((BInteger) intArray.getRefValue(2)).intValue(), 3);
 
         Assert.assertTrue(returns[1] instanceof BValueArray);
         BValueArray longArray = (BValueArray) returns[1];
         Assert.assertEquals(((BInteger) longArray.getRefValue(0)).intValue(), 100000000);
-        Assert.assertEquals(longArray.getRefValue(1), null);
+        Assert.assertNull(longArray.getRefValue(1));
         Assert.assertEquals(((BInteger) longArray.getRefValue(2)).intValue(), 300000000);
 
         Assert.assertTrue(returns[2] instanceof BValueArray);
         BValueArray doubleArray = (BValueArray) returns[2];
-        Assert.assertEquals(doubleArray.getRefValue(0), null);
-        Assert.assertEquals(((BFloat) doubleArray.getRefValue(1)).floatValue(), 5559.49, DELTA);
-        Assert.assertEquals(doubleArray.getRefValue(2), null);
+        Assert.assertNull(doubleArray.getRefValue(0));
+        Assert.assertEquals(doubleArray.getRefValue(1).value(), new BigDecimal("5559.49"));
+        Assert.assertNull(doubleArray.getRefValue(2));
 
         Assert.assertTrue(returns[3] instanceof BValueArray);
         BValueArray stringArray = (BValueArray) returns[3];
-        Assert.assertEquals(stringArray.getRefValue(0), null);
+        Assert.assertNull(stringArray.getRefValue(0));
         Assert.assertEquals(stringArray.getRefValue(1).stringValue(), "Ballerina");
 
         Assert.assertTrue(returns[4] instanceof BValueArray);
         BValueArray booleanArray = (BValueArray) returns[4];
-        Assert.assertEquals(booleanArray.getRefValue(0), null);
-        Assert.assertEquals(booleanArray.getRefValue(1), null);
-        Assert.assertEquals(((BBoolean) booleanArray.getRefValue(2)).booleanValue(), true);
+        Assert.assertNull(booleanArray.getRefValue(0));
+        Assert.assertNull(booleanArray.getRefValue(1));
+        Assert.assertTrue(((BBoolean) booleanArray.getRefValue(2)).booleanValue());
     }
 
     @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
           dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService() {
-        CompileResult service =
-                BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar1", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
 
@@ -1284,8 +1290,6 @@ public class TableTest {
     @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
           dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService_2() {
-        CompileResult service =
-                BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar2", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
 
@@ -1393,5 +1397,23 @@ public class TableTest {
         Assert.assertTrue(Pattern.matches(
                 ".*Number of fields in the constraint type is lower than column count of the result set.*",
                 retVal[0].stringValue()));
+    }
+
+    @Test(groups = TABLE_TEST,
+          description = "Test type checking constrained cursor table with closed constraint")
+    public void testTypeCheckingConstrainedCursorTableWithClosedConstraint() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeCheckingConstrainedCursorTableWithClosedConstraint");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void closeConnectionPool() {
+        BRunUtil.invokeStateful(service, "closeConnectionPool");
     }
 }

@@ -95,7 +95,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  * @since 0.8.0
  */
 public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
-    
+
     private Calendar utcCalendar;
 
     public AbstractSQLAction() {
@@ -552,6 +552,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         case TypeTags.BOOLEAN_TAG:
                             paramValue = new BBoolean(((BValueArray) value).getBoolean(i) > 0);
                             break;
+                        case TypeTags.DECIMAL_TAG:
+                            paramValue = ((BValueArray) value).getRefValue(i);
+                            break;
                         // The value parameter of the struct is an array of arrays. Only possibility that should be
                         // supported is, this being an array of byte arrays (blob)
                         // eg: [blob1, blob2, blob3] == [byteArray1, byteArray2, byteArray3]
@@ -921,7 +924,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
              List<ColumnDefinition> columnDefinitions, String databaseProductName) {
         return new BCursorTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
-                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName));
+                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName),
+                structType);
     }
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,

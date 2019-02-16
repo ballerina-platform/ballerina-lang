@@ -10,10 +10,10 @@ function getReadableRecordChannel(string filePath, string encoding, string rs,
                                   string fs)
                                         returns (io:ReadableTextRecordChannel) {
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
-    // Create a `readable character channel`
-    // from the `readable byte channel` to read content as text.
+    // Create a readable character channel
+    // from the readable byte channel to read content as text.
     io:ReadableCharacterChannel characterChannel = new(byteChannel, encoding);
-    // Convert the `readable character channel` to a `readable record channel`
+    // Convert the readable character channel to a readable record channel
     //to read the content as records.
     io:ReadableTextRecordChannel delimitedRecordChannel = new(characterChannel,
                                                               rs = rs,
@@ -30,10 +30,10 @@ function getWritableRecordChannel(string filePath, string encoding, string rs,
                                   string fs)
                                         returns (io:WritableTextRecordChannel) {
     io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
-    // Create a `writable character channel`
-    // from the `writable byte channel` to read content as text.
+    // Create a writable character channel
+    // from the writable byte channel to read content as text.
     io:WritableCharacterChannel characterChannel = new(byteChannel, encoding);
-    // Convert the `writable character channel` to a `writable record channel`
+    // Convert the writable character channel to a writable record channel
     //to read the content as records.
     io:WritableTextRecordChannel delimitedRecordChannel = new(characterChannel,
                                                               rs = rs,
@@ -56,7 +56,7 @@ function process(io:ReadableTextRecordChannel srcRecordChannel,
     return;
 }
 
-// Closes readabale text record channel
+// Closes readabale text record channel.
 function closeRc(io:ReadableTextRecordChannel rc) {
     var closeResult = rc.close();
     if (closeResult is error) {
@@ -65,7 +65,7 @@ function closeRc(io:ReadableTextRecordChannel rc) {
     }
 }
 
-// Closes writable channel
+// Closes writable channel.
 function closeWc(io:WritableTextRecordChannel wc) {
     var closeResult = wc.close();
     if (closeResult is error) {

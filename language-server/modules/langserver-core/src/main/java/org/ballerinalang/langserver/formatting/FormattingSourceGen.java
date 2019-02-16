@@ -129,6 +129,42 @@ public class FormattingSourceGen {
     }
 
     /**
+     * Add new whitespace object to given target node on given start index
+     * and then update the rest of the tree accordingly.
+     *
+     * @param targetNode target node where new WS to be added
+     * @param tree       AST for the whole source file
+     * @param ws         Whitespace
+     * @param text       text in the whitespace
+     * @param isStatic   set the Static state of the ws
+     * @param startIndex start index for the whitespace
+     */
+    public static void addNewWS(JsonObject targetNode, JsonObject tree, String ws, String text, boolean isStatic,
+                                int startIndex) {
+        JsonObject newWS = new JsonObject();
+        List<JsonObject> astWS = getSortedWSList(tree);
+        List<JsonObject> nodeWS = extractWS(targetNode);
+
+        if (startIndex == -1) {
+            startIndex = nodeWS.get(nodeWS.size() - 1)
+                    .getAsJsonObject().get("i").getAsInt();
+        }
+
+        newWS.addProperty("i", startIndex);
+        newWS.addProperty("static", isStatic);
+        newWS.addProperty(FormattingConstants.WS, ws);
+        newWS.addProperty(FormattingConstants.TEXT, text);
+
+        targetNode.getAsJsonArray(FormattingConstants.WS).add(newWS);
+
+        for (JsonObject wsItem : astWS) {
+            if (wsItem.get("i").getAsInt() >= startIndex) {
+                wsItem.addProperty("i", wsItem.get("i").getAsInt() + 1);
+            }
+        }
+    }
+
+    /**
      * Get the start position suitable in the given attach point where new node to be added.
      *
      * @param node         Parent of the attach point
@@ -900,16 +936,17 @@ public class FormattingSourceGen {
             }
         }
 
-        if ("Return".equals(kind)
-                && node.has("expression")
-                && node.getAsJsonObject("expression").get("kind").getAsString().equals("Literal")) {
-            if (node.getAsJsonObject("expression").get("value").getAsString().equals("()")) {
-                node.addProperty("noExpressionAvailable", true);
-            }
+        if ("Return".equals(kind) && node.has("expression")) {
+            if (node.getAsJsonObject("expression").get("kind").getAsString().equals("Literal")) {
+                if (node.getAsJsonObject("expression").get("value").getAsString().equals("()")) {
+                    node.addProperty("noExpressionAvailable", true);
+                }
 
-            if (node.getAsJsonObject("expression").get("value").getAsString().equals("null")) {
-                node.getAsJsonObject("expression").addProperty("emptyParantheses", true);
+                if (node.getAsJsonObject("expression").get("value").getAsString().equals("null")) {
+                    node.getAsJsonObject("expression").addProperty("emptyParantheses", true);
+                }
             }
+            node.getAsJsonObject("expression").addProperty("isExpression", "true");
         }
 
         if ("Documentation".equals(kind)) {
@@ -1171,6 +1208,10 @@ public class FormattingSourceGen {
                 && node.getAsJsonArray("ws").size() > 0) {
             node.addProperty("compoundOperator",
                     node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
+        }
+
+        if ("Assignment".equals(kind) && node.has("expression")) {
+            node.getAsJsonObject("expression").addProperty("isExpression", true);
         }
     }
 

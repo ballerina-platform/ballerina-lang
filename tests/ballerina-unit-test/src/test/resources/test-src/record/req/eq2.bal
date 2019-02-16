@@ -10,5 +10,5 @@ public type closedUserPFoo record {
     string name = "";
     string address = "";
     string zipcode = "23468";
-    !...
+    !...;
 };

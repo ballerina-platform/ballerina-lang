@@ -17,7 +17,9 @@
       "label":"queryTableWithJoinClause(sqlQuery,fromTable,joinTable,parameters,retType)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
+      "documentation":{
+        "left":"Execute the given sql query to fetch the records and return as a new in memory table.\n"
+      },
       "sortText":"120",
       "insertText":"queryTableWithJoinClause(sqlQuery,fromTable,joinTable,parameters,retType) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
@@ -33,7 +35,9 @@
       "label":"queryTableWithoutJoinClause(sqlQuery,fromTable,parameters,retType)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
+      "documentation":{
+        "left":"Execute the given sql query to fetch the records and return as a new in memory table.\n"
+      },
       "sortText":"120",
       "insertText":"queryTableWithoutJoinClause(sqlQuery,fromTable,parameters,retType) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
@@ -42,7 +46,9 @@
       "label":"startForever(streamQuery,inStreamRefs,inTableRefs,outStreamRefs,outTableRefs,funcPointers)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"Creates the forever runtime.\n",
+      "documentation":{
+        "left":"Creates the forever runtime.\n"
+      },
       "sortText":"120",
       "insertText":"startForever(streamQuery,inStreamRefs,inTableRefs,outStreamRefs,outTableRefs,funcPointers) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
