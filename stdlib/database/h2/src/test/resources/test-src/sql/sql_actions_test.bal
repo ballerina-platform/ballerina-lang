@@ -300,7 +300,7 @@ function testInsertTableDataWithParameters() returns int {
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", para1, para2, para3, para4, para5);
     int insertCount = 0;
-    if(result is sql:Result) {
+    if (result is sql:Result) {
         insertCount = result.updatedRowCount;
     }
     testDB.stop();
