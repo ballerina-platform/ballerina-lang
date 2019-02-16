@@ -482,7 +482,7 @@ WS
     ;
 
 NEW_LINE
-    :  [\r\n\u000C]+ -> channel(HIDDEN)
+    :   [\r\n\u000C]+ -> channel(HIDDEN)
     ;
 
 LINE_COMMENT
