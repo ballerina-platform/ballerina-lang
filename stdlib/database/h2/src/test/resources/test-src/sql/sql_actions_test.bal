@@ -113,7 +113,7 @@ function testCreateTable() returns int {
         });
     var result = testDB->update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))");
     int returnValue = 0;
-    if(result is sql:Result) {
+    if (result is sql:Result) {
         returnValue = result.updatedRowCount;
     }
     testDB.stop();
