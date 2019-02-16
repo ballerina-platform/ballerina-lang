@@ -105,7 +105,7 @@ function testCall() returns (string) {
     return name;
 }
 
-function testGeneratedKeyOnInsert() returns (string|int) {
+function testGeneratedKeyOnInsert() returns string|int {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
