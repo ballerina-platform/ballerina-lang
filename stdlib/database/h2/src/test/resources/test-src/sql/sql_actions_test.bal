@@ -498,7 +498,7 @@ function testBlobInParameter() returns (int, byte[]) {
     var result = testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
         paraID, paraBlob);
     int insertCount = 0;
-    if(result is sql:Result) {
+    if (result is sql:Result) {
         insertCount = result.updatedRowCount;
     }
     var dt = testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
