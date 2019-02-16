@@ -150,7 +150,7 @@ public type Parameter record {
 public type Result record {
     int updatedRowCount;
     map<any> generatedKeys;
-    !...
+    !...;
 };
 
 # The parameter passed into the operations.
