@@ -130,7 +130,7 @@ function testUpdateTableData() returns int {
         });
     int updateCount = 0;
     var result = testDB->update("Update Customers set country = 'UK' where registrationID = 1");
-    if(result is sql:Result) {
+    if (result is sql:Result) {
         updateCount = result.updatedRowCount;
     }
     testDB.stop();
