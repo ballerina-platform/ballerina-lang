@@ -674,7 +674,7 @@ function testNullINParameterBlobValue() returns int {
     var result = testDB->update("INSERT INTO BlobTable (row_id, blob_type) VALUES (?,?)",
         paraID, paraBlob);
     int insertCount = 0;
-    if(result is sql:Result) {
+    if (result is sql:Result) {
         insertCount = result.updatedRowCount;
     }
     testDB.stop();
