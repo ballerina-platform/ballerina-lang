@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.database.sql;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -32,6 +33,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
 
 /**
  * Test class for SQL Connector actions test.
@@ -110,7 +113,7 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest for int float types")
     public void testSelectIntFloatData() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectIntFloatData");
-        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns.length, 5);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
         Assert.assertSame(returns[2].getClass(), BFloat.class);
@@ -127,6 +130,7 @@ public class SQLActionsTest {
         Assert.assertEquals(longVal.intValue(), longExpected);
         Assert.assertEquals(floatVal.floatValue(), floatExpected, DELTA);
         Assert.assertEquals(doubleVal.floatValue(), doubleExpected);
+        Assert.assertEquals(((BDecimal) returns[4]).decimalValue(), new BigDecimal("1234.567"));
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -155,6 +159,62 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testInsertTableDataWithParameters2() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters2");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testINParameters() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testINParametersWithDirectValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectValues");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039.1D);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
+        Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testINParametersWithDirectVariables() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectVariables");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039.1D);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
+        Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testBlobInParameter() {
+        BValue[] returns = BRunUtil.invoke(result, "testBlobInParameter");
+        BInteger retInt = (BInteger) returns[0];
+        BValueArray retBytes = (BValueArray) returns[1];
+        Assert.assertEquals(retInt.intValue(), 1);
+        Assert.assertEquals(new String(retBytes.getBytes()), "blob data");
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testNullINParameterValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullINParameterValues");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testNullINParameterBlobValue() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullINParameterBlobValue");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
