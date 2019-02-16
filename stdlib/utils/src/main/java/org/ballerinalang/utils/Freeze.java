@@ -34,7 +34,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 /**
  * Performs freezing a given value.
  *
- * @since 0.991.0
+ * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina",
         packageName = "utils",

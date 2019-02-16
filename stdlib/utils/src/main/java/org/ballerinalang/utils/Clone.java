@@ -37,7 +37,7 @@ import java.util.HashMap;
 /**
  * Performs a deep copy, recursively copying all structural values and their members.
  *
- * @since 0.991.0
+ * @since 0.990.4
  */
 @BallerinaFunction(
         orgName = "ballerina",

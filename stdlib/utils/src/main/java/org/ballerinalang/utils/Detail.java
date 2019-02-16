@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Get the reason phrase of an error value.
  *
- * @since 0.991.0
+ * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina",
         packageName = "utils",
