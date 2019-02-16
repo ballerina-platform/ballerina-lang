@@ -42,13 +42,11 @@ function testGeneratedKeyOnInsert() returns (string) {
         });
 
     string ret = "";
-    string[] generatedID = [];
     int insertCount;
-    var x = testDB->updateWithGeneratedKeys("insert into Customers (name,lastName,
-                             registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
-    if (x is (int, string[])) {
-        (_, generatedID) = x;
-        ret = generatedID[0];
+    var x = testDB->update("insert into Customers (name,lastName,
+                             registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
+    if (x is sql:Result) {
+        int generatedID = <int>x.generatedKeys.CUSTOMERID;
     } else if (x is error) {
         ret = string.convert(x.detail().message);
     }

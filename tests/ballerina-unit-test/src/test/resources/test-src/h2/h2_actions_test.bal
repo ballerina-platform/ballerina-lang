@@ -90,7 +90,7 @@ function testCall() returns (string) {
     return name;
 }
 
-function testGeneratedKeyOnInsert() returns (string) {
+function testGeneratedKeyOnInsert() returns (string|int) {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -99,16 +99,12 @@ function testGeneratedKeyOnInsert() returns (string) {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    string returnVal = "";
+    string|int returnVal = "";
 
-    var x = testDB->updateWithGeneratedKeys("insert into Customers (name,
-            creditLimit,country) values ('Sam', 1200, 'USA')", ());
+    var x = testDB->update("insert into Customers (name, creditLimit,country) values ('Sam', 1200, 'USA')");
 
-    if (x is (int, string[])) {
-        int a;
-        string[] b;
-        (a, b) = x;
-        returnVal = b[0];
+    if (x is sql:Result) {
+        returnVal = result.updatedRowCount;
     } else if (x is error) {
         returnVal = <string> x.detail().message;
     }

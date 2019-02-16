@@ -104,8 +104,9 @@ public type Client client object {
     # + sqlQuery - SQL statement to execute
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
-    public remote function update(@sensitive string sqlQuery, sql:Param... parameters) returns int|error {
-        return self.sqlClient->update(sqlQuery, ...parameters);
+    public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), sql:Param... parameters)
+                               returns sql:Result|error {
+        return self.sqlClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
     }
 
     # The batchUpdate operation implementation for H2 Client to batch data insert.
@@ -123,20 +124,6 @@ public type Client client object {
     #                            continues to process commands after a command fails
     public remote function batchUpdate(@sensitive string sqlQuery, sql:Param[]... parameters) returns int[]|error {
         return self.sqlClient->batchUpdate(sqlQuery, ...parameters);
-    }
-
-    # The updateWithGeneratedKeys operation implementation for H2 Client which returns the auto
-    # generated keys during the update remote function.
-    #
-    # + sqlQuery - SQL statement to execute
-    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
-    # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - A `Tuple` will be returned and would represent updated row count during the query exectuion,
-    #            aray of auto generated key values during the query execution, in order.
-    #            Else `error` will be returned if there is any error.
-    public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-                                                   sql:Param... parameters) returns (int, string[])|error {
-        return self.sqlClient->updateWithGeneratedKeys(sqlQuery,keyColumns, ...parameters);
     }
 
     # Stops the JDBC client.

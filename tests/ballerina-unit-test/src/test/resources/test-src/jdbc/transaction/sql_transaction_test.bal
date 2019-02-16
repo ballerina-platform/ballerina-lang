@@ -84,10 +84,10 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
     int returnVal = 0;
     int count;
     transaction {
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
+        _ = testDB->update("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
+        _ = testDB->update("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
@@ -112,10 +112,10 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
     int count;
 
     transaction {
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers (firstName,lastName,registrationID,
-                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers2 (firstName,lastName,registrationID,
-                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
+        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
+        _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }

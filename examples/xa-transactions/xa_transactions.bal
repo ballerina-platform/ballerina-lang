@@ -34,27 +34,18 @@ public function main() {
     transaction {
         // This is the first remote function to participate in the transaction. It inserts
         // customer name to the first DB and gets the generated key.
-        var result = testDB1->updateWithGeneratedKeys("INSERT INTO
-                                CUSTOMER(NAME) VALUES ('Anne')", ());
-        string generatedKey = "";
-        if (result is (int, string[])) {
-            var (count, ids) = result;
-            generatedKey = ids[0];
+        var result = testDB1->update("INSERT INTO CUSTOMER(NAME)
+                                        VALUES ('Anne')");
+        int key = -1;
+        if (result is sql:Result) {
+            count = x.updatedRowCount;
+            key = <int>x.generatedKeys.ID;
             io:println("Inserted row count: " + count);
-            io:println("Generated key: " + generatedKey);
+            io:println("Generated key: " + key);
         } else {
             io:println("Insert to student table failed: " + result.reason());
         }
 
-        //Converte the returned key into integer.
-        ret = int.convert(generatedKey);
-        int key = -1;
-        if (ret is int) {
-            key = ret;
-        } else {
-            io:println("Converting key to string failed: " + ret.reason());
-        }
-        io:println("Generated key for the inserted row: " + key);
         // This is the second remote function to participate in the transaction. It inserts the
         // salary info to the second DB along with the key generated in the first DB.
         ret = testDB2->update("INSERT INTO SALARY (ID, VALUE) VALUES (?, ?)",

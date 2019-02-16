@@ -80,8 +80,8 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert");
-        BString retValue = (BString) returns[0];
-        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertTrue(((BInteger) returns[1]).intValue() > 0);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -95,8 +95,7 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testGeneratedKeyWithColumn() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyWithColumn");
-        BString retValue = (BString) returns[0];
-        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
+        Assert.assertTrue(((BInteger) returns[0]).intValue() > 0);
     }
 
     @Test(groups = CONNECTOR_TEST)

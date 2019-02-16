@@ -58,16 +58,4 @@ public type AbstractSQLClient abstract client object {
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
     public remote function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
-
-    # The updateWithGeneratedKeys operation implementation for SQL Client which returns the auto
-    # generated keys during the `update` remote function.
-    #
-    # + sqlQuery - SQL statement to execute
-    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
-    # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - A `Tuple` will be returned and would represent updated row count during the query exectuion,
-    #            aray of auto generated key values during the query execution, in order.
-    #            Else `error` will be returned if there is any error.
-    public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-       Param... parameters) returns (int, string[])|error;
 };

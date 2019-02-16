@@ -79,7 +79,10 @@ function testInsertTableData() returns (int) {
         });
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 3, 5000.75, 'USA')");
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     testDB.stop();
     return insertCount;
 }
@@ -93,7 +96,10 @@ function testCreateTable() returns (int) {
             poolOptions: { maximumPoolSize: 1 }
         });
     var result = testDB->update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))");
-    int returnValue = getIntResult(result);
+    int returnValue = 0;
+    if(result is sql:Result) {
+        returnValue = result.updatedRowCount;
+    }
     testDB.stop();
     return returnValue;
 }
@@ -106,14 +112,16 @@ function testUpdateTableData() returns (int) {
             password: "",
             poolOptions: { maximumPoolSize: 1 }
         });
-
+    int updateCount = 0;
     var result = testDB->update("Update Customers set country = 'UK' where registrationID = 1");
-    int updateCount = getIntResult(result);
+    if(result is sql:Result) {
+        updateCount = result.updatedRowCount;
+    }
     testDB.stop();
     return updateCount;
 }
 
-function testGeneratedKeyOnInsert() returns (string) {
+function testGeneratedKeyOnInsert() returns (int, int) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -121,22 +129,16 @@ function testGeneratedKeyOnInsert() returns (string) {
             password: "",
             poolOptions: { maximumPoolSize: 1 }
         });
-
-    string returnVal = "";
-
-    var x = testDB->updateWithGeneratedKeys("insert into Customers (firstName,lastName,
-            registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
-
-    if (x is (int, string[])) {
-        int a;
-        string[] b;
-        (a, b) = x;
-        returnVal = b[0];
-    } else  if (x is error) {
-        returnVal = x.reason();
+    int count = 0;
+    int generatedKey = 0;
+    var x = testDB->update("insert into Customers (firstName,lastName,
+            registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
+    if (x is sql:Result) {
+        count = x.updatedRowCount;
+        generatedKey = <int>x.generatedKeys.CUSTOMERID;
     }
     testDB.stop();
-    return returnVal;
+    return (count, generatedKey);
 }
 
 function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
@@ -150,14 +152,11 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
 
     int|string returnVal = "";
 
-    var x = testDB->updateWithGeneratedKeys("insert into CustomersNoKey (firstName,lastName,
-            registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
+    var x = testDB->update("insert into CustomersNoKey (firstName,lastName,
+            registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
 
-    if (x is (int, string[])) {
-        int a;
-        string[] b;
-        (a, b) = x;
-        returnVal = b.length();
+    if (x is sql:Result) {
+        returnVal = x.generatedKeys.length();
     } else if (x is error) {
         returnVal = x.reason();
     }
@@ -166,7 +165,7 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
 }
 
 
-function testGeneratedKeyWithColumn() returns (string) {
+function testGeneratedKeyWithColumn() returns (int) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -175,27 +174,19 @@ function testGeneratedKeyWithColumn() returns (string) {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    int insertCount;
-    string[] generatedID;
-    string[] keyColumns = ["CUSTOMERID"];
-    string returnVal = "";
+    string[] keyColumnNames = ["CUSTOMERID"];
+    string firstName = "Kathy";
+    string lastName = "Williams";
+    string queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values (?,
+        ?, 4, 5000.75, 'USA')";
+    var x = testDB->update(queryString, keyColumns = keyColumnNames, firstName, lastName);
 
-    string queryString;
-    queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('Kathy',
-        'Williams', 4, 5000.75, 'USA')";
-
-    var x = testDB->updateWithGeneratedKeys(queryString, keyColumns);
-
-    if (x is (int, string[])) {
-        int a;
-        string[] b;
-        (a, b) = x;
-        returnVal = b[0];
-    } else if (x is error){
-        returnVal = x.reason();
+    int generatedID = 0;
+    if (x is sql:Result) {
+        generatedID = <int>x.generatedKeys.CUSTOMERID;
     }
     testDB.stop();
-    return returnVal;
+    return generatedID;
 }
 
 function testSelectData() returns (string) {
@@ -336,7 +327,10 @@ function testInsertTableDataWithParameters() returns (int) {
 
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", para1, para2, para3, para4, para5);
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     testDB.stop();
     return insertCount;
 }
@@ -352,7 +346,10 @@ function testInsertTableDataWithParameters2() returns (int) {
 
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", "Anne", "James", 3, 5000.75, "UK");
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     testDB.stop();
     return insertCount;
 }
@@ -369,7 +366,10 @@ function testInsertTableDataWithParameters3() returns (int) {
     string s1 = "Anne";
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", s1, "James", 3, 5000.75, "UK");
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     testDB.stop();
     return insertCount;
 }
@@ -503,7 +503,10 @@ function testArrayInParameters() returns (int, int[], int[], float[],
     var result = testDB->update("INSERT INTO ArrayTypes (row_id, int_array, long_array,
         float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", 2, para2, para3, para4,
         para5, para6, para7);
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
 
     var dt = testDB->select("SELECT int_array, long_array, double_array, boolean_array,
         string_array, float_array from ArrayTypes where row_id = 2", ResultArrayType);
@@ -669,7 +672,10 @@ function testINParameters() returns (int) {
             smallint_type, clob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     testDB.stop();
     return insertCount;
 }
@@ -690,7 +696,10 @@ function testBlobInParameter() returns (int, byte[]) {
 
     var result = testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
         paraID, paraBlob);
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     var dt = testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
     if (dt is table<ResultBlob>) {
         while (dt.hasNext()) {
@@ -717,7 +726,10 @@ function testINParametersWithDirectValues() returns (int, int, float,
     var result = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type, float_type,
         double_type, boolean_type, string_type, numeric_type, decimal_type, real_type) VALUES (?,?,?,?,?,?,?,?,?,?)",
         25, 1, 9223372036854774807, 123.34, 2139095039.1, true, "Hello", 1234.567, 1234.567, 1234.567);
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     var dt = testDB->select("SELECT int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type from
             DataTypeTable where row_id = 25", ResultBalTypes);
@@ -774,7 +786,10 @@ function testINParametersWithDirectVariables() returns (int, int, float,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type)
             VALUES (?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
             stringType, numericType, decimalType, realType);
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     var dt = testDB->select("SELECT int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type from
             DataTypeTable where row_id = 26", ResultBalTypes);
@@ -836,7 +851,10 @@ function testNullINParameterValues() returns (int) {
             smallint_type, clob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     testDB.stop();
     return insertCount;
 }
@@ -855,7 +873,10 @@ function testNullINParameterBlobValue() returns (int) {
 
     var result = testDB->update("INSERT INTO BlobTable (row_id, blob_type) VALUES (?,?)",
         paraID, paraBlob);
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     testDB.stop();
     return insertCount;
 }
@@ -883,9 +904,8 @@ function testINOutParameters() returns (any, any, any, any, any, any,
     sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, value: 1, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, value: 5555, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, value: "very long text", direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction: sql
-    :
-    DIRECTION_INOUT };
+    sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu",
+        direction: sql:DIRECTION_INOUT };
 
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
@@ -939,7 +959,10 @@ function testEmptySQLType() returns (int) {
             poolOptions: { maximumPoolSize: 1 }
         });
     var result = testDB->update("Insert into Customers (firstName) values (?)", "Anne");
-    int insertCount = getIntResult(result);
+    int insertCount = 0;
+    if(result is sql:Result) {
+        insertCount = result.updatedRowCount;
+    }
     testDB.stop();
     return insertCount;
 }
@@ -1176,7 +1199,10 @@ function testDateTimeInParameters() returns (int[]) {
     sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: "2017-01-30T13:27:01.999999Z" };
 
     var result1 = testDB->update(stmt, para1, para2, para3, para4, para5);
-    int insertCount1 = getIntResult(result1);
+    int insertCount1 = 0;
+    if(result1 is sql:Result) {
+        insertCount1 = result1.updatedRowCount;
+    }
 
     returnValues[0] = insertCount1;
 
@@ -1187,7 +1213,10 @@ function testDateTimeInParameters() returns (int[]) {
     para5 = { sqlType: sql:TYPE_DATETIME, value: "-2017-01-30T13:27:01.999999-08:30" };
 
     var result2 = testDB->update(stmt, para1, para2, para3, para4, para5);
-    int insertCount2 = getIntResult(result2);
+    int insertCount2 = 0;
+    if(result2 is sql:Result) {
+        insertCount2 = result2.updatedRowCount;
+    }
 
     returnValues[1] = insertCount2;
 
@@ -1199,7 +1228,10 @@ function testDateTimeInParameters() returns (int[]) {
     para5 = { sqlType: sql:TYPE_DATETIME, value: timeNow };
 
     var result3 = testDB->update(stmt, para1, para2, para3, para4, para5);
-    int insertCount3 = getIntResult(result3);
+    int insertCount3 = 0;
+    if(result3 is sql:Result) {
+        insertCount3 = result3.updatedRowCount;
+    }
     returnValues[2] = insertCount3;
 
     testDB.stop();
@@ -1459,13 +1491,6 @@ function testCloseConnectionPool(string connectionCountQuery)
     int count = getTableCountValColumn(dt);
     testDB.stop();
     return count;
-}
-
-function getIntResult(int|error result) returns int {
-    if (result is int) {
-        return result;
-    }
-    return -1;
 }
 
 function getTableCountValColumn(table<record {}>|error result) returns int {

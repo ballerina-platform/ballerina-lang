@@ -180,11 +180,21 @@ public final class Constants {
         public static final String EQUAL_SYMBOL = "=";
     }
 
+    /**
+     * Constants used when appending JDBC driver properties for the connection URL.
+     */
+    public static final class DatabaseProductNames {
+        public static final String ORACLE = "oracle";
+        public static final String POSTGRESQL = "postgresql";
+        public static final String MYSQL = "mysql";
+    }
+
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String TIMEZONE_UTC = "UTC";
     public static final String QUESTION_MARK = "?";
     public static final String STRUCT_TIME = "Time";
     public static final String STRUCT_TIME_PACKAGE = "ballerina" + ORG_NAME_SEPARATOR + "time";
+    public static final String STRUCT_TIME_FIELD = "time";
     public static final String URL = "url";
     public static final String USER = "user";
     public static final String PASSWORD = "password";
@@ -192,6 +202,7 @@ public final class Constants {
     public static final String SQL_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "sql";
     public static final String SQL_PARAMETER = "Parameter";
     public static final String SQL_CLIENT = "Client";
+    public static final String SQL_RESULT = "Result";
     public static final String SERVER_MODE = "ServerModeConfig";
     public static final String EMBEDDED_MODE = "EmbeddedModeConfig";
 

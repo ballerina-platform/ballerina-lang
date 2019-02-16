@@ -87,12 +87,9 @@ import javax.transaction.xa.XAResource;
  */
 public class SQLDatasourceUtils {
 
-    private static final String ORACLE_DATABASE_NAME = "oracle";
-    public static final String POSTGRES_DATABASE_NAME = "postgresql";
     private static final String POSTGRES_DOUBLE = "float8";
     public static final String POSTGRES_OID_COLUMN_TYPE_NAME = "oid";
     private static final int ORACLE_CURSOR_TYPE = -10;
-    private static final String TIME_FIELD = "time";
 
     public static void setIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Integer val = obtainIntegerValue(value);
@@ -413,7 +410,7 @@ public class SQLDatasourceUtils {
         if (value != null) {
             if (value instanceof BMap && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
                     .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
-                BValue timeVal = ((BMap<String, BValue>) value).get(TIME_FIELD);
+                BValue timeVal = ((BMap<String, BValue>) value).get(Constants.STRUCT_TIME_FIELD);
                 long time = ((BInteger) timeVal).intValue();
                 val = new Date(time);
             } else if (value instanceof BInteger) {
@@ -454,7 +451,7 @@ public class SQLDatasourceUtils {
         if (value != null) {
             if (value instanceof BMap && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
                     .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
-                BValue timeVal = ((BMap<String, BValue>) value).get(TIME_FIELD);
+                BValue timeVal = ((BMap<String, BValue>) value).get(Constants.STRUCT_TIME_FIELD);
                 long time = ((BInteger) timeVal).intValue();
                 val = new Timestamp(time);
             } else if (value instanceof BInteger) {
@@ -495,7 +492,7 @@ public class SQLDatasourceUtils {
         if (value != null) {
             if (value instanceof BMap && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
                     .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
-                BValue timeVal = ((BMap<String, BValue>) value).get(TIME_FIELD);
+                BValue timeVal = ((BMap<String, BValue>) value).get(Constants.STRUCT_TIME_FIELD);
                 long time = ((BInteger) timeVal).intValue();
                 val = new Time(time);
             } else if (value instanceof BInteger) {
@@ -665,7 +662,7 @@ public class SQLDatasourceUtils {
     public static void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName) {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
-                if (ORACLE_DATABASE_NAME.equals(databaseProductName)) {
+                if (Constants.DatabaseProductNames.ORACLE.equals(databaseProductName)) {
                     // Since oracle does not support general java.sql.Types.REF_CURSOR in manipulating ref cursors it
                     // is required to use oracle.jdbc.OracleTypes.CURSOR here. In order to avoid oracle driver being
                     // a runtime dependency always, we have directly used the value(-10) of general oracle.jdbc
@@ -1156,24 +1153,6 @@ public class SQLDatasourceUtils {
         return createSQLDataSource(context, sqlDatasourceParams);
     }
 
-    public static BMap<String, BValue> createSQLDBClient(Context context,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig) {
-        String url = clientEndpointConfig.getStringField(Constants.EndpointConfig.URL);
-        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
-        Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
-        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-        String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
-
-        SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("").withOptions(options)
-                .withOptions(options).withJdbcUrl(url).withHostOrPath("").withPort(0).withUsername(username)
-                .withPassword(password).withDbName("").withUrlOptions("").withDbOptionsMap(dbOptions).build();
-
-        return createSQLDataSource(context, sqlDatasourceParams);
-    }
-
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
             org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
         String modeRecordType = clientEndpointConfig.getName();
@@ -1182,11 +1161,11 @@ public class SQLDatasourceUtils {
         int port = -1;
         if (modeRecordType.equals(Constants.SERVER_MODE)) {
             dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
-            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);;
+            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
             port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         } else if (modeRecordType.equals(Constants.EMBEDDED_MODE)) {
             dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
-            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);;
+            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);
         }
         dbType = dbType + dbPostfix;
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
@@ -1205,7 +1184,7 @@ public class SQLDatasourceUtils {
 
     private static void registerArrayOutParameter(PreparedStatement stmt, int index, int sqlType,
             String structuredSQLType, String databaseProductName) throws SQLException {
-        if (databaseProductName.equals(POSTGRES_DATABASE_NAME)) {
+        if (databaseProductName.equals(Constants.DatabaseProductNames.POSTGRESQL)) {
             ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
         } else {
             ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
@@ -1218,7 +1197,7 @@ public class SQLDatasourceUtils {
             stmt.setNull(index + 1, sqlType);
         } else {
             // In POSTGRESQL, need to pass "float8" to indicate DOUBLE value.
-            if (Constants.SQLDataTypes.DOUBLE.equals(structuredSQLType) && POSTGRES_DATABASE_NAME
+            if (Constants.SQLDataTypes.DOUBLE.equals(structuredSQLType) && Constants.DatabaseProductNames.POSTGRESQL
                     .equals(databaseProductName)) {
                 structuredSQLType = POSTGRES_DOUBLE;
             }
@@ -1469,7 +1448,7 @@ public class SQLDatasourceUtils {
         int miliSecond = 0;
         int timeZoneOffSet = -1;
         if (fractionStr.startsWith(".")) {
-            int milliSecondPartLength = 0;
+            int milliSecondPartLength;
             if (fractionStr.endsWith("Z")) { //timezone is given as Z
                 timeZoneOffSet = 0;
                 String fractionPart = fractionStr.substring(1, fractionStr.lastIndexOf("Z"));
@@ -1479,28 +1458,27 @@ public class SQLDatasourceUtils {
                 int lastIndexOfPlus = fractionStr.lastIndexOf("+");
                 int lastIndexofMinus = fractionStr.lastIndexOf("-");
                 if ((lastIndexOfPlus > 0) || (lastIndexofMinus > 0)) { //timezone +/-hh:mm
-                    String timeOffSetStr = null;
+                    String timeOffSetStr;
                     if (lastIndexOfPlus > 0) {
                         timeOffSetStr = fractionStr.substring(lastIndexOfPlus + 1);
                         String fractionPart = fractionStr.substring(1, lastIndexOfPlus);
                         miliSecond = Integer.parseInt(fractionPart);
                         milliSecondPartLength = fractionPart.trim().length();
                         timeZoneOffSet = 1;
-                    } else if (lastIndexofMinus > 0) {
+                    } else {
                         timeOffSetStr = fractionStr.substring(lastIndexofMinus + 1);
                         String fractionPart = fractionStr.substring(1, lastIndexofMinus);
                         miliSecond = Integer.parseInt(fractionPart);
                         milliSecondPartLength = fractionPart.trim().length();
                         timeZoneOffSet = -1;
                     }
-                    if (timeOffSetStr != null) {
-                        if (timeOffSetStr.charAt(2) != ':') {
-                            throw new BallerinaException("invalid time zone format: " + fractionStr);
-                        }
-                        int hours = Integer.parseInt(timeOffSetStr.substring(0, 2));
-                        int minits = Integer.parseInt(timeOffSetStr.substring(3, 5));
-                        timeZoneOffSet = ((hours * 60) + minits) * 60000 * timeZoneOffSet;
+                    if (timeOffSetStr.charAt(2) != ':') {
+                        throw new BallerinaException("invalid time zone format: " + fractionStr);
                     }
+                    int hours = Integer.parseInt(timeOffSetStr.substring(0, 2));
+                    int minits = Integer.parseInt(timeOffSetStr.substring(3, 5));
+                    timeZoneOffSet = ((hours * 60) + minits) * 60000 * timeZoneOffSet;
+
                 } else { //no timezone
                     miliSecond = Integer.parseInt(fractionStr.substring(1));
                     milliSecondPartLength = fractionStr.substring(1).trim().length();

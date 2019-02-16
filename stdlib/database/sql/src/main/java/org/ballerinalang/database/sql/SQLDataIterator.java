@@ -55,7 +55,6 @@ import java.util.Calendar;
 import java.util.List;
 import javax.sql.rowset.CachedRowSet;
 
-import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_DATABASE_NAME;
 import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_OID_COLUMN_TYPE_NAME;
 
 /**
@@ -73,16 +72,6 @@ public class SQLDataIterator extends TableIterator {
             "Corresponding Union type in the record is not an assignable nillable type";
     private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
     private String sourceDatabase;
-
-    public SQLDataIterator(Calendar utcCalendar, BStructureType structType, StructureTypeInfo timeStructInfo,
-                           StructureTypeInfo zoneStructInfo, TableResourceManager rm,
-                           ResultSet rs, List<ColumnDefinition> columnDefs, String databaseProductName) {
-        super(rm, rs, structType, columnDefs);
-        this.utcCalendar = utcCalendar;
-        this.timeStructInfo = timeStructInfo;
-        this.zoneStructInfo = zoneStructInfo;
-        this.sourceDatabase = databaseProductName;
-    }
 
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructureType structType, StructureTypeInfo timeStructInfo,
@@ -212,7 +201,7 @@ public class SQLDataIterator extends TableIterator {
                             break;
                         case Types.INTEGER:
                         case Types.BIGINT:
-                            if (sourceDatabase.equalsIgnoreCase(POSTGRES_DATABASE_NAME)) {
+                            if (sourceDatabase.equalsIgnoreCase(Constants.DatabaseProductNames.POSTGRESQL)) {
                                 boolean isOID = rs.getMetaData().getColumnTypeName(index)
                                         .equalsIgnoreCase(POSTGRES_OID_COLUMN_TYPE_NAME);
                                 if (isOID) {
