@@ -151,10 +151,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = {"Error" : string.convert(jsonConversionResult.detail().message)};
+            retVal = { "Error": string.convert(jsonConversionResult.detail().message) };
         }
     } else {
-        retVal = {"Error" : string.convert(tableOrError.detail().message)};
+        retVal = { "Error": string.convert(tableOrError.detail().message) };
     }
     return retVal;
 }

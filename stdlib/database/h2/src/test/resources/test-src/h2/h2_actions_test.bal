@@ -25,7 +25,7 @@ public type Customer record {
 };
 
 public type Result record {
-   int val;
+    int val;
 };
 
 function testSelect() returns (int[]) {
@@ -85,13 +85,13 @@ function testCall() returns (string) {
 
     var ret = testDB->call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
 
-    table<record {}>[] dts= [];
+    table<record {}>[] dts = [];
     if (ret is table<record {}>[]) {
         dts = ret;
     } else if (ret is ()) {
         return "nil";
-    } else  {
-        return <string> ret.detail().message;
+    } else {
+        return <string>ret.detail().message;
     }
 
     string name = "";
@@ -121,7 +121,7 @@ function testGeneratedKeyOnInsert() returns string|int {
     if (x is sql:Result) {
         returnVal = result.updatedRowCount;
     } else {
-        returnVal = <string> x.detail().message;
+        returnVal = <string>x.detail().message;
     }
 
     testDB.stop();
@@ -155,7 +155,7 @@ function testBatchUpdate() returns (int[]) {
 
     var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
 
-    int [] ret = [];
+    int[] ret = [];
     if (x is int[]) {
         ret = x;
     } else {
@@ -211,14 +211,14 @@ function testInitWithNilDbOptions() returns (int[]) {
 
 function testInitWithDbOptions() returns (int[]) {
     h2:Client testDB = new({
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 },
-        dbOptions: { "IFEXISTS": true, "DB_CLOSE_ON_EXIT": false, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw",
-            "PAGE_SIZE": 512 }
-    });
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 },
+            dbOptions: { "IFEXISTS": true, "DB_CLOSE_ON_EXIT": false, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw",
+                "PAGE_SIZE": 512 }
+        });
     return selectFunction(testDB);
 }
 
@@ -264,13 +264,13 @@ function selectFunction(h2:Client testDB) returns (int[]) {
     int[] customerIds = [];
     if (val is table<Customer>) {
         int i = 0;
-            while (val.hasNext()) {
-                var rs = val.getNext();
-                if (rs is Customer) {
-                    customerIds[i] = rs.customerId;
-                    i += 1;
-                }
+        while (val.hasNext()) {
+            var rs = val.getNext();
+            if (rs is Customer) {
+                customerIds[i] = rs.customerId;
+                i += 1;
             }
+        }
     } else {
         customerIds = [];
     }

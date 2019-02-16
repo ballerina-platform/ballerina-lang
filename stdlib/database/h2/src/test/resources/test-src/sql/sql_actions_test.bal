@@ -173,7 +173,7 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
 
     if (x is sql:Result) {
         returnVal = x.generatedKeys.length();
-    } else if (x is error) {
+    } else {
         returnVal = x.reason();
     }
     testDB.stop();
@@ -430,7 +430,8 @@ function testBlobArrayQueryParameter() returns int {
 
     sql:Parameter para1 = { sqlType: sql:TYPE_BLOB, value: blobDataArray };
 
-    var dt = testDB->select("SELECT row_id from BlobTable where row_id = ? and blob_type in (?)", ResultRowIDBlob, 7, para1);
+    var dt = testDB->select("SELECT row_id from BlobTable where row_id = ? and blob_type in (?)", ResultRowIDBlob, 7,
+        para1);
     int value = -1;
     if (dt is table<ResultRowIDBlob>) {
         while (dt.hasNext()) {
@@ -1109,10 +1110,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = {"Error" : string.convert(jsonConversionResult.detail().message)};
+            retVal = { "Error": string.convert(jsonConversionResult.detail().message) };
         }
     } else {
-        retVal = {"Error" : string.convert(tableOrError.detail().message)};
+        retVal = { "Error": string.convert(tableOrError.detail().message) };
     }
     return retVal;
 }
