@@ -181,7 +181,7 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
 }
 
 
-function testGeneratedKeyWithColumn() returns (int) {
+function testGeneratedKeyWithColumn() returns int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
