@@ -1840,17 +1840,16 @@ public class BVM {
                 BNewArray list = Optional.of((BNewArray) sf.refRegs[i]).get();
                 long index = sf.longRegs[j];
                 BRefType refReg = sf.refRegs[k];
-                BType elementType;
+                BType elementType = null;
                 if (list.getType().getTag() == TypeTags.ARRAY_TAG) {
                     elementType = ((BArrayType) list.getType()).getElementType();
                 } else {
-                    BTupleType tuple = getTupleFieldType(ctx, (BTupleType) list.getType(), index);
-                    if (tuple == null) {
-                        break;
+                    BTupleType tupleType = (BTupleType) list.getType();
+                    if (isTupleIndexWithinRange(tupleType, index)) {
+                        elementType = tupleType.getTupleTypes().get((int) index);
                     }
-                    elementType = tuple.getTupleTypes().get((int) index);
                 }
-                if (!checkCast(refReg, elementType)) {
+                if (elementType != null && !checkCast(refReg, elementType)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
                                     elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
@@ -1950,23 +1949,8 @@ public class BVM {
         }
     }
 
-    /**
-     * Method used to get the type of a specific member in a tuple specified by a given index.
-     *
-     * @param ctx   strand
-     * @param tuple the tuple
-     * @param index the index of the member
-     * @return the type of the member
-     */
-    private static BTupleType getTupleFieldType(Strand ctx, BTupleType tuple, long index) {
-        if (index < 0 || index >= tuple.getTupleTypes().size()) {
-            ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE,
-                            index, tuple.getTupleTypes().size())));
-            handleError(ctx);
-            return null;
-        }
-        return tuple;
+    private static boolean isTupleIndexWithinRange(BTupleType tuple, long index) {
+        return index >= 0 && index < tuple.getTupleTypes().size();
     }
 
     private static void execBinaryOpCodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {

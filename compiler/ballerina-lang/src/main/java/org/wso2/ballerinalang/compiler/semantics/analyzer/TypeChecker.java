@@ -2778,8 +2778,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.TUPLE:
-                indexExprType = checkExpr(indexExpr, this.env, symTable.noType);
-                actualType = checkTupleIndexBasedAccess(indexBasedAccessExpr, indexExprType, (BTupleType) varRefType);
+                checkExpr(indexExpr, this.env, symTable.noType);
+                actualType = checkTupleIndexBasedAccess(indexBasedAccessExpr, (BTupleType) varRefType);
                 break;
             case TypeTags.XML:
                 if (indexBasedAccessExpr.lhsVar) {
@@ -2803,10 +2803,10 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType indexExprType, BTupleType tuple) {
+    private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple) {
         BType actualType = symTable.semanticError;
         BLangExpression indexExpr = accessExpr.indexExpr;
-        switch (indexExprType.tag) {
+        switch (indexExpr.type.tag) {
             case TypeTags.INT:
                 if (indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
@@ -2823,11 +2823,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.FINITE:
-                BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
+                BFiniteType finiteIndexExpr = (BFiniteType) indexExpr.type;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
                 for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
                     if (finiteMember.type.tag != TypeTags.INT) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_FINITE_TYPE_INDEX_EXPR, indexExprType);
+                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_FINITE_TYPE_INDEX_EXPR, indexExpr.type);
                         return actualType;
                     }
                     if (finiteMember.getKind() != NodeKind.NUMERIC_LITERAL) {
@@ -2840,14 +2840,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 if (possibleTypes.size() == 0) {
-                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_FINITE_TYPE_INDEX_EXPR, indexExprType);
+                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_FINITE_TYPE_INDEX_EXPR, indexExpr.type);
                     break;
                 }
                 actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
                         new BUnionType(null, possibleTypes, false);
                 break;
             default:
-                dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType, indexExprType);
+                dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType, indexExpr.type);
                 break;
         }
         return actualType;

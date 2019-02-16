@@ -96,7 +96,6 @@ public abstract class BNewArray implements BRefType, BCollection {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                                                            RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
-
         if ((int) index < 0 || index >= maxArraySize) {
             if (this.arrayType != null && this.arrayType.getTag() == TypeTags.TUPLE_TAG) {
                 throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
@@ -110,10 +109,6 @@ public abstract class BNewArray implements BRefType, BCollection {
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
-            if (this.arrayType != null && this.arrayType.getTag() == TypeTags.TUPLE_TAG) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                        RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
-            }
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                                                            RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
