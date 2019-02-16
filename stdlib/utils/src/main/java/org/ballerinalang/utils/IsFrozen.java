@@ -42,7 +42,7 @@ public class IsFrozen extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context ctx) {
         BValue value = ctx.getNullableRefArgument(0);
-        boolean frozen = (value == null || value.isFrozen()) ? true : false;
+        boolean frozen = value == null || value.isFrozen();
         ctx.setReturnValues(new BBoolean(frozen));
     }
 }
