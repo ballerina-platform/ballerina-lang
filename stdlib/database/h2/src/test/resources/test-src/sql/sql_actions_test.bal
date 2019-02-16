@@ -527,7 +527,7 @@ function testINParametersWithDirectValues() returns (int, int, float, float, boo
         double_type, boolean_type, string_type, numeric_type, decimal_type, real_type) VALUES (?,?,?,?,?,?,?,?,?,?)",
         25, 1, 9223372036854774807, 123.34, 2139095039.1, true, "Hello", 1234.567, 1234.567, 1234.567);
     int insertCount = 0;
-    if(result is sql:Result) {
+    if (result is sql:Result) {
         insertCount = result.updatedRowCount;
     }
     var dt = testDB->select("SELECT int_type, long_type,
