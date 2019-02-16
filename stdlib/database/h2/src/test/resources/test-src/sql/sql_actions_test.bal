@@ -902,7 +902,7 @@ function testDateTimeInParameters() returns int[] {
 
     var result3 = testDB->update(stmt, para1, para2, para3, para4, para5);
     int insertCount3 = 0;
-    if(result3 is sql:Result) {
+    if (result3 is sql:Result) {
         insertCount3 = result3.updatedRowCount;
     }
     returnValues[2] = insertCount3;
