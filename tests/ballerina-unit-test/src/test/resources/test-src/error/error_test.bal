@@ -141,12 +141,23 @@ const ERROR_REASON_TWO = "reason two";
 type UserDefErrorOne error<ErrorReasons>;
 type UserDefErrorTwo error<ERROR_REASON_ONE, map<string>>;
 
-function testErrorWithUserDefinedReasonType() returns error {
+function testErrorConstrWithConstForUserDefinedReasonType() returns error {
     UserDefErrorOne e = error(ERROR_REASON_ONE);
     return e;
 }
 
-function testErrorWithConstantAsReason() returns error {
+function testErrorConstrWithLiteralForUserDefinedReasonType() returns error {
+    UserDefErrorOne e = error("reason one");
+    return e;
+}
+
+function testErrorConstrWithConstForConstReason() returns error {
     UserDefErrorTwo e = error(ERROR_REASON_ONE, { message: "error detail message" });
+    return e;
+}
+
+
+function testErrorConstrWithConstLiteralForConstReason() returns error {
+    UserDefErrorTwo e = error("reason one", { message: "error detail message" });
     return e;
 }
