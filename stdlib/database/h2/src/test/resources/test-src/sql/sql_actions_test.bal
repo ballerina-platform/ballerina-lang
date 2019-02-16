@@ -587,7 +587,7 @@ function testINParametersWithDirectVariables() returns (int, int, float,
             VALUES (?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
             stringType, numericType, decimalType, realType);
     int insertCount = 0;
-    if(result is sql:Result) {
+    if (result is sql:Result) {
         insertCount = result.updatedRowCount;
     }
     var dt = testDB->select("SELECT int_type, long_type,
