@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -38,6 +39,8 @@ import java.nio.charset.StandardCharsets;
  * Test cases for ballerina.crypto native functions.
  */
 public class CryptoTest {
+
+    private static final int KEY_SIZE = 16; // Set to 16 to ensure compatibility with older JDKs
 
     private CompileResult compileResult;
 
@@ -249,6 +252,10 @@ public class CryptoTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
     }
 
+    //
+    // RSA Signing Related Tests
+    //
+
     @Test(description = "Test RSA-SHA1 siging with an invalid private key")
     public void testSignRsaSha1WithInvalidKey() {
         byte[] payload = "Ballerina test".getBytes(StandardCharsets.UTF_8);
@@ -297,5 +304,600 @@ public class CryptoTest {
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
                 "invalid uninitialized key");
+    }
+
+    //
+    // AES CBC Encryption Related Tests
+    //
+
+    @Test(description = "Test encrypt and decrypt with AES CBC NoPadding")
+    public void testEncryptAesCbcNoPadding() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("NONE")};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesCbc", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid key size")
+    public void testEncryptAesCbcNoPaddingWithInvalidKeySize() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[31];
+        for (int i = 0; i < 31; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid key size. valid key sizes in bytes: [16, 24, 32]");
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid IV length")
+    public void testEncryptAesCbcNoPaddingWithInvalidIvLength() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[15];
+        for (int i = 0; i < 15; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "Wrong IV length: must be 16 bytes long");
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid input length")
+    public void testEncryptAesCbcNoPaddingWithInvalidInputLength() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "Input length not multiple of 16 bytes");
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES CBC PKCS5")
+    public void testEncryptAesCbcPkcs5() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS5")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("PKCS5")};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesCbc", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES CBC PKCS1")
+    public void testEncryptAesCbcPkcs1() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[32];
+        for (int i = 0; i < 32; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS1")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "unsupported algorithm: AES CBC PKCS1");
+    }
+
+    //
+    // AES ECB Encryption Related Tests
+    //
+
+    @Test(description = "Test encrypt and decrypt with AES ECB NoPadding")
+    public void testEncryptAesEcbNoPadding() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, new BString("NONE")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], keyValue, new BString("NONE")};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesEcb", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES ECB NoPadding using invalid key size")
+    public void testEncryptAesEcbNoPaddingWithInvalidKeySize() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[31];
+        for (int i = 0; i < 31; i++) {
+            key[i] = (byte) i;
+        }
+
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, new BString("NONE")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid key size. valid key sizes in bytes: [16, 24, 32]");
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES ECB NoPadding using invalid input length")
+    public void testEncryptAesEcbNoPaddingWithInvalidInputLength() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, new BString("NONE")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "Input length not multiple of 16 bytes");
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES ECB PKCS5")
+    public void testEncryptAesEcbPkcs5() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, new BString("PKCS5")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], keyValue, new BString("PKCS5")};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesEcb", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES ECB PKCS1")
+    public void testEncryptAesEcbPkcs1() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[32];
+        for (int i = 0; i < 32; i++) {
+            key[i] = (byte) i;
+        }
+
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, new BString("PKCS1")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "unsupported algorithm: AES ECB PKCS1");
+    }
+
+    //
+    // AES GCM Encryption Related Tests
+    //
+
+    @Test(description = "Test encrypt and decrypt with AES GCM NoPadding")
+    public void testEncryptAesGcmNoPadding() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE"), new BInteger(128)};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("NONE"), new BInteger(128)};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesGcm", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+
+    @Test(description = "Test encrypt and decrypt with AES GCM NoPadding using invalid key size")
+    public void testEncryptAesGcmNoPaddingWithInvalidKeySize() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[31];
+        for (int i = 0; i < 31; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE"), new BInteger(128)};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid key size. valid key sizes in bytes: [16, 24, 32]");
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES GCM NoPadding using invalid input length")
+    public void testEncryptAesGcmNoPaddingWithInvalidInputLength() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("NONE"), new BInteger(128)};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("NONE"), new BInteger(128)};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesGcm", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES GCM PKCS5")
+    public void testEncryptAesGcmPkcs5() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS5"), new BInteger(128)};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], keyValue, ivValue, new BString("PKCS5"), new BInteger(128)};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptAesGcm", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES GCM PKCS1")
+    public void testEncryptAesGcmPkcs1() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[32];
+        for (int i = 0; i < 32; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS1"), new BInteger(128)};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "unsupported algorithm: AES GCM PKCS1");
+    }
+
+    @Test(description = "Test encrypt and decrypt with AES GCM PKCS5 with invalid tag value")
+    public void testEncryptAesGcmPkcs5WithInvalidTagLength() {
+        byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
+        byte[] key = new byte[32];
+        for (int i = 0; i < 32; i++) {
+            key[i] = (byte) i;
+        }
+
+        byte[] iv = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            iv[i] = (byte) i;
+        }
+        BValueArray ivValue = new BValueArray(iv);
+        BValueArray messageValue = new BValueArray(message);
+        BValueArray keyValue = new BValueArray(key);
+
+        BValue[] args = {messageValue, keyValue, ivValue, new BString("PKCS5"), new BInteger(500)};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
+                .startsWith("invalid tag size. valid tag sizes in bytes:"));
+    }
+
+    //
+    // RSA CBC Encryption Related Tests
+    //
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB PKCS1")
+    public void testEncryptRsaEcbPkcs1() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], new BString("target" + File.separator + "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"),
+                null};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB OAEPwithMD5andMGF1")
+    public void testEncryptRsaEcbOAEPwithMD5andMGF1() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPwithMD5andMGF1"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], new BString("target" + File.separator + "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
+                new BString("OAEPwithMD5andMGF1"), null};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB OAEPWithSHA1AndMGF1")
+    public void testEncryptRsaEcbOAEPWithSHA1AndMGF1() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPWithSHA1AndMGF1"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], new BString("target" + File.separator + "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
+                new BString("OAEPWithSHA1AndMGF1"), null};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB OAEPWithSHA256AndMGF1")
+    public void testEncryptRsaEcbOAEPWithSHA256AndMGF1() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPWithSHA256AndMGF1"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], new BString("target" + File.separator + "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
+                new BString("OAEPWithSHA256AndMGF1"), null};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB OAEPwithSHA384andMGF1")
+    public void testEncryptRsaEcbOAEPwithSHA384andMGF1() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPwithSHA384andMGF1"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], new BString("target" + File.separator + "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
+                new BString("OAEPwithSHA384andMGF1"), null};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB OAEPwithSHA512andMGF1")
+    public void testEncryptRsaEcbOAEPwithSHA512andMGF1() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPwithSHA512andMGF1"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], new BString("target" + File.separator + "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
+                new BString("OAEPwithSHA512andMGF1"), null};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt with private key and decrypt with public key using RSA ECB PKCS1")
+    public void testEncryptRsaEcbWithPrivateKeyPkcs1() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"),
+                null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcbWithPrivateKey", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+
+        BValue[] args1 = {returnValues[0], new BString("target" + File.separator + "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"),
+                null};
+        returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcbWithPublicKey", args1);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
+    }
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB PKCS1 with an invalid key")
+    public void testEncryptRsaEcbWithPrivateKeyPkcs1WithInvalidKey() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("PKCS1"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcbWithInvalidKey", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "invalid uninitialized key");
+    }
+
+    @Test(description = "Test encrypt and decrypt with RSA ECB PKCS1 with invalid padding")
+    public void testEncryptRsaEcbWithPrivateKeyPkcs1WithInvalidPadding() {
+        byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
+        BValueArray messageValue = new BValueArray(message);
+
+        BValue[] args = {messageValue, new BString("target" + File.separator +  "test-classes" + File.separator +
+                "datafiles" + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                new BString("ballerina"), new BString("ballerina"), new BString("PKCS99"), null};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "unsupported padding: PKCS99");
     }
 }

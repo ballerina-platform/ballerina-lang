@@ -242,7 +242,7 @@ function testStringMapUpdateWithInvalidNullTypeNegativeCase () returns (string) 
 }
 
 function updateGenericMapWithNullValue (map<any> m) returns (map<any>) {
-    m["item"] = null;
+    m["item"] = ();
     return m;
 }
 

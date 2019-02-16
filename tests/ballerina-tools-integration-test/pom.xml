@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.990.3-SNAPSHOT</version>
+        <version>0.990.4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -159,6 +159,7 @@
                                         <available file="${ballerina.to.swagger.test.coverage}/${individual.test.report.name}" />
                                         <available file="${swagger.to.ballerina.test.coverage}/${individual.test.report.name}" />
                                         <available file="${testerina.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${ballerina.spec.test.coverage}/${individual.test.report.name}" />
                                     </and>
                                     <then>
                                         <taskdef name="report" classname="org.jacoco.ant.ReportTask">
@@ -192,6 +193,9 @@
                                                     <include name="${individual.test.report.name}" />
                                                 </fileset>
                                                 <fileset dir="${testerina.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${ballerina.spec.test.coverage}">
                                                     <include name="${individual.test.report.name}" />
                                                 </fileset>
                                             </executiondata>
@@ -335,6 +339,7 @@
         <ballerina.to.swagger.test.coverage>${basedir}/../../misc/swagger-ballerina/modules/ballerina-to-swagger/target/coverage-reports</ballerina.to.swagger.test.coverage>
         <swagger.to.ballerina.test.coverage>${basedir}/../../misc/swagger-ballerina/modules/swagger-to-ballerina-generator/target/coverage-reports</swagger.to.ballerina.test.coverage>
         <testerina.test.coverage>${basedir}/../../misc/testerina/modules/testerina-core/target/coverage-reports</testerina.test.coverage>
+        <ballerina.spec.test.coverage>${basedir}/../../spec-conformance-tests/target/coverage-reports</ballerina.spec.test.coverage>
         <individual.test.report.name>jacoco.exec</individual.test.report.name>
     </properties>
 </project>

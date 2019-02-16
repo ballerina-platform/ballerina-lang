@@ -241,7 +241,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag expected tag of the symbol.
      * @return if a symbol is found return it.
      */
-    private BSymbol lookupSymbolInGivenScope(SymbolEnv env, Name name, int expSymTag) {
+    public BSymbol lookupSymbolInGivenScope(SymbolEnv env, Name name, int expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
@@ -909,7 +909,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : finiteTypeNode.valueSpace) {
-            ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
+            ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).type.tag);
             finiteType.valueSpace.add(literal);
         }
         finiteTypeSymbol.type = finiteType;
@@ -1154,7 +1154,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (Symbols.isPublic(symbol)) {
             return true;
         }
-        if (!Symbols.isFlagOn(symbol.flags, Flags.PRIVATE)) {
+        if (!Symbols.isPrivate(symbol)) {
             return env.enclPkg.symbol.pkgID == symbol.pkgID;
         }
         if (env.enclType != null) {

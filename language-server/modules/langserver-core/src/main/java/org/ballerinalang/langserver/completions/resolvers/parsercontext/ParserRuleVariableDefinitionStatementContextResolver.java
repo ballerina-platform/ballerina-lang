@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
@@ -277,7 +278,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
     }
 
     private String getTypeName(BLangType bLangType) throws LSCompletionException {
-        if (bLangType instanceof BLangValueType) {
+        if (bLangType instanceof BLangValueType || bLangType instanceof BLangUnionTypeNode) {
             return bLangType.toString();
         } else if (bLangType instanceof BLangUserDefinedType) {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) bLangType;

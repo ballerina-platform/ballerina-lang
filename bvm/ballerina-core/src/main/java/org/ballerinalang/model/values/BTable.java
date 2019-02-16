@@ -51,7 +51,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private boolean nextPrefetched;
     private TableProvider tableProvider;
     private String tableName;
-    protected BStructureType constraintType;
+    private BStructureType constraintType;
     private BValueArray primaryKeys;
     private BValueArray indices;
     private boolean tableClosed;
@@ -359,7 +359,7 @@ public class BTable implements BRefType<Object>, BCollection {
         return new BTable.BTableIterator(this);
     }
 
-    protected void generateIterator() {
+    private void generateIterator() {
         this.iterator = tableProvider.createIterator(tableName, this.constraintType);
         resetIterationHelperAttributes();
     }

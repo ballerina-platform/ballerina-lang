@@ -30,52 +30,47 @@ listener grpc:Listener ep3 = new (9095);
 service Chat on ep3 {
     map<grpc:Caller> consMap = {};
     resource function onOpen(grpc:Caller caller) {
+        io:println(string `{{caller.getId()}} connected to chat`);
         self.consMap[<string>caller.getId()] = caller;
     }
 
     resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
-        grpc:Caller con = new;
+        grpc:Caller conn;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
-        io:println(msg);
-        string[] conKeys = self.consMap.keys();
-        int len = conKeys.length();
-        int i = 0;
-        while (i < len) {
-            var result = self.consMap[conKeys[i]];
-            if (result is grpc:Caller) {
-                con = result;
-                error? err = con->send(msg);
-                if (err is error) {
-                    io:println("Error from Connector: " + err.reason());
-                }
+        io:println("Server received message: " + msg);
+        foreach var con in self.consMap {
+            string callerId;
+            (callerId, conn) = con;
+            error? err = conn->send(msg);
+            if (err is error) {
+                io:println("Error from Connector: " + err.reason() + " - "
+                        + <string>err.detail().message);
+            } else {
+                io:println("Server message to caller " + callerId + " sent successfully.");
             }
-            i = i + 1;
         }
     }
 
     resource function onError(grpc:Caller caller, error err) {
-        io:println("Something unexpected happens at server : " + err.reason());
+        io:println("Error from Connector: " + err.reason() + " - "
+                + <string>err.detail().message);
     }
 
     resource function onComplete(grpc:Caller caller) {
-        grpc:Caller con = new;
+        grpc:Caller conn;
         string msg = string `{{caller.getId()}} left the chat`;
         io:println(msg);
         var v = self.consMap.remove(<string>caller.getId());
-        string[] conKeys = self.consMap.keys();
-        int len = conKeys.length();
-        int i = 0;
-
-        while (i < len) {
-            var result = self.consMap[conKeys[i]];
-            if (result is grpc:Caller) {
-                con = result;
-                error? err = con->send(msg);
-                if (err is error) {
-                    io:println("Error from Connector: " + err.reason());
-                }
+        foreach var con in self.consMap {
+            string callerId;
+            (callerId, conn) = con;
+            error? err = conn->send(msg);
+            if (err is error) {
+                io:println("Error from Connector: " + err.reason() + " - "
+                        + <string>err.detail().message);
+            } else {
+                io:println("Server message to caller " + callerId + " sent successfully.");
             }
-            i = i + 1;
         }
     }
 }

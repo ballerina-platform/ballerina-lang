@@ -42,7 +42,7 @@ public class GeneratorUtils {
      * null if annotation not found in the list
      */
     public static AnnotationAttachmentNode getAnnotationFromList(String name, String pkg,
-            List<? extends AnnotationAttachmentNode> annotations) {
+                                                                 List<? extends AnnotationAttachmentNode> annotations) {
         AnnotationAttachmentNode annotation = null;
         if (name == null || pkg == null) {
             return null;
@@ -75,7 +75,9 @@ public class GeneratorUtils {
                 String[] values = new String[exprs.size()];
 
                 for (int i = 0; i < exprs.size(); i++) {
-                    values[i] = ((BLangLiteral) exprs.get(i)).getValue().toString();
+                    if (exprs.get(i) instanceof BLangLiteral) {
+                        values[i] = ((BLangLiteral) exprs.get(i)).getValue().toString();
+                    }
                 }
 
                 attrMap.put(attr.getKey().toString(), values);
