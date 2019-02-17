@@ -90,7 +90,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 
 /**
- * {@code AbstractSQLAction} is the base class for all SQL Action.
+ * {@code AbstractSQLAction} is the base class for all SQL remote functions.
  *
  * @since 0.8.0
  */

@@ -18,7 +18,7 @@
 public type Client client object {
     *AbstractSQLClient;
 
-    # The call operation implementation for SQL connector to invoke stored procedures/functions.
+    # The call remote function implementation for SQL connector to invoke stored procedures/functions.
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
@@ -30,7 +30,7 @@ public type Client client object {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
 
-    # The select operation implementation for SQL Client to select data from tables.
+    # The select remote function implementation for SQL Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
@@ -42,7 +42,7 @@ public type Client client object {
         return nativeSelect(self, sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     }
 
-    # The update operation implementation for SQL Client to update data and schema of the database.
+    # The update remote function implementation for SQL Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
@@ -52,7 +52,7 @@ public type Client client object {
         return nativeUpdate(self, sqlQuery, keyColumns = keyColumns, ...parameters);
     }
 
-    # The batchUpdate operation implementation for SQL Client to batch data insert.
+    # The batchUpdate remote function implementation for SQL Client to batch data insert.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
@@ -76,8 +76,8 @@ extern function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typed
 extern function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
    returns @tainted table<record {}>[]|()|error;
 
-extern function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (), Param... parameters)
-                    returns Result|error;
+extern function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (),
+                             Param... parameters) returns Result|error;
 
 extern function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param[]... parameters)
     returns int[]|error;

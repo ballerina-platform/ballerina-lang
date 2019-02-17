@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * {@code Update} is the Update action implementation of the SQL Connector.
+ * {@code Update} is the Update remote function implementation of the SQL Connector.
  *
  * @since 0.8.0
  */

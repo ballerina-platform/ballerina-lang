@@ -354,7 +354,7 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST, description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
-        Assert.assertTrue(returns[0].stringValue().contains("execute update with generated keys failed:"));
+        Assert.assertTrue(returns[0].stringValue().contains("execute update failed:"));
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test failed batch update")

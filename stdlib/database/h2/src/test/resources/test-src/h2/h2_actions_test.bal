@@ -66,9 +66,9 @@ function testUpdate() returns (int) {
 
     var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
-    int insertCount = -1;
-    if (insertCountRet is int) {
-        insertCount = insertCountRet;
+    int insertCount = 0;
+    if (insertCountRet is sql:Result) {
+        insertCount = insertCountRet.updatedRowCount;
     }
     testDB.stop();
     return insertCount;
@@ -119,7 +119,7 @@ function testGeneratedKeyOnInsert() returns string|int {
     var x = testDB->update("insert into Customers (name, creditLimit,country) values ('Sam', 1200, 'USA')");
 
     if (x is sql:Result) {
-        returnVal = result.updatedRowCount;
+        returnVal = x.updatedRowCount;
     } else {
         returnVal = <string>x.detail().message;
     }
@@ -179,11 +179,10 @@ function testUpdateInMemory() returns (int, string) {
 
     var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
-    int insertCount = -1;
-    if (insertCountRet is int) {
-        insertCount = insertCountRet;
+    int insertCount = 0;
+    if (insertCountRet is sql:Result) {
+        insertCount = insertCountRet.updatedRowCount;
     }
-    io:println(insertCount);
 
     var x = testDB->select("SELECT  * from Customers2", Customer);
     string s = "";
@@ -297,9 +296,9 @@ function testH2MemDBUpdate() returns (int, string) {
             data = io:sprintf("%s", j);
         }
     }
-    int insertCount = -1;
-    if (insertCountRet is int) {
-        insertCount = insertCountRet;
+    int insertCount = 0;
+    if (insertCountRet is sql:Result) {
+        insertCount = insertCountRet.updatedRowCount;
     }
     testDB.stop();
     return (insertCount, data);

@@ -47,7 +47,7 @@ function testSelectData() returns string {
     return returnData;
 }
 
-function testGeneratedKeyOnInsert() returns string {
+function testGeneratedKeyOnInsert() returns int|string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -56,17 +56,18 @@ function testGeneratedKeyOnInsert() returns string {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    string ret = "";
-    string[] generatedID = [];
-    int insertCount;
-    var x = testDB->updateWithGeneratedKeys("insert into Customers (name,lastName,
-                             registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
-    if (x is (int, string[])) {
-        (_, generatedID) = x;
-        ret = generatedID[0];
+    int|string ret = "";
+
+    var x = testDB->update("insert into Customers (name,lastName,
+                             registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
+
+    io:println(x);
+    if (x is sql:Result) {
+        ret = x.generatedKeys.length();
     } else {
         ret = string.convert(x.detail().message);
     }
+
     testDB.stop();
     return ret;
 }

@@ -146,7 +146,6 @@ public type Parameter record {
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 # + generatedKeys - A map of auto generated key values during the sql statement execution
-#
 public type Result record {
     int updatedRowCount;
     map<any> generatedKeys;

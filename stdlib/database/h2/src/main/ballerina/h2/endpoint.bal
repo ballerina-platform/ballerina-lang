@@ -74,7 +74,7 @@ public type Client client object {
         self.sqlClient = createClient(c);
     }
 
-    # The call operation implementation for H2 Client to invoke stored procedures/functions.
+    # The call remote function implementation for H2 Client to invoke stored procedures/functions.
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
@@ -86,7 +86,7 @@ public type Client client object {
         return self.sqlClient->call(sqlQuery, recordType, ...parameters);
     }
 
-    # The select operation implementation for H2 Client to select data from tables.
+    # The select remote function implementation for H2 Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
@@ -99,7 +99,7 @@ public type Client client object {
     }
 
 
-    # The update operation implementation for H2 Client to update data and schema of the database.
+    # The update remote function implementation for H2 Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
@@ -109,7 +109,7 @@ public type Client client object {
         return self.sqlClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
     }
 
-    # The batchUpdate operation implementation for H2 Client to batch data insert.
+    # The batchUpdate remote function implementation for H2 Client to batch data insert.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
@@ -118,8 +118,8 @@ public type Client client object {
     #            an`error` will be returned if there is any error.
     #            A number greater than or equal to zero - indicates that the command was processed successfully
     #                                                     and is an update count giving the number of rows
-    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows affected
-    #                            is unknown
+    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows
+    #                            affected is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
     public remote function batchUpdate(@sensitive string sqlQuery, sql:Param?[]... parameters) returns int[]|error {
