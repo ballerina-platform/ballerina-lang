@@ -79,7 +79,7 @@ function testRequiredFields() {
     map<anydata> b2 = { fieldOne: "test string 1" };
     result = FooRecord.convert(b2);
     if (result is error) {
-        test:assertEquals(result.reason(), "{ballerina}StampError",
+        test:assertEquals(result.reason(), "{ballerina}ConversionError",
             msg = "expected conversion to fail due to missing fields");
     } else {
         test:assertFail(msg = "expected conversion to fail since all required fields are not present");
