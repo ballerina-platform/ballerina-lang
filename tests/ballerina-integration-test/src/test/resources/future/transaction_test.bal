@@ -25,7 +25,7 @@ h2:Client testDB = new({
       boolean cancel_w1 = f1.cancel();
       // Send to channel
       100 -> intChn, 88;
-      _ = h2:releaseConnectionPool(testDB);
+      _ = testDB.stop();
  }
 
 function startTrx() {

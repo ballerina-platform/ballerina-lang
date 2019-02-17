@@ -232,6 +232,11 @@ function testLocalSharedConnectionPoolConfigSingleDestination() returns json[] {
         i+=1;
     }
 
+    testDB1.stop();
+    testDB2.stop();
+    testDB3.stop();
+    testDB4.stop();
+    testDB5.stop();
     // All 5 clients are supposed to use the same pool created with the configurations given by the
     // custom pool options. Since each select operation holds up one connection each, the last select
     // operation should return an error
@@ -301,10 +306,64 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns json[
         i+=1;
     }
 
+    testDB1.stop();
+    testDB2.stop();
+    testDB3.stop();
+    testDB4.stop();
+    testDB5.stop();
+
     // All 5 clients are supposed to use the same pool created with the configurations given by the
     // custom pool options. Since each select operation holds up one connection each, the last select
     // operation should return an error
     return returnArray;
+}
+
+sql:PoolOptions poolOptions5 = { maximumPoolSize: 2, connectionTimeout: 1000 };
+function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns (int, int) {
+    h2:Client testDB1 = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_4",
+            username: "SA",
+            password: "",
+            poolOptions: poolOptions5
+        });
+    h2:Client testDB2 = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_4",
+            username: "SA",
+            password: "",
+            poolOptions: poolOptions5
+        });
+
+    h2:Client testDB3 = new({
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTION_POOL_4",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1, connectionTimeout: 1000 }
+    });
+
+    h2:Client testDB4;
+
+    var dt1 = testDB3->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
+    int count1 = getTableCountValColumn(dt1);
+
+    testDB1.stop();
+    testDB2.stop();
+
+    testDB4 = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_4",
+            username: "SA",
+            password: "",
+            poolOptions: poolOptions5
+        });
+
+    var dt2 = testDB3->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
+    int count2 = getTableCountValColumn(dt2);
+    testDB3.stop();
+
+    return (count1, count2);
 }
 
 function testShutDownUnsharedLocalConnectionPool() returns (json, json) {
@@ -318,17 +377,17 @@ function testShutDownUnsharedLocalConnectionPool() returns (json, json) {
 
     var result = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
     json retVal1 = getJsonConversionResult(result);
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     var resultAfterPoolShutDown = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
     json retVal2 = getJsonConversionResult(resultAfterPoolShutDown);
     return (retVal1, retVal2);
 }
 
 sql:PoolOptions poolOptions3 = { maximumPoolSize: 1, connectionTimeout: 1000 };
-function testShutDownSharedConnectionPool() returns (json, json, json, json) {
+function testShutDownSharedConnectionPool() returns (json, json, json, json, json, int) {
     h2:Client testDB1 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_1",
+            name: "TEST_SQL_CONNECTION_POOL_3",
             username: "SA",
             password: "",
             poolOptions: poolOptions3
@@ -336,10 +395,18 @@ function testShutDownSharedConnectionPool() returns (json, json, json, json) {
 
     h2:Client testDB2 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_1",
+            name: "TEST_SQL_CONNECTION_POOL_3",
             username: "SA",
             password: "",
             poolOptions: poolOptions3
+        });
+
+    h2:Client testDB3 = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTION_POOL_3",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1, connectionTimeout: 1000 }
         });
 
     var result1 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
@@ -348,7 +415,7 @@ function testShutDownSharedConnectionPool() returns (json, json, json, json) {
     var result2 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
     json retVal2 = getJsonConversionResult(result2);
 
-    _ = h2:releaseConnectionPool(testDB1);
+    testDB1.stop();
 
     var result3 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
     json retVal3 = getJsonConversionResult(result3);
@@ -356,7 +423,16 @@ function testShutDownSharedConnectionPool() returns (json, json, json, json) {
     var result4 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
     json retVal4 = getJsonConversionResult(result4);
 
-    return (retVal1, retVal2, retVal3, retVal4);
+    testDB2.stop();
+
+    var result5 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
+    json retVal5 = getJsonConversionResult(result4);
+
+    var dt = testDB3->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
+    int count = getTableCountValColumn(dt);
+    testDB3.stop();
+
+    return (retVal1, retVal2, retVal3, retVal4, retVal5, count);
 }
 
 sql:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeout: 1000 };
@@ -366,7 +442,7 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json,
             name: "TEST_SQL_CONNECTION_POOL_1",
             username: "SA",
             password: "",
-            poolOptions: poolOptions3
+            poolOptions: poolOptions4
         });
 
     h2:Client testDB2 = new({
@@ -374,7 +450,7 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json,
             name: "TEST_SQL_CONNECTION_POOL_2",
             username: "SA",
             password: "",
-            poolOptions: poolOptions3
+            poolOptions: poolOptions4
         });
     var result1 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
     json retVal1 = getJsonConversionResult(result1);
@@ -382,7 +458,7 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json,
     var result2 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
     json retVal2 = getJsonConversionResult(result2);
 
-    _ = h2:releaseConnectionPool(testDB1);
+    testDB1.stop();
 
     var result3 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
     json retVal3 = getJsonConversionResult(result3);
@@ -390,10 +466,12 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json,
     var result4 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
     json retVal4 = getJsonConversionResult(result4);
 
+    testDB2.stop();
+
     return (retVal1, retVal2, retVal3, retVal4);
 }
 
-function testShutDwonGlobalPool() returns (json, error?, json) {
+function testStopClientUsingGlobalPool() returns (json, json) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_1",
@@ -404,12 +482,12 @@ function testShutDwonGlobalPool() returns (json, error?, json) {
     var result1 = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
     json retVal1 = getJsonConversionResult(result1);
 
-    var retVal2 = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
 
     var result2 = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
-    json retVal3 = getJsonConversionResult(result2);
+    json retVal2 = getJsonConversionResult(result2);
 
-    return (retVal1, retVal2, retVal3);
+    return (retVal1, retVal2);
 }
 
 function getJsonConversionResultOfTuple((table<record{}>|error, table<record{}>|error) t) returns json[] {
@@ -435,4 +513,18 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         retVal = {"Error" : string.convert(tableOrError.detail().message)};
     }
     return retVal;
+}
+
+function getTableCountValColumn(table<record {}>|error result) returns int {
+    int count = -1;
+    if (result is table<record {}>) {
+        while (result.hasNext()) {
+            var rs = result.getNext();
+            if (rs is Result) {
+                count = rs.val;
+            }
+        }
+        return count;
+    }
+    return -1;
 }

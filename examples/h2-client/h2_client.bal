@@ -9,8 +9,7 @@ h2:Client testDB = new({
         path: "./h2-client",
         name: "testdb",
         username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 5 }
+        password: ""
     });
 
 public function main() {

@@ -236,7 +236,7 @@ function testAssignNilToNonNillableField(string field, typedesc recordType) retu
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return errorMessage;
 }
 
@@ -332,7 +332,7 @@ function testAssignNullArrayToNonNillableWithNonNillableElements() returns strin
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return errorMessage;
 }
 
@@ -356,7 +356,7 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements() returns stri
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return errorMessage;
 }
 
@@ -380,7 +380,7 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() re
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return errorMessage;
 }
 
@@ -404,7 +404,7 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements() retur
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return errorMessage;
 }
 
@@ -426,7 +426,7 @@ function testAssignInvalidUnionArray() returns string {
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return message;
 }
 
@@ -448,7 +448,7 @@ function testAssignInvalidUnionArrayElement() returns string {
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return message;
 }
 
@@ -470,7 +470,7 @@ function testAssignInvalidUnionArray2() returns string {
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return message;
 }
 
@@ -504,6 +504,6 @@ function testAssignToInvalidUnionField(string field) returns string {
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return errorMessage;
 }

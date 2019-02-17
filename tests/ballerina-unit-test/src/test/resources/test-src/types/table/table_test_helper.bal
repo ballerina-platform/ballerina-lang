@@ -40,7 +40,7 @@ function getTableCount(string tablePrefix) returns (int) {
             count = ret.COUNTVAL;
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return count;
 }
 
@@ -60,7 +60,7 @@ function getSessionCount() returns (int) {
             count = ret.COUNTVAL;
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return count;
 }
 

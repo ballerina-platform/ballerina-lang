@@ -27,7 +27,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string... arg
             testFunction(rs.name);
         }
     }
-    _ = mysql:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return;
 }
 

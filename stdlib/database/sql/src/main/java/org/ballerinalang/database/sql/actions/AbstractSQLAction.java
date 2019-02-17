@@ -451,15 +451,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return builder.toString();
     }
 
-    protected void closeConnections(SQLDatasource datasource) {
-        // When an exception is thrown during database endpoint init (eg: driver not present) stop operation
-        // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that
-        // situation following null check is needed.
-        if (datasource != null) {
-            datasource.decrementClientCounter();
-        }
-    }
-
     private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query,
             boolean loadToMemory) throws SQLException {
         PreparedStatement stmt;

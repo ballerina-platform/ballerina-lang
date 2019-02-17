@@ -50,5 +50,5 @@ function pseudonymizePiiWithEmptyTableName (string pii) returns string|error {
 }
 
 function shutdown() {
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
 }

@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.stdlib.database.sql;
 
 import org.ballerinalang.config.ConfigRegistry;
@@ -32,10 +33,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
+/**
+ * Tests scenarios of global pool, local shared pool, local unshared pool usage
+ */
 public class SQLConnectionPoolTest {
     private CompileResult result;
     private static final String DB1_NAME = "TEST_SQL_CONNECTION_POOL_1";
     private static final String DB2_NAME = "TEST_SQL_CONNECTION_POOL_2";
+    private static final String DB3_NAME = "TEST_SQL_CONNECTION_POOL_3";
+    private static final String DB4_NAME = "TEST_SQL_CONNECTION_POOL_4";
     private Path ballerinaConfPath;
     private static final String POOL_TEST_GROUP = "ConnectionPoolTest";
 
@@ -49,6 +55,8 @@ public class SQLConnectionPoolTest {
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB2_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB1_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB2_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB3_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB4_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -144,8 +152,8 @@ public class SQLConnectionPoolTest {
     public void testShutDownUnsharedLocalConnectionPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownUnsharedLocalConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], {\"Error\":\"execute query "
-                + "failed: error in get connection: ClientConnector: Pool has been shutdown\"})");
+        Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], {\"Error\":\"Client has been "
+                + "stopped\"})");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -153,9 +161,8 @@ public class SQLConnectionPoolTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownSharedConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], [{\"FIRSTNAME\":\"Dan\"}], "
-                + "{\"Error\":\"execute query failed: error in get connection: ClientConnector: Pool has been "
-                + "shutdown\"}, {\"Error\":\"execute query failed: error in get connection: ClientConnector: Pool has"
-                + " been shutdown\"})");
+                + "[{\"FIRSTNAME\":\"Dan\"}], {\"Error\":\"Client has been stopped\"}, {\"Error\":\"Client has been "
+                + "stopped\"}, 1)");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -163,16 +170,21 @@ public class SQLConnectionPoolTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownPoolCorrespondingToASharedPoolConfig");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], [{\"FIRSTNAME\":\"Dan\"}], "
-                + "[{\"FIRSTNAME\":\"Dan\"}], {\"Error\":\"execute query failed: error in get connection: "
-                + "ClientConnector: Pool has been shutdown\"})");
+                + "[{\"FIRSTNAME\":\"Dan\"}], {\"Error\":\"Client has been stopped\"})");
     }
 
     @Test(groups = POOL_TEST_GROUP)
-    public void testShutDwonGlobalPool() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testShutDwonGlobalPool");
+    public void testLocalSharedConnectionPoolCreateClientAfterShutdown() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolCreateClientAfterShutdown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], {ballerina/sql}DatabaseError "
-                + "{message:\"Client uses the global connection pool. Global connection pool is not allowed to be "
-                + "shutdown while the program is running\"}, [{\"FIRSTNAME\":\"Peter\"}])");
+        Assert.assertEquals(returns[0].stringValue(), "(3, 2)");
+    }
+
+    @Test(groups = POOL_TEST_GROUP)
+    public void testStopClientUsingGlobalPool() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testStopClientUsingGlobalPool");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], {\"Error\":\"Client has been "
+                + "stopped\"})");
     }
 }

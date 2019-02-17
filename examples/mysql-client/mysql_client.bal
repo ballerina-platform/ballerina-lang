@@ -8,7 +8,6 @@ mysql:Client testDB = new({
         name: "testdb",
         username: "test",
         password: "test",
-        poolOptions: { maximumPoolSize: 5 },
         dbOptions: { useSSL: false }
     });
 

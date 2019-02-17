@@ -51,7 +51,7 @@ function testSelect() returns (int[]) {
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return customerIds;
 }
 
@@ -70,7 +70,7 @@ function testUpdate() returns (int) {
     if (insertCountRet is int) {
         insertCount = insertCountRet;
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return insertCount;
 }
 
@@ -101,7 +101,7 @@ function testCall() returns (string) {
             name = rs.name;
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return name;
 }
 
@@ -128,7 +128,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         returnVal = <string> x.detail().message;
     }
 
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return returnVal;
 }
 
@@ -165,7 +165,7 @@ function testBatchUpdate() returns (int[]) {
     } else {
         ret = [];
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return ret;
 }
 
@@ -198,7 +198,7 @@ function testUpdateInMemory() returns (int, string) {
         }
     }
 
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (insertCount, s);
 }
 
@@ -258,7 +258,7 @@ function testCloseConnectionPool(string connectionCountQuery)
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return count;
 }
 
@@ -278,7 +278,7 @@ function selectFunction(h2:Client testDB) returns (int[]) {
     } else {
         customerIds = [];
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return customerIds;
 }
 
@@ -305,6 +305,6 @@ function testH2MemDBUpdate() returns (int, string) {
     if (insertCountRet is int) {
         insertCount = insertCountRet;
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (insertCount, data);
 }

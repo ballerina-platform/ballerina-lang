@@ -163,7 +163,7 @@ function testMappingToNillableTypeFields() returns (int?, int?, float?,
             binary_type = rs.binary_type;
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_type, long_type, float_type, double_type,
     boolean_type, string_type,
     numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type);
@@ -188,7 +188,7 @@ function testMappingToNillableTypeFieldsBlob() returns byte[]? {
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return blob_type;
 }
 
@@ -245,7 +245,7 @@ function testMappingDatesToNillableTimeType() returns (int, int, int, int, int, 
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
     datetimeInserted, datetimeRetrieved);
 }
@@ -288,7 +288,7 @@ function testMappingDatesToNillableIntType(int datein, int timein, int timestamp
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (date, time, timestamp, datetime);
 }
 
@@ -330,7 +330,7 @@ function testMappingDatesToNillableStringType(int datein, int timein, int timest
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (date, time, timestamp, datetime);
 }
 
@@ -391,7 +391,7 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_type, long_type, float_type, double_type, boolean_type, string_type, numeric_type, decimal_type,
     real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type, time_type, datetime_type,
     timestamp_type);
@@ -418,7 +418,7 @@ function testMappingNullToNillableTypesBlob() returns byte[]? {
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return blob_type;
 }
 
@@ -453,7 +453,7 @@ function testMapArrayToNonNillableTypeWithNillableElementType()
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -488,7 +488,7 @@ function testMapArrayToNillableTypeWithNillableElementType() returns (
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -522,7 +522,7 @@ function testMapArrayToNillableTypeWithNonNillableElementType()
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -557,7 +557,7 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType() return
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -592,7 +592,7 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType()
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -627,7 +627,7 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -662,7 +662,7 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes()
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -697,6 +697,6 @@ function testMapNillElementsOnlyArray()
             }
         }
     }
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }

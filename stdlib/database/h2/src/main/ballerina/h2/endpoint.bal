@@ -156,9 +156,9 @@ public type Client client object {
     }
 
     # Stops the JDBC client.
-    public function stop() {
+    public function stop() returns error? {
         self.clientActive = false;
-        sql:close(self.sqlClient);
+        return sql:close(self.sqlClient);
     }
 
     function handleStoppedClientInvocation() returns error {

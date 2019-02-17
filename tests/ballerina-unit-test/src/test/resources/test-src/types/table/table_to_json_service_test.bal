@@ -94,5 +94,5 @@ service MyService on testEP {
 }
 
 function closeConnectionPool() {
-    _ = h2:releaseConnectionPool(testDB);
+    _ = testDB.stop();
 }
