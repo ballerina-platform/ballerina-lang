@@ -20,6 +20,9 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
+/**
+ * Closure symbol wrapper which holds the symbol and resolved level of the symbol.
+ */
 public class ClosureSymbolWrapper {
     public BSymbol bSymbol;
     public int resolvedLevel;

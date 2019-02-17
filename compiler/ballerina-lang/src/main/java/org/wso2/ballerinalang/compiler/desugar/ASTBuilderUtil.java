@@ -800,8 +800,10 @@ public class ASTBuilderUtil {
         BLangIdentifier invocationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         invocationName.setValue(builtInMethod.getName());
         invokeLambda.name = invocationName;
-        invokeLambda.argExprs.addAll(generateArgExprsForLambdas(pos, requiredArgs, invokableSymbol.params, symResolver));
-        invokeLambda.requiredArgs.addAll(generateArgExprsForLambdas(pos, requiredArgs, invokableSymbol.params, symResolver));
+        invokeLambda.argExprs.addAll(generateArgExprsForLambdas(pos, requiredArgs, invokableSymbol.params,
+                symResolver));
+        invokeLambda.requiredArgs.addAll(generateArgExprsForLambdas(pos, requiredArgs, invokableSymbol.params,
+                symResolver));
         invokeLambda.builtInMethod = builtInMethod;
         invokeLambda.type = ((BInvokableType) invokableSymbol.type).retType;
         invokeLambda.expr = simpleVarRef;

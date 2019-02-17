@@ -207,7 +207,21 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
@@ -541,7 +555,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create a map symbol for the function statement
         BUnionType constraintTypeOfMap = new BUnionType(null,
-                new LinkedHashSet<BType>(){{ add(symTable.anyType); add(symTable.errorType); }},true);
+                new LinkedHashSet<BType>() {{ add(symTable.anyType); add(symTable.errorType); }}, true);
         BVarSymbol mapSymbol = new BVarSymbol(0, names.fromString("$mapFunc$" + funClosureMapCount),
                 fucEnv.scope.owner.pkgID, new BMapType(TypeTags.MAP, constraintTypeOfMap, null), fucEnv.scope.owner);
         funcNode.dataHolder.mapSymbol = mapSymbol;
@@ -553,8 +567,9 @@ public class Desugar extends BLangNodeVisitor {
 
         // For every function node blindly add the map
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(funcNode.pos, symTable.mapType);
-        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos, funcNode.dataHolder.mapSymbol.name.value,
-                funcNode.dataHolder.mapSymbol.type, emptyRecord, funcNode.dataHolder.mapSymbol);
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos,
+                funcNode.dataHolder.mapSymbol.name.value, funcNode.dataHolder.mapSymbol.type, emptyRecord,
+                funcNode.dataHolder.mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(funcNode.dataHolder.mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(funcNode.pos, mapVar);
         // Add the map variable to the top of the statements in the block node
@@ -588,7 +603,8 @@ public class Desugar extends BLangNodeVisitor {
             localVarRef.type = receiver.type;
             BVarSymbol symbol = fucEnv.exposedClosureHolder.mapSymbol;
             BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(funcNode.pos, receiver.type,
-                    symbol, ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,  receiver.symbol.name.value));
+                    symbol, ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
+                            receiver.symbol.name.value));
             accessExpr.type = ((BMapType) symbol.type).constraint;
             BLangAssignment stmt = ASTBuilderUtil.createAssignmentStmt(funcNode.pos, accessExpr, localVarRef);
             funcNode.body.stmts.add(position, stmt);
@@ -677,7 +693,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangBlockStmt block) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(block, env);
         BUnionType constrainedTypeOfMap = new BUnionType(null,
-                new LinkedHashSet<BType>(){{ add(symTable.anyType); add(symTable.errorType); }},true);
+                new LinkedHashSet<BType>() {{ add(symTable.anyType); add(symTable.errorType); }}, true);
         // Create a map symbol for every block statement
         BVarSymbol mapSymbol = new BVarSymbol(0, names.fromString("$mapBlock$" + blockClosureMapCount),
                 block.scope.owner.pkgID, new BMapType(TypeTags.MAP, constrainedTypeOfMap, null), block.scope.owner);
@@ -698,8 +714,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void defineMapInBlockNode(BLangBlockStmt blockStmt) {
-        BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(env.enclInvokable.pos, symTable.mapType);
-        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(env.enclInvokable.pos, blockStmt.dataHolder.mapSymbol.name.value,
+        BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(env.enclInvokable.pos,
+                symTable.mapType);
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(env.enclInvokable.pos,
+                blockStmt.dataHolder.mapSymbol.name.value,
                 blockStmt.dataHolder.mapSymbol.type, emptyRecord, blockStmt.dataHolder.mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(blockStmt.dataHolder.mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(env.enclInvokable.pos, mapVar);
@@ -2044,10 +2062,14 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
-        BType bType = checkIsSimpleType(varRefExpr.type) ? ((BMapType) mapSymbol.type).constraint : varRefExpr.type;
+        // Get type of the index based access expression
+        BType typeOfExpr = isBasicType(varRefExpr.type) ? ((BMapType) mapSymbol.type).constraint : varRefExpr.type;
         // Create the index based access expression
-        BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, varRefExpr.variableName.value);
-        BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos, bType, mapSymbol, indexExpr);
+        BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
+                varRefExpr.variableName.value);
+        BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos, typeOfExpr,
+                mapSymbol, indexExpr);
+        // If its in the LHS of an assignment
         if (varRefExpr.lhsVar) {
             // x = 1 ==> $innerMap$1["x"] = <any> 1
             result = rewriteExpr(accessExpr);
@@ -2058,17 +2080,10 @@ public class Desugar extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean checkIsSimpleType(BType bType) {
-        switch (bType.tag) {
-            case TypeTags.OBJECT:
-            case TypeTags.RECORD:
-            case TypeTags.MAP:
-            case TypeTags.JSON:
-            case TypeTags.XML:
-                return false;
-            default:
-                return true;
-        }
+    private boolean isBasicType(BType bType) {
+        return bType.tag != TypeTags.ARRAY && bType.tag != TypeTags.JSON && bType.tag != TypeTags.MAP &&
+                bType.tag != TypeTags.OBJECT && bType.tag != TypeTags.RECORD && bType.tag != TypeTags.TUPLE &&
+                bType.tag != TypeTags.XML;
     }
 
     @Override

@@ -763,8 +763,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
                         !(symbol.owner instanceof BPackageSymbol)) {
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    ClosureSymbolWrapper symbolWrapper = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                            SymTag.VARIABLE, 1, false);
+                    ClosureSymbolWrapper symbolWrapper = symResolver.lookupClosureVarSymbol(encInvokableEnv,
+                            symbol.name, SymTag.VARIABLE);
                     if (symbolWrapper.bSymbol != symTable.notFoundSymbol && !isFunctionArgument
                             (symbolWrapper.bSymbol, env.enclInvokable.requiredParams) && !env.enclInvokable.flagSet
                             .contains(Flag.ATTACHED) && env.enclInvokable.flagSet.contains(Flag.LAMBDA)) {
@@ -779,8 +779,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     symbol.owner = Symbols.createInvokableSymbol(SymTag.FUNCTION, 0, null,
                             env.enclPkg.packageID, null, symbol.owner);
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    ClosureSymbolWrapper symbolWrapper = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                            SymTag.VARIABLE, 1, false);
+                    ClosureSymbolWrapper symbolWrapper = symResolver.lookupClosureVarSymbol(encInvokableEnv,
+                            symbol.name, SymTag.VARIABLE);
                     if (symbolWrapper.bSymbol != symTable.notFoundSymbol &&
                             !isFunctionArgument(symbolWrapper.bSymbol, ((BLangArrowFunction) env.node).params)) {
                         ((BLangArrowFunction) env.node).closureVarsWithResolvedLevels.putIfAbsent(
@@ -1244,8 +1244,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkWaitKeyValExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal, BType type) {
         BLangExpression expr;
         if (keyVal.keyExpr != null) {
-            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(((BLangSimpleVarRef) keyVal.keyExpr).variableName),
-                                                      SymTag.VARIABLE);
+            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode
+                            (((BLangSimpleVarRef) keyVal.keyExpr).variableName), SymTag.VARIABLE);
             keyVal.keyExprSymbol = symbol;
             keyVal.keyExpr.type = symbol.type;
             expr = keyVal.keyExpr;

@@ -36,10 +36,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -280,6 +278,9 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
+    /**
+     * Holder which keeps a track of closures that are exposed.
+     */
     public static class ExposedClosureHolder {
         public BVarSymbol mapSymbol;
         public Set<BVarSymbol> closuresExposed =  new LinkedHashSet<>();

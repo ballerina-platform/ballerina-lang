@@ -217,7 +217,8 @@ public class IterableCodeDesugar {
         int i = 0;
         for (Operation operation : ctx.operations) {
             if (operation.iExpr.argExprs.size() > 0) {
-                BLangSimpleVariable paramFunc = ASTBuilderUtil.createVariable(pos, "$paramFunc" + i, operation.lambdaSymbol.type);
+                BLangSimpleVariable paramFunc = ASTBuilderUtil.createVariable(pos, "$paramFunc" + i,
+                        operation.lambdaSymbol.type);
                 funcNode.requiredParams.add(paramFunc);
                 i++;
             }
@@ -242,7 +243,7 @@ public class IterableCodeDesugar {
                 j++;
                 continue;
             }
-            ctx.operations.get(j -1).paramSymbol = reqParam.symbol;
+            ctx.operations.get(j - 1).paramSymbol = reqParam.symbol;
             j++;
         }
 
