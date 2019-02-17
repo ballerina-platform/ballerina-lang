@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.sql.XADataSource;
 
 /**
@@ -50,10 +52,13 @@ public class SQLDatasource implements BValue {
     private String databaseProductName;
     private String connectorId;
     private boolean xaConn;
-    private boolean isGlobalDatasource;
+    private boolean globalDatasource;
+    private AtomicInteger clientCounter = new AtomicInteger(0);
+    private Semaphore mutex = new Semaphore(1);
+    private boolean poolShutdown = false;
 
     public SQLDatasource init(SQLDatasourceParams sqlDatasourceParams) {
-        this.isGlobalDatasource = sqlDatasourceParams.isGlobalDatasource;
+        this.globalDatasource = sqlDatasourceParams.isGlobalDatasource;
         databaseName = sqlDatasourceParams.dbName;
         peerAddress = sqlDatasourceParams.jdbcUrl;
         buildDataSource(sqlDatasourceParams);
@@ -125,10 +130,37 @@ public class SQLDatasource implements BValue {
 
     public void closeConnectionPool() {
         hikariDataSource.close();
+        poolShutdown = true;
     }
 
     public boolean isGlobalDatasource() {
-        return isGlobalDatasource;
+        return globalDatasource;
+    }
+
+    public boolean isPoolShutdown() {
+        return poolShutdown;
+    }
+
+    public void incrementClientCounter() {
+        clientCounter.incrementAndGet();
+    }
+
+    public void decrementClientCounter() throws InterruptedException {
+        acquireMutex();
+        if (!poolShutdown) {
+            if (clientCounter.decrementAndGet() == 0) {
+                closeConnectionPool();
+            }
+        }
+        releaseMutex();
+    }
+
+    public void acquireMutex() throws InterruptedException {
+        mutex.acquire();
+    }
+
+    public void releaseMutex() {
+        mutex.release();
     }
 
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {

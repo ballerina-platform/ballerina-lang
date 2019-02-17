@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.database.sql;
 
 import org.ballerinalang.bre.Context;
@@ -37,8 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "GlobalPoolConfigContainer",
                              structPackage = "ballerina/sql"),
-        args = { @Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolOptions")},
-        isPublic = true
+        args = { @Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolOptions")}
 )
 public class InitGlobalPoolContainer extends BlockingNativeCallableUnit {
     @Override

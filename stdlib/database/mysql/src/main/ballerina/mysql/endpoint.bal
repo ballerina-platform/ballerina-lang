@@ -44,6 +44,7 @@ public type Client client object {
     *sql:AbstractSQLClient;
     private ClientEndpointConfig config;
     private sql:Client sqlClient;
+    private boolean clientActive = true;
 
     # Gets called when the MySQL client is instantiated.
     public function __init(ClientEndpointConfig c) {
@@ -59,6 +60,9 @@ public type Client client object {
     #            `error` will be returned if there is any error
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
                                returns @tainted table<record {}>[]|()|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->call(sqlQuery, recordType, ...parameters);
     }
 
@@ -71,6 +75,9 @@ public type Client client object {
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
                                   sql:Param... parameters) returns @tainted table<record {}>|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     }
 
@@ -81,6 +88,9 @@ public type Client client object {
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
     public remote function update(@sensitive string sqlQuery, sql:Param... parameters) returns int|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->update(sqlQuery, ...parameters);
     }
 
@@ -98,6 +108,9 @@ public type Client client object {
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
     public remote function batchUpdate(@sensitive string sqlQuery, sql:Param?[]... parameters) returns int[]|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->batchUpdate(sqlQuery, ...parameters);
     }
 
@@ -112,27 +125,21 @@ public type Client client object {
     #            Else `error` will be returned if there is any error.
     public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
                                                    sql:Param... parameters) returns (int, string[])|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->updateWithGeneratedKeys(sqlQuery,keyColumns, ...parameters);
     }
 
     # Stops the JDBC client.
     public function stop() {
-
+        self.clientActive = false;
+        sql:close(self.sqlClient);
     }
 
-    function closeSqlClient() returns error? {
-        return sql:close(self.sqlClient);
+    function handleStoppedClientInvocation() returns error {
+        return error("{ballerina/sql}DatabaseError", { message: "Client has been stopped"});
     }
 };
 
 extern function createClient(ClientEndpointConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client;
-
-# This function shuts down the internal connection pool used by the
-# provided client.
-# WARNING: Use with care as improper usage might result in closing shared connection pools
-# causing the user clients to become unusable
-#
-# + sqlClient - The Client object whose connection pool needs to be shut down.
-public function releaseConnectionPool(Client mysqlClient) returns error? {
-    return mysqlClient.closeSqlClient();
-}

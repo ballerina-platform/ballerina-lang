@@ -20,7 +20,6 @@ package org.ballerinalang.database.sql.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,11 +45,7 @@ public class Close extends AbstractSQLAction {
     public void execute(Context context) {
         SQLDatasource datasource = retrieveDatasource(context);
         if (!datasource.isGlobalDatasource()) {
-            closeConnections(datasource);
-        } else {
-            String errorMessage = "Client uses the global connection pool. Global connection pool is not allowed to "
-                    + "be shutdown while the program is running";
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, errorMessage));
+            datasource.decrementClientCounter();
         }
     }
 }

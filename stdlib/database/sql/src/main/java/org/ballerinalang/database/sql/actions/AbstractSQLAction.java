@@ -456,7 +456,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that
         // situation following null check is needed.
         if (datasource != null) {
-            datasource.closeConnectionPool();
+            datasource.decrementClientCounter();
         }
     }
 

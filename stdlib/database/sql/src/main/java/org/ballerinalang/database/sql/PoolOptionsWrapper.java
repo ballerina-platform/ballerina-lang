@@ -15,10 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.database.sql;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,7 +31,7 @@ import java.util.concurrent.ConcurrentMap;
  * This class provides methods to manipulate aforementioned map.
  */
 public class PoolOptionsWrapper {
-    private BMap<String, BRefType> poolOptions;
+    private final BMap<String, BRefType> poolOptions;
 
     protected PoolOptionsWrapper(BMap<String, BRefType> poolOptions) {
         this.poolOptions = poolOptions;
@@ -45,13 +47,40 @@ public class PoolOptionsWrapper {
      * @return The existing or newly created {@link SQLDatasource} object
      */
     public SQLDatasource retrieveDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
-        SQLDatasource sqlDatasource;
         ConcurrentMap<String, SQLDatasource> hikariDatasourceMap = createPoolMapIfNotExists();
-        if ((sqlDatasource = hikariDatasourceMap.get(sqlDatasourceParams.getJdbcUrl())) == null) {
+        SQLDatasource sqlDatasource = hikariDatasourceMap.get(sqlDatasourceParams.getJdbcUrl());
+        if (sqlDatasource != null) {
+            acquireDatasourceMutex(sqlDatasource);
+            try {
+                if (!sqlDatasource.isPoolShutdown()) {
+                    sqlDatasource.incrementClientCounter();
+                } else {
+                    hikariDatasourceMap.compute(sqlDatasourceParams.getJdbcUrl(),
+                            (key, value) -> createAndInitDatasource(sqlDatasourceParams));
+                }
+            } finally {
+                sqlDatasource.releaseMutex();
+            }
+        } else {
             sqlDatasource = hikariDatasourceMap.computeIfAbsent(sqlDatasourceParams.getJdbcUrl(),
-                    key -> new SQLDatasource().init(sqlDatasourceParams));
+                    key -> createAndInitDatasource(sqlDatasourceParams));
+
         }
         return sqlDatasource;
+    }
+
+    private void acquireDatasourceMutex(SQLDatasource sqlDatasource) {
+        try {
+            sqlDatasource.acquireMutex();
+        } catch (InterruptedException e) {
+            throw new BallerinaException("error in obtaining a connection pool");
+        }
+    }
+
+    private SQLDatasource createAndInitDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
+        SQLDatasource newSqlDatasource = new SQLDatasource().init(sqlDatasourceParams);
+        newSqlDatasource.incrementClientCounter();
+        return newSqlDatasource;
     }
 
     /**
@@ -69,7 +98,7 @@ public class PoolOptionsWrapper {
                 .retrieveDatasourceContainer(poolOptions);
         // map could be null only in a local pool creation scenario
         if (hikariDatasourceMap == null) {
-            synchronized (this) {
+            synchronized (this.poolOptions) {
                 hikariDatasourceMap = SQLDatasourceUtils.retrieveDatasourceContainer(poolOptions);
                 if (hikariDatasourceMap == null) {
                     hikariDatasourceMap = new ConcurrentHashMap<>();
