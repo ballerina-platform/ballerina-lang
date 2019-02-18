@@ -474,12 +474,12 @@
                 "url": "strings"
             },
             {
-                "name": "Task Timer",
-                "url": "task-timer"
+                "name": "Task Listener Service",
+                "url": "task-listener-timer-service"
             },
             {
-                "name": "Task Appointment",
-                "url": "task-appointment"
+                "name": "Task Listener Timer",
+                "url": "task-listener-timer"
             }
         ]
     },
