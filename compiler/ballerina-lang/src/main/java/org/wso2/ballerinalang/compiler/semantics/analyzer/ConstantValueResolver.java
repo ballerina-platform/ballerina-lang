@@ -33,6 +33,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
 
+    // Todo - Get Diagnostic log
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
     }

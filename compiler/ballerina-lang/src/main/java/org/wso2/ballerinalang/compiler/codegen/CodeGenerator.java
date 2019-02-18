@@ -2160,7 +2160,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
         int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
 
-        if (((BLangExpression)  constant.value).getKind() == NodeKind.LITERAL) {
+        BLangExpression value = (BLangExpression) constant.value;
+
+        if (value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) {
 
             constantInfo.isSimpleLiteral = true;
 

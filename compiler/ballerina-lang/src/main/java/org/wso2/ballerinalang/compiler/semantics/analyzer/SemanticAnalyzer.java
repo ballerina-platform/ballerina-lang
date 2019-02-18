@@ -1750,12 +1750,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (expression.getKind() == NodeKind.LITERAL) {
+        if (expression.getKind() == NodeKind.LITERAL || expression.getKind() == NodeKind.NUMERIC_LITERAL) {
             BLangLiteral value = (BLangLiteral) constant.value;
 
             if (constant.typeNode != null) {
                 // Check the type of the value.
                 typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
+                // We need to update the type tag because the type might get changed. i.e.- int -> decimal.
                 constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
             } else {
                 // We don't have any expected type in this case since the type node is not available. So we get the type
@@ -1764,12 +1765,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 constant.symbol.literalValueTypeTag = value.type.tag;
             }
 
-            // We need to update the literal value and the type tag here. Otherwise we will encounter issues when
-            // creating new literal nodes in desugar because we wont be able to identify byte and decimal types.
+            // Todo - Remove?
+            // We need to update the literal value here. Otherwise we will encounter issues when creating new literal
+            // nodes in desugar because we wont be able to identify byte and decimal types.
             constant.symbol.literalValue = value.value;
 
-            // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified in
-            // codegen when retrieving the default value.
+            // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified
+            // in codegen when retrieving the default value.
             BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
             for (BLangExpression literal : typeNode.valueSpace) {
                 // If the expected type of the constant is decimal, check type for the literals in the value space.
@@ -1804,6 +1806,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void checkConstantExpression(BLangExpression expression) {
         switch (expression.getKind()) {
             case LITERAL:
+            case NUMERIC_LITERAL:
                 break;
             case SIMPLE_VARIABLE_REF:
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;

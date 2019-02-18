@@ -845,16 +845,24 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (((BLangExpression) constant.value).getKind() == NodeKind.LITERAL) {
+        // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
+        // point we might not be able to resolve the type properly because type definitions in the package are not yet
+        // visited.
+
+        NodeKind nodeKind = ((BLangExpression) constant.value).getKind();
+
+        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
             // Visit the associated type definition. This will set the type of the type definition.
             defineNode(constant.associatedTypeDefinition, env);
 
             // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
             // resolve the types of any type definition which uses the constant in type node.
             constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-            constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
-            constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).type.tag;
-        } else if (((BLangExpression) constant.value).getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+
+            BLangLiteral literal = (BLangLiteral) constant.value;
+            constantSymbol.literalValue = literal.value;
+            constantSymbol.literalValueTypeTag = literal.type.tag;
+        } else if (nodeKind == NodeKind.RECORD_LITERAL_EXPR) {
             // We need to update the symbol type to noType here. Then it will be updated properly when
             // resolving the type node in resolveConstantTypeNode().
             if (constant.typeNode != null) {
@@ -865,10 +873,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
-
-        // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
-        // point we might not be able to resolve the type properly because type definitions in the package are not yet
-        // visited.
 
         // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
@@ -991,7 +995,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (expression.getKind()) {
             case LITERAL:
             case RECORD_LITERAL_EXPR:
-                return ((BLangExpression) expression).getKind() != NodeKind.NUMERIC_LITERAL;
+            case NUMERIC_LITERAL:
+                return true;
         }
         return false;
     }
