@@ -96,6 +96,13 @@ function getKey(string key) returns int {
     }
 }
 
+function tupleWithUnionType() returns anydata {
+    (string|boolean, float) tuple = (true, 1.1);
+    int index = 0;
+    string|boolean|float result = tuple[index];
+    return result;
+}
+
 function tupleInsideTupleAccess() returns (boolean, boolean) {
     (string, (string, int, (boolean, ())), float) tuple = ("string", ("string_2", 200, (true, ())), 9.0);
     boolean result = tuple[1][2][0];

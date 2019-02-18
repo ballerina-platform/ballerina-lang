@@ -2817,7 +2817,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 } else {
                     BTupleType tupleExpr = (BTupleType) accessExpr.expr.type;
-                    LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleExpr.tupleTypes);
+                    LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
                     actualType = tupleTypes.size() == 1 ? tupleTypes.iterator().next() :
                             new BUnionType(null, tupleTypes, false);
                 }
@@ -2851,6 +2851,18 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
         return actualType;
+    }
+
+    private LinkedHashSet<BType> collectTupleFieldTypes(BTupleType tupleType, LinkedHashSet<BType> memberTypes) {
+        tupleType.tupleTypes
+                .forEach(memberType -> {
+                    if (memberType.tag == TypeTags.UNION) {
+                        collectMemberTypes((BUnionType) memberType, memberTypes);
+                    } else {
+                        memberTypes.add(memberType);
+                    }
+                });
+        return memberTypes;
     }
 
     private BType getSafeType(BType type, BLangAccessExpression accessExpr) {

@@ -86,6 +86,13 @@ public class TupleAccessExprTest {
         BRunUtil.invoke(compileResult, "tupleIndexAsFunction", args);
     }
 
+    @Test(description = "Test accessing tuple which includes a union")
+    public void tupleWithUnionType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "tupleWithUnionType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(description = "Test accessing tuple inside tuple using dynamic indexes")
     public void tupleInsideTupleAccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "tupleInsideTupleAccess");
