@@ -2350,7 +2350,7 @@
         <javax-transaction-version>1.2</javax-transaction-version>
         <quartz.version>2.3.0</quartz.version>
         <commons-net.version>3.6</commons-net.version>
-        <jackson-core.version>2.9.1</jackson-core.version>
+        <jackson-core.version>2.9.8</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
         <broker.version>0.970.5</broker.version>
