@@ -1890,11 +1890,9 @@ public type HoppingWindow object {
 
         if (currentTime >= self.nextEmitTime) {
             self.nextEmitTime += self.hoppingTime;
-            self.timer.stop();
-            self.timer = new
-            task:Timer(function () returns error? {return self.invokeProcess();},
-                function (error e) {self.handleError(e);},
-                self.hoppingTime);
+            self.timer.cancel();
+            self.timer = new({ interval: self.hoppingTime });
+            _ = self.timer.attach(hoppingWindowService, serviceParameter = self);
             _ = self.timer.start();
             sendEvents = true;
         } else {
