@@ -34,6 +34,7 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -222,9 +223,9 @@ public class DefinitionUtil {
      */
     public static List<Location> findDefinition(List<BLangPackage> modules, LSContext context)
             throws LSDefinitionException {
-        prepareReferences(modules, context);
-        Map<String, Map<String, List<TokenReferenceModel>>> tokenReferences
+        Map<String, Map<String, List<TokenReferenceModel>>> tokenRefs
                 = context.get(NodeContextKeys.TOKEN_REFERENCES_KEY);
+        prepareReferences(modules, context);
 
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         // If the definition list contains an item after the prepare reference mode, then return it.
@@ -232,31 +233,30 @@ public class DefinitionUtil {
         if (!referencesModel.getDefinitions().isEmpty()) {
             return getLocations(Collections.singletonList(referencesModel.getDefinitions().get(0)), context);
         }
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getSymbolAtCursor();
+        if (!symbolAtCursor.isPresent()) {
+            return new ArrayList<>();
+        }
+        String symbolPkgName = symbolAtCursor.get().getPkgName();
+        Optional<BLangPackage> module = modules.stream()
+                .filter(bLangPackage -> bLangPackage.symbol.getName().getValue().equals(symbolPkgName))
+                .findAny();
+        if (!module.isPresent()) {
+            return new ArrayList<>();
+        }
 
-        // No need to handle the isPresent check since the prepareReference phase will throw exception if so
-        SymbolReferencesModel.Reference referenceAtCursor = referencesModel
-                .getSymbolAtCursor().get();
-        String cursorSymbolPkg = referenceAtCursor.getPkgName();
-
-        modules.stream()
-                .filter(bLangPackage -> bLangPackage.symbol.getName().getValue().equals(cursorSymbolPkg))
-                .findAny()
-                .ifPresent(bLangPackage -> {
-                    String pkgName = bLangPackage.symbol.getName().getValue();
-                    if (tokenReferences.containsKey(pkgName)) {
-
-                        Map<String, List<TokenReferenceModel>> cUnitMap = tokenReferences.get(pkgName);
-                        bLangPackage.getCompilationUnits()
-                                .forEach(cUnit -> {
-                                    if (!cUnitMap.containsKey(cUnit.name)) {
-                                        return;
-                                    }
-                                    SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(
-                                            context, pkgName, cUnitMap.get(cUnit.name));
-                                    refVisitor.visit(cUnit);
-                                });
-                    }
-                });
+        for (BLangCompilationUnit compilationUnit : module.get().getCompilationUnits()) {
+            List<TokenReferenceModel> tokenRefModels = tokenRefs.get(symbolPkgName).get(compilationUnit.getName());
+            if (tokenRefModels != null) {
+                // Possible Reference tokens found within the cUnit
+                SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, symbolPkgName,
+                        tokenRefModels);
+                refVisitor.visit(compilationUnit);
+                if (!referencesModel.getDefinitions().isEmpty()) {
+                    break;
+                }
+            }
+        }
 
         return getLocations(referencesModel.getDefinitions(), context);
     }
