@@ -1890,7 +1890,7 @@ public type HoppingWindow object {
 
         if (currentTime >= self.nextEmitTime) {
             self.nextEmitTime += self.hoppingTime;
-            self.timer.cancel();
+            _ = self.timer.cancel();
             self.timer = new({ interval: self.hoppingTime });
             _ = self.timer.attach(hoppingWindowService, serviceParameter = self);
             _ = self.timer.start();
