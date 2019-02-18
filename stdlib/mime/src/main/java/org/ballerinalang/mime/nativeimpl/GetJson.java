@@ -18,13 +18,16 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
@@ -33,9 +36,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.transport.http.netty.message.FullHttpMessageListener;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
  * Get the entity body in JSON form.
@@ -49,10 +57,10 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetJson extends BlockingNativeCallableUnit {
+public class GetJson implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         BRefType<?> result;
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
@@ -68,13 +76,10 @@ public class GetJson extends BlockingNativeCallableUnit {
                         BString payload = MimeUtil.getMessageAsString(dataSource);
                         result = JsonParser.parse(payload.stringValue());
                     }
+                    context.setReturnValues(result);
                 } else {
-                    result = EntityBodyHandler.constructJsonDataSource(entityStruct);
-                    EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                    //Set byte channel to null, once the message data source has been constructed
-                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                    constructJsonDataSource(context, callback, entityStruct);
                 }
-                context.setReturnValues(result);
             } else {
                 context.setReturnValues(MimeUtil.createError(context, "Entity body is not json compatible since the " +
                         "received content-type is : " + baseType));
@@ -83,6 +88,49 @@ public class GetJson extends BlockingNativeCallableUnit {
             context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while extracting json data from entity: " + e.getMessage()));
         }
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
+
+    private void constructJsonDataSource(Context context, CallableUnitCallback callback,
+                                         BMap<String, BValue> entityStruct) {
+        final BRefType<?>[] jsonData = new BRefType<?>[1];
+        HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
+
+        inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
+            @Override
+            public void onComplete() {
+                HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
+                String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
+                                                                    HttpHeaderNames.CONTENT_TYPE.toString());
+                if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
+                    String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                    if (charsetValue != null && !charsetValue.isEmpty()) {
+                        jsonData[0] = JsonParser.parse(dataStreamer.getInputStream(), charsetValue);
+                    } else {
+                        jsonData[0] = JsonParser.parse(dataStreamer.getInputStream());
+                    }
+                } else {
+                    jsonData[0] = JsonParser.parse(dataStreamer.getInputStream());
+                }
+                EntityBodyHandler.addMessageDataSource(entityStruct, jsonData[0]);
+                //Set byte channel to null, once the message data source has been constructed
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                context.setReturnValues(jsonData[0]);
+                callback.notifySuccess();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                String errorMsg = "Error occurred while extracting json content from message: " + e.getMessage();
+                BError error = MimeUtil.createError(context, errorMsg);
+                context.setReturnValues(error);
+                callback.notifyFailure(error);
+            }
+        });
     }
 
     private boolean isJSON(BValue value) {
