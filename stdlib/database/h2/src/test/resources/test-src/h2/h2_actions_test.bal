@@ -148,14 +148,14 @@ function testBatchUpdate() returns (int[]) {
     sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
     sql:Parameter para3 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para4 = { sqlType: sql:TYPE_VARCHAR, value: "Australia" };
-    sql:Parameter[] parameters1 = [para1, para2, para3, para4];
+    sql:Parameter?[] parameters1 = [para1, para2, para3, para4];
 
     //Batch 2
     sql:Parameter para5 = { sqlType: sql:TYPE_INTEGER, value: 11 };
     sql:Parameter para6 = { sqlType: sql:TYPE_VARCHAR, value: "John" };
     sql:Parameter para7 = { sqlType: sql:TYPE_DOUBLE, value: 3400.2 };
     sql:Parameter para8 = { sqlType: sql:TYPE_VARCHAR, value: "UK" };
-    sql:Parameter[] parameters2 = [para5, para6, para7, para8];
+    sql:Parameter?[] parameters2 = [para5, para6, para7, para8];
 
     var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
 
