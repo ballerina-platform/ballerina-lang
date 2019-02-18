@@ -1717,7 +1717,7 @@ public class SQLDatasourceUtils {
                 return conn;
             }
         }
-        String connectorId = datasource.getConnectorId();
+        String connectorId = retrieveConnectorId(context);
         boolean isXAConnection = datasource.isXAConnection();
         TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
         String globalTxId = transactionLocalContext.getGlobalTransactionId();
@@ -1766,5 +1766,10 @@ public class SQLDatasourceUtils {
                     || typeTag == TypeTags.BYTE_TAG);
         }
         return supported;
+    }
+
+    private static String retrieveConnectorId(Context context) {
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
+        return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);
     }
 }

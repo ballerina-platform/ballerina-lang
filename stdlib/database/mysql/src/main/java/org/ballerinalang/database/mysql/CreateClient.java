@@ -28,6 +28,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import java.util.UUID;
+
 /**
  * Returns the MySQL Client connector.
  *
@@ -57,6 +59,7 @@ public class CreateClient extends BlockingNativeCallableUnit {
         BMap<String, BValue> sqlClient = SQLDatasourceUtils
                 .createServerBasedDBClient(context, Constants.DBTypes.MYSQL, clientEndpointConfig, urlOptions,
                         globalPoolOptions);
+        sqlClient.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
         context.setReturnValues(sqlClient);
     }
 }

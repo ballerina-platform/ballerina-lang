@@ -34,7 +34,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.sql.XADataSource;
@@ -50,7 +49,6 @@ public class SQLDatasource implements BValue {
     private String peerAddress;
     private String databaseName;
     private String databaseProductName;
-    private String connectorId;
     private boolean xaConn;
     private boolean globalDatasource;
     private AtomicInteger clientCounter = new AtomicInteger(0);
@@ -62,7 +60,6 @@ public class SQLDatasource implements BValue {
         databaseName = sqlDatasourceParams.dbName;
         peerAddress = sqlDatasourceParams.jdbcUrl;
         buildDataSource(sqlDatasourceParams);
-        connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
             databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
@@ -108,10 +105,6 @@ public class SQLDatasource implements BValue {
             throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
                     e);
         }
-    }
-
-    public String getConnectorId() {
-        return this.connectorId;
     }
 
     public boolean isXAConnection() {
