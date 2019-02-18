@@ -2104,7 +2104,6 @@ public type HoppingWindow object {
     public any[] windowParameters;
     public int nextEmitTime = -1;
     public LinkedList currentEventQueue;
-    public LinkedList? expiredEventQueue;
     public StreamEvent? resetEvent;
     public task:Timer? timer;
     public function (StreamEvent?[])? nextProcessPointer;
@@ -2117,7 +2116,6 @@ public type HoppingWindow object {
         self.resetEvent = ();
         self.timer = ();
         self.currentEventQueue = new();
-        self.expiredEventQueue = ();
         self.initParameters(self.windowParameters);
     }
 
@@ -2261,7 +2259,7 @@ public type HoppingWindow object {
         return {
             "currentEventsList": currentEventsList,
             "resetEvt": resetEvt,
-            "isStart": self.isStart
+            "nextEmitTime": self.nextEmitTime
         };
     }
 
@@ -2277,9 +2275,9 @@ public type HoppingWindow object {
             StreamEvent r = toStreamEvent(resetEvt);
             self.resetEvent = r;
         }
-        any? i = state["isStart"];
-        if (i is boolean) {
-            self.isStart = i;
+        any? n = state["nextEmitTime"];
+        if (n is int) {
+            self.nextEmitTime = n;
         }
     }
 
