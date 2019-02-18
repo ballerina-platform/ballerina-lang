@@ -29,6 +29,9 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.util.internal.PlatformDependent;
+import org.apache.commons.pool.impl.GenericObjectPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
@@ -42,6 +45,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
@@ -53,6 +57,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
  * interested in request messages.
  */
 public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
+    private static final Logger LOG = LoggerFactory.getLogger(Http2SourceHandler.class);
 
     // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
     private Map<Integer, HttpCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
@@ -64,6 +69,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     private String interfaceId;
     private String serverName;
     private String remoteAddress;
+    private Map<String, GenericObjectPool> targetChannelPool; //Keeps only h1 target channels
 
     Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer, Http2ConnectionEncoder encoder,
                        String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
@@ -74,6 +80,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         this.serverConnectorFuture = serverConnectorFuture;
         this.conn = conn;
         this.serverName = serverName;
+        this.targetChannelPool = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -107,7 +114,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
                     new HttpVersion(Constants.HTTP_VERSION_2_0, true), upgradedRequest.method(),
                     upgradedRequest.uri(), upgradedRequest.headers());
 
-            HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest, ctx, interfaceId);
+            HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest, this);
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
             notifyRequestListener(this, requestCarbonMessage, 1);
         }
@@ -140,6 +147,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         destroy();
+        closeTargetChannels();
         ctx.fireChannelInactive();
     }
 
@@ -151,6 +159,16 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     private void destroy() {
         streamIdRequestMap.clear();
+    }
+
+    private void closeTargetChannels() {
+        targetChannelPool.forEach((hostPortKey, genericObjectPool) -> {
+            try {
+                targetChannelPool.remove(hostPortKey).close();
+            } catch (Exception e) {
+                LOG.error("Couldn't close target channel socket connections", e);
+            }
+        });
     }
 
     public Map<Integer, HttpCarbonMessage> getStreamIdRequestMap() {
@@ -187,5 +205,12 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     public String getRemoteAddress() {
         return remoteAddress;
+    }
+    public Map<String, GenericObjectPool> getTargetChannelPool() {
+        return targetChannelPool;
+    }
+
+    public ChannelHandlerContext getInboundChannelContext() {
+        return ctx;
     }
 }

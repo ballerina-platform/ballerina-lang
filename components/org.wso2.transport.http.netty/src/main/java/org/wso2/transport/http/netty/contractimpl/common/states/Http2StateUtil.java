@@ -34,6 +34,7 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -103,16 +104,16 @@ public class Http2StateUtil {
     /**
      * Creates a {@code HttpCarbonRequest} from HttpRequest.
      *
-     * @param httpRequest the HTTPRequest message
-     * @param ctx         the channel handler context
-     * @param interfaceId listener interface id
+     * @param httpRequest        the HTTPRequest message
+     * @param http2SourceHandler the HTTP/2 source handler
      * @return the CarbonRequest Message created from given HttpRequest
      */
-    public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, ChannelHandlerContext ctx,
-                                                       String interfaceId) {
+    public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler) {
+        ChannelHandlerContext ctx = http2SourceHandler.getChannelHandlerContext();
         HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new DefaultListener(ctx));
         sourceReqCMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(CHNL_HNDLR_CTX, ctx);
+        sourceReqCMsg.setProperty(Constants.SRC_HANDLER, http2SourceHandler);
         HttpVersion protocolVersion = httpRequest.protocolVersion();
         sourceReqCMsg.setProperty(HTTP_VERSION, protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
         sourceReqCMsg.setProperty(HTTP_METHOD, httpRequest.method().name());
@@ -124,7 +125,7 @@ public class Http2StateUtil {
         }
         sourceReqCMsg.setProperty(LOCAL_ADDRESS, localAddress);
         sourceReqCMsg.setProperty(LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
-        sourceReqCMsg.setProperty(LISTENER_INTERFACE_ID, interfaceId);
+        sourceReqCMsg.setProperty(LISTENER_INTERFACE_ID, http2SourceHandler.getInterfaceId());
         sourceReqCMsg.setProperty(PROTOCOL, HTTP_SCHEME);
         String uri = httpRequest.uri();
         sourceReqCMsg.setProperty(REQUEST_URL, uri);
