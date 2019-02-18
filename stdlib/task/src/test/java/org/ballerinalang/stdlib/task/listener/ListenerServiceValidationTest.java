@@ -29,6 +29,11 @@ import org.testng.annotations.Test;
  * If compiler plugin works, replace BCompileUtil.compileAndSetup() with BCompileUtil.compile().
  */
 
+/**
+ * Tests for Ballerina Task Service validation.
+ *
+ * This will be removed once the compiler plugin workes.
+ */
 @Test
 public class ListenerServiceValidationTest {
 
