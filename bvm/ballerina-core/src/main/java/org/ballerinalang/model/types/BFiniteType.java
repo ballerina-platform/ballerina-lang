@@ -69,7 +69,7 @@ public class BFiniteType extends BType {
             }
         }
 
-        throw new IllegalStateException("Finite type '" + this.typeName + "' does not have an implicit initial value.");
+        return null;
     }
 
     @Override

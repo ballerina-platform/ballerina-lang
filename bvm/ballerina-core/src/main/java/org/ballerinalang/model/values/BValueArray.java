@@ -125,11 +125,14 @@ public class BValueArray extends BNewArray implements Serializable {
                     this.size = maxArraySize = arrayType.getSize();
                 }
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
+                Arrays.fill(refValues, arrayType.getElementType().getZeroValue());
             } else if (type.getTag() == TypeTags.TUPLE_TAG) {
                 BTupleType tupleType = (BTupleType) type;
                 this.size = maxArraySize = tupleType.getTupleTypes().size();
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
                 List<BType> tupleTypes = tupleType.getTupleTypes();
+                // TODO: 2/19/19 Remove this loop. It unnecessarily populates a tuple when creating the array.
+                // This logic is however, needed for arrays of tuples.
                 for (int i = 0; i < tupleTypes.size(); i++) {
                     refValues[i] = tupleTypes.get(i).getZeroValue();
                 }
