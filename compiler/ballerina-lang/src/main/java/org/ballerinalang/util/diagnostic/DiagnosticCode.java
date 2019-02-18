@@ -227,6 +227,7 @@ public enum DiagnosticCode {
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
+    INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("invalid.type.for.tuple.var.expr"),
     INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR("invalid.type.definition.for.tuple.var"),
@@ -390,7 +391,9 @@ public enum DiagnosticCode {
     INVALID_TYPE_FOR_SEND("invalid.type.for.send"),
 
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression"),
-    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature");
+    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature"),
+
+    INVALID_USE_OF_NULL_LITERAL("invalid.use.of.null.literal");
 
     private String value;
 

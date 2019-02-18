@@ -206,6 +206,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -380,6 +381,10 @@ public class TreeBuilder {
 
     public static LiteralNode createLiteralExpression() {
         return new BLangLiteral();
+    }
+
+    public static LiteralNode createNumericLiteralExpression() {
+        return new BLangNumericLiteral();
     }
 
     public static LiteralNode createConstantNode() {

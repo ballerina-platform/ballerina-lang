@@ -79,7 +79,7 @@ function testObjectArrayMemberReferenceByValidIntegerIndex() {
     FooObjectFour a11 = new("test string 1");
     FooObjectFour a12 = new("test string 2");
     FooObjectFour a13 = new("test string 3");
-    FooObjectFour[] fooObjectArray = [a11, a12];
+    FooObjectFour[2] fooObjectArray = [a11, a12];
 
     FooObjectFour b11 = fooObjectArray[0];
     FooObjectFour b12 = fooObjectArray[1];
@@ -130,7 +130,7 @@ function testObjectArrayMemberReferenceByInvalidIntegerIndex() {
     BarObjectFour b1 = new(1);
     BarObjectFour b2 = new(2);
     BarObjectFour b3 = new(3);
-    BarObjectFour[] barObjectArray = [b1, b2, b3];
+    BarObjectFour?[] barObjectArray = [b1, b2, b3];
     utils:assertPanic(function () { _ = barObjectArray[index]; }, INDEX_OUT_OF_RANGE_REASON,
                             INVALID_REASON_ON_ACCESS_BY_NEGATIVE_INDEX_FAILURE_MESSAGE);
     
