@@ -1824,10 +1824,11 @@ public type HoppingWindow object {
     public int timeInMilliSeconds;
     public int hoppingTime;
     public any[] windowParameters;
+    public int nextEmitTime = -1;
     public LinkedList currentEventQueue;
+    public LinkedList? expiredEventQueue;
     public StreamEvent? resetEvent;
     public task:Listener timer;
-    public boolean isStart;
     public function (StreamEvent?[])? nextProcessPointer;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
@@ -1838,7 +1839,7 @@ public type HoppingWindow object {
         self.resetEvent = ();
         self.timer = new({ interval: self.hoppingTime });
         self.currentEventQueue = new();
-        self.isStart = true;
+        self.expiredEventQueue = ();
         self.initParameters(self.windowParameters);
     }
 
@@ -1869,54 +1870,59 @@ public type HoppingWindow object {
     public function invokeProcess() returns error? {
         map<anydata> data = {};
         StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent?[] timerEventWrapper = [timerEvent];
+        StreamEvent?[] timerEventWrapper = [];
+        timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
         return ();
     }
 
     public function process(StreamEvent?[] streamEvents) {
         LinkedList outputStreamEvents = new();
-        if (self.isStart) {
+        if (self.nextEmitTime == -1) {
+            self.nextEmitTime = time:currentTime().time + self.hoppingTime;
             self.timer = new({ interval: self.hoppingTime });
             _ = self.timer.attach(hoppingWindowService, serviceParameter = self);
             _ = self.timer.start();
-            self.isStart = false;
         }
 
-        LinkedList streamEventChunk = new;
-        lock {
-            foreach var event in streamEvents {
-                streamEventChunk.addLast(event);
+        int currentTime = time:currentTime().time;
+        boolean sendEvents = false;
+
+        if (currentTime >= self.nextEmitTime) {
+            self.nextEmitTime += self.hoppingTime;
+            self.timer.stop();
+            self.timer = new
+            task:Timer(function () returns error? {return self.invokeProcess();},
+                function (error e) {self.handleError(e);},
+                self.hoppingTime);
+            _ = self.timer.start();
+            sendEvents = true;
+        } else {
+            sendEvents = false;
+        }
+
+        foreach var evt in streamEvents {
+            StreamEvent event = <StreamEvent> evt;
+            if (event.eventType != "CURRENT") {
+                continue;
             }
-
-            streamEventChunk.resetToFront();
-
-            while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
-
-                if (streamEvent.eventType == "CURRENT") {
-                    StreamEvent clonedEvent = streamEvent.copy();
-                    self.currentEventQueue.addLast(clonedEvent);
-                } else {
-                    self.currentEventQueue.resetToFront();
-                    while (self.currentEventQueue.hasNext()) {
-                        StreamEvent currEvent = getStreamEvent(self.currentEventQueue.next());
-                        if (currEvent.timestamp >= (streamEvent.timestamp - self.timeInMilliSeconds)) {
-                            if (self.resetEvent is ()) {
-                                self.resetEvent = createResetStreamEvent(currEvent);
-                            }
-                            outputStreamEvents.addLast(currEvent);
-                        } else {
-                            self.currentEventQueue.removeCurrent();
-                            continue;
-                        }
-                        if (currEvent.timestamp < (streamEvent.timestamp + self.hoppingTime - self.timeInMilliSeconds)) {
-                            self.currentEventQueue.removeCurrent();
-                        }
-                    }
-                    if (!(self.resetEvent is ())) {
-                        outputStreamEvents.addFirst(self.resetEvent);
-                        self.resetEvent = ();
+            StreamEvent clonedEvent = event.copy();
+            self.currentEventQueue.addLast(clonedEvent);
+        }
+        if (sendEvents) {
+            if (self.currentEventQueue.getFirst() != ()) {
+                if (!(self.resetEvent is ())) {
+                    outputStreamEvents.addLast(self.resetEvent);
+                    self.resetEvent = ();
+                }
+                self.resetEvent = createResetStreamEvent(getStreamEvent(self.currentEventQueue.getFirst()));
+                self.currentEventQueue.resetToFront();
+                while (self.currentEventQueue.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(self.currentEventQueue.next());
+                    if (streamEvent.timestamp >= currentTime - self.timeInMilliSeconds) {
+                        outputStreamEvents.addLast(streamEvent);
+                    } else {
+                        self.currentEventQueue.removeCurrent();
                     }
                 }
             }
