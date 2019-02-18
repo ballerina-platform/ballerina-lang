@@ -139,7 +139,6 @@ public type TimeWindow object {
     public int timeInMillis;
     public any[] windowParameters;
     public LinkedList expiredEventQueue;
-    public LinkedList timerQueue;
     public function (StreamEvent[])? nextProcessPointer;
     public int lastTimestamp = -0x8000000000000000;
     public Scheduler scheduler;
@@ -149,7 +148,6 @@ public type TimeWindow object {
         self.windowParameters = windowParameters;
         self.timeInMillis = 0;
         self.expiredEventQueue = new;
-        self.timerQueue = new;
         self.initParameters(windowParameters);
         self.scheduler = new(function (StreamEvent[] events) {
                 self.process(events);
@@ -255,12 +253,24 @@ public type TimeWindow object {
     }
 
     public function saveState() returns map<any> {
-        io:println("save state.");
-        return {};
+        SnapshottableStreamEvent[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
+        return {
+            "expiredEventsList": expiredEventsList,
+            "lastTimestamp": self.lastTimestamp
+        };
     }
 
     public function restoreState(map<any> state) {
-        io:println("restore state: ", state);
+        var expiredEventsList = state["expiredEventsList"];
+        if (expiredEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] streamEvents = toStreamEvents(expiredEventsList);
+            self.expiredEventQueue = new;
+            self.expiredEventQueue.addAll(streamEvents);
+        }
+        any? lastTimestamp = state["lastTimestamp"];
+        if (lastTimestamp is int) {
+            self.lastTimestamp = lastTimestamp;
+        }
     }
 };
 
@@ -278,7 +288,6 @@ public type LengthBatchWindow object {
     public int count;
     public StreamEvent? resetEvent;
     public LinkedList currentEventQueue;
-    public LinkedList? expiredEventQueue;
     public function (StreamEvent[])? nextProcessPointer;
 
     public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
@@ -288,7 +297,6 @@ public type LengthBatchWindow object {
         self.count = 0;
         self.resetEvent = ();
         self.currentEventQueue = new();
-        self.expiredEventQueue = ();
         self.initParameters(windowParameters);
     }
 
@@ -318,23 +326,11 @@ public type LengthBatchWindow object {
             self.currentEventQueue.addLast(clonedStreamEvent);
             self.count += 1;
             if (self.count == self.length) {
-                //if (expiredEventQueue.getFirst() != ()) {
-                //    expiredEventQueue.clear();
-                //}
                 if (self.currentEventQueue.getFirst() != ()) {
                     if (!(self.resetEvent is ())) {
                         outputStreamEventChunk.addLast(self.resetEvent);
                         self.resetEvent = ();
                     }
-                    //if (expiredEventQueue != ()) {
-                    //    currentEventQueue.resetToFront();
-                    //    while (currentEventQueue.hasNext()) {
-                    //        StreamEvent currentEvent = check <StreamEvent> currentEventQueue.next();
-                    //        StreamEvent toBeExpired = {eventType: "EXPIRED", eventMap: currentEvent.eventMap,
-                    //            timestamp: currentEvent.timestamp};
-                    //        expiredEventQueue.addLast(toBeExpired);
-                    //    }
-                    //}
                     StreamEvent firstInCurrentEventQueue = getStreamEvent(self.currentEventQueue.getFirst());
                     self.resetEvent = createResetStreamEvent(firstInCurrentEventQueue);
                     foreach var currentEvent in self.currentEventQueue.asArray() {
@@ -398,12 +394,33 @@ public type LengthBatchWindow object {
     }
 
     public function saveState() returns map<any> {
-        io:println("save state.");
-        return {};
+        SnapshottableStreamEvent[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
+        StreamEvent? resetStreamEvt = self.resetEvent;
+        SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
+        ? toSnapshottableEvent(resetStreamEvt) : ();
+        return {
+            "currentEventsList": currentEventsList,
+            "resetEvt": resetEvt,
+            "count": self.count
+        };
     }
 
     public function restoreState(map<any> state) {
-        io:println("restore state: ", state);
+        var currentEventsList = state["currentEventsList"];
+        if (currentEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] currentEvents = toStreamEvents(currentEventsList);
+            self.currentEventQueue = new;
+            self.currentEventQueue.addAll(currentEvents);
+        }
+        var resetEvt = state["resetEvt"];
+        if (resetEvt is SnapshottableStreamEvent) {
+            StreamEvent r = toStreamEvent(resetEvt);
+            self.resetEvent = r;
+        }
+        any? c = state["count"];
+        if (c is int) {
+            self.count = c;
+        }
     }
 };
 
@@ -421,7 +438,6 @@ public type TimeBatchWindow object {
     public any[] windowParameters;
     public int nextEmitTime = -1;
     public LinkedList currentEventQueue;
-    public LinkedList? expiredEventQueue;
     public StreamEvent? resetEvent;
     public task:Timer? timer;
     public function (StreamEvent[])? nextProcessPointer;
@@ -433,7 +449,6 @@ public type TimeBatchWindow object {
         self.resetEvent = ();
         self.timer = ();
         self.currentEventQueue = new();
-        self.expiredEventQueue = ();
         self.initParameters(self.windowParameters);
     }
 
@@ -552,12 +567,38 @@ public type TimeBatchWindow object {
     }
 
     public function saveState() returns map<any> {
-        io:println("save state.");
-        return {};
+        SnapshottableStreamEvent[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
+        StreamEvent? resetStreamEvt = self.resetEvent;
+        SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
+        ? toSnapshottableEvent(resetStreamEvt) : ();
+        return {
+            "currentEventsList": currentEventsList,
+            "resetEvt": resetEvt,
+            "timeInMilliSeconds": self.timeInMilliSeconds,
+            "nextEmitTime": self.nextEmitTime
+        };
     }
 
     public function restoreState(map<any> state) {
-        io:println("restore state: ", state);
+        var currentEventsList = state["currentEventsList"];
+        if (currentEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] currentEvents = toStreamEvents(currentEventsList);
+            self.currentEventQueue = new;
+            self.currentEventQueue.addAll(currentEvents);
+        }
+        var resetEvt = state["resetEvt"];
+        if (resetEvt is SnapshottableStreamEvent) {
+            StreamEvent r = toStreamEvent(resetEvt);
+            self.resetEvent = r;
+        }
+        any? millis = state["timeInMilliSeconds"];
+        if (millis is int) {
+            self.timeInMilliSeconds = millis;
+        }
+        any? nxtEmitTime = state["nextEmitTime"];
+        if (nxtEmitTime is int) {
+            self.nextEmitTime = nxtEmitTime;
+        }
     }
 
     public function handleError(error e) {
@@ -691,12 +732,29 @@ public type ExternalTimeWindow object {
     }
 
     public function saveState() returns map<any> {
-        io:println("save state.");
-        return {};
+        SnapshottableStreamEvent[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
+        return {
+            "expiredEventsList": expiredEventsList,
+            "timeInMillis": self.timeInMillis,
+            "timeStamp": self.timeStamp
+        };
     }
 
     public function restoreState(map<any> state) {
-        io:println("restore state: ", state);
+        var expiredEventsList = state["expiredEventsList"];
+        if (expiredEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] expiredEvents = toStreamEvents(expiredEventsList);
+            self.expiredEventQueue = new;
+            self.expiredEventQueue.addAll(expiredEvents);
+        }
+        any? millis = state["timeInMillis"];
+        if (millis is int) {
+            self.timeInMillis = millis;
+        }
+        any? ts = state["timeStamp"];
+        if (ts is string) {
+            self.timeStamp = ts;
+        }
     }
 
     public function getTimestamp(any val) returns (int) {
@@ -953,12 +1011,66 @@ public type ExternalTimeBatchWindow object {
     }
 
     public function saveState() returns map<any> {
-        io:println("save state.");
-        return {};
+        SnapshottableStreamEvent[] currentEventsList = toSnapshottableEvents(self.currentEventChunk.asArray());
+        SnapshottableStreamEvent[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
+        StreamEvent? resetStreamEvt = self.resetEvent;
+        SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
+        ? toSnapshottableEvent(resetStreamEvt) : ();
+        return {
+            "currentEventsList": currentEventsList,
+            "expiredEventsList": expiredEventsList,
+            "resetEvt": resetEvt,
+            "flushed": self.flushed,
+            "endTime": self.endTime,
+            "lastScheduledTime": self.lastScheduledTime,
+            "lastCurrentEventTime": self.lastCurrentEventTime,
+            "storeExpiredEvents": self.storeExpiredEvents,
+            "outputExpectsExpiredEvents": self.outputExpectsExpiredEvents
+        };
     }
 
     public function restoreState(map<any> state) {
-        io:println("restore state: ", state);
+        var currentEventsList = state["currentEventsList"];
+        if (currentEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] currentEvents = toStreamEvents(currentEventsList);
+            self.currentEventChunk = new;
+            self.currentEventChunk.addAll(currentEvents);
+        }
+        var expiredEventsList = state["expiredEventsList"];
+        if (expiredEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] expiredEvents = toStreamEvents(expiredEventsList);
+            self.expiredEventChunk = new;
+            self.expiredEventChunk.addAll(expiredEvents);
+        }
+        var resetEvt = state["resetEvt"];
+        if (resetEvt is SnapshottableStreamEvent) {
+            StreamEvent r = toStreamEvent(resetEvt);
+            self.resetEvent = r;
+        }
+        any? f = state["flushed"];
+        if (f is boolean) {
+            self.flushed = f;
+        }
+        any? et = state["endTime"];
+        if (et is int) {
+            self.endTime = et;
+        }
+        any? lst = state["lastScheduledTime"];
+        if (lst is int) {
+            self.lastScheduledTime = lst;
+        }
+        any? lct = state["lastCurrentEventTime"];
+        if (lct is int) {
+            self.lastCurrentEventTime = lct;
+        }
+        any? se = state["storeExpiredEvents"];
+        if (se is boolean) {
+            self.storeExpiredEvents = se;
+        }
+        any? outExp = state["outputExpectsExpiredEvents"];
+        if (outExp is boolean) {
+            self.outputExpectsExpiredEvents = outExp;
+        }
     }
 
     public function handleError(error e) {
@@ -1276,12 +1388,24 @@ public type TimeLengthWindow object {
     }
 
     public function saveState() returns map<any> {
-        io:println("save state.");
-        return {};
+        SnapshottableStreamEvent[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
+        return {
+            "expiredEventsList": expiredEventsList,
+            "count": self.count
+        };
     }
 
     public function restoreState(map<any> state) {
-        io:println("restore state: ", state);
+        var expiredEventsList = state["expiredEventsList"];
+        if (expiredEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] expiredEvents = toStreamEvents(expiredEventsList);
+            self.expiredEventChunk = new;
+            self.expiredEventChunk.addAll(expiredEvents);
+        }
+        any? c = state["count"];
+        if (c is int) {
+            self.count = c;
+        }
     }
 };
 
@@ -1439,12 +1563,36 @@ public type UniqueLengthWindow object {
     }
 
     public function saveState() returns map<any> {
-        io:println("save state.");
-        return {};
+        SnapshottableStreamEvent[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
+        map<SnapshottableStreamEvent> uMap = {};
+        foreach var (k, v) in self.uniqueMap {
+            uMap[k] = toSnapshottableEvent(v);
+        }
+        return {
+            "expiredEventsList": expiredEventsList,
+            "uMap": uMap,
+            "count": self.count
+        };
     }
 
     public function restoreState(map<any> state) {
-        io:println("restore state: ", state);
+        var expiredEventsList = state["expiredEventsList"];
+        if (expiredEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] expiredEvents = toStreamEvents(expiredEventsList);
+            self.expiredEventChunk = new;
+            self.expiredEventChunk.addAll(expiredEvents);
+        }
+        var uMap = state["uMap"];
+        if (uMap is map<SnapshottableStreamEvent>) {
+            self.uniqueMap = {};
+            foreach var (k, v) in uMap {
+                self.uniqueMap[k] = toStreamEvent(v);
+            }
+        }
+        any? c = state["count"];
+        if (c is int) {
+            self.count = c;
+        }
     }
 };
 
@@ -1593,12 +1741,24 @@ public type DelayWindow object {
     }
 
     public function saveState() returns map<any> {
-        io:println("save state.");
-        return {};
+        SnapshottableStreamEvent[] delayedEventsList = toSnapshottableEvents(self.delayedEventQueue.asArray());
+        return {
+            "delayedEventsList": delayedEventsList,
+            "lastTimestamp": self.lastTimestamp
+        };
     }
 
     public function restoreState(map<any> state) {
-        io:println("restore state: ", state);
+        var delayedEventsList = state["delayedEventsList"];
+        if (delayedEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] delayedEvents = toStreamEvents(delayedEventsList);
+            self.delayedEventQueue = new;
+            self.delayedEventQueue.addAll(delayedEvents);
+        }
+        any? lts = state["lastTimestamp"];
+        if (lts is int) {
+            self.lastTimestamp = lts;
+        }
     }
 };
 
@@ -1614,7 +1774,6 @@ public type SortWindow object {
     public int lengthToKeep;
     public any [] windowParameters;
     public LinkedList sortedWindow;
-    public string[] sortMetadata;
     public string[] fields;
     public string[] sortTypes;
     public function (StreamEvent[])? nextProcessPointer;
@@ -1626,7 +1785,6 @@ public type SortWindow object {
         self.windowParameters = windowParameters;
         self.sortedWindow = new;
         self.lengthToKeep = 0;
-        self.sortMetadata = [];
         self.fields = [];
         self.sortTypes = [];
         self.fieldFuncs = [];
@@ -1777,12 +1935,19 @@ public type SortWindow object {
     }
 
     public function saveState() returns map<any> {
-        io:println("save state.");
-        return {};
+        SnapshottableStreamEvent[] sortEventsList = toSnapshottableEvents(self.sortedWindow.asArray());
+        return {
+            "sortEventsList": sortEventsList
+        };
     }
 
     public function restoreState(map<any> state) {
-        io:println("restore state: ", state);
+        var sortEventsList = state["sortEventsList"];
+        if (sortEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] sortedEvents = toStreamEvents(sortEventsList);
+            self.sortedWindow = new;
+            self.sortedWindow.addAll(sortedEvents);
+        }
     }
 };
 
@@ -1793,7 +1958,8 @@ public function sort(any[] windowParameters, function(StreamEvent[])? nextProces
 }
 
 public type TimeAccumulatingWindow object {
-
+    *Window;
+    *Snapshotable;
     public int timeInMillis;
     public any[] windowParameters;
     public LinkedList expiredEventQueue;
@@ -1896,6 +2062,27 @@ public type TimeAccumulatingWindow object {
         }
         return events;
     }
+
+    public function saveState() returns map<any> {
+        SnapshottableStreamEvent[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
+        return {
+            "expiredEventsList": expiredEventsList,
+            "lastTimestamp": self.lastTimestamp
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        var expiredEventsList = state["expiredEventsList"];
+        if (expiredEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] expiredEvents = toStreamEvents(expiredEventsList);
+            self.expiredEventQueue = new;
+            self.expiredEventQueue.addAll(expiredEvents);
+        }
+        any? lts = state["lastTimestamp"];
+        if (lts is int) {
+            self.lastTimestamp = lts;
+        }
+    }
 };
 
 public function timeAccum(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
@@ -1905,6 +2092,8 @@ public function timeAccum(any[] windowParameters, function (StreamEvent[])? next
 }
 
 public type HoppingWindow object {
+    *Window;
+    *Snapshotable;
     public int timeInMilliSeconds;
     public int hoppingTime;
     public any[] windowParameters;
@@ -2048,6 +2237,36 @@ public type HoppingWindow object {
         return events;
     }
 
+    public function saveState() returns map<any> {
+        SnapshottableStreamEvent[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
+        StreamEvent? resetStreamEvt = self.resetEvent;
+        SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
+        ? toSnapshottableEvent(resetStreamEvt) : ();
+        return {
+            "currentEventsList": currentEventsList,
+            "resetEvt": resetEvt,
+            "isStart": self.isStart
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        var currentEventsList = state["currentEventsList"];
+        if (currentEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] currentEvents = toStreamEvents(currentEventsList);
+            self.currentEventQueue = new;
+            self.currentEventQueue.addAll(currentEvents);
+        }
+        var resetEvt = state["resetEvt"];
+        if (resetEvt is SnapshottableStreamEvent) {
+            StreamEvent r = toStreamEvent(resetEvt);
+            self.resetEvent = r;
+        }
+        any? i = state["isStart"];
+        if (i is boolean) {
+            self.isStart = i;
+        }
+    }
+
     public function handleError(error e) {
         io:println("Error occured", e.reason());
     }
@@ -2060,7 +2279,8 @@ public function hopping(any[] windowParameters, function (StreamEvent[])? nextPr
 }
 
 public type TimeOrderWindow object {
-
+    *Window;
+    *Snapshotable;
     public int timeInMillis;
     public any[] windowParameters;
     public LinkedList expiredEventQueue;
@@ -2220,6 +2440,22 @@ public type TimeOrderWindow object {
         } else {
             error err = error("timestamp should be of type int");
             panic err;
+        }
+    }
+
+    public function saveState() returns map<any> {
+        SnapshottableStreamEvent[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
+        return {
+            "expiredEventsList": expiredEventsList
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        var expiredEventsList = state["expiredEventsList"];
+        if (expiredEventsList is SnapshottableStreamEvent[]) {
+            StreamEvent[] expiredEvents = toStreamEvents(expiredEventsList);
+            self.expiredEventQueue = new;
+            self.expiredEventQueue.addAll(expiredEvents);
         }
     }
 };
