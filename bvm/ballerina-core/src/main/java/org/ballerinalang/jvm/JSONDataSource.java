@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.model.util.JsonGenerator;
-
 import java.io.IOException;
 
 /**
@@ -27,15 +25,15 @@ import java.io.IOException;
  * 
  * @since 0.995.0
  */
-public interface JsonDataSource {
+public interface JSONDataSource {
 
     /**
-     * Serializes the current representation of the JSON data source to the given {@link JsonDataSource}.
+     * Serializes the current representation of the JSON data source to the given {@link JSONDataSource}.
      * 
-     * @param gen The {@link JsonGenerator} object to write the data to
+     * @param gen The {@link JSONGenerator} object to write the data to
      * @throws IOException Error occurs while serializing
      */
-    void serialize(JsonGenerator gen) throws IOException;
+    void serialize(JSONGenerator gen) throws IOException;;
 
     /**
      * Returns {@code true} if the data-source has more JSON elements.

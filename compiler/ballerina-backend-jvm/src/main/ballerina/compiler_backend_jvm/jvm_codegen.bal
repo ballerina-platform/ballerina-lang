@@ -673,7 +673,7 @@ function generateCast(int paramIndex, bir:BType targetType) {
     jvm:visitNoOperandInstruction(AALOAD);
 
     if (targetType is bir:BTypeInt) {
-        jvm:visitMethodInstruction(INVOKESTATIC, LONG_VALUE, "parseLong", io:sprintf("(L%s;)J", STRING_VALUE), false);
+        jvm:visitMethodInstruction(INVOKESTATIC, LONG_VALUE, "parseLong", "(Ljava/lang/String;)J", false);
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
         panic err;
@@ -698,7 +698,7 @@ function visitMapStoreIns() {
     // TODO: visit(key_expr)
     // TODO: visit(value_expr)
     jvm:visitMethodInstruction(INVOKEVIRTUAL, MAP_VALUE, "put",
-        io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE), false);
+            io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE), false);
 
     // emit a pop, since we are not using the return value from the map.put()
     jvm:visitNoOperandInstruction(POP);
@@ -711,6 +711,83 @@ function valueTypeToAny(bir:BType bType) {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
     }
+}
+
+# Generate code to load an instance of the given type
+# to the top of the stack.
+#
+# + bType - type to load
+function loadType(bir:BType bType) {
+    string typeFieldName = "";
+    if (bType is bir:BTypeInt) {
+        typeFieldName = "typeInt";
+    } else if (bType is bir:BTypeString) {
+        typeFieldName = "typeString";
+    } else if (bType is bir:BTypeBoolean) {
+        typeFieldName = "typeBoolean";
+    } else if (bType is bir:BTypeNil) {
+        typeFieldName = "typeNull";
+    } else if (bType is bir:BArrayType) {
+        loadArrayType(bType);
+        return;
+    } else if (bType is bir:BUnionType) {
+        loadUnionType(bType);
+        return;
+    } else {
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
+        panic err;
+    }
+
+    jvm:visitFieldInstruction(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
+}
+
+# Generate code to load an instance of the given array type
+# to the top of the stack.
+#
+# + bType - array type to load
+function loadArrayType(bir:BArrayType bType) {
+    // Create an new array type
+    jvm:visitTypeInstruction(NEW, ARRAY_TYPE);
+    jvm:visitNoOperandInstruction(DUP);
+
+    // Load the element type
+    loadType(bType.eType);
+
+    // invoke the constructor
+    jvm:visitMethodInstruction(INVOKESPECIAL, ARRAY_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given union type
+# to the top of the stack.
+#
+# + bType - union type to load
+function loadUnionType(bir:BUnionType bType) {
+    // Create the union type
+    jvm:visitTypeInstruction(NEW, UNION_TYPE);
+    jvm:visitNoOperandInstruction(DUP);
+
+    // Create the members array
+    bir:BType[] memberTypes = bType.members;
+    jvm:visitLoadConstantInstruction(memberTypes.length());
+    jvm:visitNoOperandInstruction(L2I);
+    jvm:visitTypeInstruction(ANEWARRAY, BTYPE);
+    int i = 0;
+    foreach var memberType in memberTypes {
+        jvm:visitNoOperandInstruction(DUP);
+        jvm:visitLoadConstantInstruction(i);
+        jvm:visitNoOperandInstruction(L2I);
+
+        // Load the member type
+        loadType(memberType);
+
+        // Add the member to the array
+        jvm:visitNoOperandInstruction(AASTORE);
+        i += 1;
+    }
+
+    // initialize the union type using the members array
+    jvm:visitMethodInstruction(INVOKESPECIAL, UNION_TYPE, "<init>", io:sprintf("([L%s;)V", BTYPE), false);
+    return;
 }
 
 type BalToJVMIndexMap object {

@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -50,6 +51,10 @@ public class BUnionType extends BType {
               BValue.class);
         this.memberTypes = memberTypes;
         this.nullable = memberTypes.contains(BTypes.typeNull);
+    }
+
+    public BUnionType(BType[] memberTypes) {
+        this(Arrays.asList(memberTypes));
     }
 
     public List<BType> getMemberTypes() {

@@ -26,7 +26,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  *
  * @since 0.995.0
  */
-public class Utils {
+public class FreezeUtils {
 
     /**
      * Method to check if a value is open to a new freeze attempt.

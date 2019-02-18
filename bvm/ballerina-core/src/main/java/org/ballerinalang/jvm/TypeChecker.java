@@ -107,8 +107,6 @@ public class TypeChecker {
         return false;
     }
 
-    // Private methods
-
     public static BType getType(Object value) {
         if (value == null) {
             return BTypes.typeNull;
@@ -128,6 +126,8 @@ public class TypeChecker {
             return ((RefValue) value).getType();
         }
     }
+
+    // Private methods
 
     private static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         // First check whether both types are the same.
@@ -563,7 +563,7 @@ public class TypeChecker {
             case TypeTags.TUPLE_TAG:
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType, unresolvedValues);
             case TypeTags.ANYDATA_TAG:
-                return checkIsLikeAnydataType(sourceValue, sourceType, targetType, unresolvedValues);
+                return checkIsLikeAnydataType(sourceValue, sourceType, unresolvedValues);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, sourceType, (BFiniteType) targetType);
             case TypeTags.UNION_TAG:
@@ -574,10 +574,41 @@ public class TypeChecker {
         }
     }
 
-    private static boolean checkIsLikeAnydataType(Object sourceValue, BType sourceType, BType targetType,
+    @SuppressWarnings("unchecked")
+    private static boolean checkIsLikeAnydataType(Object sourceValue, BType sourceType,
                                                   List<TypeValuePair> unresolvedValues) {
-        // TODO
-        return false;
+        switch (sourceType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.MAP_TAG:
+                return ((MapValue) sourceValue).values().stream()
+                        .allMatch(value -> checkIsLikeType(value, BTypes.typeAnydata, unresolvedValues));
+            case TypeTags.ARRAY_TAG:
+                ArrayValue arr = (ArrayValue) sourceValue;
+                BArrayType arrayType = (BArrayType) arr.getType();
+                switch (arrayType.getElementType().getTag()) {
+                    case TypeTags.INT_TAG:
+                    case TypeTags.FLOAT_TAG:
+                    case TypeTags.DECIMAL_TAG:
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.BOOLEAN_TAG:
+                    case TypeTags.BYTE_TAG:
+                        return true;
+                    default:
+                        return Arrays.stream(arr.getValues())
+                                .allMatch(value -> checkIsLikeType(value, BTypes.typeAnydata, unresolvedValues));
+                }
+            case TypeTags.TUPLE_TAG:
+                return Arrays.stream(((ArrayValue) sourceValue).getValues())
+                        .allMatch(value -> checkIsLikeType(value, BTypes.typeAnydata, unresolvedValues));
+            case TypeTags.ANYDATA_TAG:
+                return true;
+            case TypeTags.FINITE_TYPE_TAG:
+            case TypeTags.UNION_TAG:
+                return checkIsLikeType(sourceValue, BTypes.typeAnydata, unresolvedValues);
+            default:
+                return false;
+        }
     }
 
     private static boolean checkIsLikeTupleType(Object sourceValue, BTupleType targetType,

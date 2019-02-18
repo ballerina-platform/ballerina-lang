@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.JsonGenerator;
+import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.BField;
@@ -41,7 +41,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static org.ballerinalang.jvm.values.freeze.Utils.handleInvalidUpdate;
+import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdate;
 
 /**
  * Structure that represents the mapping between key value pairs in ballerina.
@@ -336,7 +336,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     private String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
+        JSONGenerator gen = new JSONGenerator(byteOut);
         try {
             gen.serialize(this);
             gen.flush();

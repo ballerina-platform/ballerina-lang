@@ -41,10 +41,11 @@ import java.util.Deque;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class JsonParser {
+public class JSONParser {
 
     private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
-        @Override public StateMachine initialValue() {
+        @Override
+        public StateMachine initialValue() {
             return new StateMachine();
         }
     };
@@ -59,7 +60,7 @@ public class JsonParser {
     public static Object parse(InputStream in) throws BallerinaException {
         return parse(in, Charset.defaultCharset().name());
     }
-    
+
     /**
      * Parses the contents in the given {@link InputStream} and returns a json.
      * 
@@ -75,7 +76,7 @@ public class JsonParser {
             throw new BallerinaException("Error in parsing JSON data: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * Parses the contents in the given string and returns a json.
      * 
@@ -86,7 +87,7 @@ public class JsonParser {
     public static Object parse(String jsonStr) throws BallerinaException {
         return parse(new StringReader(jsonStr));
     }
-    
+
     /**
      * Parses the contents in the given {@link Reader} and returns a json.
      * 
@@ -99,30 +100,30 @@ public class JsonParser {
         try {
             return sm.execute(reader);
         } finally {
-            // Need to reset the state machine before leaving. Otherwise references to the created 
+            // Need to reset the state machine before leaving. Otherwise references to the created
             // JSON values will be maintained and the java GC will not happen properly.
             sm.reset();
         }
     }
-    
+
     /**
      * Represents a JSON parser related exception.
      */
     private static class JsonParserException extends Exception {
-        
+
         private static final long serialVersionUID = 6359022327525293320L;
 
         public JsonParserException(String msg) {
             super(msg);
         }
-        
+
     }
-    
+
     /**
      * Represents the state machine used for JSON parsing.
      */
     private static class StateMachine {
-        
+
         private static final char CR = 0x000D;
         private static final char NEWLINE = 0x000A;
         private static final char HZ_TAB = 0x0009;
@@ -137,7 +138,7 @@ public class JsonParser {
         private static final String NULL = "null";
         private static final String TRUE = "true";
         private static final String FALSE = "false";
-        
+
         private static final State DOC_START_STATE = new DocumentStartState();
         private static final State DOC_END_STATE = new DocumentEndState();
         private static final State FIRST_FIELD_READY_STATE = new FirstFieldReadyState();
@@ -149,7 +150,7 @@ public class JsonParser {
         private static final State NON_STRING_FIELD_VALUE_STATE = new NonStringFieldValueState();
         private static final State NON_STRING_VALUE_STATE = new NonStringValueState();
         private static final State STRING_VALUE_STATE = new StringValueState();
-        private static final State FIELD_END_STATE = new FieldEndState();        
+        private static final State FIELD_END_STATE = new FieldEndState();
         private static final State STRING_AE_ESC_CHAR_PROCESSING_STATE = new StringAEEscapedCharacterProcessingState();
         private static final State STRING_AE_PROCESSING_STATE = new StringAEProcessingState();
         private static final State FIELD_NAME_UNICODE_HEX_PROCESSING_STATE = new FieldNameUnicodeHexProcessingState();
@@ -157,26 +158,26 @@ public class JsonParser {
         private static final State NON_FIRST_ARRAY_ELEMENT_READY_STATE = new NonFirstArrayElementReadyState();
         private static final State STRING_ARRAY_ELEMENT_STATE = new StringArrayElementState();
         private static final State NON_STRING_ARRAY_ELEMENT_STATE = new NonStringArrayElementState();
-        private static final State ARRAY_ELEMENT_END_STATE = new ArrayElementEndState();        
-        private static final State STRING_FIELD_ESC_CHAR_PROCESSING_STATE = 
-                new StringFieldEscapedCharacterProcessingState();        
-        private static final State STRING_VAL_ESC_CHAR_PROCESSING_STATE = 
-                new StringValueEscapedCharacterProcessingState();        
-        private static final State FIELD_NAME_ESC_CHAR_PROCESSING_STATE = 
-                new FieldNameEscapedCharacterProcessingState();        
-        private static final State STRING_FIELD_UNICODE_HEX_PROCESSING_STATE = 
+        private static final State ARRAY_ELEMENT_END_STATE = new ArrayElementEndState();
+        private static final State STRING_FIELD_ESC_CHAR_PROCESSING_STATE =
+                new StringFieldEscapedCharacterProcessingState();
+        private static final State STRING_VAL_ESC_CHAR_PROCESSING_STATE =
+                new StringValueEscapedCharacterProcessingState();
+        private static final State FIELD_NAME_ESC_CHAR_PROCESSING_STATE =
+                new FieldNameEscapedCharacterProcessingState();
+        private static final State STRING_FIELD_UNICODE_HEX_PROCESSING_STATE =
                 new StringFieldUnicodeHexProcessingState();
-        private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE = 
+        private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE =
                 new StringValueUnicodeHexProcessingState();
-        
+
         private Object currentJsonNode;
         private Deque<Object> nodesStack;
         private Deque<String> fieldNames;
-        
+
         private StringBuilder hexBuilder = new StringBuilder(4);
         private char[] charBuff = new char[1024];
         private int charBuffIndex;
-        
+
         private int index;
         private int line;
         private int column;
@@ -194,15 +195,15 @@ public class JsonParser {
             this.nodesStack = new ArrayDeque<>();
             this.fieldNames = new ArrayDeque<>();
         }
-        
+
         private static boolean isWhitespace(char ch) {
             return ch == SPACE || ch == HZ_TAB || ch == NEWLINE || ch == CR;
         }
-        
+
         private static void throwExpected(String... chars) throws JsonParserException {
             throw new JsonParserException("expected " + String.join(" or ", chars));
         }
-        
+
         private void processLocation(char ch) {
             if (ch == '\n') {
                 this.line++;
@@ -211,7 +212,7 @@ public class JsonParser {
                 this.column++;
             }
         }
-        
+
         public Object execute(Reader reader) throws BallerinaException {
             State currentState = DOC_START_STATE;
             try {
@@ -234,7 +235,7 @@ public class JsonParser {
                 throw new BallerinaException(e.getMessage() + " at line: " + this.line + " column: " + this.column);
             }
         }
-        
+
         private void append(char ch) {
             try {
                 this.charBuff[this.charBuffIndex] = ch;
@@ -245,13 +246,13 @@ public class JsonParser {
                 this.charBuff[this.charBuffIndex++] = ch;
             }
         }
-        
+
         private void growCharBuff() {
             char[] newBuff = new char[charBuff.length * 2];
             System.arraycopy(this.charBuff, 0, newBuff, 0, this.charBuff.length);
             this.charBuff = newBuff;
         }
-        
+
         private State finalizeObject() {
             if (this.nodesStack.isEmpty()) {
                 return DOC_END_STATE;
@@ -267,7 +268,7 @@ public class JsonParser {
             currentJsonNode = parentNode;
             return ARRAY_ELEMENT_END_STATE;
         }
-        
+
         private State initNewObject() {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
@@ -275,7 +276,7 @@ public class JsonParser {
             currentJsonNode = new MapValue<String, Object>(BTypes.typeJSON);
             return FIRST_FIELD_READY_STATE;
         }
-        
+
         private State initNewArray() {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
@@ -283,14 +284,14 @@ public class JsonParser {
             currentJsonNode = new ArrayValue(new BArrayType(BTypes.typeJSON));
             return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
-        
+
         /**
          * A specific state in the JSON parsing state machine.
          */
         private interface State {
-            
+
             /**
-             * Input given to the current state for a transition. 
+             * Input given to the current state for a transition.
              * 
              * @param sm the state machine
              * @param buff the input characters for the current state
@@ -299,9 +300,9 @@ public class JsonParser {
              * @return the new resulting state
              */
             State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException;
-            
+
         }
-        
+
         /**
          * Represents the JSON document start state.
          */
@@ -338,9 +339,9 @@ public class JsonParser {
                 }
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the JSON document end state.
          */
@@ -362,9 +363,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state just before the first object field is defined.
          */
@@ -373,7 +374,7 @@ public class JsonParser {
             @Override
             public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 char ch;
-                State state =  null;
+                State state = null;
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
@@ -383,7 +384,7 @@ public class JsonParser {
                     } else if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
-                    } else if (ch ==  '}') {
+                    } else if (ch == '}') {
                         state = sm.finalizeObject();
                     } else {
                         StateMachine.throwExpected("\"", "}");
@@ -393,9 +394,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state just before the first array element is defined.
          */
@@ -415,11 +416,11 @@ public class JsonParser {
                         state = STRING_ARRAY_ELEMENT_STATE;
                         sm.currentQuoteChar = ch;
                     } else if (ch == '{') {
-                        state = sm.initNewObject(); 
+                        state = sm.initNewObject();
                     } else if (ch == '[') {
-                        state = sm.initNewArray(); 
+                        state = sm.initNewArray();
                     } else if (ch == ']') {
-                        state = sm.finalizeObject(); 
+                        state = sm.finalizeObject();
                     } else {
                         state = NON_STRING_ARRAY_ELEMENT_STATE;
                     }
@@ -432,9 +433,9 @@ public class JsonParser {
                 }
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state just before a non-first object field is defined.
          */
@@ -461,9 +462,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state just before a non-first array element is defined.
          */
@@ -483,9 +484,9 @@ public class JsonParser {
                         state = STRING_ARRAY_ELEMENT_STATE;
                         sm.currentQuoteChar = ch;
                     } else if (ch == '{') {
-                        state = sm.initNewObject(); 
+                        state = sm.initNewObject();
                     } else if (ch == '[') {
-                        state = sm.initNewArray(); 
+                        state = sm.initNewArray();
                     } else {
                         state = NON_STRING_ARRAY_ELEMENT_STATE;
                     }
@@ -498,19 +499,19 @@ public class JsonParser {
                 }
                 return state;
             }
-            
+
         }
-        
+
         private String value() {
             String result = new String(this.charBuff, 0, this.charBuffIndex);
             this.charBuffIndex = 0;
             return result;
         }
-        
+
         private void processFieldName() {
             this.fieldNames.push(this.value());
         }
-        
+
         /**
          * Represents the state during a field name.
          */
@@ -526,7 +527,7 @@ public class JsonParser {
                     if (ch == sm.currentQuoteChar) {
                         sm.processFieldName();
                         state = END_FIELD_NAME_STATE;
-                    } else if (ch == REV_SOL) { 
+                    } else if (ch == REV_SOL) {
                         state = FIELD_NAME_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
@@ -540,9 +541,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-             
+
         }
-        
+
         /**
          * Represents the state where a field name definition has ended.
          */
@@ -568,9 +569,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where a field value is about to be defined.
          */
@@ -590,9 +591,9 @@ public class JsonParser {
                         state = STRING_FIELD_VALUE_STATE;
                         sm.currentQuoteChar = ch;
                     } else if (ch == '{') {
-                        state = sm.initNewObject(); 
+                        state = sm.initNewObject();
                     } else if (ch == '[') {
-                        state = sm.initNewArray(); 
+                        state = sm.initNewArray();
                     } else {
                         state = NON_STRING_FIELD_VALUE_STATE;
                     }
@@ -605,9 +606,9 @@ public class JsonParser {
                 }
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state during a string field value is defined.
          */
@@ -623,7 +624,7 @@ public class JsonParser {
                     if (ch == sm.currentQuoteChar) {
                         ((MapValue<String, Object>) sm.currentJsonNode).put(sm.fieldNames.pop(), sm.value());
                         state = FIELD_END_STATE;
-                    } else if (ch == REV_SOL) { 
+                    } else if (ch == REV_SOL) {
                         state = STRING_FIELD_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
@@ -637,9 +638,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state during a string array element is defined.
          */
@@ -655,7 +656,7 @@ public class JsonParser {
                     if (ch == sm.currentQuoteChar) {
                         ((ArrayValue) sm.currentJsonNode).append(sm.value());
                         state = ARRAY_ELEMENT_END_STATE;
-                    } else if (ch == REV_SOL) { 
+                    } else if (ch == REV_SOL) {
                         state = STRING_AE_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
@@ -669,9 +670,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state during a non-string field value is defined.
          */
@@ -709,9 +710,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state during a non-string array element is defined.
          */
@@ -749,9 +750,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state during a string value is defined.
          */
@@ -767,7 +768,7 @@ public class JsonParser {
                     if (ch == sm.currentQuoteChar) {
                         sm.currentJsonNode = sm.value();
                         state = DOC_END_STATE;
-                    } else if (ch == REV_SOL) { 
+                    } else if (ch == REV_SOL) {
                         state = STRING_VAL_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
@@ -775,39 +776,37 @@ public class JsonParser {
                         sm.append(ch);
                         state = this;
                         continue;
-                    } 
+                    }
                     break;
                 }
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         private enum ValueType {
-            FIELD,
-            VALUE,
-            ARRAY_ELEMENT
+            FIELD, VALUE, ARRAY_ELEMENT
         }
-        
+
         private void processNonStringValue(ValueType type) throws JsonParserException {
             String str = value();
             if (str.indexOf('.') >= 0) {
                 try {
                     double doubleValue = Double.parseDouble(str);
                     switch (type) {
-                    case ARRAY_ELEMENT:
-                        ((ArrayValue) this.currentJsonNode).append(new Float(doubleValue));
-                        break;
-                    case FIELD:
+                        case ARRAY_ELEMENT:
+                            ((ArrayValue) this.currentJsonNode).append(new Float(doubleValue));
+                            break;
+                        case FIELD:
                             ((MapValue<String, Object>) this.currentJsonNode).put(this.fieldNames.pop(),
                                     new Float(doubleValue));
                             break;
-                    case VALUE:
-                        currentJsonNode = new Float(doubleValue);
-                        break;
-                    default:
-                        break;
+                        case VALUE:
+                            currentJsonNode = new Float(doubleValue);
+                            break;
+                        default:
+                            break;
                     }
                 } catch (NumberFormatException ignore) {
                     throw new JsonParserException("unrecognized token '" + str + "'");
@@ -816,64 +815,64 @@ public class JsonParser {
                 char ch = str.charAt(0);
                 if (ch == 't' && TRUE.equals(str)) {
                     switch (type) {
-                    case ARRAY_ELEMENT:
-                        ((ArrayValue) this.currentJsonNode).append(new Boolean(true));
-                        break;
-                    case FIELD:
+                        case ARRAY_ELEMENT:
+                            ((ArrayValue) this.currentJsonNode).append(new Boolean(true));
+                            break;
+                        case FIELD:
                             ((MapValue<String, Object>) this.currentJsonNode).put(this.fieldNames.pop(),
                                     new Boolean(true));
                             break;
-                    case VALUE:
-                        currentJsonNode = new Boolean(true);
-                        break;
-                    default:
-                        break;
+                        case VALUE:
+                            currentJsonNode = new Boolean(true);
+                            break;
+                        default:
+                            break;
                     }
                 } else if (ch == 'f' && FALSE.equals(str)) {
                     switch (type) {
-                    case ARRAY_ELEMENT:
-                        ((ArrayValue) this.currentJsonNode).append(new Boolean(false));
-                        break;
-                    case FIELD:
+                        case ARRAY_ELEMENT:
+                            ((ArrayValue) this.currentJsonNode).append(new Boolean(false));
+                            break;
+                        case FIELD:
                             ((MapValue<String, Object>) this.currentJsonNode).put(this.fieldNames.pop(),
                                     new Boolean(false));
                             break;
-                    case VALUE:
-                        currentJsonNode = new Boolean(false);
-                        break;
-                    default:
-                        break;
+                        case VALUE:
+                            currentJsonNode = new Boolean(false);
+                            break;
+                        default:
+                            break;
                     }
                 } else if (ch == 'n' && NULL.equals(str)) {
                     switch (type) {
-                    case ARRAY_ELEMENT:
-                        ((ArrayValue) this.currentJsonNode).append(null);
-                        break;
-                    case FIELD:
-                        ((MapValue<String, Object>) this.currentJsonNode).put(this.fieldNames.pop(), null);
-                        break;
-                    case VALUE:
-                        currentJsonNode = null;
-                        break;
-                    default:
-                        break;                
+                        case ARRAY_ELEMENT:
+                            ((ArrayValue) this.currentJsonNode).append(null);
+                            break;
+                        case FIELD:
+                            ((MapValue<String, Object>) this.currentJsonNode).put(this.fieldNames.pop(), null);
+                            break;
+                        case VALUE:
+                            currentJsonNode = null;
+                            break;
+                        default:
+                            break;
                     }
                 } else {
                     try {
                         long longValue = Long.parseLong(str);
                         switch (type) {
-                        case ARRAY_ELEMENT:
-                            ((ArrayValue) this.currentJsonNode).append(new Long(longValue));
-                            break;
-                        case FIELD:
+                            case ARRAY_ELEMENT:
+                                ((ArrayValue) this.currentJsonNode).append(new Long(longValue));
+                                break;
+                            case FIELD:
                                 ((MapValue<String, Object>) this.currentJsonNode).put(this.fieldNames.pop(),
                                         new Long(longValue));
                                 break;
-                        case VALUE:
-                            currentJsonNode = new Long(longValue);
-                            break;
-                        default:
-                            break;                
+                            case VALUE:
+                                currentJsonNode = new Long(longValue);
+                                break;
+                            default:
+                                break;
                         }
                     } catch (NumberFormatException ignore) {
                         throw new JsonParserException("unrecognized token '" + str + "'");
@@ -881,7 +880,7 @@ public class JsonParser {
                 }
             }
         }
-        
+
         /**
          * Represents the state during a non-string value is defined.
          */
@@ -908,9 +907,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an object field has ended.
          */
@@ -938,9 +937,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an array element has ended.
          */
@@ -968,9 +967,9 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped unicode character in hex format is processed
          * from a object string field.
@@ -981,9 +980,9 @@ public class JsonParser {
             protected State getSourceState() {
                 return STRING_FIELD_VALUE_STATE;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped unicode character in hex format is processed
          * from an array string field.
@@ -994,9 +993,9 @@ public class JsonParser {
             protected State getSourceState() {
                 return STRING_ARRAY_ELEMENT_STATE;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped unicode character in hex format is processed
          * from a string value.
@@ -1007,9 +1006,9 @@ public class JsonParser {
             protected State getSourceState() {
                 return STRING_VALUE_STATE;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped unicode character in hex format is processed
          * from a field name.
@@ -1020,16 +1019,16 @@ public class JsonParser {
             protected State getSourceState() {
                 return FIELD_NAME_STATE;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped unicode character in hex format is processed.
          */
         private abstract static class UnicodeHexProcessingState implements State {
-            
+
             protected abstract State getSourceState();
-                        
+
             @Override
             public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
@@ -1055,17 +1054,17 @@ public class JsonParser {
                 sm.index = i + 1;
                 return state;
             }
-            
+
             private void reset(StateMachine sm) {
                 sm.hexBuilder.setLength(0);
             }
-            
+
             private char extractUnicodeChar(StateMachine sm) {
                 return StringEscapeUtils.unescapeJava("\\u" + sm.hexBuilder.toString()).charAt(0);
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped character is processed in a object string field.
          */
@@ -1075,9 +1074,9 @@ public class JsonParser {
             protected State getSourceState() {
                 return STRING_FIELD_VALUE_STATE;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped character is processed in an array string field.
          */
@@ -1087,9 +1086,9 @@ public class JsonParser {
             protected State getSourceState() {
                 return STRING_ARRAY_ELEMENT_STATE;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped character is processed in a string value.
          */
@@ -1099,9 +1098,9 @@ public class JsonParser {
             protected State getSourceState() {
                 return STRING_VALUE_STATE;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped character is processed in a field name.
          */
@@ -1111,16 +1110,16 @@ public class JsonParser {
             protected State getSourceState() {
                 return FIELD_NAME_STATE;
             }
-            
+
         }
-        
+
         /**
          * Represents the state where an escaped character is processed.
          */
         private abstract static class EscapedCharacterProcessingState implements State {
 
             protected abstract State getSourceState();
-            
+
             @Override
             public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
@@ -1129,62 +1128,62 @@ public class JsonParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     switch (ch) {
-                    case '"':
-                        sm.append(QUOTES);
-                        state = this.getSourceState();
-                        break;
-                    case '\\':
-                        sm.append(REV_SOL);
-                        state = this.getSourceState();
-                        break;
-                    case '/':
-                        sm.append(SOL);
-                        state = this.getSourceState();
-                        break;
-                    case 'b':
-                        sm.append(BACKSPACE);
-                        state = this.getSourceState();
-                        break;
-                    case 'f':
-                        sm.append(FORMFEED);
-                        state = this.getSourceState();
-                        break;
-                    case 'n':
-                        sm.append(NEWLINE);
-                        state = this.getSourceState();
-                        break;
-                    case 'r':
-                        sm.append(CR);
-                        state = this.getSourceState();
-                        break;
-                    case 't':
-                        sm.append(HZ_TAB);
-                        state = this.getSourceState();
-                        break;
-                    case 'u':
-                        if (this.getSourceState() == STRING_FIELD_VALUE_STATE) {
-                            state = STRING_FIELD_UNICODE_HEX_PROCESSING_STATE;
-                        } else if (this.getSourceState() == STRING_VALUE_STATE) {
-                            state = STRING_VALUE_UNICODE_HEX_PROCESSING_STATE;
-                        } else if (this.getSourceState() == FIELD_NAME_STATE) {
-                            state = FIELD_NAME_UNICODE_HEX_PROCESSING_STATE;
-                        } else if (this.getSourceState() == STRING_ARRAY_ELEMENT_STATE) {
-                            state = STRING_AE_PROCESSING_STATE;
-                        } else {
-                            throw new JsonParserException("unknown source '" + this.getSourceState() + 
-                                    "' in escape char processing state");
-                        }
-                        break;
-                    default:
-                        StateMachine.throwExpected("escaped characters");
+                        case '"':
+                            sm.append(QUOTES);
+                            state = this.getSourceState();
+                            break;
+                        case '\\':
+                            sm.append(REV_SOL);
+                            state = this.getSourceState();
+                            break;
+                        case '/':
+                            sm.append(SOL);
+                            state = this.getSourceState();
+                            break;
+                        case 'b':
+                            sm.append(BACKSPACE);
+                            state = this.getSourceState();
+                            break;
+                        case 'f':
+                            sm.append(FORMFEED);
+                            state = this.getSourceState();
+                            break;
+                        case 'n':
+                            sm.append(NEWLINE);
+                            state = this.getSourceState();
+                            break;
+                        case 'r':
+                            sm.append(CR);
+                            state = this.getSourceState();
+                            break;
+                        case 't':
+                            sm.append(HZ_TAB);
+                            state = this.getSourceState();
+                            break;
+                        case 'u':
+                            if (this.getSourceState() == STRING_FIELD_VALUE_STATE) {
+                                state = STRING_FIELD_UNICODE_HEX_PROCESSING_STATE;
+                            } else if (this.getSourceState() == STRING_VALUE_STATE) {
+                                state = STRING_VALUE_UNICODE_HEX_PROCESSING_STATE;
+                            } else if (this.getSourceState() == FIELD_NAME_STATE) {
+                                state = FIELD_NAME_UNICODE_HEX_PROCESSING_STATE;
+                            } else if (this.getSourceState() == STRING_ARRAY_ELEMENT_STATE) {
+                                state = STRING_AE_PROCESSING_STATE;
+                            } else {
+                                throw new JsonParserException("unknown source '" + this.getSourceState() +
+                                        "' in escape char processing state");
+                            }
+                            break;
+                        default:
+                            StateMachine.throwExpected("escaped characters");
                     }
                 }
                 sm.index = i + 1;
                 return state;
             }
-            
+
         }
-        
+
     }
-    
+
 }

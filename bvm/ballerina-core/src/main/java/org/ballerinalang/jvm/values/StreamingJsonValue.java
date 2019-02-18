@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.JsonDataSource;
-import org.ballerinalang.jvm.JsonGenerator;
+import org.ballerinalang.jvm.JSONDataSource;
+import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -28,15 +28,15 @@ import java.io.OutputStream;
 import java.io.Writer;
 
 /**
- * {@link StreamingJsonValue} represent a JSON array generated from a {@link JsonDataSource}.
+ * {@link StreamingJsonValue} represent a JSON array generated from a {@link JSONDataSource}.
  * 
  * @since 0.981.0
  */
 public class StreamingJsonValue extends ArrayValue {
 
-    JsonDataSource datasource;
+    JSONDataSource datasource;
 
-    public StreamingJsonValue(JsonDataSource datasource) {
+    public StreamingJsonValue(JSONDataSource datasource) {
         this.datasource = datasource;
         this.refValues = (RefValue[]) newArrayInstance(RefValue.class);
         this.arrayType = new BArrayType(BTypes.typeJSON);
@@ -73,7 +73,7 @@ public class StreamingJsonValue extends ArrayValue {
         return super.getRefValue(index);
     }
 
-    public void serialize(JsonGenerator gen) {
+    public void serialize(JSONGenerator gen) {
         /*
          * Below order is important, where if the value is generated from a streaming data source,
          * it should be able to serialize the data out again using the value
@@ -98,12 +98,12 @@ public class StreamingJsonValue extends ArrayValue {
     }
 
     public void serialize(Writer writer) {
-        serialize(new JsonGenerator(writer));
+        serialize(new JSONGenerator(writer));
     }
 
     @Override
     public void serialize(OutputStream outputStream) {
-        serialize(new JsonGenerator(outputStream));
+        serialize(new JSONGenerator(outputStream));
     }
 
     @Override

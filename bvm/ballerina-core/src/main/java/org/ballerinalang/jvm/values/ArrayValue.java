@@ -17,12 +17,12 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.JsonGenerator;
+import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
-import org.ballerinalang.jvm.values.freeze.Utils;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -323,8 +323,8 @@ public class ArrayValue implements RefValue {
                 values[i] = value;
             }
         });
-        return refValueArray;
 
+        return refValueArray;
     }
     
     @Override
@@ -473,7 +473,7 @@ public class ArrayValue implements RefValue {
 
     private String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
+        JSONGenerator gen = new JSONGenerator(byteOut);
         try {
              gen.serialize(this);
             gen.flush();
@@ -497,7 +497,7 @@ public class ArrayValue implements RefValue {
     private void handleFrozenArrayValue() {
         synchronized (this) {
             if (this.freezeStatus.getState() != State.UNFROZEN) {
-                Utils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
             }
         }
     }
