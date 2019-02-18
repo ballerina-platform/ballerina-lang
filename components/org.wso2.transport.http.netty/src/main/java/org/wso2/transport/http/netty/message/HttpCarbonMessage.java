@@ -513,7 +513,7 @@ public class HttpCarbonMessage {
      *
      * @return the default implementation of the {@link FullHttpMessageFuture}.
      */
-    public FullHttpMessageFuture getFullHttpCarbonMessage() {
+    public synchronized FullHttpMessageFuture getFullHttpCarbonMessage() {
         contentObservable.removeListener();
         fullHttpMessageFuture = new DefaultFullHttpMessageFuture(this);
         return fullHttpMessageFuture;
@@ -523,14 +523,14 @@ public class HttpCarbonMessage {
      * Sets the lastHttpContentArrived flag true upon the last HTTP content arrival and notifies the
      * {@link FullHttpMessageFuture} if available.
      */
-    public void setLastHttpContentArrived() {
+    public synchronized void setLastHttpContentArrived() {
         this.lastHttpContentArrived = true;
         if (fullHttpMessageFuture != null) {
             fullHttpMessageFuture.notifySuccess();
         }
     }
 
-    boolean isLastHttpContentArrived() {
+    synchronized boolean isLastHttpContentArrived() {
         return lastHttpContentArrived;
     }
 
@@ -539,7 +539,7 @@ public class HttpCarbonMessage {
      *
      * @param exception of content accumulation
      */
-    public void notifyContentFailure(Exception exception) {
+    public synchronized void notifyContentFailure(Exception exception) {
         if (fullHttpMessageFuture != null) {
             fullHttpMessageFuture.notifyFailure(exception);
         }

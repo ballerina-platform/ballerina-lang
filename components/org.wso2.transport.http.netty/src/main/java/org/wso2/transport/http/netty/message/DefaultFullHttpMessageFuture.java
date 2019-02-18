@@ -23,7 +23,7 @@ package org.wso2.transport.http.netty.message;
  */
 public class DefaultFullHttpMessageFuture implements FullHttpMessageFuture {
 
-    private HttpCarbonMessage httpCarbonMessage;
+    private final HttpCarbonMessage httpCarbonMessage;
     private FullHttpMessageListener messageListener;
     private Exception error;
 
@@ -32,12 +32,14 @@ public class DefaultFullHttpMessageFuture implements FullHttpMessageFuture {
     }
 
     @Override
-    public synchronized void addListener(FullHttpMessageListener messageListener) {
-        this.messageListener = messageListener;
-        if (httpCarbonMessage.isLastHttpContentArrived()) {
-            notifySuccess();
-        } else if (error != null) {
-            notifyFailure(error);
+    public void addListener(FullHttpMessageListener messageListener) {
+        synchronized (httpCarbonMessage) {
+            this.messageListener = messageListener;
+            if (httpCarbonMessage.isLastHttpContentArrived()) {
+                notifySuccess();
+            } else if (error != null) {
+                notifyFailure(error);
+            }
         }
     }
 
@@ -47,20 +49,20 @@ public class DefaultFullHttpMessageFuture implements FullHttpMessageFuture {
     }
 
     @Override
-    public synchronized void notifySuccess() {
-            if (messageListener != null) {
-                messageListener.onComplete();
-                removeListener();
-            }
+    public void notifySuccess() {
+        if (messageListener != null) {
+            messageListener.onComplete();
+            removeListener();
+        }
     }
 
     @Override
-    public synchronized void notifyFailure(Exception error) {
-            this.error = error;
-            if (messageListener != null) {
-                messageListener.onError(error);
-                this.error = null;
-                removeListener();
-            }
+    public void notifyFailure(Exception error) {
+        this.error = error;
+        if (messageListener != null) {
+            messageListener.onError(error);
+            this.error = null;
+            removeListener();
+        }
     }
 }
