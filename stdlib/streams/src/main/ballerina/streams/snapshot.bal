@@ -43,15 +43,7 @@ extern function serialize(map<any> data) returns string;
 
 // Function to read given number of characters from an io:ReadableCharacterChannel.
 function readCharacters(io:ReadableCharacterChannel rch, int numberOfCharacters) returns string|error {
-    var result = rch.read(numberOfCharacters);
-    if (result is string) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        error e = error("Character channel not initialized properly");
-        return e;
-    }
+    return rch.read(numberOfCharacters);
 }
 
 // Function to read all characters as a string from an io:ReadableCharacterChannel.
@@ -63,7 +55,7 @@ function readAllCharacters(io:ReadableCharacterChannel rch) returns string|error
         var readResult = readCharacters(rch, fixedSize);
         if (readResult is string) {
             result = result + readResult;
-        } else if (readResult is error) {
+        } else {
             if (<string>readResult.detail()["message"] == "io.EOF") {
                 isDone = true;
             } else {
@@ -76,15 +68,7 @@ function readAllCharacters(io:ReadableCharacterChannel rch) returns string|error
 
 // Function to write a string to a file using an io:WritableCharacterChannel.
 function writeCharacters(io:WritableCharacterChannel wch, string content, int startOffset) returns int|error? {
-    var result = wch.write(content, startOffset);
-    if (result is int) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        error e = error("Character channel not initialized properly");
-        return e;
-    }
+    return wch.write(content, startOffset);
 }
 
 // Function to initialize an io:ReadableCharacterChannel.
