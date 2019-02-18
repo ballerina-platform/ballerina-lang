@@ -281,7 +281,7 @@
         "lodash": "^4.17.11",
         "mousetrap": "^1.6.2",
         "ms-wmic": "^1.0.4",
-        "openport": "0.0.4",
+        "openport": "0.0.6",
         "ps-node": "^0.1.6",
         "toml": "^2.3.3",
         "vscode": "^1.1.21",
