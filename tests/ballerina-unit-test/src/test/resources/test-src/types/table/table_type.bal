@@ -574,6 +574,10 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
     var updateRet = testDB->update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
                                 string_array, boolean_array) values (?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraString, paraBool);
+    int updatedCount = -1;
+    if (updateRet is sql:Result) {
+        updatedCount = updateRet.updatedRowCount;
+    }
     var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", ResultMap);
     if (dtRet is table<ResultMap>) {
@@ -594,7 +598,7 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
         }
     }
     testDB.stop();
-    return (updateRet is int ? updateRet : -1, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
+    return (updatedCount, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
 }
 
 function testDateTime(int datein, int timein, int timestampin) returns (string, string, string, string) {
@@ -817,7 +821,7 @@ function testBlobInsert() returns int {
     sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 10 };
     sql:Parameter para1 = { sqlType: sql:TYPE_BLOB, value: blobData };
     var insertCountRet = testDB->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1);
-    int insertCount = insertCountRet is int ? insertCountRet : -1;
+    int insertCount = insertCountRet is sql:Result ? insertCountRet.updatedRowCount : -1;
 
     testDB.stop();
     return insertCount;
@@ -1194,7 +1198,7 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
     sql:Parameter para4 = { sqlType: sql:TYPE_INTEGER, value: 2147483647 };
     sql:Parameter para5 = { sqlType: sql:TYPE_BIGINT, value: 9223372036854775807 };
     var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
-    maxInsert = updateRet1 is int ? updateRet1 : maxInsert;
+    maxInsert = updateRet1 is sql:Result ? updateRet1.updatedRowCount : maxInsert;
 
     //Insert signed min
     para1 = { sqlType: sql:TYPE_INTEGER, value: 2 };
@@ -1203,7 +1207,7 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
     para4 = { sqlType: sql:TYPE_INTEGER, value: -2147483648 };
     para5 = { sqlType: sql:TYPE_BIGINT, value: -9223372036854775808 };
     var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
-    minInsert = updateRet2 is int ? updateRet2 : minInsert;
+    minInsert = updateRet2 is sql:Result ? updateRet2.updatedRowCount : minInsert;
 
     //Insert null
     para1 = { sqlType: sql:TYPE_INTEGER, value: 3 };
@@ -1212,7 +1216,7 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
     para4 = { sqlType: sql:TYPE_INTEGER, value: () };
     para5 = { sqlType: sql:TYPE_BIGINT, value: () };
     var updateRet3 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
-    nullInsert = updateRet3 is int ? updateRet3 : nullInsert;
+    nullInsert = updateRet3 is sql:Result ? updateRet3.updatedRowCount : nullInsert;
 
     var dtRet = testDB->select(selectSQL, ());
 
@@ -1275,14 +1279,14 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
     sql:Parameter para3 = { sqlType: sql:TYPE_CLOB, value: text };
     sql:Parameter para4 = { sqlType: sql:TYPE_BINARY, value: content };
     var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4);
-    retDataInsert = updateRet1 is int ? updateRet1 : retDataInsert;
+    retDataInsert = updateRet1 is sql:Result ? updateRet1.updatedRowCount : retDataInsert;
     //Insert null values
     para1 = { sqlType: sql:TYPE_INTEGER, value: 200 };
     para2 = { sqlType: sql:TYPE_BLOB, value: () };
     para3 = { sqlType: sql:TYPE_CLOB, value: () };
     para4 = { sqlType: sql:TYPE_BINARY, value: () };
     var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4);
-    retNullInsert = updateRet2 is int ? updateRet2 : retNullInsert;
+    retNullInsert = updateRet2 is sql:Result ? updateRet2.updatedRowCount : retNullInsert;
 
     var selectRet = testDB->select(selectSQL, ());
 
