@@ -97,7 +97,7 @@ public type Scheduler object {
                     _ = self.timer.start();
                 }
             }
-        };
+        }
         return ();
     }
 };
