@@ -446,9 +446,9 @@ function testJsonIntToString () returns string|error {
     return  string.convert(value);
 }
 
-function testFloatToInt() returns (int) {
+function testFloatToInt() returns int|error {
     float f = 10.05344;
-    int i = int.convert(f);
+    int|error i = int.convert(f);
     return i;
 }
 
@@ -682,9 +682,9 @@ function testEmptyJSONtoStructWithOptionals () returns (StructWithOptionals | er
     return testStruct;
 }
 
-function testSameTypeConversion() returns (int) {
+function testSameTypeConversion() returns int|error {
     float f = 10.05;
-    var i =  int.convert(f);
+    var i =  check int.convert(f);
     i =  int.convert(i);
     return i;
 }
