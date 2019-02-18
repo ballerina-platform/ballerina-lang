@@ -7,6 +7,7 @@ dependencies {
     implementation 'javax.ws.rs:javax.ws.rs-api:2.0'
     implementation project(':ballerina-launcher')
     implementation project(':swagger-ballerina:ballerina-to-swagger')
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Swagger Tooling - Swagger to Ballerina'
