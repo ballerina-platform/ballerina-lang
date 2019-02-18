@@ -66,3 +66,28 @@ function getMixedUnionMembers() returns (Obj0|Obj2|Obj3|Obj4|int) {
     Obj0|Obj2|Obj3|Obj4|int item = new (5, j=0);
     return item;
 }
+
+type Person object {
+    public int age = 0;
+
+    function __init (int age) {
+        self.age = age;
+    }
+};
+
+type Employee object {
+    public int age = 0;
+
+    function __init (int age, int addVal) {
+        self.age = age + addVal;
+    }
+};
+
+function returnDifferentObectInit1() returns Person | () {
+    return new(5);
+}
+
+function returnDifferentObectInit2() {
+    Person | () person = new(5);
+    Person? otherOptionalPerson = new(6);
+}

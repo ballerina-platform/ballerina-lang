@@ -1124,7 +1124,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType matchedType = getMatchedTypeOrEmitError(matchingMembers, cIExpr, actualType);
 
                 expType = matchedType;
-                if (matchedType.tsymbol.type.tag == TypeTags.OBJECT) {
+                if (matchedType.tsymbol.type.tag == TypeTags.OBJECT
+                        && ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
                 }
@@ -1215,7 +1216,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        // Each arguments must be assignable to each required parameter.
+        // Each arguments must be assignable to required parameter at respective position.
         List<BVarSymbol> params = function.symbol.params;
         for (int i = 0, paramsSize = params.size(); i < paramsSize; i++) {
             BVarSymbol param = params.get(i);
@@ -1233,14 +1234,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        int matchesFound = 0;
+        int matchedParamterCount = 0;
         for (BVarSymbol defaultableParam : function.symbol.defaultableParams) {
             for (BLangExpression namedArg : namedArgs) {
                 BLangNamedArgsExpression namedArgExpr = (BLangNamedArgsExpression) namedArg;
                 if (namedArgExpr.name.value.equals(defaultableParam.name.value)) {
                     BType namedArgExprType = checkExpr(namedArgExpr.expr, env);
                     if (types.isAssignable(defaultableParam.type, namedArgExprType)) {
-                        matchesFound++;
+                        matchedParamterCount++;
                     } else {
                         // Name matched, type mismatched.
                         return false;
@@ -1248,8 +1249,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
-        // Couldn't find all named args in defaultableParams list.
-        return namedArgs.size() == matchesFound;
+        // All named arguments have their respective defaultable parameters.
+        return namedArgs.size() == matchedParamterCount;
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
