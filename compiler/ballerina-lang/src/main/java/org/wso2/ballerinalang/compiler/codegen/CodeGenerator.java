@@ -2152,43 +2152,35 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
 
-
         // Create a new constant info object.
         ConstantInfo_new constantInfo = new ConstantInfo_new(constantSymbol.name.value, constantNameCPIndex);
 
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
-
-
-
         int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
         int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
-
-        // Create a new constant value object.
-        ConstantValue constantValue = new ConstantValue(finiteTypeSigCPIndex, valueTypeSigCPIndex,
-                constantSymbol.flags);
 
         if (((BLangExpression)  constant.value).getKind() == NodeKind.LITERAL) {
 
             constantInfo.isSimpleLiteral = true;
 
+            // Create a new constant value object.
+            ConstantValue constantValue = new ConstantValue(finiteTypeSigCPIndex, valueTypeSigCPIndex,
+                    constantSymbol.flags);
 
-
-            processSimpleLiteral(constantValue, (BLangLiteral)  constant.value);
-
+            processSimpleLiteral(constantValue, (BLangLiteral) constant.value);
 
             constantInfo.constantValue = constantValue;
 
         } else {
 
             constantSymbol.varIndex = getPVIndex(constantSymbol.literalValueType.tag);
-            constantValue.globalMemIndex = constantSymbol.varIndex.value;
+            constantInfo.globalMemIndex = constantSymbol.varIndex.value;
 
             // Todo - Add const map.
             // Create key-value info.
-            generateConstantMapInfo( (BLangRecordLiteral) constantSymbol.literalValue);
+            constantInfo.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) constantSymbol.literalValue);
         }
-
 
         // Add documentation attributes.
         addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);
@@ -2227,88 +2219,36 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private void generateConstantMapInfo( BLangRecordLiteral expression) {
+    private Map<String, ConstantValue> generateConstantMapInfo(BLangRecordLiteral expression) {
+
+        Map<String, ConstantValue> constantValueMap = new HashMap<>();
 
         List<BLangRecordKeyValue> keyValuePairs = expression.keyValuePairs;
 
         for (BLangRecordKeyValue keyValue : keyValuePairs) {
 
+            String key = ((BLangLiteral) keyValue.key.expr).value.toString();
+
             if (keyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-                BLangLiteral expr = (BLangLiteral) keyValue.key.expr;
-
-                int keyCPIndex = addUTF8CPEntry(currentPkgInfo, expr.value.toString());
-                int originalKeyCPIndex = addUTF8CPEntry(currentPkgInfo, expr.originalValue);
-                int keyTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
-
-//                KeyValueInfo keyValueInfo = new KeyValueInfo(keyCPIndex, originalKeyCPIndex, keyTypeSigCPIndex,
-//                        expr.typeTag, -1, -1, -1, -1);
-//                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) keyValue.getValue();
-//                keyValueInfo.children = getConstantMapInfo(recordLiteral);
-//
-//                return keyValueInfo;
+                ConstantValue constantValue = new ConstantValue(-1, -1, -1);
+                constantValue.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) keyValue.valueExpr);
+                constantValueMap.put(key, constantValue);
             } else if (keyValue.valueExpr.getKind() == NodeKind.LITERAL) {
-
                 BLangLiteral expr = (BLangLiteral) keyValue.valueExpr;
 
-                int valueCPIndex = addUTF8CPEntry(currentPkgInfo, expr.value.toString());
-                int originalValueCPIndex = addUTF8CPEntry(currentPkgInfo, expr.originalValue);
                 int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
 
-//                KeyValueInfo keyValueInfo = new KeyValueInfo(-1, -1, -1, -1, valueCPIndex, originalValueCPIndex,
-//                        valueTypeSigCPIndex, expr.typeTag);
-//                keyValueInfo.isTerminal = true;
-//
-//                return keyValueInfo;
+                // Create a new constant value object.
+                ConstantValue constantValue = new ConstantValue(-1, valueTypeSigCPIndex, -1);
+                constantValue.isSimpleLiteral = true;
+
+                constantValueMap.put(key, constantValue);
             } else {
                 throw new RuntimeException("unexpected node kind");
             }
-
-
         }
-
-
-
-
-
-//        List<KeyValueInfo> keyValueInfoMap = new LinkedList<>();
-//        List<BLangRecordKeyValue> keyValuePairs = expression.keyValuePairs;
-//        for (BLangRecordKeyValue keyValuePair : keyValuePairs) {
-//            keyValueInfoMap.add(getConstantMapInfo(keyValuePair));
-//        }
-//        return keyValueInfoMap;
+        return constantValueMap;
     }
-//
-//    private  KeyValueInfo getConstantMapInfo(BLangRecordKeyValue keyValue) {
-//        if (keyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-//            BLangLiteral expr = (BLangLiteral) keyValue.key.expr;
-//
-//            int keyCPIndex = addUTF8CPEntry(currentPkgInfo, expr.value.toString());
-//            int originalKeyCPIndex = addUTF8CPEntry(currentPkgInfo, expr.originalValue);
-//            int keyTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
-//
-//            KeyValueInfo keyValueInfo = new KeyValueInfo(keyCPIndex, originalKeyCPIndex, keyTypeSigCPIndex,
-//                    expr.typeTag, -1, -1, -1, -1);
-//            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) keyValue.getValue();
-//            keyValueInfo.children = getConstantMapInfo(recordLiteral);
-//
-//            return keyValueInfo;
-//        } else if (keyValue.valueExpr.getKind() == NodeKind.LITERAL) {
-//
-//            BLangLiteral expr = (BLangLiteral) keyValue.valueExpr;
-//
-//            int valueCPIndex = addUTF8CPEntry(currentPkgInfo, expr.value.toString());
-//            int originalValueCPIndex = addUTF8CPEntry(currentPkgInfo, expr.originalValue);
-//            int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
-//
-//            KeyValueInfo keyValueInfo = new KeyValueInfo(-1, -1, -1, -1, valueCPIndex, originalValueCPIndex,
-//                    valueTypeSigCPIndex, expr.typeTag);
-//            keyValueInfo.isTerminal = true;
-//
-//            return keyValueInfo;
-//        } else {
-//            throw new RuntimeException("Unexpected node kind");
-//        }
-//    }
 
     private void createPackageVarInfo(BLangSimpleVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;

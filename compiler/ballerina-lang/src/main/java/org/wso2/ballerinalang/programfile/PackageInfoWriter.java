@@ -240,7 +240,7 @@ public class PackageInfoWriter {
                 dataOutStream.writeInt(constantInfo.constantValue.finiteTypeCPIndex);
                 dataOutStream.writeInt(constantInfo.constantValue.valueTypeCPIndex);
                 dataOutStream.writeInt(constantInfo.constantValue.flags);
-                dataOutStream.writeInt(constantInfo.constantValue.globalMemIndex);
+//                dataOutStream.writeInt(constantInfo.constantValue.globalMemIndex);
 
 
                 // Todo - Add a util function?
