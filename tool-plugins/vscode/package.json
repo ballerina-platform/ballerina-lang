@@ -293,7 +293,7 @@
     "devDependencies": {
         "@types/chai": "^4.1.6",
         "@types/glob": "^5.0.36",
-        "@types/lodash": "^4.14.116",
+        "@types/lodash": "^4.14.121",
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
