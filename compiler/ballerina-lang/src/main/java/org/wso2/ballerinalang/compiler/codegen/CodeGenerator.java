@@ -2167,8 +2167,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             constantInfo.isSimpleLiteral = true;
 
             // Create a new constant value object.
-            ConstantValue constantValue = new ConstantValue(finiteTypeSigCPIndex, valueTypeSigCPIndex,
-                    constantSymbol.flags);
+            ConstantValue constantValue = new ConstantValue();
+            constantValue.finiteTypeSigCPIndex = finiteTypeSigCPIndex;
+            constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
+            constantValue.flags = constantSymbol.flags;
 
             processSimpleLiteral(constantValue, (BLangLiteral) constant.value);
 
@@ -2192,11 +2194,12 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void processSimpleLiteral(ConstantValue constantValue, BLangLiteral literalValue) {
         // Get the value.
 
-        constantValue.literalValueType = literalValue.type.tag;
+        constantValue.literalValueTypeTag = literalValue.type.tag;
 
         // Todo - Add a util function?
         switch (literalValue.type.tag) {
             case TypeTags.BOOLEAN:
+                constantValue.booleanValue = (Boolean) literalValue.value;
                 break;
             case TypeTags.INT:
                 constantValue.valueCPEntry =
@@ -2232,7 +2235,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             String key = ((BLangLiteral) keyValue.key.expr).value.toString();
 
             if (keyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-                ConstantValue constantValue = new ConstantValue(-1, -1, -1);
+                ConstantValue constantValue = new ConstantValue();
                 constantValue.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) keyValue.valueExpr);
                 constantValueMap.put(key, constantValue);
             } else if (keyValue.valueExpr.getKind() == NodeKind.LITERAL) {
@@ -2241,7 +2244,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
 
                 // Create a new constant value object.
-                ConstantValue constantValue = new ConstantValue(-1, valueTypeSigCPIndex, -1);
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.valueTypeSigCPIndex=valueTypeSigCPIndex;
+
                 constantValue.isSimpleLiteral = true;
 
                 constantValueMap.put(key, constantValue);

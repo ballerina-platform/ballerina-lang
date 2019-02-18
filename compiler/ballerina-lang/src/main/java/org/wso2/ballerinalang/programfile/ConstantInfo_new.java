@@ -45,17 +45,17 @@ public class ConstantInfo_new implements AttributeInfoPool {
         this.nameCPIndex = nameCPIndex;
     }
 
-    public void addConstantValue(String key, ConstantValue constantValue) {
-        constantValueMap.put(key, constantValue);
-    }
+    //    public void addConstantValue(String key, ConstantValue constantValue) {
+    //        constantValueMap.put(key, constantValue);
+    //    }
 
-    public ConstantValue getConstantValue(String key) {
-        return constantValueMap.get(key);
-    }
+    //    public ConstantValue getConstantValue(String key) {
+    //        return constantValueMap.get(key);
+    //    }
 
-    public String getName() {
-        return name;
-    }
+    //    public String getName() {
+    //        return name;
+    //    }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
         return attributeInfoMap.get(attributeKind);

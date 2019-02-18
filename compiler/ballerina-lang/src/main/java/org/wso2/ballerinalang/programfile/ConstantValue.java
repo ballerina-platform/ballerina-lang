@@ -25,84 +25,76 @@ import java.util.Map;
  */
 public class ConstantValue {
 
-    public int finiteTypeCPIndex;
-    public int valueTypeCPIndex;
-    public int flags;
+    public int finiteTypeSigCPIndex = -1;
+    public int valueTypeSigCPIndex = -1;
+    public int flags = -1;
 
     public boolean isSimpleLiteral;
 
-    public int literalValueType;
+    public int literalValueTypeTag;
 
-    private boolean booleanValue;
-    private long intValue;
-    private byte byteValue;
-
-    private double floatValue;
-    private String stringValue;
-
+    //    // Todo - add other values
+    public boolean booleanValue;
+    //    private long intValue;
+    //    private byte byteValue;
+    //    private double floatValue;
+    //    private String stringValue;
 
     public int valueCPEntry;
-
-    // Todo - add other values
 
     public Map<String, ConstantValue> constantValueMap = new HashMap<>();
 
     // Todo - Add array support
     //    private ConstantValue[] constantValueArray;
 
-    public ConstantValue(int finiteTypeCPIndex, int valueTypeCPIndex, int flags) {
-        this.finiteTypeCPIndex = finiteTypeCPIndex;
-        this.valueTypeCPIndex = valueTypeCPIndex;
-        this.flags = flags;
-    }
 
-    public boolean getBooleanValue() {
-        return booleanValue;
-    }
-
-    public void setBooleanValue(boolean booleanValue) {
-        this.booleanValue = booleanValue;
-    }
-
-
-    public byte getByteValue() {
-        return byteValue;
-    }
-
-    public void setByteValue(byte byteValue) {
-        this.byteValue = byteValue;
-    }
-
-
-
-
-    public long getIntValue() {
-        return intValue;
-    }
-
-    public void setIntValue(long intValue) {
-        this.intValue = intValue;
-    }
-
-
-
-    public double getFloatValue() {
-        return floatValue;
-    }
-
-    public void setFloatValue(double floatValue) {
-        this.floatValue = floatValue;
-    }
-
-
-
-    public String getStringValue() {
-        return stringValue;
-    }
-
-    public void setStringValue(String stringValue) {
-        this.stringValue = stringValue;
-    }
+    //    public boolean getBooleanValue() {
+    //        return booleanValue;
+    //    }
+    //
+    //    public void setBooleanValue(boolean booleanValue) {
+    //        this.booleanValue = booleanValue;
+    //    }
+    //
+    //
+    //    public byte getByteValue() {
+    //        return byteValue;
+    //    }
+    //
+    //    public void setByteValue(byte byteValue) {
+    //        this.byteValue = byteValue;
+    //    }
+    //
+    //
+    //
+    //
+    //    public long getIntValue() {
+    //        return intValue;
+    //    }
+    //
+    //    public void setIntValue(long intValue) {
+    //        this.intValue = intValue;
+    //    }
+    //
+    //
+    //
+    //    public double getFloatValue() {
+    //        return floatValue;
+    //    }
+    //
+    //    public void setFloatValue(double floatValue) {
+    //        this.floatValue = floatValue;
+    //    }
+    //
+    //
+    //
+    //    public String getStringValue() {
+    //        return stringValue;
+    //    }
+    //
+    //    public void setStringValue(String stringValue) {
+    //        this.stringValue = stringValue;
+    //    }
 
 
 }

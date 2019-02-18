@@ -237,17 +237,17 @@ public class PackageInfoWriter {
 
             if (constantInfo.isSimpleLiteral) {
 
-                dataOutStream.writeInt(constantInfo.constantValue.finiteTypeCPIndex);
-                dataOutStream.writeInt(constantInfo.constantValue.valueTypeCPIndex);
+                dataOutStream.writeInt(constantInfo.constantValue.finiteTypeSigCPIndex);
+                dataOutStream.writeInt(constantInfo.constantValue.valueTypeSigCPIndex);
                 dataOutStream.writeInt(constantInfo.constantValue.flags);
 //                dataOutStream.writeInt(constantInfo.constantValue.globalMemIndex);
 
 
                 // Todo - Add a util function?
-                switch (constantInfo.constantValue.literalValueType) {
+                switch (constantInfo.constantValue.literalValueTypeTag) {
 
                     case TypeTags.BOOLEAN:
-                        dataOutStream.writeBoolean(constantInfo.constantValue.getBooleanValue());
+                        dataOutStream.writeBoolean(constantInfo.constantValue.booleanValue);
                         break;
                     case TypeTags.INT:
                     case TypeTags.BYTE:
@@ -259,7 +259,7 @@ public class PackageInfoWriter {
                     case TypeTags.NIL:
                         break;
                     default:
-                        throw new RuntimeException("unexpected type tag: " + constantInfo.constantValue.literalValueType);
+                        throw new RuntimeException("unexpected type tag: " + constantInfo.constantValue.literalValueTypeTag);
                 }
 
 
