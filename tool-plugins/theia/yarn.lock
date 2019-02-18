@@ -1391,12 +1391,19 @@
   dependencies:
     "@theia/core" "0.4.0-next.29b100c6"
 
-"@theia/output@0.4.0-next.29b100c6", "@theia/output@next":
+"@theia/output@0.4.0-next.29b100c6":
   version "0.4.0-next.29b100c6"
   resolved "https://registry.yarnpkg.com/@theia/output/-/output-0.4.0-next.29b100c6.tgz#329cc6455198511919d14d4a4dab4fd9fa0d4f67"
   integrity sha512-CMbjJZunwhziFoZHO7umekyM7nlHNXuYWzZddcEGb78L1RBlhEe5ToaGYUUJMZhuL99eh7NmD4kUvIMuUUZN3g==
   dependencies:
     "@theia/core" "0.4.0-next.29b100c6"
+
+"@theia/output@next":
+  version "0.4.0-next.5967a992"
+  resolved "https://registry.yarnpkg.com/@theia/output/-/output-0.4.0-next.5967a992.tgz#a484d64c43579d30f7f1d2e84e60b3f9a04da34d"
+  integrity sha512-MWI6lIZoLU3nsS4Hp0kJ1k+9abyxZOhxqIoL6Ztj3+Bmo5+lfVOp3UnpSLt+z9fCm8lwPY/d8hVQ1SZ0dARmsA==
+  dependencies:
+    "@theia/core" "0.4.0-next.5967a992"
 
 "@theia/plugin-ext-vscode@next":
   version "0.4.0-next.29b100c6"
