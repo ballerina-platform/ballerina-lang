@@ -80,9 +80,13 @@ public type Scheduler object {
         currentTime = time:currentTime().time;
 
         if (first != ()) {
-            self.timer = new({ interval: <int>first - currentTime });
-            _ = self.timer.attach(schedulerService, serviceParameter = self);
-            _ = self.timer.start();
+            if (<int>first - currentTime <= 0) {
+                _ = self.wrapperFunc();
+            } else {
+                self.timer = new({ interval: <int>first - currentTime });
+                _ = self.timer.attach(schedulerService, serviceParameter = self);
+                _ = self.timer.start();
+            }
         } else {
             lock {
                 self.running = false;
@@ -93,7 +97,7 @@ public type Scheduler object {
                     _ = self.timer.start();
                 }
             }
-        }
+        };
         return ();
     }
 };
