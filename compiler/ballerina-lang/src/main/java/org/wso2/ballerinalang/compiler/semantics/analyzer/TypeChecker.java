@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -1103,7 +1102,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
-                } else if (cIExpr.initInvocation.argExprs.size() > 0) {
+                } else if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     // If the initializerFunc is null then this is a default constructor invocation. Hence should not
                     // pass any arguments.
                     dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.initInvocation.exprSymbol);
@@ -1114,56 +1113,25 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.STREAM:
             case TypeTags.CHANNEL:
-                if (cIExpr.initInvocation.argExprs.size() > 0) {
+                if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.initInvocation.name);
                     resultType = symTable.semanticError;
                     return;
                 }
                 break;
             case TypeTags.UNION:
-                BUnionType unionType = (BUnionType) actualType;
-                BType machedMemberType = symTable.nilType;
-                List<BType> matchingLhsMemberTypes = new ArrayList<>();
-                for (BType memberType : unionType.memberTypes) {
-                    if (memberType.tsymbol.kind != SymbolKind.OBJECT) {
-                        // member is not an object.
-                        continue;
-                    }
-                    if ((memberType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
-                        dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT, actualType.tsymbol);
-                        cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
-                        resultType = symTable.semanticError;
-                    }
-                    BAttachedFunction memberTypeInitFunc = ((BObjectTypeSymbol) memberType.tsymbol).initializerFunc;
-                    boolean noArgs = cIExpr.argsExpr.isEmpty();
-                    if ((noArgs && memberTypeInitFunc == null) ||
-                            (noArgs && memberTypeInitFunc.symbol.params.isEmpty()) ||
-                            isArgsMatchesFunction(cIExpr.argsExpr, memberTypeInitFunc)) {
-                        matchingLhsMemberTypes.add(memberType);
-                    }
-                }
-                if (matchingLhsMemberTypes.isEmpty()) {
-                    // No union type member found which matches with initializer expression.
-                    dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
-                    resultType = symTable.semanticError;
-                } else if (matchingLhsMemberTypes.size() == 1) {
-                    // We have a correct match.
-                    BTypeSymbol matchedMemberSymbol = matchingLhsMemberTypes.get(0).tsymbol;
-                    cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedMemberSymbol).initializerFunc.symbol;
-                    machedMemberType = matchedMemberSymbol.type;
-                    expType = matchedMemberSymbol.type;
-                    checkInvocationParam(cIExpr.initInvocation);
-                } else {
-                    // Multiple matches found.
-                    dlog.error(cIExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, actualType);
-                    resultType = symTable.semanticError;
-                    return;
-                }
+                List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);
+                BType matchedType = getMatchedTypeOrEmitError(matchingMembers, cIExpr, actualType);
 
+                expType = matchedType;
+                if (matchedType.tsymbol.type.tag == TypeTags.OBJECT) {
+                    cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
+                    checkInvocationParam(cIExpr.initInvocation);
+                }
                 cIExpr.initInvocation.type = symTable.nilType;
-                types.checkType(cIExpr, machedMemberType, actualType);
-                cIExpr.type = machedMemberType;
-                resultType = machedMemberType;
+                types.checkType(cIExpr, matchedType, actualType);
+                cIExpr.type = matchedType;
+                resultType = matchedType;
                 return;
             default:
                 dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
@@ -1175,35 +1143,80 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(cIExpr, actualType, expType);
     }
 
-    private boolean isArgsMatchesFunction(List<BLangExpression> invocationArguments,
-                                          BAttachedFunction memberTypeInitFunc) {
-        if (memberTypeInitFunc == null && !invocationArguments.isEmpty()) {
+    private List<BType> findMembersWithMatchingInitFunc(BLangTypeInit cIExpr, BUnionType lhsUnionType) {
+        List<BType> matchingLhsMemberTypes = new ArrayList<>();
+        for (BType memberType : lhsUnionType.memberTypes) {
+            if (memberType.tsymbol.kind != SymbolKind.OBJECT) {
+                // member is not an object.
+                continue;
+            }
+            if ((memberType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+                dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT, lhsUnionType.tsymbol);
+                cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+            }
+
+            BAttachedFunction initializerFunc = ((BObjectTypeSymbol) memberType.tsymbol).initializerFunc;
+            if (isArgsMatchesFunction(cIExpr.argsExpr, initializerFunc)) {
+                matchingLhsMemberTypes.add(memberType);
+            }
+        }
+        return matchingLhsMemberTypes;
+    }
+
+    private BType getMatchedTypeOrEmitError(List<BType> matchingLhsMembers, BLangTypeInit cIExpr, BType lhsUnion) {
+        if (matchingLhsMembers.isEmpty()) {
+            // No union type member found which matches with initializer expression.
+            dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, lhsUnion);
+            resultType = symTable.semanticError;
+            return symTable.semanticError;
+        } else if (matchingLhsMembers.size() == 1) {
+            // We have a correct match.
+            return matchingLhsMembers.get(0).tsymbol.type;
+        } else {
+            // Multiple matches found.
+            dlog.error(cIExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, lhsUnion);
+            resultType = symTable.semanticError;
+            return symTable.semanticError;
+        }
+    }
+
+    private boolean isArgsMatchesFunction(List<BLangExpression> invocationArguments, BAttachedFunction function) {
+        if (function == null) {
+            return invocationArguments.isEmpty();
+        }
+
+        if (function.symbol.params.isEmpty() && invocationArguments.isEmpty()) {
+            return true;
+        }
+
+        List<BLangExpression> namedArgs = new ArrayList<>();
+        List<BLangExpression> unnamedArgs = new ArrayList<>();
+        for (BLangExpression argument : invocationArguments) {
+            if (argument.getKind() == NodeKind.NAMED_ARGS_EXPR) {
+                namedArgs.add(argument);
+            } else {
+                unnamedArgs.add(argument);
+            }
+        }
+
+        // All named arguments must be present in function as defaultable parameters.
+        if (!matchDefaultableParameters(function, namedArgs)) {
             return false;
         }
 
-        List<BLangExpression> namedArgs = invocationArguments.stream()
-                .filter(e -> e.getKind() == NodeKind.NAMED_ARGS_EXPR)
-                .collect(Collectors.toList());
-        List<BLangExpression> unnamedArgs = invocationArguments.stream()
-                .filter(e -> e.getKind() != NodeKind.NAMED_ARGS_EXPR)
-                .collect(Collectors.toList());
-
-        if (!matchDefaultableParameters(memberTypeInitFunc, namedArgs)) {
-            return false;
-        }
-
-        // Not enough arguments.
-        int requiredParamCount = memberTypeInitFunc.symbol.params.size();
+        // Given arguments are less than required parameters.
+        int requiredParamCount = function.symbol.params.size();
         if (requiredParamCount > unnamedArgs.size()) {
             return false;
         }
 
-        // No rest params, all (unnamed) args must match params
-        if (memberTypeInitFunc.symbol.restParam == null && requiredParamCount != unnamedArgs.size()) {
+        // No rest params, all (unnamed) args must match params.
+        if (function.symbol.restParam == null && requiredParamCount != unnamedArgs.size()) {
             return false;
         }
 
-        List<BVarSymbol> params = memberTypeInitFunc.symbol.params;
+        // Each arguments must be assignable to each required parameter.
+        List<BVarSymbol> params = function.symbol.params;
         for (int i = 0, paramsSize = params.size(); i < paramsSize; i++) {
             BVarSymbol param = params.get(i);
             BLangExpression argument = unnamedArgs.get(i);
@@ -1214,14 +1227,14 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean matchDefaultableParameters(BAttachedFunction initializerFunc, List<BLangExpression> namedArgs) {
-        // More named args given than init func can accept.
-        if (initializerFunc.symbol.defaultableParams.size() < namedArgs.size()) {
+    private boolean matchDefaultableParameters(BAttachedFunction function, List<BLangExpression> namedArgs) {
+        // More named args given than function can accept.
+        if (function.symbol.defaultableParams.size() < namedArgs.size()) {
             return false;
         }
 
         int matchesFound = 0;
-        for (BVarSymbol defaultableParam : initializerFunc.symbol.defaultableParams) {
+        for (BVarSymbol defaultableParam : function.symbol.defaultableParams) {
             for (BLangExpression namedArg : namedArgs) {
                 BLangNamedArgsExpression namedArgExpr = (BLangNamedArgsExpression) namedArg;
                 if (namedArgExpr.name.value.equals(defaultableParam.name.value)) {
@@ -1235,7 +1248,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
-        // Coundn't find all named args in defaultableParams list.
+        // Couldn't find all named args in defaultableParams list.
         return namedArgs.size() == matchesFound;
     }
 

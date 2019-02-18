@@ -73,8 +73,10 @@ public class UnionOfObjectsInitializerTest {
 
     @Test()
     public void testNegativeUnionTypeInit() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
         BAssertUtil.validateError(resultNegative, 0, "ambiguous type 'Obj|Obj2|Obj3|Obj4'", 48, 25);
         BAssertUtil.validateError(resultNegative, 1, "ambiguous type 'Obj|Obj2|Obj3|Obj4'", 49, 25);
+        BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from 'Obj|Obj2|Obj3|Obj4'",
+                50, 46);
     }
 }

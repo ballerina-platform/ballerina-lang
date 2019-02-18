@@ -47,6 +47,7 @@ Obj4 aOb = new(55, 66, 77);
 Obj|Obj2|Obj3|Obj4 a = new(5, 6, 7);
 Obj|Obj2|Obj3|Obj4 ab = new(5);
 Obj|Obj2|Obj3|Obj4 ac = new();
+Obj|Obj2|Obj3|Obj4 wrongDefaultableArgType = new(5, j="zero");
 
 function getA() returns Obj|Obj2|Obj3|Obj4 {
     return a;
