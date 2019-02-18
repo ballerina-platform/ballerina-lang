@@ -2428,7 +2428,7 @@
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>1.5.5</apache.directory.server.version>
-        <bouncycastle.version>1.60</bouncycastle.version>
+        <bouncycastle.version>1.61</bouncycastle.version>
     </properties>
 
 </project>
