@@ -80,15 +80,11 @@ public class BTypeBValueProviders {
         public BPacket toBValue(BAnyType type, BValueSerializer serializer) {
             String packagePath = type.getPackagePath();
             String typeName = type.getName();
-            Class<?> clazz = type.getValueClass();
-
             BPacket packet = BPacket.from(typeName(), null);
             if (packagePath != null) {
                 packet.put(PACKAGE_PATH, new BString(packagePath));
             }
             packet.put(TYPE_NAME, new BString(typeName));
-            packet.put(VALUE_CLASS, serializer.toBValue(clazz, null));
-
             return packet;
         }
 
