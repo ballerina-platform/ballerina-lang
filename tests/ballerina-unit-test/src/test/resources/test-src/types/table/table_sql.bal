@@ -342,7 +342,6 @@ function testSelectWithJoinAndWhereWithGroupByWithLimitInIfCondition() returns (
         var rs = orderDetailsTable.getNext();
         recordCount = recordCount + 1;
     }
-
     return recordCount;
 }
 
