@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-(any|error)[] outputs = [];
+(any|error)?[] outputs = [];
 int counter = 0;
 
 // This is the mock function that replaces the real function.

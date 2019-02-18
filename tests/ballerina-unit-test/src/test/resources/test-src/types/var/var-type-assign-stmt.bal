@@ -66,15 +66,15 @@ function testAnyToStringWithErrors() returns (string) {
     return s;
 }
 
-function testAnyNullToStringWithErrors() returns (string | error) {
-    any a = null;
+function testAnyNullToStringWithErrors() returns string|error {
+    any a = ();
 
     var s = check trap <string> a;
 
     return s;
 }
 
-function testAnyToBooleanWithErrors() returns (boolean | error) {
+function testAnyToBooleanWithErrors() returns boolean|error {
     any a = 5;
 
     var b = check trap <boolean> a;
@@ -82,15 +82,15 @@ function testAnyToBooleanWithErrors() returns (boolean | error) {
     return b;
 }
 
-function testAnyNullToBooleanWithErrors() returns (boolean | error) {
-    any a = null;
+function testAnyNullToBooleanWithErrors() returns boolean|error {
+    any a = ();
 
     var b = check trap <boolean> a;
 
     return b;
 }
 
-function testAnyToIntWithErrors() returns (int | error) {
+function testAnyToIntWithErrors() returns int|error {
     any a = "foo";
 
     var b = check trap <int> a;
@@ -98,15 +98,15 @@ function testAnyToIntWithErrors() returns (int | error) {
     return b;
 }
 
-function testAnyNullToIntWithErrors() returns (int | error) {
-    any a = null;
+function testAnyNullToIntWithErrors() returns int|error {
+    any a = ();
 
     var b = check trap <int> a;
 
     return b;
 }
 
-function testAnyToFloatWithErrors() returns (float | error) {
+function testAnyToFloatWithErrors() returns float|error {
     any a = "foo";
 
     var b = check trap <float> a;
@@ -114,8 +114,8 @@ function testAnyToFloatWithErrors() returns (float | error) {
     return b;
 }
 
-function testAnyNullToFloatWithErrors() returns (float | error) {
-    any a = null;
+function testAnyNullToFloatWithErrors() returns float|error {
+    any a = ();
 
     var b = check trap <float> a;
 
@@ -131,7 +131,7 @@ function testAnyToMapWithErrors() returns (map<any> | error) {
 }
 
 
-function testIncompatibleJsonToStructWithErrors() returns (Person | error) {
+function testIncompatibleJsonToStructWithErrors() returns Person|error {
     json j = { name:"Child",
                  age:25,
                  parent:{
@@ -155,7 +155,7 @@ type PersonA record {
     int age;
 };
 
-function testJsonToStructWithErrors() returns (PersonA | error) {
+function testJsonToStructWithErrors() returns PersonA|error {
     json j = {name:"supun", age:"25"};
 
     var p = PersonA.convert(j);
@@ -172,7 +172,7 @@ type B record {
     string x;
 };
 
-function testCompatibleStructForceCasting() returns (A | error) {
+function testCompatibleStructForceCasting() returns A|error {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
 
@@ -184,7 +184,7 @@ function testCompatibleStructForceCasting() returns (A | error) {
     return c;
 }
 
-function testInCompatibleStructForceCasting() returns (A | error) {
+function testInCompatibleStructForceCasting() returns A|error {
     B b = {x: "x-valueof-b"};
 
     var a = check trap <A> b;
