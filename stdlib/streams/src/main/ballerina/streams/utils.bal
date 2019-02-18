@@ -33,8 +33,8 @@ public function getStreamEvent(any? anyEvent) returns StreamEvent {
     return <StreamEvent>anyEvent;
 }
 
-public function toSnapshottableEvents(StreamEvent[]|any[]? events) returns SnapshottableStreamEvent[] {
-    SnapshottableStreamEvent[] evts = [];
+public function toSnapshottableEvents(StreamEvent[]|any[]? events) returns SnapshottableStreamEvent?[] {
+    SnapshottableStreamEvent?[] evts = [];
     if (events is StreamEvent[]) {
         foreach StreamEvent e in events {
             evts[evts.length()] = toSnapshottableEvent(e);
@@ -49,8 +49,8 @@ public function toSnapshottableEvents(StreamEvent[]|any[]? events) returns Snaps
     return evts;
 }
 
-public function toStreamEvents(SnapshottableStreamEvent[]|any[]? events) returns StreamEvent[] {
-    StreamEvent[] evts = [];
+public function toStreamEvents(SnapshottableStreamEvent[]|any[]? events) returns StreamEvent?[] {
+    StreamEvent?[] evts = [];
     if (events is SnapshottableStreamEvent[]) {
         foreach SnapshottableStreamEvent e in events {
             evts[evts.length()] = toStreamEvent(e);
