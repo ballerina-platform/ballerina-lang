@@ -224,7 +224,6 @@ public class PackageInfoWriter {
         }
     }
 
-
     // Private methods
 
     private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
@@ -240,8 +239,8 @@ public class PackageInfoWriter {
                 dataOutStream.writeInt(constantInfo.constantValue.finiteTypeSigCPIndex);
                 dataOutStream.writeInt(constantInfo.constantValue.valueTypeSigCPIndex);
                 dataOutStream.writeInt(constantInfo.constantValue.flags);
-//                dataOutStream.writeInt(constantInfo.constantValue.globalMemIndex);
 
+                dataOutStream.writeInt(constantInfo.constantValue.literalValueTypeTag);
 
                 // Todo - Add a util function?
                 switch (constantInfo.constantValue.literalValueTypeTag) {
@@ -262,45 +261,10 @@ public class PackageInfoWriter {
                         throw new RuntimeException("unexpected type tag: " + constantInfo.constantValue.literalValueTypeTag);
                 }
 
-
                 writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
             }
-
-//            dataOutStream.writeInt(constantInfo.finiteTypeCPIndex);
-//            dataOutStream.writeInt(constantInfo.valueTypeCPIndex);
-//            dataOutStream.writeInt(constantInfo.flags);
-//            dataOutStream.writeInt(constantInfo.globalMemIndex);
-//
-//            dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
-//            if (constantInfo.isSimpleLiteral) {
-//                writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
-//            } else {
-////                writeConstantMapInfo(dataOutStream, constantInfo.recordKeyValueInfo);
-//            }
         }
     }
-
-//    private static void writeConstantMapInfo(DataOutputStream dataOutStream, List<KeyValueInfo> recordKeyValueInfo)
-//            throws IOException {
-//        dataOutStream.writeInt(recordKeyValueInfo.size());
-//        for (KeyValueInfo keyValueInfo : recordKeyValueInfo) {
-//            dataOutStream.writeBoolean(keyValueInfo.isTerminal);
-//
-//            dataOutStream.writeInt(keyValueInfo.keyCPIndex);
-//            dataOutStream.writeInt(keyValueInfo.originalKeyCPIndex);
-//            dataOutStream.writeInt(keyValueInfo.keyTypeDescCPIndex);
-//            dataOutStream.writeInt(keyValueInfo.keyTypeDescTag);
-//
-//            dataOutStream.writeInt(keyValueInfo.valueCPIndex);
-//            dataOutStream.writeInt(keyValueInfo.originalValueCPIndex);
-//            dataOutStream.writeInt(keyValueInfo.valueTypeDescCPIndex);
-//            dataOutStream.writeInt(keyValueInfo.valueTypeDescTag);
-//
-//            if (!keyValueInfo.isTerminal) {
-//                writeConstantMapInfo(dataOutStream, keyValueInfo.children);
-//            }
-//        }
-//    }
 
     private static void writeGlobalVarInfoEntries(DataOutputStream dataOutStream,
                                                   PackageVarInfo[] packageVarInfoEntry) throws IOException {

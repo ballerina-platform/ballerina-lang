@@ -594,26 +594,50 @@ public class PackageInfoReader {
         // Read constant name cp index and ignore.
         dataInStream.readInt();
 
-        // Read finite type cp index and ignore.
-        dataInStream.readInt();
+        // Read isSimple literal.
+        boolean isSimpleLiteral = dataInStream.readBoolean();
 
-        // Read value type cp index and ignore.
-        dataInStream.readInt();
+        if (isSimpleLiteral) {
 
-        // Read and ignore flags.
-        dataInStream.readInt();
+            // Read finite type cp index and ignore.
+            dataInStream.readInt();
 
-        // Read and ignore index.
-        dataInStream.readInt();
+            // Read value type cp index and ignore.
+            dataInStream.readInt();
 
-        if (dataInStream.readBoolean()) {
+            // Read and ignore flags.
+            dataInStream.readInt();
+
+            // Read and ignore literal value type tag.
+            int typeTag = dataInStream.readInt();
+
+            switch (typeTag) {
+                case TypeTags.BOOLEAN_TAG:
+                    dataInStream.readBoolean();
+                    break;
+                case TypeTags.INT_TAG:
+                case TypeTags.BYTE_TAG:
+                case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
+                case TypeTags.STRING_TAG:
+                    dataInStream.readInt();
+                    break;
+                case TypeTags.NULL_TAG:
+                    break;
+                default:
+                    throw new RuntimeException("unexpected type tag: " + typeTag);
+            }
+
             // Read and ignore attributes.
             int attributesCount = dataInStream.readShort();
             for (int k = 0; k < attributesCount; k++) {
                 getAttributeInfo(packageInfo, constantPool);
             }
         } else {
-            readConstantMapInfo();
+            //            readConstantMapInfo();
+
+            int i = 10;
+
         }
     }
 
