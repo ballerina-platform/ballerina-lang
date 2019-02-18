@@ -26,7 +26,6 @@ function oneWayWrite(string msg) {
     } else {
         panic writeResult;
     }
-
     var closeResult =  socketClient->close();
     if (closeResult is error) {
         io:println(closeResult.detail().message);
@@ -44,7 +43,6 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
     } else {
         panic writeResult;
     }
-
     var shutdownResult = socketClient->shutdownWrite();
     if (shutdownResult is error) {
         panic shutdownResult;
@@ -63,4 +61,46 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
         return writeResult;
     }
     return;
+}
+
+function echo(string msg) returns string {
+    socket:Client socketClient = new({ host: "localhost", port: 47826 });
+    string returnStr = "";
+    byte[] msgByteArray = msg.toByteArray("utf-8");
+    var writeResult = socketClient->write(msgByteArray);
+    if (writeResult is int) {
+        io:println("Number of bytes written: ", writeResult);
+    } else {
+        io:println("echo panic", writeResult);
+        panic writeResult;
+    }
+    var result = socketClient->read();
+    if (result is (byte[], int)) {
+        var (content, length) = result;
+        if (length > 0) {
+            var str = getString(content);
+            if (str is string) {
+                returnStr = untaint str;
+            } else {
+                io:println(str.reason());
+            }
+            var closeResult = socketClient->close();
+            if (closeResult is error) {
+                io:println(closeResult.detail().message);
+            } else {
+                io:println("Client connection closed successfully.");
+            }
+        } else {
+            io:println("Client close: ", socketClient.remotePort);
+        }
+    } else {
+        io:println(result);
+    }
+    return returnStr;
+}
+
+function getString(byte[] content) returns string|error {
+    io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
+    io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+    return characterChannel.read(50);
 }

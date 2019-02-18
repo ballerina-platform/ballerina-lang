@@ -175,16 +175,19 @@ public class SelectorManager {
     private void registerChannels() {
         ChannelRegisterCallback channelRegisterCallback;
         while ((channelRegisterCallback = registerPendingSockets.poll()) != null) {
+            SocketService socketService = channelRegisterCallback.getSocketService();
             try {
-                SocketService socketService = channelRegisterCallback.getSocketService();
                 socketService.getSocketChannel()
                         .register(selector, channelRegisterCallback.getInitialInterest(), socketService);
             } catch (ClosedChannelException e) {
                 channelRegisterCallback.notifyFailure("Socket already closed");
                 continue;
             }
-            channelRegisterCallback
-                    .notifyRegister(channelRegisterCallback.getInitialInterest() == SelectionKey.OP_READ);
+            // Notification only need happen to the client connect in the socket server or if client has
+            // a callback service.
+            boolean serviceAttached = (socketService.getResources() != null
+                    && channelRegisterCallback.getInitialInterest() == SelectionKey.OP_READ);
+            channelRegisterCallback.notifyRegister(serviceAttached);
         }
     }
 
@@ -251,7 +254,7 @@ public class SelectorManager {
         key.interestOps(0);
         // Add to the read ready queue. Content will be read through the caller->read action.
         ReadReadySocketMap.getInstance().add(new SocketReader(socketService, key));
-        invokeRead(key.channel().hashCode());
+        invokeRead(key.channel().hashCode(), socketService.getResources() != null);
     }
 
     /**
@@ -259,8 +262,9 @@ public class SelectorManager {
      * to the onReadReady resource if resource's lock available.
      *
      * @param socketHashId socket hash id
+     * @param clientServiceAttached whether client callback service attached or not
      */
-    public void invokeRead(int socketHashId) {
+    public void invokeRead(int socketHashId, boolean clientServiceAttached) {
         // Check whether is there any caller->read pending action and read ready socket.
         if (ReadPendingSocketMap.getInstance().isPending(socketHashId)) {
             // Lock on ReadPendingCallback instance. This will prevent duplicate invocation that happen from both
@@ -272,7 +276,7 @@ public class SelectorManager {
                 }
             }
             // If read pending socket not available then do nothing. Above will invoke once read ready socket connect.
-        } else {
+        } else if (clientServiceAttached) {
             // No caller->read pending actions hence try to dispatch to onReadReady resource if read ready available.
             final SocketReader socketReader = ReadReadySocketMap.getInstance().get(socketHashId);
             invokeReadReadyResource(socketReader.getSocketService());
@@ -301,7 +305,7 @@ public class SelectorManager {
                 if (callback.getExpectedLength() != DEFAULT_EXPECTED_READ_LENGTH
                         && callback.getExpectedLength() != callback.getCurrentLength()) {
                     ReadPendingSocketMap.getInstance().add(socketChannel.hashCode(), callback);
-                    invokeRead(socketChannel.hashCode());
+                    invokeRead(socketChannel.hashCode(), socketReader.getSocketService().getResources() != null);
                     return;
                 }
             }
