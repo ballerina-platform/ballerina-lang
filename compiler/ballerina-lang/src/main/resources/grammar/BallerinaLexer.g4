@@ -982,30 +982,25 @@ StringTemplateExpressionStart
     :   StringTemplateText? InterpolationExpressionStart            -> pushMode(DEFAULT_MODE)
     ;
 
-// We cannot use "StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)*" because it
-// can match an empty string.
 StringTemplateText
-    :   StringTemplateValidCharSequence? (StringTemplateStringChar StringTemplateValidCharSequence?)+
-    |   StringTemplateValidCharSequence (StringTemplateStringChar StringTemplateValidCharSequence?)*
+    :   StringTemplateValidCharSequence+ Dollar*
+    |   Dollar+
     ;
 
 fragment
-StringTemplateStringChar
-    :   ~[`${\\]
+Dollar
+    :   '$'
+    ;
+
+fragment
+StringTemplateValidCharSequence
+    :   ~[`$\\]
+    |   Dollar+ ~[`${\\]
     |   WS
     |   StringLiteralEscapedSequence
     ;
 
 fragment
 StringLiteralEscapedSequence
-    :   '\\\\'
-    |   '\\' ~'$'
-    |   '\\' '$'+ ~[`${]
-    ;
-
-fragment
-StringTemplateValidCharSequence
-    :   '{'+ '$'*
-    |   '$'+
-    |   '\\' ~'\\'
+    :   Dollar* '\\' [\\'"btnfr`{]
     ;
