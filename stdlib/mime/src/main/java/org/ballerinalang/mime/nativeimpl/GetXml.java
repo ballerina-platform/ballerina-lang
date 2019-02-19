@@ -18,11 +18,14 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.mime.util.DataContext;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMap;
@@ -32,11 +35,16 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.wso2.transport.http.netty.message.FullHttpMessageListener;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.util.Locale;
 
+import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.mime.util.MimeConstants.XML_SUFFIX;
 import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
 
@@ -52,11 +60,11 @@ import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
         returnType = {@ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetXml extends BlockingNativeCallableUnit {
+public class GetXml implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
-        BXML result;
+    public void execute(Context context, CallableUnitCallback callback) {
+        DataContext dataContext = new DataContext(context, callback);
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
@@ -64,6 +72,7 @@ public class GetXml extends BlockingNativeCallableUnit {
                     baseType.toLowerCase(Locale.getDefault()).endsWith(XML_SUFFIX))) {
                 BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
+                    BXML result;
                     if (dataSource instanceof BXML) {
                         result = (BXML) dataSource;
                     } else {
@@ -71,20 +80,56 @@ public class GetXml extends BlockingNativeCallableUnit {
                         BString payload = MimeUtil.getMessageAsString(dataSource);
                         result = XMLUtils.parse(payload.stringValue());
                     }
+                    dataContext.setReturnValuesAndNotify(result);
                 } else {
-                    result = EntityBodyHandler.constructXmlDataSource(entityStruct);
-                    EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                    //Set byte channel to null, once the message data source has been constructed
-                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                    constructXmlDataSource(dataContext, entityStruct);
                 }
-                context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createError(context, "Entity body is not xml " +
-                        "compatible since the received content-type is : " + baseType));
+                dataContext.createErrorAndNotify(
+                        "Entity body is not xml compatible since the received content-type is : " + baseType);
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while retrieving xml data from entity : " + e.getMessage()));
+            dataContext.createErrorAndNotify(
+                    "Error occurred while retrieving xml data from entity : " + e.getMessage());
         }
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
+
+    private void constructXmlDataSource(DataContext dataContext, BMap<String, BValue> entityStruct) {
+        HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
+
+        inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
+            @Override
+            public void onComplete() {
+                BXML xmlContent;
+                HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
+                String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
+                                                                    HttpHeaderNames.CONTENT_TYPE.toString());
+                if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
+                    String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                    if (charsetValue != null && !charsetValue.isEmpty()) {
+                        xmlContent = XMLUtils.parse(dataStreamer.getInputStream(), charsetValue);
+                    } else {
+                        xmlContent = XMLUtils.parse(dataStreamer.getInputStream());
+                    }
+                } else {
+                    xmlContent = XMLUtils.parse(dataStreamer.getInputStream());
+                }
+                EntityBodyHandler.addMessageDataSource(entityStruct, xmlContent);
+                //Set byte channel to null, once the message data source has been constructed
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                dataContext.setReturnValuesAndNotify(xmlContent);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                dataContext.createErrorAndNotify(
+                        "Error occurred while extracting json content from message: " + e.getMessage());
+            }
+        });
     }
 }

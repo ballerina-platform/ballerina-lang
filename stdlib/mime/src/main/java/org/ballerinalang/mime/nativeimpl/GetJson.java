@@ -21,13 +21,13 @@ package org.ballerinalang.mime.nativeimpl;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.mime.util.DataContext;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
@@ -61,13 +61,14 @@ public class GetJson implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BRefType<?> result;
+        DataContext dataContext = new DataContext(context, callback);
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
             if (MimeUtil.isJSONContentType(entityStruct)) {
                 BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
+                    BRefType<?> result;
                     // If the value is a already JSON, then return it as is.
                     if (isJSON(dataSource)) {
                         result = (BRefType<?>) dataSource;
@@ -76,17 +77,17 @@ public class GetJson implements NativeCallableUnit {
                         BString payload = MimeUtil.getMessageAsString(dataSource);
                         result = JsonParser.parse(payload.stringValue());
                     }
-                    context.setReturnValues(result);
+                    dataContext.setReturnValuesAndNotify(result);
                 } else {
-                    constructJsonDataSource(context, callback, entityStruct);
+                    constructJsonDataSource(dataContext, entityStruct);
                 }
             } else {
-                context.setReturnValues(MimeUtil.createError(context, "Entity body is not json compatible since the " +
-                        "received content-type is : " + baseType));
+                dataContext.createErrorAndNotify(
+                        "Entity body is not json compatible since the received content-type is : " + baseType);
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while extracting json data from entity: " + e.getMessage()));
+            dataContext.createErrorAndNotify(
+                    "Error occurred while extracting json data from entity: " + e.getMessage());
         }
     }
 
@@ -95,40 +96,36 @@ public class GetJson implements NativeCallableUnit {
         return false;
     }
 
-    private void constructJsonDataSource(Context context, CallableUnitCallback callback,
-                                         BMap<String, BValue> entityStruct) {
-        final BRefType<?>[] jsonData = new BRefType<?>[1];
+    private void constructJsonDataSource(DataContext dataContext, BMap<String, BValue> entityStruct) {
         HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
 
         inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
             @Override
             public void onComplete() {
+                BRefType<?> jsonData;
                 HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
                 String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
                                                                     HttpHeaderNames.CONTENT_TYPE.toString());
                 if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
                     String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
                     if (charsetValue != null && !charsetValue.isEmpty()) {
-                        jsonData[0] = JsonParser.parse(dataStreamer.getInputStream(), charsetValue);
+                        jsonData = JsonParser.parse(dataStreamer.getInputStream(), charsetValue);
                     } else {
-                        jsonData[0] = JsonParser.parse(dataStreamer.getInputStream());
+                        jsonData = JsonParser.parse(dataStreamer.getInputStream());
                     }
                 } else {
-                    jsonData[0] = JsonParser.parse(dataStreamer.getInputStream());
+                    jsonData = JsonParser.parse(dataStreamer.getInputStream());
                 }
-                EntityBodyHandler.addMessageDataSource(entityStruct, jsonData[0]);
+                EntityBodyHandler.addMessageDataSource(entityStruct, jsonData);
                 //Set byte channel to null, once the message data source has been constructed
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
-                context.setReturnValues(jsonData[0]);
-                callback.notifySuccess();
+                dataContext.setReturnValuesAndNotify(jsonData);
             }
 
             @Override
             public void onError(Exception e) {
-                String errorMsg = "Error occurred while extracting json content from message: " + e.getMessage();
-                BError error = MimeUtil.createError(context, errorMsg);
-                context.setReturnValues(error);
-                callback.notifyFailure(error);
+                dataContext.createErrorAndNotify(
+                        "Error occurred while extracting json content from message: " + e.getMessage());
             }
         });
     }
@@ -136,10 +133,6 @@ public class GetJson implements NativeCallableUnit {
     private boolean isJSON(BValue value) {
         // If the value is string, it could represent any type of payload.
         // Therefore it needs to be parsed as JSON.
-        if (value.getType().getTag() == TypeTags.STRING) {
-            return false;
-        }
-
-        return MimeUtil.isJSONCompatible(value.getType());
+        return value.getType().getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(value.getType());
     }
 }
