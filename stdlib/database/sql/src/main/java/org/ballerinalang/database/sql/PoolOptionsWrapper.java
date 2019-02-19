@@ -48,25 +48,26 @@ public class PoolOptionsWrapper {
      */
     public SQLDatasource retrieveDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
         ConcurrentMap<String, SQLDatasource> hikariDatasourceMap = createPoolMapIfNotExists();
-        SQLDatasource sqlDatasource = hikariDatasourceMap.get(sqlDatasourceParams.getJdbcUrl());
-        if (sqlDatasource != null) {
-            acquireDatasourceMutex(sqlDatasource);
+        SQLDatasource existingSqlDatasource = hikariDatasourceMap.get(sqlDatasourceParams.getJdbcUrl());
+        SQLDatasource sqlDatasourceToBeReturned = existingSqlDatasource;
+        if (existingSqlDatasource != null) {
+            acquireDatasourceMutex(existingSqlDatasource);
             try {
-                if (!sqlDatasource.isPoolShutdown()) {
-                    sqlDatasource.incrementClientCounter();
+                if (!existingSqlDatasource.isPoolShutdown()) {
+                    existingSqlDatasource.incrementClientCounter();
                 } else {
-                    hikariDatasourceMap.compute(sqlDatasourceParams.getJdbcUrl(),
+                    sqlDatasourceToBeReturned = hikariDatasourceMap.compute(sqlDatasourceParams.getJdbcUrl(),
                             (key, value) -> createAndInitDatasource(sqlDatasourceParams));
                 }
             } finally {
-                sqlDatasource.releaseMutex();
+                existingSqlDatasource.releaseMutex();
             }
         } else {
-            sqlDatasource = hikariDatasourceMap.computeIfAbsent(sqlDatasourceParams.getJdbcUrl(),
+            sqlDatasourceToBeReturned = hikariDatasourceMap.computeIfAbsent(sqlDatasourceParams.getJdbcUrl(),
                     key -> createAndInitDatasource(sqlDatasourceParams));
 
         }
-        return sqlDatasource;
+        return sqlDatasourceToBeReturned;
     }
 
     private void acquireDatasourceMutex(SQLDatasource sqlDatasource) {
