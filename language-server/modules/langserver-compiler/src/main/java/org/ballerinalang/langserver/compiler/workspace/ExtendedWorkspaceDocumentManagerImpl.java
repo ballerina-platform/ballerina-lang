@@ -15,12 +15,14 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.eclipse.lsp4j.CodeLens;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
@@ -78,6 +80,22 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         return openOrUpdateFile(filePath, updatedContent);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
+        if (isExplicitMode && isTempFile(filePath)) {
+            // If explicit mode is on and temp file, handle it locally
+            tempDocument.setCodeLenses(codeLens);
+        } else if (super.isFileOpen(filePath)) {
+            // If file open, call parent class
+            super.updateCodeLenses(filePath, codeLens);
+        } else {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+        }
+    }
+
     private Optional<Lock> openOrUpdateFile(Path filePath, String content) throws WorkspaceDocumentException {
         if (isExplicitMode && isTempFile(filePath)) {
             // If explicit mode is on and temp file, handle it locally
@@ -100,6 +118,19 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         if (!isExplicitMode && !isTempFile(filePath)) {
             super.closeFile(filePath);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeLens> getCodeLenses(Path filePath) {
+        if (isExplicitMode && isTempFile(filePath)) {
+            // If explicit mode is on and temp file, return local code lenses
+            return tempDocument.getCodeLenses();
+        }
+        // Or else, call parent class
+        return super.getCodeLenses(filePath);
     }
 
     /**

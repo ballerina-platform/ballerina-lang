@@ -17,7 +17,10 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.eclipse.lsp4j.CodeLens;
+
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -73,6 +76,34 @@ public interface WorkspaceDocumentManager {
      * @throws WorkspaceDocumentException when file cannot be updated.
      */
     Optional<Lock> updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException;
+
+    /**
+     * Updates code lenses of a given file in document manager with new code lenses sent to client.
+     *
+     * Usage example:
+     * <pre>
+     * Optional&lt;Lock&gt; lock = Optional.empty();
+     * try {
+     *     lock = documentManager.lockFile(filePath);
+     *     documentManager.updateCodeLenses(filePath, lenses);
+     * } finally {
+     *     lock.ifPresent(Lock:unlock);
+     * }
+     * </pre>
+     *
+     * @param filePath Path of the file
+     * @param codeLens New code lenses of the file
+     * @throws WorkspaceDocumentException when file cannot be updated.
+     */
+    void updateCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException;
+
+    /**
+     * Returns the code lenses of the file.
+     *
+     * @param filePath Path of the file
+     * @return Code lenses of the file
+     */
+    List<CodeLens> getCodeLenses(Path filePath);
 
     /**
      * Close the given file in document manager.
