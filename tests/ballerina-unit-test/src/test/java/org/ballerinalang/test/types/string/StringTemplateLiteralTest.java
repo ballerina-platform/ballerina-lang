@@ -58,7 +58,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText3", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "$");
+        Assert.assertEquals(returns[0].stringValue(), "\"");
     }
 
     @Test
@@ -244,6 +244,6 @@ public class StringTemplateLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "complexStringTemplateExpr", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(),
-                "Hello $$$\\{DummyText`\\test Ballerina endText\\{{{{{innerStartText 7 }}!!!");
+                "Hello \n$\\$${Dummy\tText`\\test Ballerina endText\\{{{{{innerStartText 7 }}!!!");
     }
 }

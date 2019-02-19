@@ -7,6 +7,6 @@ function checkStringTemplateWithText() returns (string) {
 
 function checkSpaceBetweenDollarAndBrace() returns (string) {
     string name = "Ballerina";
-    string s = string `Hello $ {name}}`;
+    string s = string `He\llo $ {name}}`;
     return s;
 }

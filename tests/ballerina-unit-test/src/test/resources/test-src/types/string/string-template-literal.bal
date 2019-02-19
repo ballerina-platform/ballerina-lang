@@ -9,7 +9,7 @@ function stringTemplateWithText2 () returns (string) {
 }
 
 function stringTemplateWithText3 () returns (string) {
-    string s = string `\$`;
+    string s = string `\"`;
     return s;
 }
 
@@ -151,5 +151,5 @@ function concatStringTemplateExprs() returns (string) {
 
 function complexStringTemplateExpr() returns (string) {
     string s1 = "Ballerina";
-    return string `Hello $$$\\{DummyText\`\\test ${s1} endText\\{{{{{innerStartText ${4 + 3} }}!!!`;
+    return string `Hello \n$\\$$\{Dummy\tText\`\\test ${s1} endText\\{{{{{innerStartText ${4 + 3} }}!!!`;
 }
