@@ -21,6 +21,7 @@ dependencies {
     implementation project(':ballerina-jms')
     implementation project(':ballerina-grpc')
     testCompile 'org.testng:testng:6.13.1'
+    testCompile project(':language-server:language-server-compiler')
 }
 
 description = 'Ballerina - Language server - Compiler'
