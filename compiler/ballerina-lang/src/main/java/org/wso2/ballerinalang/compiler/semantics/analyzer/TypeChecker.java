@@ -1576,7 +1576,7 @@ public class TypeChecker extends BLangNodeVisitor {
             } else {
                 BOperatorSymbol conversionSym = (BOperatorSymbol) symbol;
                 conversionExpr.conversionSymbol = conversionSym;
-                actualType = conversionSym.type.getReturnType();
+                actualType = targetType;
             }
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
