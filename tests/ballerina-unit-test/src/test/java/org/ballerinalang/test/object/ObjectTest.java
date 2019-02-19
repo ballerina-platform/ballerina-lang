@@ -534,10 +534,28 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 1, "object '__init()' function cannot be an 'extern' function", 23, 5);
     }
 
-    @Test(description = "Negative test to test nillable initialization")
+    @Test(description = "Test nillable initialization")
+    @SuppressWarnings("unchecked")
     public void testNillableInitialization() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_nillable_init.bal");
-        Assert.assertEquals(result.getErrorCount(), 0);
+        BValue[] personInstances = BRunUtil.invoke(result, "getPersonInstances");
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[0]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[1]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[2]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[3]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[4]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[5]), 0);
+
+        BValue[] results = BRunUtil.invoke(result, "getEmployeeInstance");
+        BMap<String, BValue> employee = (BMap<String, BValue>) results[0];
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) employee.get("p3")), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) employee.get("p4")), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) employee.get("p5")), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) employee.get("p6")), 0);
+    }
+
+    private long getAgeField(BMap<String, BValue> person) {
+        return ((BInteger) person.get("age")).intValue();
     }
 
     @Test(description = "Negative test to test object visibility modifiers")

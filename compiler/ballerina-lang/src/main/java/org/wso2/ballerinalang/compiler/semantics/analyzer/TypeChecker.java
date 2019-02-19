@@ -1147,7 +1147,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private List<BType> findMembersWithMatchingInitFunc(BLangTypeInit cIExpr, BUnionType lhsUnionType) {
         List<BType> matchingLhsMemberTypes = new ArrayList<>();
         for (BType memberType : lhsUnionType.memberTypes) {
-            if (memberType.tsymbol.kind != SymbolKind.OBJECT) {
+            if (memberType.tsymbol == null || memberType.tsymbol.kind != SymbolKind.OBJECT) {
                 // member is not an object.
                 continue;
             }

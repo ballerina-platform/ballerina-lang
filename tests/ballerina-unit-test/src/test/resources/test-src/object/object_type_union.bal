@@ -91,3 +91,5 @@ function returnDifferentObectInit2() {
     Person | () person = new(5);
     Person? otherOptionalPerson = new(6);
 }
+
+Obj0?[] objAr = [new(1), new(2)];
