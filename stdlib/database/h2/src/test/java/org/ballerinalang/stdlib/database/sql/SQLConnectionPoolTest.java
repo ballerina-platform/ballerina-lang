@@ -21,6 +21,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.utils.SQLDBUtils;
@@ -38,10 +39,10 @@ import java.util.HashMap;
  */
 public class SQLConnectionPoolTest {
     private CompileResult result;
-    private static final String DB1_NAME = "TEST_SQL_CONNECTION_POOL_1";
-    private static final String DB2_NAME = "TEST_SQL_CONNECTION_POOL_2";
-    private static final String DB3_NAME = "TEST_SQL_CONNECTION_POOL_3";
-    private static final String DB4_NAME = "TEST_SQL_CONNECTION_POOL_4";
+    private static final String DB1_NAME = "TEST_SQL_CONNECTION_POOL_GLOBAL_1";
+    private static final String DB2_NAME = "TEST_SQL_CONNECTION_POOL_GLOBAL_2";
+    private static final String DB3_NAME = "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1";
+    private static final String DB4_NAME = "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2";
     private Path ballerinaConfPath;
     private static final String POOL_TEST_GROUP = "ConnectionPoolTest";
 
@@ -177,7 +178,7 @@ public class SQLConnectionPoolTest {
     public void testLocalSharedConnectionPoolCreateClientAfterShutdown() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolCreateClientAfterShutdown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(3, 2)");
+        Assert.assertEquals(returns[0].stringValue(), "(3, 3)");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -186,5 +187,26 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], {\"Error\":\"Client has been "
                 + "stopped\"})");
+    }
+
+    @Test(groups = POOL_TEST_GROUP)
+    public void testLocalSharedConnectionPoolStopInitInterleave() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolStopInitInterleave");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test(dependsOnGroups = POOL_TEST_GROUP)
+    public void testLocalConnectionPoolShutDown() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testLocalConnectionPoolShutDown");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "(1, 1)");
+    }
+
+    @Test(dependsOnGroups = POOL_TEST_GROUP)
+    public void testGlobalPoolLiveness() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalPoolLiveness");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "(41, 11)");
     }
 }
