@@ -477,7 +477,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 LSServiceOperationContext codeLensContext = new LSServiceOperationContext();
                 codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-                BLangPackage bLangPackage = lsCompiler.getBLangPackage(codeLensContext, documentManager, false,
+                BLangPackage bLangPackage = lsCompiler.getBLangPackage(codeLensContext, documentManager, true,
                                                                        LSCustomErrorStrategy.class, false);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))

@@ -170,7 +170,7 @@ service {
                             }
                             var fetchedPayload = fetchResponse.getPayloadAsString();
                             stringPayload = fetchedPayload is string ? fetchedPayload : "";
-                        } else if (fetchResponse is error) {
+                        } else {
                             string errorCause = <string> fetchResponse.detail().message;
                             string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                     + errorCause;
@@ -181,9 +181,6 @@ service {
                             if (responseError is error) {
                                 log:printError("Error responding on update fetch failure", err = responseError);
                             }
-                            return;
-                        } else {
-                            // should never reach here
                             return;
                         }
                     } else {
@@ -199,7 +196,7 @@ service {
                     if (binaryPayload is byte[]) {
                         WebSubContent notification = { payload:binaryPayload, contentType:contentType };
                         publishStatus = publishToInternalHub(topic, notification);
-                    } else if (binaryPayload is error) {
+                    } else {
                         string errorCause = <string> binaryPayload.detail().message;
                         string errorMessage = "Error extracting payload: " + untaint errorCause;
                         log:printError(errorMessage);
@@ -336,12 +333,12 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                 log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
                         + callback + "]");
             }
-        } else if (respStringPayload is error) {
+        } else {
             string errCause = <string> respStringPayload.detail().message;
             log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
                     + "]: Error retrieving response payload: " + errCause);
         }
-    } else if (subscriberResponse is error) {
+    } else {
         string errCause = <string> subscriberResponse.detail().message;
         log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
@@ -488,12 +485,12 @@ returns error? {
                 log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
                                 + "], topic[" + subscriptionDetails.topic + "]");
             } else {
-                log:printError("Error delievering content to callback[" + callback + "] for topic["
+                log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
-        } else if (contentDistributionResponse is error) {
+        } else {
             string errCause = <string> contentDistributionResponse.detail().message;
-            log:printError("Error delievering content to callback[" + callback + "] for topic["
+            log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: " + errCause);
         }
     }

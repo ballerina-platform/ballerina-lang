@@ -146,7 +146,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
-        } else if (returnResult is json) {
+        } else {
             res.setJsonPayload(untaint returnResult.lang);
         }
         _ = caller->respond(res);
@@ -162,7 +162,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode =500;
-        } else if (returnResult is string) {
+        } else {
             res.setTextPayload(untaint returnResult);
         }
         _ = caller->respond(res);
@@ -179,7 +179,7 @@ service hello on mockEP {
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode =500;
-        } else if (returnResult is xml) {
+        } else {
             var name = returnResult.getTextValue();
             res.setTextPayload(untaint name);
         }

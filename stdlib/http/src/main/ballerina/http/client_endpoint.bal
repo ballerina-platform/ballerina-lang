@@ -237,7 +237,7 @@ public type ClientEndpointConfig record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = {};
+    PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
@@ -245,7 +245,8 @@ public type ClientEndpointConfig record {
     !...;
 };
 
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns Client;
+extern function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
+                                        returns Client;
 
 # Provides configurations for controlling the retry behaviour in failure scenarios.
 #
@@ -315,20 +316,6 @@ public type ProxyConfig record {
     int port = 0;
     string userName = "";
     string password = "";
-    !...;
-};
-
-# Provides configurations for throttling connections of the endpoint.
-#
-# + maxActiveConnections - Maximum number of active connections allowed for the endpoint. The default value, -1,
-#                          indicates that the number of connections are not restricted.
-# + waitTime - Maximum waiting time for a request to grab an idle connection from the client
-# + maxActiveStreamsPerConnection - Maximum number of active streams allowed per an HTTP/2 connection
-public type ConnectionThrottling record {
-    int maxActiveConnections = -1;
-    int waitTime = 60000;
-    // In order to distribute the workload among multiple connections in HTTP/2 scenario.
-    int maxActiveStreamsPerConnection = 20000;
     !...;
 };
 
@@ -448,7 +435,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
 
         time:Time circuitStartTime = time:currentTime();
         int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis/ cbConfig.rollingWindow.bucketSizeMillis);
-        Bucket[] bucketArray = [];
+        Bucket?[] bucketArray = [];
         int bucketIndex = 0;
         while (bucketIndex < numberOfBuckets) {
             bucketArray[bucketIndex] = {};

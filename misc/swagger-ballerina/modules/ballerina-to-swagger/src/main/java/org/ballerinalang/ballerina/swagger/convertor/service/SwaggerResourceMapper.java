@@ -531,11 +531,13 @@ public class SwaggerResourceMapper {
                         .get(HttpConstants.ANN_RESOURCE_ATTR_CONSUMES);
 
                 for (ExpressionNode expr : consumesArray.getExpressions()) {
-                    BLangLiteral consumesLit = (BLangLiteral) expr;
-                    String consumesVal = ConverterUtils.getStringLiteralValue(consumesLit);
+                    if (expr instanceof BLangLiteral) {
+                        BLangLiteral consumesLit = (BLangLiteral) expr;
+                        String consumesVal = ConverterUtils.getStringLiteralValue(consumesLit);
 
-                    if (consumesVal != null) {
-                        consumes.add(consumesVal);
+                        if (consumesVal != null) {
+                            consumes.add(consumesVal);
+                        }
                     }
                 }
                 operation.getOperation().setConsumes(consumes);
@@ -547,11 +549,13 @@ public class SwaggerResourceMapper {
                         .get(HttpConstants.ANN_RESOURCE_ATTR_PRODUCES);
 
                 for (ExpressionNode expr : producesArray.getExpressions()) {
-                    BLangLiteral producesLit = (BLangLiteral) expr;
-                    String producesVal = ConverterUtils.getStringLiteralValue(producesLit);
+                    if (expr instanceof BLangLiteral) {
+                        BLangLiteral producesLit = (BLangLiteral) expr;
+                        String producesVal = ConverterUtils.getStringLiteralValue(producesLit);
 
-                    if (producesVal != null) {
-                        produces.add(producesVal);
+                        if (producesVal != null) {
+                            produces.add(producesVal);
+                        }
                     }
                 }
                 operation.getOperation().setProduces(produces);

@@ -25,9 +25,31 @@ type Person record {
 type Person2 record {
     int id;
     int age;
-    float key;
+    string key;
     string name;
     boolean married;
+};
+
+type Subject record {
+   string name;
+   int moduleCount;
+};
+
+type Data record {
+    int id;
+    decimal salary;
+    json address;
+    xml role;
+};
+
+type ArrayData record {
+    int id;
+    int[] intArr;
+    string[] strArr;
+    float[] floatArr;
+    boolean[] boolArr;
+    byte[] byteArr;
+    decimal[] decimalArr;
 };
 
 table<Person> tGlobal = table{};
@@ -57,7 +79,7 @@ function testTableAddOnUnconstrainedTable() returns (int) {
 
 function testTableAddOnConstrainedTable() returns (int) {
     table<Person> t1 = table {
-        { key id, key salary, name, age, married }
+        { key id, salary, key name, age, married }
     };
 
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
@@ -80,7 +102,7 @@ function testTableLiteralData() returns (int) {
     Person p3 = { id: 3, age: 30, salary: 300.50, name: "peter", married: true };
 
     table<Person> t1 = table {
-        { key id, key salary, name, age, married },
+        { key id, salary, key name, age, married },
         [p1, p2, p3]
     };
 
@@ -112,7 +134,7 @@ function testTableLiteralDataAndAdd2() returns (int) {
     Person p5 = { id: 5, age: 30, salary: 300.50, name: "mary", married: true };
 
     table<Person> t1 = table {
-        { key id, key salary, name, age, married },
+        { key id, salary, key name, age, married },
         [{ 1, 300.5, "jane",  30, true },
          { 2, 302.5, "anne",  23, false },
          { 3, 320.5, "john",  33, true }
@@ -155,15 +177,15 @@ function testTableAddOnConstrainedTableWithViolation2() returns (string) {
 }
 
 function testTableLiteralDataAndAddWithKey() returns (int) {
-    Person2 p4 = { id: 4, age: 30, key: 300.50, name: "john", married: true };
-    Person2 p5 = { id: 5, age: 30, key: 300.50, name: "mary", married: true };
+    Person2 p4 = { id: 4, age: 30, key: "test", name: "john", married: true };
+    Person2 p5 = { id: 5, age: 30, key: "test", name: "mary", married: true };
 
-    float key = 454.9;
+    string key = "test2";
     table<Person2> t1 = table {
         { key id, key key, name, age, married },
-        [{ 1, 300.5, "jane", 30, true },
+        [{ 1, "test3", "jane", 30, true },
          { 2, key, "anne", 23, false },
-         { 3, 320.5, "peter", 33, true }
+         { 3, "test4", "peter", 33, true }
         ]
     };
 
@@ -176,7 +198,7 @@ function testTableLiteralDataAndAddWithKey() returns (int) {
 
 function testTableAddWhileIterating() returns (int, int) {
     table<Person> t1 = table {
-        { key id, key salary, name, age, married }
+        { key id, salary, key name, age, married }
     };
 
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
@@ -192,6 +214,80 @@ function testTableAddWhileIterating() returns (int, int) {
     }
     int count = t1.count();
     return (loopVariable, count);
+}
+
+function testTableStringPrimaryKey() returns int {
+    table<Subject> t1 = table {
+        { key name, moduleCount }
+    };
+
+    Subject s1 = { name: "Maths", moduleCount: 10 };
+    Subject s2 = { name: "Science", moduleCount: 5 };
+    _ = t1.add(s1);
+    _ = t1.add(s2);
+
+    int count = t1.count();
+    return t1.count();
+}
+
+function testTableWithDifferentDataTypes() returns (int, int, decimal, xml, json) {
+    table<Data> t1 = table {
+        { key id, salary, address, role }
+    };
+
+    json j = { city: "London", country: "UK" };
+    xml x = xml `<role>Manager</role>`;
+    Data d1 = { id: 10, salary: 1000.45, address: j, role: x  };
+    _ = t1.add(d1);
+
+    int i = 0;
+    decimal d = 0;
+    xml xRet = xml `<book>Invalid Role</book>`;
+    json jRet = {};
+    foreach var v in t1 {
+        i = v.id;
+        d = v.salary;
+        jRet = v.address;
+        xRet = v.role;
+    }
+
+    int count = t1.count();
+    return (count, i, d, xRet, jRet);
+}
+
+function testArrayData() returns (int, int[], string[], float[], boolean[], byte[], decimal[]) {
+    int[] iArr = [1, 2, 3];
+    string[] sArr = ["test1", "test2"];
+    float[] fArr = [1.1, 2.2];
+    boolean[] bArr = [true, false];
+    byte[] byteArrVal = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
+    decimal[] dArr = [11.11, 22.22];
+
+    table<ArrayData> t1 = table {
+        { key id, intArr, strArr, floatArr, boolArr, byteArr, decimalArr}
+    };
+
+    ArrayData d1 = { id: 10, intArr: iArr, strArr: sArr, floatArr: fArr, boolArr: bArr, byteArr: byteArrVal,
+                     decimalArr: dArr };
+    _ = t1.add(d1);
+
+    int i = 0;
+    int[] retiArr;
+    string[] retsArr;
+    float[] retfArr;
+    boolean[] retbArr;
+    byte[] retbyteArr;
+    decimal[] retdArr;
+    foreach var v in t1 {
+        i = v.id;
+        retiArr = v.intArr;
+        retsArr = v.strArr;
+        retfArr = v.floatArr;
+        retbArr = v.boolArr;
+        retbyteArr = v.byteArr;
+        retdArr = v.decimalArr;
+    }
+    return (i, retiArr, retsArr, retfArr, retbArr, retbyteArr, retdArr);
 }
 
 function isBelow35(Person p) returns (boolean) {

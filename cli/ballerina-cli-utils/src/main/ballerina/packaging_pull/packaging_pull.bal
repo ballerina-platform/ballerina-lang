@@ -120,7 +120,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     var result = centralEndpoint -> get(untaint versionRange, message=req);
     if (result is http:Response) {
         httpResponse = result;
-    } else if (result is error) {
+    } else {
         return createError("connection to the remote host failed : " + result.reason());
     }
 
@@ -300,7 +300,7 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
         if (readCount <= startVal) {
             completed = true;
         }
-        if (dest != null) {
+        if (dest != ()) {
             numberOfBytesWritten = check writeBytes(dest, readContent, startVal);
         }
         totalCount = totalCount + readCount;
@@ -381,7 +381,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
         } else {
             return;
         }
-    } else if (byteChannel is io:WritableByteChannel) {
+    } else  {
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
             io:println(logFormatter.formatLog("Error occured while closing the channel: " + channelCloseError.reason()));
