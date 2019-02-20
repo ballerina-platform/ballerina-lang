@@ -158,7 +158,7 @@ function testImplicitInitialValueOfTables() {
 
 @test:Config {}
 function testImplicitInitialValueOfSingletonTypes() {
-    One?[] singletonArray = [];
+    One[] singletonArray = [];
     singletonArray[1] = 1;
     One expectedVal = 1;
     test:assertEquals(singletonArray[0], expectedVal,

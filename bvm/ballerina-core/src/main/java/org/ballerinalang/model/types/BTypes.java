@@ -121,30 +121,4 @@ public class BTypes {
                 type.getTag() == TypeTags.ANY_TAG ||
                 type.getTag() == TypeTags.JSON_TAG;
     }
-
-    public static boolean isBasicType(BType type) {
-        switch (type.getTag()) {
-            case TypeTags.NULL_TAG:
-            case TypeTags.BOOLEAN_TAG:
-            case TypeTags.INT_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.STRING_TAG:
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.TUPLE_TAG:
-            case TypeTags.MAP_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-            case TypeTags.TABLE_TAG:
-            case TypeTags.XML_TAG:
-            case TypeTags.ERROR_TAG:
-            case TypeTags.FUNCTION_POINTER_TAG:
-            case TypeTags.FUTURE_TAG:
-            case TypeTags.OBJECT_TYPE_TAG:
-            case TypeTags.SERVICE_TAG:
-            case TypeTags.TYPEDESC_TAG:
-                return true;
-            default:
-                return false;
-        }
-    }
 }

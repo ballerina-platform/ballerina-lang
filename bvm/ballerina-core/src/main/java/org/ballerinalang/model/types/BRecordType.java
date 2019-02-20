@@ -35,8 +35,6 @@ public class BRecordType extends BStructureType {
     public boolean sealed;
     public BType restFieldType;
 
-    private BMap<String, BValue> implicitInitValue;
-
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
      *
@@ -56,40 +54,28 @@ public class BRecordType extends BStructureType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        if (this.implicitInitValue == null) {
-            this.implicitInitValue = new BMap<>(this);
-            this.fields.entrySet().stream()
-                    .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
-                    .forEach(entry -> {
-                        BValue value = entry.getValue().fieldType.getZeroValue();
-                        implicitInitValue.put(entry.getKey(), value);
-                    });
-        }
+        BMap<String, BValue> implicitInitValue = new BMap<>(this);
+        this.fields.entrySet().stream()
+                .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
+                .forEach(entry -> {
+                    BValue value = entry.getValue().fieldType.getZeroValue();
+                    implicitInitValue.put(entry.getKey(), value);
+                });
 
-        try {
-            return (V) implicitInitValue.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("Failed to get implicit initial value", e);
-        }
+        return (V) implicitInitValue;
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        if (this.implicitInitValue == null) {
-            this.implicitInitValue = new BMap<>(this);
-            this.fields.entrySet().stream()
-                    .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
-                    .forEach(entry -> {
-                        BValue value = entry.getValue().fieldType.getEmptyValue();
-                        implicitInitValue.put(entry.getKey(), value);
-                    });
-        }
+        BMap<String, BValue> implicitInitValue = new BMap<>(this);
+        this.fields.entrySet().stream()
+                .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
+                .forEach(entry -> {
+                    BValue value = entry.getValue().fieldType.getEmptyValue();
+                    implicitInitValue.put(entry.getKey(), value);
+                });
 
-        try {
-            return (V) implicitInitValue.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("Failed to get empty value", e);
-        }
+        return (V) implicitInitValue;
     }
 
     @Override

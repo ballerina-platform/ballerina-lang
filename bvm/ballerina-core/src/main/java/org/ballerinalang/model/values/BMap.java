@@ -66,7 +66,7 @@ import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
  * @since 0.8.0
  */
 @SuppressWarnings("rawtypes")
-public class BMap<K, V extends BValue> implements BRefType, BCollection, Serializable, Cloneable {
+public class BMap<K, V extends BValue> implements BRefType, BCollection, Serializable {
 
     private LinkedHashMap<K, V> map;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -560,10 +560,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     @Override
     public synchronized boolean isFrozen() {
         return this.freezeStatus.isFrozen();
-    }
-
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     private String getStringValue(V value) {
