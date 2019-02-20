@@ -714,13 +714,13 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void defineMapInBlockNode(BLangBlockStmt blockStmt) {
-        BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(env.enclInvokable.pos,
+        BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(blockStmt.pos,
                 symTable.mapType);
-        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(env.enclInvokable.pos,
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(blockStmt.pos,
                 blockStmt.dataHolder.mapSymbol.name.value,
                 blockStmt.dataHolder.mapSymbol.type, emptyRecord, blockStmt.dataHolder.mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(blockStmt.dataHolder.mapSymbol.type);
-        BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(env.enclInvokable.pos, mapVar);
+        BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(blockStmt.pos, mapVar);
         // Add the map variable to the top of the statements in the block node
         blockStmt.stmts.add(0, mapVarDef);
     }
@@ -2532,6 +2532,7 @@ public class Desugar extends BLangNodeVisitor {
         lambdaFunction.function.dataHolder = bLangArrowFunction.dataHolder;
         lambdaFunction.function.enclEnvCount = bLangArrowFunction.enclEnvCount;
         lambdaFunction.function.pos = bLangArrowFunction.pos;
+        lambdaFunction.function.body.pos = bLangArrowFunction.pos;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
