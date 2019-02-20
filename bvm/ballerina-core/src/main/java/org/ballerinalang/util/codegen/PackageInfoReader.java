@@ -598,67 +598,59 @@ public class PackageInfoReader {
         boolean isSimpleLiteral = dataInStream.readBoolean();
 
         if (isSimpleLiteral) {
-
-            // Read finite type cp index and ignore.
-            dataInStream.readInt();
-
-            // Read value type cp index and ignore.
-            dataInStream.readInt();
-
-            // Read and ignore flags.
-            dataInStream.readInt();
-
-            // Read and ignore literal value type tag.
-            int typeTag = dataInStream.readInt();
-
-            switch (typeTag) {
-                case TypeTags.BOOLEAN_TAG:
-                    dataInStream.readBoolean();
-                    break;
-                case TypeTags.INT_TAG:
-                case TypeTags.BYTE_TAG:
-                case TypeTags.FLOAT_TAG:
-                case TypeTags.DECIMAL_TAG:
-                case TypeTags.STRING_TAG:
-                    dataInStream.readInt();
-                    break;
-                case TypeTags.NULL_TAG:
-                    break;
-                default:
-                    throw new RuntimeException("unexpected type tag: " + typeTag);
-            }
-
-            // Read and ignore attributes.
-            int attributesCount = dataInStream.readShort();
-            for (int k = 0; k < attributesCount; k++) {
-                getAttributeInfo(packageInfo, constantPool);
-            }
+            readSimpleLiteral();
         } else {
-            //            readConstantMapInfo();
+            readConstantValueMap();
+        }
 
-            int i = 10;
-
+        // Read and ignore attributes.
+        int attributesCount = dataInStream.readShort();
+        for (int k = 0; k < attributesCount; k++) {
+            getAttributeInfo(packageInfo, constantPool);
         }
     }
 
-    private void readConstantMapInfo() throws IOException {
+    private void readSimpleLiteral() throws IOException {
+        // Read finite type cp index and ignore.
+        dataInStream.readInt();
+
+        // Read value type cp index and ignore.
+        dataInStream.readInt();
+
+        // Read and ignore flags.
+        dataInStream.readInt();
+
+        // Read and ignore literal value type tag.
+        int typeTag = dataInStream.readInt();
+
+        switch (typeTag) {
+            case TypeTags.BOOLEAN_TAG:
+                dataInStream.readBoolean();
+                break;
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+            case TypeTags.STRING_TAG:
+                dataInStream.readInt();
+                break;
+            case TypeTags.NULL_TAG:
+                break;
+            default:
+                throw new RuntimeException("unexpected type tag: " + typeTag);
+        }
+    }
+
+    private void readConstantValueMap() throws IOException {
+        // size
         int size = dataInStream.readInt();
         for (int i = 0; i < size; i++) {
-
-            boolean isTerminal = dataInStream.readBoolean();
-
             dataInStream.readInt();
-            dataInStream.readInt();
-            dataInStream.readInt();
-            dataInStream.readInt();
-
-            dataInStream.readInt();
-            dataInStream.readInt();
-            dataInStream.readInt();
-            dataInStream.readInt();
-
-            if (!isTerminal) {
-                readConstantMapInfo();
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+            if (isSimpleLiteral) {
+                readSimpleLiteral();
+            } else {
+                readConstantValueMap();
             }
         }
     }
@@ -1472,7 +1464,7 @@ public class PackageInfoReader {
                     break;
                 case InstructionCodes.FLUSH:
                     int retReg = codeStream.readInt();
-                    int workerCount  = codeStream.readInt();
+                    int workerCount = codeStream.readInt();
                     String[] workerList = new String[workerCount];
                     for (int wrkCount = 0; wrkCount < workerCount; wrkCount++) {
                         int channelRefCPIndex = codeStream.readInt();
@@ -1550,7 +1542,7 @@ public class PackageInfoReader {
                     UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
                     BType bType = getParamTypes(packageInfo, sigCPEntry.getValue())[0];
                     WorkerDataChannelInfo dataChannelInfo = channelRefCPEntry.getWorkerDataChannelInfo();
-                    boolean channelInSameStrand =  opcode == InstructionCodes.WRKSEND ? dataChannelInfo.getSource()
+                    boolean channelInSameStrand = opcode == InstructionCodes.WRKSEND ? dataChannelInfo.getSource()
                             .equals(BLangConstants.DEFAULT_WORKER_NAME) : dataChannelInfo.getTarget()
                             .equals(BLangConstants.DEFAULT_WORKER_NAME);
                     packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
