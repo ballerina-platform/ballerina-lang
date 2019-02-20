@@ -30,6 +30,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_PAUSED_FIELD;
 
@@ -37,7 +38,6 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS
  * This class invokes the Ballerina onTrigger function, and if an error occurs while invoking that function, it invokes
  * the onError function.
  */
-@SuppressWarnings("Duplicates")
 public class TaskExecutor {
 
     public static void execute(Context context, ServiceWithParameters serviceWithParameters) {
@@ -53,12 +53,13 @@ public class TaskExecutor {
         ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(serviceWithParameters.getService());
         FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
         FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();
+        BValue serviceParameter = serviceWithParameters.getServiceParameter();
 
         try {
             List<BValue> onTriggerFunctionArgs = new ArrayList<>();
             onTriggerFunctionArgs.add(serviceWithParameters.getService().getBValue());
-            if (onTriggerFunction.getParamTypes().length > 1) {
-                onTriggerFunctionArgs.add(serviceWithParameters.getServiceParameter());
+            if (onTriggerFunction.getParamTypes().length > 1 && Objects.nonNull(serviceParameter)) {
+                onTriggerFunctionArgs.add(serviceParameter);
             }
 
             // Invoke the onTrigger function.

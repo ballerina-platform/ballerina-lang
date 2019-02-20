@@ -32,6 +32,8 @@ import org.ballerinalang.stdlib.task.listener.objects.ServiceWithParameters;
 import org.ballerinalang.stdlib.task.listener.objects.Task;
 import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 
+import java.util.Objects;
+
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
@@ -65,7 +67,12 @@ public class Register extends BlockingNativeCallableUnit {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_REF_ARG_INDEX);
         BValue serviceParameters = ((BMap<String, BValue>) context.getRefArgument(TASK_SERVICE_REF_ARG_INDEX))
                 .get(TASK_SERVICE_PARAMETER);
-        ServiceWithParameters serviceWithParameters = new ServiceWithParameters(service, serviceParameters);
+        ServiceWithParameters serviceWithParameters;
+        if (Objects.nonNull(serviceParameters)) {
+            serviceWithParameters = new ServiceWithParameters(service, serviceParameters);
+        } else {
+            serviceWithParameters = new ServiceWithParameters(service);
+        }
 
         /* TODO:
          * Validate service at runtime, as compiler plugin not available.
