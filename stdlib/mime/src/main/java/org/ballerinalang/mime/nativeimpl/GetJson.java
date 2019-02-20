@@ -21,11 +21,9 @@ package org.ballerinalang.mime.nativeimpl;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.mime.util.DataContext;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
@@ -41,7 +39,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
@@ -57,85 +54,74 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetJson implements NativeCallableUnit {
+public class GetJson extends AbstractGetBodyHandler {
 
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
         try {
+            BRefType<?> result;
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (MimeUtil.isJSONContentType(entityStruct)) {
-                BRefType<?> result;
-                BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-                if (dataSource != null) {
-                    // If the value is a already JSON, then return it as is.
-                    if (isJSON(dataSource)) {
-                        result = (BRefType<?>) dataSource;
-                    } else {
-                        // Else, build the JSON from the string representation of the payload.
-                        BString payload = MimeUtil.getMessageAsString(dataSource);
-                        result = JsonParser.parse(payload.stringValue());
-                    }
-                    dataContext.setReturnValuesAndNotify(result);
-                } else {
-                    if (EntityBodyHandler.isBodyPartEntity(entityStruct)) {
-                        result = EntityBodyHandler.constructJsonDataSource(entityStruct);
-                        EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                        //Set byte channel to null, once the message data source has been constructed
-                        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
-                        dataContext.setReturnValuesAndNotify(result);
-                    } else {
-                        constructNonBlockingJsonDataSource(dataContext, entityStruct);
-                    }
-                }
-            } else {
-                dataContext.createErrorAndNotify(
-                        "Entity body is not json compatible since the received content-type is : " + baseType);
+
+            if (!MimeUtil.isJSONContentType(entityStruct)) {
+                String baseType = HeaderUtil.getBaseType(entityStruct);
+                createErrorAndNotify(context, callback, "Entity body is not json" + COMPATIBLE_SINCE_CONTENT_TYPE +
+                        baseType);
+                return;
             }
-        } catch (Throwable e) {
-            dataContext.createErrorAndNotify(
-                    "Error occurred while extracting json data from entity: " + e);
-        }
-    }
 
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            if (dataSource != null) {
+                // If the value is a already JSON, then return it as is.
+                if (isJSON(dataSource)) {
+                    result = (BRefType<?>) dataSource;
+                } else {
+                    // Else, build the JSON from the string representation of the payload.
+                    BString payload = MimeUtil.getMessageAsString(dataSource);
+                    result = JsonParser.parse(payload.stringValue());
+                }
+                setReturnValuesAndNotify(context, callback, result);
+                return;
+            }
 
-    private void constructNonBlockingJsonDataSource(DataContext dataContext, BMap<String, BValue> entityStruct) {
-        HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
-        inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
-            @Override
-            public void onComplete() {
-                BRefType<?> jsonData;
-                HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
-                String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
-                                                                    HttpHeaderNames.CONTENT_TYPE.toString());
-                if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
-                    String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                    if (charsetValue != null && !charsetValue.isEmpty()) {
-                        jsonData = JsonParser.parse(dataStreamer.getInputStream(), charsetValue);
+            if (isBodyPartEntity(entityStruct)) {
+                result = EntityBodyHandler.constructJsonDataSource(entityStruct);
+                updateDataSourceAndNotify(context, callback, entityStruct, result);
+                return;
+            }
+
+            // Construct non-blocking JSON data source
+            HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
+            inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
+                @Override
+                public void onComplete() {
+                    BRefType<?> jsonData;
+                    HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
+                    String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
+                                                                        HttpHeaderNames.CONTENT_TYPE.toString());
+                    if (validateNotNullAndNotEmpty(contentTypeValue)) {
+                        String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                        if (validateNotNullAndNotEmpty(charsetValue)) {
+                            jsonData = JsonParser.parse(dataStreamer.getInputStream(), charsetValue);
+                        } else {
+                            jsonData = JsonParser.parse(dataStreamer.getInputStream());
+                        }
                     } else {
                         jsonData = JsonParser.parse(dataStreamer.getInputStream());
                     }
-                } else {
-                    jsonData = JsonParser.parse(dataStreamer.getInputStream());
+                    updateDataSourceAndNotify(context, callback, entityStruct, jsonData);
                 }
-                EntityBodyHandler.addMessageDataSource(entityStruct, jsonData);
-                //Set byte channel to null, once the message data source has been constructed
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
-                dataContext.setReturnValuesAndNotify(jsonData);
-            }
 
-            @Override
-            public void onError(Exception e) {
-                dataContext.createErrorAndNotify(
-                        "Error occurred while extracting json content from message: " + e.getMessage());
-            }
-        });
+                @Override
+                public void onError(Exception e) {
+                    createErrorAndNotify(context, callback,ERROR_OCCURRED_WHILE_EXTRACTING +
+                            "json content from content collector: " + e.getMessage());
+                }
+            });
+        } catch (Throwable e) {
+            createErrorAndNotify(context, callback,ERROR_OCCURRED_WHILE_EXTRACTING +
+                    "json data from entity: " + e.getMessage());
+        }
     }
 
     private boolean isJSON(BValue value) {

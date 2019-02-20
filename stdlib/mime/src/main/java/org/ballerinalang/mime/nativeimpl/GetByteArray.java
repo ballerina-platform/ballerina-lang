@@ -21,11 +21,9 @@ package org.ballerinalang.mime.nativeimpl;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.mime.util.DataContext;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -41,7 +39,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
@@ -58,13 +55,11 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
                 @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetByteArray implements NativeCallableUnit {
+public class GetByteArray extends AbstractGetBodyHandler {
 
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
-
         try {
             BValueArray result = null;
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
@@ -74,10 +69,10 @@ public class GetByteArray implements NativeCallableUnit {
                     result = (BValueArray) messageDataSource;
                 } else {
                     String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
-                            HttpHeaderNames.CONTENT_TYPE.toString());
-                    if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
+                                                                        HttpHeaderNames.CONTENT_TYPE.toString());
+                    if (validateNotNullAndNotEmpty(contentTypeValue)) {
                         String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                        if (charsetValue != null && !charsetValue.isEmpty()) {
+                        if (validateNotNullAndNotEmpty(charsetValue)) {
                             result = new BValueArray(messageDataSource.stringValue().getBytes(charsetValue));
                         } else {
                             result = new BValueArray(messageDataSource.stringValue().getBytes(
@@ -85,52 +80,42 @@ public class GetByteArray implements NativeCallableUnit {
                         }
                     }
                 }
-                dataContext.setReturnValuesAndNotify(result != null ? result : new BValueArray(new byte[0]));
-            } else {
-                if (EntityBodyHandler.isBodyPartEntity(entityStruct)) {
-                    result = EntityBodyHandler.constructBlobDataSource(entityStruct);
-                    EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                    //Set byte channel to null, once the message data source has been constructed
-                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
-                    dataContext.setReturnValuesAndNotify(result);
-                } else {
-                    constructNonBlockingBlobDataSource(dataContext, entityStruct);
-                }
+                setReturnValuesAndNotify(context, callback, result != null ? result : new BValueArray(new byte[0]));
+                return;
             }
+
+
+            if (isBodyPartEntity(entityStruct)) {
+                result = EntityBodyHandler.constructBlobDataSource(entityStruct);
+                updateDataSourceAndNotify(context, callback, entityStruct, result);
+                return;
+            }
+
+            // Construct non-blocking byte array data source
+            HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
+            inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
+                @Override
+                public void onComplete() {
+                    HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
+                    try {
+                        byte[] byteData = MimeUtil.getByteArray(dataStreamer.getInputStream());
+                        BValueArray result = new BValueArray(byteData != null ? byteData : new byte[0]);
+                        updateDataSourceAndNotify(context, callback, entityStruct, result);
+                    } catch (IOException e) {
+                        onError(e);
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
+                            "blob content from message: " + e.getMessage());
+                }
+            });
+
         } catch (Throwable e) {
-            dataContext.createErrorAndNotify(
-                    "Error occurred while extracting blob data from entity : " + e.getMessage());
+            createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
+                    "blob data from entity : " + e.getMessage());
         }
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
-
-    private void constructNonBlockingBlobDataSource(DataContext dataContext, BMap<String, BValue> entityStruct) {
-        HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
-        inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
-            @Override
-            public void onComplete() {
-                HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
-                try {
-                    byte[] byteData = MimeUtil.getByteArray(dataStreamer.getInputStream());
-                    BValueArray result = new BValueArray(byteData != null ? byteData : new byte[0]);
-                    EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                    //Set byte channel to null, once the message data source has been constructed
-                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
-                    dataContext.setReturnValuesAndNotify(result);
-                } catch (IOException e) {
-                    onError(e);
-                }
-            }
-
-            @Override
-            public void onError(Exception e) {
-                dataContext.createErrorAndNotify(
-                        "Error occurred while extracting blob content from message: " + e.getMessage());
-            }
-        });
     }
 }

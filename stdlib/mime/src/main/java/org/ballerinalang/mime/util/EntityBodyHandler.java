@@ -55,7 +55,6 @@ import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_BODY_PART_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_PART_ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 
@@ -315,15 +314,5 @@ public class EntityBodyHandler {
     public static Channel getByteChannel(BMap<String, BValue> entityStruct) {
         return entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null ? (Channel) entityStruct.getNativeData
                 (ENTITY_BYTE_CHANNEL) : null;
-    }
-
-    /**
-     * Extract body parts from a given entity.
-     *
-     * @param entityStruct Represent a ballerina entity
-     * @return An array of body parts
-     */
-    public static boolean isBodyPartEntity(BMap<String, BValue> entityStruct) {
-        return entityStruct.getNativeData(IS_BODY_PART_ENTITY) != null;
     }
 }
