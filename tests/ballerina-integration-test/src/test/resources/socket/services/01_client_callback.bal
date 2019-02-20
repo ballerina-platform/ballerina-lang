@@ -38,6 +38,7 @@ service echo on echoEP {
                 io:println("Number of bytes written: ", writeResult);
                 _ = caller->accepted();
             } else {
+                io:println("Write error!!!");
                 string errMsg = <string>writeResult.detail().message;
                 resp.statusCode = 500;
                 resp.setPayload(errMsg);
