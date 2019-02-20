@@ -33,6 +33,6 @@ service timerService on timer {
     // This resource will trigger when an error is returned from the
     // onTrigger() resource.
     resource function onError(error e) {
-        log:printError("[ERROR] cleanup failed", err = e);
+        log:printError("Cleanup failed", err = e);
     }
 }
