@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
     public List<BLangRecordKeyValue> keyValuePairs;
     public boolean isConst;
+    public Name name;
 
     public BLangRecordLiteral() {
         keyValuePairs = new ArrayList<>();

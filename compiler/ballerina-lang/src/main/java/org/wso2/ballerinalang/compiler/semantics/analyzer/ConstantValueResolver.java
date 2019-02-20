@@ -19,11 +19,14 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * @since 0.990.4
@@ -33,9 +36,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
 
+    private BLangDiagnosticLog dlog;
+
     // Todo - Get Diagnostic log
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
+
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static ConstantValueResolver getInstance(CompilerContext context) {
@@ -46,7 +53,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public BLangLiteral getValue(BLangIdentifier key, BLangRecordLiteral.BLangMapLiteral mapLiteral) {
+    public BLangLiteral getValue(DiagnosticPos pos, BLangIdentifier key,
+                                 BLangRecordLiteral.BLangMapLiteral mapLiteral) {
 
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
             Object value = ((BLangLiteral) keyValuePair.key.expr).value;
@@ -56,9 +64,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     return ((BLangLiteral) keyValuePair.valueExpr);
                 } else {
                     // Todo
+                    throw new RuntimeException("unknown node kind");
                 }
             }
         }
+        dlog.error(pos, DiagnosticCode.KEY_NOT_FOUND, key, mapLiteral.name.value);
         return null;
     }
 }

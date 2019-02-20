@@ -31,6 +31,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ConstantValueResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
@@ -203,6 +204,7 @@ import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
@@ -1929,7 +1931,9 @@ public class Desugar extends BLangNodeVisitor {
                     // Todo - Remove?
                     literal.type = symbol.literalValueType;
 //                    literal.type.tag = symbol.literalValueTypeTag;
-                    result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
+                    BLangExpression result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
+                    ((BLangMapLiteral) result).name = symbol.name;
+                    this.result = result;
 
 //                    result =  constantValueResolver.getValue(, );
 
@@ -2009,15 +2013,19 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
         } else if (varRefType.tag == TypeTags.MAP) {
-            if(fieldAccessExpr.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR){
+            if (fieldAccessExpr.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                 BLangMapLiteral mapLiteral = (BLangMapLiteral) fieldAccessExpr.getExpression();
                 if (mapLiteral.isConst) {
 
-                    BLangLiteral value = constantValueResolver.getValue(fieldAccessExpr.field, mapLiteral);
+                    BLangLiteral value = constantValueResolver.getValue(fieldAccessExpr.pos, fieldAccessExpr.field,
+                            mapLiteral);
                     if (value == null) {
-                        // Todo - Error
+                        // Todo - Improve pos
+                        // Create a new literal as the result.
+                        result = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                    } else {
+                        result = value;
                     }
-                    result = value;
                     return;
                 }
             }

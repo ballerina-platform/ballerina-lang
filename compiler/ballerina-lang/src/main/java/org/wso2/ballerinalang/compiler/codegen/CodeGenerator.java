@@ -2249,7 +2249,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
                 // Create a new constant value object.
                 ConstantValue constantValue = new ConstantValue();
-                constantValue.valueTypeSigCPIndex=valueTypeSigCPIndex;
+                constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
 
                 constantValue.isSimpleLiteral = true;
 
