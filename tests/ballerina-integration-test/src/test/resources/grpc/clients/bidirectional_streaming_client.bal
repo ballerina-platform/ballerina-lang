@@ -36,6 +36,7 @@ public function testBidiStreaming() returns string {
     } else {
         ep = res;
     }
+    runtime:sleep(1000);
     ChatMessage mes1 = {name:"Sam", message:"Hi"};
     error? connErr = ep->send(mes1);
     if (connErr is error) {
