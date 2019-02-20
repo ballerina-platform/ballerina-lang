@@ -128,6 +128,8 @@ public class FormattingTest {
                 {"expectedErrorConstructor.bal", "errorConstructor.bal"},
                 {"expectedForever.bal", "forever.bal"},
                 {"expectedRecordLiteralExpr.bal", "recordLiteralExpr.bal"},
+                {"expectedStreamingQuery.bal", "streamingQuery.bal"},
+                {"expectedTableQuery.bal", "tableQuery.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
