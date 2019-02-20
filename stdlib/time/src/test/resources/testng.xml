@@ -21,8 +21,8 @@
 
 <suite name="ballerina-test-suite">
     <test name="ballerina-lang-stdlib-time-test-suite" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.stdlib.time.*"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.stdlib.time.TimeTest" />
+        </classes>
     </test>
 </suite>
