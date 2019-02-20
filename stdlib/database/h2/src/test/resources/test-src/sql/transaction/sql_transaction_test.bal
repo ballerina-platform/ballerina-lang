@@ -605,12 +605,12 @@ function testLocalTransactionFailedWithNextupdate() returns (int) {
     }
     _ = testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 12343, 5000.75, 'USA')");
-    testDB1.stop();
+    _ = testDB1.stop();
 
     var dt = testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
         ResultCount);
     i = getTableCountValColumn(dt);
-    testDB2.stop();
+    _ = testDB2.stop();
     return i;
 }
 
