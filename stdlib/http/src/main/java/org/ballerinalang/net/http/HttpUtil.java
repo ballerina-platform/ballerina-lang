@@ -1229,89 +1229,6 @@ public class HttpUtil {
         return responseStruct;
     }
 
-    /**
-     * Populates Sender configuration instance with client endpoint configuration.
-     *
-     * @param senderConfiguration  sender configuration instance.
-     * @param clientEndpointConfig client endpoint configuration.
-     */
-    @Deprecated
-    public static void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
-            clientEndpointConfig) {
-        ProxyServerConfiguration proxyServerConfiguration;
-        Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
-
-        if (secureSocket != null) {
-            HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
-        } else {
-            HttpUtil.setDefaultTrustStore(senderConfiguration);
-        }
-        Struct proxy = clientEndpointConfig.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);
-        if (proxy != null) {
-            String proxyHost = proxy.getStringField(HttpConstants.PROXY_HOST);
-            int proxyPort = (int) proxy.getIntField(HttpConstants.PROXY_PORT);
-            String proxyUserName = proxy.getStringField(HttpConstants.PROXY_USERNAME);
-            String proxyPassword = proxy.getStringField(HttpConstants.PROXY_PASSWORD);
-            try {
-                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
-            } catch (UnknownHostException e) {
-                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
-            }
-            if (!proxyUserName.isEmpty()) {
-                proxyServerConfiguration.setProxyUsername(proxyUserName);
-            }
-            if (!proxyPassword.isEmpty()) {
-                proxyServerConfiguration.setProxyPassword(proxyPassword);
-            }
-            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
-        }
-
-        String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
-        senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
-
-        long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
-        if (timeoutMillis < 0 || !isInteger(timeoutMillis)) {
-            throw new BallerinaConnectorException("invalid idle timeout: " + timeoutMillis);
-        }
-        senderConfiguration.setSocketIdleTimeout((int) timeoutMillis);
-
-        String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
-                .getStringValue();
-        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
-
-        String httpVersion = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_HTTP_VERSION);
-        if (httpVersion != null) {
-            senderConfiguration.setHttpVersion(httpVersion);
-        }
-        String forwardedExtension = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_FORWARDED);
-        senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
-
-        Struct connectionThrottling = clientEndpointConfig.getStructField(HttpConstants.
-                CONNECTION_THROTTLING_STRUCT_REFERENCE);
-        if (connectionThrottling != null) {
-            long maxActiveConnections = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS);
-            if (!isInteger(maxActiveConnections)) {
-                throw new BallerinaConnectorException("invalid maxActiveConnections value: "
-                        + maxActiveConnections);
-            }
-            senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
-
-            long waitTime = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
-            senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
-
-            long maxActiveStreamsPerConnection = connectionThrottling.
-                    getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
-            if (!isInteger(maxActiveStreamsPerConnection)) {
-                throw new BallerinaConnectorException("invalid maxActiveStreamsPerConnection value: "
-                        + maxActiveStreamsPerConnection);
-            }
-            senderConfiguration.getPoolConfiguration().setHttp2MaxActiveStreamsPerConnection(
-                    maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : (int) maxActiveStreamsPerConnection);
-        }
-    }
-
     public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, Struct
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration;
@@ -1383,10 +1300,6 @@ public class HttpUtil {
         poolConfiguration.setHttp2MaxActiveStreamsPerConnection(
                 maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : validateConfig(maxActiveStreamsPerConnection,
                                                                 CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION));
-    }
-
-    private static boolean isInteger(long val) {
-        return (int) val == val;
     }
 
     private static int validateConfig(long value, String configName) {

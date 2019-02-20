@@ -34,6 +34,8 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 
 import java.net.MalformedURLException;
@@ -46,7 +48,9 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_URL;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurationOptions;
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
+import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
+import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 
 /**
  * Extern function for initializing gRPC client endpoint.
@@ -69,7 +73,10 @@ public class Init extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         // Creating client endpoint with channel as native data.
-        BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
+        BMap<String, BValue> endpointConfigStruct =
+                (BMap<String, BValue>) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
+        BMap<String, BValue> globalPoolConfig = (BMap<String, BValue>) context
+                .getRefArgument(HttpConstants.CLIENT_GLOBAL_POOL_INDEX);
         Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
         String urlString = context.getStringArgument(0);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
@@ -91,14 +98,38 @@ public class Init extends BlockingNativeCallableUnit {
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
-        populateSenderConfigurationOptions(senderConfiguration, endpointConfig);
+        populateSenderConfigurations(senderConfiguration, endpointConfig);
+        ConnectionManager poolManager;
+        BMap<String, BValue> userDefinedPoolConfig = (BMap<String, BValue>) endpointConfigStruct.get(
+                HttpConstants.USER_DEFINED_POOL_CONFIG);
+
+        if (userDefinedPoolConfig == null) {
+            poolManager = getConnectionManager(globalPoolConfig);
+        } else {
+            poolManager = getConnectionManager(userDefinedPoolConfig);
+        }
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
         senderConfiguration.setForceHttp2(true);
         HttpClientConnector clientConnector = httpConnectorFactory.createHttpClientConnector(properties,
-                senderConfiguration);
+                senderConfiguration, poolManager);
 
         clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
         clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
 
+    }
+
+    private ConnectionManager getConnectionManager(BMap<String, BValue> poolStruct) {
+        ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
+        if (poolManager == null) {
+            synchronized (poolStruct) {
+                if (poolStruct.getNativeData(CONNECTION_MANAGER) == null) {
+                    PoolConfiguration userDefinedPool = new PoolConfiguration();
+                    populatePoolingConfig(poolStruct, userDefinedPool);
+                    poolManager = new ConnectionManager(userDefinedPool);
+                    poolStruct.addNativeData(CONNECTION_MANAGER, poolManager);
+                }
+            }
+        }
+        return poolManager;
     }
 }
