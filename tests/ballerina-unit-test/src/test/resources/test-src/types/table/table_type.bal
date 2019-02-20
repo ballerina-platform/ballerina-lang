@@ -29,6 +29,10 @@ type ResultPrimitive record {
     decimal DECIMAL_TYPE;
 };
 
+type ResultJson record {
+   json STRING_TYPE;
+};
+
 type ResultSetTestAlias record {
     int INT_TYPE;
     int LONG_TYPE;
@@ -1706,4 +1710,24 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns (i
 function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
     table<IntData> joinedTable = from t1 as table1 join t2 as table2 on
     table1.int_type == table2.int_type select table1.int_type as int_type;
+}
+
+function testAssignStringValueToJsonField() returns json {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    var result = testDB->select("SELECT string_type from DataTable WHERE row_id = 1", ResultJson);
+    json val = "";
+    if (result is table<ResultJson>) {
+        foreach var rs in result {
+            val = rs.STRING_TYPE;
+        }
+    }
+    testDB.stop();
+    return val;
 }

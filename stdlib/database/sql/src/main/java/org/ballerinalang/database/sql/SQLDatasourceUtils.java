@@ -30,6 +30,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -829,6 +830,9 @@ public class SQLDatasourceUtils {
             case TypeTags.BOOLEAN_TAG:
                 structData[i] = ((BBoolean) bValue).booleanValue();
                 break;
+            case TypeTags.DECIMAL_TAG:
+                structData[i] = ((BDecimal) bValue).decimalValue();
+                break;
             case TypeTags.ARRAY_TAG:
                 BType elementType = ((BArrayType) field.getFieldType()).getElementType();
                 if (elementType.getTag() == TypeTags.BYTE_TAG) {
@@ -986,6 +990,8 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.DOUBLE;
         case TypeTags.BOOLEAN_TAG:
             return Constants.SQLDataTypes.BOOLEAN;
+        case TypeTags.DECIMAL_TAG:
+            return Constants.SQLDataTypes.DECIMAL;
         default:
             throw new BallerinaException(
                     "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());
