@@ -60,15 +60,16 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 public class GetJson implements NativeCallableUnit {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute(Context context, CallableUnitCallback callback) {
         DataContext dataContext = new DataContext(context, callback);
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
             if (MimeUtil.isJSONContentType(entityStruct)) {
+                BRefType<?> result;
                 BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
-                    BRefType<?> result;
                     // If the value is a already JSON, then return it as is.
                     if (isJSON(dataSource)) {
                         result = (BRefType<?>) dataSource;
@@ -79,7 +80,15 @@ public class GetJson implements NativeCallableUnit {
                     }
                     dataContext.setReturnValuesAndNotify(result);
                 } else {
-                    constructJsonDataSource(dataContext, entityStruct);
+                    if (EntityBodyHandler.isBodyPartEntity(entityStruct)) {
+                        result = EntityBodyHandler.constructJsonDataSource(entityStruct);
+                        EntityBodyHandler.addMessageDataSource(entityStruct, result);
+                        //Set byte channel to null, once the message data source has been constructed
+                        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                        dataContext.setReturnValuesAndNotify(result);
+                    } else {
+                        constructNonBlockingJsonDataSource(dataContext, entityStruct);
+                    }
                 }
             } else {
                 dataContext.createErrorAndNotify(
@@ -87,7 +96,7 @@ public class GetJson implements NativeCallableUnit {
             }
         } catch (Throwable e) {
             dataContext.createErrorAndNotify(
-                    "Error occurred while extracting json data from entity: " + e.getMessage());
+                    "Error occurred while extracting json data from entity: " + e);
         }
     }
 
@@ -96,9 +105,8 @@ public class GetJson implements NativeCallableUnit {
         return false;
     }
 
-    private void constructJsonDataSource(DataContext dataContext, BMap<String, BValue> entityStruct) {
+    private void constructNonBlockingJsonDataSource(DataContext dataContext, BMap<String, BValue> entityStruct) {
         HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
-
         inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
             @Override
             public void onComplete() {
