@@ -35,7 +35,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
- * Tests scenarios of global pool, local shared pool, local unshared pool usage
+ * Tests scenarios of global pool, local shared pool, local unshared pool usage.
  */
 public class SQLConnectionPoolTest {
     private CompileResult result;
