@@ -1166,9 +1166,6 @@ public class SQLDatasourceUtils {
         return createSQLDataSource(context, sqlDatasourceParams);
     }
 
-    /**
-     * This method is used by the ballerinax/JDBC client.
-     */
     public static BMap<String, BValue> createSQLDBClient(Context context,
             org.ballerinalang.connector.api.Struct clientEndpointConfig) {
         String url = clientEndpointConfig.getStringField(Constants.EndpointConfig.URL);
