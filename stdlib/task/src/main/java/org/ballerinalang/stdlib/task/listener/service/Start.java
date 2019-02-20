@@ -62,7 +62,7 @@ public class Start extends BlockingNativeCallableUnit {
         String taskId = taskStruct.get(TASK_ID_FIELD).stringValue();
         boolean isRunning = ((BBoolean) taskStruct.get(TASK_IS_RUNNING_FIELD)).booleanValue();
         if (isRunning) {
-            String errorMessage = "Cannot start the task:" + " Task is already running.";
+            String errorMessage = "Cannot start the task: " + taskStruct.get("name") + " Task is already running.";
             context.setReturnValues(createError(context, errorMessage));
             return;
         }

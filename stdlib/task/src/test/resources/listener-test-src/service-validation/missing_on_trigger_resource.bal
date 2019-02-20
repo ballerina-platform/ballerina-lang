@@ -18,7 +18,7 @@ import ballerina/task;
 
 task:TimerConfiguration configuration = {
     interval: 2000,
-    delay: 1000
+    initialDelay: 1000
 };
 
 listener task:Listener timer = new(configuration);

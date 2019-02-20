@@ -19,7 +19,7 @@ import ballerina/task;
 public function main() {
     task:Listener timer = new({
             interval: 2000,
-            delay: 1000
+            initialDelay: 1000
         });
     var result = timer.attach(timerService, serviceParameter = getCount);
     result = timer.start();

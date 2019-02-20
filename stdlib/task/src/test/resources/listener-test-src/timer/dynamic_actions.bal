@@ -36,7 +36,7 @@ function getConfigurations(int interval, int delay, int noOfRecurrences)
              returns task:TimerConfiguration {
     task:TimerConfiguration configuration = {
         interval: interval,
-        delay: delay,
+        initialDelay: delay,
         noOfRecurrences: noOfRecurrences
     };
 
@@ -46,7 +46,7 @@ function getConfigurations(int interval, int delay, int noOfRecurrences)
 function getConfigurationsWithoutRecurrences(int interval, int delay) returns task:TimerConfiguration {
     task:TimerConfiguration configuration = {
         interval: interval,
-        delay: delay
+        initialDelay: delay
     };
 
     return configuration;

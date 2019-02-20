@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,12 +16,12 @@
 
 # Configurations related to a Timer
 #
-# + interval - Timer interval, which triggers the onTrigger() resource.
-# + delay - Delay after which the timer will run.
+# + interval - Timer interval (in Milliseconds), which triggers the onTrigger() resource.
+# + initialDelay - Delay (in Milliseconds) after which the timer will run.
 # + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
 public type TimerConfiguration record {
     int interval;
-    int delay?;
+    int initialDelay?;
     int noOfRecurrences?;
     !...;
 };
@@ -61,8 +61,8 @@ public type Listener object {
 
     public function __init(TimerConfiguration|AppointmentConfiguration configs) {
         if (configs is TimerConfiguration) {
-            if (configs["delay"] == ()) {
-                configs.delay = configs.interval;
+            if (configs["initialDelay"] == ()) {
+                configs.initialDelay = configs.interval;
             }
         }
         self.listenerConfiguration = configs;

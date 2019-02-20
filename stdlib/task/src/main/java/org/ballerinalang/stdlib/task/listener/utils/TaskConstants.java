@@ -39,7 +39,7 @@ public class TaskConstants {
     public static final String FIELD_NAME_NO_OF_RUNS = "noOfRecurrences";
 
     public static final String FIELD_NAME_INTERVAL = "interval";
-    public static final String FIELD_NAME_DELAY = "delay";
+    public static final String FIELD_NAME_DELAY = "initialDelay";
 
     public static final String FIELD_NAME_CRON_EXPRESSION = "cronExpression";
     public static final String FIELD_NAME_SECONDS = "seconds";
