@@ -226,7 +226,8 @@ public class TextDocumentFormatUtil {
             }
 
             /* Literal class - This class is escaped in backend to address cases like "ss\"" and 8.0 and null */
-            if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
+            if ((node.getKind() == NodeKind.LITERAL || node.getKind() == NodeKind.NUMERIC_LITERAL) &&
+                    "value".equals(jsonName)) {
                 if (prop instanceof String) {
                     nodeJson.addProperty(jsonName, '"' + StringEscapeUtils.escapeJava((String) prop) + '"');
                     nodeJson.addProperty(UNESCAPED_VALUE, String.valueOf(prop));

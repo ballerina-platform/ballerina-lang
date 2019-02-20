@@ -19,7 +19,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.codelenses.EndpointFindVisitor;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProvider;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CodeLens;
@@ -39,29 +38,12 @@ import java.util.List;
  * @since 0.990.3
  */
 @JavaSPIService("org.ballerinalang.langserver.codelenses.LSCodeLensesProvider")
-public class EndpointsCodeLensesProvider implements LSCodeLensesProvider {
-    private boolean isEnabled = true;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return "endpoints.CodeLenses";
-    }
-
+public class EndpointsCodeLensesProvider extends AbstractCodeLensesProvider {
     public EndpointsCodeLensesProvider() {
+        super("endpoints.CodeLenses");
         BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
             isEnabled = newConfig.getCodeLens().getEndpoints().isEnabled();
         });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isEnabled() {
-        return isEnabled;
     }
 
     /**

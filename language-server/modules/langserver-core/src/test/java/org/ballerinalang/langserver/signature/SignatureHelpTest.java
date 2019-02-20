@@ -77,6 +77,7 @@ public class SignatureHelpTest {
         log.info("Test textDocument/signatureHelp");
         return new Object[][] {
                 {"functionInSameFile.json", "functionInSameFile.bal"},
+                {"functionInSameFileWithoutDocumentation.json", "functionInSameFileWithoutDocumentation.bal"},
                 {"typeAttachedFunctions.json", "typeAttachedFunctions.bal"},
                 {"functionInBuiltinPackage.json", "functionInBuiltinPackage.bal"},
                 {"endpointActions.json", "endpointActions.bal"},

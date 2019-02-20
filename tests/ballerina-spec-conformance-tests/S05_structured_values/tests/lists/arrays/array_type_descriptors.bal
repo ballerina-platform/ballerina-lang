@@ -25,7 +25,7 @@ const EXPECTED_FIXED_AND_IMPLIED_LENGTH_TO_BE_EQUAL_FAILURE_MESSAGE =
 @test:Config {}
 function testArrayCovariance() {
     string[] stringArray = ["string one", "string two"];
-    (string|int)[] stringOrIntArray = stringArray;
+    (string|int)?[] stringOrIntArray = stringArray;
     stringOrIntArray[2] = "string three";
 
     test:assertEquals(stringOrIntArray[0], "string one", msg = EXPECTED_THE_ORIGINAL_VALUE_FAILURE_MESSAGE);
