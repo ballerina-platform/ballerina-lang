@@ -2330,7 +2330,7 @@
         <gson.version>2.7</gson.version>
         <maven.wagon.ssh.version>2.10</maven.wagon.ssh.version>
         <lambdaj.version>2.3.3</lambdaj.version>
-        <maven.plugin.api.version>2.0</maven.plugin.api.version>
+        <maven.plugin.api.version>3.6.0</maven.plugin.api.version>
         <maven.plugin.annotation.version>3.4</maven.plugin.annotation.version>
         <swagger.codegen.version>2.2.2</swagger.codegen.version>
         <airline.version>0.7</airline.version>
