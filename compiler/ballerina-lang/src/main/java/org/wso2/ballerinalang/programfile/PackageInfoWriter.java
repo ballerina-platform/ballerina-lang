@@ -53,6 +53,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -237,32 +238,61 @@ public class PackageInfoWriter {
 
             if (constantInfo.isSimpleLiteral) {
 
-                dataOutStream.writeInt(constantInfo.constantValue.finiteTypeSigCPIndex);
-                dataOutStream.writeInt(constantInfo.constantValue.valueTypeSigCPIndex);
-                dataOutStream.writeInt(constantInfo.constantValue.flags);
+                writeSimpleLiteral(dataOutStream, constantInfo.constantValue);
+            } else {
+                writeConstantValueMap(dataOutStream, constantInfo.constantValueMap,
+                        constantInfo.constantValueMapKeyCPIndex);
+            }
 
-                dataOutStream.writeInt(constantInfo.constantValue.literalValueTypeTag);
+            writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
+        }
+    }
 
-                // Todo - Add a util function?
-                switch (constantInfo.constantValue.literalValueTypeTag) {
+    private static void writeSimpleLiteral(DataOutputStream dataOutStream, ConstantValue constantValue) throws IOException {
+        dataOutStream.writeInt(constantValue.finiteTypeSigCPIndex);
+        dataOutStream.writeInt(constantValue.valueTypeSigCPIndex);
+        dataOutStream.writeInt(constantValue.flags);
 
-                    case TypeTags.BOOLEAN:
-                        dataOutStream.writeBoolean(constantInfo.constantValue.booleanValue);
-                        break;
-                    case TypeTags.INT:
-                    case TypeTags.BYTE:
-                    case TypeTags.FLOAT:
-                    case TypeTags.DECIMAL:
-                    case TypeTags.STRING:
-                        dataOutStream.writeInt(constantInfo.constantValue.valueCPEntry);
-                        break;
-                    case TypeTags.NIL:
-                        break;
-                    default:
-                        throw new RuntimeException("unexpected type tag: " + constantInfo.constantValue.literalValueTypeTag);
-                }
+        dataOutStream.writeInt(constantValue.literalValueTypeTag);
 
-                writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
+        // Todo - Add a util function?
+        switch (constantValue.literalValueTypeTag) {
+
+            case TypeTags.BOOLEAN:
+                dataOutStream.writeBoolean(constantValue.booleanValue);
+                break;
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+                dataOutStream.writeInt(constantValue.valueCPEntry);
+                break;
+            case TypeTags.NIL:
+                break;
+            default:
+                throw new RuntimeException("unexpected type tag: " + constantValue.literalValueTypeTag);
+        }
+    }
+
+    private static void writeConstantValueMap(DataOutputStream dataOutStream,
+                                              Map<String, ConstantValue> constantValueMap,
+                                              Map<String, Integer> constantValueMapKeyCPIndex) throws IOException {
+
+        dataOutStream.writeInt(constantValueMap.size());
+        for (Map.Entry<String, ConstantValue> entry : constantValueMap.entrySet()) {
+            String key = entry.getKey();
+            ConstantValue constantValue = entry.getValue();
+
+            dataOutStream.writeInt(constantValueMapKeyCPIndex.get(key));
+
+            dataOutStream.writeBoolean(constantValue.isSimpleLiteral);
+
+            if (constantValue.isSimpleLiteral) {
+                writeSimpleLiteral(dataOutStream, constantValue);
+            } else {
+                writeConstantValueMap(dataOutStream, constantValue.constantValueMap,
+                        constantValue.constantValueMapKeyCPIndex);
             }
         }
     }

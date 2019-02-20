@@ -31,7 +31,7 @@ public class ConstantValue {
 
     public boolean isSimpleLiteral;
 
-    public int literalValueTypeTag;
+    public int literalValueTypeTag = -1;
 
     //    // Todo - add other values
     public boolean booleanValue;
@@ -40,13 +40,16 @@ public class ConstantValue {
     //    private double floatValue;
     //    private String stringValue;
 
-    public int valueCPEntry;
+    public int valueCPEntry = -1;
 
     public Map<String, ConstantValue> constantValueMap = new HashMap<>();
+    public Map<String, Integer> constantValueMapKeyCPIndex = new HashMap<>();
 
     // Todo - Add array support
     //    private ConstantValue[] constantValueArray;
 
+
+    // Todo - Add a constructor
 
     //    public boolean getBooleanValue() {
     //        return booleanValue;
