@@ -83,7 +83,7 @@ public class ConnectionManager {
             trgHlrConnPool = getTrgHlrPoolFromGlobalPool(httpRoute, senderConfig, bootstrapConfig, clientEventGroup);
         }
 
-        return getTargetChannel(sourceHandler, trgHlrConnPool, trgHlrConnPoolId);
+        return getTargetChannel(sourceHandler, http2SourceHandler, trgHlrConnPool, trgHlrConnPoolId);
     }
 
     private GenericObjectPool getTrgHlrPoolFromGlobalPool(HttpRoute httpRoute, SenderConfiguration senderConfig,
@@ -156,19 +156,29 @@ public class ConnectionManager {
         globalConnPool.put(httpRoute.toString(), trgHlrConnPool);
     }
 
-    private TargetChannel getTargetChannel(SourceHandler sourceHandler, GenericObjectPool trgHlrConnPool,
+    private TargetChannel getTargetChannel(SourceHandler sourceHandler, Http2SourceHandler http2SourceHandler,
+                                           GenericObjectPool trgHlrConnPool,
                                            String trgHlrConnPoolId) throws Exception {
         TargetChannel targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
-        targetChannel.setCorrelatedSource(sourceHandler);
+        if (sourceHandler != null) {
+            targetChannel.setCorrelatedSource(sourceHandler);
+        } else if (http2SourceHandler != null) {
+            targetChannel.setCorrelatedSource(sourceHandler);
+        } else {
+            targetChannel.setCorrelatedSource(null);
+        }
         targetChannel.setConnectionManager(this);
         targetChannel.setTrgHlrConnPoolId(trgHlrConnPoolId);
         return targetChannel;
     }
 
     public void returnChannel(TargetChannel targetChannel) throws Exception {
+        Map<String, GenericObjectPool> objectPoolMap = null;
         if (targetChannel.getCorrelatedSource() != null) {
-            Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
-            releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getTrgHlrConnPoolId()));
+            objectPoolMap = getTargetPoolMap(targetChannel, objectPoolMap);
+            if (objectPoolMap != null) {
+                releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getTrgHlrConnPoolId()));
+            }
         } else {
             releaseChannelToPool(targetChannel, globalConnPool.get(targetChannel.getHttpRoute().toString()));
         }
@@ -191,8 +201,9 @@ public class ConnectionManager {
     }
 
     public void invalidateTargetChannel(TargetChannel targetChannel) throws Exception {
+        Map<String, GenericObjectPool> objectPoolMap = null;
         if (targetChannel.getCorrelatedSource() != null) {
-            Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
+            objectPoolMap = getTargetPoolMap(targetChannel, objectPoolMap);
             try {
                 // Need a null check because SourceHandler side could timeout before TargetHandler side.
                 String poolId = targetChannel.getTrgHlrConnPoolId();
@@ -207,6 +218,18 @@ public class ConnectionManager {
                 throw new Exception("Cannot invalidate channel from pool", e);
             }
         }
+    }
+
+    private Map<String, GenericObjectPool> getTargetPoolMap(TargetChannel targetChannel,
+                                                            Map<String, GenericObjectPool> objectPoolMap) {
+        if (targetChannel.getCorrelatedSource() instanceof SourceHandler) {
+            SourceHandler h1SourceHandler = (SourceHandler) targetChannel.getCorrelatedSource();
+            objectPoolMap = h1SourceHandler.getTargetChannelPool();
+        } else if (targetChannel.getCorrelatedSource() instanceof Http2SourceHandler) {
+            Http2SourceHandler h2SourceHandler = (Http2SourceHandler) targetChannel.getCorrelatedSource();
+            objectPoolMap = h2SourceHandler.getTargetChannelPool();
+        }
+        return objectPoolMap;
     }
 
     public Http2ConnectionManager getHttp2ConnectionManager() {
