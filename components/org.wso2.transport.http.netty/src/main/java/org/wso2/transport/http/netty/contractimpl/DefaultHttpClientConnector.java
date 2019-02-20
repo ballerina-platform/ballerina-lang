@@ -154,9 +154,9 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
         if (sourceHandlerObject != null) {
             if (sourceHandlerObject instanceof SourceHandler) {
-                srcHandler = (SourceHandler)sourceHandlerObject;
+                srcHandler = (SourceHandler) sourceHandlerObject;
             } else if (sourceHandlerObject instanceof Http2SourceHandler) {
-                http2SourceHandler = (Http2SourceHandler)sourceHandlerObject;
+                http2SourceHandler = (Http2SourceHandler) sourceHandlerObject;
             }
         }
 
@@ -211,15 +211,16 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                                                                              h1SourceHandler.getEventLoop()
                                                                                  .register(channelFuture.channel())
                                                                                  .addListener(
-                                                                                     future1 -> startExecutingOutboundRequest(
+                                                                                     future1 ->
+                                                                                         startExecutingOutboundRequest(
                                                                                          protocol, channelFuture)));
                     } else if (protocol.equalsIgnoreCase(Constants.HTTP_SCHEME) && h2SourceHandler != null) {
                         channelFuture.channel().deregister().addListener(future ->
                                                                              h2SourceHandler.getChannelHandlerContext()
                                                                                  .channel().eventLoop()
                                                                                  .register(channelFuture.channel())
-                                                                                 .addListener(
-                                                                                     future1 -> startExecutingOutboundRequest(
+                                                                                 .addListener(future1 ->
+                                                                                         startExecutingOutboundRequest(
                                                                                          protocol, channelFuture)));
                     } else {
                         startExecutingOutboundRequest(protocol, channelFuture);
