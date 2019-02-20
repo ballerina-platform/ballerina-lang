@@ -584,6 +584,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         case TypeTags.BOOLEAN_TAG:
                             paramValue = new BBoolean(((BValueArray) value).getBoolean(i) > 0);
                             break;
+                        case TypeTags.DECIMAL_TAG:
+                            paramValue = ((BValueArray) value).getRefValue(i);
+                            break;
                         // The value parameter of the struct is an array of arrays. Only possibility that should be
                         // supported is, this being an array of byte arrays (blob)
                         // eg: [blob1, blob2, blob3] == [byteArray1, byteArray2, byteArray3]
