@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Check the freeze status of a given value.
  *
- * @since 0.991.0
+ * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina",
         packageName = "utils",
@@ -42,7 +42,7 @@ public class IsFrozen extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context ctx) {
         BValue value = ctx.getNullableRefArgument(0);
-        boolean frozen = (value == null || value.isFrozen()) ? true : false;
+        boolean frozen = value == null || value.isFrozen();
         ctx.setReturnValues(new BBoolean(frozen));
     }
 }
