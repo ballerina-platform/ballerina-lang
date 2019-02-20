@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 /**
  * String function invocation test.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class StringFunctionInvocationExprTest {
 

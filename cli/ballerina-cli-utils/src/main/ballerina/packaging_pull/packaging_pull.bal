@@ -297,7 +297,7 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
         if (readCount <= startVal) {
             completed = true;
         }
-        if (dest != null) {
+        if (dest != ()) {
             numberOfBytesWritten = check writeBytes(dest, readContent, startVal);
         }
         totalCount = totalCount + readCount;

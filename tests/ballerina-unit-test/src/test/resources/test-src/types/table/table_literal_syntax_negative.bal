@@ -197,7 +197,7 @@ function addInvalidErrorData() {
 type ArrayRecord record {
     int id;
     xml[] xArr;
-    error[] eArr;
+    error?[] eArr;
 };
 
 function addInvalidArrayData() {

@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
@@ -36,19 +35,17 @@ import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerCall;
+import org.ballerinalang.net.grpc.ServiceResource;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
-import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
 
 /**
  * Interface to initiate processing of incoming remote calls.
@@ -63,7 +60,6 @@ public abstract class ServerCallHandler {
     static final String TOO_MANY_REQUESTS = "Too many requests";
     static final String MISSING_REQUEST = "Half-closed without a request";
     private Descriptors.MethodDescriptor methodDescriptor;
-    private static final Logger LOG = LoggerFactory.getLogger(ServerCallHandler.class);
 
     ServerCallHandler(Descriptors.MethodDescriptor methodDescriptor) {
         this.methodDescriptor = methodDescriptor;
@@ -146,8 +142,7 @@ public abstract class ServerCallHandler {
      * @param responseObserver client responder instance.
      * @return instance of endpoint type.
      */
-    private BValue getConnectionParameter(Resource resource, StreamObserver responseObserver) {
-        ProgramFile programFile = getProgramFile(resource);
+    private BValue getConnectionParameter(ProgramFile programFile, StreamObserver responseObserver) {
         // generate client responder struct on request message with response observer and response msg type.
         BMap<String, BValue> clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
                 GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER);
@@ -166,20 +161,19 @@ public abstract class ServerCallHandler {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
 
-    void onErrorInvoke(Resource resource, StreamObserver responseObserver, Message error) {
-        if (resource == null) {
-            String message = "Error in listener service definition. onError resource does not exists";
-            LOG.error(message);
-            throw new ServerRuntimeException(message);
+    void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error) {
+        if (resource == null || resource.getParamDetailList() == null) {
+            throw new ServerRuntimeException("Error in listener service definition. onError resource does not exists");
         }
-        List<ParamDetail> paramDetails = resource.getParamDetails();
+        List<ParamDetail> paramDetails = resource.getParamDetailList();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(resource, responseObserver);
+        signatureParams[0] = getConnectionParameter(resource.getProgramFile(), responseObserver);
         BType errorType = paramDetails.get(1).getVarType();
         BError errorStruct = MessageUtils.getConnectorError((BErrorType) errorType, error.getError());
         signatureParams[1] = errorStruct;
-        BMap<String, BValue> headerStruct = getHeaderStruct(resource);
-        if (headerStruct != null) {
+        BMap<String, BValue> headerStruct = null;
+        if (resource.isHeaderRequired()) {
+            headerStruct = getHeaderStruct(resource.getProgramFile());
             headerStruct.addNativeData(MESSAGE_HEADERS, error.getHeaders());
         }
 
@@ -187,20 +181,25 @@ public abstract class ServerCallHandler {
             signatureParams[2] = headerStruct;
         }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
-        Executor.submit(resource, callback, null, null, signatureParams);
+        Executor.submit(resource.getResource(), callback, null, null, signatureParams);
     }
 
-    void onMessageInvoke(Resource resource, Message request, StreamObserver responseObserver) {
+    void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver) {
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-        Executor.submit(resource, callback, null, null, computeMessageParams(resource, request, responseObserver));
+        Executor.submit(resource.getResource(), callback, null, null, computeMessageParams(resource, request,
+                responseObserver));
     }
 
-    BValue[] computeMessageParams(Resource resource, Message request, StreamObserver responseObserver) {
-        List<ParamDetail> paramDetails = resource.getParamDetails();
+    BValue[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {
+        if (resource == null || resource.getParamDetailList() == null) {
+            throw new ServerRuntimeException("Error when dispatching request. Incorrect service resource definition");
+        }
+        List<ParamDetail> paramDetails = resource.getParamDetailList();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(resource, responseObserver);
-        BMap<String, BValue> headerStruct = getHeaderStruct(resource);
-        if (headerStruct != null) {
+        signatureParams[0] = getConnectionParameter(resource.getProgramFile(), responseObserver);
+        BMap<String, BValue> headerStruct = null;
+        if (resource.isHeaderRequired()) {
+            headerStruct = getHeaderStruct(resource.getProgramFile());
             headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
         }
         BValue requestParam = request != null ? request.getbMessage() : null;

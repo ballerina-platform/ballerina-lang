@@ -1,6 +1,6 @@
 function checkFunctionPointerNullEqual() returns (int){
    function (int, string) returns (float|error) f = getIt();
-   if (f == null) {
+   if (f == ()) {
        return 1;
    } else {
        return 0;
@@ -9,7 +9,7 @@ function checkFunctionPointerNullEqual() returns (int){
 
 function checkFunctionPointerNullNotEqual() returns (int){
    function (int, string) returns (float|error) f = getIt();
-   if (f != null) {
+   if (f != ()) {
        return 1;
    } else {
        return 0;

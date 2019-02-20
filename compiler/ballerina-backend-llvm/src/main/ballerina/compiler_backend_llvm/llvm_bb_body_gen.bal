@@ -16,7 +16,8 @@ type BbBodyGenrator object {
         llvm:LLVMBasicBlockRef bbRef = llvm:LLVMAppendBasicBlock(self.parent.funcRef, self.bb.id.value);
         llvm:LLVMPositionBuilderAtEnd(self.builder, bbRef);
         foreach var i in self.bb.instructions {
-            self.genInstruction(i);
+            bir:Instruction ins = <bir:Instruction>i;
+            self.genInstruction(ins);
         }
         return new(self.builder, self.bb, bbRef, self.parent);
     }
@@ -26,8 +27,11 @@ type BbBodyGenrator object {
             self.genMoveIns(instruction);
         } else if (instruction is bir:BinaryOp) {
             self.genBinaryOpIns(instruction);
-        } else {
+        } else if (instruction is bir:ConstantLoad) {
             self.genConstantLoadIns(instruction);
+        } else {
+            error err = error("Invalid bir:Instruction");
+            panic err;
         }
     }
 

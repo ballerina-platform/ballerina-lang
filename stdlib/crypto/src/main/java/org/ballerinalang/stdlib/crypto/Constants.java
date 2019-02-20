@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.crypto;
 /**
  * Constants related to Ballerina crypto stdlib.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class Constants {
 
@@ -75,4 +75,19 @@ public class Constants {
 
     // PKCS12 keystore type
     public static final String KEYSTORE_TYPE_PKCS12 = "PKCS12";
+
+    // CBC encryption mode
+    public static final String CBC = "CBC";
+
+    // ECB encryption mode
+    public static final String ECB = "ECB";
+
+    // GCM encryption mode
+    public static final String GCM = "GCM";
+
+    // AES encryption algorithm
+    public static final String AES = "AES";
+
+    // RSA encryption algorithm
+    public static final String RSA = "RSA";
 }

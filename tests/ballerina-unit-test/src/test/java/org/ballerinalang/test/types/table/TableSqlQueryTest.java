@@ -43,36 +43,31 @@ public class TableSqlQueryTest {
 
     @Test(groups = "TableQueryTest", description = "Do a simple select all")
     public void testSimpleSelectAll() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAll", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAll");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
     @Test(groups = "TableQueryTest", description = "Do a simple select with few fields from a table")
     public void testSimpleSelectFewFields() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectFewFields", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectFewFields");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
     @Test(groups = "TableQueryTest", description = "Do a simple join with the select")
     public void testSimpleSelectWithJoin() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectWithJoin", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectWithJoin");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
     @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where")
     public void testSelectWithJoinAndWhere() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhere", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhere");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where along with group by")
     public void testSelectWithJoinAndWhereWithGroupBy() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupBy", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupBy");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
@@ -84,16 +79,20 @@ public class TableSqlQueryTest {
 
     @Test(groups = "TableQueryTest", description = "Do a simple select all with limit")
     public void testSimpleSelectAllWithLimit() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAllWithLimit", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAllWithLimit");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test(groups = "TableQueryTest", description = "Do a simple select within an if block")
+    public void testSimpleSelectAllWithCondition() {
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAllWithCondition");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
     @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where along with group by " +
                                                    "with limit")
     public void testSelectWithJoinAndWhereWithGroupByWithLimit() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupByWithLimit", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupByWithLimit");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
