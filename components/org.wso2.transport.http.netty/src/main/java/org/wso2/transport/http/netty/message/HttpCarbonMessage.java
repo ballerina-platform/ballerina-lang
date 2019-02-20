@@ -61,6 +61,7 @@ public class HttpCarbonMessage {
     private IOException ioException;
     private MessageStateContext httpMessageStateContext;
     private Http2MessageStateContext http2MessageStateContext;
+    private FullHttpMessageFuture fullHttpMessageFuture;
 
     private long sequenceId; //Keep track of request/response order
     private ChannelHandlerContext sourceContext;
@@ -69,6 +70,7 @@ public class HttpCarbonMessage {
     private boolean keepAlive;
     private boolean pipeliningEnabled;
     private boolean passthrough = false;
+    private boolean lastHttpContentArrived = false;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -255,7 +257,7 @@ public class HttpCarbonMessage {
 
     public synchronized void removeMessageFuture() {
         this.messageFuture = null;
-        // To ensure that the carbon message is resuable.
+        // To ensure that the carbon message is reusable.
         passthrough = false;
     }
 
@@ -503,5 +505,43 @@ public class HttpCarbonMessage {
      */
     public ChannelHandlerContext getTargetContext() {
         return targetContext;
+    }
+
+    /**
+     * Returns the {@link FullHttpMessageFuture} which notifies {@link FullHttpMessageListener} when the complete
+     * content of the {@link HttpCarbonMessage} is accumulated.
+     *
+     * @return the default implementation of the {@link FullHttpMessageFuture}.
+     */
+    public synchronized FullHttpMessageFuture getFullHttpCarbonMessage() {
+        contentObservable.removeListener();
+        fullHttpMessageFuture = new DefaultFullHttpMessageFuture(this);
+        return fullHttpMessageFuture;
+    }
+
+    /**
+     * Sets the lastHttpContentArrived flag true upon the last HTTP content arrival and notifies the
+     * {@link FullHttpMessageFuture} if available.
+     */
+    public synchronized void setLastHttpContentArrived() {
+        this.lastHttpContentArrived = true;
+        if (fullHttpMessageFuture != null) {
+            fullHttpMessageFuture.notifySuccess();
+        }
+    }
+
+    synchronized boolean isLastHttpContentArrived() {
+        return lastHttpContentArrived;
+    }
+
+    /**
+     * Notifies {@link FullHttpMessageListener} if the content accumulation fails.
+     *
+     * @param exception of content accumulation
+     */
+    public synchronized void notifyContentFailure(Exception exception) {
+        if (fullHttpMessageFuture != null) {
+            fullHttpMessageFuture.notifyFailure(exception);
+        }
     }
 }
