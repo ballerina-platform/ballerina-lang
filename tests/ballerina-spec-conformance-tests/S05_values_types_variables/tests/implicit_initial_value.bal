@@ -118,3 +118,69 @@ function testImplicitInitialValueOfJSONType() {
     jsonArray[1] = 3;
     test:assertEquals(jsonArray[0], (), msg = "expected implicit initial value of json type to be ()");
 }
+
+@test:Config {}
+function testImplicitInitialValueOfTuples() {
+    (int, boolean, string)[] tupleArray = [];
+    tupleArray[1] = (200, true, "test string");
+    (int, boolean, string) expectedTuple = (0, false, "");
+    test:assertEquals(tupleArray[0], expectedTuple,
+        msg = "expected implicit initial value of (int, boolean, string) to be (0, false, \"\")");
+}
+
+@test:Config {}
+function testImplicitInitialValueOfMaps() {
+    map<any>[] mapArray = [];
+    mapArray[1] = { fieldOne: "valueOne" };
+    any implicitInitVal = mapArray[0];
+    test:assertTrue(implicitInitVal is map<any>, msg = "expected implicit initial value to be of type map<any>");
+    test:assertEquals(mapArray[0].length(), 0, msg = "expected an empty map");
+}
+
+@test:Config {}
+function testImplicitInitialValueOfRecords() {
+    QuuxRecord[] quuxRecordArray = [];
+    quuxRecordArray[1] = { quuxFieldOne: "valueOne" };
+    QuuxRecord expectedRecord = {quuxFieldOne: ""};
+    test:assertEquals(quuxRecordArray[0], expectedRecord,
+        msg = "expected implicit initial value of QuuxRecord to be { quuxFieldOne: \"\" }");
+}
+
+@test:Config {}
+function testImplicitInitialValueOfTables() {
+    table<QuuzRecord>[] tableArray = [];
+    tableArray[1] = table{};
+    any implicitInitVal = tableArray[0];
+    test:assertTrue(implicitInitVal is table<QuuzRecord>,
+        msg = "expected implicit initial value to be of type table<QuuzRecord>");
+    test:assertEquals(tableArray[0].length(), 0, msg = "expected table to be empty");
+}
+
+@test:Config {}
+function testImplicitInitialValueOfSingletonTypes() {
+    One?[] singletonArray = [];
+    singletonArray[1] = 1;
+    One expectedVal = 1;
+    test:assertEquals(singletonArray[0], expectedVal,
+        msg = "expected implicit initial value of a singleton to be the singleton value");
+}
+
+type Union 0|1|2;
+
+@test:Config {}
+function testImplicitInitialValueOfUnions() {
+    Union[] unionArray2 = [];
+    unionArray2[1] = 2;
+    Union expectedVal = 0;
+    test:assertEquals(unionArray2[0], expectedVal, msg = "expected implicit initial value of this union should be 0");
+}
+
+public type QuuzRecord record {
+    int quuzFieldOne;
+    !...;
+};
+
+public type QuuxRecord record {
+    string quuxFieldOne;
+    !...;
+};
