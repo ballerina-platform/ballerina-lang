@@ -48,6 +48,12 @@ public class DefaultFullHttpMessageFuture implements FullHttpMessageFuture {
         messageListener = null;
     }
 
+    /**
+     * The notifySuccess() method can get invoked by both I/O thread and Worker thread. AddListener is the caller
+     * method for worker thread and it is synchronized using the {@link HttpCarbonMessage}. I/O thread uses
+     * setLastHttpContentArrived() method which is a synchronized caller method. Therefore notifySuccess() is thread
+     * safe and does not required to be synchronized.
+     */
     @Override
     public void notifySuccess() {
         if (messageListener != null) {
