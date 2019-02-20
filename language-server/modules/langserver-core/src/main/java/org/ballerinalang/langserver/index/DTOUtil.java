@@ -69,6 +69,7 @@ public class DTOUtil {
             if (symbol.kind != null) {
                 switch (symbol.kind) {
                     case OBJECT:
+                        // Omit ballerina services from indexes.
                         if ((symbol.flags & Flags.SERVICE) != Flags.SERVICE) {
                             objects.add((BObjectTypeSymbol) symbol);
                         }
