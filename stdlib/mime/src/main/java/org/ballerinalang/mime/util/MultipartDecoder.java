@@ -44,6 +44,7 @@ import static org.ballerinalang.mime.util.MimeConstants.CONTENT_ID_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_ELEMENT;
+import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_PART_ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.MAX_THRESHOLD_PERCENTAGE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
@@ -155,6 +156,7 @@ public class MultipartDecoder {
                     BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
             populateContentDisposition(partStruct, contentDispositionHeaders, contentDisposition);
         }
+        partStruct.addNativeData(IS_BODY_PART_ENTITY, true);
         EntityBodyHandler.populateBodyContent(partStruct, mimePart);
     }
 
