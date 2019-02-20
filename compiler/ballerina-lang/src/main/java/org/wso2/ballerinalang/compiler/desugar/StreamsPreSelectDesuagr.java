@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -56,7 +57,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -206,11 +206,9 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
 
         if (invocationExpr.expr != null) {
             invocationExpr.expr = (BLangExpression) rewrite(invocationExpr.expr);
-            invocationExpr.expr = desugar.addConversionExprIfRequired(invocationExpr.expr, invocationExpr.type);
-            invocationExpr.requiredArgs = invocationExpr.requiredArgs.stream()
-                    .map(this::rewrite).map(rewrite -> (BLangExpression) rewrite).collect(Collectors.toList());
-            result = invocationExpr;
-            return;
+            if (invocationExpr.expr.type.getKind() != TypeKind.OBJECT) {
+                invocationExpr.expr = desugar.addConversionExprIfRequired(invocationExpr.expr, invocationExpr.type);
+            }
         }
 
         BInvokableSymbol symbol = streamingCodeDesugar.getInvokableSymbol(invocationExpr, StreamingCodeDesugar
