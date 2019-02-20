@@ -160,6 +160,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             }
         }
 
+        //Cannot directly assign srcHandler and http2SourceHandler to inner class ConnectionAvailabilityListener hence
+        //need two new separate variables
         final SourceHandler h1SourceHandler = srcHandler;
         final Http2SourceHandler h2SourceHandler = http2SourceHandler;
 

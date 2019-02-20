@@ -56,11 +56,12 @@ public class ConnectionManager {
     /**
      * Gets the client target channel pool.
      *
-     * @param httpRoute        Represents the endpoint address
-     * @param sourceHandler    Represents the source channel
-     * @param senderConfig     Represents the client configurations
-     * @param bootstrapConfig  Represents the bootstrap info related to client connection creation
-     * @param clientEventGroup Represents the eventloop group that the client channel should be bound to
+     * @param httpRoute          Represents the endpoint address
+     * @param sourceHandler      Represents the HTTP/1.x source handler
+     * @param http2SourceHandler Represents the HTTP/2 source handler
+     * @param senderConfig       Represents the client configurations
+     * @param bootstrapConfig    Represents the bootstrap info related to client connection creation
+     * @param clientEventGroup   Represents the eventloop group that the client channel should be bound to
      * @return the target channel which is requested for given parameters.
      * @throws Exception to notify any errors occur during retrieving the target channel
      */
