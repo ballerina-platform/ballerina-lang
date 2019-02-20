@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.ConstantValue;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
@@ -629,46 +630,118 @@ public class CompiledPackageSymbolEnter {
 
     private void defineConstants(DataInputStream dataInStream) throws IOException {
         String constantName = getUTF8CPEntryValue(dataInStream);
-        String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
-        BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
-        String valueTypeSig = getUTF8CPEntryValue(dataInStream);
-        BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
-        int flags = dataInStream.readInt();
-        int memIndex = dataInStream.readInt();
+        boolean isSimpleLiteral = dataInStream.readBoolean();
 
-        // Create constant symbol.
-        Scope enclScope = this.env.pkgSymbol.scope;
-        BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                this.env.pkgSymbol.pkgID, finiteType, valueType, enclScope.owner);
+        if (isSimpleLiteral) {
+            String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
+            BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
 
-        enclScope.define(constantSymbol.name, constantSymbol);
+            String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+            BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
-        Map<Kind, byte[]> attrDataMap;
-        if (dataInStream.readBoolean()) {
-            attrDataMap = readAttributes(dataInStream);
-        } else {
-            attrDataMap = new HashMap<>();
-            readConstantMapInfo(dataInStream);
 
-            // Todo - set literal value
+            int flags = dataInStream.readInt();
+
+            int typeTag = dataInStream.readInt();
+
+            // Todo - Use type signature?
+            Object value = processSimpleLiteral(dataInStream, typeTag);
+
+
+            // Create constant symbol.
+            Scope enclScope = this.env.pkgSymbol.scope;
+            BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
+                    this.env.pkgSymbol.pkgID, finiteType, valueType, enclScope.owner);
+
+            constantSymbol.literalValue = value;
+
+            enclScope.define(constantSymbol.name, constantSymbol);
+
+            Map<Kind, byte[]>   attrDataMap = readAttributes(dataInStream);
+
+            setDocumentation(constantSymbol, attrDataMap);
         }
 
-        setDocumentation(constantSymbol, attrDataMap);
 
-        // For simple literals, we don't allocate a memory location. So if the memIndex is -1, that means we are
-        // reading a constant with a simple literal value.
-        if (memIndex == -1) {
-            // Read value of the constant and set it in the symbol.
-            BLangLiteral constantValue = getConstantSimpleLiteralValue(attrDataMap);
-            constantSymbol.literalValue = constantValue.value;
-            constantSymbol.literalValueType = constantValue.type;
-            constantSymbol.literalValueTypeTag = constantValue.type.tag;
-        } else {
-            // If the memory index is not equal to -1, that means we have allocated a memory location for that. So we
-            // update the varIndex of the symbol.
-            constantSymbol.varIndex = new RegIndex(memIndex, constantSymbol.literalValueType.tag);
+
+
+
+
+//        int memIndex = dataInStream.readInt();
+
+
+//        Map<Kind, byte[]> attrDataMap;
+//        if (dataInStream.readBoolean()) {
+//            attrDataMap = readAttributes(dataInStream);
+//        } else {
+//            attrDataMap = new HashMap<>();
+//            readConstantMapInfo(dataInStream);
+//
+//            // Todo - set literal value
+//        }
+
+
+
+//        // For simple literals, we don't allocate a memory location. So if the memIndex is -1, that means we are
+//        // reading a constant with a simple literal value.
+//        if (memIndex == -1) {
+//            // Read value of the constant and set it in the symbol.
+//            BLangLiteral constantValue = getConstantSimpleLiteralValue(attrDataMap);
+//            constantSymbol.literalValue = constantValue.value;
+//            constantSymbol.literalValueType = constantValue.type;
+//            constantSymbol.literalValueTypeTag = constantValue.type.tag;
+//        } else {
+//            // If the memory index is not equal to -1, that means we have allocated a memory location for that. So we
+//            // update the varIndex of the symbol.
+//            constantSymbol.varIndex = new RegIndex(memIndex, constantSymbol.literalValueType.tag);
+//        }
+    }
+
+    private Object processSimpleLiteral(DataInputStream dataInStream, int typeTag) throws IOException {
+        // Get the value.
+
+//        constantValue.literalValueTypeTag = literalValue.type.tag;
+
+        Object value ;
+        int valueCPIndex;
+        // Todo - Add a util function?
+        switch (typeTag) {
+            case TypeTags.BOOLEAN:
+                value = dataInStream.readBoolean();
+                break;
+            case TypeTags.INT:
+                valueCPIndex = dataInStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                value = integerCPEntry.getValue();
+                break;
+            case TypeTags.BYTE:
+                valueCPIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
+                value = byteCPEntry.getValue();
+                break;
+            case TypeTags.FLOAT:
+                valueCPIndex = dataInStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
+                value = floatCPEntry.getValue();
+                break;
+            case TypeTags.DECIMAL:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                value = decimalEntry.getValue();
+                break;
+            case TypeTags.STRING:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                value= stringCPEntry.getValue();
+                break;
+            case TypeTags.NIL:
+                value = null;
+                break;
+            default:
+                throw new RuntimeException("unexpected type tag: " + typeTag);
         }
+        return value;
     }
 
     private void readConstantMapInfo(DataInputStream dataInStream) throws IOException {

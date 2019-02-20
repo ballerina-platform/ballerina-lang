@@ -2172,6 +2172,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
             constantValue.flags = constantSymbol.flags;
 
+
             processSimpleLiteral(constantValue, (BLangLiteral) constant.value);
 
             constantInfo.constantValue = constantValue;
@@ -2197,6 +2198,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         constantValue.literalValueTypeTag = literalValue.type.tag;
 
         // Todo - Add a util function?
+
+        // Todo - Use type signature instead of type tag?
         switch (literalValue.type.tag) {
             case TypeTags.BOOLEAN:
                 constantValue.booleanValue = (Boolean) literalValue.value;

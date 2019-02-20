@@ -229,6 +229,7 @@ public class PackageInfoWriter {
     private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
                                                  ConstantInfo_new[] constantInfos) throws IOException {
         dataOutStream.writeShort(constantInfos.length);
+
         for (ConstantInfo_new constantInfo : constantInfos) {
             dataOutStream.writeInt(constantInfo.nameCPIndex);
 
