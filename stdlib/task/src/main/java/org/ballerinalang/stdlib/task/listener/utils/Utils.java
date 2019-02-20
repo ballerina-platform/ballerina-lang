@@ -50,7 +50,6 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ER
 /**
  * Utility functions used in ballerina task module.
  */
-@SuppressWarnings("Duplicates")
 public class Utils {
 
     public static BError createError(Context context, String message) {

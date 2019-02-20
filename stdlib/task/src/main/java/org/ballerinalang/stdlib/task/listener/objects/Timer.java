@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Represents a Timer object used to create and run Timers.
  */
-@SuppressWarnings("Duplicates")
 public class Timer extends AbstractTask {
     private long interval, delay;
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
