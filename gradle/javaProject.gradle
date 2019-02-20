@@ -22,8 +22,7 @@ checkstyle {
     configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
 }
 
-// startsWith had to be used https://github.com/spotbugs/spotbugs-gradle-plugin/issues/32
-tasks.findAll { it.name.startsWith('spotbugs') }.each {
+spotbugsMain {
     it.effort "max"
     it.reportLevel "low"
     it.reports {
@@ -36,3 +35,6 @@ tasks.findAll { it.name.startsWith('spotbugs') }.each {
     }
 }
 
+spotbugsTest {
+    it.enabled = false
+}

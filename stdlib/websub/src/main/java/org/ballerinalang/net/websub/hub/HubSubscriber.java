@@ -96,7 +96,7 @@ public class HubSubscriber extends Consumer {
         return Objects.hash(getTopic(), getCallback());
     }
 
-//    @Override
+   @Override
     public Properties getTransportProperties() {
         return new Properties();
     }

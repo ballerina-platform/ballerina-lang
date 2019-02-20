@@ -5,6 +5,9 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
+    implementation project(':ballerina-launcher')
+    implementation 'commons-codec:commons-codec:1.9'
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Crypto'
