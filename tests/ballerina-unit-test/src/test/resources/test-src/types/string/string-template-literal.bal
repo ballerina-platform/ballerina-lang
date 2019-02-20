@@ -9,7 +9,7 @@ function stringTemplateWithText2 () returns (string) {
 }
 
 function stringTemplateWithText3 () returns (string) {
-    string s = string `\"`;
+    string s = string `\{`;
     return s;
 }
 
@@ -147,6 +147,41 @@ function concatStringTemplateExprs() returns (string) {
     string s1 = "John";
     string s2 = "Doe";
     return string `FirstName: ${s1}.` + string ` Second name: ${s2}`;
+}
+
+function stringTemplateEscapeChars() returns (string) {
+    string s = string `\n\r\b\t\f\'\"\`\{\\`;
+    return s;
+}
+
+function stringTemplateStartsWithDollar() returns (string) {
+    string s = string `$$$$ A ${4 + 4} B`;
+    return s;
+}
+
+function stringTemplateEndsWithDollar() returns (string) {
+    string s = string `A ${4 + 4} B $$$$`;
+    return s;
+}
+
+function stringTemplateWithOnlyDollar() returns (string) {
+    string s = string `$$$$$$$$$`;
+    return s;
+}
+
+function stringTemplateDollarFollowedByEscapedLeftBrace() returns (string) {
+    string s = string `Hi $$$$\{ ${5 * 5} End`;
+    return s;
+}
+
+function stringTemplateDollarFollowedByRightBrace() returns (string) {
+    string s = string `Hi $$$$}}} ${5 * 5} End`;
+    return s;
+}
+
+function stringTemplateWithBraces() returns (string) {
+    string s = string `{{{{4 + 4}}}}}}}}}}`;
+    return s;
 }
 
 function complexStringTemplateExpr() returns (string) {
