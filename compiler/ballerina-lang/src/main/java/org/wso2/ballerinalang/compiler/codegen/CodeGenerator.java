@@ -2185,6 +2185,11 @@ public class CodeGenerator extends BLangNodeVisitor {
             // Todo - Add const map.
             // Create key-value info.
             constantInfo.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) constantSymbol.literalValue);
+
+            for (Entry<String, ConstantValue> entry : constantInfo.constantValueMap.entrySet()) {
+                String k = entry.getKey();
+                constantInfo.constantValueMapKeyCPIndex.put(k, addUTF8CPEntry(currentPkgInfo, k));
+            }
         }
 
         // Add documentation attributes.
@@ -2237,11 +2242,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             String key = ((BLangLiteral) keyValue.key.expr).value.toString();
 
-            if (keyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-                ConstantValue constantValue = new ConstantValue();
-                constantValue.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) keyValue.valueExpr);
-                constantValueMap.put(key, constantValue);
-            } else if (keyValue.valueExpr.getKind() == NodeKind.LITERAL ||
+            if (keyValue.valueExpr.getKind() == NodeKind.LITERAL ||
                     keyValue.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                 BLangLiteral expr = (BLangLiteral) keyValue.valueExpr;
 
@@ -2252,8 +2253,21 @@ public class CodeGenerator extends BLangNodeVisitor {
                 constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
 
                 constantValue.isSimpleLiteral = true;
+                constantValue.literalValueTypeTag = expr.type.tag;
 
                 constantValueMap.put(key, constantValue);
+
+            } else if (keyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) keyValue.valueExpr);
+                constantValueMap.put(key, constantValue);
+
+                for (Entry<String, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                    String k = entry.getKey();
+                    constantValue.constantValueMapKeyCPIndex.put(k, addUTF8CPEntry(currentPkgInfo, k));
+                }
+
             } else {
                 throw new RuntimeException("unexpected node kind");
             }
