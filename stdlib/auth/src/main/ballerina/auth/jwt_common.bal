@@ -15,7 +15,7 @@
 // under the License.
 
 # The key algorithms supported by crypto module.
-public type JwtSigningAlgorithm RS256|RS384|RS512;
+public type JwtSigningAlgorithm RS256|RS384|RS512|NONE;
 
 # The `RSA-SHA256` algorithm
 public const RS256 = "RS256";
@@ -25,6 +25,9 @@ public const RS384 = "RS384";
 
 # The `RSA-SHA512` algorithm
 public const RS512 = "RS512";
+
+# Unsecured JWTs (no signing)
+public const NONE = "NONE";
 
 //JOSH header parameters
 const string ALG = "alg";
@@ -66,11 +69,11 @@ public type JwtHeader record {
 # + iat - Issued at, identifies the time at which the JWT was issued
 # + customClaims - Map of custom claims
 public type JwtPayload record {
-    string iss = "";
-    string sub = "";
-    string[] aud = [];
+    string iss?;
+    string sub?;
+    string[] aud?;
     string jti?;
-    int exp = 0;
+    int exp?;
     int nbf?;
     int iat?;
     map<any> customClaims?;

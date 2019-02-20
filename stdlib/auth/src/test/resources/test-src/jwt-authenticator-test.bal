@@ -5,7 +5,7 @@ function testJwtAuthenticatorCreationWithCache(string trustStorePath) returns (a
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     auth:JWTAuthProviderConfig jwtConfig = {
         issuer: "wso2",
-        audience: "ballerina",
+        audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: trustStore
     };
@@ -17,7 +17,7 @@ function testAuthenticationSuccess(string jwtToken, string trustStorePath) retur
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     auth:JWTAuthProviderConfig jwtConfig = {
         issuer: "wso2",
-        audience: "ballerina",
+        audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: trustStore
     };
@@ -27,7 +27,12 @@ function testAuthenticationSuccess(string jwtToken, string trustStorePath) retur
 
 function generateJwt(auth:JwtHeader header, auth:JwtPayload payload, string keyStorePath) returns string|error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    return auth:issueJwt(header, payload, keyStore, "ballerina", "ballerina");
+    auth:JWTIssuerConfig issuerConfig = {
+        keyStore: keyStore,
+        keyAlias: "ballerina",
+        keyPassword: "ballerina"
+    };
+    return auth:issueJwt(header, payload, issuerConfig);
 }
 
 function verifyJwt(string jwt, auth:JWTValidatorConfig config) returns auth:JwtPayload|error {

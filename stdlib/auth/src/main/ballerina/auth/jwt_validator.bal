@@ -29,11 +29,11 @@ import ballerina/time;
 # + certificateAlias - Token signed public key certificate alias
 # + validateCertificate - Validate public key certificate notBefore and notAfter periods
 public type JWTValidatorConfig record {
-    string issuer;
-    string audience;
+    string issuer?;
+    string[] audience?;
     int clockSkew = 0;
-    crypto:TrustStore trustStore;
-    string certificateAlias;
+    crypto:TrustStore trustStore?;
+    string certificateAlias?;
     boolean validateCertificate?;
     !...;
 };
@@ -41,7 +41,7 @@ public type JWTValidatorConfig record {
 # Validity given JWT string.
 #
 # + jwtToken - JWT token that need to validate
-# + config - JWTValidatorConfig object
+# + config - JWT validator config record
 # + return - If JWT token is valied return the JWT payload.
 #            An error if token validation fails.
 public function validateJwt(string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
@@ -78,10 +78,7 @@ public function validateJwt(string jwtToken, JWTValidatorConfig config) returns 
 
 function getJWTComponents(string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
-    if (jwtComponents.length() != 3) {
-        log:printDebug(function() returns string {
-            return "Invalid JWT token :" + jwtToken;
-        });
+    if (jwtComponents.length() < 2 || jwtComponents.length() > 3) {
         error jwtError = error(AUTH_ERROR_CODE, { message : "Invalid JWT token" });
         return jwtError;
     }
@@ -164,7 +161,7 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
 
 function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     string[] aud = [];
-    JwtPayload jwtPayload = { iss: "", sub: "", aud: aud, exp: 0 };
+    JwtPayload jwtPayload = {};
     map<any> customClaims = {};
     string[] keys = jwtPayloadJson.getKeys();
     foreach var key in keys {
@@ -220,11 +217,6 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
                         { message : "Mandatory field signing algorithm(alg) is empty in the given JSON Web Token." });
         return jwtError;
     }
-    if (!validateMandatoryFields(jwtPayload)) {
-        error jwtError = error(AUTH_ERROR_CODE,
-                        { message : "Mandatory fields(Issuer,Subject, Expiration time or Audience) are empty in the given JSON Web Token." });
-        return jwtError;
-    }
     if (config["validateCertificate"] is ()) {
         config.validateCertificate = true;
     }
@@ -232,28 +224,40 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
         error jwtError = error(AUTH_ERROR_CODE, { message : "Public key certificate validity period has passed" });
         return jwtError;
     }
-    var signatureValidationResult = validateSignature(encodedJWTComponents, jwtHeader, config);
-    if (signatureValidationResult is error) {
-        error jwtError = error(AUTH_ERROR_CODE, { message : signatureValidationResult.reason() });
-        return jwtError;
+    var trustStore = config["trustStore"];
+    if (trustStore is crypto:TrustStore) {
+        var signatureValidationResult = validateSignature(encodedJWTComponents, jwtHeader, config);
+        if (signatureValidationResult is error) {
+            return signatureValidationResult;
+        }
     }
-    if (!validateIssuer(jwtPayload, config)) {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "JWT contained invalid issuer name : " + jwtPayload.iss });
-        return jwtError;
+    var iss = config["issuer"];
+    if (iss is string) {
+        var issuerStatus = validateIssuer(jwtPayload, config);
+        if (issuerStatus is error) {
+            return issuerStatus;
+        }
     }
-    if (!validateAudience(jwtPayload, config)) {
-        //TODO need to set expected audience or available audience list
-        error jwtError = error(AUTH_ERROR_CODE, { message : "Invalid audience" });
-        return jwtError;
+    var aud = config["audience"];
+    if (aud is string[]) {
+        var audienceStatus = validateAudience(jwtPayload, config);
+        if (audienceStatus is error) {
+            return audienceStatus;
+        }
     }
-    if (!validateExpirationTime(jwtPayload, config)) {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "JWT token is expired" });
-        return jwtError;
+    var exp = jwtPayload["exp"];
+    if (exp is int) {
+        if (!validateExpirationTime(jwtPayload, config)) {
+            error jwtError = error(AUTH_ERROR_CODE, { message : "JWT token is expired" });
+            return jwtError;
+        }
     }
-    //TODO : Validate nbf field of jwtPayload availability first
-    if (!validateNotBeforeTime(jwtPayload)) {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "JWT token is used before Not_Before_Time" });
-        return jwtError;
+    var nbf = jwtPayload["nbf"];
+    if (nbf is int) {
+        if (!validateNotBeforeTime(jwtPayload)) {
+            error jwtError = error(AUTH_ERROR_CODE, { message : "JWT token is used before Not_Before_Time" });
+            return jwtError;
+        }
     }
     //TODO : Need to validate jwt id (jti) and custom claims.
     return true;
@@ -261,13 +265,6 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
 
 function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns (boolean) {
     if (jwtHeader.alg == "") {
-        return false;
-    }
-    return true;
-}
-
-function validateMandatoryFields(JwtPayload jwtPayload) returns (boolean) {
-    if (jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || jwtPayload.aud.length() == 0) {
         return false;
     }
     return true;
@@ -292,33 +289,69 @@ function validateCertificate(JWTValidatorConfig config) returns boolean|error {
 
 function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config)
 returns boolean|error {
-    string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
-    byte[] signPart = check encoding:decodeBase64Url(encodedJWTComponents[2]);
-    crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = config.trustStore,
-                                                              keyAlias = config.certificateAlias);
-    if (jwtHeader.alg == RS256) {
-        return crypto:verifyRsaSha256Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
-    } else if (jwtHeader.alg == RS384) {
-        return crypto:verifyRsaSha384Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
-    } else if (jwtHeader.alg == RS512) {
-        return crypto:verifyRsaSha512Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+    if (jwtHeader.alg == NONE) {
+        error jwtError = error(AUTH_ERROR_CODE, { message : "Not a valid JWS. Signature algorithm is NONE." });
+        return jwtError;
     } else {
-        error jwtError = error(AUTH_ERROR_CODE, { message : "Unsupported JWS algorithm" });
+        if (encodedJWTComponents.length() == 2) {
+            error jwtError = error(AUTH_ERROR_CODE, { message : "Not a valid JWS. Signature is required." });
+            return jwtError;
+        } else {
+            string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
+            byte[] signPart = check encoding:decodeBase64Url(encodedJWTComponents[2]);
+            crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = config.trustStore,
+                                                                      keyAlias = config.certificateAlias);
+            if (jwtHeader.alg == RS256) {
+                return crypto:verifyRsaSha256Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+            } else if (jwtHeader.alg == RS384) {
+                return crypto:verifyRsaSha384Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+            } else if (jwtHeader.alg == RS512) {
+                return crypto:verifyRsaSha512Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+            } else {
+                error jwtError = error(AUTH_ERROR_CODE, { message : "Unsupported JWS algorithm" });
+                return jwtError;
+            }
+        }
+    }
+}
+
+function validateIssuer(JwtPayload jwtPayload, JWTValidatorConfig config) returns error? {
+    var iss = jwtPayload["iss"];
+    if (iss is string) {
+        if(jwtPayload.iss != config.issuer) {
+            error jwtError = error(AUTH_ERROR_CODE, { message : "JWT contained invalid issuer name : " +
+                                                                jwtPayload.iss });
+            return jwtError;
+        }
+    } else {
+        error jwtError = error(AUTH_ERROR_CODE, { message : "JWT must contain a valid issuer name" });
         return jwtError;
     }
 }
 
-function validateIssuer(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
-    return jwtPayload.iss == config.issuer;
-}
-
-function validateAudience(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
-    foreach var audience in jwtPayload.aud {
-        if (audience == config.audience) {
-            return true;
+function validateAudience(JwtPayload jwtPayload, JWTValidatorConfig config) returns error? {
+    var aud = jwtPayload["aud"];
+    if (aud is string[]) {
+        boolean validationStatus = false;
+        foreach var audiencePayload in jwtPayload.aud {
+            foreach var audienceConfig in config.audience {
+                if (audiencePayload == audienceConfig) {
+                    validationStatus = true;
+                    break;
+                }
+            }
+            if (validationStatus) {
+                break;
+            }
         }
+        if (!validationStatus) {
+            error jwtError = error(AUTH_ERROR_CODE, { message : "Invalid audience" });
+            return jwtError;
+        }
+    } else {
+        error jwtError = error(AUTH_ERROR_CODE, { message : "JWT must contain a valid audience" });
+        return jwtError;
     }
-    return false;
 }
 
 function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {

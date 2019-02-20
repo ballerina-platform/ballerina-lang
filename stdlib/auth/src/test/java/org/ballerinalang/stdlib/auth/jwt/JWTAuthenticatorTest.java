@@ -131,8 +131,8 @@ public class JWTAuthenticatorTest {
         BValue[] inputBValues = {jwtHeader, jwtBody, new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "generateJwt", inputBValues);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertTrue(returns[0].stringValue().startsWith("eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ==.eyJzdWI" +
-                "iOiJKb2huIiwgImlzcyI6IndzbzIiLCAiZXhwIjozMjQ3NTI1MTE4OTAwMCwgImF1ZCI6WyJiYWxsZXJpbmEiXX0=."));
+        Assert.assertTrue(returns[0].stringValue().startsWith("eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ==.eyJzdWIiO" +
+                "iJKb2huIiwgImlzcyI6IndzbzIiLCAiZXhwIjozMjQ3NTI1MTE4OTAwMCwgImF1ZCI6ImJhbGxlcmluYSJ9."));
 
         jwtToken = returns[0].stringValue();
     }

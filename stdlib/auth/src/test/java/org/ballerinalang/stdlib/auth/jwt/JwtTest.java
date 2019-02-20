@@ -22,15 +22,20 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.stdlib.crypto.Constants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 /**
  * Test JWT token creation and verification.
@@ -40,11 +45,13 @@ public class JwtTest {
     private String resourceRoot;
     private CompileResult compileResult;
     private String jwtToken;
+    private String jwtTokenWithoutIssAndSub;
+    private String jwtTokenWithouAudAndSub;
     private String keyStorePath;
     private String trustStorePath;
 
     @BeforeClass
-    public void setup() throws Exception {
+    public void setup() {
         keyStorePath = getClass().getClassLoader().getResource(
                 "datafiles/keystore/ballerinaKeystore.p12").getPath();
         trustStorePath = getClass().getClassLoader().getResource(
@@ -56,18 +63,116 @@ public class JwtTest {
     }
 
     @Test(priority = 1, description = "Test case for issuing JWT token with valid data")
-    public void testIssueJwt() throws Exception {
+    public void testIssueJwt() {
         BValue[] inputBValues = {new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwt", inputBValues);
         Assert.assertTrue(returns[0] instanceof BString);
         jwtToken = returns[0].stringValue();
+        String[] parts = jwtToken.split("\\.");
+        String header = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
+        String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+        Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
+        Assert.assertTrue(payload.startsWith("{\"sub\":\"John\", \"iss\":\"wso2\", \""));
+        Assert.assertTrue(payload.endsWith("\", \"aud\":[\"ballerina\", \"ballerinaSamples\"]}"));
+    }
+
+    @Test(priority = 1, description = "Test case for issuing JWT token with valid data and a single audience")
+    public void testIssueJwtWithSingleAud() {
+        BValue[] inputBValues = {new BString(keyStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithSingleAud", inputBValues);
+        Assert.assertTrue(returns[0] instanceof BString);
+        String localJwtToken = returns[0].stringValue();
+        String[] parts = localJwtToken.split("\\.");
+        String header = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
+        String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+        Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
+        Assert.assertTrue(payload.startsWith("{\"sub\":\"John\", \"iss\":\"wso2\", \""));
+        Assert.assertTrue(payload.endsWith("\", \"aud\":\"ballerina\"}"));
+    }
+
+    @Test(priority = 1, description = "Test case for issuing JWT token with valid data and a single audience, " +
+            "but with audienceAsArray enabled")
+    public void testIssueJwtWithSingleAudAndAudAsArray() {
+        BValue[] inputBValues = {new BString(keyStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithSingleAudAndAudAsArray", inputBValues);
+        Assert.assertTrue(returns[0] instanceof BString);
+        String localJwtToken = returns[0].stringValue();
+        String[] parts = localJwtToken.split("\\.");
+        String header = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
+        String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+        Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
+        Assert.assertTrue(payload.startsWith("{\"sub\":\"John\", \"iss\":\"wso2\", \""));
+        Assert.assertTrue(payload.endsWith("\", \"aud\":[\"ballerina\"]}"));
+    }
+
+    @Test(priority = 1, description = "Test case for issuing JWT token without issuer or subject")
+    public void testIssueJwtWithNoIssOrSub() {
+        BValue[] inputBValues = {new BString(keyStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithNoIssOrSub", inputBValues);
+        Assert.assertTrue(returns[0] instanceof BString);
+        jwtTokenWithoutIssAndSub = returns[0].stringValue();
+        String[] parts = jwtTokenWithoutIssAndSub.split("\\.");
+        String header = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
+        String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+        Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
+        Assert.assertTrue(payload.startsWith("{\"exp\":"));
+        Assert.assertTrue(payload.endsWith("\", \"aud\":[\"ballerina\", \"ballerinaSamples\"]}"));
+    }
+
+    @Test(priority = 1, description = "Test case for issuing JWT token without issuer or audience")
+    public void testIssueJwtWithNoAudOrSub() {
+        BValue[] inputBValues = {new BString(keyStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithNoAudOrSub", inputBValues);
+        Assert.assertTrue(returns[0] instanceof BString);
+        jwtTokenWithouAudAndSub = returns[0].stringValue();
+        String[] parts = jwtTokenWithouAudAndSub.split("\\.");
+        String header = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
+        String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+        Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
+        Assert.assertTrue(payload.startsWith("{\"sub\":\"John\", \"iss\":\"wso2\", \"exp\":"));
+        Assert.assertTrue(payload.endsWith("\"}"));
     }
 
     @Test(priority = 2, description = "Test case for validating JWT token")
-    public void testValidateJwt() throws Exception {
+    public void testCompleteValidator() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
 
+    @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
+            "using a validator configured to valudate issuer and subject")
+    public void testCompleteValidatorWithNoIssOrSubNegative() {
+        BValue[] inputBValues = {new BString(jwtTokenWithoutIssAndSub), new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
+        Assert.assertTrue((returns[0]) instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "JWT must contain a valid issuer name");
+    }
+
+    @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
+            "using a validator configured to valudate audience and subject")
+    public void testCompleteValidatorWithNoAudOrSubNegative() {
+        BValue[] inputBValues = {new BString(jwtTokenWithouAudAndSub), new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
+        Assert.assertTrue((returns[0]) instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                "JWT must contain a valid audience");
+    }
+
+    @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
+            "using a validator configured not to valudate issuer and subject")
+    public void testPartialValidatorWithNoIssOrSub() {
+        BValue[] inputBValues = {new BString(jwtTokenWithoutIssAndSub), new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithNoIssOrSub", inputBValues);
+        Assert.assertTrue((returns[0]) instanceof BBoolean);
+    }
+
+    @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
+            "using a validator configured to valudate issuer and subject")
+    public void testPartialValidatorWithIssAndSub() {
+        BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithNoIssOrSub", inputBValues);
+        Assert.assertTrue((returns[0]) instanceof BBoolean);
+    }
 }

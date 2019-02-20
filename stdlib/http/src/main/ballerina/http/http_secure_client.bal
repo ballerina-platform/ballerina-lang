@@ -347,8 +347,12 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         jti: system:uuid(),
                         aud: jwtIssuerConfig.audience
                     };
-                    var token = auth:issueJwt(header, payload, jwtIssuerConfig.keyStore, jwtIssuerConfig.keyAlias,
-                                              jwtIssuerConfig.keyPassword);
+                    auth:JWTIssuerConfig issuerConfig = {
+                        keyStore: jwtIssuerConfig.keyStore,
+                        keyAlias: jwtIssuerConfig.keyAlias,
+                        keyPassword: jwtIssuerConfig.keyPassword
+                    };
+                    var token = auth:issueJwt(header, payload, issuerConfig);
                     // TODO: cache the token per-user per-client and reuse it
                     if (token is string) {
                         authToken = token;

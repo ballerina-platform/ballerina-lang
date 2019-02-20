@@ -123,11 +123,11 @@ const string AUTH_TYPE_JWT = "jwt";
 # + certificateAlias - Token signed key alias
 # + validateCertificate - Validate public key certificate notBefore and notAfter periods
 public type JWTAuthProviderConfig record {
-    string issuer;
-    string audience;
+    string issuer?;
+    string[] audience?;
     int clockSkew = 0;
-    crypto:TrustStore trustStore;
-    string certificateAlias;
+    crypto:TrustStore trustStore?;
+    string certificateAlias?;
     boolean validateCertificate?;
     !...;
 };
