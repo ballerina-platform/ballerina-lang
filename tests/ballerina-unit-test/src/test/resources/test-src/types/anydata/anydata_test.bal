@@ -242,7 +242,7 @@ function testArrayAssignment() {
                   { 3, "Jim", 330.5 }
                 ]
             };
-    table<any>[] at = [t];
+    table<Employee>[] at = [t];
     ad = at;
 
     map<anydata> m = {};

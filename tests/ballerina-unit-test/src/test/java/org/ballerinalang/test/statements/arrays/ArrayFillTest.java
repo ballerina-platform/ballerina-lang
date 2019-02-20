@@ -41,6 +41,11 @@ import java.math.BigDecimal;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
+/**
+ * Test cases for filling the elements of the array with its type's implicit initial value.
+ *
+ * @since 0.990.4
+ */
 public class ArrayFillTest {
 
     private CompileResult compileResult;
@@ -68,18 +73,18 @@ public class ArrayFillTest {
     @Test
     public void testBooleanArrayFill() {
         final boolean value = true;
-        final int FALSE = 0;
-        final int TRUE = 1;
+        final int bFALSE = 0;
+        final int bTRUE = 1;
         BValue[] args = new BValue[]{new BInteger(index), new BBoolean(value)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanArrayFill", args);
         BValueArray booleanArr = (BValueArray) returns[0];
         assertEquals(booleanArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(booleanArr.getBoolean(i), FALSE);
+            assertEquals(booleanArr.getBoolean(i), bFALSE);
         }
 
-        assertEquals(booleanArr.getBoolean(index), TRUE);
+        assertEquals(booleanArr.getBoolean(index), bTRUE);
     }
 
     @Test

@@ -50,12 +50,12 @@ public class BTableType extends BType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return (V) new BTable(this, null, null, new BValueArray(this.constraint));
+        return (V) new BTable(this, null, null, null);
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BTable(this, null, null, new BValueArray(this.constraint));
+        return (V) new BTable(this, null, null, null);
     }
 
     @Override
