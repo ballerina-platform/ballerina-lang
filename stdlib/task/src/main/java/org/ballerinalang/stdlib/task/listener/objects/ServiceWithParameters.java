@@ -34,13 +34,18 @@ public class ServiceWithParameters {
         this.serviceParameter = serviceParameter;
     }
 
+    public ServiceWithParameters(Service service) {
+        this.service = service;
+        this.serviceParameter = null;
+    }
+
 
     public Service getService() {
         return service;
     }
 
     public BValue getServiceParameter() {
-        return serviceParameter;
+        return this.serviceParameter;
     }
 
     public String getName() {
