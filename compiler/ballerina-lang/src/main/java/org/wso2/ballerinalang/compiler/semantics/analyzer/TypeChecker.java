@@ -1122,10 +1122,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.UNION:
                 List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);
-                BType matchedType = getMatchedTypeOrEmitError(matchingMembers, cIExpr, actualType);
+                BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType);
 
                 expType = matchedType;
-                if (matchedType.tsymbol.type.tag == TypeTags.OBJECT
+                if (matchedType.tag == TypeTags.OBJECT
                         && ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
@@ -1148,7 +1148,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private List<BType> findMembersWithMatchingInitFunc(BLangTypeInit cIExpr, BUnionType lhsUnionType) {
         List<BType> matchingLhsMemberTypes = new ArrayList<>();
         for (BType memberType : lhsUnionType.memberTypes) {
-            if (memberType.tsymbol == null || memberType.tsymbol.kind != SymbolKind.OBJECT) {
+            if (memberType.tsymbol == null || memberType.tag != TypeTags.OBJECT) {
                 // member is not an object.
                 continue;
             }
@@ -1165,7 +1165,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return matchingLhsMemberTypes;
     }
 
-    private BType getMatchedTypeOrEmitError(List<BType> matchingLhsMembers, BLangTypeInit cIExpr, BType lhsUnion) {
+    private BType getMatchingType(List<BType> matchingLhsMembers, BLangTypeInit cIExpr, BType lhsUnion) {
         if (matchingLhsMembers.isEmpty()) {
             // No union type member found which matches with initializer expression.
             dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, lhsUnion);
@@ -1191,11 +1191,11 @@ public class TypeChecker extends BLangNodeVisitor {
             return true;
         }
 
-        List<BLangExpression> namedArgs = new ArrayList<>();
+        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
         List<BLangExpression> unnamedArgs = new ArrayList<>();
         for (BLangExpression argument : invocationArguments) {
             if (argument.getKind() == NodeKind.NAMED_ARGS_EXPR) {
-                namedArgs.add(argument);
+                namedArgs.add((BLangNamedArgsExpression) argument);
             } else {
                 unnamedArgs.add(argument);
             }
@@ -1229,7 +1229,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean matchDefaultableParameters(BAttachedFunction function, List<BLangExpression> namedArgs) {
+    private boolean matchDefaultableParameters(BAttachedFunction function, List<BLangNamedArgsExpression> namedArgs) {
         // More named args given than function can accept.
         if (function.symbol.defaultableParams.size() < namedArgs.size()) {
             return false;
@@ -1237,10 +1237,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         int matchedParamterCount = 0;
         for (BVarSymbol defaultableParam : function.symbol.defaultableParams) {
-            for (BLangExpression namedArg : namedArgs) {
-                BLangNamedArgsExpression namedArgExpr = (BLangNamedArgsExpression) namedArg;
-                if (namedArgExpr.name.value.equals(defaultableParam.name.value)) {
-                    BType namedArgExprType = checkExpr(namedArgExpr.expr, env);
+            for (BLangNamedArgsExpression namedArg : namedArgs) {
+                if (namedArg.name.value.equals(defaultableParam.name.value)) {
+                    BType namedArgExprType = checkExpr(namedArg.expr, env);
                     if (types.isAssignable(defaultableParam.type, namedArgExprType)) {
                         matchedParamterCount++;
                     } else {
