@@ -19,8 +19,8 @@ package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
