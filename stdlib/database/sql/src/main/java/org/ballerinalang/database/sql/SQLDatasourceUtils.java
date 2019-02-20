@@ -663,7 +663,7 @@ public class SQLDatasourceUtils {
     public static void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName) {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
-                if (Constants.DatabaseProductNames.ORACLE.equals(databaseProductName)) {
+                if (Constants.DatabaseNames.ORACLE.equals(databaseProductName)) {
                     // Since oracle does not support general java.sql.Types.REF_CURSOR in manipulating ref cursors it
                     // is required to use oracle.jdbc.OracleTypes.CURSOR here. In order to avoid oracle driver being
                     // a runtime dependency always, we have directly used the value(-10) of general oracle.jdbc
@@ -1197,7 +1197,7 @@ public class SQLDatasourceUtils {
 
     private static void registerArrayOutParameter(PreparedStatement stmt, int index, int sqlType,
             String structuredSQLType, String databaseProductName) throws SQLException {
-        if (databaseProductName.equals(Constants.DatabaseProductNames.POSTGRESQL)) {
+        if (databaseProductName.equals(Constants.DatabaseNames.POSTGRESQL)) {
             ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
         } else {
             ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
@@ -1210,7 +1210,7 @@ public class SQLDatasourceUtils {
             stmt.setNull(index + 1, sqlType);
         } else {
             // In POSTGRESQL, need to pass "float8" to indicate DOUBLE value.
-            if (Constants.SQLDataTypes.DOUBLE.equals(structuredSQLType) && Constants.DatabaseProductNames.POSTGRESQL
+            if (Constants.SQLDataTypes.DOUBLE.equals(structuredSQLType) && Constants.DatabaseNames.POSTGRESQL
                     .equals(databaseProductName)) {
                 structuredSQLType = POSTGRES_DOUBLE;
             }

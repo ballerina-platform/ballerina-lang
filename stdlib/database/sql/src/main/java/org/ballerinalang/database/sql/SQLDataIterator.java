@@ -203,7 +203,7 @@ public class SQLDataIterator extends TableIterator {
                             break;
                         case Types.INTEGER:
                         case Types.BIGINT:
-                            if (sourceDatabase.equalsIgnoreCase(Constants.DatabaseProductNames.POSTGRESQL)) {
+                            if (sourceDatabase.equalsIgnoreCase(Constants.DatabaseNames.POSTGRESQL)) {
                                 boolean isOID = rs.getMetaData().getColumnTypeName(index)
                                         .equalsIgnoreCase(POSTGRES_OID_COLUMN_TYPE_NAME);
                                 if (isOID) {

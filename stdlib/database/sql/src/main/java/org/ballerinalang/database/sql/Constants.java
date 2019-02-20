@@ -181,9 +181,9 @@ public final class Constants {
     }
 
     /**
-     * Constants used when appending JDBC driver properties for the connection URL.
+     * Constants used for database product names.
      */
-    public static final class DatabaseProductNames {
+    public static final class DatabaseNames {
         public static final String ORACLE = "oracle";
         public static final String POSTGRESQL = "postgresql";
         public static final String MYSQL = "mysql";

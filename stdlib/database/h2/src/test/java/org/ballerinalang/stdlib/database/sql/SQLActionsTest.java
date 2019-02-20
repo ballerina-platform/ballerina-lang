@@ -29,6 +29,7 @@ import org.ballerinalang.stdlib.utils.SQLDBUtils;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.DBType;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -363,6 +364,13 @@ public class SQLActionsTest {
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    ".*Invalid update of record field: modification not allowed on frozen value.*")
+    public void testUpdateReslt() {
+        BRunUtil.invoke(resultNegative, "testUpdateReslt");
+    }
+
     @Test(groups = CONNECTOR_TEST, description = "Test failed parameter array update")
     public void testInvalidArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
@@ -371,7 +379,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a table loaded to memory multiple times")
-    public void testSelectLoadToMemory() throws Exception {
+    public void testSelectLoadToMemory() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "([{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, "
@@ -381,7 +389,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a table loaded to memory after closing")
-    public void testLoadToMemorySelectAfterTableClose() throws Exception {
+    public void testLoadToMemorySelectAfterTableClose() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "("

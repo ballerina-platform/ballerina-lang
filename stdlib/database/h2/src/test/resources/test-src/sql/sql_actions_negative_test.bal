@@ -72,6 +72,28 @@ function testGeneratedKeyOnInsert() returns int|string {
     return ret;
 }
 
+function testUpdateReslt() returns int|string {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    int|string ret = "";
+
+    var x = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                         values ('James', 'Clerk', 3, 5000.75, 'USA')");
+    testDB.stop();
+    if (x is sql:Result) {
+        x.updatedRowCount = 0;
+    } else {
+        ret = string.convert(x.detail().message);
+    }
+    return ret;
+}
+
 function testBatchUpdate() returns string {
     h2:Client testDB = new({
             path: "./target/tempdb/",

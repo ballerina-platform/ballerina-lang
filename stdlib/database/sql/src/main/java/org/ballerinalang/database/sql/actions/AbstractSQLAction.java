@@ -20,6 +20,7 @@ package org.ballerinalang.database.sql.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
@@ -225,7 +226,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         BValueArray bTables = new BValueArray(new BArrayType(BTypes.typeTable));
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
-        if (databaseProductName.contains(Constants.DatabaseProductNames.MYSQL)
+        if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
                 && (structTypes != null && structTypes.size() > 1)) {
             throw new BallerinaException(
                 "Retrieving result sets from stored procedures returning more than one result set, is not supported");
@@ -433,7 +434,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query,
             boolean loadToMemory) throws SQLException {
         PreparedStatement stmt;
-        boolean mysql = datasource.getDatabaseProductName().contains(Constants.DatabaseProductNames.MYSQL);
+        boolean mysql = datasource.getDatabaseProductName().contains(Constants.DatabaseNames.MYSQL);
         /* In MySQL by default, ResultSets are completely retrieved and stored in memory.
            Following properties are set to stream the results back one row at a time.*/
         if (mysql && !loadToMemory) {
@@ -453,7 +454,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private CallableStatement getPreparedCall(Connection conn, SQLDatasource datasource, String query,
             BValueArray parameters) throws SQLException {
         CallableStatement stmt;
-        boolean mysql = datasource.getDatabaseProductName().contains(Constants.DatabaseProductNames.MYSQL);
+        boolean mysql = datasource.getDatabaseProductName().contains(Constants.DatabaseNames.MYSQL);
         if (mysql) {
             stmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             /* Only stream if there aren't any OUT parameters since can't use streaming result sets with callable
@@ -902,7 +903,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 // Current result is a ResultSet
                 result = stmt.getResultSet();
                 resultSets.add(result);
-                if (databaseProductName.contains(Constants.DatabaseProductNames.MYSQL)) {
+                if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)) {
                     // TODO: "mysql" equality condition is part of the temporary fix to support returning the result
                     // set in the case of stored procedures returning only one result set in MySQL. Refer
                     // ballerina-platform/ballerina-lang#8643
@@ -975,6 +976,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             return null;
         }
         StructureTypeInfo resultRecordInfo = sqlPackageInfo.getStructInfo(Constants.SQL_RESULT);
-        return BLangVMStructs.createBStruct(resultRecordInfo, count, keyValues);
+        BMap<String, BValue> resultRecord = BLangVMStructs.createBStruct(resultRecordInfo, count, keyValues);
+        resultRecord.attemptFreeze(new BVM.FreezeStatus(BVM.FreezeStatus.State.FROZEN));
+        return resultRecord;
     }
 }
