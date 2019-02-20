@@ -85,7 +85,6 @@ public class LauncherUtils {
 
     private static final String STATUS_CODE = "statusCode";
     private static final int DEFAULT_ERROR_RETURN_STATUS_CODE = 1;
-    private static final int MAX_ERROR_RETURN_STATUS_CODE = 255;
 
     private static PrintStream errStream = System.err;
 
@@ -444,7 +443,10 @@ public class LauncherUtils {
         }
 
         long specifiedIntCode = ((BInteger) specifiedStatusCode).intValue();
-        if (specifiedIntCode >= DEFAULT_ERROR_RETURN_STATUS_CODE && specifiedIntCode <= MAX_ERROR_RETURN_STATUS_CODE) {
+        if (specifiedIntCode >= DEFAULT_ERROR_RETURN_STATUS_CODE) {
+            if (specifiedIntCode > Integer.MAX_VALUE) {
+                return Integer.MAX_VALUE;
+            }
             return (int) specifiedIntCode;
         }
         return DEFAULT_ERROR_RETURN_STATUS_CODE;
