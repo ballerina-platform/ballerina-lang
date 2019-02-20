@@ -1166,6 +1166,27 @@ public class SQLDatasourceUtils {
         return createSQLDataSource(context, sqlDatasourceParams);
     }
 
+    /**
+     * This method is used by the ballerinax/JDBC client.
+     */
+    public static BMap<String, BValue> createSQLDBClient(Context context,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig) {
+        String url = clientEndpointConfig.getStringField(Constants.EndpointConfig.URL);
+        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
+        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
+        Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
+        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
+                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+        String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
+
+        SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("").withOptions(options)
+                .withOptions(options).withJdbcUrl(url).withHostOrPath("").withPort(0).withUsername(username)
+                .withPassword(password).withDbName("").withUrlOptions("").withDbOptionsMap(dbOptions).build();
+
+        return createSQLDataSource(context, sqlDatasourceParams);
+    }
+
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
             org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
         String modeRecordType = clientEndpointConfig.getName();

@@ -1,5 +1,6 @@
 import ballerina/h2;
 import ballerina/io;
+import ballerina/sql;
 
 // Create a client endpoint for the `h2` database. Before running the sample,
 // change the value of the 'path' field 
@@ -50,9 +51,9 @@ public function main() {
 }
 
 // Function to handle return value of the `update` remote function.
-function handleUpdate(int|error returned, string message) {
-    if (returned is int) {
-        io:println(message + " status: " + returned);
+function handleUpdate(sql:Result|error returned, string message) {
+    if (returned is sql:Result) {
+        io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + <string>returned.detail().message);
     }

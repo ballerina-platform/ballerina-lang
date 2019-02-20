@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/h2;
+import ballerina/sql;
 
 // Create an endpoint for the first database named testdb1. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
@@ -80,9 +81,9 @@ function onAbortFunction(string transactionId) {
 }
 
 // Function to handle return values of the `update()` remote function.
-function handleUpdate(int|error returned, string message) {
-    if (returned is int) {
-        io:println(message + " status: " + returned);
+function handleUpdate(sql:Result|error returned, string message) {
+    if (returned is sql:Result) {
+        io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + returned.reason());
     }
