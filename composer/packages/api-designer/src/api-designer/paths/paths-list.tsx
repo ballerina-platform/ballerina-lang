@@ -26,7 +26,7 @@ import { ExpandMode, OpenApiContext, OpenApiContextConsumer } from "../component
 import AddOpenApiOperation from "../operations/add-operation";
 import OpenApiOperation from "../operations/operations-list";
 
-import InlineEdit from "../components/utils/inline-edit";
+import InlineEdit from "../components/utils/inline-edit/inline-edit";
 
 interface OpenApiPathProps {
     paths: Swagger.PathsObject;
@@ -105,9 +105,9 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                                 changeValue: openApiResource,
                                                                 key: "resource.name",
                                                             }}
-                                                            text={openApiResource}
+                                                            editableObject={openApiResource}
                                                             placeholderText="Add a summary"
-                                                            onInlineValueChange={appContext.onInlineValueChange}
+                                                            onValueChange={appContext.onInlineValueChange}
                                                         />
                                                     );
                                                 }}
