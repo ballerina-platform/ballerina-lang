@@ -419,7 +419,8 @@ public class Desugar extends BLangNodeVisitor {
         addAttachedFunctionsToPackageLevel(pkgNode, env);
 
         pkgNode.constants.stream()
-                .filter(constant -> ((BLangExpression) constant.value).getKind() == NodeKind.LITERAL)
+                .filter(constant -> ((BLangExpression) constant.value).getKind() == NodeKind.LITERAL ||
+                        ((BLangExpression) constant.value).getKind() == NodeKind.NUMERIC_LITERAL)
                 .forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
@@ -1927,7 +1928,7 @@ public class Desugar extends BLangNodeVisitor {
                     literal.keyValuePairs.addAll(((BLangRecordLiteral) symbol.literalValue).keyValuePairs);
                     // Todo - Remove?
                     literal.type = symbol.literalValueType;
-                    literal.type.tag = symbol.literalValueTypeTag;
+//                    literal.type.tag = symbol.literalValueTypeTag;
                     result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
 
 //                    result =  constantValueResolver.getValue(, );
@@ -1938,7 +1939,7 @@ public class Desugar extends BLangNodeVisitor {
                     // issues because registry allocation will be only done one time.
                     BLangLiteral literal = ASTBuilderUtil.createLiteral(varRefExpr.pos, symbol.literalValueType,
                             symbol.literalValue);
-                    literal.type.tag = symbol.literalValueTypeTag;
+//                    literal.type.tag = symbol.literalValueTypeTag;
                     result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
                     return;
                 }

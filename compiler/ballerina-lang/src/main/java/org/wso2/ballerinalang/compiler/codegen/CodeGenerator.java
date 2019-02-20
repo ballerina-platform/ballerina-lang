@@ -2241,7 +2241,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 ConstantValue constantValue = new ConstantValue();
                 constantValue.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) keyValue.valueExpr);
                 constantValueMap.put(key, constantValue);
-            } else if (keyValue.valueExpr.getKind() == NodeKind.LITERAL) {
+            } else if (keyValue.valueExpr.getKind() == NodeKind.LITERAL ||
+                    keyValue.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                 BLangLiteral expr = (BLangLiteral) keyValue.valueExpr;
 
                 int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
