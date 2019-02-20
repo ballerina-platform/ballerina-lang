@@ -56,8 +56,12 @@ public class BFiniteType extends BType {
 
         Iterator<BValue> valueIterator = valueSpace.iterator();
         BValue firstVal = valueIterator.next();
-        BValue implicitInitValOfType = firstVal.getType().getZeroValue();
 
+        if (isSingletonType()) {
+            return (V) firstVal;
+        }
+
+        BValue implicitInitValOfType = firstVal.getType().getZeroValue();
         if (implicitInitValOfType.equals(firstVal)) {
             return (V) implicitInitValOfType;
         }
@@ -80,8 +84,12 @@ public class BFiniteType extends BType {
 
         Iterator<BValue> valueIterator = valueSpace.iterator();
         BValue firstVal = valueIterator.next();
-        BValue implicitInitValOfType = firstVal.getType().getEmptyValue();
 
+        if (isSingletonType()) {
+            return (V) firstVal;
+        }
+
+        BValue implicitInitValOfType = firstVal.getType().getEmptyValue();
         if (implicitInitValOfType.equals(firstVal)) {
             return (V) implicitInitValOfType;
         }
@@ -99,5 +107,9 @@ public class BFiniteType extends BType {
     @Override
     public int getTag() {
         return TypeTags.FINITE_TYPE_TAG;
+    }
+
+    private boolean isSingletonType() {
+        return valueSpace.size() == 1;
     }
 }

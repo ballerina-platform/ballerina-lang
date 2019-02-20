@@ -261,3 +261,11 @@ function testFiniteTypeArrayFill4(int index) returns state[] {
 //    ar[index] = value;
 //    return ar;
 //}
+
+type One 1;
+
+function testSingletonTypeArrayFill(int index) returns One[] {
+    One[] ar = [];
+    ar[index] = 1;
+    return ar;
+}

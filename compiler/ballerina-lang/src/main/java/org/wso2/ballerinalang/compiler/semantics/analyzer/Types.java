@@ -2029,6 +2029,12 @@ public class Types {
         }
 
         BLangExpression firstElement = type.valueSpace.iterator().next();
+
+        // For singleton types, that value is the implicit initial value
+        if (type.valueSpace.size() == 1) {
+            return true;
+        }
+
         boolean sameType = type.valueSpace.stream()
                 .allMatch(value -> value.type.tag == firstElement.type.tag);
         if (!sameType) {

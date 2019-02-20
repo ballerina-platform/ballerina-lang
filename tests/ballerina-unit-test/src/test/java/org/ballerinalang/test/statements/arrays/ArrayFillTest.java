@@ -460,6 +460,20 @@ public class ArrayFillTest {
         assertEquals(jsonArr.getBValue(index).stringValue(), "{\"name\":\"John\", \"age\":25}");
     }
 
+    @Test
+    public void testSingletonTypeArrayFill() {
+        BValue[] args = new BValue[]{new BInteger(index)};
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSingletonTypeArrayFill", args);
+        BValueArray singletonArray = (BValueArray) returns[0];
+        assertEquals(singletonArray.size(), index + 1);
+
+        for (int i = 0; i < index; i++) {
+            assertEquals(singletonArray.getRefValue(i).stringValue(), "1");
+        }
+
+        assertEquals(singletonArray.getBValue(index).stringValue(), "1");
+    }
+
     private void validateMapValue(BMap<String, BValue> actual, BMap<String, BValue> expected) {
         assertEquals(actual.size(), expected.size());
 
