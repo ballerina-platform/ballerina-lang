@@ -1996,7 +1996,7 @@ public class Types {
             }
         }
         // Control reaching this point means there is only one type in the union.
-        return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
+        return hasImplicitInitialValue(firstMember);
     }
 
     private boolean analyzeObjectType(BObjectType type) {
@@ -2029,6 +2029,12 @@ public class Types {
         }
 
         BLangExpression firstElement = type.valueSpace.iterator().next();
+
+        // For singleton types, that value is the implicit initial value
+        if (type.valueSpace.size() == 1) {
+            return true;
+        }
+
         boolean sameType = type.valueSpace.stream()
                 .allMatch(value -> value.type.tag == firstElement.type.tag);
         if (!sameType) {
