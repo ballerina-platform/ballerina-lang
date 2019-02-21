@@ -474,8 +474,8 @@
                 "url": "strings"
             },
             {
-                "name": "Task Listener Service",
-                "url": "task-listener-timer-service"
+                "name": "Task Listener Timer",
+                "url": "task-listener-timer"
             },
             {
                 "name": "Task Listener Timer",

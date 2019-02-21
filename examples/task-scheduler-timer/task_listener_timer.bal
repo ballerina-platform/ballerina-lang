@@ -16,25 +16,25 @@ public function main() {
     // Interval in which the timer should trigger.
     int interval = 1000;
 
-    // Initialize the timer using the interval value.
-    task:Listener timer = new({ interval: interval });
+    // Initialize the timer scheduler using the interval value.
+    task:Scheduler timer = new({ interval: interval });
 
     // Get random integer, which will trigger stooping of the service.
     // Delay will be equal to the interval as we do not mention the delay here.
     int maxAge = math:randomInRange(10, 15);
-    Person person = { name: "Sam", age: 0, maxAge: maxAge };
+    Person person = { name: "Kurt Kobain", age: 0, maxAge: 27 };
 
     // Attaching the service to the timer. This will not start the timer.
     // But it will attach the service to the timer, and also passes the
     // person object into the timer service.
     // Defaultable `serviceParameter` will pass the object into the resources
     // if it is set.
-    _ = timer.attach(timerService, serviceParameter = person);
+    _ = timer.attachService(timerService, serviceParameter = person);
 
     // Start the timer.
-    _ = timer.start();
+    _ = timer.run();
 
-    // While loop will stop function from exiting untill the service ends.
+    // While loop will stop function from exiting until the service ends.
     while (runService) {
         // Wait for the service to stop
     }
@@ -54,16 +54,16 @@ service timerService = service {
     resource function onTrigger(Person person) returns error? {
         person.age = person.age + 1;
         if (person.age == person.maxAge) {
-            error e = error("Intended error");
+            error e = error(" died at ");
             return e;
         }
-        io:println("Person Name: " + person.name + " Age: " + person.age);
+        io:println(person.name + " is " + person.age + " years old now.");
     }
 
     // This will trigger when an error occurs inside the onTrigger() resoure.
     resource function onError(error e, Person person) {
         io:println(e);
-        io:println("Stooping " + person.name + " at Person age: " + person.age);
+        io:println(person.name + e.details().reason + person.age);
         runService = false;
     }
 };
