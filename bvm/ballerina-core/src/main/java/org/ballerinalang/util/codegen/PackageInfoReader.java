@@ -594,6 +594,9 @@ public class PackageInfoReader {
         // Read constant name cp index and ignore.
         dataInStream.readInt();
 
+        // Read and ignore flags.
+        dataInStream.readInt();
+
         // Read isSimple literal.
         boolean isSimpleLiteral = dataInStream.readBoolean();
 
@@ -615,9 +618,6 @@ public class PackageInfoReader {
         dataInStream.readInt();
 
         // Read value type cp index and ignore.
-        dataInStream.readInt();
-
-        // Read and ignore flags.
         dataInStream.readInt();
 
         // Read and ignore literal value type tag.
