@@ -656,7 +656,7 @@ ExpressionStart
     ;
 
 fragment
-InterpolationExpressionStart
+INTERPOLATION_START
     :   '${'
     ;
 
@@ -979,28 +979,28 @@ StringTemplateLiteralEnd
     ;
 
 StringTemplateExpressionStart
-    :   StringTemplateText? InterpolationExpressionStart            -> pushMode(DEFAULT_MODE)
+    :   StringTemplateText? INTERPOLATION_START            -> pushMode(DEFAULT_MODE)
     ;
 
 StringTemplateText
-    :   StringTemplateValidCharSequence+ Dollar*
-    |   Dollar+
+    :   StringTemplateValidCharSequence+ DOLLAR*
+    |   DOLLAR+
     ;
 
 fragment
-Dollar
+DOLLAR
     :   '$'
     ;
 
 fragment
 StringTemplateValidCharSequence
     :   ~[`$\\]
-    |   Dollar+ ~[`${\\]
+    |   DOLLAR+ ~[`${\\]
     |   WS
     |   StringLiteralEscapedSequence
     ;
 
 fragment
 StringLiteralEscapedSequence
-    :   Dollar* '\\' [\\'"btnfr`{]
+    :   DOLLAR* '\\' [\\'"btnfr`{]
     ;
