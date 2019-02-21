@@ -31,6 +31,7 @@ public class TaskConstants {
 
     public static final String TIMER_CONFIGURATION_STRUCT_NAME = "TimerConfiguration";
     public static final String APPOINTMENT_CONFIGURATION_STRUCT_NAME = "AppointmentConfiguration";
+    public static final String APPOINTMENT_DETAILS_STRUCT_NAME = "AppointmentData";
     public static final String LISTENER_CONFIGURATION_MEMBER_NAME = "listenerConfiguration";
 
     public static final String RESOURCE_ON_TRIGGER = "onTrigger";
@@ -41,6 +42,7 @@ public class TaskConstants {
     public static final String FIELD_NAME_INTERVAL = "interval";
     public static final String FIELD_NAME_DELAY = "initialDelay";
 
+    public static final String FIELD_APPOINTMENT_DETAILS = "appointmentDetails";
     public static final String FIELD_NAME_CRON_EXPRESSION = "cronExpression";
     public static final String FIELD_NAME_SECONDS = "seconds";
     public static final String FIELD_NAME_MINUTES = "minutes";

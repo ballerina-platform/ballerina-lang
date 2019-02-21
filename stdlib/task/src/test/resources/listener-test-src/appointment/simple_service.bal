@@ -17,7 +17,7 @@
 import ballerina/task;
 
 task:AppointmentConfiguration configuration = {
-    cronExpression: "* * * * * ? *"
+    appointmentDetails: "* * * * * ? *"
 };
 
 int count = 0;

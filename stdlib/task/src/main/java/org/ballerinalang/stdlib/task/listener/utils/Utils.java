@@ -32,7 +32,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_CRON_EXPRESSION;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_DETAILS_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_DAYS_OF_MONTH;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_DAYS_OF_WEEK;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_HOURS;
@@ -64,10 +64,10 @@ public class Utils {
 
     public static String getCronExpressionFromAppointmentRecord(BMap<String, BValue> record) {
         String cronExpression;
-        if (Objects.nonNull(record.get(FIELD_NAME_CRON_EXPRESSION))) {
-            cronExpression = record.get(FIELD_NAME_CRON_EXPRESSION).stringValue();
-        } else {
+        if (APPOINTMENT_DETAILS_STRUCT_NAME.equals(record.getType().getName())) {
             cronExpression = buildCronExpression(record);
+        } else {
+            cronExpression = record.get(APPOINTMENT_DETAILS_STRUCT_NAME).stringValue();
         }
         return cronExpression;
     }
@@ -86,10 +86,13 @@ public class Utils {
     }
 
     private static String getStringFieldValue(BMap<String, BValue> struct, String fieldName) {
-        if (Objects.nonNull(struct.get(fieldName))) {
+        if (FIELD_NAME_DAYS_OF_MONTH.equals(fieldName) && Objects.isNull(struct.get(FIELD_NAME_DAYS_OF_MONTH))) {
+            return "?";
+        }
+        else if (Objects.nonNull(struct.get(fieldName))) {
             return struct.get(fieldName).stringValue();
         } else {
-            return "* ";
+            return "*";
         }
     }
 

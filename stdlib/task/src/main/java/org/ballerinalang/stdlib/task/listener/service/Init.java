@@ -36,6 +36,7 @@ import org.ballerinalang.stdlib.task.listener.objects.Timer;
 
 import java.util.Objects;
 
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_APPOINTMENT_DETAILS;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_DELAY;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_INTERVAL;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_NO_OF_RUNS;
@@ -93,7 +94,13 @@ public class Init extends BlockingNativeCallableUnit {
 
         } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
             try {
-                String cronExpression = getCronExpressionFromAppointmentRecord(configurations);
+                String cronExpression;
+                if (configurations.get(FIELD_APPOINTMENT_DETAILS) instanceof BMap) {
+                    BMap<String, BValue> appointmentDetails = (BMap) configurations.get(FIELD_APPOINTMENT_DETAILS);
+                    cronExpression =  getCronExpressionFromAppointmentRecord(appointmentDetails);
+                } else {
+                    cronExpression = configurations.get(FIELD_APPOINTMENT_DETAILS).stringValue();
+                }
                 if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
                     long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
                     task = new Appointment(context, cronExpression, noOfRuns);

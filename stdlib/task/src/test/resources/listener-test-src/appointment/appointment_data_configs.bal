@@ -16,19 +16,29 @@
 
 import ballerina/task;
 
-function runService(string cronExpression) {
-    task:Listener appointment = new({ appointmentDetails: cronExpression });
-    var result = appointment.attach(appointmentService);
-    result = appointment.start();
-}
+task:AppointmentData appointmentData = {
+    seconds: "0/2",
+    minutes: "*",
+    hours: "*",
+    daysOfMonth: "?",
+    months: "*",
+    daysOfWeek: "*",
+    year: "*"
+};
+
+task:AppointmentConfiguration configuration = {
+    appointmentDetails: appointmentData
+};
 
 int count = 0;
+
+listener task:Listener appointment = new(configuration);
 
 function getCount() returns int {
     return count;
 }
 
-service appointmentService = service {
+service appointmentService on appointment {
     resource function onTrigger() {
         count = count + 1;
     }
@@ -36,4 +46,4 @@ service appointmentService = service {
     resource function onError(error e) {
         count = count - 1;
     }
-};
+}

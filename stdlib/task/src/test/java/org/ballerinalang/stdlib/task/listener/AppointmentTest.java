@@ -58,4 +58,15 @@ public class AppointmentTest {
             return (((BInteger) configs[0]).intValue() > 3);
         });
     }
+
+    @Test(description = "Tests the functionality of initiating a Task Timer Listener with AppointmentData record.")
+    public void testAppointmentDataConfigs() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup(
+                "listener-test-src/appointment/appointment_data_configs.bal");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(configs.length, 1);
+            return (((BInteger) configs[0]).intValue() > 3);
+        });
+    }
 }

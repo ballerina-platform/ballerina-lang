@@ -28,7 +28,16 @@ public type TimerConfiguration record {
 
 # Configurations related to an Appointment
 #
-# + cronExpression - Cron expression for the appointment. Providing cronExpression will override all the other configurations.
+# + appointmentDetails - A CronExpression (as a string) or AppointmentDetails fro scheduling an Appointment.
+# + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
+public type AppointmentConfiguration record {
+    string|AppointmentData appointmentDetails;
+    int noOfRecurrences?;
+    !...;
+};
+
+# Details for schedule an Appointment.
+#
 # + seconds - Second(s) in a given minute, in which the appointment will run.
 # + minutes - Minute(s) in a given hour, in which the appointment will run.
 # + hours - Hour(s) in a given day, in which the appointment will run.
@@ -36,9 +45,7 @@ public type TimerConfiguration record {
 # + months - Month(s) in a given year, in which the appointment will run.
 # + daysOfWeek - Day(s) of a week, in which the appointment will run.
 # + year - Year(s) in which the appointment will run.
-# + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
-public type AppointmentConfiguration record {
-    string cronExpression?;
+public type AppointmentData record {
     string seconds?;
     string minutes?;
     string hours?;
@@ -46,8 +53,6 @@ public type AppointmentConfiguration record {
     string months?;
     string daysOfWeek?;
     string year?;
-    int noOfRecurrences?;
-    !...;
 };
 
 # Represents a ballerina task listener
