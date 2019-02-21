@@ -20,7 +20,7 @@ http:AuthProvider jwtAuthProvider3 = {
     scheme: http:JWT_AUTH,
     jwtAuthProviderConfig: {
         issuer: "ballerina",
-        audience: "ballerina",
+        audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

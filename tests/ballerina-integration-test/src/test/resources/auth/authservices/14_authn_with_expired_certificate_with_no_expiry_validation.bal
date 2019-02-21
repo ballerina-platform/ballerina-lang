@@ -20,7 +20,7 @@ http:AuthProvider jwtAuthProvider14 = {
     scheme: http:JWT_AUTH,
     jwtAuthProviderConfig: {
         issuer:"ballerina",
-        audience: "ballerina.io",
+        audience: ["ballerina.io"],
         certificateAlias: "cert",
         validateCertificate: false,
         trustStore: {

@@ -73,14 +73,17 @@ public type Listener object {
 
 public function Listener.init(ServiceEndpointConfiguration c) {
     self.config = c;
-    var providers = self.config.authProviders;
-    if (providers.length() > 0) {
-        var secureSocket = self.config.secureSocket;
-        if (secureSocket is ServiceSecureSocket) {
-            addAuthFiltersForSecureListener(self.config, self.instanceId);
-        } else {
-            error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-            panic err;
+    var authProviders = self.config.authProviders;
+    if (authProviders is AuthProvider[]) {
+        var providers = authProviders;
+        if (providers.length() > 0) {
+            var secureSocket = self.config.secureSocket;
+            if (secureSocket is ServiceSecureSocket) {
+                addAuthFiltersForSecureListener(self.config, self.instanceId);
+            } else {
+                error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
+                panic err;
+            }
         }
     }
     var err = self.initEndpoint();
@@ -152,7 +155,7 @@ public type ServiceEndpointConfiguration record {
     Filter[] filters = [];
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    AuthProvider?[] authProviders = [];
+    AuthProvider[]? authProviders = ();
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
     !...;
@@ -218,7 +221,7 @@ public type AuthCacheConfig record {
 # + jwtAuthProviderConfig - JWT auth provider related configurations
 public type AuthProvider record {
     string id = "";
-    InboundAuthScheme scheme;
+    InboundAuthScheme? scheme = ();
     AuthStoreProvider? authStoreProvider = ();
     auth:LdapAuthProviderConfig? ldapAuthProviderConfig = ();
     auth:ConfigAuthProviderConfig? configAuthProviderConfig = ();

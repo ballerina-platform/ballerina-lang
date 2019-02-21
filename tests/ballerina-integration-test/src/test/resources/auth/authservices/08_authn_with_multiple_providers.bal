@@ -20,7 +20,7 @@ http:AuthProvider jwtAuthProvider1 = {
     scheme: http:JWT_AUTH,
     jwtAuthProviderConfig: {
         issuer: "example1",
-        audience: "ballerina",
+        audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -33,7 +33,7 @@ http:AuthProvider jwtAuthProvider2 = {
     scheme: http:JWT_AUTH,
     jwtAuthProviderConfig: {
         issuer: "example2",
-        audience: "ballerina",
+        audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

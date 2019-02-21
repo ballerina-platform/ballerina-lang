@@ -60,7 +60,7 @@ service passthroughService03 on listener11 {
         var response = nyseEP03->get("/nyseStock/stocks", message = untaint clientRequest);
         if (response is http:Response) {
             _ = caller->respond(response);
-        } else if (response is error) {
+        } else {
             http:Response resp = new;
             json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
             resp.statusCode = 500;
@@ -74,7 +74,7 @@ http:AuthProvider jwtAuthProvider03 = {
     scheme: http:JWT_AUTH,
     jwtAuthProviderConfig: {
         issuer: "ballerina",
-        audience: "ballerina",
+        audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

@@ -20,7 +20,7 @@ http:AuthProvider basicAuthProvider17 = {
     scheme: http:JWT_AUTH,
     jwtAuthProviderConfig: {
         issuer: "example1",
-        audience: "ballerina",
+        audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -68,7 +68,7 @@ service passthroughService17 on listener17_1 {
         var response = nyseEP17->get("/nyseStock/stocks", message = untaint clientRequest);
         if (response is http:Response) {
             _ = caller->respond(response);
-        } else if (response is error) {
+        } else {
             http:Response resp = new;
             json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
             resp.statusCode = 500;
@@ -82,7 +82,7 @@ http:AuthProvider jwtAuthProvider17 = {
     scheme: http:JWT_AUTH,
     jwtAuthProviderConfig: {
         issuer: "example2aaaaaaaaaaaaaa",
-        audience: "ballerina",
+        audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
