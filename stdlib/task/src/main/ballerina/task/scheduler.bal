@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents a ballerina task.
-public type Task object {
+public type Scheduler object {
     private Listener taskListener;
 
     public function __init(TimerConfiguration|AppointmentConfiguration configs) {

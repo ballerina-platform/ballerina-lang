@@ -18,12 +18,12 @@
  *
  */
 
-package org.ballerinalang.stdlib.task.listener;
+package org.ballerinalang.stdlib.task.scheduler;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -33,21 +33,20 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 
 /**
- * Advanced Tests for Ballerina Task Timer service.
+ * Tests for Ballerina Task Timer Scheduler.
  */
 @Test
-public class TimerTest {
+public class TimerSchedulerTest {
+
     @Test(description = "Test service parameter passing")
-    public void testTimerServiceParameter() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "listener-test-src/timer/service_parameter.bal");
-        BRunUtil.invoke(compileResult, "attachTimer");
-        String expectedResult = "Kurt Kobain died at 27";
-        await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] result = BRunUtil.invokeStateful(compileResult, "getResult");
-            Assert.assertEquals(result.length, 1);
-            Assert.assertTrue(result[0] instanceof BString);
-            return (expectedResult.equals(result[0].stringValue()));
+    public void testSimpleTimerScheduler() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup("timer/simple_timer.bal");
+        BRunUtil.invokeStateful(compileResult, "main");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BInteger);
+            return (((BInteger) count[0]).intValue() > 3);
         });
     }
 }
