@@ -32,7 +32,6 @@ import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BNewArray;
@@ -379,12 +378,6 @@ public class ArgumentParser {
                         floatArrayArgs.add(i - index, getFloatValue(args[i]));
                     }
                     return floatArrayArgs;
-                case TypeTags.DECIMAL_TAG:
-                    BDecimalArray decimalArrayArgs = new BDecimalArray();
-                    for (int i = index; i < args.length; i++) {
-                        decimalArrayArgs.add(i - index, getDecimalValue(args[i]));
-                    }
-                    return decimalArrayArgs;
                 case TypeTags.BOOLEAN_TAG:
                     BValueArray booleanArrayArgs = new BValueArray(BTypes.typeBoolean);
                     for (int i = index; i < args.length; i++) {
