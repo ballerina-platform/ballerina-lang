@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -38,7 +38,7 @@ import java.util.List;
 public class ServiceContextResolver extends AbstractItemResolver {
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
+    public List<CompletionItem> resolveItems(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);

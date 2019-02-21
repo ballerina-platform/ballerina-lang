@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -55,7 +54,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractItemResolver {
 
-    public abstract List<CompletionItem> resolveItems(LSServiceOperationContext completionContext);
+    public abstract List<CompletionItem> resolveItems(LSContext completionContext);
 
     /**
      * Populate the completion item list by considering the.
@@ -112,7 +111,7 @@ public abstract class AbstractItemResolver {
      * @param context               Completion operation context
      * @return {@link Boolean}      Whether invocation or Field Access
      */
-    protected boolean isInvocationOrInteractionOrFieldAccess(LSServiceOperationContext context) {
+    protected boolean isInvocationOrInteractionOrFieldAccess(LSContext context) {
         List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(context), 2);
         return poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
@@ -127,7 +126,7 @@ public abstract class AbstractItemResolver {
      * @param ctx                   Completion operation context
      * @return {@link Boolean}      Whether annotation context start or not
      */
-    boolean isAnnotationStart(LSServiceOperationContext ctx) {
+    boolean isAnnotationStart(LSContext ctx) {
         List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 4);
         return poppedTokens.contains(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY);
     }
@@ -159,7 +158,7 @@ public abstract class AbstractItemResolver {
      * @param context           Completion context
      * @return {@link List}     List of resolved completion items
      */
-    protected List<CompletionItem> getVarDefCompletionItems(LSServiceOperationContext context) {
+    protected List<CompletionItem> getVarDefCompletionItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
@@ -247,7 +246,7 @@ public abstract class AbstractItemResolver {
      * @param context       Language Server Service Operation Context
      * @return {@link List} Completion Item List
      */
-    protected List<CompletionItem> getDelimiterBasedCompletionItems(LSServiceOperationContext context) {
+    protected List<CompletionItem> getDelimiterBasedCompletionItems(LSContext context) {
         Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters.get(DelimiterBasedContentFilter.class)
                 .filterItems(context);
         return this.getCompletionItemList(itemList, context);

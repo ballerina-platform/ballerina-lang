@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
@@ -68,7 +68,7 @@ public class ParserRuleFunctionDefinitionContextResolver extends AbstractItemRes
     }
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+    public List<CompletionItem> resolveItems(LSContext context) {
         List<CompletionItem> completionItems = new ArrayList<>();
         List<String> consumedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
                 .map(Token::getText)

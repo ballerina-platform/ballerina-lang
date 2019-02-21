@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -34,7 +34,7 @@ import java.util.List;
  */
 class CallableUnitBodyItemSorter extends CompletionItemSorter {
     @Override
-    public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
+    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
         BLangNode previousNode = ctx.get(CompletionKeys.PREVIOUS_NODE_KEY);
         boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         
@@ -66,7 +66,7 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         return Snippet.DEF_WORKER.get().build(ctx, isSnippet);
     }
     
-    private void clearItemsIfWorkerExists(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
+    private void clearItemsIfWorkerExists(LSContext ctx, List<CompletionItem> completionItems) {
         BLangNode blockOwner = (BLangNode) ctx.get(CompletionKeys.BLOCK_OWNER_KEY);
         
         if (blockOwner instanceof BLangInvokableNode && !((BLangInvokableNode) blockOwner).getWorkers().isEmpty()) {

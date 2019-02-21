@@ -21,7 +21,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
@@ -49,7 +49,7 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
     private static final Logger logger = LoggerFactory.getLogger(ParserRuleServiceDefinitionContextResolver.class);
     
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
+    public List<CompletionItem> resolveItems(LSContext ctx) {
         List<CompletionItem> completionItems = new ArrayList<>();
         TokenStream tokenStream = ctx.get(CompletionKeys.TOKEN_STREAM_KEY);
         Stack<Token> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);

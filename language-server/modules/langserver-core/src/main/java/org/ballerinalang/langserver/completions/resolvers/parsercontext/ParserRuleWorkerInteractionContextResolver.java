@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class ParserRuleWorkerInteractionContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+    public List<CompletionItem> resolveItems(LSContext context) {
         ParserRuleContext contextParent = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getParent();
         if (contextParent instanceof BallerinaParser.BinaryEqualExpressionContext) {
             contextParent = contextParent.getParent();

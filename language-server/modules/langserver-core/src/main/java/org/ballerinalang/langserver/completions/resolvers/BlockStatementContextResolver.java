@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class BlockStatementContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSContext completionContext) {
         AbstractItemResolver itemResolver;
 
         ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);

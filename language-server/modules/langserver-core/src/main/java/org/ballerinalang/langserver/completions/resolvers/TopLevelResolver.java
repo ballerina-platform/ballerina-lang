@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
@@ -39,7 +38,7 @@ import java.util.List;
 public class TopLevelResolver extends AbstractItemResolver {
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
+    public List<CompletionItem> resolveItems(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ParserRuleContext prContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         boolean snippetSupport = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
@@ -108,7 +107,7 @@ public class TopLevelResolver extends AbstractItemResolver {
                 || token.equals(ItemResolverConstants.FINAL_KEYWORD);
     }
 
-    private ArrayList<CompletionItem> getGlobalVarDefCompletions(LSServiceOperationContext context,
+    private ArrayList<CompletionItem> getGlobalVarDefCompletions(LSContext context,
                                                                  List<String> poppedTokens,
                                                                  AbstractItemResolver itemResolver) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();

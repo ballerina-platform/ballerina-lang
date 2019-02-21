@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.StatementContextResolver;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class ParserRuleStatementContextResolver extends StatementContextResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+    public List<CompletionItem> resolveItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         if (this.isInvocationOrInteractionOrFieldAccess(context)) {

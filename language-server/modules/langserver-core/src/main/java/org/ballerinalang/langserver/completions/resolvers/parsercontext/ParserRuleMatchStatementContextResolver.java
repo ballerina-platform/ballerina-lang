@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
@@ -55,7 +54,7 @@ import static org.ballerinalang.langserver.completions.util.MatchStatementResolv
 public class ParserRuleMatchStatementContextResolver extends AbstractItemResolver {
     
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
+    public List<CompletionItem> resolveItems(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 3);
         List<SymbolInfo> symbolInfoList = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);

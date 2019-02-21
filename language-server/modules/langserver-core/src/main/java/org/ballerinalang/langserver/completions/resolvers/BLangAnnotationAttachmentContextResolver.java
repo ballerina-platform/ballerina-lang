@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachmentMetaInfo;
 import org.ballerinalang.langserver.common.utils.completion.BLangRecordLiteralUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
@@ -47,7 +46,7 @@ import java.util.Queue;
  */
 public class BLangAnnotationAttachmentContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
+    public List<CompletionItem> resolveItems(LSContext ctx) {
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         if (symbolEnvNode instanceof BLangAnnotationAttachment
                 && ((BLangAnnotationAttachment) symbolEnvNode).expr instanceof BLangRecordLiteral) {

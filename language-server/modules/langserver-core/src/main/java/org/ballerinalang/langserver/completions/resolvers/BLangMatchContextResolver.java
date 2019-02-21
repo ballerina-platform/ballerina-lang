@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -51,7 +50,7 @@ public class BLangMatchContextResolver extends AbstractItemResolver {
     private static final String LABEL_VARIABLE_VALUE = "Variable Value Destructure Match";
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
+    public List<CompletionItem> resolveItems(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);

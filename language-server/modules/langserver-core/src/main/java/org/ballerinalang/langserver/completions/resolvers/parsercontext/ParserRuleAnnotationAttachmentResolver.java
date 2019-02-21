@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
@@ -36,7 +35,7 @@ import java.util.List;
 public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver {
     
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
+    public List<CompletionItem> resolveItems(LSContext ctx) {
         if (ctx.get(CompletionKeys.NEXT_NODE_KEY) == null) {
             return new ArrayList<>();
         }

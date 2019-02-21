@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionException;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -67,7 +66,7 @@ import java.util.stream.IntStream;
 public class ParserRuleVariableDefinitionStatementContextResolver extends AbstractItemResolver {
     @Override
     @SuppressWarnings("unchecked")
-    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+    public List<CompletionItem> resolveItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<String> poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
                 .map(Token::getText)

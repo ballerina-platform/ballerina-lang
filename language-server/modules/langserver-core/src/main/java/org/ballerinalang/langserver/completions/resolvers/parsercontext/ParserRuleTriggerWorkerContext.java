@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class ParserRuleTriggerWorkerContext extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSContext completionContext) {
 
         return new ArrayList<>();
     }

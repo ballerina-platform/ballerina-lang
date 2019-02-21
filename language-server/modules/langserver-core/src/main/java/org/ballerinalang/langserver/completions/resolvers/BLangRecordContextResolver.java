@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  */
 public class BLangRecordContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+    public List<CompletionItem> resolveItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<String> poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
                 .stream()

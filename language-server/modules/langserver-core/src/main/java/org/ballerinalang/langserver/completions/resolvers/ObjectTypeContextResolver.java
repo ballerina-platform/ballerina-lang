@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
@@ -64,7 +63,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
     private static final Logger logger = LoggerFactory.getLogger(ObjectTypeContextResolver.class);
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+    public List<CompletionItem> resolveItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode objectNode = context.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();

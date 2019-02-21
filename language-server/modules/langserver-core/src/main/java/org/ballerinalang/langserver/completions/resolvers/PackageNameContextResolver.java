@@ -19,8 +19,8 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 public class PackageNameContextResolver extends AbstractItemResolver {
     
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
+    public List<CompletionItem> resolveItems(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<BallerinaPackage> packagesList = new ArrayList<>();
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())

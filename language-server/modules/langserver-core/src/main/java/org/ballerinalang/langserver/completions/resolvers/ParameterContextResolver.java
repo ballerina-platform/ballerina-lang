@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class ParameterContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSContext completionContext) {
         return this.getBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
     }
 }

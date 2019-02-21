@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class ParserRuleServiceEndpointAttachmentContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+    public List<CompletionItem> resolveItems(LSContext context) {
         List<SymbolInfo> endpointSymbols = (context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol)
                 .collect(Collectors.toList());

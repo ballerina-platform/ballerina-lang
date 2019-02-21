@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -42,7 +41,7 @@ import java.util.stream.IntStream;
  */
 public class StatementContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+    public List<CompletionItem> resolveItems(LSContext context) {
         // Add the visible static completion items
         ArrayList<CompletionItem> completionItems = new ArrayList<>(getStaticCompletionItems(context));
         // Add the statement templates
@@ -63,7 +62,7 @@ public class StatementContextResolver extends AbstractItemResolver {
         return completionItems;
     }
 
-    private List<CompletionItem> getStaticCompletionItems(LSServiceOperationContext context) {
+    private List<CompletionItem> getStaticCompletionItems(LSContext context) {
         boolean supportSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
                 .getCompletionItem()
                 .getSnippetSupport();
