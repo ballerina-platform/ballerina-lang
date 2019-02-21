@@ -83,7 +83,7 @@ public enum CompletionItemResolver {
             new ParameterContextResolver()),
     BLOCK_STATEMENT_CONTEXT(BLangBlockStmt.class,
             new BlockStatementContextResolver()),
-    ANNOTATION_ATTACHMENT(ParserRuleAnnotationAttachmentResolver.class,
+    ANNOTATION_ATTACHMENT(BallerinaParser.AnnotationAttachmentContext.class,
             new ParserRuleAnnotationAttachmentResolver()),
     RECORD_CONTEXT(BLangRecordTypeNode.class,
             new BLangRecordContextResolver()),

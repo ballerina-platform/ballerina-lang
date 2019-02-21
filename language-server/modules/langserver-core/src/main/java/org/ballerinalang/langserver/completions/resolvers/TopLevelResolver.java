@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAnnotationAttachmentResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -29,6 +28,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +50,7 @@ public class TopLevelResolver extends AbstractItemResolver {
 
         List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
         if (this.isAnnotationStart(ctx)) {
-            resolver = CompletionItemResolver.get(ParserRuleAnnotationAttachmentResolver.class);
+            resolver = CompletionItemResolver.get(BallerinaParser.AnnotationAttachmentContext.class);
             completionItems.addAll(resolver.resolveItems(ctx));
         } else if (poppedTokens.size() >= 1 && this.isAccessModifierToken(poppedTokens.get(0))) {
             // Provides completions after public keyword

@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAnnotationAttachmentResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
@@ -46,7 +45,7 @@ public class ServiceContextResolver extends AbstractItemResolver {
 
         if (this.isAnnotationStart(ctx)) {
             completionItems.addAll(CompletionItemResolver
-                    .get(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
+                    .get(BallerinaParser.AnnotationAttachmentContext.class).resolveItems(ctx));
         } else if (this.isInvocationOrInteractionOrFieldAccess(ctx)) {
             completionItems.addAll(this.getDelimiterBasedCompletionItems(ctx));
             ItemSorters.get(ActionAndFieldAccessContextItemSorter.class).sortItems(ctx, completionItems);
