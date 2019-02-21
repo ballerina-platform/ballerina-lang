@@ -18,13 +18,18 @@
 # provides includes functions to send request/error messages.
 public type Client client object {
 
+    private ClientEndpointConfig config = {};
+    private string url;
+
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
     # record is used for endpoint initialization.
     #
     # + url - The server url.
     # + config - - The ClientEndpointConfig of the endpoint.
-    public function __init(string url, ClientEndpointConfig config) {
-        self.init(url, config, globalHttpClientConnPool);
+    public function __init(string url, ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
+        self.init(self.url, self.config, globalHttpClientConnPool);
     }
 
     extern function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig);
@@ -76,7 +81,7 @@ public type Client client object {
 # + chunking - The chunking behaviour of the request
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + proxy - Proxy server related options
-# + connectionThrottling - Configurations for connection throttling
+# + poolConfig - Connection pool configuration
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientEndpointConfig record {

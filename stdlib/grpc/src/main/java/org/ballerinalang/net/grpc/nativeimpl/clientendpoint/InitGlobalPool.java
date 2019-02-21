@@ -20,13 +20,16 @@ package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
 
@@ -38,6 +41,8 @@ import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "grpc",
         functionName = "initGlobalPool",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ConnectionManager", structPackage =
+                PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
 public class InitGlobalPool extends BlockingNativeCallableUnit {

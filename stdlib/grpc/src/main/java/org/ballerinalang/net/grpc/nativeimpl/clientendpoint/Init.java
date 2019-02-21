@@ -74,9 +74,9 @@ public class Init extends BlockingNativeCallableUnit {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         // Creating client endpoint with channel as native data.
         BMap<String, BValue> endpointConfigStruct =
-                (BMap<String, BValue>) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
+                (BMap<String, BValue>) context.getRefArgument(1);
         BMap<String, BValue> globalPoolConfig = (BMap<String, BValue>) context
-                .getRefArgument(HttpConstants.CLIENT_GLOBAL_POOL_INDEX);
+                .getRefArgument(2);
         Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
         String urlString = context.getStringArgument(0);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
