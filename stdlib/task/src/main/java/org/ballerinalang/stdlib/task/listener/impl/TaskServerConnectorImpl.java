@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.listener.objects.Task;
-import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
+import org.ballerinalang.stdlib.task.listener.objects.TaskState;
 
 /**
  * ballerina/task server connector implementation.
@@ -30,9 +30,9 @@ import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 public class TaskServerConnectorImpl implements TaskServerConnector {
 
     /**
-     * ID of the task which is attached to the listener.
+     * Native Task object mapped to listener.
      */
-    private String taskId;
+    private Task task;
 
     /**
      * Context of the calling service.
@@ -43,10 +43,10 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      * Constructor of the server connector.
      *
      * @param context Context of which the server connector is called.
-     * @param taskId  Task ID of the task which is bound to the service.
+     * @param task    Native Task object which is mapped to the Listener.
      */
-    public TaskServerConnectorImpl(Context context, String taskId) {
-        this.taskId = taskId;
+    public TaskServerConnectorImpl(Context context, Task task) {
+        this.task = task;
         this.context = context;
     }
 
@@ -55,17 +55,15 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public void start() throws SchedulingException {
-        Task task = TaskRegistry.getInstance().getTask(taskId);
-        task.runServices(context);
+        this.task.setState(TaskState.STARTED);
+        this.task.runServices(context);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean stop() throws SchedulingException {
-        Task task = TaskRegistry.getInstance().getTask(taskId);
-        task.stop();
-        return true;
+    public void stop() throws SchedulingException {
+        this.task.stop();
     }
 }

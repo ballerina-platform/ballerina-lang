@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentJob;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentManager;
-import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
@@ -49,7 +48,6 @@ public class Appointment extends AbstractTask {
         if (!validateCronExpression(cronExpression)) {
             throw new SchedulingException("Invalid cron expression provided.");
         }
-        TaskRegistry.getInstance().addTask(this);
         this.cronExpression = cronExpression;
         this.maxRuns = -1;
     }
@@ -68,7 +66,6 @@ public class Appointment extends AbstractTask {
         if (!validateCronExpression(cronExpression)) {
             throw new SchedulingException("Invalid cron expression provided.");
         }
-        TaskRegistry.getInstance().addTask(this);
         this.cronExpression = cronExpression;
         this.maxRuns = maxRuns;
     }
@@ -79,7 +76,21 @@ public class Appointment extends AbstractTask {
     @Override
     public void stop() throws SchedulingException {
         AppointmentManager.getInstance().stop(id);
-        super.stop();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void pause() throws SchedulingException {
+        AppointmentManager.getInstance().pause(this.getId());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void resume() throws SchedulingException {
+        AppointmentManager.getInstance().resume(this.getId());
     }
 
     /**

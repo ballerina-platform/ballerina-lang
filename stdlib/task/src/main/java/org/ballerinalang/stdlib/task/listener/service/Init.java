@@ -22,10 +22,8 @@ package org.ballerinalang.stdlib.task.listener.service;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -42,11 +40,10 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_N
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_NO_OF_RUNS;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_CONFIGURATION_MEMBER_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ID_FIELD;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_RUNNING_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
@@ -76,42 +73,52 @@ public class Init extends BlockingNativeCallableUnit {
         Task task;
 
         if (TIMER_CONFIGURATION_STRUCT_NAME.equals(configurationTypeName)) {
-            long interval = ((BInteger) configurations.get(FIELD_NAME_INTERVAL)).intValue();
-            long delay = ((BInteger) configurations.get(FIELD_NAME_DELAY)).intValue();
-
-            try {
-                if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
-                    long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
-                    task = new Timer(context, delay, interval, noOfRuns);
-                } else {
-                    task = new Timer(context, delay, interval);
-                }
-                taskStruct.put(TASK_ID_FIELD, new BString(task.getId()));
-                taskStruct.put(TASK_IS_RUNNING_FIELD, new BBoolean(false));
-            } catch (SchedulingException e) {
-                context.setReturnValues(createError(context, e.getMessage()));
-            }
-
+            task = processTimer(context, configurations);
         } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
-            try {
-                String cronExpression;
-                if (configurations.get(FIELD_APPOINTMENT_DETAILS) instanceof BMap) {
-                    BMap<String, BValue> appointmentDetails = (BMap) configurations.get(FIELD_APPOINTMENT_DETAILS);
-                    cronExpression =  getCronExpressionFromAppointmentRecord(appointmentDetails);
-                } else {
-                    cronExpression = configurations.get(FIELD_APPOINTMENT_DETAILS).stringValue();
-                }
-                if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
-                    long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
-                    task = new Appointment(context, cronExpression, noOfRuns);
-                } else {
-                    task = new Appointment(context, cronExpression);
-                }
-                taskStruct.put(TASK_ID_FIELD, new BString(task.getId()));
-                taskStruct.put(TASK_IS_RUNNING_FIELD, new BBoolean(false));
-            } catch (SchedulingException e) {
-                context.setReturnValues(createError(context, e.getMessage()));
+            task = processAppointment(context, configurations);
+        }
+        taskStruct.addNativeData(NATIVE_DATA_TASK_OBJECT, task);
+    }
+
+    private static Timer processTimer(Context context, BMap<String, BValue> configurations) {
+        Timer task;
+        long interval = ((BInteger) configurations.get(FIELD_NAME_INTERVAL)).intValue();
+        long delay = ((BInteger) configurations.get(FIELD_NAME_DELAY)).intValue();
+
+        try {
+            if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
+                long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
+                task = new Timer(context, delay, interval, noOfRuns);
+            } else {
+                task = new Timer(context, delay, interval);
             }
+            return task;
+        } catch (SchedulingException e) {
+            context.setReturnValues(createError(context, e.getMessage()));
+            return null;
+        }
+    }
+
+    private static Appointment processAppointment(Context context, BMap<String, BValue> configurations) {
+        Appointment appointment;
+        try {
+            String cronExpression;
+            if (configurations.get(FIELD_APPOINTMENT_DETAILS) instanceof BMap) {
+                BMap<String, BValue> appointmentDetails = (BMap) configurations.get(FIELD_APPOINTMENT_DETAILS);
+                cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);
+            } else {
+                cronExpression = configurations.get(FIELD_APPOINTMENT_DETAILS).stringValue();
+            }
+            if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
+                long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
+                appointment = new Appointment(context, cronExpression, noOfRuns);
+            } else {
+                appointment = new Appointment(context, cronExpression);
+            }
+            return appointment;
+        } catch (SchedulingException e) {
+            context.setReturnValues(createError(context, e.getMessage()));
+            return null;
         }
     }
 }

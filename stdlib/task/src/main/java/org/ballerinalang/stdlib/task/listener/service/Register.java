@@ -27,22 +27,19 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.objects.ServiceWithParameters;
 import org.ballerinalang.stdlib.task.listener.objects.Task;
-import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 
 import java.util.Objects;
 
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_SERVICE_PARAMETER;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_SERVICE_REF_ARG_INDEX;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
-import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.validateService;
 
 /**
@@ -80,12 +77,7 @@ public class Register extends BlockingNativeCallableUnit {
          */
         validateService(service);
 
-        String taskId = (taskStruct.get(TASK_ID_FIELD)).stringValue();
-        try {
-            Task task = TaskRegistry.getInstance().getTask(taskId);
-            task.addService(serviceWithParameters);
-        } catch (SchedulingException e) {
-            context.setReturnValues(createError(context, e.getMessage()));
-        }
+        Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        task.addService(serviceWithParameters);
     }
 }

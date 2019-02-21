@@ -66,4 +66,6 @@ public class TaskConstants {
 
     public static final String APPOINTMENT_SERVICE_OBJECT = "ballerina.service.with.parameters";
     public static final String APPOINTMENT_PARENT_CONTEXT = "ballerina.parent.context";
+
+    public static final String NATIVE_DATA_TASK_OBJECT = "TaskObject";
 }

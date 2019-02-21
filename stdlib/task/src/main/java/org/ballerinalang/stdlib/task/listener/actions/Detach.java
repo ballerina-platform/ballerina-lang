@@ -26,17 +26,14 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.objects.Task;
-import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ID_FIELD;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
-import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 
 /**
  * Native function to detach a service from the listener.
@@ -57,15 +54,9 @@ public class Detach extends BlockingNativeCallableUnit {
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_REF_ARG_INDEX);
-        String taskId = taskStruct.get(TASK_ID_FIELD).stringValue();
+        Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
         BMap<String, BValue> serviceStruct = (BMap) context.getRefArgument(1);
         String serviceName = BLangConnectorSPIUtil.getService(context.getProgramFile(), serviceStruct).getName();
-
-        try {
-            Task task = TaskRegistry.getInstance().getTask(taskId);
-            task.removeService(serviceName);
-        } catch (SchedulingException e) {
-            context.setReturnValues(createError(context, e.getMessage()));
-        }
+        task.removeService(serviceName);
     }
 }

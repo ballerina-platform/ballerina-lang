@@ -15,26 +15,27 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
+ *
  */
-package org.ballerinalang.stdlib.task.listener.api;
 
-import org.ballerinalang.stdlib.task.SchedulingException;
+package org.ballerinalang.stdlib.task.listener.objects;
 
 /**
- * Task listener server connector.
+ * Represents the state of a task.
  */
-public interface TaskServerConnector {
+public enum TaskState {
     /**
-     * Start the server connector, which actually start the task.
-     *
-     * @throws SchedulingException if error occurred while starting the Task server connector.
+     * Task is created, but not started yet.
      */
-    void start() throws SchedulingException;
+    STOPPED,
 
     /**
-     * Stop the server connector which actually stops the task.
-     *
-     * @throws SchedulingException if error occurred while stopping the Task server connector.
+     * Task is started and running.
      */
-    void stop() throws SchedulingException;
+    STARTED,
+
+    /**
+     * Task is started, but paused.
+     */
+    PAUSED
 }

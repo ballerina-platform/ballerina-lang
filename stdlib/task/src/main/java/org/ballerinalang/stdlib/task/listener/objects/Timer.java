@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.task.listener.objects;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.TaskExecutor;
-import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.concurrent.Executors;
@@ -50,8 +49,6 @@ public class Timer extends AbstractTask {
         }
         this.interval = interval;
         this.delay = delay;
-
-        TaskRegistry.getInstance().addTask(this);
     }
 
     /**
@@ -70,8 +67,6 @@ public class Timer extends AbstractTask {
         }
         this.interval = interval;
         this.delay = delay;
-
-        TaskRegistry.getInstance().addTask(this);
     }
 
     /**
@@ -80,7 +75,6 @@ public class Timer extends AbstractTask {
     @Override
     public void stop() throws SchedulingException {
         this.executorService.shutdown();
-        super.stop();
     }
 
     private static void callTriggerFunction(Context context, ServiceWithParameters serviceWithParameters) {
@@ -91,8 +85,40 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
+    public void pause() throws SchedulingException {
+        if (TaskState.PAUSED == this.getState()) {
+            // TODO: Get the task name and print it on the error message.
+            throw new SchedulingException("Cannot pause the task: " + " Task is already at paused state.");
+        } else if (TaskState.STOPPED == this.getState()) {
+            // TODO: Get the task name and print it on the error message.
+            throw new SchedulingException("Cannot pause the task: " + " Task is not started yet.");
+        }
+        this.setState(TaskState.PAUSED);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void resume() throws SchedulingException {
+        if (TaskState.STARTED == this.getState()) {
+            // TODO: Get the task name and print it on the error message.
+            throw new SchedulingException("Cannot resume the task: " + " Task is already at running state.");
+        } else if (TaskState.STOPPED == this.getState()) {
+            // TODO: Get the task name and print it on the error message.
+            throw new SchedulingException("Cannot resume the task: " + " Task is not started yet.");
+        }
+        this.setState(TaskState.STARTED);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void runServices(Context context) {
         final Runnable schedulerFunc = () -> {
+            if (TaskState.PAUSED == this.getState()) {
+                return;
+            }
             if (this.maxRuns > 0 && this.maxRuns == noOfRuns) {
                 try {
                     this.stop();
@@ -101,9 +127,9 @@ public class Timer extends AbstractTask {
                 }
                 return;
             }
-            this.noOfRuns++;
             for (ServiceWithParameters serviceWithParameters : getServicesMap().values()) {
                 callTriggerFunction(context, serviceWithParameters);
+                this.noOfRuns++;
             }
         };
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);

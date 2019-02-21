@@ -21,8 +21,6 @@ package org.ballerinalang.stdlib.task.listener.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.task.listener.objects.ServiceWithParameters;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -32,8 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_IS_PAUSED_FIELD;
-
 /**
  * This class invokes the Ballerina onTrigger function, and if an error occurs while invoking that function, it invokes
  * the onError function.
@@ -42,13 +38,6 @@ public class TaskExecutor {
 
     public static void execute(Context context, ServiceWithParameters serviceWithParameters) {
         boolean isErrorFnCalled = false;
-        BMap<String, BValue> task = (BMap<String, BValue>) context.getRefArgument(0);
-        boolean isPaused = ((BBoolean) task.get(TASK_IS_PAUSED_FIELD)).booleanValue();
-
-        if (isPaused) {
-            return;
-        }
-
         // Get resource functions from service
         ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(serviceWithParameters.getService());
         FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();

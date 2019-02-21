@@ -18,6 +18,7 @@
  */
 package org.ballerinalang.stdlib.task.listener.utils;
 
+import org.ballerinalang.stdlib.task.SchedulingException;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -86,14 +87,45 @@ public class AppointmentManager {
      * Stops the scheduled Appointment.
      *
      * @param taskId ID of the task which should be stopped.
+     * @throws SchedulingException if failed to stop the task.
      */
-    public void stop(String taskId) {
+    public void stop(String taskId) throws SchedulingException {
         if (quartzJobs.containsKey(taskId)) {
             try {
                 scheduler.deleteJob(quartzJobs.get(taskId));
             } catch (SchedulerException e) {
-                throw new RuntimeException("Stopping appointment with ID " + taskId + " failed", e);
+                throw new SchedulingException("Stopping appointment with ID " + taskId + " failed", e);
             }
+        }
+    }
+
+    /**
+     * Pauses the scheduled Appointment.
+     *
+     * @param taskID ID of the task to be paused.
+     * @throws SchedulingException if failed to pause the task.
+     */
+    // TODO: Check the task is present at the registry
+    public void pause(String taskID) throws SchedulingException {
+        try {
+            scheduler.pauseJob(quartzJobs.get(taskID));
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Cannot pause the task. " + e.getMessage());
+        }
+    }
+
+    /**
+     * Resumes a paused Task.
+     *
+     * @param taskId ID of the task to be resumed.
+     * @throws SchedulingException if failed to resume the task.
+     */
+    // TODO: Check the task is present at the registry
+    public void resume(String taskId) throws SchedulingException {
+        try {
+            scheduler.resumeJob(quartzJobs.get(taskId));
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Cannot resume the task. " + e.getMessage());
         }
     }
 }

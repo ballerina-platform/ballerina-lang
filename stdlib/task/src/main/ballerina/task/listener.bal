@@ -60,9 +60,6 @@ public type Listener object {
     *AbstractListener;
 
     private TimerConfiguration|AppointmentConfiguration listenerConfiguration;
-    private string taskId;
-    private boolean isRunning;
-    private boolean isPaused;
 
     public function __init(TimerConfiguration|AppointmentConfiguration configs) {
         if (configs is TimerConfiguration) {

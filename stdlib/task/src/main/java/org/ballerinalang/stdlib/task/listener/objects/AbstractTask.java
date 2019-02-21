@@ -19,9 +19,7 @@
 
 package org.ballerinalang.stdlib.task.listener.objects;
 
-import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.TaskIdGenerator;
-import org.ballerinalang.stdlib.task.listener.utils.TaskRegistry;
 
 import java.util.HashMap;
 
@@ -33,6 +31,7 @@ public abstract class AbstractTask implements Task {
     protected String id = TaskIdGenerator.generate();
     HashMap<String, ServiceWithParameters> serviceMap;
     protected long noOfRuns, maxRuns;
+    protected TaskState state;
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
@@ -40,6 +39,7 @@ public abstract class AbstractTask implements Task {
     protected AbstractTask() {
         this.serviceMap = new HashMap<>();
         this.maxRuns = -1;
+        this.state = TaskState.STOPPED;
     }
 
     /**
@@ -51,6 +51,7 @@ public abstract class AbstractTask implements Task {
         this.serviceMap = new HashMap<>();
         this.maxRuns = maxRuns;
         this.noOfRuns = 0;
+        this.state = TaskState.STOPPED;
     }
 
     /**
@@ -92,10 +93,18 @@ public abstract class AbstractTask implements Task {
         return this.id;
     }
 
+
     /**
      * {@inheritDoc}
      */
-    public void stop() throws SchedulingException {
-        TaskRegistry.getInstance().remove(this.id);
+    public void setState(TaskState state) {
+        this.state = state;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public TaskState getState() {
+        return this.state;
     }
 }

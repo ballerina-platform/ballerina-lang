@@ -51,6 +51,20 @@ public interface Task {
     void stop() throws SchedulingException;
 
     /**
+     * Pause the task.
+     *
+     * @throws SchedulingException If the task cannot be paused.
+     */
+    void pause() throws SchedulingException;
+
+    /**
+     * Resumes the task.
+     *
+     * @throws SchedulingException If the task cannot be resumed.
+     */
+    void resume() throws SchedulingException;
+
+    /**
      * Get map of attached services of the task.
      *
      * @return Services Map
@@ -78,4 +92,18 @@ public interface Task {
      * @param serviceName Name of the service which needs to be detached from the task.
      */
     void removeService(String serviceName);
+
+    /**
+     * Set the state of the task
+     *
+     * @param state new state of the task.
+     */
+    void setState(TaskState state);
+
+    /**
+     * Get the current state of the Task.
+     *
+     * @return state of the task.
+     */
+    TaskState getState();
 }
