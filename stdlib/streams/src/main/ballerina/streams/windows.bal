@@ -1646,16 +1646,18 @@ public type TimeAccumulatingWindow object {
 
     public int timeInMillis;
     public any[] windowParameters;
-    public LinkedList expiredEventQueue;
+    public LinkedList currentEventQueue;
+    public StreamEvent? resetEvent;
     public function (StreamEvent?[])? nextProcessPointer;
-    public int lastTimestamp = -0x8000000000000000;
+    public int lastTimestamp = -1;
     public Scheduler scheduler;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMillis = 0;
-        self.expiredEventQueue = new;
+        self.currentEventQueue = new;
+        self.resetEvent = ();
         self.initParameters(windowParameters);
         self.scheduler = new(function (StreamEvent?[] events) { self.process(events); });
     }
@@ -1678,21 +1680,9 @@ public type TimeAccumulatingWindow object {
 
     public function process(StreamEvent?[] streamEvents) {
         LinkedList outputStreamEvents = new();
-        if (self.nextEmitTime == -1) {
-            self.nextEmitTime = time:currentTime().time + self.timeInMillis;
-            self.scheduler.notifyAt(self.nextEmitTime);
-        }
 
         int currentTime = time:currentTime().time;
         boolean sendEvents = false;
-
-        if (currentTime >= self.nextEmitTime) {
-            self.nextEmitTime += self.timeInMillis;
-            self.scheduler.notifyAt(self.nextEmitTime);
-            sendEvents = true;
-        } else {
-            sendEvents = false;
-        }
 
         foreach var evt in streamEvents {
             StreamEvent event = <StreamEvent> evt;
@@ -1703,24 +1693,20 @@ public type TimeAccumulatingWindow object {
             if(self.lastTimestamp < clonedEvent.timestamp) {
                 self.lastTimestamp = clonedEvent.timestamp;
                 self.currentEventQueue.addLast(clonedEvent);
+                self.scheduler.notifyAt(self.lastTimestamp + self.timeInMillis);
             }
         }
-        if (sendEvents) {
-            if (self.currentEventQueue.getLast() != ()) {
-                StreamEvent lastEvent = getStreamEvent(self.currentEventQueue.getLast());
-                if (currentTime - lastEvent.timestamp >= self.timeInMillis) {
-                    if (!(self.resetEvent is ())) {
-                        outputStreamEvents.addLast(self.resetEvent);
-                        self.resetEvent = ();
-                    }
-                    self.resetEvent = createResetStreamEvent(getStreamEvent(self.currentEventQueue.getFirst()));
-                    self.currentEventQueue.resetToFront();
-                    while (self.currentEventQueue.hasNext()) {
-                        StreamEvent streamEvent = getStreamEvent(self.currentEventQueue.next());
-                        outputStreamEvents.addLast(streamEvent);
-                    }
-                    self.currentEventQueue.clear();
+
+        if (self.currentEventQueue.getLast() != ()) {
+            if (currentTime - self.lastTimestamp >= self.timeInMillis) {
+                self.resetEvent = createResetStreamEvent(getStreamEvent(self.currentEventQueue.getFirst()));
+                outputStreamEvents.addLast(self.resetEvent);
+                self.currentEventQueue.resetToFront();
+                while (self.currentEventQueue.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(self.currentEventQueue.next());
+                    outputStreamEvents.addLast(streamEvent);
                 }
+                self.currentEventQueue.clear();
             }
         }
 
@@ -1745,7 +1731,7 @@ public type TimeAccumulatingWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach var e in self.expiredEventQueue.asArray() {
+        foreach var e in self.currentEventQueue.asArray() {
             if (e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
