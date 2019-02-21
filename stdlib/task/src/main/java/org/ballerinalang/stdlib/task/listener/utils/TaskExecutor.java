@@ -45,22 +45,22 @@ public class TaskExecutor {
         FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();
 
         try {
-            List<BValue> onTriggerFunctionArgs = getParameterList(onErrorFunction, serviceWithParameters);
+            List<BValue> onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceWithParameters);
             // Invoke the onTrigger function.
             BValue[] results = executeFunction(onTriggerFunction, onTriggerFunctionArgs.toArray(new BValue[0]));
 
             // If there are results, that mean an error has been returned
-            if (Objects.nonNull(onErrorFunction) && results.length > 0 && results[0] != null) {
-                isErrorFnCalled = true;
-                List<BValue> onErrorFunctionArgs = new ArrayList<>();
-                // We have to pass the service BValue as a function parameter, as it is required.
-                onErrorFunctionArgs.add(serviceWithParameters.getService().getBValue());
-                onErrorFunctionArgs.addAll(Arrays.asList(results));
-                if (onErrorFunction.getParamTypes().length > 2) {
-                    onErrorFunctionArgs.add(serviceWithParameters.getServiceParameter());
+            if (onErrorFunction != null && results.length > 0 && results[0] != null) {
+                    isErrorFnCalled = true;
+                    List<BValue> onErrorFunctionArgs = new ArrayList<>();
+                    // We have to pass the service BValue as a function parameter, as it is required.
+                    onErrorFunctionArgs.add(serviceWithParameters.getService().getBValue());
+                    onErrorFunctionArgs.addAll(Arrays.asList(results));
+                    if (onErrorFunction.getParamTypes().length > 2) {
+                        onErrorFunctionArgs.add(serviceWithParameters.getServiceParameter());
+                    }
+                    executeFunction(onErrorFunction, onErrorFunctionArgs.toArray(new BValue[0]));
                 }
-                executeFunction(onErrorFunction, onErrorFunctionArgs.toArray(new BValue[0]));
-            }
         } catch (RuntimeException e) {
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
@@ -76,7 +76,7 @@ public class TaskExecutor {
     private static List<BValue> getParameterList(FunctionInfo function, ServiceWithParameters serviceWithParameters) {
         List<BValue> functionParameters = new ArrayList<>();
         functionParameters.add(serviceWithParameters.getService().getBValue());
-        if (function.getParamTypes().length > 2 && Objects.nonNull(serviceWithParameters.getServiceParameter())) {
+        if (function.getParamTypes().length > 1 && Objects.nonNull(serviceWithParameters.getServiceParameter())) {
             functionParameters.add(serviceWithParameters.getServiceParameter());
         }
         return functionParameters;
