@@ -39,25 +39,31 @@ import java.util.HashMap;
  */
 public class SQLConnectionPoolTest {
     private CompileResult result;
-    private static final String DB1_NAME = "TEST_SQL_CONNECTION_POOL_GLOBAL_1";
-    private static final String DB2_NAME = "TEST_SQL_CONNECTION_POOL_GLOBAL_2";
-    private static final String DB3_NAME = "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1";
-    private static final String DB4_NAME = "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2";
-    private Path ballerinaConfPath;
     private static final String POOL_TEST_GROUP = "ConnectionPoolTest";
 
     @BeforeClass
     public void setup() throws Exception {
-        ballerinaConfPath = Paths.get("src", "test", "resources", "ballerina.conf").toAbsolutePath();
+        Path ballerinaConfPath = Paths.get("src", "test", "resources", "ballerina.conf").toAbsolutePath();
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
         result = BCompileUtil.compile("test-src/sql/connection_pool_test.bal");
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB1_NAME);
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB2_NAME);
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB1_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB2_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB3_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB4_NAME, "datafiles/sql/SQLTestConnectionPool.sql");
+        setupDatabases();
+    }
+
+    private void setupDatabases() {
+        String globalPoolDb1 = "TEST_SQL_CONNECTION_POOL_GLOBAL_1";
+        String globalPoolDb2 = "TEST_SQL_CONNECTION_POOL_GLOBAL_2";
+
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), globalPoolDb1);
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), globalPoolDb2);
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, globalPoolDb1, "datafiles/sql/SQLTestConnectionPool.sql");
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, globalPoolDb2, "datafiles/sql/SQLTestConnectionPool.sql");
+
+        for (int i = 1; i <= 9; i++) {
+            String db = "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_" + i;
+            SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), db);
+            SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, db, "datafiles/sql/SQLTestConnectionPool.sql");
+        }
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -163,7 +169,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], [{\"FIRSTNAME\":\"Dan\"}], "
                 + "[{\"FIRSTNAME\":\"Dan\"}], {\"Error\":\"Client has been stopped\"}, {\"Error\":\"Client has been "
-                + "stopped\"}, 1)");
+                + "stopped\"})");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -178,7 +184,7 @@ public class SQLConnectionPoolTest {
     public void testLocalSharedConnectionPoolCreateClientAfterShutdown() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolCreateClientAfterShutdown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(3, 3)");
+        Assert.assertEquals(returns[0].stringValue(), "(1, 1, {\"Error\":\"Client has been stopped\"}, 1)");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -193,7 +199,7 @@ public class SQLConnectionPoolTest {
     public void testLocalSharedConnectionPoolStopInitInterleave() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolStopInitInterleave");
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @Test(dependsOnGroups = POOL_TEST_GROUP)

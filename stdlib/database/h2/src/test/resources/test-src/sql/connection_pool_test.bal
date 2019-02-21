@@ -265,42 +265,42 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns json[
 
     testDB1 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     testDB2 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     testDB3 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     testDB4 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     testDB5 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     testDB6 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
@@ -338,63 +338,53 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns json[
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns (int, int) {
+function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns (int, int, json, int) {
     h2:Client testDB1;
     h2:Client testDB2;
     h2:Client testDB3;
     h2:Client testDB4;
     sql:PoolOptions poolOptions5 = { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 };
-    // Only one pool with two connections are created for testDB1 and testDB2 - Pool1, no of connections = 2
-    // total no of connections = 2.
+
     testDB1 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
             username: "SA",
             password: "",
             poolOptions: poolOptions5
         });
     testDB2 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
             username: "SA",
             password: "",
             poolOptions: poolOptions5
         });
 
-    // One pool with one connection is created for testDB4 - Pool2, no of connections = 1
-    // total no of connections = 2 + 1 = 3
-    testDB3 = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 }
-    });
+    var dt1 = testDB1->select("SELECT count(*) from Customers where registrationID = 1", Result);
+    var dt2 = testDB2->select("SELECT count(*) from Customers where registrationID = 1", Result);
+    int result1 = getTableCountValColumn(dt1);
+    int result2 = getTableCountValColumn(dt2);
 
-    var dt1 = testDB3->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
-    int count1 = getTableCountValColumn(dt1);
-
-    // This will cause Pool1 to shut down. Now total no of connections = 3 - 2 = 1
     _ = testDB1.stop();
     _ = testDB2.stop();
 
-    // This will cause a new pool to be created since testDB1, testDB2 stopped causing the pool to shut down.
-    // Pool3 - no of connections = 2
-    // total no of connections = 1 + 2 = 3
-    testDB4 = new({
+    var dt3 = testDB1->select("SELECT count(*) from Customers where registrationID = 1", Result);
+    json result3 = getJsonConversionResult(dt3);
+
+    testDB3 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
             username: "SA",
             password: "",
             poolOptions: poolOptions5
         });
 
-    var dt2 = testDB3->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
-    int count2 = getTableCountValColumn(dt2);
-    _ = testDB3.stop();
-    _ = testDB4.stop();
+    var dt4 = testDB3->select("SELECT count(*) from Customers where registrationID = 1", Result);
+    int result4 = getTableCountValColumn(dt4);
 
-    return (count1, count2);
+    _ = testDB3.stop();
+
+    return (result1, result2, result3, result4);
 }
 
 function testLocalSharedConnectionPoolStopInitInterleave() returns int {
@@ -407,6 +397,7 @@ function testLocalSharedConnectionPoolStopInitInterleave() returns int {
         return testLocalSharedConnectionPoolStopInitInterleaveHelper2(poolOptions);
     }
 
+    wait w1;
     int result = wait w2;
     return result;
 }
@@ -414,7 +405,7 @@ function testLocalSharedConnectionPoolStopInitInterleave() returns int {
 function testLocalSharedConnectionPoolStopInitInterleaveHelper1(sql:PoolOptions poolOptions) {
     h2:Client testDB1 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
             username: "SA",
             password: "",
             poolOptions: poolOptions
@@ -429,13 +420,13 @@ function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:PoolOptions 
     runtime:sleep(10);
     testDB2 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
             username: "SA",
             password: "",
             poolOptions: poolOptions
         });
 
-    var dt = testDB2->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
+    var dt = testDB2->select("SELECT COUNT(FirstName) from Customers where registrationID = 1", Result);
     int count = getTableCountValColumn(dt);
     _ = testDB2.stop();
 
@@ -445,7 +436,7 @@ function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:PoolOptions 
 function testShutDownUnsharedLocalConnectionPool() returns (json, json) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_6",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 }
@@ -459,7 +450,7 @@ function testShutDownUnsharedLocalConnectionPool() returns (json, json) {
     return (retVal1, retVal2);
 }
 
-function testShutDownSharedConnectionPool() returns (json, json, json, json, json, int) {
+function testShutDownSharedConnectionPool() returns (json, json, json, json, json) {
     h2:Client testDB1;
     h2:Client testDB2;
     h2:Client testDB3;
@@ -467,7 +458,7 @@ function testShutDownSharedConnectionPool() returns (json, json, json, json, jso
 
     testDB1 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
             username: "SA",
             password: "",
             poolOptions: poolOptions3
@@ -475,18 +466,10 @@ function testShutDownSharedConnectionPool() returns (json, json, json, json, jso
 
     testDB2 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
             username: "SA",
             password: "",
             poolOptions: poolOptions3
-        });
-
-    testDB3 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 }
         });
 
     var result1 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
@@ -505,14 +488,10 @@ function testShutDownSharedConnectionPool() returns (json, json, json, json, jso
 
     _ = testDB2.stop();
 
-    var result5 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
+    var result5 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
     json retVal5 = getJsonConversionResult(result4);
 
-    var dt = testDB3->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
-    int count = getTableCountValColumn(dt);
-    _ = testDB3.stop();
-
-    return (retVal1, retVal2, retVal3, retVal4, retVal5, count);
+    return (retVal1, retVal2, retVal3, retVal4, retVal5);
 }
 
 function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json, json, json) {
@@ -522,7 +501,7 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json,
 
     testDB1 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_8",
             username: "SA",
             password: "",
             poolOptions: poolOptions4
@@ -530,7 +509,7 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json,
 
     testDB2 = new({
             path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_9",
             username: "SA",
             password: "",
             poolOptions: poolOptions4
