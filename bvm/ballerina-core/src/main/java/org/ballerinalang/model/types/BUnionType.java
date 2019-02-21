@@ -56,18 +56,27 @@ public class BUnionType extends BType {
         return memberTypes;
     }
 
-    public boolean isNullable() {
+    @Override
+    public boolean isNilable() {
         return nullable;
     }
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        if (nullable || memberTypes.stream().anyMatch(BType::isNilable)) {
+            return null;
+        }
+
+        return memberTypes.get(0).getZeroValue();
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return null;
+        if (nullable || memberTypes.stream().anyMatch(BType::isNilable)) {
+            return null;
+        }
+
+        return memberTypes.get(0).getEmptyValue();
     }
 
     @Override
@@ -95,7 +104,7 @@ public class BUnionType extends BType {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(super.hashCode(), memberTypes);
     }
 }
+

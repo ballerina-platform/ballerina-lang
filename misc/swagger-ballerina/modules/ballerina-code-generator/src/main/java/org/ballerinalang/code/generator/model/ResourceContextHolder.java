@@ -42,8 +42,8 @@ public class ResourceContextHolder {
     private List<String> supportedMethods;
 
     /**
-     * path wil be in the the format of /foo/{{bar}}
-     * Note the double curly braces. This is to support string templating.
+     * path wil be in the the format of /foo/${bar}
+     * Note the dollar symbol followed by the curly braces. This is to support string templating.
      */
     private String path;
 
@@ -99,10 +99,8 @@ public class ResourceContextHolder {
         if (path == null) {
             return null;
         }
-        String templatePath = path.replaceAll("\\{", "{{");
-        templatePath = templatePath.replaceAll("}", "}}");
 
-        return templatePath;
+        return path.replaceAll("\\{", "${");
     }
 
     public String getMethod() {
