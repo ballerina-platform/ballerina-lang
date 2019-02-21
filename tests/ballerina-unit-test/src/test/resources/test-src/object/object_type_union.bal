@@ -42,6 +42,13 @@ type Obj4 object {
     }
 };
 
+type Obj5 object {
+    int val;
+    function __init(int i, string... restP) {
+        self.val = 5;
+    }
+};
+
 Obj0 zero = new(5, j=0);
 Obj0|Obj2|Obj3|Obj4 obj0Instance = new(5, j=0);
 Obj0|Obj2|Obj3|Obj4 obj4Instance = new(5, 6, 7);
@@ -93,3 +100,12 @@ function returnDifferentObectInit2() {
 }
 
 Obj0?[] objAr = [new(1), new(2)];
+
+function selectOnRestParam() returns Obj4|Obj5 {
+    Obj4|Obj5 localObj5 = new(0, "eka", "deka");
+    return localObj5;
+}
+
+function selectOnRestParamInReturnType() returns Obj4|Obj5 {
+    return new(0, "eka", "deka");
+}

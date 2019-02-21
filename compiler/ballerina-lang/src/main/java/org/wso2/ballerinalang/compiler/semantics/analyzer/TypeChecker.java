@@ -1217,12 +1217,33 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
+        // Match rest param type.
+        if (function.symbol.restParam != null) {
+            BType restParamType = ((BArrayType) function.symbol.restParam.type).eType;
+            if (!restArgTypesMatch(unnamedArgs, requiredParamCount, restParamType)) {
+                return false;
+            }
+        }
+
         // Each arguments must be assignable to required parameter at respective position.
         List<BVarSymbol> params = function.symbol.params;
         for (int i = 0, paramsSize = params.size(); i < paramsSize; i++) {
             BVarSymbol param = params.get(i);
             BLangExpression argument = unnamedArgs.get(i);
             if (!types.isAssignable(argument.type, param.type)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean restArgTypesMatch(List<BLangExpression> unnamedArgs, int requiredParamCount, BType restParamType) {
+        if ((unnamedArgs.size() - requiredParamCount) == 0) {
+            return true;
+        }
+        List<BLangExpression> restArgs = unnamedArgs.subList(requiredParamCount, unnamedArgs.size());
+        for (BLangExpression restArg : restArgs) {
+            if (!types.isAssignable(restArg.type, restParamType)) {
                 return false;
             }
         }
@@ -1238,14 +1259,15 @@ public class TypeChecker extends BLangNodeVisitor {
         int matchedParamterCount = 0;
         for (BVarSymbol defaultableParam : function.symbol.defaultableParams) {
             for (BLangNamedArgsExpression namedArg : namedArgs) {
-                if (namedArg.name.value.equals(defaultableParam.name.value)) {
-                    BType namedArgExprType = checkExpr(namedArg.expr, env);
-                    if (types.isAssignable(defaultableParam.type, namedArgExprType)) {
-                        matchedParamterCount++;
-                    } else {
-                        // Name matched, type mismatched.
-                        return false;
-                    }
+                if (!namedArg.name.value.equals(defaultableParam.name.value)) {
+                    continue;
+                }
+                BType namedArgExprType = checkExpr(namedArg.expr, env);
+                if (types.isAssignable(defaultableParam.type, namedArgExprType)) {
+                    matchedParamterCount++;
+                } else {
+                    // Name matched, type mismatched.
+                    return false;
                 }
             }
         }

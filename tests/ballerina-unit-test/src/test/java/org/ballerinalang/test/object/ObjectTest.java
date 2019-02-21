@@ -715,6 +715,20 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) aMap.get("age")).intValue(), 5);
     }
 
+    @Test(description = "Test choosing union member differentiating on rest param type")
+    @SuppressWarnings("unchecked")
+    public void testUnionTypeSelectOnRestParamType() {
+        CompileResult objectTypeUnion = BCompileUtil.compile("test-src/object/object_type_union.bal");
+
+        BValue[] a = BRunUtil.invoke(objectTypeUnion, "selectOnRestParam");
+        BMap<String, BValue> aMap = (BMap<String, BValue>) a[0];
+        Assert.assertEquals(((BInteger) aMap.get("val")).intValue(), 5);
+
+        BValue[] b = BRunUtil.invoke(objectTypeUnion, "selectOnRestParamInReturnType");
+        BMap<String, BValue> retChoose = (BMap<String, BValue>) b[0];
+        Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
+    }
+
     @Test(description = "Negative test for object union type inference")
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
