@@ -17,30 +17,25 @@
  *
  *
  */
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.api;
+
+import org.ballerinalang.stdlib.task.SchedulingException;
 
 /**
- * This exception is thrown when scheduling fails.
+ * Task listener server connector.
  */
-public class SchedulingException extends Exception {
-    public SchedulingException() {
-        super();
-    }
+public interface TaskServerConnector {
+    /**
+     * Start the server connector, which actually start the task.
+     *
+     * @throws SchedulingException if error occurred while starting the Task server connector.
+     */
+    void start() throws SchedulingException;
 
-    public SchedulingException(String message) {
-        super(message);
-    }
-
-    public SchedulingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public SchedulingException(Throwable cause) {
-        super(cause);
-    }
-
-    protected SchedulingException(String message, Throwable cause,
-                                  boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
+    /**
+     * Stop the server connector which actually stops the task.
+     *
+     * @throws SchedulingException if error occurred while stopping the Task server connector.
+     */
+    void stop() throws SchedulingException;
 }

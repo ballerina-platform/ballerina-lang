@@ -17,30 +17,21 @@
  *
  *
  */
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.utils;
+
+import java.util.UUID;
 
 /**
- * This exception is thrown when scheduling fails.
+ * Generates unique task IDs.
  */
-public class SchedulingException extends Exception {
-    public SchedulingException() {
-        super();
-    }
+public class TaskIdGenerator {
 
-    public SchedulingException(String message) {
-        super(message);
-    }
-
-    public SchedulingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public SchedulingException(Throwable cause) {
-        super(cause);
-    }
-
-    protected SchedulingException(String message, Throwable cause,
-                                  boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    /**
+     * Generate a unique ID for a Task.
+     *
+     * @return String value of the generated UUID.
+     */
+    public static String generate() {
+        return UUID.randomUUID().toString();
     }
 }

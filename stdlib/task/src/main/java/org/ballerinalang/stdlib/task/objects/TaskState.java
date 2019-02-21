@@ -17,30 +17,25 @@
  *
  *
  */
-package org.ballerinalang.stdlib.task;
+
+package org.ballerinalang.stdlib.task.objects;
 
 /**
- * This exception is thrown when scheduling fails.
+ * Represents the state of a task.
  */
-public class SchedulingException extends Exception {
-    public SchedulingException() {
-        super();
-    }
+public enum TaskState {
+    /**
+     * Task is created, but not started yet.
+     */
+    STOPPED,
 
-    public SchedulingException(String message) {
-        super(message);
-    }
+    /**
+     * Task is started and running.
+     */
+    STARTED,
 
-    public SchedulingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public SchedulingException(Throwable cause) {
-        super(cause);
-    }
-
-    protected SchedulingException(String message, Throwable cause,
-                                  boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
+    /**
+     * Task is started, but paused.
+     */
+    PAUSED
 }
