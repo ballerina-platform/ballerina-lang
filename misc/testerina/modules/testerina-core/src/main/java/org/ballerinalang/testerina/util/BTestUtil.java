@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.util;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -42,18 +43,27 @@ public class BTestUtil {
      * @param enableExpFeatures whether experimental features should be allowed
      * @return                  the Testerina Report for the tests run
      */
-    public static TesterinaReport runTestsInPackage(String sourceRoot, boolean enableExpFeatures) {
+    public static TesterinaReport runTestsInProject(String sourceRoot, boolean enableExpFeatures) {
         BTestRunner testRunner = new BTestRunner();
+        TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
+        String currentOrgName = testerinaRegistry.getOrgName();
+        String currentVersion = testerinaRegistry.getVersion();
         Path sourceRootPath = LauncherUtils.getSourceRootPath(Paths.get(sourceRoot).toString());
-        SourceDirectory sourceDirectory = new FileSystemProjectDirectory(sourceRootPath);
-        List<String> sourceFileList = sourceDirectory.getSourcePackageNames();
-        Path[] paths = sourceFileList.stream()
-                .map(Paths::get)
-                .sorted()
-                .toArray(Path[]::new);
-        TesterinaUtils.setManifestConfigs(sourceRootPath);
-        testRunner.runTest(sourceRootPath.toString(), paths, null, enableExpFeatures);
-        TesterinaUtils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
-        return testRunner.getTesterinaReport();
+        try {
+            SourceDirectory sourceDirectory = new FileSystemProjectDirectory(sourceRootPath);
+            List<String> sourceFileList = sourceDirectory.getSourcePackageNames();
+            Path[] paths = sourceFileList.stream()
+                    .map(Paths::get)
+                    .sorted()
+                    .toArray(Path[]::new);
+
+            TesterinaUtils.setManifestConfigs(sourceRootPath);
+            testRunner.runTest(sourceRootPath.toString(), paths, null, enableExpFeatures);
+            return testRunner.getTesterinaReport();
+        } finally {
+            TesterinaUtils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+            testerinaRegistry.setOrgName(currentOrgName);
+            testerinaRegistry.setVersion(currentVersion);
+        }
     }
 }

@@ -285,13 +285,16 @@ public class BCompileUtil {
      * Compile with tests and return the semantic errors.
      *
      * @param context       Compiler Context
+     * @param listener      the diagnostic log common to a project
      * @param packageName   name of the module to compile
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
-    public static CompileResult compileWithTests(CompilerContext context, String packageName,
+    public static CompileResult compileWithTests(CompilerContext context,
+                                                 CompileResult.CompileResultDiagnosticListener listener,
+                                                 String packageName,
                                                  CompilerPhase compilerPhase) {
-        return compile(context, packageName, compilerPhase, true);
+        return compile(context, listener, packageName, compilerPhase, true);
     }
 
     /**
@@ -328,11 +331,9 @@ public class BCompileUtil {
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         context.put(SourceDirectory.class, sourceDirectory);
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
+        CompileResult comResult = new CompileResult(listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -348,10 +349,17 @@ public class BCompileUtil {
 
     private static CompileResult compile(CompilerContext context, String packageName,
                                          CompilerPhase compilerPhase, boolean withTests) {
-        CompileResult comResult = new CompileResult();
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
+        return compile(context, listener, packageName, compilerPhase, withTests);
+    }
+
+    private static CompileResult compile(CompilerContext context,
+                                         CompileResult.CompileResultDiagnosticListener listener,
+                                         String packageName,
+                                         CompilerPhase compilerPhase,
+                                         boolean withTests) {
+        CompileResult comResult = new CompileResult(listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -397,10 +405,7 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
 
         // compile
@@ -494,11 +499,9 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
+        CompileResult comResult = new CompileResult(listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
