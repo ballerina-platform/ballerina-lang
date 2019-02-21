@@ -591,23 +591,22 @@ public class PackageInfoReader {
     }
 
     private void readConstantInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
-        // Read constant name cp index and ignore.
+        // Read and ignore constant name CP index.
         dataInStream.readInt();
 
         // Read and ignore flags.
         dataInStream.readInt();
 
-        // Read isSimple literal.
+        // Read simple literal flag.
         boolean isSimpleLiteral = dataInStream.readBoolean();
 
         if (isSimpleLiteral) {
             readSimpleLiteral();
         } else {
-
             // Read and ignore value cp index.
             dataInStream.readInt();
-
-            readConstantValueMap();
+            // Read and ignore map constant value.
+            readMapLiteral();
         }
 
         // Read and ignore attributes.
@@ -618,10 +617,10 @@ public class PackageInfoReader {
     }
 
     private void readSimpleLiteral() throws IOException {
-        // Read finite type cp index and ignore.
+        // Read and ignore finite type CP index.
         dataInStream.readInt();
 
-        // Read value type cp index and ignore.
+        // Read and ignore value type CP index.
         dataInStream.readInt();
 
         // Read and ignore literal value type tag.
@@ -645,18 +644,22 @@ public class PackageInfoReader {
         }
     }
 
-    private void readConstantValueMap() throws IOException {
-        // size
+    private void readMapLiteral() throws IOException {
+        // Read size.
         int size = dataInStream.readInt();
         for (int i = 0; i < size; i++) {
+            // Read and ignore constant name CP index.
             dataInStream.readInt();
+            // Read simple literal flag.
             boolean isSimpleLiteral = dataInStream.readBoolean();
             if (isSimpleLiteral) {
+                // Read simple literal info.
                 readSimpleLiteral();
             } else {
+                // Read record literal type signature CP index.
                 dataInStream.readInt();
-
-                readConstantValueMap();
+                // Read map literal info.
+                readMapLiteral();
             }
         }
     }

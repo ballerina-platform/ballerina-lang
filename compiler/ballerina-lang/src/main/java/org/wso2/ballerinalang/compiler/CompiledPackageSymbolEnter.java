@@ -630,113 +630,89 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineConstants(DataInputStream dataInStream) throws IOException {
+        // Get the name.
         String constantName = getUTF8CPEntryValue(dataInStream);
-
+        // Get the flags.
         int flags = dataInStream.readInt();
 
+        Scope enclScope = this.env.pkgSymbol.scope;
+        BConstantSymbol constantSymbol;
+
         boolean isSimpleLiteral = dataInStream.readBoolean();
-
         if (isSimpleLiteral) {
-
+            // Get finite type.
             String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
             BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
-
+            // Get value type.
             String valueTypeSig = getUTF8CPEntryValue(dataInStream);
             BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
+            // Todo - Use type signature instead of type tag?
+            int typeTag = dataInStream.readInt();
 
-            // Todo - Use type signature?
-            Object object = readSimpleLiteral(dataInStream);
+            // Get the simple literal value.
+            Object object = readSimpleLiteralValue(dataInStream, typeTag);
 
-            // Create constant symbol.
-            Scope enclScope = this.env.pkgSymbol.scope;
-            BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                    this.env.pkgSymbol.pkgID, finiteType, valueType, enclScope.owner);
-
+            // Create the constant symbol.
+            constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
+                    finiteType, valueType, enclScope.owner);
             constantSymbol.literalValue = object;
             constantSymbol.literalValueTypeTag = valueType.tag;
-
-
-            enclScope.define(constantSymbol.name, constantSymbol);
-
-            Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
-
-            setDocumentation(constantSymbol, attrDataMap);
-
         } else {
-
-            // Todo - need finite type?
-
+            // Read value type. Don't need the finite type since the literal is not a simple literal.
             String valueTypeSig = getUTF8CPEntryValue(dataInStream);
             BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
-
-            // Create constant symbol.
-            Scope enclScope = this.env.pkgSymbol.scope;
-            BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                    this.env.pkgSymbol.pkgID, valueType, valueType, enclScope.owner);
-
+            // Create the constant symbol.
+            constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
+                    valueType, valueType, enclScope.owner);
             constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
             constantSymbol.literalValueTypeTag = valueType.tag;
-
-            enclScope.define(constantSymbol.name, constantSymbol);
-
-            Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
-
-            setDocumentation(constantSymbol, attrDataMap);
-
         }
+
+        // Define constant.
+        enclScope.define(constantSymbol.name, constantSymbol);
+        // Read attributes.
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+        // Set documentations.
+        setDocumentation(constantSymbol, attrDataMap);
     }
 
-    private Object readSimpleLiteral(DataInputStream dataInStream) throws IOException {
-
-        // Todo - Use type signature instead of type tag?
-        int typeTag = dataInStream.readInt();
-
+    private Object readSimpleLiteralValue(DataInputStream dataInStream, int typeTag) throws IOException {
         // Get the value.
-
-        Object value;
         int valueCPIndex;
-        // Todo - Add a util function?
         switch (typeTag) {
             case TypeTags.BOOLEAN:
-                value = dataInStream.readBoolean();
-                break;
+                return dataInStream.readBoolean();
             case TypeTags.INT:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
-                value = integerCPEntry.getValue();
-                break;
+                return integerCPEntry.getValue();
             case TypeTags.BYTE:
                 valueCPIndex = dataInStream.readInt();
                 ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                value = byteCPEntry.getValue();
-                break;
+                return byteCPEntry.getValue();
             case TypeTags.FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-                value = floatCPEntry.getValue();
-                break;
+                return floatCPEntry.getValue();
             case TypeTags.DECIMAL:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                value = decimalEntry.getValue();
-                break;
+                return decimalEntry.getValue();
             case TypeTags.STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                value = stringCPEntry.getValue();
-                break;
+                return stringCPEntry.getValue();
             case TypeTags.NIL:
-                value = null;
-                break;
+                return null;
             default:
                 throw new RuntimeException("unexpected type tag: " + typeTag);
         }
-        return value;
     }
 
-    private BLangLiteral readSimpleLiteralAsBliteral(DataInputStream dataInStream) throws IOException {
+    private BLangLiteral readSimpleLiteral(DataInputStream dataInStream) throws IOException {
+        // Todo - Remove?
         int finiteTypeSigCPIndex = dataInStream.readInt();
         int valueTypeSigCPIndex = dataInStream.readInt();
 
@@ -744,49 +720,10 @@ public class CompiledPackageSymbolEnter {
         int typeTag = dataInStream.readInt();
 
         // Read the value.
+        Object value = readSimpleLiteralValue(dataInStream, typeTag);
 
-        BLangLiteral literal;
-
-        Object value;
-        int valueCPIndex;
-
-        switch (typeTag) {
-            case TypeTags.BOOLEAN:
-                value = dataInStream.readBoolean();
-                break;
-            case TypeTags.INT:
-                valueCPIndex = dataInStream.readInt();
-                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
-                value = integerCPEntry.getValue();
-                break;
-            case TypeTags.BYTE:
-                valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                value = byteCPEntry.getValue();
-                break;
-            case TypeTags.FLOAT:
-                valueCPIndex = dataInStream.readInt();
-                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-                value = floatCPEntry.getValue();
-                break;
-            case TypeTags.DECIMAL:
-                valueCPIndex = dataInStream.readInt();
-                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                value = decimalEntry.getValue();
-                break;
-            case TypeTags.STRING:
-                valueCPIndex = dataInStream.readInt();
-                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                value = stringCPEntry.getValue();
-                break;
-            case TypeTags.NIL:
-                value = null;
-                break;
-            default:
-                throw new RuntimeException("unexpected type tag: " + typeTag);
-        }
-
-        literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        // Create a new literal.
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
         literal.type = symTable.getTypeFromTag(typeTag);
 
@@ -798,112 +735,41 @@ public class CompiledPackageSymbolEnter {
 
         LinkedList<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new LinkedList<>();
 
-        // size
+        // Read the size.
         int size = dataInStream.readInt();
-
         for (int i = 0; i < size; i++) {
-
+            // Read the key.
             String key = getUTF8CPEntryValue(dataInStream);
-
+            // Read the simple literal flag.
             boolean isSimpleLiteral = dataInStream.readBoolean();
 
+            // Get the value.
             BLangExpression value;
-
             if (isSimpleLiteral) {
-                value = readSimpleLiteralAsBliteral(dataInStream);
-
+                // Read the simple literal.
+                value = readSimpleLiteral(dataInStream);
             } else {
+                // Get the type of the record literal.
                 String valueTypeSig = getUTF8CPEntryValue(dataInStream);
                 BType valueType = getBTypeFromDescriptor(valueTypeSig);
-
+                // Read the map literal.
                 value = readConstantValueMap(dataInStream, valueType);
             }
-
-            BLangRecordLiteral.BLangRecordKeyValue kv = new BLangRecordLiteral.BLangRecordKeyValue();
-
+            // Create a new literal for the key.
             BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             keyLiteral.value = key;
             keyLiteral.type = symTable.stringType;
 
-            kv.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
-            kv.valueExpr = value;
+            // Create a new key-value.
+            BLangRecordLiteral.BLangRecordKeyValue recordKeyValue = new BLangRecordLiteral.BLangRecordKeyValue();
+            recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+            recordKeyValue.valueExpr = value;
 
-            keyValues.push(kv);
+            keyValues.push(recordKeyValue);
         }
-
-        BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(keyValues, type, true);
-        return mapLiteral;
+        // Create a new map literal.
+        return new BLangRecordLiteral.BLangMapLiteral(keyValues, type, true);
     }
-
-//    private void readConstantMapInfo(DataInputStream dataInStream) throws IOException {
-//        int size = dataInStream.readInt();
-//        for (int i = 0; i < size; i++) {
-//
-//            boolean isTerminal = dataInStream.readBoolean();
-//
-//            int keyCPIndex = dataInStream.readInt();
-//            int originalKeyCPIndex = dataInStream.readInt();
-//            int keyTypeDescCPIndex = dataInStream.readInt();
-//            int keyTypeDescTag = dataInStream.readInt();
-//            int valueCPIndex = dataInStream.readInt();
-//            int originalValueCPIndex = dataInStream.readInt();
-//            int valueTypeDescCPIndex = dataInStream.readInt();
-//            int valueTypeDescTag = dataInStream.readInt();
-//
-//            if (!isTerminal) {
-//                readConstantMapInfo(dataInStream);
-//            }
-//        }
-//    }
-//
-//    private BLangLiteral getConstantSimpleLiteralValue(Map<Kind, byte[]> attrDataMap) throws IOException {
-//        // Constants must have a value attribute.
-//        byte[] documentationBytes = attrDataMap.get(Kind.DEFAULT_VALUE_ATTRIBUTE);
-//        DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(documentationBytes));
-//        // Read the value from the stream. We need to set `value`, `valueTag` and `type` of the literal.
-//        String typeDesc = getUTF8CPEntryValue(documentDataStream);
-//        // Create a new literal.
-//        BLangLiteral literal = createLiteralBasedOnDescriptor(typeDesc);
-//        int valueCPIndex;
-//        switch (typeDesc) {
-//            case TypeDescriptor.SIG_BOOLEAN:
-//                literal.value = documentDataStream.readBoolean();
-//                break;
-//            case TypeDescriptor.SIG_INT:
-//                valueCPIndex = documentDataStream.readInt();
-//                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
-//                literal.value = integerCPEntry.getValue();
-//                break;
-//            case TypeDescriptor.SIG_BYTE:
-//                valueCPIndex = documentDataStream.readInt();
-//                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-//                literal.value = byteCPEntry.getValue();
-//                break;
-//            case TypeDescriptor.SIG_FLOAT:
-//                valueCPIndex = documentDataStream.readInt();
-//                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-//                literal.value = floatCPEntry.getValue();
-//                break;
-//            case TypeDescriptor.SIG_DECIMAL:
-//                valueCPIndex = documentDataStream.readInt();
-//                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-//                literal.value = decimalEntry.getValue();
-//                break;
-//            case TypeDescriptor.SIG_STRING:
-//                valueCPIndex = documentDataStream.readInt();
-//                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-//                literal.value = stringCPEntry.getValue();
-//                break;
-//            case TypeDescriptor.SIG_NULL:
-//                literal.value = null;
-//                break;
-//            default:
-//                // Todo - Allow json and xml.
-//                throw new RuntimeException("unknown constant value type " + typeDesc);
-//        }
-//        literal.type = getBTypeFromDescriptor(typeDesc);
-//        return literal;
-//    }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
         String varName = getUTF8CPEntryValue(dataInStream);
