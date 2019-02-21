@@ -15,18 +15,6 @@
  *
  */
 
-// Todo - Uncomment after implementing mixin classes
-//import org.jetbrains.grammarkit.tasks.*
-//
-//buildscript {
-//    repositories {
-//        maven { url 'https://jitpack.io'}
-//    }
-//    dependencies{
-//        classpath "com.github.JetBrains:gradle-grammar-kit-plugin:2018.1.2"
-//    }
-//}
-
 plugins {
     id "org.jetbrains.intellij" version "0.3.7"
     id "de.undercouch.download" version "3.2.0"
@@ -38,26 +26,21 @@ version = ballerinaPluginVersion
 repositories {
     mavenCentral()
     maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+    maven { url 'https://jitpack.io' }
 }
 
 // LSP Dependencies
 dependencies {
     compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.6.0'
-    compile group: 'io.get-coursier', name: 'coursier_2.12', version: '1.0.3'
-    compile group: 'io.get-coursier', name: 'coursier-cache_2.12', version: '1.0.3'
     compile group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.34.58'
-    compile 'org.scala-lang:scala-compiler:2.12.7'
-    compile 'org.scala-lang:scala-library:2.12.7'
+    compile 'com.github.NipunaRanasinghe:lsp4intellij:master-SNAPSHOT'
 }
 
-apply plugin: 'scala'
+apply plugin: 'java'
 sourceSets {
     main {
         java {
-            srcDirs = []
-        }
-        scala {
-            srcDirs = ['src/main/java', 'src/main/gen', 'src/main/scala']
+            srcDirs = ['src/main/java', 'src/main/gen']
         }
     }
 }
@@ -111,105 +94,5 @@ checkstyle {
     }
 }
 
-runIde.dependsOn check
-buildPlugin.dependsOn check
-
-// Todo - Uncomment after implementing mixin classes
-//configurations {
-//    bnf
-//}
-//
-//dependencies {
-//    bnf files("$buildDir/tools/tmp/GrammarKit/lib/grammar-kit.jar")
-//    bnf files("$buildDir/tools/light-psi-all.jar")
-//}
-//
-//task downloadJFlexJar() {
-//    download {
-//        src 'https://jetbrains.bintray.com/intellij-third-party-dependencies/org/jetbrains/intellij/deps/jflex/jflex/1.7.0/jflex-1.7.0.jar'
-//        dest new File("$buildDir/tools/", "JFlex.jar")
-//        onlyIfNewer true
-//    }
-//}
-//
-//task downloadJFlexSkeleton() {
-//    download {
-//        src 'https://raw.github.com/JetBrains/intellij-community/master/tools/lexer/idea-flex.skeleton'
-//        dest new File("$buildDir/tools/", "idea-flex.skeleton")
-//        onlyIfNewer true
-//    }
-//}
-//
-//task downloadGrammarKit() {
-//    download {
-//        src 'https://github.com/JetBrains/Grammar-Kit/releases/download/1.5.1/GrammarKit.zip'
-//        dest new File("$buildDir/tools/", "GrammarKit.zip")
-//        onlyIfNewer true
-//    }
-//}
-//
-//task downloadGrammarLightPsi() {
-//    download {
-//        src 'https://github.com/JetBrains/Grammar-Kit/releases/download/1.5.1/light-psi-all.jar'
-//        dest new File("$buildDir/tools/", "light-psi-all.jar")
-//        onlyIfNewer true
-//    }
-//}
-//
-//task unzipGrammarKit(type: Copy) {
-//    from zipTree("$buildDir/tools/GrammarKit.zip")
-//    into "${buildDir}/tools/tmp"
-//}
-//
-//unzipGrammarKit.dependsOn downloadGrammarKit
-//
-//apply plugin: 'org.jetbrains.grammarkit'
-//grammarKit {
-//    // version of IntelliJ patched JFlex (see bintray link below), Default is 1.7.0
-//    jflexRelease = '1.7.0'
-//
-//    // tag or short commit hash of Grammar-Kit to use (see link below). Default is 2017.1.2
-//    grammarKitRelease = '34fd65b92a'
-//}
-//
-//task generateLexer(type: GenerateLexer) {
-//    // source flex file
-//    source = "src/main/java/org/ballerinalang/plugins/idea/grammar/Ballerina.flex"
-//
-//    // target directory for lexer
-//    targetDir = "src/main/gen/org/ballerinalang/plugins/idea/lexer/"
-//
-//    // target classname, target file will be targetDir/targetClass.java
-//    targetClass = "BallerinaLexer"
-//
-//    // optional, path to the task-specific skeleton file. Default: none
-//    skeleton = "$buildDir/tools/idea-flex.skeleton"
-//
-//    // if set, plugin will remove a lexer output file before generating new one. Default: false
-//    purgeOldFiles = true
-//}
-//
-//task generateParser(type: GenerateParser) {
-//    // source bnf file
-//    source = 'src/main/java/org/ballerinalang/plugins/idea/grammar/Ballerina.bnf'
-//
-//    // optional, task-specific root for the generated files. Default: none
-//    targetRoot = 'src/main/gen/'
-//
-//    // path to a parser file, relative to the targetRoot
-//    pathToParser = 'org/ballerinalang/plugins/idea/parser/BallerinaParser.java'
-//
-//    // path to a directory with generated psi files, relative to the targetRoot
-//    pathToPsiRoot = 'org/ballerinalang/plugins/idea/psi'
-//
-//    // if set, plugin will remove a parser output file and psi output directory before generating new ones. Default: false
-//    purgeOldFiles = true
-//
-//    classpath += files("$buildDir")
-//}
-//
-//task generateSources() {
-//    dependsOn generateParser, generateLexer
-//}
-//
-//compileJava.dependsOn generateSources
+//runIde.dependsOn check
+//buildPlugin.dependsOn check
