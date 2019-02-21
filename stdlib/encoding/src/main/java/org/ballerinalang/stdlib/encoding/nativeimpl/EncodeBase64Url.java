@@ -31,13 +31,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
- * Extern function ballerina.encoding:encodeBase64.
+ * Extern function ballerina.encoding:encodeBase64Url.
  *
  * @since 0.991.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "encodeBase64Url",
+        orgName = "ballerina", packageName = "encoding", functionName = "encodeBase64Url",
         args = {
                 @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
         },

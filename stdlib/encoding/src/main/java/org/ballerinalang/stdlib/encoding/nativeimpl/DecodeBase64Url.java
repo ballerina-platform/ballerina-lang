@@ -31,13 +31,12 @@ import org.ballerinalang.stdlib.encoding.EncodingUtil;
 import java.util.Base64;
 
 /**
- * Extern function ballerina.encoding:decodeBase64.
+ * Extern function ballerina.encoding:decodeBase64Url.
  *
  * @since 0.991.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "decodeBase64Url",
+        orgName = "ballerina", packageName = "encoding", functionName = "decodeBase64Url",
         args = {
                 @Argument(name = "input", type = TypeKind.STRING)
         },

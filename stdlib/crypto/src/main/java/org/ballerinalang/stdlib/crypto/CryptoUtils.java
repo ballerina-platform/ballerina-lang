@@ -177,43 +177,6 @@ public class CryptoUtils {
         return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.ENCODING_ERROR_CODE, errorRecord);
     }
 
-    public static String substituteVariables(String value) {
-        Matcher matcher = varPattern.matcher(value);
-        boolean found = matcher.find();
-        if (!found) {
-            return value;
-        } else {
-            StringBuffer sb = new StringBuffer();
-
-            do {
-                String sysPropKey = matcher.group(1);
-                String sysPropValue = getSystemVariableValue(sysPropKey, null);
-                if (sysPropValue == null || sysPropValue.length() == 0) {
-                    throw new RuntimeException("System property " + sysPropKey + " is not specified");
-                }
-
-                sysPropValue = sysPropValue.replace("\\", "\\\\");
-                matcher.appendReplacement(sb, sysPropValue);
-            } while(matcher.find());
-
-            matcher.appendTail(sb);
-            return sb.toString();
-        }
-    }
-
-    public static String getSystemVariableValue(String variableName, String defaultValue) {
-        String value;
-        if (System.getProperty(variableName) != null) {
-            value = System.getProperty(variableName);
-        } else if (System.getenv(variableName) != null) {
-            value = System.getenv(variableName);
-        } else {
-            value = defaultValue;
-        }
-
-        return value;
-    }
-
     /**
      * Encrypt or decrypt byte array based on RSA algorithm.
      *
@@ -414,5 +377,53 @@ public class CryptoUtils {
                 throw new BallerinaException("unsupported padding: " + algorithmPadding, context);
         }
         return algorithmPadding;
+    }
+
+    /**
+     * Replace system property holders in the property values.
+     * e.g. Replace ${ballerina.home} with value of the ballerina.home system property.
+     *
+     * This logic is originally from http-transport-utils. Since, HTTP stdlib depends on http-transport,
+     * HTTP stdlib directly uses this method form the original utility. This is added here, not to make Auth stdlib
+     * depend on http-transport.
+     *
+     * @param value string value to substitute
+     * @return String substituted string
+     */
+    public static String substituteVariables(String value) {
+        Matcher matcher = varPattern.matcher(value);
+        boolean found = matcher.find();
+        if (!found) {
+            return value;
+        } else {
+            StringBuffer sb = new StringBuffer();
+
+            do {
+                String sysPropKey = matcher.group(1);
+                String sysPropValue = getSystemVariableValue(sysPropKey, null);
+                if (sysPropValue == null || sysPropValue.length() == 0) {
+                    throw new RuntimeException("System property " + sysPropKey + " is not specified");
+                }
+
+                sysPropValue = sysPropValue.replace("\\", "\\\\");
+                matcher.appendReplacement(sb, sysPropValue);
+            } while(matcher.find());
+
+            matcher.appendTail(sb);
+            return sb.toString();
+        }
+    }
+
+    private static String getSystemVariableValue(String variableName, String defaultValue) {
+        String value;
+        if (System.getProperty(variableName) != null) {
+            value = System.getProperty(variableName);
+        } else if (System.getenv(variableName) != null) {
+            value = System.getenv(variableName);
+        } else {
+            value = defaultValue;
+        }
+
+        return value;
     }
 }

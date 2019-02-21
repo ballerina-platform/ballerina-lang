@@ -18,6 +18,7 @@ import ballerina/crypto;
 import ballerina/encoding;
 
 # Represents JWT issuer configurations.
+#
 # + keyStore - Keystore to be used in JWT signing
 # + keyAlias - Signing key alias
 # + keyPassword - Signing key password
@@ -30,7 +31,8 @@ public type JWTIssuerConfig record {
     !...;
 };
 
-# Issue a JWT token.
+# Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
+# in the `JWTIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
 #
 # + header - JwtHeader object
 # + payload - JwtPayload object
