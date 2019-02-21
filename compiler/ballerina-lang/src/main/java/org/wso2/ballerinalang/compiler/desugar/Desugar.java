@@ -1069,35 +1069,35 @@ public class Desugar extends BLangNodeVisitor {
 
         // If this is an update of a type guarded variable, then generate code
         // to update the original variable as well.
-        if (assignNode.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BLangSimpleVarRef varRef = (BLangSimpleVarRef) assignNode.varRef;
-            if ((varRef.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
-                BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
-                if (varSymbol.originalSymbol != null) {
-                    BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol);
-                    guardedVarRef = addConversionExprIfRequired(guardedVarRef, varSymbol.originalSymbol.type);
-                    BLangSimpleVarRef originalVarRef =
-                            ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol.originalSymbol);
-                    BLangAssignment updateOriginalVar =
-                            ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef, guardedVarRef);
-                    updateOriginalVar = rewrite(updateOriginalVar, env);
-                    result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
-                    return;
-                }
-            } else if ((varRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
-                BConstantSymbol constSymbol = (BConstantSymbol) varRef.symbol;
-                BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, constSymbol);
-                guardedVarRef = addConversionExprIfRequired(guardedVarRef, constSymbol.type);
-                BLangSimpleVarRef originalVarRef =
-                        ASTBuilderUtil.createVariableRef(assignNode.pos, constSymbol);
-                BLangAssignment updateOriginalVar =
-                        ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef, guardedVarRef);
-                result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
-                return;
-            }
+        if (assignNode.varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            result = assignNode;
+            return;
         }
 
-        result = assignNode;
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) assignNode.varRef;
+        if ((varRef.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+            BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
+            if (varSymbol.originalSymbol == null) {
+                result = assignNode;
+                return;
+            }
+            BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol);
+            guardedVarRef = addConversionExprIfRequired(guardedVarRef, varSymbol.originalSymbol.type);
+            BLangSimpleVarRef originalVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos,
+                    varSymbol.originalSymbol);
+            BLangAssignment updateOriginalVar = ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef,
+                    guardedVarRef);
+            updateOriginalVar = rewrite(updateOriginalVar, env);
+            result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
+        } else if ((varRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
+            BConstantSymbol constSymbol = (BConstantSymbol) varRef.symbol;
+            BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, constSymbol);
+            guardedVarRef = addConversionExprIfRequired(guardedVarRef, constSymbol.type);
+            BLangSimpleVarRef originalVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, constSymbol);
+            BLangAssignment updateOriginalVar = ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef,
+                    guardedVarRef);
+            result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
+        }
     }
 
     @Override
@@ -1930,20 +1930,16 @@ public class Desugar extends BLangNodeVisitor {
                     literal.keyValuePairs.addAll(((BLangRecordLiteral) symbol.literalValue).keyValuePairs);
                     // Todo - Remove?
                     literal.type = symbol.literalValueType;
-//                    literal.type.tag = symbol.literalValueTypeTag;
-                    BLangExpression result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
-                    ((BLangMapLiteral) result).name = symbol.name;
-                    this.result = result;
-
-//                    result =  constantValueResolver.getValue(, );
-
+                    BLangExpression expr = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
+                    // Set the name of the reference. This is later needed to log compilation errors.
+                    ((BLangMapLiteral) expr).name = symbol.name;
+                    result = expr;
                     return;
                 } else {
                     // We need to get a copy of the literal value and set it as the result. Otherwise there will be
                     // issues because registry allocation will be only done one time.
                     BLangLiteral literal = ASTBuilderUtil.createLiteral(varRefExpr.pos, symbol.literalValueType,
                             symbol.literalValue);
-//                    literal.type.tag = symbol.literalValueTypeTag;
                     result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
                     return;
                 }
@@ -2015,12 +2011,16 @@ public class Desugar extends BLangNodeVisitor {
         } else if (varRefType.tag == TypeTags.MAP) {
             if (fieldAccessExpr.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                 BLangMapLiteral mapLiteral = (BLangMapLiteral) fieldAccessExpr.getExpression();
+                // Check whether the map literal is a constant.
                 if (mapLiteral.isConst) {
-
+                    // Retrieve the field access expression's value.
                     BLangLiteral value = constantValueResolver.getValue(fieldAccessExpr.pos, fieldAccessExpr.field,
                             mapLiteral);
+                    // If the value is `null`, that means the value could not be retrieved. In that case we just
+                    // create an empty literal as the result since anyway compilation will not continue because of
+                    // the error.
                     if (value == null) {
-                        // Todo - Improve pos
+                        // Todo - Improve position in package builder.
                         // Create a new literal as the result.
                         result = (BLangLiteral) TreeBuilder.createLiteralExpression();
                     } else {
