@@ -1165,7 +1165,28 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         assignNode.varRef = rewriteExpr(assignNode.varRef);
-        // This for closures
+        /* TODO: Fix this in a proper way. This was added for the casting needed for closure variable replacement.
+
+            function test () {
+                int i = 10;
+                var x = function () returns int {
+                    i = i + 1;
+                }
+                int z = x.call();
+            }
+
+            The above will be desugared into the following:
+            function test() {
+                map<any|error> $m1 = {};
+                $m1["i"] = <any|error> 10;
+                var x = function (map $pm1) returns int {
+                    $pm1["i"] = <any|error> (<int> $pm1["i"] + 1); ==> The cast added for the LHS of the assignment is
+                                                                       added
+                }
+                int z = x.call($m1);
+            }
+
+        */
         if (assignNode.expr.impConversionExpr != null) {
             types.setImplicitCastExpr(assignNode.expr.impConversionExpr, assignNode.expr.impConversionExpr.type,
                     assignNode.varRef.type);
