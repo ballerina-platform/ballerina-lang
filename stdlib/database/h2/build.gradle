@@ -9,6 +9,10 @@ dependencies {
     implementation project(':ballerina-sql')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-sql')
+    testCompile project(':ballerina-launcher')
+    testCompile 'org.testng:testng:6.13.1'
+    testCompile 'org.testcontainers:postgresql:1.7.2'
+    testCompile 'org.testcontainers:mysql:1.7.2'
 }
 
 description = 'Ballerina - h2'

@@ -12,7 +12,9 @@ dependencies {
 description = 'Ballerina - Metrics Extension'
 
 test {
-    useTestNG()
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 spotbugsTest {

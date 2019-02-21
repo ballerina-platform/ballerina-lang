@@ -12,5 +12,7 @@ dependencies {
 description = 'Ballerina - Integration Test Utils'
 
 test {
-    useTestNG()
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }

@@ -18,5 +18,7 @@ dependencies {
 description = 'Ballerina - Protobuf to Ballerina Tool'
 
 test {
-    useTestNG()
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }

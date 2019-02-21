@@ -8,7 +8,9 @@ dependencies {
 description = 'Ballerina - Streaming - Siddhi Query API'
 
 test {
-    useTestNG()
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 spotbugsMain {
