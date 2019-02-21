@@ -2147,55 +2147,45 @@ public class CodeGenerator extends BLangNodeVisitor {
     // Create info entries
 
     private void createConstantInfo(BLangConstant constant) {
-
         BConstantSymbol constantSymbol = constant.symbol;
 
+        // Add the constant name to the CP and get index.
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
 
         // Create a new constant info object.
         ConstantInfo constantInfo = new ConstantInfo(constantSymbol.name.value, constantNameCPIndex);
+        // Set the flags.
         constantInfo.flags = constantSymbol.flags;
-
+        // Add the constant info to the package info.
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
+        // Add the finite type to the CP and get index.
         int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
+        // Add the value type to the CP and get index.
         int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
 
+        // Get the value of the constant.
         BLangExpression value = (BLangExpression) constant.value;
 
         if (value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) {
-
-            constantInfo.isSimpleLiteral = true;
-
             // Create a new constant value object.
-            ConstantValue constantValue = new ConstantValue();
+            ConstantValue constantValue = createSimpleLiteralInfo((BLangLiteral) constant.value);
             constantValue.finiteTypeSigCPIndex = finiteTypeSigCPIndex;
             constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
-
             constantValue.literalValueTypeTag = value.type.tag;
 
-            processSimpleLiteral(constantValue, (BLangLiteral) constant.value);
-
+            constantInfo.isSimpleLiteral = true;
             constantInfo.constantValue = constantValue;
-
         } else {
-
-            constantSymbol.varIndex = getPVIndex(constantSymbol.literalValueType.tag);
-            constantInfo.globalMemIndex = constantSymbol.varIndex.value;
-
+            // Set the value type (record type). This is needed when we recreate the record literal.
             constantInfo.valueTypeSigCPIndex = valueTypeSigCPIndex;
-
-
-//            constantInfo.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
-
-
-            // Todo - Add const map.
-            // Create key-value info.
-            constantInfo.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) constantSymbol.literalValue);
-
+            // Get key-value info.
+            constantInfo.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.literalValue);
+            // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
+            // We store that details in the `constantValueMapKeyCPIndex` map.
             for (Entry<String, ConstantValue> entry : constantInfo.constantValueMap.entrySet()) {
-                String k = entry.getKey();
-                constantInfo.constantValueMapKeyCPIndex.put(k, addUTF8CPEntry(currentPkgInfo, k));
+                constantInfo.constantValueMapKeyCPIndex.put(entry.getKey(), addUTF8CPEntry(currentPkgInfo,
+                        entry.getKey()));
             }
         }
 
@@ -2203,15 +2193,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);
     }
 
-
-    private void processSimpleLiteral(ConstantValue constantValue, BLangLiteral literalValue) {
-        // Get the value.
-
-        constantValue.literalValueTypeTag = literalValue.type.tag;
-
-        // Todo - Add a util function?
+    private ConstantValue createSimpleLiteralInfo(BLangLiteral literalValue) {
+        ConstantValue constantValue = new ConstantValue();
 
         // Todo - Use type signature instead of type tag?
+        // Get the value.
         switch (literalValue.type.tag) {
             case TypeTags.BOOLEAN:
                 constantValue.booleanValue = (Boolean) literalValue.value;
@@ -2237,49 +2223,48 @@ public class CodeGenerator extends BLangNodeVisitor {
             default:
                 throw new RuntimeException("unexpected type tag: " + literalValue.type.tag);
         }
+        return constantValue;
     }
 
-    private Map<String, ConstantValue> generateConstantMapInfo(BLangRecordLiteral expression) {
+    private Map<String, ConstantValue> createMapLiteralInfo(BLangRecordLiteral expression) {
 
         Map<String, ConstantValue> constantValueMap = new HashMap<>();
 
-        List<BLangRecordKeyValue> keyValuePairs = expression.keyValuePairs;
-
-        for (BLangRecordKeyValue keyValue : keyValuePairs) {
-
+        // Iterate through key-value pairs.
+        for (BLangRecordKeyValue keyValue : expression.keyValuePairs) {
+            // Get the key.
             String key = ((BLangLiteral) keyValue.key.expr).value.toString();
 
-            if (keyValue.valueExpr.getKind() == NodeKind.LITERAL ||
-                    keyValue.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                BLangLiteral literal = (BLangLiteral) keyValue.valueExpr;
+            BLangExpression valueExpr = keyValue.valueExpr;
+            if (valueExpr.getKind() == NodeKind.LITERAL || valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                BLangLiteral literal = (BLangLiteral) valueExpr;
 
+                // Add the literal type descriptor to the CP and get the index.
                 int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, literal.type.getDesc());
 
                 // Create a new constant value object.
-                ConstantValue constantValue = new ConstantValue();
+                ConstantValue constantValue = createSimpleLiteralInfo(literal);
+                constantValue.literalValueTypeTag = literal.type.tag;
                 constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
-
                 constantValue.isSimpleLiteral = true;
 
-                processSimpleLiteral(constantValue, literal);
-
+                // Add the `key` and `constantValue` pair to the map.
                 constantValueMap.put(key, constantValue);
-
-            } else if (keyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-
+            } else if (valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                // Create a new constant value.
                 ConstantValue constantValue = new ConstantValue();
-                constantValue.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) keyValue.valueExpr);
+                constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) valueExpr);
+                constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, valueExpr.type.getDesc());
 
-                constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo,
-                        keyValue.valueExpr.type.getDesc());
-
+                // Add the `key` and `constantValue` pair to the map.
                 constantValueMap.put(key, constantValue);
 
+                // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as
+                // well. We store that details in the `constantValueMapKeyCPIndex` map.
                 for (Entry<String, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
-                    String k = entry.getKey();
-                    constantValue.constantValueMapKeyCPIndex.put(k, addUTF8CPEntry(currentPkgInfo, k));
+                    constantValue.constantValueMapKeyCPIndex.put(entry.getKey(), addUTF8CPEntry(currentPkgInfo,
+                            entry.getKey()));
                 }
-
             } else {
                 throw new RuntimeException("unexpected node kind");
             }
