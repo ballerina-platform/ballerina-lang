@@ -33,44 +33,15 @@
         </component>
     </module-components>
 
-    <extensionPoints>
-        <extensionPoint interface="com.github.gtache.lsp.contributors.icon.LSPIconProvider" name="LSPIconProvider"/>
-    </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
 
-        <!--LSP Plugin Extensions-->
-        <applicationConfigurable instance="com.github.gtache.lsp.settings.MiscSettings" id="MiscSettings"
-                                 parentId="Ballerina" displayName="Language Server"/>
-        <applicationConfigurable parentId="MiscSettings" id="ServerSettings" displayName="Server Definitions"
-                                 instance="com.github.gtache.lsp.settings.ServersSettings"/>
-        <applicationConfigurable parentId="MiscSettings" id="TimeoutSettings" displayName="Timeouts"
-                                 instance="com.github.gtache.lsp.settings.TimeoutSettings"/>
+        <!--lsp4intellij extensions-->
+        <completion.contributor implementationClass="com.github.lsp4intellij.contributors.LSPCompletionContributor"
+                                id="LSPCompletionContributor" language="any"/>
 
-        <applicationService id="LSPState"
-                            serviceInterface="com.github.gtache.lsp.settings.BallerinaLSPState"
-                            serviceImplementation="com.github.gtache.lsp.settings.BallerinaLSPState"/>
-
-        <!--<gotoSymbolContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoSymbolContributor"-->
-                               <!--id="LSPGotoSymbolContributor"/>-->
-        <gotoClassContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoClassContributor"
-                              id="LSPGotoClassContributor"/>
-        <typedHandler implementation="com.github.gtache.lsp.editor.listeners.LSPTypedHandler" id="LSPTypedHandler"/>
-        <completion.contributor implementationClass="com.github.gtache.lsp.contributors.LSPCompletionContributor"
-                                id="LSPCompletionContributor" language="Ballerina"/>
-        <inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"
+        <inspectionToolProvider implementation="com.github.lsp4intellij.contributors.inspection.LSPInspectionProvider"
                                 id="LSPInspectionProvider"/>
-        <fileDocumentSynchronizationVetoer
-                implementation="com.github.gtache.lsp.editor.listeners.LSPFileDocumentSynchronizationVetoer"
-                id="LSPFileDocumentSynchronizationVetoer"/>
-
-        <renameHandler implementation="com.github.gtache.lsp.contributors.rename.LSPRenameHandler" id="LSPRenameHandler"
-                       order="first"/>
-        <renamePsiElementProcessor implementation="com.github.gtache.lsp.contributors.rename.LSPRenameProcessor"
-                                   id="LSPRenameProcessor" order="first"/>
-        <lang.documentationProvider implementationClass="com.github.gtache.lsp.contributors.LSPDocumentationProvider"
-                                    id="LSPDocumentationProvider" language="Ballerina" order="first"/>
-
 
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
@@ -261,13 +232,13 @@
         <!--<action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"/>-->
         <!--<action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"/>-->
         <!--<action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog" use-shortcut-of="ShowReformatFileDialog"/>-->
-        <action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/> </action>
-        <action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction"><keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/></action>
+        <!--<action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/> </action>-->
+        <!--<action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction"><keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/></action>-->
     </actions>
 
     <application-components>
         <component>
-            <implementation-class>com.github.gtache.lsp.PluginMain</implementation-class>
+            <implementation-class>com.github.lsp4intellij.PluginMain</implementation-class>
         </component>
     </application-components>
 
