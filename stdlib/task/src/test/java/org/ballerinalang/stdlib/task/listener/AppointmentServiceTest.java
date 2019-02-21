@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -36,22 +35,10 @@ import static org.awaitility.Awaitility.await;
  * Tests for Ballerina Task Appointment Library.
  */
 @Test
-public class AppointmentTest {
+public class AppointmentServiceTest {
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testCreateAppointment() {
         CompileResult compileResult = BCompileUtil.compileAndSetup("listener/appointment/service_simple.bal");
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
-            Assert.assertEquals(configs.length, 1);
-            return (((BInteger) configs[0]).intValue() > 3);
-        });
-    }
-
-    @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
-    public void testDynamicService() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/appointment/dynamic_service.bal");
-        BValue[] inputs = {new BString("0/2 * * * * ?")};
-        BRunUtil.invoke(compileResult, "runService", inputs);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);

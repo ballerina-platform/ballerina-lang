@@ -23,7 +23,7 @@ under the License.
     <!-- Ballerina task Test Cases. -->
     <test name="ballerina-task-test-suite">
         <classes>
-            <class name="org.ballerinalang.stdlib.task.listener.AppointmentTest"/>
+            <class name="org.ballerinalang.stdlib.task.listener.AppointmentServiceTest"/>
             <class name="org.ballerinalang.stdlib.task.listener.TimerServiceTest"/>
             <class name="org.ballerinalang.stdlib.task.scheduler.TimerSchedulerTest"/>
             <class name="org.ballerinalang.stdlib.task.service.ListenerServiceValidationTest"/>
