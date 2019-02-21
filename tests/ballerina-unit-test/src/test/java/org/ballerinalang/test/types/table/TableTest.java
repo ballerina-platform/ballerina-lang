@@ -1412,6 +1412,15 @@ public class TableTest {
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
 
+    @Test(groups = TABLE_TEST,
+          description = "Test assigning string value to json field in constraint")
+    public void testAssignStringValueToJsonField() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testAssignStringValueToJsonField");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Hello");
+    }
+
     @AfterClass(alwaysRun = true)
     public void closeConnectionPool() {
         BRunUtil.invokeStateful(service, "closeConnectionPool");

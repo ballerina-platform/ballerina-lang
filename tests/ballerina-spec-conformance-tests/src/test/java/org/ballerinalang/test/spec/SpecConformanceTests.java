@@ -32,6 +32,6 @@ public class SpecConformanceTests {
 
     @Test
     public void testSpecConformance() {
-        assertFalse(BTestUtil.runTestsInPackage("", true).isFailure());
+        assertFalse(BTestUtil.runTestsInProject("", true).isFailure());
     }
 }
