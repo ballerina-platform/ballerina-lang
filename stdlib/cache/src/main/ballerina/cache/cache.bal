@@ -308,7 +308,7 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
 
 task:TimerConfiguration cacheCleanupTimerConfiguration = {
     interval: CACHE_CLEANUP_INTERVAL,
-    delay: CACHE_CLEANUP_START_DELAY
+    initialDelay: CACHE_CLEANUP_START_DELAY
 };
 
 listener task:Listener cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
