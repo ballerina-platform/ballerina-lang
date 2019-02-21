@@ -50,7 +50,7 @@ public class BallerinaStreamsV2StatePersistenceTest {
         cleanSnapshots();
         result = BCompileUtil.compile("test-src/streamingv2-state-persistence-test.bal");
         conf.addConfiguration("b7a.streaming.persistence.enabled", true);
-        conf.addConfiguration("b7a.streaming.persistence.interval", 0.05);
+        conf.addConfiguration("b7a.streaming.persistence.interval", 1L);
     }
 
     @Test(description = "Test streaming state persistence")

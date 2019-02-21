@@ -33,7 +33,7 @@ task:Timer? persistTimer = ();
 map<map<any>> streamsPersistanceState = {};
 map<Snapshotable> snapshotables = {};
 string persistanceDirectory = "snapshots";
-int persistanceIntervalInMillis = 60000;
+int persistanceIntervalInMillis = 30000;
 
 // Native function to deserialize a serialized snapshot.
 extern function deserialize(string str) returns map<any>;
@@ -283,8 +283,8 @@ public function initPersistence() {
     boolean enabled = config:getAsBoolean("b7a.streaming.persistence.enabled", default = false);
     if (enabled) {
         persistanceDirectory = config:getAsString("b7a.streaming.persistence.directory", default = "snapshots");
-        float interval = config:getAsFloat("b7a.streaming.persistence.interval", default = 0.01);
-        persistanceIntervalInMillis = math:round(interval * 60 * 1000);
+        int interval = config:getAsInt("b7a.streaming.persistence.interval", default = 30);
+        persistanceIntervalInMillis = interval * 1000;
         restoreStates();
         startPersisting();
     }
