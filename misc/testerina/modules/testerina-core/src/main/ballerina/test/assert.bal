@@ -79,7 +79,7 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
     if (!isEqual) {
         string expectedStr = io:sprintf("%s", expected);
         string actualStr = io:sprintf("%s", actual);
-        string errorMsg = string `{{msg}}: expected '{{expectedStr}}' but found '{{actualStr}}'`;
+        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -100,7 +100,7 @@ public function assertNotEquals(any actual, any expected, string msg = "Assertio
     if (isEqual) {
         string expectedStr = io:sprintf("%s", expected);
         string actualStr = io:sprintf("%s", actual);
-        string errorMsg = string `{{msg}}: expected the actual value not to be '{{expectedStr}}'`;
+        string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }

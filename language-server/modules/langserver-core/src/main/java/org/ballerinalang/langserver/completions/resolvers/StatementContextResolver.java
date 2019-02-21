@@ -71,11 +71,11 @@ public class StatementContextResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Add the xmlns snippet
-        completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(supportSnippet));
+        completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(context, supportSnippet));
         // Add the var keyword
-        completionItems.add(Snippet.KW_VAR.get().build(supportSnippet));
+        completionItems.add(Snippet.KW_VAR.get().build(context, supportSnippet));
         // Add the error snippet
-        completionItems.add(Snippet.DEF_ERROR.get().build(supportSnippet));
+        completionItems.add(Snippet.DEF_ERROR.get().build(context, supportSnippet));
 
         return completionItems;
     }
@@ -99,7 +99,7 @@ public class StatementContextResolver extends AbstractItemResolver {
                             + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";
 
                     return new SnippetBlock(label, snippet, detail,
-                            SnippetBlock.SnippetType.SNIPPET).build(isSnippet);
+                            SnippetBlock.SnippetType.SNIPPET).build(ctx, isSnippet);
                 }).collect(Collectors.toList());
     }
 }

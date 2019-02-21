@@ -61,8 +61,8 @@ public class ServiceContextResolver extends AbstractItemResolver {
                         .getCompletionItem().getSnippetSupport();
                 completionItems.addAll(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
                 completionItems.addAll(this.getPackagesCompletionItems(ctx));
-                completionItems.add(Snippet.DEF_RESOURCE.get().build(isSnippet));
-                completionItems.add(Snippet.DEF_FUNCTION.get().build(isSnippet));
+                completionItems.add(Snippet.DEF_RESOURCE.get().build(ctx, isSnippet));
+                completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx, isSnippet));
             }
         }
 

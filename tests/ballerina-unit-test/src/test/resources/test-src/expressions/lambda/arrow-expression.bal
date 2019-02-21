@@ -184,7 +184,7 @@ function testArrowExprWithNoArguments() returns string {
 }
 
 function testArrowExprWithNoArgumentsAndStrTemplate() returns string {
-    function () returns string lambda = () => string`Some Text {{packageVar}}`;
+    function () returns string lambda = () => string`Some Text ${packageVar}`;
     return lambda.call();
 }
 
