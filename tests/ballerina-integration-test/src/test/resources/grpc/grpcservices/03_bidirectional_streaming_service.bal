@@ -34,7 +34,7 @@ service Chat on ep3 {
 
     resource function onOpen(grpc:Caller caller) {
         io:println(string `${caller.getId()} connected to chat`);
-        self.consMap[<string>caller.getId()] = caller;
+        self.consMap[string.convert(caller.getId())] = caller;
         io:println("Client registration completed. Connection map status");
         io:println("Map length: " + self.consMap.length());
         io:println(self.consMap);
@@ -79,7 +79,7 @@ service Chat on ep3 {
         grpc:Caller conn;
         string msg = string `${caller.getId()} left the chat`;
         io:println(msg);
-        var v = self.consMap.remove(<string>caller.getId());
+        var v = self.consMap.remove(string.convert(caller.getId()));
         io:println("Starting client left broadcast. Connection map status");
         io:println("Map length: " + self.consMap.length());
         io:println(self.consMap);

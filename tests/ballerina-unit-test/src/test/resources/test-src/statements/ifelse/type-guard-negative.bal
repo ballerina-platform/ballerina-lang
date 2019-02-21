@@ -20,7 +20,7 @@ function testValueTypeInUnion() returns string {
     int|string x = 5;
     if (!(x is int)) {
         int y = x;
-        return "int: " + <string> y;
+        return "int: " + string.convert(y);
     } else {
         string s = x;
         return s;
@@ -60,7 +60,7 @@ function testTypeGuardsWithAnd() returns string {
     int|string x = 5;
     if (x is int && x > 4) {
         int y = x;
-        return "x is greater than 4: " + <string> y;
+        return "x is greater than 4: " + string.convert(y);
     } else {
         string s = x;
         return s;
@@ -79,14 +79,14 @@ function testTypeGuardInElse_1() returns string {
     int|string x = 5;
     if (x is int) {
         int y = x;
-        return "int: " + <string> y;
+        return "int: " + string.convert(y);
     } else {
         if (x is string) {
             return "string: " + x;
         }
 
         if (x is int) {
-            return "int: " + <string> x;
+            return "int: " + string.convert(x);
         }
     }
 
@@ -101,7 +101,7 @@ function testTypeGuardInElse_2() returns string {
             return "y is string: " + y;
         } else if (y is int) {
             int i = y;
-            return "y is int: " + <string> i;
+            return "y is int: " + string.convert(i);
         } else {
             return "x is int|string";
         }
@@ -109,19 +109,19 @@ function testTypeGuardInElse_2() returns string {
         return "string: " + x;
     } else if (x is float) {
         float f = x;
-        return "float: " + <string> f;
+        return "float: " + string.convert(f);
     } else {
         if (y is int) {
             int i = y;
-            return "x is boolean and y is int: " + <string> i;
+            return "x is boolean and y is int: " + string.convert(i);
         } else if (y is string) {
             return "x is boolean and y is string: " + y;
         } else if (y is float) {
             float f = y;
-            return "x is boolean and y is float: " + <string> f;
+            return "x is boolean and y is float: " + string.convert(f);
         } else {
             boolean b = y;
-            return "x is boolean and y is boolean: " + <string> b;
+            return "x is boolean and y is boolean: " + string.convert(b);
         }
     }
 }
@@ -154,7 +154,7 @@ function testTypeGuardsWithOr_1() returns string {
     int|string y = 8;
     if (x is int || y is int) {
         int z = x;
-        return "x is greater than 4: " + <string> z;
+        return "x is greater than 4: " + string.convert(z);
     } else {
         string s = x;
         return s;
@@ -167,7 +167,7 @@ function testTypeGuardsWithOr_2() returns string {
     if (x is int|string) {
         if (x is int || y > 4) {
             int z = x;
-            return "x is greater than 4: " + <string> z;
+            return "x is greater than 4: " + string.convert(z);
         } else {
             string s = x;
             return s;

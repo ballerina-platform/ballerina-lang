@@ -245,7 +245,7 @@ function testUninitializedVarReferrencing() {
     }
 
     // uninitialized var in conversion
-    string str = <string> a;
+    string str = string.convert(a);
 
     // uninitialized var XML
     xml x1 = xml`<foo id="{{a}}" xmlns:ns0="{{a}}">
