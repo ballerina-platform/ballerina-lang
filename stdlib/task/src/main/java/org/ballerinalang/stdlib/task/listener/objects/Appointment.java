@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.task.listener.objects;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.listener.utils.AppointmentJob;
-import org.ballerinalang.stdlib.task.listener.utils.AppointmentManager;
+import org.ballerinalang.stdlib.task.listener.utils.TaskManager;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
@@ -75,7 +75,7 @@ public class Appointment extends AbstractTask {
      */
     @Override
     public void stop() throws SchedulingException {
-        AppointmentManager.getInstance().stop(id);
+        TaskManager.getInstance().stop(id);
     }
 
     /**
@@ -83,14 +83,14 @@ public class Appointment extends AbstractTask {
      */
     @Override
     public void pause() throws SchedulingException {
-        AppointmentManager.getInstance().pause(this.getId());
+        TaskManager.getInstance().pause(this.getId());
     }
 
     /**
      * {@inheritDoc}
      */
     public void resume() throws SchedulingException {
-        AppointmentManager.getInstance().resume(this.getId());
+        TaskManager.getInstance().resume(this.getId());
     }
 
     /**
@@ -101,7 +101,7 @@ public class Appointment extends AbstractTask {
         for (ServiceWithParameters serviceWithParameters : this.getServicesMap().values()) {
             JobDataMap jobDataMap = getJobDataMapFromService(context, serviceWithParameters);
             try {
-                AppointmentManager.getInstance().schedule(id, AppointmentJob.class, jobDataMap, cronExpression);
+                TaskManager.getInstance().schedule(id, AppointmentJob.class, jobDataMap, cronExpression);
             } catch (SchedulerException e) {
                 throw new SchedulingException("Failed to schedule Task: " + this.id + ". " + e.getMessage());
             }

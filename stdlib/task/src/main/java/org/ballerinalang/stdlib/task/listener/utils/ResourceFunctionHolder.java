@@ -33,18 +33,19 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURC
  */
 public class ResourceFunctionHolder {
 
-    private FunctionInfo onTriggerFunction = null;
-    private FunctionInfo onErrorFunction = null;
+    private FunctionInfo onTriggerFunction;
+    private FunctionInfo onErrorFunction;
 
     /**
      * Creates a resource function holder from a service object.
      *
      * @param service Ballerina service object from which the resource functions should be extracted.
      */
-    public ResourceFunctionHolder(Service service) {
+    ResourceFunctionHolder(Service service) {
         String onErrorResourceFullName = getResourceFullName(service.getBValue().getType(), RESOURCE_ON_ERROR);
         String onTriggerResourceFullName = getResourceFullName(service.getBValue().getType(), RESOURCE_ON_TRIGGER);
-
+        onTriggerFunction = null;
+        onErrorFunction = null;
         if (Objects.nonNull(service.getServiceInfo().getResourceInfo(onTriggerResourceFullName))) {
             onTriggerFunction = service.getServiceInfo().getResourceInfo(onTriggerResourceFullName);
         }
@@ -58,7 +59,7 @@ public class ResourceFunctionHolder {
      *
      * @return onTrigger function related to the service.
      */
-    public FunctionInfo getOnTriggerFunction() {
+    FunctionInfo getOnTriggerFunction() {
         return this.onTriggerFunction;
     }
 
@@ -67,7 +68,7 @@ public class ResourceFunctionHolder {
      *
      * @return onError function related to the service.
      */
-    public FunctionInfo getOnErrorFunction() {
+    FunctionInfo getOnErrorFunction() {
         return this.onErrorFunction;
     }
 

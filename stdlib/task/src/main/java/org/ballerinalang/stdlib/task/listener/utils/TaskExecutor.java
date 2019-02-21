@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.task.listener.utils;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.task.listener.objects.ServiceWithParameters;
@@ -29,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 
 /**
  * This class invokes the Ballerina onTrigger function, and if an error occurs while invoking that function, it invokes
@@ -42,21 +43,14 @@ public class TaskExecutor {
         ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(serviceWithParameters.getService());
         FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
         FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();
-        BValue serviceParameter = serviceWithParameters.getServiceParameter();
 
         try {
-            List<BValue> onTriggerFunctionArgs = new ArrayList<>();
-            onTriggerFunctionArgs.add(serviceWithParameters.getService().getBValue());
-            if (onTriggerFunction.getParamTypes().length > 1 && Objects.nonNull(serviceParameter)) {
-                onTriggerFunctionArgs.add(serviceParameter);
-            }
-
+            List<BValue> onTriggerFunctionArgs = getParameterList(onErrorFunction, serviceWithParameters);
             // Invoke the onTrigger function.
-            BValue[] results = BVMExecutor.executeFunction(onTriggerFunction.getPackageInfo().getProgramFile(),
-                    onTriggerFunction, onTriggerFunctionArgs.toArray(new BValue[0]));
+            BValue[] results = executeFunction(onTriggerFunction, onTriggerFunctionArgs.toArray(new BValue[0]));
 
             // If there are results, that mean an error has been returned
-            if (onErrorFunction != null && results.length > 0 && results[0] != null) {
+            if (Objects.nonNull(onErrorFunction) && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
                 List<BValue> onErrorFunctionArgs = new ArrayList<>();
                 // We have to pass the service BValue as a function parameter, as it is required.
@@ -65,15 +59,26 @@ public class TaskExecutor {
                 if (onErrorFunction.getParamTypes().length > 2) {
                     onErrorFunctionArgs.add(serviceWithParameters.getServiceParameter());
                 }
-                BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(), onErrorFunction,
-                        onErrorFunctionArgs.toArray(new BValue[0]));
+                executeFunction(onErrorFunction, onErrorFunctionArgs.toArray(new BValue[0]));
             }
         } catch (RuntimeException e) {
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
-                BVMExecutor.executeFunction(onErrorFunction.getPackageInfo().getProgramFile(), onErrorFunction,
-                        BLangVMErrors.createError(context, e.getMessage()));
+                executeFunction(onErrorFunction, new BValue[]{createError(context, e.getMessage())});
             }
         }
+    }
+
+    private static BValue[] executeFunction(FunctionInfo function, BValue[] parameters) {
+        return BVMExecutor.executeFunction(function.getPackageInfo().getProgramFile(), function, parameters);
+    }
+
+    private static List<BValue> getParameterList(FunctionInfo function, ServiceWithParameters serviceWithParameters) {
+        List<BValue> functionParameters = new ArrayList<>();
+        functionParameters.add(serviceWithParameters.getService().getBValue());
+        if (function.getParamTypes().length > 2 && Objects.nonNull(serviceWithParameters.getServiceParameter())) {
+            functionParameters.add(serviceWithParameters.getServiceParameter());
+        }
+        return functionParameters;
     }
 }

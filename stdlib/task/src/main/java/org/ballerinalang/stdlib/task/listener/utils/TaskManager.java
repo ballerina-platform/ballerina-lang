@@ -38,16 +38,16 @@ import static org.quartz.TriggerBuilder.newTrigger;
 /**
  * Manages appointments.
  */
-public class AppointmentManager {
+public class TaskManager {
 
-    private static final AppointmentManager instance = new AppointmentManager();
+    private static final TaskManager instance = new TaskManager();
 
     // Ballerina task ID to Quart JobKey map
     private Map<String, JobKey> quartzJobs = new HashMap<>();
 
     private Scheduler scheduler;
 
-    private AppointmentManager() {
+    private TaskManager() {
         try {
             scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
@@ -61,7 +61,7 @@ public class AppointmentManager {
      *
      * @return Appointment Manager Instance.
      */
-    public static AppointmentManager getInstance() {
+    public static TaskManager getInstance() {
         return instance;
     }
 
