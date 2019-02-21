@@ -46,6 +46,7 @@ public class AnnotationAttachmentsCompletionTest extends CompletionTest {
                 {"resourceAnnotation1.json", "annotation"},
 //                {"resourceAnnotation2.json", "annotation"},
                 {"functionAnnotation1.json", "annotation"},
+                {"listenerAnnotation1.json", "annotation"},
         };
     }
 }

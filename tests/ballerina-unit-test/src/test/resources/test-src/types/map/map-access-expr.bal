@@ -117,7 +117,7 @@ function processConcurrent(map<int> intMap, int n) {
       while (i < n) {
          intMap["X"] = 100;
          j = intMap.X;
-         k = <string> i;
+         k = string.convert(i);
          intMap[k] = i;
          i = intMap[k] ?: 0;  
          _ = intMap.remove(k);
@@ -132,7 +132,7 @@ function processConcurrent(map<int> intMap, int n) {
       while (i < n2) {
          intMap["X"] = 200;
          j = intMap.X;
-         k = <string> i;
+         k = string.convert(i);
          intMap[k] = i;
          i = intMap[k] ?: 0;
          _ = intMap.remove(k);
@@ -156,7 +156,7 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
         while (i < n) {
             intMap["X"] = 100;
             j = intMap.X;
-            k = <string> i;
+            k = string.convert(i);
             intMap[k] = i;
             i = intMap[k] ?: 0;  
             _ = intMap.remove(k);
@@ -171,7 +171,7 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
         while (i < n2) {
             intMap["X"] = 200;
             j = intMap.X;
-            k = <string> i;
+            k = string.convert(i);
             intMap[k] = i;
             i = intMap[k] ?: 0;
             _ = intMap.remove(k);

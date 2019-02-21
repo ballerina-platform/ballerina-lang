@@ -29,7 +29,9 @@ import org.ballerinalang.database.table.BCursorTable;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -223,7 +225,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                                                      Context context, BValueArray structTypes,
                                                      String databaseProductName)
             throws SQLException {
-        BValueArray bTables = new BValueArray(new BArrayType(BTypes.typeTable));
+        BType returnedTableType =
+                ((BUnionType) context.getCallableUnitInfo().getRetParamTypes()[0]).getMemberTypes().get(0);
+        BValueArray bTables = new BValueArray(returnedTableType);
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
         if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
