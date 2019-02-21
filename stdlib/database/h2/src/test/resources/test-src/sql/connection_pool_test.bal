@@ -26,11 +26,11 @@ public type Result record {
     int val;
 };
 
-function testGlobalConnectionPoolSingleDestination() returns json[] {
+function testGlobalConnectionPoolSingleDestination() returns (int|string?)[] {
     return drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
 }
 
-function drainGlobalPool(string dbName) returns json[] {
+function drainGlobalPool(string dbName) returns (int|string?)[] {
     h2:Client testDB1 = new({
             path: "./target/tempdb/",
             name: dbName,
@@ -63,28 +63,28 @@ function drainGlobalPool(string dbName) returns json[] {
         });
 
     (table<record {}>|error?)[] resultArray = [];
-    resultArray[0] = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[1] = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
+    resultArray[0] = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[1] = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
 
-    resultArray[2] = testDB2->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[3] = testDB2->select("SELECT FirstName from Customers where registrationID = 1", ());
+    resultArray[2] = testDB2->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[3] = testDB2->select("select count(*) from Customers where registrationID = 1", Result);
 
-    resultArray[4] = testDB3->select("SELECT FirstName from Customers where registrationID = 2", ());
-    resultArray[5] = testDB3->select("SELECT FirstName from Customers where registrationID = 2", ());
+    resultArray[4] = testDB3->select("select count(*) from Customers where registrationID = 2", Result);
+    resultArray[5] = testDB3->select("select count(*) from Customers where registrationID = 2", Result);
 
-    resultArray[6] = testDB4->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[7] = testDB4->select("SELECT FirstName from Customers where registrationID = 1", ());
+    resultArray[6] = testDB4->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[7] = testDB4->select("select count(*) from Customers where registrationID = 1", Result);
 
-    resultArray[8] = testDB5->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[9] = testDB5->select("SELECT FirstName from Customers where registrationID = 1", ());
+    resultArray[8] = testDB5->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[9] = testDB5->select("select count(*) from Customers where registrationID = 1", Result);
 
-    resultArray[10] = testDB5->select("SELECT FirstName from Customers where registrationID = 1", ());
+    resultArray[10] = testDB5->select("select count(*) from Customers where registrationID = 1", Result);
 
-    json?[] returnArray = [];
+    (int|string?)[] returnArray = [];
     int i = 0;
     // Connections will be released here as we fully consume the data in the following conversion function calls
     foreach var x in resultArray {
-        returnArray[i] = getJsonConversionResult(x);
+        returnArray[i] = getTableCountValColumn(x);
         i+=1;
     }
     // All 5 clients are supposed to use the same pool. Default maximum no of connections is 10.
@@ -93,7 +93,7 @@ function drainGlobalPool(string dbName) returns json[] {
     return returnArray;
 }
 
-function testGlobalConnectionPoolsMultipleDestinations() returns (json[], json[]) {
+function testGlobalConnectionPoolsMultipleDestinations() returns ((int|string?)[], (int|string?)[]) {
     var errorFromFristDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
     var errorFromSecondDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_2");
     return (errorFromFristDestination, errorFromSecondDestination);
@@ -105,7 +105,7 @@ function closeTable(table<record{}>|error? t) {
     }
 }
 
-function testGlobalConnectionPoolSingleDestinationConcurrent() returns json[][] {
+function testGlobalConnectionPoolSingleDestinationConcurrent() returns (int|string?)[][] {
     worker w1 returns (table<record{}>|error,table<record{}>|error) {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
@@ -131,12 +131,12 @@ function testGlobalConnectionPoolSingleDestinationConcurrent() returns json[][] 
 
     var t = testGlobalConnectionPoolConcurrentHelper2();
 
-    json[][] returnArray = [];
+    (int|string?)[][] returnArray = [];
     // Connections will be released here as we fully consume the data in the following conversion function calls
-    returnArray[0] = getJsonConversionResultOfTuple(results.w1);
-    returnArray[1] = getJsonConversionResultOfTuple(results.w2);
-    returnArray[2] = getJsonConversionResultOfTuple(results.w3);
-    returnArray[3] = getJsonConversionResultOfTuple(results.w4);
+    returnArray[0] = getTableCountValColumnOfTuple(results.w1);
+    returnArray[1] = getTableCountValColumnOfTuple(results.w2);
+    returnArray[2] = getTableCountValColumnOfTuple(results.w3);
+    returnArray[3] = getTableCountValColumnOfTuple(results.w4);
     returnArray[4] = t;
 
     // All 5 clients are supposed to use the same pool. Default maximum no of connections is 10.
@@ -159,31 +159,31 @@ function testGlobalConnectionPoolConcurrentHelper1() returns (table<record{}>|er
             username: "SA",
             password: ""
         });
-    var dt1 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
-    var dt2 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
+    var dt1 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
+    var dt2 = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
     return (dt1, dt2);
 }
 
-function testGlobalConnectionPoolConcurrentHelper2() returns json[] {
+function testGlobalConnectionPoolConcurrentHelper2() returns (int|string?)[] {
     h2:Client testDB1 = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_GLOBAL_1",
             username: "SA",
             password: ""
         });
-    json[] returnArray = [];
-    var dt1 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
-    var dt2 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
-    var dt3 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
+    (int|string?)[] returnArray = [];
+    var dt1 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
+    var dt2 = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
+    var dt3 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
     // Connections will be released here as we fully consume the data in the following conversion function calls
-    returnArray[0] = getJsonConversionResult(dt1);
-    returnArray[1] = getJsonConversionResult(dt2);
-    returnArray[2] = getJsonConversionResult(dt3);
+    returnArray[0] = getTableCountValColumn(dt1);
+    returnArray[1] = getTableCountValColumn(dt2);
+    returnArray[2] = getTableCountValColumn(dt3);
 
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigSingleDestination() returns json[] {
+function testLocalSharedConnectionPoolConfigSingleDestination() returns (int|string?)[] {
     h2:Client testDB1;
     h2:Client testDB2;
     h2:Client testDB3;
@@ -227,18 +227,18 @@ function testLocalSharedConnectionPoolConfigSingleDestination() returns json[] {
             poolOptions: poolOptions1
         });
     (table<record {}>|error?)[] resultArray = [];
-    resultArray[0] = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[1] = testDB2->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[2] = testDB3->select("SELECT FirstName from Customers where registrationID = 2", ());
-    resultArray[3] = testDB4->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[4] = testDB5->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[5] = testDB5->select("SELECT FirstName from Customers where registrationID = 2", ());
+    resultArray[0] = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[1] = testDB2->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[2] = testDB3->select("select count(*) from Customers where registrationID = 2", Result);
+    resultArray[3] = testDB4->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[4] = testDB5->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[5] = testDB5->select("select count(*) from Customers where registrationID = 2", Result);
 
-    json?[] returnArray = [];
+    (int|string)?[] returnArray = [];
     int i = 0;
     // Connections will be released here as we fully consume the data in the following conversion function calls
     foreach var x in resultArray {
-        returnArray[i] = getJsonConversionResult(x);
+        returnArray[i] = getTableCountValColumn(x);
         i+=1;
     }
 
@@ -254,7 +254,7 @@ function testLocalSharedConnectionPoolConfigSingleDestination() returns json[] {
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigMultipleDestinations() returns json[] {
+function testLocalSharedConnectionPoolConfigMultipleDestinations() returns (int|string?)[] {
     h2:Client testDB1;
     h2:Client testDB2;
     h2:Client testDB3;
@@ -263,6 +263,7 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns json[
     h2:Client testDB6;
     sql:PoolOptions poolOptions2 = { maximumPoolSize: 3, connectionTimeout: 1000, validationTimeout: 1000 };
 
+    // One pool will be created to these clients.
     testDB1 = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
@@ -284,6 +285,7 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns json[
             password: "",
             poolOptions: poolOptions2
         });
+    // Another pool will be created to these clients.
     testDB4 = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
@@ -307,21 +309,21 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns json[
         });
 
     (table<record {}>|error?)[] resultArray = [];
-    resultArray[0] = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[1] = testDB2->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[2] = testDB3->select("SELECT FirstName from Customers where registrationID = 2", ());
-    resultArray[3] = testDB3->select("SELECT FirstName from Customers where registrationID = 1", ());
+    resultArray[0] = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[1] = testDB2->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[2] = testDB3->select("select count(*) from Customers where registrationID = 2", Result);
+    resultArray[3] = testDB3->select("select count(*) from Customers where registrationID = 1", Result);
 
-    resultArray[4] = testDB4->select("SELECT FirstName from Customers where registrationID = 1", ());
-    resultArray[5] = testDB5->select("SELECT FirstName from Customers where registrationID = 2", ());
-    resultArray[6] = testDB6->select("SELECT FirstName from Customers where registrationID = 2", ());
-    resultArray[7] = testDB6->select("SELECT FirstName from Customers where registrationID = 1", ());
+    resultArray[4] = testDB4->select("select count(*) from Customers where registrationID = 1", Result);
+    resultArray[5] = testDB5->select("select count(*) from Customers where registrationID = 2", Result);
+    resultArray[6] = testDB6->select("select count(*) from Customers where registrationID = 2", Result);
+    resultArray[7] = testDB6->select("select count(*) from Customers where registrationID = 1", Result);
 
-    json?[] returnArray = [];
+    (int|string)?[] returnArray = [];
     int i = 0;
     // Connections will be released here as we fully consume the data in the following conversion function calls
     foreach var x in resultArray {
-        returnArray[i] = getJsonConversionResult(x);
+        returnArray[i] = getTableCountValColumn(x);
         i+=1;
     }
 
@@ -332,13 +334,11 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns json[
     _ = testDB5.stop();
     _ = testDB6.stop();
 
-    // All 5 clients are supposed to use the same pool created with the configurations given by the
-    // custom pool options. Since each select operation holds up one connection each, the last select
-    // operation should return an error
+    // Since max pool size is 3, the last select function call going through each pool should fail.
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns (int, int, json, int) {
+function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns (int|string, int|string, int|string, int|string) {
     h2:Client testDB1;
     h2:Client testDB2;
     h2:Client testDB3;
@@ -362,15 +362,18 @@ function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns (int, 
 
     var dt1 = testDB1->select("SELECT count(*) from Customers where registrationID = 1", Result);
     var dt2 = testDB2->select("SELECT count(*) from Customers where registrationID = 1", Result);
-    int result1 = getTableCountValColumn(dt1);
-    int result2 = getTableCountValColumn(dt2);
+    int|string result1 = getTableCountValColumn(dt1);
+    int|string result2 = getTableCountValColumn(dt2);
 
+    // Since both clients are stopped the pool is supposed to shutdown.
     _ = testDB1.stop();
     _ = testDB2.stop();
 
+    // This call should return an error as pool is shutdown
     var dt3 = testDB1->select("SELECT count(*) from Customers where registrationID = 1", Result);
-    json result3 = getJsonConversionResult(dt3);
+    int|string result3 = getTableCountValColumn(dt3);
 
+    // Now a new pool should be created
     testDB3 = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
@@ -379,26 +382,27 @@ function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns (int, 
             poolOptions: poolOptions5
         });
 
+    // This call should be successful
     var dt4 = testDB3->select("SELECT count(*) from Customers where registrationID = 1", Result);
-    int result4 = getTableCountValColumn(dt4);
+    int|string result4 = getTableCountValColumn(dt4);
 
     _ = testDB3.stop();
 
     return (result1, result2, result3, result4);
 }
 
-function testLocalSharedConnectionPoolStopInitInterleave() returns int {
+function testLocalSharedConnectionPoolStopInitInterleave() returns int|string {
     sql:PoolOptions poolOptions = { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 };
 
     worker w1 {
         testLocalSharedConnectionPoolStopInitInterleaveHelper1(poolOptions);
     }
-    worker w2 returns int {
+    worker w2 returns int|string {
         return testLocalSharedConnectionPoolStopInitInterleaveHelper2(poolOptions);
     }
 
     wait w1;
-    int result = wait w2;
+    int|string result = wait w2;
     return result;
 }
 
@@ -415,7 +419,7 @@ function testLocalSharedConnectionPoolStopInitInterleaveHelper1(sql:PoolOptions 
     _ = testDB1.stop();
 }
 
-function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:PoolOptions poolOptions) returns int {
+function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:PoolOptions poolOptions) returns int|string {
     h2:Client testDB2;
     runtime:sleep(10);
     testDB2 = new({
@@ -426,14 +430,14 @@ function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:PoolOptions 
             poolOptions: poolOptions
         });
 
-    var dt = testDB2->select("SELECT COUNT(FirstName) from Customers where registrationID = 1", Result);
-    int count = getTableCountValColumn(dt);
+    var dt = testDB2->select("SELECT COUNT(*) from Customers where registrationID = 1", Result);
+    int|string count = getTableCountValColumn(dt);
     _ = testDB2.stop();
 
     return count;
 }
 
-function testShutDownUnsharedLocalConnectionPool() returns (json, json) {
+function testShutDownUnsharedLocalConnectionPool() returns (int|string, int|string) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_6",
@@ -442,15 +446,17 @@ function testShutDownUnsharedLocalConnectionPool() returns (json, json) {
             poolOptions: { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 }
         });
 
-    var result = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
-    json retVal1 = getJsonConversionResult(result);
+    var result = testDB->select("select count(*) from Customers where registrationID = 1", Result);
+    int|string retVal1 = getTableCountValColumn(result);
+    // Pool should be shutdown as the only client using it is stopped.
     _ = testDB.stop();
-    var resultAfterPoolShutDown = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
-    json retVal2 = getJsonConversionResult(resultAfterPoolShutDown);
+    // This should result in an error return.
+    var resultAfterPoolShutDown = testDB->select("select count(*) from Customers where registrationID = 1", Result);
+    int|string retVal2 = getTableCountValColumn(resultAfterPoolShutDown);
     return (retVal1, retVal2);
 }
 
-function testShutDownSharedConnectionPool() returns (json, json, json, json, json) {
+function testShutDownSharedConnectionPool() returns (int|string, int|string, int|string, int|string, int|string) {
     h2:Client testDB1;
     h2:Client testDB2;
     h2:Client testDB3;
@@ -472,33 +478,39 @@ function testShutDownSharedConnectionPool() returns (json, json, json, json, jso
             poolOptions: poolOptions3
         });
 
-    var result1 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
-    json retVal1 = getJsonConversionResult(result1);
+    var result1 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
+    int|string retVal1 = getTableCountValColumn(result1);
 
-    var result2 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
-    json retVal2 = getJsonConversionResult(result2);
+    var result2 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
+    int|string retVal2 = getTableCountValColumn(result2);
 
+    // Only one client is closed so pool should not shutdown.
     _ = testDB1.stop();
 
-    var result3 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
-    json retVal3 = getJsonConversionResult(result3);
+    // This should be successful as pool is still up.
+    var result3 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
+    int|string retVal3 = getTableCountValColumn(result3);
 
-    var result4 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
-    json retVal4 = getJsonConversionResult(result4);
+    // This should fail because, even though the pool is up, this client was stopped
+    var result4 = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
+    int|string retVal4 = getTableCountValColumn(result4);
 
+    // Now pool should be shutdown as the only remaining client is stopped.
     _ = testDB2.stop();
 
-    var result5 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
-    json retVal5 = getJsonConversionResult(result4);
+    // This should fail because this client is stopped.
+    var result5 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
+    int|string retVal5 = getTableCountValColumn(result4);
 
     return (retVal1, retVal2, retVal3, retVal4, retVal5);
 }
 
-function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json, json, json) {
+function testShutDownPoolCorrespondingToASharedPoolConfig() returns (int|string, int|string, int|string, int|string) {
     h2:Client testDB1;
     h2:Client testDB2;
     sql:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 };
 
+    // One pool is created for this client.
     testDB1 = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_8",
@@ -507,6 +519,8 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json,
             poolOptions: poolOptions4
         });
 
+    // Another pool is created for this client, because, even though both are using the same pool config,
+    // they point to different databases.
     testDB2 = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_9",
@@ -514,26 +528,30 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns (json, json,
             password: "",
             poolOptions: poolOptions4
         });
-    var result1 = testDB1->select("SELECT FirstName from Customers where registrationID = 1", ());
-    json retVal1 = getJsonConversionResult(result1);
+    var result1 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
+    int|string retVal1 = getTableCountValColumn(result1);
 
-    var result2 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
-    json retVal2 = getJsonConversionResult(result2);
+    var result2 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
+    int|string retVal2 = getTableCountValColumn(result2);
 
+    // This should result in stopping the pool used by this client as it was the only client using that pool.
     _ = testDB1.stop();
 
-    var result3 = testDB2->select("SELECT FirstName from Customers where registrationID = 2", ());
-    json retVal3 = getJsonConversionResult(result3);
+    // This should be successful as the pool belonging to this client is up.
+    var result3 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
+    int|string retVal3 = getTableCountValColumn(result3);
 
-    var result4 = testDB1->select("SELECT FirstName from Customers where registrationID = 2", ());
-    json retVal4 = getJsonConversionResult(result4);
+    // This should fail because this client was stopped.
+    var result4 = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
+    int|string retVal4 = getTableCountValColumn(result4);
 
     _ = testDB2.stop();
 
     return (retVal1, retVal2, retVal3, retVal4);
 }
 
-function testStopClientUsingGlobalPool() returns (json, json) {
+function testStopClientUsingGlobalPool() returns (int|string, int|string) {
+    // This client doesn't have pool config specified therefore, global pool will be used.
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_GLOBAL_1",
@@ -541,30 +559,26 @@ function testStopClientUsingGlobalPool() returns (json, json) {
             password: ""
         });
 
-    var result1 = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
-    json retVal1 = getJsonConversionResult(result1);
+    var result1 = testDB->select("select count(*) from Customers where registrationID = 1", Result);
+    int|string retVal1 = getTableCountValColumn(result1);
 
+    // This will merely stop this client and will not have any effect on the pool because it is the global pool.
     _ = testDB.stop();
 
-    var result2 = testDB->select("SELECT FirstName from Customers where registrationID = 1", ());
-    json retVal2 = getJsonConversionResult(result2);
+    // This should fail because this client was stopped, even though the pool is up.
+    var result2 = testDB->select("select count(*) from Customers where registrationID = 1", Result);
+    int|string retVal2 = getTableCountValColumn(result2);
 
     return (retVal1, retVal2);
 }
 
-function testLocalConnectionPoolShutDown() returns (int, int) {
-    int count1 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1");
-    int count2 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2");
+function testLocalConnectionPoolShutDown() returns (int|string, int|string) {
+    int|string count1 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1");
+    int|string count2 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2");
     return (count1, count2);
 }
 
-function testGlobalPoolLiveness() returns (int, int) {
-    int count1 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
-    int count2 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_GLOBAL_2");
-    return (count1, count2);
-}
-
-function getOpenConnectionCount(string dbName) returns int {
+function getOpenConnectionCount(string dbName) returns int|string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: dbName,
@@ -573,38 +587,22 @@ function getOpenConnectionCount(string dbName) returns int {
             poolOptions: { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 }
         });
     var dt = testDB->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
-    int count = getTableCountValColumn(dt);
+    int|string count = getTableCountValColumn(dt);
     io:println(count);
     _ = testDB.stop();
     return count;
 }
 
-function getJsonConversionResultOfTuple((table<record{}>|error, table<record{}>|error) t) returns json[] {
+function getTableCountValColumnOfTuple((table<record{}>|error, table<record{}>|error) t) returns (int|string?)[] {
     table<record{}>|error x; table<record{}>|error y;
     (x, y) = t;
-    json[] returnArray = [];
-    returnArray[0] = getJsonConversionResult(x);
-    returnArray[1] = getJsonConversionResult(y);
+    (int|string?)[] returnArray = [];
+    returnArray[0] = getTableCountValColumn(x);
+    returnArray[1] = getTableCountValColumn(y);
     return returnArray;
 }
 
-function getJsonConversionResult(table<record {}>|error? tableOrError) returns json {
-    json retVal = {};
-    if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.convert(tableOrError);
-        if (jsonConversionResult is json) {
-            retVal = jsonConversionResult;
-            _ = io:sprintf("%s", retVal);
-        } else {
-            retVal = {"Error" : string.convert(jsonConversionResult.detail().message)};
-        }
-    } else if (tableOrError is error) {
-        retVal = {"Error" : string.convert(tableOrError.detail().message)};
-    }
-    return retVal;
-}
-
-function getTableCountValColumn(table<record {}>|error result) returns int {
+function getTableCountValColumn(table<record {}>|error? result) returns int|string {
     int count = -1;
     if (result is table<record {}>) {
         while (result.hasNext()) {
@@ -614,6 +612,9 @@ function getTableCountValColumn(table<record {}>|error result) returns int {
             }
         }
         return count;
+    } else if (result is error) {
+        return string.convert(result.detail().message);
+    } else {
+        return -1;
     }
-    return -1;
 }

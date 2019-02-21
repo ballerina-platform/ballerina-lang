@@ -70,11 +70,8 @@ public class SQLConnectionPoolTest {
     public void testGlobalConnectionPoolSingleDestination() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestination");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        String name1 = "[{\"FIRSTNAME\":\"Peter\"}]";
-        String name2 = "[{\"FIRSTNAME\":\"Dan\"}]";
-        String[] expectedTableData = { name1, name2, name1, name1, name2, name2, name1, name1, name1, name1 };
         for (int i = 0; i < 10; i++) {
-            Assert.assertEquals(expectedTableData[i], (((BValueArray) returns[0])).getRefValue(i).stringValue());
+            Assert.assertEquals("1", (((BValueArray) returns[0])).getRefValue(i).stringValue());
         }
         Assert.assertTrue((((BValueArray) returns[0])).getRefValue(10).stringValue()
                 .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
@@ -87,17 +84,14 @@ public class SQLConnectionPoolTest {
         Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
         BValueArray jsonArray1 = ((BValueArray) (((BValueArray) returns[0]).getRefValue(0)));
         BValueArray jsonArray2 = ((BValueArray) (((BValueArray) returns[0]).getRefValue(1)));
-        String name1 = "[{\"FIRSTNAME\":\"Peter\"}]";
-        String name2 = "[{\"FIRSTNAME\":\"Dan\"}]";
-        String[] expectedTableData = { name1, name2, name1, name1, name2, name2, name1, name1, name1, name1 };
         for (int i = 0; i < 10; i++) {
-            Assert.assertEquals(expectedTableData[i], jsonArray1.getRefValue(i).stringValue());
+            Assert.assertEquals("1", jsonArray1.getRefValue(i).stringValue());
         }
         Assert.assertTrue(jsonArray1.getRefValue(10).stringValue()
                 .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
 
         for (int i = 0; i < 10; i++) {
-            Assert.assertEquals(expectedTableData[i], jsonArray2.getRefValue(i).stringValue());
+            Assert.assertEquals("1", jsonArray2.getRefValue(i).stringValue());
         }
         Assert.assertTrue(jsonArray2.getRefValue(10).stringValue()
                 .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
@@ -107,12 +101,10 @@ public class SQLConnectionPoolTest {
     public void testGlobalConnectionPoolSingleDestinationConcurrent() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestinationConcurrent");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        String name1 = "[{\"FIRSTNAME\":\"Peter\"}]";
-        String name2 = "[{\"FIRSTNAME\":\"Dan\"}]";
         for (int i = 0; i < 5; i++) {
             BValueArray array = ((BValueArray) ((BValueArray) returns[0]).getRefValue(i));
-            Assert.assertEquals(array.getRefValue(0).stringValue(), name1);
-            Assert.assertEquals(array.getRefValue(1).stringValue(), name2);
+            Assert.assertEquals(array.getRefValue(0).stringValue(), "1");
+            Assert.assertEquals(array.getRefValue(1).stringValue(), "1");
         }
         BValueArray array = ((BValueArray) ((BValueArray) returns[0]).getRefValue(4));
         Assert.assertTrue(
@@ -123,11 +115,8 @@ public class SQLConnectionPoolTest {
     public void testLocalSharedConnectionPoolConfigSingleDestination() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolConfigSingleDestination");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        String name1 = "[{\"FIRSTNAME\":\"Peter\"}]";
-        String name2 = "[{\"FIRSTNAME\":\"Dan\"}]";
-        String[] expectedTableData = { name1, name1, name2, name1, name1 };
-        for (int i = 0; i < expectedTableData.length; i++) {
-            Assert.assertEquals(expectedTableData[i], (((BValueArray) returns[0])).getRefValue(i).stringValue());
+        for (int i = 0; i < 5; i++) {
+            Assert.assertEquals("1", (((BValueArray) returns[0])).getRefValue(i).stringValue());
         }
         Assert.assertTrue((((BValueArray) returns[0])).getRefValue(5).stringValue()
                 .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
@@ -139,15 +128,9 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray returnArray = (BValueArray) returns[0];
 
-        String name1 = "[{\"FIRSTNAME\":\"Peter\"}]";
-        String name2 = "[{\"FIRSTNAME\":\"Dan\"}]";
-
-        String[] expectedArray1 = { name1, name1, name2 };
-        String[] expectedArray2 = { name1, name2, name2 };
-
         for (int i = 0; i < 3; i++) {
-            Assert.assertEquals(returnArray.getRefValue(i).stringValue(), expectedArray1[i]);
-            Assert.assertEquals(returnArray.getRefValue(i + 4).stringValue(), expectedArray2[i]);
+            Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
+            Assert.assertEquals(returnArray.getRefValue(i + 4).stringValue(), "1");
         }
         Assert.assertTrue(returnArray.getRefValue(3).stringValue()
                 .matches(".*Timeout after 10\\d\\dms of waiting for" + " a connection.*"));
@@ -159,40 +142,36 @@ public class SQLConnectionPoolTest {
     public void testShutDownUnsharedLocalConnectionPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownUnsharedLocalConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], {\"Error\":\"Client has been "
-                + "stopped\"})");
+        Assert.assertEquals(returns[0].stringValue(), "(1, \"Client has been stopped\")");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testShutDownSharedConnectionPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownSharedConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], [{\"FIRSTNAME\":\"Dan\"}], "
-                + "[{\"FIRSTNAME\":\"Dan\"}], {\"Error\":\"Client has been stopped\"}, {\"Error\":\"Client has been "
-                + "stopped\"})");
+        Assert.assertEquals(returns[0].stringValue(),
+                "(1, 1, 1, \"Client has been stopped\", \"Client has been stopped\")");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testShutDownPoolCorrespondingToASharedPoolConfig() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownPoolCorrespondingToASharedPoolConfig");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], [{\"FIRSTNAME\":\"Dan\"}], "
-                + "[{\"FIRSTNAME\":\"Dan\"}], {\"Error\":\"Client has been stopped\"})");
+        Assert.assertEquals(returns[0].stringValue(), "(1, 1, 1, \"Client has been stopped\")");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testLocalSharedConnectionPoolCreateClientAfterShutdown() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolCreateClientAfterShutdown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1, {\"Error\":\"Client has been stopped\"}, 1)");
+        Assert.assertEquals(returns[0].stringValue(), "(1, 1, \"Client has been stopped\", 1)");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testStopClientUsingGlobalPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStopClientUsingGlobalPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "([{\"FIRSTNAME\":\"Peter\"}], {\"Error\":\"Client has been "
-                + "stopped\"})");
+        Assert.assertEquals(returns[0].stringValue(), "(1, \"Client has been stopped\")");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -207,12 +186,5 @@ public class SQLConnectionPoolTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalConnectionPoolShutDown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "(1, 1)");
-    }
-
-    @Test(dependsOnGroups = POOL_TEST_GROUP)
-    public void testGlobalPoolLiveness() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalPoolLiveness");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(41, 11)");
     }
 }

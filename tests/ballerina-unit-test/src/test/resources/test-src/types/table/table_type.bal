@@ -1728,6 +1728,6 @@ function testAssignStringValueToJsonField() returns json {
             val = rs.STRING_TYPE;
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return val;
 }
