@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.types.time;
+package org.ballerinalang.stdlib.time;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -35,7 +35,7 @@ public class TimeTest {
     private CompileResult result;
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/time/time-type.bal");
+        result = BCompileUtil.compile("test-src/time-type.bal");
     }
 
     @Test(description = "Test current time representation.")
