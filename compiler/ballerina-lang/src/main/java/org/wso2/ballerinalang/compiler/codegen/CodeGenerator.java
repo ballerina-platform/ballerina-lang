@@ -2172,6 +2172,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             constantValue.finiteTypeSigCPIndex = finiteTypeSigCPIndex;
             constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
 
+            constantValue.literalValueTypeTag = value.type.tag;
+
             processSimpleLiteral(constantValue, (BLangLiteral) constant.value);
 
             constantInfo.constantValue = constantValue;
@@ -2249,16 +2251,17 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             if (keyValue.valueExpr.getKind() == NodeKind.LITERAL ||
                     keyValue.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                BLangLiteral expr = (BLangLiteral) keyValue.valueExpr;
+                BLangLiteral literal = (BLangLiteral) keyValue.valueExpr;
 
-                int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
+                int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, literal.type.getDesc());
 
                 // Create a new constant value object.
                 ConstantValue constantValue = new ConstantValue();
                 constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
 
                 constantValue.isSimpleLiteral = true;
-                constantValue.literalValueTypeTag = expr.type.tag;
+
+                processSimpleLiteral(constantValue, literal);
 
                 constantValueMap.put(key, constantValue);
 

@@ -654,6 +654,8 @@ public class CompiledPackageSymbolEnter {
                     this.env.pkgSymbol.pkgID, finiteType, valueType, enclScope.owner);
 
             constantSymbol.literalValue = object;
+            constantSymbol.literalValueTypeTag = valueType.tag;
+
 
             enclScope.define(constantSymbol.name, constantSymbol);
 
@@ -672,9 +674,12 @@ public class CompiledPackageSymbolEnter {
             // Create constant symbol.
             Scope enclScope = this.env.pkgSymbol.scope;
             BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                    this.env.pkgSymbol.pkgID, null, valueType, enclScope.owner);
+                    this.env.pkgSymbol.pkgID, valueType, valueType, enclScope.owner);
 
             constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
+            constantSymbol.literalValueTypeTag = valueType.tag;
+
+            enclScope.define(constantSymbol.name, constantSymbol);
 
             Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
@@ -732,6 +737,8 @@ public class CompiledPackageSymbolEnter {
     }
 
     private BLangLiteral readSimpleLiteralAsBliteral(DataInputStream dataInStream) throws IOException {
+        int finiteTypeSigCPIndex = dataInStream.readInt();
+        int valueTypeSigCPIndex = dataInStream.readInt();
 
         // Todo - Use type signature instead of type tag?
         int typeTag = dataInStream.readInt();
@@ -800,7 +807,7 @@ public class CompiledPackageSymbolEnter {
 
             boolean isSimpleLiteral = dataInStream.readBoolean();
 
-            BLangExpression value ;
+            BLangExpression value;
 
             if (isSimpleLiteral) {
                 value = readSimpleLiteralAsBliteral(dataInStream);
