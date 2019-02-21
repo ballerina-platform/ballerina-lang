@@ -14,5 +14,7 @@ dependencies {
 description = 'Ballerina - Compiler plugin tests'
 
 test {
-    useTestNG()
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }

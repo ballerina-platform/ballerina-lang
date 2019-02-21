@@ -25,5 +25,7 @@ dependencies {
 description = 'Ballerina - Docerina'
 
 test {
-    useTestNG()
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }

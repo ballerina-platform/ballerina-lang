@@ -5,6 +5,9 @@ dependencies {
     implementation project(':ballerina-core')
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
+    testCompile project(':ballerina-launcher')
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - System'

@@ -66,5 +66,7 @@ dependencies {
 description = 'Ballerina - Testerina - Core'
 
 test {
-    useTestNG()
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }

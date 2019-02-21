@@ -17,5 +17,7 @@ dependencies {
 description = 'Ballerina - Swagger Tooling - Ballerina To Swagger'
 
 test {
-    useTestNG()
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
