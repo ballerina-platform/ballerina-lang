@@ -22,7 +22,7 @@ public type Scheduler object {
 
     private LinkedList toNotifyQueue;
     private boolean running;
-    private task:Listener timer;
+    private task:Scheduler timer;
     private function (StreamEvent?[] streamEvents) processFunc;
 
     public function __init(function (StreamEvent?[] streamEvents) processFunc) {
@@ -46,9 +46,9 @@ public type Scheduler object {
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
                     _ = self.timer.cancel();
-                    self.timer = new({ interval: timeDiff, delay: timeDelay });
-                    _ = self.timer.attach(schedulerService, serviceParameter = self);
-                    _ = self.timer.start();
+                    self.timer = new({ interval: timeDiff, initialDelay: timeDelay });
+                    _ = self.timer.attachService(schedulerService, serviceParameter = self);
+                    _ = self.timer.run();
                 }
             }
         }
@@ -84,8 +84,8 @@ public type Scheduler object {
                 _ = self.wrapperFunc();
             } else {
                 self.timer = new({ interval: <int>first - currentTime });
-                _ = self.timer.attach(schedulerService, serviceParameter = self);
-                _ = self.timer.start();
+                _ = self.timer.attachService(schedulerService, serviceParameter = self);
+                _ = self.timer.run();
             }
         } else {
             lock {
@@ -93,8 +93,8 @@ public type Scheduler object {
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
                     self.timer = new({ interval: 0 });
-                    _ = self.timer.attach(schedulerService, serviceParameter = self);
-                    _ = self.timer.start();
+                    _ = self.timer.attachService(schedulerService, serviceParameter = self);
+                    _ = self.timer.run();
                 }
             }
         }

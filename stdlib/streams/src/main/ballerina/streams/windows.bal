@@ -385,7 +385,7 @@ public type TimeBatchWindow object {
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
     public StreamEvent? resetEvent;
-    public task:Listener timer;
+    public task:Scheduler timer;
     public function (StreamEvent?[])? nextProcessPointer;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
@@ -429,8 +429,8 @@ public type TimeBatchWindow object {
         if (self.nextEmitTime == -1) {
             self.nextEmitTime = time:currentTime().time + self.timeInMilliSeconds;
             self.timer = new ({ interval: self.timeInMilliSeconds });
-            _ = self.timer.attach(timeBatchWindowService, serviceParameter = self);
-            _ = self.timer.start();
+            _ = self.timer.attachService(timeBatchWindowService, serviceParameter = self);
+            _ = self.timer.run();
         }
 
         int currentTime = time:currentTime().time;
@@ -440,8 +440,8 @@ public type TimeBatchWindow object {
             self.nextEmitTime += self.timeInMilliSeconds;
             _ = self.timer.cancel();
             self.timer = new ({ interval: self.timeInMilliSeconds });
-            _ = self.timer.attach(timeBatchWindowService, serviceParameter = self);
-            _ = self.timer.start();
+            _ = self.timer.attachService(timeBatchWindowService, serviceParameter = self);
+            _ = self.timer.run();
             sendEvents = true;
         } else {
             sendEvents = false;
@@ -680,7 +680,7 @@ public type ExternalTimeBatchWindow object {
     public int schedulerTimeout = 0;
     public int lastScheduledTime;
     public int lastCurrentEventTime = 0;
-    public task:Listener timer;
+    public task:Scheduler timer;
     public function (StreamEvent?[])? nextProcessPointer;
     public string timeStamp;
     public boolean storeExpiredEvents = false;
@@ -816,8 +816,8 @@ public type ExternalTimeBatchWindow object {
                         // rescheduling to emit the current batch after expiring it if no further events arrive.
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
                         self.timer = new ({ interval: self.schedulerTimeout });
-                        _ = self.timer.attach(externalTimeBatchWindowService, serviceParameter = self);
-                        _ = self.timer.start();
+                        _ = self.timer.attachService(externalTimeBatchWindowService, serviceParameter = self);
+                        _ = self.timer.run();
                     }
                     continue;
 
@@ -847,8 +847,8 @@ public type ExternalTimeBatchWindow object {
                     if (self.schedulerTimeout > 0) {
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
                         self.timer = new ({ interval: self.schedulerTimeout });
-                        _ = self.timer.attach(externalTimeBatchWindowService, serviceParameter = self);
-                        _ = self.timer.start();
+                        _ = self.timer.attachService(externalTimeBatchWindowService, serviceParameter = self);
+                        _ = self.timer.run();
                     }
                 }
             }
@@ -1050,8 +1050,8 @@ public type ExternalTimeBatchWindow object {
             if (self.schedulerTimeout > 0) {
                 self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
                 self.timer = new ({ interval: self.schedulerTimeout });
-                _ = self.timer.attach(externalTimeBatchWindowService, serviceParameter = self);
-                _ = self.timer.start();
+                _ = self.timer.attachService(externalTimeBatchWindowService, serviceParameter = self);
+                _ = self.timer.run();
             }
         }
     }
@@ -1387,7 +1387,7 @@ public type DelayWindow object {
     public any[] windowParameters;
     public LinkedList delayedEventQueue;
     public int lastTimestamp = 0;
-    public task:Listener timer;
+    public task:Scheduler timer;
     public function (StreamEvent?[])? nextProcessPointer;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
@@ -1452,8 +1452,8 @@ public type DelayWindow object {
                         //calculate the remaining time to delay the current event
                         int delayInMillis = self.delayInMilliSeconds - (currentTime - streamEvent.timestamp);
                         self.timer = new({ interval: self.delayInMilliSeconds });
-                        _ = self.timer.attach(delayWindowService, serviceParameter = self);
-                        _ = self.timer.start();
+                        _ = self.timer.attachService(delayWindowService, serviceParameter = self);
+                        _ = self.timer.run();
                         self.lastTimestamp = streamEvent.timestamp;
                     }
                 }
@@ -1828,7 +1828,7 @@ public type HoppingWindow object {
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
     public StreamEvent? resetEvent;
-    public task:Listener timer;
+    public task:Scheduler timer;
     public function (StreamEvent?[])? nextProcessPointer;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
@@ -1881,8 +1881,8 @@ public type HoppingWindow object {
         if (self.nextEmitTime == -1) {
             self.nextEmitTime = time:currentTime().time + self.hoppingTime;
             self.timer = new({ interval: self.hoppingTime });
-            _ = self.timer.attach(hoppingWindowService, serviceParameter = self);
-            _ = self.timer.start();
+            _ = self.timer.attachService(hoppingWindowService, serviceParameter = self);
+            _ = self.timer.run();
         }
 
         int currentTime = time:currentTime().time;
@@ -1892,8 +1892,8 @@ public type HoppingWindow object {
             self.nextEmitTime += self.hoppingTime;
             _ = self.timer.cancel();
             self.timer = new({ interval: self.hoppingTime });
-            _ = self.timer.attach(hoppingWindowService, serviceParameter = self);
-            _ = self.timer.start();
+            _ = self.timer.attachService(hoppingWindowService, serviceParameter = self);
+            _ = self.timer.run();
             sendEvents = true;
         } else {
             sendEvents = false;
