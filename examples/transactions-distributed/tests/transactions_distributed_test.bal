@@ -10,8 +10,11 @@ int count = 0;
 }
 public function mockLogInfo(string | (function() returns (string)) msg) {
     if (msg is string) {
-        outputs[count] = msg;
-        count += 1;
+        lock {
+            outputs[count] = msg;
+            count += 1;
+        }
+        log:printWarn(msg);
     }
 }
 
