@@ -95,7 +95,7 @@ public interface Task {
     void removeService(String serviceName);
 
     /**
-     * Set the state of the task
+     * Set the state of the task.
      *
      * @param state new state of the task.
      */
