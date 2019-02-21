@@ -49,32 +49,9 @@ public type Listener object {
 
     extern function register(service s, map<any> annotationData) returns error?;
 
+    extern function start() returns error?;
+
     extern function stop() returns error?;
-
-    # Attaches the provided service to the listener.
-    #
-    # + serviceToAttach - Service which needs to be attached to the listener.
-    # + serviceParameter - An optional parameter which needs to passed inside the resources.
-    # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public function attach(service serviceToAttach, any serviceParameter = ()) returns error? {
-        if (serviceParameter != ()) {
-            map<any> serviceParameters = { serviceParameter: serviceParameter };
-            return self.register(serviceToAttach, serviceParameters);
-        }
-        return self.register(serviceToAttach, {});
-    }
-
-    # Starts running the task. Task will not run until this has been called.
-    #
-    # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public extern function start() returns error?;
-
-    # Cancels the listener from running. This will stop, after finish running the existing jobs.
-    #
-    # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public function cancel() returns error? {
-        return self.stop();
-    }
 
     # Pauses the task.
     #
@@ -85,10 +62,4 @@ public type Listener object {
     #
     # + return - Returns error is the task is not paused or, any other error occurred, nil Otherwise.
     public extern function resume() returns error?;
-
-    # Detach the service from the listener.
-    #
-    # + attachedService - service which needs to be detached from the listener.
-    # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public extern function detach(service attachedService) returns error?;
 };

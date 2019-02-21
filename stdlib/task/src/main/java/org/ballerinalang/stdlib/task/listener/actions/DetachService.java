@@ -33,7 +33,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZ
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_NAME_LISTENER;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_NAME_SCHEDULER;
 
 /**
  * Native function to detach a service from the listener.
@@ -41,14 +41,14 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_
 @BallerinaFunction(
         orgName = ORGANIZATION_NAME,
         packageName = PACKAGE_NAME,
-        functionName = "detach",
+        functionName = "detachService",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = STRUCT_NAME_LISTENER,
+                structType = STRUCT_NAME_SCHEDULER,
                 structPackage = PACKAGE_STRUCK_NAME),
         isPublic = true
 )
-public class Detach extends BlockingNativeCallableUnit {
+public class DetachService extends BlockingNativeCallableUnit {
 
     @Override
     @SuppressWarnings("unchecked")
