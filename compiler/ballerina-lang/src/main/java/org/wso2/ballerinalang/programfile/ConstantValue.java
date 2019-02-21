@@ -27,7 +27,6 @@ public class ConstantValue {
 
     public int finiteTypeSigCPIndex = -1;
     public int valueTypeSigCPIndex = -1;
-    public int flags = -1;
 
     public boolean isSimpleLiteral;
 

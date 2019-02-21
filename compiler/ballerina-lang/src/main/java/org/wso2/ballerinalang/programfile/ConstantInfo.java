@@ -31,6 +31,8 @@ public class ConstantInfo implements AttributeInfoPool {
     public String name;
     public int nameCPIndex;
 
+    public int flags = -1;
+
     public boolean isSimpleLiteral;
 
     public int globalMemIndex = -1;

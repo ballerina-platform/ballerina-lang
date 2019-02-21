@@ -2154,6 +2154,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create a new constant info object.
         ConstantInfo constantInfo = new ConstantInfo(constantSymbol.name.value, constantNameCPIndex);
+        constantInfo.flags = constantSymbol.flags;
 
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
@@ -2170,8 +2171,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             ConstantValue constantValue = new ConstantValue();
             constantValue.finiteTypeSigCPIndex = finiteTypeSigCPIndex;
             constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
-            constantValue.flags = constantSymbol.flags;
-
 
             processSimpleLiteral(constantValue, (BLangLiteral) constant.value);
 

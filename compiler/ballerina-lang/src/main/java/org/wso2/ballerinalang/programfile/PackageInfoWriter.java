@@ -234,10 +234,11 @@ public class PackageInfoWriter {
         for (ConstantInfo constantInfo : constantInfos) {
             dataOutStream.writeInt(constantInfo.nameCPIndex);
 
+            dataOutStream.writeInt(constantInfo.flags);
+
             dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
 
             if (constantInfo.isSimpleLiteral) {
-
                 writeSimpleLiteral(dataOutStream, constantInfo.constantValue);
             } else {
                 writeConstantValueMap(dataOutStream, constantInfo.constantValueMap,
@@ -251,8 +252,8 @@ public class PackageInfoWriter {
     private static void writeSimpleLiteral(DataOutputStream dataOutStream, ConstantValue constantValue) throws IOException {
         dataOutStream.writeInt(constantValue.finiteTypeSigCPIndex);
         dataOutStream.writeInt(constantValue.valueTypeSigCPIndex);
-        dataOutStream.writeInt(constantValue.flags);
 
+        // Todo - remove value type tag and use value type above?
         dataOutStream.writeInt(constantValue.literalValueTypeTag);
 
         // Todo - Add a util function?
