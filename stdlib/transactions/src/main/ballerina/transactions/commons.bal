@@ -35,7 +35,7 @@ cache:Cache httpClientCache = new;
 
 listener task:Listener timer = new({
     interval: 5000,
-    delay: 1000
+    initialDelay: 1000
 });
 
 service scheduleTimer on timer {
