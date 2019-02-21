@@ -49,7 +49,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_AS_PRIMARY_TYPE;
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetText extends AbstractGetBodyHandler {
+public class GetText extends AbstractGetPayloadHandler {
 
     @Override
     @SuppressWarnings("unchecked")
@@ -71,7 +71,7 @@ public class GetText extends AbstractGetBodyHandler {
                 return;
             }
 
-            if (isBodyPartEntity(entityStruct)) {
+            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructStringDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;

@@ -57,7 +57,7 @@ import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
         returnType = {@ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetXml extends AbstractGetBodyHandler {
+public class GetXml extends AbstractGetPayloadHandler {
 
     @Override
     @SuppressWarnings("unchecked")
@@ -85,7 +85,7 @@ public class GetXml extends AbstractGetBodyHandler {
                 return;
             }
 
-            if (isBodyPartEntity(entityStruct)) {
+            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructXmlDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;

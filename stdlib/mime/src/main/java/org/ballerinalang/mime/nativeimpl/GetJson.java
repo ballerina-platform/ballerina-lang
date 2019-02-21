@@ -54,7 +54,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetJson extends AbstractGetBodyHandler {
+public class GetJson extends AbstractGetPayloadHandler {
 
     @Override
     @SuppressWarnings("unchecked")
@@ -65,7 +65,7 @@ public class GetJson extends AbstractGetBodyHandler {
 
             if (!MimeUtil.isJSONContentType(entityStruct)) {
                 String baseType = HeaderUtil.getBaseType(entityStruct);
-                createErrorAndNotify(context, callback, "Entity body is not json" + COMPATIBLE_SINCE_CONTENT_TYPE +
+                createErrorAndNotify(context, callback, "Entity body is not json " + COMPATIBLE_SINCE_CONTENT_TYPE +
                         baseType);
                 return;
             }
@@ -84,7 +84,7 @@ public class GetJson extends AbstractGetBodyHandler {
                 return;
             }
 
-            if (isBodyPartEntity(entityStruct)) {
+            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructJsonDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;
@@ -114,12 +114,12 @@ public class GetJson extends AbstractGetBodyHandler {
 
                 @Override
                 public void onError(Exception e) {
-                    createErrorAndNotify(context, callback,ERROR_OCCURRED_WHILE_EXTRACTING +
+                    createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
                             "json content from content collector: " + e.getMessage());
                 }
             });
         } catch (Throwable e) {
-            createErrorAndNotify(context, callback,ERROR_OCCURRED_WHILE_EXTRACTING +
+            createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
                     "json data from entity: " + e.getMessage());
         }
     }

@@ -58,7 +58,7 @@ public class GetBodyAsString extends GetText {
                 return;
             }
 
-            if (isBodyPartEntity(entityStruct)) {
+            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructStringDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;

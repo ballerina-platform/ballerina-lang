@@ -55,7 +55,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
                 @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetByteArray extends AbstractGetBodyHandler {
+public class GetByteArray extends AbstractGetPayloadHandler {
 
     @Override
     @SuppressWarnings("unchecked")
@@ -84,8 +84,7 @@ public class GetByteArray extends AbstractGetBodyHandler {
                 return;
             }
 
-
-            if (isBodyPartEntity(entityStruct)) {
+            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructBlobDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;
@@ -99,8 +98,7 @@ public class GetByteArray extends AbstractGetBodyHandler {
                     HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
                     try {
                         byte[] byteData = MimeUtil.getByteArray(dataStreamer.getInputStream());
-                        BValueArray result = new BValueArray(byteData != null ? byteData : new byte[0]);
-                        updateDataSourceAndNotify(context, callback, entityStruct, result);
+                        updateDataSourceAndNotify(context, callback, entityStruct, new BValueArray(byteData));
                     } catch (IOException e) {
                         onError(e);
                     }

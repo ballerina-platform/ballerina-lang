@@ -34,16 +34,17 @@ import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import static org.ballerinalang.mime.util.EntityBodyHandler.getByteChannel;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_PART_ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
- * {@code AbstractGetBodyHandler} is the base class for all get entity body functions.
+ * {@code AbstractGetPayloadHandler} is the base class for all get entity body functions.
  */
 
-public abstract class AbstractGetBodyHandler implements NativeCallableUnit {
+public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
 
     static final String ERROR_OCCURRED_WHILE_EXTRACTING = "Error occurred while extracting ";
     static final String COMPATIBLE_SINCE_CONTENT_TYPE = "compatible since the received content-type is : ";
@@ -73,6 +74,10 @@ public abstract class AbstractGetBodyHandler implements NativeCallableUnit {
 
     boolean isBodyPartEntity(BMap<String, BValue> entityStruct) {
         return entityStruct.getNativeData(IS_BODY_PART_ENTITY) != null;
+    }
+
+    boolean isStreamingRequired(BMap<String, BValue> entityStruct) {
+        return getByteChannel(entityStruct) != null;
     }
 
     boolean validateNotNullAndNotEmpty(String value) {
