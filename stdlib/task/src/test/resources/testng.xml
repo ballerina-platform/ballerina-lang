@@ -19,15 +19,14 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite">
+<suite name="ballerina-test-suite" parallel="true">
     <!-- Ballerina task Test Cases. -->
     <test name="ballerina-task-test-suite">
         <classes>
             <class name="org.ballerinalang.stdlib.task.listener.AppointmentTest"/>
-            <class name="org.ballerinalang.stdlib.task.listener.ListenerServiceValidationTest"/>
-            <class name="org.ballerinalang.stdlib.task.listener.ListenerTest"/>
-            <class name="org.ballerinalang.stdlib.task.listener.TimerBasicTest"/>
-            <class name="org.ballerinalang.stdlib.task.listener.TimerTest"/>
+            <class name="org.ballerinalang.stdlib.task.listener.TimerServiceTest"/>
+            <class name="org.ballerinalang.stdlib.task.scheduler.TimerSchedulerTest"/>
+            <class name="org.ballerinalang.stdlib.task.service.ListenerServiceValidationTest"/>
         </classes>
     </test>
 </suite>

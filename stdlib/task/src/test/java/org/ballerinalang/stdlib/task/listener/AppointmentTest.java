@@ -39,7 +39,7 @@ import static org.awaitility.Awaitility.await;
 public class AppointmentTest {
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testCreateAppointment() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("listener-test-src/appointment/simple_service.bal");
+        CompileResult compileResult = BCompileUtil.compileAndSetup("listener/appointment/service_simple.bal");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
@@ -49,7 +49,7 @@ public class AppointmentTest {
 
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testDynamicService() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("listener-test-src/appointment/dynamic_service.bal");
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/appointment/dynamic_service.bal");
         BValue[] inputs = {new BString("0/2 * * * * ?")};
         BRunUtil.invoke(compileResult, "runService", inputs);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
@@ -62,7 +62,7 @@ public class AppointmentTest {
     @Test(description = "Tests the functionality of initiating a Task Timer Listener with AppointmentData record.")
     public void testAppointmentDataConfigs() {
         CompileResult compileResult = BCompileUtil.compileAndSetup(
-                "listener-test-src/appointment/appointment_data_configs.bal");
+                "listener/appointment/appointment_data_configs.bal");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);

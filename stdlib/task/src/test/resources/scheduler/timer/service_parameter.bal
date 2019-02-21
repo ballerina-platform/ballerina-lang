@@ -27,9 +27,9 @@ function attachTimer() {
         age: 0
     };
 
-    task:Listener timer = new({ interval: 100, initialDelay: 1000 });
-    _ = timer.attach(timerService, serviceParameter = person);
-    _ = timer.start();
+    task:Scheduler timer = new({ interval: 100, initialDelay: 1000 });
+    _ = timer.attachService(timerService, serviceParameter = person);
+    _ = timer.run();
 }
 
 string result = "";

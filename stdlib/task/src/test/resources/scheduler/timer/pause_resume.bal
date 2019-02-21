@@ -15,25 +15,48 @@
 // under the License.
 
 import ballerina/task;
+import ballerina/runtime;
 
-function runService(string cronExpression) {
-    task:Listener appointment = new({ appointmentDetails: cronExpression });
-    var result = appointment.attach(appointmentService);
-    result = appointment.start();
+task:TimerConfiguration configuration = {
+    interval: 1000,
+    initialDelay: 1000
+};
+
+boolean isPaused = false;
+boolean isResumed = false;
+
+function testAttach() {
+    task:Scheduler timer = new(configuration);
+    _ = timer.attachService(timerService);
+    _ = timer.run();
+    var result = timer.pause();
+    if (result is error) {
+        return;
+    } else {
+        isPaused = true;
+    }
+    result = timer.resume();
+    if (result is error) {
+        return;
+    } else {
+        isResumed = true;
+    }
 }
 
-int count = 0;
-
-function getCount() returns int {
-    return count;
+function getIsPaused() returns boolean {
+    return isPaused;
 }
 
-service appointmentService = service {
+function getIsResumed() returns boolean {
+    return isResumed;
+}
+
+service timerService = service {
     resource function onTrigger() {
-        count = count + 1;
+        // Do nothing
     }
 
     resource function onError(error e) {
-        count = count - 1;
+        // Do nothing
     }
 };

@@ -22,8 +22,11 @@ package org.ballerinalang.stdlib.task.scheduler;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -40,13 +43,43 @@ public class TimerSchedulerTest {
 
     @Test(description = "Test service parameter passing")
     public void testSimpleTimerScheduler() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("timer/simple_timer.bal");
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/simple_timer.bal");
         BRunUtil.invokeStateful(compileResult, "main");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BInteger);
             return (((BInteger) count[0]).intValue() > 3);
+        });
+    }
+
+    @Test(description = "Test service parameter passing")
+    public void testTimerServiceParameter() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "scheduler/timer/service_parameter.bal");
+        BRunUtil.invoke(compileResult, "attachTimer");
+        String expectedResult = "Kurt Kobain died at 27";
+        await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] result = BRunUtil.invokeStateful(compileResult, "getResult");
+            Assert.assertEquals(result.length, 1);
+            Assert.assertTrue(result[0] instanceof BString);
+            return (expectedResult.equals(result[0].stringValue()));
+        });
+    }
+
+    @Test(description = "Tests for pause and resume functions of the timer")
+    public void testPauseResume() {
+        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/pause_resume.bal");
+        BServiceUtil.runService(compileResult);
+        BRunUtil.invokeStateful(compileResult, "testAttach");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] isPaused = BRunUtil.invokeStateful(compileResult, "getIsPaused");
+            BValue[] isResumed = BRunUtil.invokeStateful(compileResult, "getIsResumed");
+            Assert.assertEquals(isPaused.length, 1);
+            Assert.assertTrue(isPaused[0] instanceof BBoolean);
+            Assert.assertEquals(isResumed.length, 1);
+            Assert.assertTrue(isResumed[0] instanceof BBoolean);
+            return (((BBoolean) isPaused[0]).booleanValue() && ((BBoolean) isResumed[0]).booleanValue());
         });
     }
 }

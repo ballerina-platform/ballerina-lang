@@ -15,9 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
+ *
  */
 
-package org.ballerinalang.stdlib.task.listener;
+package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -45,7 +46,7 @@ public class ListenerServiceValidationTest {
                             " Task service cannot include more than two resource functions.*"
     )
     public void testMoreThanTwoResourceFunctions() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/more_than_two_resource_functions.bal");
+        BCompileUtil.compileAndSetup("service-validation/more_than_two_resource_functions.bal");
     }
 
     @Test(
@@ -56,7 +57,7 @@ public class ListenerServiceValidationTest {
                             " Task service should include at least one resource function.*"
     )
     public void testNoResourceFunctions() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/no_resource_functions.bal");
+        BCompileUtil.compileAndSetup("service-validation/no_resource_functions.bal");
     }
 
     @Test(
@@ -67,7 +68,7 @@ public class ListenerServiceValidationTest {
     )
     public void testInvalidOnErrorResourceSignatureInvalidParam() {
         BCompileUtil.compileAndSetup(
-                "listener-test-src/service-validation/invalid_on_error_resource_invalid_param.bal");
+                "service-validation/invalid_on_error_resource_invalid_param.bal");
     }
 
     @Test(
@@ -79,7 +80,7 @@ public class ListenerServiceValidationTest {
     )
     public void testInvalidOnErrorResourceSignatureMoreParams() {
         BCompileUtil.compileAndSetup(
-                "listener-test-src/service-validation/invalid_on_error_resource_more_params.bal");
+                "service-validation/invalid_on_error_resource_more_params.bal");
     }
 
     @Test(
@@ -89,7 +90,7 @@ public class ListenerServiceValidationTest {
                     ".*Invalid resource function found: timerStart. Expected: 'onTrigger' or 'onError'.*"
     )
     public void testInvalidResourceName() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_resource.bal");
+        BCompileUtil.compileAndSetup("service-validation/invalid_resource.bal");
     }
 
     @Test(
@@ -99,7 +100,7 @@ public class ListenerServiceValidationTest {
                     ".*Invalid resource function found: onStart. Expected: 'onTrigger' or 'onError'.*"
     )
     public void testResourceWithoutOnTrigger() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/missing_on_trigger_resource.bal");
+        BCompileUtil.compileAndSetup("service-validation/missing_on_trigger_resource.bal");
     }
 
     @Test(
@@ -109,7 +110,7 @@ public class ListenerServiceValidationTest {
                     ".*Resource validation failed. Service timerService must include resource function: 'onTrigger'.*"
     )
     public void testOnlyOnErrorResource() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/only_on_error_function.bal");
+        BCompileUtil.compileAndSetup("service-validation/only_on_error_function.bal");
     }
 
     @Test(
@@ -119,6 +120,6 @@ public class ListenerServiceValidationTest {
                     ".*Invalid resource function found: timerStart. Expected: 'onTrigger' or 'onError'.*"
     )
     public void testInvalidSingleResources() {
-        BCompileUtil.compileAndSetup("listener-test-src/service-validation/invalid_single_resource.bal");
+        BCompileUtil.compileAndSetup("service-validation/invalid_single_resource.bal");
     }
 }
