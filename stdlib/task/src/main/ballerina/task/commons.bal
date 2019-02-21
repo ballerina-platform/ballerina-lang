@@ -16,6 +16,7 @@
 
 # Represents an error in task library
 #
+# + message - Error message.
 type TaskError record {
     string message;
 };

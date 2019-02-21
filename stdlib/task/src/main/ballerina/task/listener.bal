@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a ballerina task listener
+# Represents a ballerina task listener.
 public type Listener object {
     *AbstractListener;
 
@@ -54,6 +54,7 @@ public type Listener object {
     # Attaches the provided service to the listener.
     #
     # + serviceToAttach - Service which needs to be attached to the listener.
+    # + serviceParameter - An optional parameter which needs to passed inside the resources.
     # + return - Returns error if the process failed due to any reason, nil otherwise.
     public function attach(service serviceToAttach, any serviceParameter = ()) returns error? {
         if (serviceParameter != ()) {
