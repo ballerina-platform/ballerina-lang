@@ -535,9 +535,13 @@ public class Types {
         }
 
         // Check whether the source is a proper sub set of the target.
-        if (source.tag == TypeTags.FINITE && target.tag == TypeTags.FINITE) {
+        if (source.tag == TypeTags.FINITE) {
+            if (target.tag == TypeTags.FINITE) {
+                return ((BFiniteType) source).valueSpace.stream()
+                        .allMatch(expression -> isAssignableToFiniteType(target, (BLangLiteral) expression));
+            }
             return ((BFiniteType) source).valueSpace.stream()
-                    .allMatch(expression -> isAssignableToFiniteType(target, (BLangLiteral) expression));
+                    .allMatch(expression -> isAssignable(expression.type, target, unresolvedTypes));
         }
 
         if (target.tag == TypeTags.JSON) {
@@ -866,6 +870,35 @@ public class Types {
         BSymbol symbol = symResolver.resolveImplicitCastOp(actualType, expType);
         if ((expType.tag == TypeTags.UNION || expType.tag == TypeTags.FINITE) && isValueType(actualType)) {
             symbol = symResolver.resolveImplicitCastOp(actualType, symTable.anyType);
+        }
+
+        if (symbol != symTable.notFoundSymbol) {
+            return symbol;
+        }
+
+        if (actualType.tag == TypeTags.FINITE && isValueType(expType)) {
+            int code;
+            switch (expType.tag) {
+                case TypeTags.INT:
+                    code = InstructionCodes.ANY2I;
+                    break;
+                case TypeTags.BYTE:
+                    code = InstructionCodes.ANY2BI;
+                    break;
+                case TypeTags.FLOAT:
+                    code = InstructionCodes.ANY2F;
+                    break;
+                case TypeTags.STRING:
+                    code = InstructionCodes.ANY2S;
+                    break;
+                case TypeTags.BOOLEAN:
+                    code = InstructionCodes.ANY2B;
+                    break;
+                default:
+                    // for decimal or nil, no cast is required
+                    return symbol;
+            }
+            symbol = createCastOperatorSymbol(symTable.anyType, expType, true, code);
         }
         return symbol;
     }

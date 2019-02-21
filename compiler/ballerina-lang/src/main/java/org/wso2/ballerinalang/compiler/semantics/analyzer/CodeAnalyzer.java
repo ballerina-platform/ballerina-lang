@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -1909,10 +1910,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable 
         // to the type of the source variable.
-        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type)) {
+        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type) &&
+                (typeTestExpr.expr.type.tag != TypeTags.FINITE ||
+                         !(finiteTypeContainsValuesOfType((BFiniteType) typeTestExpr.expr.type,
+                                                          typeTestExpr.typeNode.type)))) {
             dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
-                    typeTestExpr.typeNode.type);
+                       typeTestExpr.typeNode.type);
         }
+    }
+
+    private boolean finiteTypeContainsValuesOfType(BFiniteType finiteType, BType targetType) {
+        return finiteType.valueSpace.stream().anyMatch(expr -> types.isAssignable(expr.type, targetType));
     }
 
     // private methods
