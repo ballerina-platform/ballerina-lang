@@ -67,6 +67,8 @@ import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 )
 public class Init extends BlockingNativeCallableUnit {
 
+    private static final int CLIENT_ENDPOINT_CONFIG_INDEX = 1;
+    private static final int CLIENT_GLOBAL_POOL_INDEX = 2;
     private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     @Override
@@ -74,9 +76,9 @@ public class Init extends BlockingNativeCallableUnit {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         // Creating client endpoint with channel as native data.
         BMap<String, BValue> endpointConfigStruct =
-                (BMap<String, BValue>) context.getRefArgument(1);
+                (BMap<String, BValue>) context.getRefArgument(CLIENT_ENDPOINT_CONFIG_INDEX);
         BMap<String, BValue> globalPoolConfig = (BMap<String, BValue>) context
-                .getRefArgument(2);
+                .getRefArgument(CLIENT_GLOBAL_POOL_INDEX);
         Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
         String urlString = context.getStringArgument(0);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
