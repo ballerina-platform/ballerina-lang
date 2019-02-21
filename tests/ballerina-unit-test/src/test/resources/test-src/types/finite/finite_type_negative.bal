@@ -41,3 +41,14 @@ function testDifferentLiteralKindsWithSameValue() {
 function testDifferentPrecisionFloatAssignment() {
     FloatingPoint f = 100.50000000;
 }
+
+type StringOrIntVal "foo"|1;
+type StringOrInt string|int;
+
+function testInvalidAssignmentToDifferentType() {
+    StringOrIntVal s1 = "foo";
+    string s2 = s1;
+
+    StringOrInt s3 = 5;
+    int s4 = s3;
+}

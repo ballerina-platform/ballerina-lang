@@ -218,3 +218,63 @@ function testTypeDefWithFunctions2() returns int {
 
     return -1;
 }
+
+function testStringOnlyFiniteTypeAssignmentToTypeWithString() returns boolean {
+    foo:State a = "on";
+    string b = a;
+    boolean assignmentSuccessful = a == b;
+
+    string|boolean c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testIntOnlyFiniteTypeAssignmentToTypeWithInt() returns boolean {
+    foo:NumberSet a = 2;
+    int b = a;
+    boolean assignmentSuccessful = a == b;
+
+    string|int c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testFloatOnlyFiniteTypeAssignmentToTypeWithFloat() returns boolean {
+    foo:FloatValue a = 2.0;
+    float b = a;
+    boolean assignmentSuccessful = a == b;
+
+    float|int c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean() returns boolean {
+    foo:BooleanValue a = true;
+    boolean b = a;
+    boolean assignmentSuccessful = a == b;
+
+    anydata c = a;
+    return assignmentSuccessful && a == c;
+}
+
+//function testByteOnlyFiniteTypeAssignmentToTypeWithByte() returns boolean {
+//    foo:ByteValue a = 12;
+//    byte b = a;
+//    boolean assignmentSuccessful = a == b;
+//
+//    byte|Person c = a;
+//    return assignmentSuccessful && a == c;
+//}
+
+function testFiniteTypeAssignmentToBroaderType() returns boolean {
+    foo:CombinedState a = "off";
+    string|int b = a;
+    boolean assignmentSuccessful = a == b;
+
+    anydata c = a;
+    assignmentSuccessful = assignmentSuccessful && a == c;
+
+    foo:StringOrInt d = a;
+    assignmentSuccessful = assignmentSuccessful && a == d;
+
+    b = d;
+    return assignmentSuccessful && a == d;
+}

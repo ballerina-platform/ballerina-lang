@@ -249,3 +249,73 @@ function testFiniteTypeWithConstants() returns (FiniteType, FiniteType) {
 
     return (f,s);
 }
+
+function testStringOnlyFiniteTypeAssignmentToTypeWithString() returns boolean {
+    State a = "on";
+    string b = a;
+    boolean assignmentSuccessful = a == b;
+
+    string|boolean c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testIntOnlyFiniteTypeAssignmentToTypeWithInt() returns boolean {
+    NumberSet a = 2;
+    int b = a;
+    boolean assignmentSuccessful = a == b;
+
+    string|int c = a;
+    return assignmentSuccessful && a == c;
+}
+
+type FloatValue 1.0|2.0;
+
+function testFloatOnlyFiniteTypeAssignmentToTypeWithFloat() returns boolean {
+    FloatValue a = 2.0;
+    float b = a;
+    boolean assignmentSuccessful = a == b;
+
+    float|int c = a;
+    return assignmentSuccessful && a == c;
+}
+
+type BooleanValue true;
+
+function testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean() returns boolean {
+    BooleanValue a = true;
+    boolean b = a;
+    boolean assignmentSuccessful = a == b;
+
+    anydata c = a;
+    return assignmentSuccessful && a == c;
+}
+
+//const byte byte1 = 34;
+//const byte byte2 = 12;
+//const byte byte3 = 111;
+//
+//type ByteValue byte1|byte2|byte3;
+//
+//function testByteOnlyFiniteTypeAssignmentToTypeWithByte() returns boolean {
+//    ByteValue a = 12;
+//    byte b = a;
+//    boolean assignmentSuccessful = a == b;
+//
+//    byte|Person c = a;
+//    return assignmentSuccessful && a == c;
+//}
+
+function testFiniteTypeAssignmentToBroaderType() returns boolean {
+    CombinedState a = "off";
+    string|int b = a;
+    boolean assignmentSuccessful = a == b;
+
+    anydata c = a;
+    assignmentSuccessful = assignmentSuccessful && a == c;
+
+    StringOrInt d = a;
+    assignmentSuccessful = assignmentSuccessful && a == d;
+
+    b = d;
+    return assignmentSuccessful && a == d;
+}

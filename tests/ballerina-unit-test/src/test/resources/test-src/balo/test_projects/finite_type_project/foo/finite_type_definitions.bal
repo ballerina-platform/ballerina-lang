@@ -50,3 +50,13 @@ public type BFType byte|float;
 public type BFuncType function (string) returns int;
 
 public type BFuncType2 (function (string) returns int)|string;
+
+public type FloatValue 1.0|2.0;
+
+public type BooleanValue true;
+
+public const byte byte1 = 34;
+public const byte byte2 = 12;
+public const byte byte3 = 111;
+
+public type ByteValue byte1|byte2|byte3;

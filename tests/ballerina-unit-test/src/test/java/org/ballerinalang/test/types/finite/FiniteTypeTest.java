@@ -21,12 +21,14 @@ package org.ballerinalang.test.types.finite;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -257,5 +259,23 @@ public class FiniteTypeTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5, "Value mismatch");
         Assert.assertTrue(returns[1] instanceof BString, "Type mismatch");
         Assert.assertEquals(returns[1].stringValue(), "s", "Value mismatch");
+    }
+
+    @Test(dataProvider = "assignmentToBroaderTypeFunctions")
+    public void testFiniteTypeAssignmentToBroaderType(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "assignmentToBroaderTypeFunctions")
+    public Object[][] assignmentToBroaderTypeFunctions() {
+        return new Object[][]{
+                {"testStringOnlyFiniteTypeAssignmentToTypeWithString"},
+                {"testIntOnlyFiniteTypeAssignmentToTypeWithInt"},
+                {"testFloatOnlyFiniteTypeAssignmentToTypeWithFloat"},
+                {"testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean"},
+//                {"testByteOnlyFiniteTypeAssignmentToTypeWithByte"},
+                {"testFiniteTypeAssignmentToBroaderType"},
+        };
     }
 }

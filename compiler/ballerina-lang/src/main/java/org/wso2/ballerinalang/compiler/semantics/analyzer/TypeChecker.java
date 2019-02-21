@@ -789,15 +789,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
-                if (types.isAssignable(symbol.type, expType)) {
-                    // FIXME: 2/21/19 Temp workaround for constants issue
-                    if (symbol.type.tag == TypeTags.FINITE && expType.tag != TypeTags.FINITE
-                            && ((BFiniteType) symbol.type).valueSpace.stream()
-                            .allMatch(expression -> types.isAssignable(expression.type, expType))) {
-                        actualType = ((BConstantSymbol) symbol).literalValueType;
-                    } else {
-                        actualType = symbol.type;
-                    }
+                if (types.isAssignable(symbol.type, expType) &&
+                        // TODO: 2/21/19 Temp workaround for constants issue
+                        (symbol.type.tag != TypeTags.FINITE ||
+                                 expType.tag == TypeTags.FINITE ||
+                                 !((BFiniteType) symbol.type).valueSpace.stream()
+                                         .allMatch(expression -> types.isAssignable(expression.type, expType)))) {
+                    actualType = symbol.type;
                 } else {
                     actualType = ((BConstantSymbol) symbol).literalValueType;
                 }
