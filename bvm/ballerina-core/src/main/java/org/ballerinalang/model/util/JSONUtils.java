@@ -736,7 +736,7 @@ public class JSONUtils {
                 return jsonValue;
             case TypeTags.UNION_TAG:
                 BUnionType type = (BUnionType) targetType;
-                if (jsonValue == null && type.isNullable()) {
+                if (jsonValue == null && type.isNilable()) {
                     return null;
                 }
                 List<BType> matchingTypes = type.getMemberTypes().stream()

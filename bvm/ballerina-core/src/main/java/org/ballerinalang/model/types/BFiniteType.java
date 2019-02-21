@@ -45,12 +45,12 @@ public class BFiniteType extends BType {
             return false;
         }
         BFiniteType that = (BFiniteType) o;
-        return valueSpace.containsAll(that.valueSpace) && that.valueSpace.containsAll(valueSpace);
+        return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
     }
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        if (valueSpace.stream().anyMatch(val -> val == null || BTypes.isImplicitInitValueNil(val.getType()))) {
+        if (valueSpace.stream().anyMatch(val -> val == null || val.getType().isNilable())) {
             return null;
         }
 
@@ -78,7 +78,7 @@ public class BFiniteType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        if (valueSpace.stream().anyMatch(val -> val == null || BTypes.isImplicitInitValueNil(val.getType()))) {
+        if (valueSpace.stream().anyMatch(val -> val == null || val.getType().isNilable())) {
             return null;
         }
 

@@ -111,14 +111,4 @@ public class BTypes {
         }
         return getTypeFromName(typeName);
     }
-
-    public static boolean isImplicitInitValueNil(BType type) {
-        if (type.getTag() == TypeTags.UNION_TAG) {
-            return ((BUnionType) type).getMemberTypes().stream().anyMatch(BTypes::isImplicitInitValueNil);
-        }
-        return type.getTag() == TypeTags.NULL_TAG ||
-                type.getTag() == TypeTags.ANYDATA_TAG ||
-                type.getTag() == TypeTags.ANY_TAG ||
-                type.getTag() == TypeTags.JSON_TAG;
-    }
 }

@@ -78,7 +78,7 @@ public class BMapType extends BType implements BIndexedType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BMap(this);
+        return getZeroValue();
     }
 
     @Override

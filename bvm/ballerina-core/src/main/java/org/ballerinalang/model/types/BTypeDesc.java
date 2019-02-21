@@ -39,7 +39,7 @@ public class BTypeDesc extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BTypeDescValue(BTypes.typeNull);
+        return getZeroValue();
     }
 
     @Override

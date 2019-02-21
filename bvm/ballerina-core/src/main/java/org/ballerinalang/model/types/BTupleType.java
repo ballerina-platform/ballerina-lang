@@ -54,7 +54,7 @@ public class BTupleType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BValueArray(this);
+        return getZeroValue();
     }
 
     @Override

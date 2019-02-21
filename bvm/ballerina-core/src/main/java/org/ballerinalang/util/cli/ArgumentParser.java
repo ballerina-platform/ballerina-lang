@@ -475,6 +475,6 @@ public class ArgumentParser {
             }
         }
         throw new BLangUsageException("invalid argument '" + unionArg + "' specified for union type: "
-                                          + (type.isNullable() ? type.toString().replace("|null", "|()") : type));
+                                          + (type.isNilable() ? type.toString().replace("|null", "|()") : type));
     }
 }
