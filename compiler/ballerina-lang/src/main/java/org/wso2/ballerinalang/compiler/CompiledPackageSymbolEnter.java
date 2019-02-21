@@ -661,6 +661,8 @@ public class CompiledPackageSymbolEnter {
             Map<Kind, byte[]>   attrDataMap = readAttributes(dataInStream);
 
             setDocumentation(constantSymbol, attrDataMap);
+        } else {
+            // Todo
         }
 
 

@@ -47,7 +47,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public Set<ImportPackageInfo> importPkgInfoSet = new HashSet<>();
 
-    public Map<String, ConstantInfo_new> constantInfoMap = new LinkedHashMap<>();
+    public Map<String, ConstantInfo> constantInfoMap = new LinkedHashMap<>();
 
     public Map<String, PackageVarInfo> pkgVarInfoMap = new LinkedHashMap<>();
 
@@ -84,8 +84,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return constantPoolEntries.toArray(new ConstantPoolEntry[0]);
     }
 
-    public ConstantInfo_new[] getConstantInfoEntries() {
-        return constantInfoMap.values().toArray(new ConstantInfo_new[0]);
+    public ConstantInfo[] getConstantInfoEntries() {
+        return constantInfoMap.values().toArray(new ConstantInfo[0]);
     }
 
     public PackageVarInfo[] getPackageInfoEntries() {

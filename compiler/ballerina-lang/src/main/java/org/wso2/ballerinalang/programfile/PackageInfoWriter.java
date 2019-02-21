@@ -228,10 +228,10 @@ public class PackageInfoWriter {
     // Private methods
 
     private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
-                                                 ConstantInfo_new[] constantInfos) throws IOException {
+                                                 ConstantInfo[] constantInfos) throws IOException {
         dataOutStream.writeShort(constantInfos.length);
 
-        for (ConstantInfo_new constantInfo : constantInfos) {
+        for (ConstantInfo constantInfo : constantInfos) {
             dataOutStream.writeInt(constantInfo.nameCPIndex);
 
             dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);

@@ -174,7 +174,7 @@ import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
-import org.wso2.ballerinalang.programfile.ConstantInfo_new;
+import org.wso2.ballerinalang.programfile.ConstantInfo;
 import org.wso2.ballerinalang.programfile.ConstantValue;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
@@ -2153,7 +2153,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
 
         // Create a new constant info object.
-        ConstantInfo_new constantInfo = new ConstantInfo_new(constantSymbol.name.value, constantNameCPIndex);
+        ConstantInfo constantInfo = new ConstantInfo(constantSymbol.name.value, constantNameCPIndex);
 
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
