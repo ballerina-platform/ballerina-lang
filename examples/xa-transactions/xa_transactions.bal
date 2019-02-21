@@ -39,8 +39,8 @@ public function main() {
                                         VALUES ('Anne')");
         int key = -1;
         if (result is sql:Result) {
-            count = x.updatedRowCount;
-            key = <int>x.generatedKeys.ID;
+            int count = result.updatedRowCount;
+            key = <int>result.generatedKeys.ID;
             io:println("Inserted row count: " + count);
             io:println("Generated key: " + key);
         } else {
