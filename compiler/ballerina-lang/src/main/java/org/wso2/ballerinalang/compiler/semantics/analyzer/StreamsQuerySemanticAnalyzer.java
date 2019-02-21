@@ -81,7 +81,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -468,9 +470,25 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         if (!isSiddhiRuntimeEnabled) {
+            bracedOrTupleExpr.expressions.forEach(expression -> expression.accept(this));
             typeChecker.checkExpr(bracedOrTupleExpr, env);
         }
 
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr typeConversionExpr) {
+        if (!isSiddhiRuntimeEnabled) {
+            typeConversionExpr.expr.accept(this);
+            typeChecker.checkExpr(typeConversionExpr, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangTypedescExpr typedescExpr) {
+        if (!isSiddhiRuntimeEnabled) {
+            typeChecker.checkExpr(typedescExpr, env);
+        }
     }
 
     @Override
