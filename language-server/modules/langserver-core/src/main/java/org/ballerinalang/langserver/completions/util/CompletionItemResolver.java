@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completions.util;
 
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangAnnotationAttachmentContextResolver;
-import org.ballerinalang.langserver.completions.resolvers.BLangEndpointContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangMatchContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangMatchExpressionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangRecordContextResolver;
@@ -29,7 +28,6 @@ import org.ballerinalang.langserver.completions.resolvers.FunctionContextResolve
 import org.ballerinalang.langserver.completions.resolvers.ObjectTypeContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.PackageNameContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ParameterContextResolver;
-import org.ballerinalang.langserver.completions.resolvers.ResourceContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ServiceContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.StatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
@@ -50,10 +48,8 @@ import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRu
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleWorkerReplyContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -73,8 +69,6 @@ import java.util.Map;
 public enum CompletionItemResolver {
     STATEMENT_CONTEXT(StatementContextResolver.class,
             new StatementContextResolver()),
-    TOP_LEVEL_CONTEXT(TopLevelResolver.class,
-            new TopLevelResolver()),
     PACKAGE_LEVEL_CONTEXT(BLangPackage.class,
             new TopLevelResolver()),
     TESTABLE_PACKAGE_LEVEL_CONTEXT(BLangTestablePackage.class,
@@ -95,10 +89,6 @@ public enum CompletionItemResolver {
             new BLangRecordContextResolver()),
     SERVICE_CONTEXT(BLangService.class,
             new ServiceContextResolver()),
-    RESOURCE_CONTEXT(BLangResource.class,
-            new ResourceContextResolver()),
-    BLANG_ENDPOINT_CONTEXT(BLangEndpoint.class,
-            new BLangEndpointContextResolver()),
     FUNCTION_DEF_CONTEXT(BLangFunction.class,
             new FunctionContextResolver()),
     OBJECT_TYPE_CONTEXT(BLangObjectTypeNode.class,
