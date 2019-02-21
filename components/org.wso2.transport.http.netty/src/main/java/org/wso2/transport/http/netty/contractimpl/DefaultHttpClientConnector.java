@@ -162,8 +162,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
         //Cannot directly assign srcHandler and http2SourceHandler to inner class ConnectionAvailabilityListener hence
         //need two new separate variables
-        final SourceHandler h1SourceHandler = srcHandler;
-        final Http2SourceHandler h2SourceHandler = http2SourceHandler;
+        final SourceHandler http1xSrcHandlder = srcHandler;
+        final Http2SourceHandler http2SrcHandler = http2SourceHandler;
 
         if (srcHandler == null && http2SourceHandler == null && LOG.isDebugEnabled()) {
             LOG.debug(Constants.SRC_HANDLER + " property not found in the message."
@@ -208,17 +208,17 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                                   route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
                     }
 
-                    if (protocol.equalsIgnoreCase(Constants.HTTP_SCHEME) && h1SourceHandler != null) {
+                    if (Constants.HTTP_SCHEME.equalsIgnoreCase(protocol) && http1xSrcHandlder != null) {
                         channelFuture.channel().deregister().addListener(future ->
-                                                                             h1SourceHandler.getEventLoop()
+                                                                             http1xSrcHandlder.getEventLoop()
                                                                                  .register(channelFuture.channel())
                                                                                  .addListener(
                                                                                      future1 ->
                                                                                          startExecutingOutboundRequest(
                                                                                          protocol, channelFuture)));
-                    } else if (protocol.equalsIgnoreCase(Constants.HTTP_SCHEME) && h2SourceHandler != null) {
+                    } else if (Constants.HTTP_SCHEME.equalsIgnoreCase(protocol) && http2SrcHandler != null) {
                         channelFuture.channel().deregister().addListener(future ->
-                                                                             h2SourceHandler.getChannelHandlerContext()
+                                                                             http2SrcHandler.getChannelHandlerContext()
                                                                                  .channel().eventLoop()
                                                                                  .register(channelFuture.channel())
                                                                                  .addListener(future1 ->
