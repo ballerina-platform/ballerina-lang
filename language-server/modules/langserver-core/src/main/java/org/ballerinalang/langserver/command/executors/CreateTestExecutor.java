@@ -36,11 +36,13 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
+import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -57,7 +59,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -192,16 +193,6 @@ public class CreateTestExecutor implements LSCommandExecutor {
             // Generate a unique name for the tests file
             File testFile = testsDir.toPath().resolve(generateTestFileName(filePath)).toFile();
 
-            // If not exists, create a new test file
-            if (!testFile.exists()) {
-                try {
-                    testFile.createNewFile();
-                } catch (IOException e) {
-                    String message = "Error occurred while creating the test file:" + testFile.toString();
-                    throw new TestGeneratorException(message, e);
-                }
-            }
-
             // Generate test content edits
             String pkgRelativeSourceFilePath = testDirs.getLeft().relativize(filePath).toString();
             Pair<BLangNode, Object> bLangNodePair = getBLangNode(line, column, docUri, docManager, lsCompiler, context);
@@ -218,12 +209,16 @@ public class CreateTestExecutor implements LSCommandExecutor {
                                                             builtSourceFile, pkgRelativeSourceFilePath, testFile);
 
             // Send edits
+            List<Either<TextDocumentEdit, ResourceOperation>> edits = new ArrayList<>();
             VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
             identifier.setUri(testFile.toPath().toUri().toString());
-            TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(identifier, content);
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
-            ApplyWorkspaceEditParams editParams = new ApplyWorkspaceEditParams();
-            editParams.setEdit(workspaceEdit);
+            edits.add(Either.forRight(new CreateFile(testFile.toPath().toUri().toString())));
+
+            TextDocumentEdit textEdit = new TextDocumentEdit(identifier, content);
+            edits.add(Either.forLeft(textEdit));
+
+            WorkspaceEdit workspaceEdit = new WorkspaceEdit(edits);
+            ApplyWorkspaceEditParams editParams = new ApplyWorkspaceEditParams(workspaceEdit);
             if (client != null) {
                 client.applyEdit(editParams);
                 String message = "Tests generated into the file:" + testFile.toString();

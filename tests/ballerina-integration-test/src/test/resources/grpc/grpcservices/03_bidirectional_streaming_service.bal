@@ -16,6 +16,7 @@
 // This is server implementation for bidirectional streaming scenario
 import ballerina/grpc;
 import ballerina/io;
+import ballerina/runtime;
 
 // Server endpoint configuration
 listener grpc:Listener ep3 = new (9095);
@@ -29,18 +30,30 @@ listener grpc:Listener ep3 = new (9095);
 }
 service Chat on ep3 {
     map<grpc:Caller> consMap = {};
+    boolean initialized = false;
+
     resource function onOpen(grpc:Caller caller) {
-        io:println(string `{{caller.getId()}} connected to chat`);
-        self.consMap[<string>caller.getId()] = caller;
+        io:println(string `${caller.getId()} connected to chat`);
+        self.consMap[string.convert(caller.getId())] = caller;
         io:println("Client registration completed. Connection map status");
         io:println("Map length: " + self.consMap.length());
         io:println(self.consMap);
+        self.initialized = true;
     }
 
     resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
         grpc:Caller conn;
-        string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
+        string msg = string `${chatMsg.name}: ${chatMsg.message}`;
         io:println("Server received message: " + msg);
+        int waitCount = 0;
+        while(!self.initialized) {
+            runtime:sleep(1000);
+            io:println("Waiting till connection initialize. status: " + self.initialized);
+            if (waitCount > 10) {
+                break;
+            }
+            waitCount += 1;
+        }
         io:println("Starting message broadcast. Connection map status");
         io:println("Map length: " + self.consMap.length());
         io:println(self.consMap);
@@ -64,9 +77,9 @@ service Chat on ep3 {
 
     resource function onComplete(grpc:Caller caller) {
         grpc:Caller conn;
-        string msg = string `{{caller.getId()}} left the chat`;
+        string msg = string `${caller.getId()} left the chat`;
         io:println(msg);
-        var v = self.consMap.remove(<string>caller.getId());
+        var v = self.consMap.remove(string.convert(caller.getId()));
         io:println("Starting client left broadcast. Connection map status");
         io:println("Map length: " + self.consMap.length());
         io:println(self.consMap);

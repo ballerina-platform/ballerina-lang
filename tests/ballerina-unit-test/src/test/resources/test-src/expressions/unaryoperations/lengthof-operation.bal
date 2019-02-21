@@ -148,7 +148,7 @@ function lengthOfString() returns (int, int, int) {
     int l1 = foo.length();
     string s1 = "John";
     int l2 = s1.length();
-    string s2 =string `Hello {{"John"}}`;
+    string s2 =string `Hello ${"John"}`;
     int l3 = s2.length();
     return (l1, l2, l3);
 }

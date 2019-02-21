@@ -1572,17 +1572,16 @@ public class TypeChecker extends BLangNodeVisitor {
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
         if (targetType.tag == TypeTags.ERROR || targetType.tag == TypeTags.FUTURE) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_ASSERTION_NOT_YET_SUPPORTED, targetType);
+            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_CAST_NOT_YET_SUPPORTED, targetType);
         } else {
-            BSymbol symbol = symResolver.resolveTypeCastOrAssertionOperator(sourceType, targetType);
+            BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr, sourceType, targetType);
 
             if (symbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INVALID_EXPLICIT_TYPE_FOR_EXPRESSION, sourceType,
-                           targetType);
+                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
             } else {
-                BOperatorSymbol conversionSym = (BOperatorSymbol) symbol;
-                conversionExpr.conversionSymbol = conversionSym;
-                actualType = conversionSym.type.getReturnType();
+                conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
+                // We reach this block only if the cast is valid, so we set the target type as the actual type.
+                actualType = targetType;
             }
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
