@@ -1,10 +1,10 @@
 import {
     Assignment, ASTKindChecker,
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
-    Foreach, Function, If, Invocation, Lambda, Literal, Match,
-    MatchStaticPatternClause, ObjectType, Panic, Return, Service,
-    TypeDefinition, UnionTypeNode, UserDefinedType, ValueType, Variable, VariableDef, VisibleEndpoint,
-    Visitor, While, WorkerSend
+    Foreach, Function, Identifier, If, Invocation, Lambda, Literal,
+    Match, MatchStaticPatternClause, ObjectType, Panic, RecordVariable,
+    Return, Service, TupleVariable, TypeDefinition, UnionTypeNode, UserDefinedType, ValueType,
+    Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -200,14 +200,35 @@ export const visitor: Visitor = {
         // make endpoints, which are defined in function, visible
         if (node.VisibleEndpoints && node.body) {
             const varDefStmts = node.body.statements.filter(ASTKindChecker.isVariableDef);
+            const isVariableOfEP = (
+                        variable: Variable | TupleVariable | RecordVariable | Identifier,
+                        targetEP: VisibleEndpoint): boolean => {
+                let foundMatch = false;
+                if (ASTKindChecker.isTupleVariable(variable)) {
+                    const variables = (variable as TupleVariable).variables;
+                    variables.forEach((varToBeChecked) => {
+                        foundMatch = foundMatch || isVariableOfEP(varToBeChecked, targetEP);
+                    });
+                } else if (ASTKindChecker.isRecordVariable(variable)) {
+                    const variables = (variable as RecordVariable).variables;
+                    variables.forEach((varToBeChecked) => {
+                        foundMatch = foundMatch || isVariableOfEP(varToBeChecked, targetEP);
+                    });
+                } else if (ASTKindChecker.isIdentifier(variable)) {
+                    foundMatch = false;
+                } else if (ASTKindChecker.isVariable(variable)) {
+                    const varToBeChecked = variable as Variable;
+                    const variableTypeNode = varToBeChecked.typeNode as UserDefinedType;
+                    foundMatch = varToBeChecked.name.value === targetEP.name
+                            && variableTypeNode.packageAlias.value === targetEP.pkgAlias
+                            && variableTypeNode.typeName.value === targetEP.typeName;
+                }
+                return foundMatch;
+            };
             node.VisibleEndpoints.forEach((visibleEndpoint) => {
                 const epDef = varDefStmts.find((varDefStmt) => {
                     const varDef = varDefStmt as VariableDef;
-                    const variable = varDef.variable as Variable;
-                    const variableTypeNode = variable.typeNode as UserDefinedType;
-                    return variable.name.value === visibleEndpoint.name
-                        && variableTypeNode.packageAlias.value === visibleEndpoint.pkgAlias
-                        && variableTypeNode.typeName.value === visibleEndpoint.typeName;
+                    return isVariableOfEP(varDef.variable, visibleEndpoint);
                 });
                 if (epDef) {
                     (visibleEndpoint.viewState as EndpointViewState).visible = true;
