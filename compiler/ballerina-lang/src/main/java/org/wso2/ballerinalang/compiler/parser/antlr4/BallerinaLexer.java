@@ -141,7 +141,7 @@ public class BallerinaLexer extends Lexer {
 		"SingleBacktickEnd", "DoubleBacktickContent", "DoubleBacktickEnd", "TripleBacktickContent",
 		"TripleBacktickEnd", "XML_COMMENT_START", "CDATA", "DTD", "EntityRef",
 		"CharRef", "XML_WS", "XML_TAG_OPEN", "XML_TAG_OPEN_SLASH", "XML_TAG_SPECIAL_OPEN",
-		"XMLLiteralEnd", "ExpressionStart", "InterpolationExpressionStart", "XMLTemplateText",
+		"XMLLiteralEnd", "ExpressionStart", "INTERPOLATION_START", "XMLTemplateText",
 		"XMLText", "XMLTextChar", "XMLEscapedSequence", "XMLBracesSequence", "XML_TAG_CLOSE",
 		"XML_TAG_SPECIAL_CLOSE", "XML_TAG_SLASH_CLOSE", "SLASH", "QNAME_SEPARATOR",
 		"EQUALS", "DOUBLE_QUOTE", "SINGLE_QUOTE", "XMLQName", "XML_TAG_WS", "XMLTagExpressionStart",
@@ -159,7 +159,7 @@ public class BallerinaLexer extends Lexer {
 		"TBDeprecatedInlineCodeStart", "DeprecatedTemplateText", "DeprecatedTemplateStringChar",
 		"DeprecatedBackTick", "DeprecatedEscapedSequence", "DeprecatedValidCharSequence",
 		"StringTemplateLiteralEnd", "StringTemplateExpressionStart", "StringTemplateText",
-		"Dollar", "StringTemplateValidCharSequence", "StringLiteralEscapedSequence"
+		"DOLLAR", "StringTemplateValidCharSequence", "StringLiteralEscapedSequence"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
