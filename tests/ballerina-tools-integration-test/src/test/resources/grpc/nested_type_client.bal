@@ -57,7 +57,7 @@ function testOutputNestedStruct(string name) returns Person|string {
 
 public type HelloWorldBlockingClient client object {
 
-    private grpc:Client grpcClient = new;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
@@ -94,7 +94,7 @@ public type HelloWorldBlockingClient client object {
 
 public type HelloWorldClient client object {
 
-    private grpc:Client grpcClient = new;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
