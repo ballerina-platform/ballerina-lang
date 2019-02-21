@@ -88,8 +88,7 @@ public class Utils {
     private static String getStringFieldValue(BMap<String, BValue> struct, String fieldName) {
         if (FIELD_NAME_DAYS_OF_MONTH.equals(fieldName) && Objects.isNull(struct.get(FIELD_NAME_DAYS_OF_MONTH))) {
             return "?";
-        }
-        else if (Objects.nonNull(struct.get(fieldName))) {
+        } else if (Objects.nonNull(struct.get(fieldName))) {
             return struct.get(fieldName).stringValue();
         } else {
             return "*";
