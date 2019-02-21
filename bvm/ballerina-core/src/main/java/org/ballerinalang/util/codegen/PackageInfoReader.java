@@ -603,6 +603,10 @@ public class PackageInfoReader {
         if (isSimpleLiteral) {
             readSimpleLiteral();
         } else {
+
+            // Read and ignore value cp index.
+            dataInStream.readInt();
+
             readConstantValueMap();
         }
 
@@ -650,6 +654,8 @@ public class PackageInfoReader {
             if (isSimpleLiteral) {
                 readSimpleLiteral();
             } else {
+                dataInStream.readInt();
+
                 readConstantValueMap();
             }
         }

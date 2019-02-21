@@ -2181,6 +2181,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             constantSymbol.varIndex = getPVIndex(constantSymbol.literalValueType.tag);
             constantInfo.globalMemIndex = constantSymbol.varIndex.value;
 
+            constantInfo.valueTypeSigCPIndex = valueTypeSigCPIndex;
+
+
+//            constantInfo.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
+
+
             // Todo - Add const map.
             // Create key-value info.
             constantInfo.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) constantSymbol.literalValue);
@@ -2260,6 +2266,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
                 ConstantValue constantValue = new ConstantValue();
                 constantValue.constantValueMap = generateConstantMapInfo((BLangRecordLiteral) keyValue.valueExpr);
+
+                constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                        keyValue.valueExpr.type.getDesc());
+
                 constantValueMap.put(key, constantValue);
 
                 for (Entry<String, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {

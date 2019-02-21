@@ -241,6 +241,9 @@ public class PackageInfoWriter {
             if (constantInfo.isSimpleLiteral) {
                 writeSimpleLiteral(dataOutStream, constantInfo.constantValue);
             } else {
+
+                dataOutStream.writeInt(constantInfo.valueTypeSigCPIndex);
+
                 writeConstantValueMap(dataOutStream, constantInfo.constantValueMap,
                         constantInfo.constantValueMapKeyCPIndex);
             }
@@ -292,6 +295,9 @@ public class PackageInfoWriter {
             if (constantValue.isSimpleLiteral) {
                 writeSimpleLiteral(dataOutStream, constantValue);
             } else {
+
+                dataOutStream.writeInt(constantValue.recordLiteralSigCPIndex);
+
                 writeConstantValueMap(dataOutStream, constantValue.constantValueMap,
                         constantValue.constantValueMapKeyCPIndex);
             }

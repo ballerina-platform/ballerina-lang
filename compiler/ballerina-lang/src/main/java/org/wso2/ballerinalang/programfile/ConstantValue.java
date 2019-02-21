@@ -44,6 +44,10 @@ public class ConstantValue {
     public Map<String, ConstantValue> constantValueMap = new HashMap<>();
     public Map<String, Integer> constantValueMapKeyCPIndex = new HashMap<>();
 
+
+    public int recordLiteralSigCPIndex = -1;
+
+
     // Todo - Add array support
     //    private ConstantValue[] constantValueArray;
 

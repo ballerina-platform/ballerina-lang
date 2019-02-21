@@ -58,7 +58,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
@@ -95,6 +97,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -634,38 +637,57 @@ public class CompiledPackageSymbolEnter {
         boolean isSimpleLiteral = dataInStream.readBoolean();
 
         if (isSimpleLiteral) {
+
             String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
             BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
 
             String valueTypeSig = getUTF8CPEntryValue(dataInStream);
             BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
-            int typeTag = dataInStream.readInt();
 
             // Todo - Use type signature?
-            Object value = readSimpleLiteral(dataInStream, typeTag);
+            Object object = readSimpleLiteral(dataInStream);
 
             // Create constant symbol.
             Scope enclScope = this.env.pkgSymbol.scope;
             BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
                     this.env.pkgSymbol.pkgID, finiteType, valueType, enclScope.owner);
 
-            constantSymbol.literalValue = value;
+            constantSymbol.literalValue = object;
 
             enclScope.define(constantSymbol.name, constantSymbol);
 
-            Map<Kind, byte[]>   attrDataMap = readAttributes(dataInStream);
+            Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
             setDocumentation(constantSymbol, attrDataMap);
+
         } else {
 
-            // Todo
+            // Todo - need finite type?
 
-            int i = 10;
+            String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+            BType valueType = getBTypeFromDescriptor(valueTypeSig);
+
+
+            // Create constant symbol.
+            Scope enclScope = this.env.pkgSymbol.scope;
+            BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
+                    this.env.pkgSymbol.pkgID, null, valueType, enclScope.owner);
+
+            constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
+
+            Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+
+            setDocumentation(constantSymbol, attrDataMap);
+
         }
     }
 
-    private Object readSimpleLiteral(DataInputStream dataInStream, int typeTag) throws IOException {
+    private Object readSimpleLiteral(DataInputStream dataInStream) throws IOException {
+
+        // Todo - Use type signature instead of type tag?
+        int typeTag = dataInStream.readInt();
+
         // Get the value.
 
         Object value;
@@ -709,20 +731,102 @@ public class CompiledPackageSymbolEnter {
         return value;
     }
 
+    private BLangLiteral readSimpleLiteralAsBliteral(DataInputStream dataInStream) throws IOException {
 
-//    private void readConstantValueMap() throws IOException {
-//        // size
-//        int size = dataInStream.readInt();
-//        for (int i = 0; i < size; i++) {
-//            dataInStream.readInt();
-//            boolean isSimpleLiteral = dataInStream.readBoolean();
-//            if (isSimpleLiteral) {
-//                readSimpleLiteral();
-//            } else {
-//                readConstantValueMap();
-//            }
-//        }
-//    }
+        // Todo - Use type signature instead of type tag?
+        int typeTag = dataInStream.readInt();
+
+        // Read the value.
+
+        BLangLiteral literal;
+
+        Object value;
+        int valueCPIndex;
+
+        switch (typeTag) {
+            case TypeTags.BOOLEAN:
+                value = dataInStream.readBoolean();
+                break;
+            case TypeTags.INT:
+                valueCPIndex = dataInStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                value = integerCPEntry.getValue();
+                break;
+            case TypeTags.BYTE:
+                valueCPIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
+                value = byteCPEntry.getValue();
+                break;
+            case TypeTags.FLOAT:
+                valueCPIndex = dataInStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
+                value = floatCPEntry.getValue();
+                break;
+            case TypeTags.DECIMAL:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                value = decimalEntry.getValue();
+                break;
+            case TypeTags.STRING:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                value = stringCPEntry.getValue();
+                break;
+            case TypeTags.NIL:
+                value = null;
+                break;
+            default:
+                throw new RuntimeException("unexpected type tag: " + typeTag);
+        }
+
+        literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.type = symTable.getTypeFromTag(typeTag);
+
+        return literal;
+    }
+
+    private BLangRecordLiteral.BLangMapLiteral readConstantValueMap(DataInputStream dataInStream, BType type)
+            throws IOException {
+
+        LinkedList<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new LinkedList<>();
+
+        // size
+        int size = dataInStream.readInt();
+
+        for (int i = 0; i < size; i++) {
+
+            String key = getUTF8CPEntryValue(dataInStream);
+
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+
+            BLangExpression value ;
+
+            if (isSimpleLiteral) {
+                value = readSimpleLiteralAsBliteral(dataInStream);
+
+            } else {
+                String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+                BType valueType = getBTypeFromDescriptor(valueTypeSig);
+
+                value = readConstantValueMap(dataInStream, valueType);
+            }
+
+            BLangRecordLiteral.BLangRecordKeyValue kv = new BLangRecordLiteral.BLangRecordKeyValue();
+
+            BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            keyLiteral.value = key;
+            keyLiteral.type = symTable.stringType;
+
+            kv.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+            kv.valueExpr = value;
+
+            keyValues.push(kv);
+        }
+
+        BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(keyValues, type, true);
+        return mapLiteral;
+    }
 
 //    private void readConstantMapInfo(DataInputStream dataInStream) throws IOException {
 //        int size = dataInStream.readInt();
