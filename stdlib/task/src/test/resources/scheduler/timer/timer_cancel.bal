@@ -15,34 +15,34 @@
 // under the License.
 
 import ballerina/task;
+import ballerina/runtime;
 
-task:TimerConfiguration configuration = {
-    interval: 2000,
-    initialDelay: 1000
-};
+function triggerTimer() {
+    task:TimerConfiguration configuration = {
+        interval: 500,
+        initialDelay: 1000
+    };
+
+    task:Scheduler timer = new(configuration);
+    var result = timer.attachService(timerService);
+    _ = timer.run();
+    runtime:sleep(4000);
+    result = timer.cancel();
+    if (result is error) {
+        count = 1000;
+    } else {
+        count = -2000;
+    }
+}
 
 int count = 0;
-
-listener task:Listener timer = new(configuration);
 
 function getCount() returns int {
     return count;
 }
 
-service timerService on timer {
+service timerService = service {
     resource function onTrigger() {
         count = count + 1;
-        if (count == 3) {
-            var result = timer.cancel();
-            if (result is error) {
-                count = -1000;
-            } else {
-                count = 1000;
-            }
-        }
     }
-
-    resource function onError(error e) {
-        count = count - 1;
-    }
-}
+};

@@ -82,4 +82,16 @@ public class TimerSchedulerTest {
             return (((BBoolean) isPaused[0]).booleanValue() && ((BBoolean) isResumed[0]).booleanValue());
         });
     }
+
+    @Test(description = "Tests a timer scheduler cancel functionality")
+    public void testListenerTimerStop() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/timer_cancel.bal");
+        await().atLeast(4000, TimeUnit.MILLISECONDS).atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BRunUtil.invokeStateful(compileResult, "triggerTimer");
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BInteger);
+            return (((BInteger) count[0]).intValue() == -2000);
+        });
+    }
 }
