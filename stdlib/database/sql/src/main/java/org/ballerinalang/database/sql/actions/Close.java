@@ -50,7 +50,7 @@ public class Close extends AbstractSQLAction {
         // situation following null check is needed.
         if (datasource != null && !datasource.isGlobalDatasource()) {
             try {
-                datasource.decrementClientCounter();
+                datasource.decrementClientCounterAndAttemptPoolShutdown();
             } catch (InterruptedException e) {
                 context.setReturnValues(
                         SQLDatasourceUtils.getSQLConnectorError(context, "Error while stopping the database client"));

@@ -1170,8 +1170,8 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.get(Constants.EndpointConfig.PASSWORD).stringValue();
         BMap<String, BRefType> poolOptions = (BMap<String, BRefType>) clientEndpointConfig
                 .get(Constants.EndpointConfig.POOL_OPTIONS);
-        boolean userProvidedPoolOptionsNotPresent;
-        if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
+        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
+        if (userProvidedPoolOptionsNotPresent) {
             poolOptions = globalPoolOptions;
         }
         PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
@@ -1192,8 +1192,8 @@ public class SQLDatasourceUtils {
                 .get(Constants.EndpointConfig.DB_OPTIONS);
         BMap<String, BRefType> poolOptions = (BMap<String, BRefType>) clientEndpointConfig
                 .get(Constants.EndpointConfig.POOL_OPTIONS);
-        boolean userProvidedPoolOptionsNotPresent;
-        if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
+        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
+        if (userProvidedPoolOptionsNotPresent) {
             poolOptions = globalPoolOptions;
         }
         PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
@@ -1229,8 +1229,8 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.get(Constants.EndpointConfig.PASSWORD).stringValue();
         BMap<String, BRefType> poolOptions = (BMap<String, BRefType>) clientEndpointConfig
                 .get(Constants.EndpointConfig.POOL_OPTIONS);
-        boolean userProvidedPoolOptionsNotPresent;
-        if (userProvidedPoolOptionsNotPresent = (poolOptions == null)) {
+        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
+        if (userProvidedPoolOptionsNotPresent) {
             poolOptions = globalPoolOptions;
         }
         PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
@@ -1749,7 +1749,7 @@ public class SQLDatasourceUtils {
         dbOptions.getMap().forEach((key, value) -> {
             if (isSupportedDbOptionType(value)) {
                 dbOptionsStringJoiner
-                        .add(key + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + String.valueOf(value.value()));
+                        .add(key + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + value.value());
             } else {
                 throw new BallerinaException("Unsupported type for the db option: " + key);
             }

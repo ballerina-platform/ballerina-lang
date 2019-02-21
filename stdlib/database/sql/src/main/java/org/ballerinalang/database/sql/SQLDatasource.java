@@ -138,7 +138,7 @@ public class SQLDatasource implements BValue {
         clientCounter.incrementAndGet();
     }
 
-    public void decrementClientCounter() throws InterruptedException {
+    public void decrementClientCounterAndAttemptPoolShutdown() throws InterruptedException {
         acquireMutex();
         if (!poolShutdown) {
             if (clientCounter.decrementAndGet() == 0) {
@@ -185,8 +185,7 @@ public class SQLDatasource implements BValue {
                     config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
                 }
                 String connectionInitSQL = sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.CONNECTION_INIT_SQL)
-                        .stringValue();
+                        .get(Constants.Options.CONNECTION_INIT_SQL).stringValue();
                 if (!connectionInitSQL.isEmpty()) {
                     config.setConnectionInitSql(connectionInitSQL);
                 }
@@ -202,8 +201,7 @@ public class SQLDatasource implements BValue {
                     config.setConnectionTimeout(connectionTimeout);
                 }
                 long idleTimeout = ((BInteger) sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.IDLE_TIMEOUT))
-                        .intValue();
+                        .get(Constants.Options.IDLE_TIMEOUT)).intValue();
                 if (idleTimeout != -1) {
                     config.setIdleTimeout(idleTimeout);
                 }

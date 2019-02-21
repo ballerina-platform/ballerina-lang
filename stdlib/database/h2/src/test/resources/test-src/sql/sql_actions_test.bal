@@ -1037,6 +1037,17 @@ function testCloseConnectionPool(string connectionCountQuery)
     return count;
 }
 
+function testStopClient() returns error? {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+    return testDB.stop();
+}
+
 function getIntResult(int|error result) returns int {
     if (result is int) {
         return result;

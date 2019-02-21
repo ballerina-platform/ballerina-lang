@@ -21,38 +21,49 @@ import ballerina/config;
 #
 # + connectionInitSql - SQL statement that will be executed after every new connection creation before adding it
 #                       to the pool. Default value of this field can be set through the configuration API with the key
-#                       "connection.init.sql"
+#                       "b7a.sql.connection.init.sql"
 # + dataSourceClassName - Name of the DataSource class provided by the JDBC driver. This is used on following scenarios.
 #                         1. In JDBC client when DB specific properties are required (which are given with dbOptions)
-#                         2. In any data client in which XA transactions enabled by isXA property and need to provide a custom XA implementation.
-#                         Default value of this field can be set through the configuration API with the key "datasource.class.name"
+#                         2. In any data client in which XA transactions enabled by isXA property and need to provide a
+#                         custom XA implementation.
+#                         Default value of this field can be set through the configuration API with the key
+#                         "b7a.sql.datasource.class.name"
 # + autoCommit - Auto-commit behavior of connections returned from the pool.
-#                Default value of this field can be set through the configuration API with the key "connection.auto.commit"
+#                Default value of this field can be set through the configuration API with the key
+#                "b7a.sql.connection.auto.commit"
 # + isXA - Whether Connections are used for a distributed transaction.
-#          Default value of this field can be set through the configuration API with the key "xa.enabled"
+#          Default value of this field can be set through the configuration API with the key "b7a.sql.xa.enabled"
 # + maximumPoolSize - Maximum size that the pool is allowed to reach, including both idle and in-use connections.
-#                     Default value of this field can be set through the configuration API with the key "max.pool.size"
-# + connectionTimeout - Maximum number of milliseconds that a client will wait for a connection from the pool. Default is 30 seconds.
-#                       Default value of this field can be set through the configuration API with the key "connection.time.out"
+#                     Default value of this field can be set through the configuration API with the key
+#                     "b7a.sql.max.pool.size"
+# + connectionTimeout - Maximum number of milliseconds that a client will wait for a connection from the pool.
+#                       Default is 30 seconds.
+#                       Default value of this field can be set through the configuration API with the key
+#                       "b7a.sql.connection.time.out"
 # + idleTimeout - Maximum amount of time that a connection is allowed to sit idle in the pool. Default is 10 minutes.
-#                 Default value of this field can be set through the configuration API with the key "connection.idle.time.out"
-# + minimumIdle - Minimum number of idle connections that pool tries to maintain in the pool. Default is same as maximumPoolSize.
-#                 Default value of this field can be set through the configuration API with the key "connection.min.idle.count"
-# + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes
-#                 Default value of this field can be set through the configuration API with the key "connection.max.life.time"
+#                 Default value of this field can be set through the configuration API with the key
+#                 "b7a.sql.connection.idle.time.out"
+# + minimumIdle - Minimum number of idle connections that pool tries to maintain in the pool. Default is same as
+#                 maximumPoolSize.
+#                 Default value of this field can be set through the configuration API with the key
+#                 "b7a.sql.connection.min.idle.count"
+# + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes.
+#                 Default value of this field can be set through the configuration API with the key
+#                 "b7a.sql.connection.max.life.time"
 # + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
-#                       Default value of this field can be set through the configuration API with the key "validation.time.out"
+#                       Default value of this field can be set through the configuration API with the key
+#                       "b7a.sql.validation.time.out"
 public type PoolOptions record {
-    string connectionInitSql = config:getAsString("connection.init.sql", default = "");
-    string dataSourceClassName = config:getAsString("datasource.class.name", default = "");
-    boolean autoCommit = config:getAsBoolean("connection.auto.commit", default = true);
-    boolean isXA = config:getAsBoolean("xa.enabled", default = false);
-    int maximumPoolSize = config:getAsInt("max.pool.size", default = 10);
-    int connectionTimeout = config:getAsInt("connection.time.out", default = 30000);
-    int idleTimeout =  config:getAsInt("connection.idle.time.out", default = 600000);
-    int minimumIdle = config:getAsInt("connection.min.idle.count", default = 10);
-    int maxLifetime = config:getAsInt("connection.max.life.time", default = 1800000);
-    int validationTimeout = config:getAsInt("validation.time.out", default = 5000);
+    string connectionInitSql = config:getAsString("b7a.sql.connection.init.sql", default = "");
+    string dataSourceClassName = config:getAsString("b7a.sql.datasource.class.name", default = "");
+    boolean autoCommit = config:getAsBoolean("b7a.sql.connection.auto.commit", default = true);
+    boolean isXA = config:getAsBoolean("b7a.sql.xa.enabled", default = false);
+    int maximumPoolSize = config:getAsInt("b7a.sql.max.pool.size", default = 15);
+    int connectionTimeout = config:getAsInt("b7a.sql.connection.time.out", default = 30000);
+    int idleTimeout =  config:getAsInt("b7a.sql.connection.idle.time.out", default = 600000);
+    int minimumIdle = config:getAsInt("b7a.sql.connection.min.idle.count", default = 15);
+    int maxLifetime = config:getAsInt("b7a.sql.connection.max.life.time", default = 1800000);
+    int validationTimeout = config:getAsInt("b7a.sql.validation.time.out", default = 5000);
     !...;
 };
 

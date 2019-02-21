@@ -87,7 +87,7 @@ public class PoolOptionsWrapper {
     /**
      * Retrieve the value of the field corresponding to the provided field.
      *
-     * @param fieldName The field name
+     * @param fieldName The name of the field to retrieve the value of
      * @return The value of the field
      */
     public BRefType get(String fieldName) {
