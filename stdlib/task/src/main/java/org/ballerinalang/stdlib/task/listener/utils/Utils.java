@@ -32,17 +32,17 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.APPOINTMENT_DETAILS_STRUCT_NAME;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_DAYS_OF_MONTH;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_DAYS_OF_WEEK;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_HOURS;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_MINUTES;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_MONTHS;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_SECONDS;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_YEAR;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_DAYS_OF_MONTH;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_DAYS_OF_WEEK;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_HOURS;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_MINUTES;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_MONTHS;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_SECONDS;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_YEAR;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_ERROR;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_TRIGGER;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ERROR_CODE;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ERROR_MESSAGE;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_ERROR_RECORD;
@@ -64,10 +64,10 @@ public class Utils {
 
     public static String getCronExpressionFromAppointmentRecord(BMap<String, BValue> record) {
         String cronExpression;
-        if (APPOINTMENT_DETAILS_STRUCT_NAME.equals(record.getType().getName())) {
+        if (STRUCT_APPOINTMENT_DATA.equals(record.getType().getName())) {
             cronExpression = buildCronExpression(record);
         } else {
-            cronExpression = record.get(APPOINTMENT_DETAILS_STRUCT_NAME).stringValue();
+            cronExpression = record.get(STRUCT_APPOINTMENT_DATA).stringValue();
         }
         return cronExpression;
     }
@@ -75,18 +75,18 @@ public class Utils {
     // Following code is reported as duplicates since all the lines doing same function call.
     private static String buildCronExpression(BMap<String, BValue> record) {
 
-        String cronExpression = getStringFieldValue(record, FIELD_NAME_SECONDS) + " " +
-                getStringFieldValue(record, FIELD_NAME_MINUTES) + " " +
-                getStringFieldValue(record, FIELD_NAME_HOURS) + " " +
-                getStringFieldValue(record, FIELD_NAME_DAYS_OF_MONTH) + " " +
-                getStringFieldValue(record, FIELD_NAME_MONTHS) + " " +
-                getStringFieldValue(record, FIELD_NAME_DAYS_OF_WEEK) + " " +
-                getStringFieldValue(record, FIELD_NAME_YEAR);
+        String cronExpression = getStringFieldValue(record, FIELD_SECONDS) + " " +
+                getStringFieldValue(record, FIELD_MINUTES) + " " +
+                getStringFieldValue(record, FIELD_HOURS) + " " +
+                getStringFieldValue(record, FIELD_DAYS_OF_MONTH) + " " +
+                getStringFieldValue(record, FIELD_MONTHS) + " " +
+                getStringFieldValue(record, FIELD_DAYS_OF_WEEK) + " " +
+                getStringFieldValue(record, FIELD_YEAR);
         return cronExpression.trim();
     }
 
     private static String getStringFieldValue(BMap<String, BValue> struct, String fieldName) {
-        if (FIELD_NAME_DAYS_OF_MONTH.equals(fieldName) && Objects.isNull(struct.get(FIELD_NAME_DAYS_OF_MONTH))) {
+        if (FIELD_DAYS_OF_MONTH.equals(fieldName) && Objects.isNull(struct.get(FIELD_DAYS_OF_MONTH))) {
             return "?";
         } else if (Objects.nonNull(struct.get(fieldName))) {
             return struct.get(fieldName).stringValue();

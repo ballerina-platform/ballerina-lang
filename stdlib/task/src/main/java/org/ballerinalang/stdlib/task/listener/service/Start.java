@@ -36,7 +36,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.NATIVE_
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 
 /**
@@ -57,7 +57,7 @@ public class Start extends BlockingNativeCallableUnit {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_REF_ARG_INDEX);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_STRUCT);
         Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
         if (TaskState.STOPPED != task.getState()) {
             String errorMessage = "Cannot start the task: " + taskStruct.get("name") + " Task is already running.";

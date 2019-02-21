@@ -32,14 +32,14 @@ import org.ballerinalang.stdlib.task.listener.objects.Task;
 
 import java.util.Objects;
 
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_SERVICE_PARAMETER;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_SERVICE_PARAMETER;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_SERVICE_REF_ARG_INDEX;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.REF_ARG_INDEX_TASK_SERVICE;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.validateService;
 
 /**
@@ -61,9 +61,9 @@ public class Register extends BlockingNativeCallableUnit {
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_REF_ARG_INDEX);
-        BValue serviceParameters = ((BMap<String, BValue>) context.getRefArgument(TASK_SERVICE_REF_ARG_INDEX))
-                .get(TASK_SERVICE_PARAMETER);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_STRUCT);
+        BValue serviceParameters = ((BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_SERVICE))
+                .get(FIELD_SERVICE_PARAMETER);
         ServiceWithParameters serviceWithParameters;
         if (Objects.nonNull(serviceParameters)) {
             serviceWithParameters = new ServiceWithParameters(service, serviceParameters);

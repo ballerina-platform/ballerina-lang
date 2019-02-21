@@ -22,50 +22,56 @@ package org.ballerinalang.stdlib.task.listener.utils;
  */
 public class TaskConstants {
 
+    // Package related constants
     public static final String PATH_SEPARATOR = "/";
-    public static final String FIELD_SEPARATOR = ":";
     public static final String ORGANIZATION_NAME = "ballerina";
     public static final String PACKAGE_NAME = "task";
     public static final String LISTENER_STRUCT_NAME = "Listener";
     public static final String PACKAGE_STRUCK_NAME = ORGANIZATION_NAME + PATH_SEPARATOR + PACKAGE_NAME;
 
-    public static final String TIMER_CONFIGURATION_STRUCT_NAME = "TimerConfiguration";
-    public static final String APPOINTMENT_CONFIGURATION_STRUCT_NAME = "AppointmentConfiguration";
-    public static final String APPOINTMENT_DETAILS_STRUCT_NAME = "AppointmentData";
-    public static final String LISTENER_CONFIGURATION_MEMBER_NAME = "listenerConfiguration";
+    // Struct names used
+    public static final String STRUCT_TIMER_CONFIGURATION = "TimerConfiguration";
+    public static final String STRUCT_APPOINTMENT_CONFIGURATION = "AppointmentConfiguration";
+    public static final String STRUCT_APPOINTMENT_DATA = "AppointmentData";
 
+    // Member names used in struct
+    public static final String MEMBER_LISTENER_CONFIGURATION = "listenerConfiguration";
+    public static final String MEMBER_APPOINTMENT_DETAILS = "appointmentDetails";
+
+    // Allowed resource function names
     public static final String RESOURCE_ON_TRIGGER = "onTrigger";
     public static final String RESOURCE_ON_ERROR = "onError";
 
-    public static final String FIELD_NAME_NO_OF_RUNS = "noOfRecurrences";
+    // Common field for TimerConfiguration and AppointmentConfiguration
+    public static final String FIELD_NO_OF_RUNS = "noOfRecurrences";
 
-    public static final String FIELD_NAME_INTERVAL = "interval";
-    public static final String FIELD_NAME_DELAY = "initialDelay";
+    // Fields used in TimerConfiguration
+    public static final String FIELD_INTERVAL = "interval";
+    public static final String FIELD_DELAY = "initialDelay";
 
-    public static final String FIELD_APPOINTMENT_DETAILS = "appointmentDetails";
-    public static final String FIELD_NAME_CRON_EXPRESSION = "cronExpression";
-    public static final String FIELD_NAME_SECONDS = "seconds";
-    public static final String FIELD_NAME_MINUTES = "minutes";
-    public static final String FIELD_NAME_HOURS = "hours";
-    public static final String FIELD_NAME_DAYS_OF_MONTH = "daysOfMonth";
-    public static final String FIELD_NAME_MONTHS = "months";
-    public static final String FIELD_NAME_DAYS_OF_WEEK = "daysOfWeek";
-    public static final String FIELD_NAME_YEAR = "year";
+    // Fields used in AppointmentData
+    public static final String FIELD_SECONDS = "seconds";
+    public static final String FIELD_MINUTES = "minutes";
+    public static final String FIELD_HOURS = "hours";
+    public static final String FIELD_DAYS_OF_MONTH = "daysOfMonth";
+    public static final String FIELD_MONTHS = "months";
+    public static final String FIELD_DAYS_OF_WEEK = "daysOfWeek";
+    public static final String FIELD_YEAR = "year";
+    public static final String FIELD_SERVICE_PARAMETER = "serviceParameter";
 
+    // Fields related to TaskError struct.
     public static final String TASK_ERROR_CODE = "{ballerina/task}TaskError";
     public static final String TASK_ERROR_RECORD = "TaskError";
     public static final String TASK_ERROR_MESSAGE = "message";
 
-    public static final String TASK_ID_FIELD = "taskId";
-    public static final String TASK_IS_RUNNING_FIELD = "isRunning";
-    public static final String TASK_IS_PAUSED_FIELD = "isPaused";
-    public static final String TASK_SERVICE_PARAMETER = "serviceParameter";
+    // Indexes for different fields in the context.
+    public static final int REF_ARG_INDEX_TASK_STRUCT = 0;
+    public static final int REF_ARG_INDEX_TASK_SERVICE = 2;
 
-    public static final int TASK_STRUCT_REF_ARG_INDEX = 0;
-    public static final int TASK_SERVICE_REF_ARG_INDEX = 2;
-
+    // Fields used in Appointment job map
     public static final String APPOINTMENT_SERVICE_OBJECT = "ballerina.service.with.parameters";
     public static final String APPOINTMENT_PARENT_CONTEXT = "ballerina.parent.context";
 
+    // ID of the Task object in native data
     public static final String NATIVE_DATA_TASK_OBJECT = "TaskObject";
 }

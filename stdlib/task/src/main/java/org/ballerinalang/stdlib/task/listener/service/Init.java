@@ -34,18 +34,18 @@ import org.ballerinalang.stdlib.task.listener.objects.Timer;
 
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_APPOINTMENT_DETAILS;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_DELAY;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_INTERVAL;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_NO_OF_RUNS;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_CONFIGURATION_MEMBER_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_DELAY;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_INTERVAL;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NO_OF_RUNS;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.MEMBER_APPOINTMENT_DETAILS;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.MEMBER_LISTENER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TASK_STRUCT_REF_ARG_INDEX;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_TIMER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.getCronExpressionFromAppointmentRecord;
 
@@ -67,12 +67,12 @@ public class Init extends BlockingNativeCallableUnit {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(TASK_STRUCT_REF_ARG_INDEX);
-        BMap<String, BValue> configurations = (BMap<String, BValue>) taskStruct.get(LISTENER_CONFIGURATION_MEMBER_NAME);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_STRUCT);
+        BMap<String, BValue> configurations = (BMap<String, BValue>) taskStruct.get(MEMBER_LISTENER_CONFIGURATION);
         String configurationTypeName = configurations.getType().getName();
         Task task;
 
-        if (TIMER_CONFIGURATION_STRUCT_NAME.equals(configurationTypeName)) {
+        if (STRUCT_TIMER_CONFIGURATION.equals(configurationTypeName)) {
             task = processTimer(context, configurations);
         } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
             task = processAppointment(context, configurations);
@@ -82,12 +82,12 @@ public class Init extends BlockingNativeCallableUnit {
 
     private static Timer processTimer(Context context, BMap<String, BValue> configurations) {
         Timer task;
-        long interval = ((BInteger) configurations.get(FIELD_NAME_INTERVAL)).intValue();
-        long delay = ((BInteger) configurations.get(FIELD_NAME_DELAY)).intValue();
+        long interval = ((BInteger) configurations.get(FIELD_INTERVAL)).intValue();
+        long delay = ((BInteger) configurations.get(FIELD_DELAY)).intValue();
 
         try {
-            if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
-                long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
+            if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
+                long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
                 task = new Timer(context, delay, interval, noOfRuns);
             } else {
                 task = new Timer(context, delay, interval);
@@ -103,14 +103,14 @@ public class Init extends BlockingNativeCallableUnit {
         Appointment appointment;
         try {
             String cronExpression;
-            if (configurations.get(FIELD_APPOINTMENT_DETAILS) instanceof BMap) {
-                BMap<String, BValue> appointmentDetails = (BMap) configurations.get(FIELD_APPOINTMENT_DETAILS);
+            if (configurations.get(MEMBER_APPOINTMENT_DETAILS) instanceof BMap) {
+                BMap<String, BValue> appointmentDetails = (BMap) configurations.get(MEMBER_APPOINTMENT_DETAILS);
                 cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);
             } else {
-                cronExpression = configurations.get(FIELD_APPOINTMENT_DETAILS).stringValue();
+                cronExpression = configurations.get(MEMBER_APPOINTMENT_DETAILS).stringValue();
             }
-            if (Objects.nonNull(configurations.get(FIELD_NAME_NO_OF_RUNS))) {
-                long noOfRuns = ((BInteger) configurations.get(FIELD_NAME_NO_OF_RUNS)).intValue();
+            if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
+                long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
                 appointment = new Appointment(context, cronExpression, noOfRuns);
             } else {
                 appointment = new Appointment(context, cronExpression);

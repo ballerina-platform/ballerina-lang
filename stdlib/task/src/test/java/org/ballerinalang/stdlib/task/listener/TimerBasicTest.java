@@ -31,13 +31,13 @@ import org.testng.annotations.Test;
 
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_DELAY;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_INTERVAL;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NAME_NO_OF_RUNS;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_CONFIGURATION_MEMBER_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_DELAY;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_INTERVAL;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NO_OF_RUNS;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.MEMBER_LISTENER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.TIMER_CONFIGURATION_STRUCT_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_TIMER_CONFIGURATION;
 
 /**
  * Test for Ballerina Task Timer service.
@@ -59,14 +59,14 @@ public class TimerBasicTest {
         BValue[] inputs = {new BInteger(interval), new BInteger(delay), new BInteger(noOfRecurrence)};
         BValue[] configs = BRunUtil.invokeStateful(compileResult, "getConfigurations", inputs);
         Assert.assertEquals(configs.length, 1);
-        Assert.assertEquals(TIMER_CONFIGURATION_STRUCT_NAME, configs[0].getType().getName());
+        Assert.assertEquals(STRUCT_TIMER_CONFIGURATION, configs[0].getType().getName());
 
         BValue timer = getTimerStruct(configs);
 
-        BMap<String, BValue> timerConfigs = (BMap) ((BMap) timer).get(LISTENER_CONFIGURATION_MEMBER_NAME);
-        checkIntVariableValues(timerConfigs, FIELD_NAME_INTERVAL, interval);
-        checkIntVariableValues(timerConfigs, FIELD_NAME_DELAY, delay);
-        checkIntVariableValues(timerConfigs, FIELD_NAME_NO_OF_RUNS, noOfRecurrence);
+        BMap<String, BValue> timerConfigs = (BMap) ((BMap) timer).get(MEMBER_LISTENER_CONFIGURATION);
+        checkIntVariableValues(timerConfigs, FIELD_INTERVAL, interval);
+        checkIntVariableValues(timerConfigs, FIELD_DELAY, delay);
+        checkIntVariableValues(timerConfigs, FIELD_NO_OF_RUNS, noOfRecurrence);
     }
 
     @Test(description = "Tests the functionality of initiating a Task Timer Listener without providing the delay.")
@@ -76,15 +76,15 @@ public class TimerBasicTest {
         BValue[] inputs = {new BInteger(interval), new BInteger(noOfRecurrence)};
         BValue[] configs = BRunUtil.invokeStateful(compileResult, "getConfigurationsWithoutDelay", inputs);
         Assert.assertEquals(configs.length, 1);
-        Assert.assertEquals(TIMER_CONFIGURATION_STRUCT_NAME, configs[0].getType().getName());
+        Assert.assertEquals(STRUCT_TIMER_CONFIGURATION, configs[0].getType().getName());
 
         BValue timer = getTimerStruct(configs);
 
-        BMap<String, BValue> timerConfigs = (BMap) ((BMap) timer).get(LISTENER_CONFIGURATION_MEMBER_NAME);
-        checkIntVariableValues(timerConfigs, FIELD_NAME_INTERVAL, interval);
+        BMap<String, BValue> timerConfigs = (BMap) ((BMap) timer).get(MEMBER_LISTENER_CONFIGURATION);
+        checkIntVariableValues(timerConfigs, FIELD_INTERVAL, interval);
         // When we do not provide delay, it is set to interval
-        checkIntVariableValues(timerConfigs, FIELD_NAME_DELAY, interval);
-        checkIntVariableValues(timerConfigs, FIELD_NAME_NO_OF_RUNS, noOfRecurrence);
+        checkIntVariableValues(timerConfigs, FIELD_DELAY, interval);
+        checkIntVariableValues(timerConfigs, FIELD_NO_OF_RUNS, noOfRecurrence);
     }
 
     @Test(description = "Tests the functionality of initiating a Task Timer Listener without providing noOfRecurrences")
@@ -94,14 +94,14 @@ public class TimerBasicTest {
         BValue[] inputs = {new BInteger(interval), new BInteger(delay)};
         BValue[] configs = BRunUtil.invokeStateful(compileResult, "getConfigurationsWithoutRecurrences", inputs);
         Assert.assertEquals(configs.length, 1);
-        Assert.assertEquals(TIMER_CONFIGURATION_STRUCT_NAME, configs[0].getType().getName());
+        Assert.assertEquals(STRUCT_TIMER_CONFIGURATION, configs[0].getType().getName());
 
         BValue timer = getTimerStruct(configs);
 
-        BMap<String, BValue> timerConfigs = (BMap) ((BMap) timer).get(LISTENER_CONFIGURATION_MEMBER_NAME);
-        checkIntVariableValues(timerConfigs, FIELD_NAME_INTERVAL, interval);
-        checkIntVariableValues(timerConfigs, FIELD_NAME_DELAY, delay);
-        Assert.assertTrue(Objects.isNull(timerConfigs.get(FIELD_NAME_NO_OF_RUNS)));
+        BMap<String, BValue> timerConfigs = (BMap) ((BMap) timer).get(MEMBER_LISTENER_CONFIGURATION);
+        checkIntVariableValues(timerConfigs, FIELD_INTERVAL, interval);
+        checkIntVariableValues(timerConfigs, FIELD_DELAY, delay);
+        Assert.assertTrue(Objects.isNull(timerConfigs.get(FIELD_NO_OF_RUNS)));
     }
 
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
@@ -111,14 +111,14 @@ public class TimerBasicTest {
         BValue[] configs = BRunUtil.invokeStateful(
                 compileResult, "getConfigurationsWithoutDelayAndRecurrences", inputs);
         Assert.assertEquals(configs.length, 1);
-        Assert.assertEquals(TIMER_CONFIGURATION_STRUCT_NAME, configs[0].getType().getName());
+        Assert.assertEquals(STRUCT_TIMER_CONFIGURATION, configs[0].getType().getName());
 
         BValue timer = getTimerStruct(configs);
 
-        BMap<String, BValue> timerConfigs = (BMap) ((BMap) timer).get(LISTENER_CONFIGURATION_MEMBER_NAME);
-        checkIntVariableValues(timerConfigs, FIELD_NAME_INTERVAL, interval);
-        checkIntVariableValues(timerConfigs, FIELD_NAME_DELAY, interval);
-        Assert.assertTrue(Objects.isNull(timerConfigs.get(FIELD_NAME_NO_OF_RUNS)));
+        BMap<String, BValue> timerConfigs = (BMap) ((BMap) timer).get(MEMBER_LISTENER_CONFIGURATION);
+        checkIntVariableValues(timerConfigs, FIELD_INTERVAL, interval);
+        checkIntVariableValues(timerConfigs, FIELD_DELAY, interval);
+        Assert.assertTrue(Objects.isNull(timerConfigs.get(FIELD_NO_OF_RUNS)));
     }
 
     private void checkIntVariableValues(BMap<String, BValue> struct, String fieldName, long expectedValue) {
