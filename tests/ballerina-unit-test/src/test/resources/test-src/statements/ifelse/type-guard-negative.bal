@@ -246,7 +246,7 @@ function testTypeGuardsWithBinaryOps_6() {
 function testTypeGuardsWithErrorInmatch() returns string {
     any a = 5;
     match a {
-        var p if p is error => return string `{{p.reason()}}`;
+        var p if p is error => return string `${p.reason()}`;
         var p => return "Internal server error";
     }
 }
