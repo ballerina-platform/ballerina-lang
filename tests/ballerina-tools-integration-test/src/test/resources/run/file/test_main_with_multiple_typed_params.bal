@@ -15,20 +15,16 @@
 // under the License.
 import ballerina/io;
 
-public function noParamEntry() returns int {
-    return 1;
-}
-
-public function combinedTypeEntry(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e,
-                                  string... args) returns string {
+public function main(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e, string... args) {
     string restArgs = "";
     foreach var str in args {
         restArgs += str + " ";
     }
 
-    return "integer: " + <string> i + ", float: " + f + ", string: " + s + ", byte: " + <string> <int> b
-                + ", boolean: " + <string> bool + ", JSON Name Field: " + j.name.toString() + ", XML Element Name: "
-                    + x.getElementName() + ", Employee Name Field: " + e.name + ", string rest args: " + restArgs;
+    io:print("integer: " + string.convert(i) + ", float: " + f + ", string: " + s + ", byte: " +
+            string.convert(int.convert(b)) + ", boolean: " + string.convert(bool) + ", JSON Name Field: " +
+            j.name.toString() + ", XML Element Name: " + x.getElementName() + ", Employee Name Field: " + e.name +
+            ", string rest args: " + restArgs);
 }
 
 public type Employee record {

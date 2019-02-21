@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -15,22 +15,18 @@
 // under the License.
 import ballerina/io;
 
-public function noParamEntry() returns int {
-    return 1;
-}
+public type Employee record {
+    string name;
+};
 
-public function combinedTypeEntry(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e,
-                                  string... args) returns string {
+public function main(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e, string... args) {
     string restArgs = "";
     foreach var str in args {
         restArgs += str + " ";
     }
 
-    return "integer: " + <string> i + ", float: " + f + ", string: " + s + ", byte: " + <string> <int> b
-                + ", boolean: " + <string> bool + ", JSON Name Field: " + j.name.toString() + ", XML Element Name: "
-                    + x.getElementName() + ", Employee Name Field: " + e.name + ", string rest args: " + restArgs;
+    io:print("integer: " + string.convert(i) + ", float: " + f + ", string: " + s + ", byte: " +
+            string.convert(int.convert(b)) + ", boolean: " + string.convert(bool) + ", JSON Name Field: " +
+            j.name.toString() + ", XML Element Name: " + x.getElementName() + ", Employee Name Field: " + e.name +
+            ", string rest args: " + restArgs);
 }
-
-public type Employee record {
-   string name = "";
-};

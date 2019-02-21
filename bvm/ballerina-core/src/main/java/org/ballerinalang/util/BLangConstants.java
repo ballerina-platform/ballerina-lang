@@ -87,7 +87,5 @@ public class BLangConstants {
     public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775807.6",
                                                                                          MathContext.DECIMAL128);
 
-    public static final String COLON = ":";
-
     public static final String DEFAULT_WORKER_NAME = "default";
 }
