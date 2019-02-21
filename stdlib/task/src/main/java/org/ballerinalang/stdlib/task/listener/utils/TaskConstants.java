@@ -26,7 +26,8 @@ public class TaskConstants {
     public static final String PATH_SEPARATOR = "/";
     public static final String ORGANIZATION_NAME = "ballerina";
     public static final String PACKAGE_NAME = "task";
-    public static final String LISTENER_STRUCT_NAME = "Listener";
+    public static final String STRUCT_NAME_LISTENER = "Listener";
+    public static final String STRUCT_NAME_SCHEDULER = "Scheduler";
     public static final String PACKAGE_STRUCK_NAME = ORGANIZATION_NAME + PATH_SEPARATOR + PACKAGE_NAME;
 
     // Struct names used

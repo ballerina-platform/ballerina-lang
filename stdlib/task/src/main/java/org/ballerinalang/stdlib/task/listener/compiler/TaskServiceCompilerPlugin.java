@@ -31,10 +31,10 @@ import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 import java.util.List;
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_ERROR;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.RESOURCE_ON_TRIGGER;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_NAME_LISTENER;
 import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 
 /*
@@ -48,10 +48,10 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
  */
 @SupportedResourceParamTypes(
         expectedListenerType = @SupportedResourceParamTypes.Type(
-                packageName = PACKAGE_NAME, name = LISTENER_STRUCT_NAME
+                packageName = PACKAGE_NAME, name = STRUCT_NAME_LISTENER
         ),
         paramTypes = {
-                @SupportedResourceParamTypes.Type(packageName = PACKAGE_NAME, name = LISTENER_STRUCT_NAME)
+                @SupportedResourceParamTypes.Type(packageName = PACKAGE_NAME, name = STRUCT_NAME_LISTENER)
         }
 )
 public class TaskServiceCompilerPlugin extends AbstractTransportCompilerPlugin {

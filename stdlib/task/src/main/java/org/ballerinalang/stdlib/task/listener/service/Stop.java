@@ -31,11 +31,11 @@ import org.ballerinalang.stdlib.task.listener.impl.TaskServerConnectorImpl;
 import org.ballerinalang.stdlib.task.listener.objects.Task;
 import org.ballerinalang.stdlib.task.listener.objects.TaskState;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 
 /**
@@ -47,7 +47,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
         functionName = "stop",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = LISTENER_STRUCT_NAME,
+                structType = STRUCT_NAME_LISTENER,
                 structPackage = PACKAGE_STRUCK_NAME),
         isPublic = true
 )

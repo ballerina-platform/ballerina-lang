@@ -28,12 +28,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.listener.objects.Task;
 
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_NAME_LISTENER;
 
 /**
  * Native function to detach a service from the listener.
@@ -44,7 +44,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.REF_ARG
         functionName = "detach",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = LISTENER_STRUCT_NAME,
+                structType = STRUCT_NAME_LISTENER,
                 structPackage = PACKAGE_STRUCK_NAME),
         isPublic = true
 )

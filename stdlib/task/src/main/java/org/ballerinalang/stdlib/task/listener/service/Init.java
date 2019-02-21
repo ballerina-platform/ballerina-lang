@@ -37,7 +37,6 @@ import java.util.Objects;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_DELAY;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_INTERVAL;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.FIELD_NO_OF_RUNS;
-import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.LISTENER_STRUCT_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.MEMBER_APPOINTMENT_DETAILS;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.MEMBER_LISTENER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
@@ -45,6 +44,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.ORGANIZ
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
+import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.listener.utils.TaskConstants.STRUCT_TIMER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.createError;
 import static org.ballerinalang.stdlib.task.listener.utils.Utils.getCronExpressionFromAppointmentRecord;
@@ -58,7 +58,7 @@ import static org.ballerinalang.stdlib.task.listener.utils.Utils.getCronExpressi
         functionName = "init",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = LISTENER_STRUCT_NAME,
+                structType = STRUCT_NAME_LISTENER,
                 structPackage = PACKAGE_STRUCK_NAME),
         isPublic = true
 )
