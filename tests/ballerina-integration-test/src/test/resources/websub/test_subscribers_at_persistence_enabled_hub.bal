@@ -30,8 +30,10 @@ listener websub:Listener websubEP = new websub:Listener(8383);
     subscriptionClientConfig: {
         auth: {
             scheme: http:BASIC_AUTH,
-            username: "tom",
-            password: "1234"
+            basicAuthConfig: {
+                username: "tom",
+                password: "1234"
+            }
         }
     }
 }
@@ -50,8 +52,10 @@ service websubSubscriber on websubEP {
     subscriptionClientConfig: {
         auth: {
             scheme: http:BASIC_AUTH,
-            username: "tom",
-            password: "1234"
+            basicAuthConfig: {
+                username: "tom",
+                password: "1234"
+            }
         }
     }
 }
