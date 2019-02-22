@@ -1689,12 +1689,19 @@ public type TimeAccumulatingWindow object {
             if (event.eventType != "CURRENT") {
                 continue;
             }
+
+            if (event.eventType == "CURRENT" && event.timestamp < self.lastTimestamp - self.timeInMillis) {
+                continue;
+            }
+
             StreamEvent clonedEvent = event.copy();
+
             if(self.lastTimestamp < clonedEvent.timestamp) {
                 self.lastTimestamp = clonedEvent.timestamp;
-                self.currentEventQueue.addLast(clonedEvent);
-                self.scheduler.notifyAt(self.lastTimestamp + self.timeInMillis);
             }
+
+            self.currentEventQueue.addLast(clonedEvent);
+            self.scheduler.notifyAt(self.lastTimestamp + self.timeInMillis);
         }
 
         if (self.currentEventQueue.getLast() != ()) {
