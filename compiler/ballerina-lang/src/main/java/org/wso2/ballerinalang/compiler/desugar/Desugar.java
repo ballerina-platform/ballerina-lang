@@ -1064,38 +1064,7 @@ public class Desugar extends BLangNodeVisitor {
 
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
-
-        // If this is an update of a type guarded variable, then generate code
-        // to update the original variable as well.
-        if (assignNode.varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            result = assignNode;
-            return;
-        }
-
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) assignNode.varRef;
-        if ((varRef.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
-            BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
-            if (varSymbol.originalSymbol == null) {
-                result = assignNode;
-                return;
-            }
-            BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol);
-            guardedVarRef = addConversionExprIfRequired(guardedVarRef, varSymbol.originalSymbol.type);
-            BLangSimpleVarRef originalVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos,
-                    varSymbol.originalSymbol);
-            BLangAssignment updateOriginalVar = ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef,
-                    guardedVarRef);
-            updateOriginalVar = rewrite(updateOriginalVar, env);
-            result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
-        } else if ((varRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
-            BConstantSymbol constSymbol = (BConstantSymbol) varRef.symbol;
-            BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, constSymbol);
-            guardedVarRef = addConversionExprIfRequired(guardedVarRef, constSymbol.type);
-            BLangSimpleVarRef originalVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, constSymbol);
-            BLangAssignment updateOriginalVar = ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef,
-                    guardedVarRef);
-            result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
-        }
+        result = assignNode;
     }
 
     @Override
