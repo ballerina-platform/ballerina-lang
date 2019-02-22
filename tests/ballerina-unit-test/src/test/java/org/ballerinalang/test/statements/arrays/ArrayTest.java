@@ -30,6 +30,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static java.lang.String.format;
+
 /**
  * Test cases for ballerina.model.arrays.
  */
@@ -145,32 +147,29 @@ public class ArrayTest {
 
     @Test(description = "Test arrays of types without implicit initial values")
     public void testArrayImplicitInitialValues() {
-        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 9);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0, "array element type 'ObjInitWithParam' " +
-                "does not have an implicit initial value, use 'ObjInitWithParam?'", 53, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, "array element type 'FT' does not have an " +
-                "implicit initial value, use 'FT?'", 74, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 2, "array element type 'FTUnion' does not have" +
-                " an implicit initial value, use 'FTUnion?'", 89, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 3, "array element type 'FTSingle' does not have" +
-                " an implicit initial value, use 'FTSingle?'", 92, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 4, "array element type 'FTNUnion' does not have" +
-                " an implicit initial value, use 'FTNUnion?'", 95, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 5, "array element type 'error<>' does not have" +
-                " an implicit initial value, use 'error<>?'", 100, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 6, "array element type 'UN' does not have" +
-                " an implicit initial value, use 'UN?'", 115, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 7, "array element type 'error<>' does not have" +
-                " an implicit initial value, use 'error<>?'", 141, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 8, "array element type 'FTUnion' does not have" +
-                " an implicit initial value, use 'FTUnion?'", 149, 9);
+        String errMsgFormat = "array element type '%s' does not have an implicit initial value, use '%s'";
+        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 8);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0,
+                                  format(errMsgFormat, "ObjInitWithParam", "ObjInitWithParam?"), 53, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, format(errMsgFormat, "FT", "FT?"), 74, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 2,
+                                  format(errMsgFormat, "FTUnion", "FTUnion?"), 89, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 3,
+                                  format(errMsgFormat, "FTSingle", "FTSingle?"), 92, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 4,
+                                  format(errMsgFormat, "error<>", "error<>?"), 100, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 5, format(errMsgFormat, "UN", "UN?"), 115, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 6,
+                                  format(errMsgFormat, "error<>", "error<>?"), 141, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 7,
+                                  format(errMsgFormat, "FTUnion", "FTUnion?"), 149, 9);
     }
 
     @Test(description = "Test arrays of types without implicit initial values")
     public void testArrayImplicitInitialValuesOfFiniteType() {
         CompileResult negResult = BCompileUtil.compile(
                 "test-src/statements/arrays/array-implicit-initial-value-finite-type-negative.bal");
-        Assert.assertEquals(negResult.getErrorCount(), 4);
+        Assert.assertEquals(negResult.getErrorCount(), 3);
         BAssertUtil.validateError(negResult, 0,
                 "array element type 'allInitNonZero' does not have an implicit initial value, use 'allInitNonZero?'",
                 22, 1);
@@ -178,9 +177,6 @@ public class ArrayTest {
                 "array element type 'allFloatNonZero' does not have an implicit initial value, use 'allFloatNonZero?'",
                 29, 1);
         BAssertUtil.validateError(negResult, 2,
-                "array element type 'bTrue' does not have an implicit initial value, use 'bTrue?'",
-                36, 1);
-        BAssertUtil.validateError(negResult, 3,
                 "array element type 'allStrNonEmpty' does not have an implicit initial value, use 'allStrNonEmpty?'",
                 43, 1);
     }

@@ -2293,7 +2293,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.262</transport.http.version>
+        <transport.http.version>6.0.266</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2403,9 +2403,9 @@
         <protobuf.maven.plugin.version>0.5.0</protobuf.maven.plugin.version>
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
 
-        <mvel2.version>2.2.1.Final</mvel2.version>
+        <mvel2.version>2.4.4.Final</mvel2.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
-        <guava.version>19.0</guava.version>
+        <guava.version>23.0</guava.version>
         <metrics.version>3.1.0</metrics.version>
 
         <!-- Observability -->
@@ -2428,7 +2428,7 @@
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>1.5.5</apache.directory.server.version>
-        <bouncycastle.version>1.60</bouncycastle.version>
+        <bouncycastle.version>1.61</bouncycastle.version>
     </properties>
 
 </project>

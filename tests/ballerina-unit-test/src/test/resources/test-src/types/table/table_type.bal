@@ -1485,7 +1485,7 @@ function testTableRemoveInvalid() returns string {
     if (selectRet is table<ResultPrimitiveInt>) {
         var ret = trap selectRet.remove(isDelete);
         if (ret is int) {
-            s = <string> ret;
+            s = string.convert(ret);
         } else {
             s = <string> ret.detail().message;
         }

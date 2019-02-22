@@ -44,7 +44,7 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 51);
+        Assert.assertEquals(negativeResult.getErrorCount(), 52);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 22, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 25, 20);
@@ -61,6 +61,8 @@ public class TypeGuardTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 84, 13);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'string' will not be matched to 'int'", 88,
                 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'other' cannot be converted to 'string'",
+                                  89, 30);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'float|boolean' will not be matched to 'string'", 108, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 133, 16);
