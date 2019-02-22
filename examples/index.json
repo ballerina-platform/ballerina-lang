@@ -262,10 +262,6 @@
                 "url": "type-conversion"
             },
             {
-                "name": "Explicitly Typed Expressions",
-                "url": "explicitly-typed-expressions"
-            },
-            {
                 "name": "Type Assertion",
                 "url": "type-assertion"
             },

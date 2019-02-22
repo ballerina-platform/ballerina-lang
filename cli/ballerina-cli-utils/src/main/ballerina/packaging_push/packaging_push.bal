@@ -74,7 +74,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
         io:println("connection to the remote host failed : " + result.reason());
         return;
     }
-    string statusCode = <string> httpResponse.statusCode;
+    string statusCode = string.convert(httpResponse.statusCode);
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
