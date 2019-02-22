@@ -710,11 +710,10 @@ public class BLangPackageBuilder {
     void addErrorVariableDefStatment(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
         BLangErrorVariable var = (BLangErrorVariable) this.varStack.pop();
         BLangErrorVariableDef varDefNode = (BLangErrorVariableDef) TreeBuilder.createErrorVariableDefinitionNode();
-        Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
         var.setInitialExpression(this.exprNodeStack.pop());
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
-        varDefNode.addWS(wsOfSemiColon);
+        varDefNode.addWS(ws);
         var.isDeclaredWithVar = isDeclaredWithVar;
         if (!isDeclaredWithVar) {
             var.setTypeNode(this.typeNodeStack.pop());
