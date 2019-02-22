@@ -25,7 +25,7 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_PARENT_CONTEXT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_CONTEXT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_SERVICE_OBJECT;
 
 /**
@@ -42,7 +42,7 @@ public class AppointmentJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
-        Context context = (Context) jobDataMap.get(APPOINTMENT_PARENT_CONTEXT);
+        Context context = (Context) jobDataMap.get(APPOINTMENT_CONTEXT);
         ServiceWithParameters serviceWithParameters = (ServiceWithParameters) jobDataMap
                 .get(APPOINTMENT_SERVICE_OBJECT);
 

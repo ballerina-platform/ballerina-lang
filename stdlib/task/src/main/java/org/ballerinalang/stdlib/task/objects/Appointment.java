@@ -26,7 +26,7 @@ import org.ballerinalang.stdlib.task.utils.TaskManager;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_PARENT_CONTEXT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_CONTEXT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_SERVICE_OBJECT;
 import static org.quartz.CronExpression.isValidExpression;
 
@@ -111,7 +111,7 @@ public class Appointment extends AbstractTask {
 
     private JobDataMap getJobDataMapFromService(Context context, ServiceWithParameters serviceWithParameters) {
         JobDataMap jobData = new JobDataMap();
-        jobData.put(APPOINTMENT_PARENT_CONTEXT, context);
+        jobData.put(APPOINTMENT_CONTEXT, context);
         jobData.put(APPOINTMENT_SERVICE_OBJECT, serviceWithParameters);
         return jobData;
     }

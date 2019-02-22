@@ -74,7 +74,7 @@ public class TaskConstants {
 
     // Fields used in Appointment job map
     public static final String APPOINTMENT_SERVICE_OBJECT = "ballerina.service.with.parameters";
-    public static final String APPOINTMENT_PARENT_CONTEXT = "ballerina.parent.context";
+    public static final String APPOINTMENT_CONTEXT = "ballerina.context";
 
     // ID of the Task object in native data
     public static final String NATIVE_DATA_TASK_OBJECT = "TaskObject";
