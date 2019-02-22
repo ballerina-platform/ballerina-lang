@@ -2303,7 +2303,7 @@
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <commons.lang3.version>3.5</commons.lang3.version>
         <jackson.version>2.9.8</jackson.version>
-        <com.fasterxml.jackson.dataformat.yaml.version>2.9.1</com.fasterxml.jackson.dataformat.yaml.version>
+        <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
         <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
         <orbit.version.axiom>1.2.20</orbit.version.axiom>
         <c14n.axiom.orbit.version>1.2.11-wso2v11</c14n.axiom.orbit.version>
