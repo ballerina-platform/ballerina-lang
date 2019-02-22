@@ -2403,7 +2403,7 @@
         <protobuf.maven.plugin.version>0.5.0</protobuf.maven.plugin.version>
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
 
-        <mvel2.version>2.2.1.Final</mvel2.version>
+        <mvel2.version>2.4.4.Final</mvel2.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
         <guava.version>19.0</guava.version>
         <metrics.version>3.1.0</metrics.version>
