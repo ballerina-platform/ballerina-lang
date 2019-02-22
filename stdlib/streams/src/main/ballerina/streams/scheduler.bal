@@ -28,7 +28,7 @@ public type Scheduler object {
     public function __init(function (StreamEvent?[] streamEvents) processFunc) {
         self.toNotifyQueue = new;
         self.running = false;
-        self.timer = new({ interval: 0 });
+        self.timer = new({ interval: 1 });
         self.processFunc = processFunc;
     }
 
@@ -74,7 +74,7 @@ public type Scheduler object {
         }
 
         _ = self.timer.cancel();
-        self.timer = new({ interval: 0 });
+        self.timer = new({ interval: 1 });
 
         first = self.toNotifyQueue.getFirst();
         currentTime = time:currentTime().time;
@@ -92,7 +92,7 @@ public type Scheduler object {
                 self.running = false;
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
-                    self.timer = new({ interval: 0 });
+                    self.timer = new({ interval: 1 });
                     _ = self.timer.attachService(schedulerService, serviceParameter = self);
                     _ = self.timer.run();
                 }
