@@ -598,3 +598,57 @@ function updateReturnedConstantMap2() {
 function getMap() returns map<string> {
     return m5;
 }
+
+// -----------------------------------------------------------
+
+const map<boolean> bm3 = { "bm3k": true };
+const map<boolean> bm4 = { "bm4kn": bm3.bm3k };
+
+function testBooleanConstKeyReference() returns map<boolean> {
+    return bm4;
+}
+
+// -----------------------------------------------------------
+
+const map<int> im3 = { "im3k": 123 };
+const map<int> im4 = { "im4kn": im3.im3k };
+
+function testIntConstKeyReference() returns map<int> {
+    return im4;
+}
+
+// -----------------------------------------------------------
+
+const map<byte> bytem3 = { "bytem3k": 64 };
+const map<byte> bytem4 = { "bytem4kn": bytem3.bytem3k };
+
+function testByteConstKeyReference() returns map<byte> {
+    return bytem4;
+}
+
+// -----------------------------------------------------------
+
+const map<float> fm3 = { "fm3k": 12.5 };
+const map<float> fm4 = { "fm4kn": fm3.fm3k };
+
+function testFloatConstKeyReference() returns map<float> {
+    return fm4;
+}
+
+// -----------------------------------------------------------
+
+const map<decimal> dm3 = { "dm3k": 5.56 };
+const map<decimal> dm4 = { "dm4kn": dm3.dm3k };
+
+function testDecimalConstKeyReference() returns map<decimal> {
+    return dm4;
+}
+
+// -----------------------------------------------------------
+
+const map<string> sm3 = { "sm3k": "sm3v" };
+const map<string> sm4 = { "sm4kn": sm3.sm3k };
+
+function testStringConstKeyReference() returns map<string> {
+    return sm4;
+}

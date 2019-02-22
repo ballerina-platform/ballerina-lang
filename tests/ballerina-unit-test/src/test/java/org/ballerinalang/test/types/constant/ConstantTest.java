@@ -518,8 +518,7 @@ public class ConstantTest {
 
     @Test
     public void testConstInAnnotations() {
-        String functionName = "testConstInAnnotations";
-        BValue[] returns = BRunUtil.invoke(compileResult, functionName);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{name:\"testAnnotation\", moduleName:\"\", moduleVersion:\"\"," +
                 " value:{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}}");
@@ -527,8 +526,7 @@ public class ConstantTest {
 
     @Test
     public void getNestedConstantMapValue() {
-        String functionName = "getNestedConstantMapValue";
-        BValue[] returns = BRunUtil.invoke(compileResult, functionName);
+        BValue[] returns = BRunUtil.invoke(compileResult, "getNestedConstantMapValue");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "m5v");
     }
@@ -559,8 +557,7 @@ public class ConstantTest {
 
     @Test
     public void getConstantMapValueInArray() {
-        String functionName = "getConstantMapValueInArray";
-        BValue[] returns = BRunUtil.invoke(compileResult, functionName);
+        BValue[] returns = BRunUtil.invoke(compileResult, "getConstantMapValueInArray");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "m5v");
     }
@@ -575,5 +572,47 @@ public class ConstantTest {
             expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
     public void updateReturnedConstantMap2() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantMap2");
+    }
+
+    @Test
+    public void testBooleanConstKeyReference() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bm4kn\":true}");
+    }
+
+    @Test
+    public void testIntConstKeyReference() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstKeyReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"im4kn\":123}");
+    }
+
+    @Test
+    public void testByteConstKeyReference() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstKeyReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bytem4kn\":64}");
+    }
+
+    @Test
+    public void testFloatConstKeyReference() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstKeyReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"fm4kn\":12.5}");
+    }
+
+    @Test
+    public void testDecimalConstKeyReference() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstKeyReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"dm4kn\":5.56}");
+    }
+
+    @Test
+    public void testStringConstKeyReference() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstKeyReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"sm4kn\":\"sm3v\"}");
     }
 }
