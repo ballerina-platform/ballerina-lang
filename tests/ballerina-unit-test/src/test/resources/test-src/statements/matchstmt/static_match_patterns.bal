@@ -373,3 +373,61 @@ function testBracedUnionType() returns string {
         _ => return "Default";
     }
 }
+
+const CONST1 = "Ballerina";
+const CONST2 = 200;
+const NIL = ();
+
+function testStaticMatchWithConstants() returns string[] {
+    string a1 = "Bal";
+    string a2 = "Ballerina";
+    int a3 = 100;
+    int a4 = 200;
+    () a5 = ();
+    float a6 = 100.0;
+
+    string[] result = [caz4(a1), caz4(a2), caz4(a3), caz4(a4), caz4(a5), caz4(a6)];
+
+    return result;
+}
+
+function caz4(any a) returns string {
+    match a {
+        100 => return "100";
+        CONST2 => return "200";
+        "Bal" => return "Bal";
+        NIL => return "Nil";
+        CONST1 => return "Ballerina";
+    _ => return "Default";
+    }
+}
+
+const CONST_1 = "A";
+const CONST_2 = "B";
+const CONST_3 = 10;
+const CONST_4 = true;
+
+function testMatchingConstTypesWithConstPatterns() returns string[] {
+    string[] results = [caz5(CONST_1), caz5(CONST_2), caz5(CONST_3), caz5(CONST_4)];
+    return results;
+}
+
+function caz5(CONST_1|CONST_2|CONST_3|CONST_4 a) returns string {
+    string results = "";
+
+    match a {
+        CONST_2 => results += "B";
+        CONST_1 => results += "A";
+        true => results += "true";
+        CONST_3 => results += "10";
+    }
+
+    match a {
+        10 => results += "10";
+        "A" => results += "A";
+        CONST_4 => results += "true";
+        "B" => results += "B";
+    }
+
+    return results;
+}

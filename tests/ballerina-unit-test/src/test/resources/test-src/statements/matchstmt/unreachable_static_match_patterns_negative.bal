@@ -70,3 +70,29 @@ function unreachableCode() returns string {
 
     return "Fail"; // unreachable
 }
+
+const CONST_1 = "B";
+const CONST_2 = "B";
+
+function invalidConstPatterns(any a) returns string {
+    match a {
+        CONST_1 => return "B";
+        CONST_2 => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+    }
+
+    match a {
+        "B" => return "B";
+        CONST_2 => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+    }
+
+    match a {
+        CONST_2 => return "B";
+        "B" => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+    }
+
+    match a {
+        _ => return "Default";
+        CONST_1 => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+    }
+    return "Default";
+}
