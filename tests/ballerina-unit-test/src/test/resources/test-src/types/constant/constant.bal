@@ -652,3 +652,45 @@ const map<string> sm4 = { "sm4kn": sm3.sm3k };
 function testStringConstKeyReference() returns map<string> {
     return sm4;
 }
+
+// -----------------------------------------------------------
+
+function testBooleanConstKeyReferenceInLocalVar() returns boolean {
+    boolean b = bm3.bm3k;
+    return b;
+}
+
+// -----------------------------------------------------------
+
+function testIntConstKeyReferenceInLocalVar() returns int {
+    int i = im3.im3k;
+    return i;
+}
+
+// -----------------------------------------------------------
+
+function testByteConstKeyReferenceInLocalVar() returns byte {
+    byte b = bytem3.bytem3k;
+    return b;
+}
+
+// -----------------------------------------------------------
+
+function testFloatConstKeyReferenceInLocalVar() returns float {
+    float f = fm3.fm3k;
+    return f;
+}
+
+// -----------------------------------------------------------
+
+function testDecimalConstKeyReferenceInLocalVar() returns decimal {
+    decimal d = dm3.dm3k;
+    return d;
+}
+
+// -----------------------------------------------------------
+
+function testStringConstKeyReferenceInLocalVar() returns string {
+    string s = sm3.sm3k;
+    return s;
+}

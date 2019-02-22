@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -30,6 +31,9 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * Test cases for reading constants.
@@ -464,5 +468,48 @@ public class ConstantTests {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstKeyReference");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"sm4kn\":\"sm3v\"}");
+    }
+
+    @Test
+    public void testBooleanConstKeyReferenceInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testIntConstKeyReferenceInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 123);
+    }
+
+    @Test
+    public void testByteConstKeyReferenceInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 64);
+    }
+
+    @Test
+    public void testFloatConstKeyReferenceInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 12.5);
+    }
+
+    @Test
+    public void testDecimalConstKeyReferenceInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns[0]);
+        BigDecimal expected = new BigDecimal("5.56", MathContext.DECIMAL128);
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(expected), 0);
+    }
+
+    @Test
+    public void testStringConstKeyReferenceInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "sm3v");
     }
 }

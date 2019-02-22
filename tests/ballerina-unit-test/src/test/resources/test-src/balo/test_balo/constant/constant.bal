@@ -415,3 +415,45 @@ function testDecimalConstKeyReference() returns map<decimal> {
 function testStringConstKeyReference() returns map<string> {
     return foo:sm4;
 }
+
+// -----------------------------------------------------------
+
+function testBooleanConstKeyReferenceInLocalVar() returns boolean {
+    boolean b = foo:bm3.bm3k;
+    return b;
+}
+
+// -----------------------------------------------------------
+
+function testIntConstKeyReferenceInLocalVar() returns int {
+    int i = foo:im3.im3k;
+    return i;
+}
+
+// -----------------------------------------------------------
+
+function testByteConstKeyReferenceInLocalVar() returns byte {
+    byte b = foo:bytem3.bytem3k;
+    return b;
+}
+
+// -----------------------------------------------------------
+
+function testFloatConstKeyReferenceInLocalVar() returns float {
+    float f = foo:fm3.fm3k;
+    return f;
+}
+
+// -----------------------------------------------------------
+
+function testDecimalConstKeyReferenceInLocalVar() returns decimal {
+    decimal d = foo:dm3.dm3k;
+    return d;
+}
+
+// -----------------------------------------------------------
+
+function testStringConstKeyReferenceInLocalVar() returns string {
+    string s = foo:sm3.sm3k;
+    return s;
+}
