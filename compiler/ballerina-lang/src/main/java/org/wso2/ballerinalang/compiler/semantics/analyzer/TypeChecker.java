@@ -789,7 +789,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
-                if (symbol.type!= symTable.noType && types.isAssignable(symbol.type, expType)) {
+                if (symbol.type != symTable.noType && types.isAssignable(symbol.type, expType)) {
                     actualType = symbol.type;
                 } else {
                     actualType = ((BConstantSymbol) symbol).literalValueType;

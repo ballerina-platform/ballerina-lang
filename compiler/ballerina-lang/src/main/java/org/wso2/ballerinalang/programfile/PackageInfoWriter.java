@@ -249,7 +249,9 @@ public class PackageInfoWriter {
         }
     }
 
-    private static void writeSimpleLiteral(DataOutputStream dataOutStream, ConstantValue constantValue) throws IOException {
+    private static void writeSimpleLiteral(DataOutputStream dataOutStream, ConstantValue constantValue)
+            throws IOException {
+
         dataOutStream.writeInt(constantValue.finiteTypeSigCPIndex);
         dataOutStream.writeInt(constantValue.valueTypeSigCPIndex);
 
