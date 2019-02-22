@@ -555,6 +555,7 @@ function testConstInAnnotations() returns reflect:annotationData[] {
 map<map<string>> m4 = { "m4k": m5 };
 const map<string> m5 = { "m5k": "m5v" };
 
+// Negative tests.
 function getNestedConstantMapValue() returns string {
     return m4.m4k.m5k;
 }
@@ -571,6 +572,7 @@ function updateNestedConstantMapValue2() {
 
 map<string>[] a1 = [m5];
 
+// Negative tests.
 function updateConstantMapValueInArray() {
     a1[0].m5k = "m5nv";
 }
@@ -585,6 +587,7 @@ function getConstantMapValueInArray() returns string {
 
 // -----------------------------------------------------------
 
+// Negative tests.
 function updateReturnedConstantMap() {
     map<string> m = getMap();
     m.m5k = "m5kn";
@@ -655,6 +658,15 @@ function testStringConstKeyReference() returns map<string> {
 
 // -----------------------------------------------------------
 
+const map<()> nm3 = { "nm3k": () };
+const map<()> nm4 = { "nm4kn": nm3.nm3k };
+
+function testNullConstKeyReference() returns map<()> {
+    return nm4;
+}
+
+// -----------------------------------------------------------
+
 function testBooleanConstKeyReferenceInLocalVar() returns boolean {
     boolean b = bm3.bm3k;
     return b;
@@ -694,3 +706,7 @@ function testStringConstKeyReferenceInLocalVar() returns string {
     string s = sm3.sm3k;
     return s;
 }
+
+// -----------------------------------------------------------
+
+map<any> am = {};

@@ -617,6 +617,13 @@ public class ConstantTest {
     }
 
     @Test
+    public void testNullConstKeyReference() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNullConstKeyReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"nm4kn\":()}");
+    }
+
+    @Test
     public void testBooleanConstKeyReferenceInLocalVar() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReferenceInLocalVar");
         Assert.assertNotNull(returns[0]);

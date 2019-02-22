@@ -107,3 +107,6 @@ public const map<decimal> dm4 = { "dm4kn": dm3.dm3k };
 
 public const map<string> sm3 = { "sm3k": "sm3v" };
 public const map<string> sm4 = { "sm4kn": sm3.sm3k };
+
+public const map<()> nm3 = { "nm3k": () };
+public const map<()> nm4 = { "nm4kn": nm3.nm3k };

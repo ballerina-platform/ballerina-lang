@@ -342,6 +342,7 @@ function getNestedConstantMapValue() returns string {
     return foo:m4.m4k.m5k;
 }
 
+// Negative tests.
 function updateNestedConstantMapValue() {
     foo:m4.m4k.m5k = "m5nv";
 }
@@ -352,6 +353,7 @@ function updateNestedConstantMapValue2() {
 
 // -----------------------------------------------------------
 
+// Negative tests.
 function updateConstantMapValueInArray() {
     foo:a1[0].m5k = "m5nv";
 }
@@ -366,6 +368,7 @@ function getConstantMapValueInArray() returns string {
 
 // -----------------------------------------------------------
 
+// Negative tests.
 function updateReturnedConstantMap() {
     map<string> m = getMap();
     m.m5k = "m5kn";
@@ -414,6 +417,12 @@ function testDecimalConstKeyReference() returns map<decimal> {
 
 function testStringConstKeyReference() returns map<string> {
     return foo:sm4;
+}
+
+// -----------------------------------------------------------
+
+function testNullConstKeyReference() returns map<()> {
+    return foo:nm4;
 }
 
 // -----------------------------------------------------------
