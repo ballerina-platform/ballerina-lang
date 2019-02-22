@@ -1,3 +1,4 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 apply from: "$rootDir/gradle/jsProject.gradle"
 
 task npmBuild(type: Exec) {
@@ -11,7 +12,11 @@ task npmBuild(type: Exec) {
 
     outputs.dir("$buildDir/packages/distribution/build")
 
-    commandLine 'npm', 'run', 'build'
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine 'cmd', '/c', 'npm', 'run', 'build'
+    } else {
+        commandLine 'npm', 'run', 'build'
+    }
 }
 
 build {
