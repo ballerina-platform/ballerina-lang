@@ -1295,6 +1295,11 @@
                 <version>${commons.io.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.nats</groupId>
+                <artifactId>java-nats-streaming</artifactId>
+                <version>${nats.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jacoco</groupId>
                 <artifactId>org.jacoco.agent</artifactId>
                 <classifier>runtime</classifier>
@@ -1974,6 +1979,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
 
@@ -2480,6 +2486,9 @@
         <jboss.version>3.3.1.Final</jboss.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <geronimo-json.version>1.0-alpha-1</geronimo-json.version>
+
+        <!-- Nats Connector -->
+        <nats.version>2.1.0</nats.version>
 
         <file.transport.version>6.0.55</file.transport.version>
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
