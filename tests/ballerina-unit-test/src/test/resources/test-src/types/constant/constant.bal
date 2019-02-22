@@ -709,4 +709,7 @@ function testStringConstKeyReferenceInLocalVar() returns string {
 
 // -----------------------------------------------------------
 
-map<any> am = {};
+function testNullConstKeyReferenceInLocalVar() returns () {
+    () n = nm3.nm3k;
+    return n;
+}

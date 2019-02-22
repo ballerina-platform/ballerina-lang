@@ -466,3 +466,10 @@ function testStringConstKeyReferenceInLocalVar() returns string {
     string s = foo:sm3.sm3k;
     return s;
 }
+
+// -----------------------------------------------------------
+
+function testNullConstKeyReferenceInLocalVar() returns () {
+    () n = foo:nm3.nm3k;
+    return n;
+}

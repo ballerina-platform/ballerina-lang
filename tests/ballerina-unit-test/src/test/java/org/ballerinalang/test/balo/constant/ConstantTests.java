@@ -519,4 +519,10 @@ public class ConstantTests {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "sm3v");
     }
+
+    @Test
+    public void testNullConstKeyReferenceInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNullConstKeyReferenceInLocalVar");
+        Assert.assertNull(returns[0]);
+    }
 }
