@@ -94,4 +94,27 @@ public class TimerSchedulerTest {
             return (((BInteger) count[0]).intValue() == -2000);
         });
     }
+
+    @Test(description = "Tests a timer scheduler which runs for a limited number of times")
+    public void testLimitedNumberOfRuns() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/limited_number_of_runs.bal");
+
+        BRunUtil.invokeStateful(compileResult, "triggerTimer");
+        BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+        Assert.assertEquals(count.length, 1);
+        Assert.assertTrue(count[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) count[0]).intValue(), 3);
+    }
+
+    @Test(description = "Tests a timer scheduler with zero interval")
+    public void testZeroDelay() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/zero_delay.bal");
+        BRunUtil.invokeStateful(compileResult, "triggerTimer");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BInteger);
+            return (((BInteger) count[0]).intValue() > 3);
+        });
+    }
 }

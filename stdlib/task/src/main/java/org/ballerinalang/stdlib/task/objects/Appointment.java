@@ -21,13 +21,10 @@ package org.ballerinalang.stdlib.task.objects;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.utils.TaskJob;
 import org.ballerinalang.stdlib.task.utils.TaskManager;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_CONTEXT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_SERVICE_WITH_PARAMETER;
 import static org.quartz.CronExpression.isValidExpression;
 
 /**
@@ -46,11 +43,10 @@ public class Appointment extends AbstractTask {
      */
     public Appointment(Context context, String cronExpression) throws SchedulingException {
         super();
-        if (!validateCronExpression(cronExpression)) {
+        if (!isValidExpression(cronExpression)) {
             throw new SchedulingException("Invalid cron expression provided.");
         }
         this.cronExpression = cronExpression;
-        this.maxRuns = -1;
     }
 
     /**
@@ -63,12 +59,11 @@ public class Appointment extends AbstractTask {
      * @throws SchedulingException When provided cron expression is invalid.
      */
     public Appointment(Context context, String cronExpression, long maxRuns) throws SchedulingException {
-        super();
-        if (!validateCronExpression(cronExpression)) {
+        super(maxRuns);
+        if (!isValidExpression(cronExpression)) {
             throw new SchedulingException("Invalid cron expression provided.");
         }
         this.cronExpression = cronExpression;
-        this.maxRuns = maxRuns;
     }
 
     /**
@@ -76,7 +71,7 @@ public class Appointment extends AbstractTask {
      */
     @Override
     public void stop() throws SchedulingException {
-        TaskManager.getInstance().stop(id);
+        TaskManager.getInstance().stop(this.getId());
     }
 
     /**
@@ -102,21 +97,14 @@ public class Appointment extends AbstractTask {
         for (ServiceWithParameters serviceWithParameters : this.getServicesMap().values()) {
             JobDataMap jobDataMap = getJobDataMapFromService(context, serviceWithParameters);
             try {
-                TaskManager.getInstance().schedule(id, TaskJob.class, jobDataMap, cronExpression);
+                TaskManager.getInstance().scheduleAppointment(this, jobDataMap);
             } catch (SchedulerException e) {
                 throw new SchedulingException("Failed to schedule Task: " + this.id + ". " + e.getMessage());
             }
         }
     }
 
-    private JobDataMap getJobDataMapFromService(Context context, ServiceWithParameters serviceWithParameters) {
-        JobDataMap jobData = new JobDataMap();
-        jobData.put(TASK_CONTEXT, context);
-        jobData.put(TASK_SERVICE_WITH_PARAMETER, serviceWithParameters);
-        return jobData;
-    }
-
-    private boolean validateCronExpression(String cronExpression) {
-        return isValidExpression(cronExpression);
+    public String getCronExpression() {
+        return this.cronExpression;
     }
 }

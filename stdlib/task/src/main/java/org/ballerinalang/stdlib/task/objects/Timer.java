@@ -21,19 +21,15 @@ package org.ballerinalang.stdlib.task.objects;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.utils.TaskExecutor;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import org.ballerinalang.stdlib.task.utils.TaskManager;
+import org.quartz.JobDataMap;
+import org.quartz.SchedulerException;
 
 /**
  * Represents a Timer object used to create and run Timers.
  */
 public class Timer extends AbstractTask {
     private long interval, delay;
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
     /**
      * Creates a Timer object.
@@ -45,7 +41,7 @@ public class Timer extends AbstractTask {
      */
     public Timer(Context context, long delay, long interval) throws SchedulingException {
         super();
-        if (delay < 0 || interval < 0) {
+        if (delay < 0 || interval < 1) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
         }
         this.interval = interval;
@@ -63,7 +59,7 @@ public class Timer extends AbstractTask {
      */
     public Timer(Context context, long delay, long interval, long maxRuns) throws SchedulingException {
         super(maxRuns);
-        if (delay < 0 || interval < 0) {
+        if (delay < 0 || interval < 1) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
         }
         this.interval = interval;
@@ -75,11 +71,7 @@ public class Timer extends AbstractTask {
      */
     @Override
     public void stop() throws SchedulingException {
-        this.executorService.shutdown();
-    }
-
-    private static void callTriggerFunction(Context context, ServiceWithParameters serviceWithParameters) {
-        TaskExecutor.execute(context, serviceWithParameters);
+        TaskManager.getInstance().stop(this.getId());
     }
 
     /**
@@ -87,52 +79,40 @@ public class Timer extends AbstractTask {
      */
     @Override
     public void pause() throws SchedulingException {
-        if (TaskState.PAUSED == this.getState()) {
-            // TODO: Get the task name and print it on the error message.
-            throw new SchedulingException("Cannot pause the task: " + " Task is already at paused state.");
-        } else if (TaskState.STOPPED == this.getState()) {
-            // TODO: Get the task name and print it on the error message.
-            throw new SchedulingException("Cannot pause the task: " + " Task is not started yet.");
-        }
-        this.setState(TaskState.PAUSED);
+        TaskManager.getInstance().pause(this.getId());
     }
 
     /**
      * {@inheritDoc}
      */
     public void resume() throws SchedulingException {
-        if (TaskState.STARTED == this.getState()) {
-            // TODO: Get the task name and print it on the error message.
-            throw new SchedulingException("Cannot resume the task: " + " Task is already at running state.");
-        } else if (TaskState.STOPPED == this.getState()) {
-            // TODO: Get the task name and print it on the error message.
-            throw new SchedulingException("Cannot resume the task: " + " Task is not started yet.");
-        }
-        this.setState(TaskState.STARTED);
+        TaskManager.getInstance().resume(this.getId());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void runServices(Context context) {
-        final Runnable schedulerFunc = () -> {
-            if (TaskState.PAUSED == this.getState()) {
-                return;
+    public void runServices(Context context) throws SchedulingException {
+        for (ServiceWithParameters serviceWithParameters : getServicesMap().values()) {
+            JobDataMap jobDataMap = getJobDataMapFromService(context, serviceWithParameters);
+            try {
+                TaskManager.getInstance().scheduleTimer(this, jobDataMap);
+            } catch (SchedulerException e) {
+                throw new SchedulingException("Failed to schedule Task: " + this.id + ". " + e.getMessage());
             }
-            if (this.maxRuns > 0 && this.maxRuns == noOfRuns) {
-                try {
-                    this.stop();
-                } catch (SchedulingException e) {
-                    throw new BLangRuntimeException("Failed to stop the task: " + e.getMessage());
-                }
-                return;
-            }
-            for (ServiceWithParameters serviceWithParameters : getServicesMap().values()) {
-                callTriggerFunction(context, serviceWithParameters);
-                this.noOfRuns++;
-            }
-        };
-        executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    public long getInterval() {
+        return this.interval;
+    }
+
+    public long getDelay() {
+        return this.delay;
+    }
+
+    public long getMaxRuns() {
+        return this.maxRuns;
     }
 }

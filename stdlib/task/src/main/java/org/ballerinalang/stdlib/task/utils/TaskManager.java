@@ -20,20 +20,25 @@
 package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.objects.Appointment;
+import org.ballerinalang.stdlib.task.objects.Timer;
 import org.quartz.CronTrigger;
-import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
@@ -69,19 +74,65 @@ public class TaskManager {
     /**
      * Schedule an Appointment.
      *
-     * @param taskId         Task appointment ID which is going to be scheduled.
-     * @param jobClass       Schedule Job class.
-     * @param jobData        Map containing the details of the job.
-     * @param cronExpression Cron expression in which the Appointment is scheduled.
+     * @param appointment Appointment which should be scheduled.
+     * @param jobData     Map containing the details of the job.
      * @throws SchedulerException if scheduling is failed.
      */
-    public void schedule(String taskId, Class<? extends Job> jobClass, JobDataMap jobData, String cronExpression)
-            throws SchedulerException {
-        JobDetail job = newJob(jobClass).usingJobData(jobData).withIdentity(taskId).build();
-        CronTrigger trigger = newTrigger().withIdentity(taskId).withSchedule(cronSchedule(cronExpression)).build();
+    public void scheduleAppointment(Appointment appointment, JobDataMap jobData) throws SchedulerException {
+        JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(appointment.getId()).build();
+        CronTrigger trigger = newTrigger()
+                .withIdentity(appointment.getId())
+                .withSchedule(cronSchedule(appointment.getCronExpression()))
+                .build();
 
         scheduler.scheduleJob(job, trigger);
-        quartzJobs.put(taskId, job.getKey());
+        quartzJobs.put(appointment.getId(), job.getKey());
+    }
+
+    /**
+     * Schedule a Timer.
+     *
+     * @param timer   Timer which should be scheduled.
+     * @param jobData Map containing the details of the job.
+     * @throws SchedulerException if scheduling is failed.
+     */
+    public void scheduleTimer(Timer timer, JobDataMap jobData) throws SchedulerException {
+        SimpleScheduleBuilder schedule = createSchedulerBuilder(timer.getInterval(), timer.getMaxRuns());
+        JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(timer.getId()).build();
+        Trigger trigger;
+
+        if (timer.getDelay() > 0) {
+            Date startTime = new Date(System.currentTimeMillis() + timer.getDelay());
+            trigger = newTrigger()
+                    .withIdentity(timer.getId())
+                    .startAt(startTime)
+                    .forJob(job)
+                    .withSchedule(schedule)
+                    .build();
+        } else {
+            trigger = newTrigger()
+                    .withIdentity(timer.getId())
+                    .startNow()
+                    .forJob(job)
+                    .withSchedule(schedule)
+                    .build();
+        }
+
+        scheduler.scheduleJob(job, trigger);
+        quartzJobs.put(timer.getId(), job.getKey());
+
+    }
+
+    private SimpleScheduleBuilder createSchedulerBuilder(long interval, long maxRuns) {
+        SimpleScheduleBuilder simpleScheduleBuilder = simpleSchedule().withIntervalInMilliseconds(interval);
+        if (maxRuns > 0) {
+            // Quartz uses number of repeats, but we count total number of runs.
+            // Hence we subtract 1 from the maxRuns to get the repeat count.
+            simpleScheduleBuilder.withRepeatCount((int) maxRuns - 1);
+        } else {
+            simpleScheduleBuilder.repeatForever();
+        }
+        return simpleScheduleBuilder;
     }
 
     /**
@@ -103,15 +154,17 @@ public class TaskManager {
     /**
      * Pauses the scheduled Appointment.
      *
-     * @param taskID ID of the task to be paused.
+     * @param taskId ID of the task to be paused.
      * @throws SchedulingException if failed to pause the task.
      */
     // TODO: Check the task is present at the registry
-    public void pause(String taskID) throws SchedulingException {
-        try {
-            scheduler.pauseJob(quartzJobs.get(taskID));
-        } catch (SchedulerException e) {
-            throw new SchedulingException("Cannot pause the task. " + e.getMessage());
+    public void pause(String taskId) throws SchedulingException {
+        if (quartzJobs.containsKey(taskId)) {
+            try {
+                scheduler.pauseJob(quartzJobs.get(taskId));
+            } catch (SchedulerException e) {
+                throw new SchedulingException("Cannot pause the task. " + e.getMessage());
+            }
         }
     }
 
@@ -123,10 +176,12 @@ public class TaskManager {
      */
     // TODO: Check the task is present at the registry
     public void resume(String taskId) throws SchedulingException {
-        try {
-            scheduler.resumeJob(quartzJobs.get(taskId));
-        } catch (SchedulerException e) {
-            throw new SchedulingException("Cannot resume the task. " + e.getMessage());
+        if (quartzJobs.containsKey(taskId)) {
+            try {
+                scheduler.resumeJob(quartzJobs.get(taskId));
+            } catch (SchedulerException e) {
+                throw new SchedulingException("Cannot resume the task. " + e.getMessage());
+            }
         }
     }
 }

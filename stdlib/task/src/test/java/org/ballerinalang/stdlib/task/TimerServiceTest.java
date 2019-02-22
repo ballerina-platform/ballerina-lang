@@ -101,7 +101,7 @@ public class TimerServiceTest {
     public void testOnErrorParameter() {
         CompileResult compileResult = BCompileUtil.compile("listener/timer/service_error_return.bal");
         BServiceUtil.runService(compileResult);
-        await().atMost(1000000, TimeUnit.MILLISECONDS).until(() -> {
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] isPaused = BRunUtil.invokeStateful(compileResult, "getResult");
             Assert.assertEquals(isPaused.length, 1);
             Assert.assertTrue(isPaused[0] instanceof BString);

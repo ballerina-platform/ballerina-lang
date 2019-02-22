@@ -20,9 +20,14 @@
 
 package org.ballerinalang.stdlib.task.objects;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
+import org.quartz.JobDataMap;
 
 import java.util.HashMap;
+
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_CONTEXT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_SERVICE_WITH_PARAMETER;
 
 /**
  * Abstract class which represents a ballerina task.
@@ -31,7 +36,7 @@ public abstract class AbstractTask implements Task {
 
     protected String id = TaskIdGenerator.generate();
     HashMap<String, ServiceWithParameters> serviceMap;
-    protected long noOfRuns, maxRuns;
+    protected long maxRuns;
     protected TaskState state;
 
     /**
@@ -51,7 +56,6 @@ public abstract class AbstractTask implements Task {
     protected AbstractTask(long maxRuns) {
         this.serviceMap = new HashMap<>();
         this.maxRuns = maxRuns;
-        this.noOfRuns = 0;
         this.state = TaskState.STOPPED;
     }
 
@@ -107,5 +111,19 @@ public abstract class AbstractTask implements Task {
      */
     public TaskState getState() {
         return this.state;
+    }
+
+    /**
+     * Create a job data map using the context and the service.
+     *
+     * @param context Ballerina context of the Task.
+     * @param serviceWithParameters <code>ServiceWithParameter</code> object related to the task.
+     * @return JobDataMap consists of context and the <code>ServiceWithParameter</code> object.
+     */
+    protected JobDataMap getJobDataMapFromService(Context context, ServiceWithParameters serviceWithParameters) {
+        JobDataMap jobData = new JobDataMap();
+        jobData.put(TASK_CONTEXT, context);
+        jobData.put(TASK_SERVICE_WITH_PARAMETER, serviceWithParameters);
+        return jobData;
     }
 }
