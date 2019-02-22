@@ -460,7 +460,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
 # + return - Whether the client should retry or not
 function isRetryRequired(Response response, ClientEndpointConfig config) returns boolean {
     var scheme = config.auth.scheme;
-    if (scheme is InboundAuthScheme) {
+    if (scheme is OutboundAuthScheme) {
         if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
             return true;
         }

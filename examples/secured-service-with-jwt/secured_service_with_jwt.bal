@@ -3,13 +3,15 @@ import ballerina/http;
 // Create a JWT authentication provider with the relevant configuration
 // parameters. 
 http:AuthProvider jwtAuthProvider = {
-    scheme:"jwt",
-    issuer:"ballerina",
-    audience: "ballerina.io",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    scheme: http:JWT_AUTH,
+    jwtAuthProviderConfig: {
+        issuer:"ballerina",
+        audience: ["ballerina.io"],
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 };
 // The endpoint used here is `http:Listener`. The JWT authentication
