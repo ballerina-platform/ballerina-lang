@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMText;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -482,6 +483,8 @@ public final class BXMLSequence extends BXML<BValueArray> {
 
         BXMLSequence value;
         int cursor = 0;
+        IterMode iterMode = IterMode.SEQUENCE;
+        CodePointIterator codePointIterator;
 
         BXMLSequenceIterator(BXMLSequence bxmlSequence) {
             value = bxmlSequence;
@@ -490,14 +493,80 @@ public final class BXMLSequence extends BXML<BValueArray> {
         @Override
         public BValue getNext() {
             if (hasNext()) {
-                return value.sequence.getRefValue(cursor++);
+                if (iterMode == IterMode.CODE_POINT) {
+                    if (advanceCodePointIter()) {
+                        return codePointIterator.getNext();
+                    }
+                } else {
+                    BRefType<?> curVal = value.sequence.getRefValue(cursor++);
+                    if (curVal.getType().getTag() == TypeTags.XML_TAG
+                            && ((BXMLItem) curVal).getNodeType() == XMLNodeType.TEXT) {
+                        iterMode = IterMode.CODE_POINT;
+                        codePointIterator = CodePointIterator.from((((BXMLItem) curVal).stringValue()));
+                        if (advanceCodePointIter()) {
+                            return codePointIterator.getNext();
+                        }
+                    }
+                    return curVal;
+                }
             }
             return null;
         }
 
+        private boolean advanceCodePointIter() {
+            if (codePointIterator.hasNext()) {
+                return true;
+            } else {
+                iterMode = IterMode.SEQUENCE;
+                codePointIterator = null;
+                return false;
+            }
+        }
+
         @Override
         public boolean hasNext() {
-            return cursor < value.sequence.size();
+            boolean hasMoreXmlItems = cursor < value.sequence.size();
+            return iterMode == IterMode.SEQUENCE ? hasMoreXmlItems : (codePointIterator.hasNext() || hasMoreXmlItems);
+        }
+    }
+
+    enum IterMode {
+        SEQUENCE, CODE_POINT
+    }
+
+    /**
+     * {@link CodePointIterator} private iteration provider for BXML char sequence.
+     *
+     * @since 0.990.4
+     */
+    static class CodePointIterator implements BIterator{
+        private String charSequence;
+        private int offset;
+
+
+        public CodePointIterator(String charSequence) {
+            this.charSequence = charSequence;
+            this.offset = 0;
+        }
+
+        static CodePointIterator from(String seq) {
+            return new CodePointIterator(seq);
+        }
+
+        @Override
+        public BValue getNext() {
+            int codepoint = charSequence.codePointAt(offset);
+            offset += Character.charCount(codepoint);
+
+            // Max 2 chars per code point.
+            StringBuilder sb = new StringBuilder(2);
+            sb.appendCodePoint(codepoint);
+            return new BString(sb.toString());
+        }
+
+        @Override
+        public boolean hasNext() {
+            return offset < charSequence.length();
         }
     }
 

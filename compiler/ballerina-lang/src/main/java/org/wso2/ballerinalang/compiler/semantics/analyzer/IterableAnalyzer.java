@@ -363,7 +363,7 @@ public class IterableAnalyzer {
             } else if (op.arity == 1) {
                 LinkedHashSet<BType> types = new LinkedHashSet<>();
                 types.add(symTable.xmlType);
-                types.add(symTable.stringType);
+                types.add(new BArrayType(symTable.stringType));
                 return Lists.of(new BUnionType(null, types, false));
             }
             logTooManyVariablesError(op);
