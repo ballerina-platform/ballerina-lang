@@ -40,7 +40,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
  * Get the entity body in JSON form.
@@ -91,7 +90,7 @@ public class GetJson extends AbstractGetPayloadHandler {
             }
 
             // Construct non-blocking JSON data source
-            HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
+            HttpCarbonMessage inboundCarbonMsg = getInboundCarbonMessage(entityStruct);
             inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
                 @Override
                 public void onComplete() {

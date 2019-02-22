@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -80,13 +81,23 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         return getByteChannel(entityStruct) != null;
     }
 
+
+    HttpCarbonMessage getInboundCarbonMessage(BMap<String, BValue> entityStruct) {
+        Object message = entityStruct.getNativeData(TRANSPORT_MESSAGE);
+        if (message != null) {
+            return (HttpCarbonMessage) message;
+        } else {
+            throw new BallerinaIOException("Empty content");
+        }
+    }
+
     boolean validateNotNullAndNotEmpty(String value) {
         return value != null && !value.isEmpty();
     }
 
     void constructNonBlockingStringDataSource(Context context, CallableUnitCallback callback,
                                               BMap<String, BValue> entityStruct) {
-        HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
+        HttpCarbonMessage inboundCarbonMsg = getInboundCarbonMessage(entityStruct);
         inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
             @Override
             public void onComplete() {

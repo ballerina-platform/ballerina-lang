@@ -223,7 +223,6 @@ public class HttpUtil {
         BMap<String, BValue> entity = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequestStruct(httpMessageStruct)));
-        entity.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
         entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());
         entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
         httpMessageStruct.put(isRequestStruct(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD

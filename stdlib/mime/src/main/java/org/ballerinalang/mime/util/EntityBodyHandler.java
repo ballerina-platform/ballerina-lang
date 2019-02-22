@@ -55,6 +55,7 @@ import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_BODY_PART_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_PART_ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 
@@ -250,6 +251,7 @@ public class EntityBodyHandler {
             BMap<String, BValue>[] result = bodyParts.toArray(new BMap[bodyParts.size()]);
             BValueArray partsArray = new BValueArray(result, new BArrayType(typeOfBodyPart));
             entity.addNativeData(BODY_PARTS, partsArray);
+            entity.addNativeData(IS_BODY_PART_ENTITY, true);
         }
     }
 

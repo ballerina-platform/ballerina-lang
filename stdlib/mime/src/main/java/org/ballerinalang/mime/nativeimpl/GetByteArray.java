@@ -40,7 +40,6 @@ import java.nio.charset.Charset;
 
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
  * Get the entity body as a blob.
@@ -91,7 +90,7 @@ public class GetByteArray extends AbstractGetPayloadHandler {
             }
 
             // Construct non-blocking byte array data source
-            HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) entityStruct.getNativeData(TRANSPORT_MESSAGE);
+            HttpCarbonMessage inboundCarbonMsg = getInboundCarbonMessage(entityStruct);
             inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
                 @Override
                 public void onComplete() {
