@@ -2037,7 +2037,6 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.plugin.version}</version>
                     <configuration>
-                        <compilerArgument>-proc:none</compilerArgument>
                         <source>${wso2.maven.compiler.source}</source>
                         <target>${wso2.maven.compiler.target}</target>
                     </configuration>
