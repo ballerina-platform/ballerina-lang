@@ -1251,7 +1251,7 @@ public class FormattingSourceGen {
 
     private static void stringTemplateSourceFromWS(int currentWs, int nextWs, JsonArray literals, JsonArray ws,
                                                    int i) {
-        if (ws.get(currentWs).getAsJsonObject().get("text").getAsString().contains("{{")) {
+        if (ws.get(currentWs).getAsJsonObject().get("text").getAsString().contains("${")) {
             literals.get(i).getAsJsonObject().get("ws").getAsJsonArray().add(ws.get(currentWs));
             literals.get(i).getAsJsonObject().addProperty("value",
                     ws.get(currentWs).getAsJsonObject().get("text").getAsString());
@@ -1259,9 +1259,9 @@ public class FormattingSourceGen {
             ws.remove(currentWs);
             literals.get(i).getAsJsonObject().addProperty("startTemplateLiteral", true);
 
-        } else if (ws.get(currentWs).getAsJsonObject().get("text").getAsString().contains("}}")) {
+        } else if (ws.get(currentWs).getAsJsonObject().get("text").getAsString().contains("}")) {
             literals.get(i).getAsJsonObject().get("ws").getAsJsonArray().add(ws.get(currentWs));
-            if (ws.get(nextWs).getAsJsonObject().get("text").getAsString().contains("{{")) {
+            if (ws.get(nextWs).getAsJsonObject().get("text").getAsString().contains("${")) {
                 literals.get(i).getAsJsonObject().get("ws").getAsJsonArray().add(ws.get(nextWs));
                 literals.get(i).getAsJsonObject().addProperty("value",
                         ws.get(nextWs).getAsJsonObject().get("text").getAsString());

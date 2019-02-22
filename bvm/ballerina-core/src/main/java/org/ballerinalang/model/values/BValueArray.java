@@ -42,7 +42,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
@@ -131,12 +130,15 @@ public class BValueArray extends BNewArray implements Serializable {
                 BTupleType tupleType = (BTupleType) type;
                 this.size = maxArraySize = tupleType.getTupleTypes().size();
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
-                AtomicInteger counter = new AtomicInteger(0);
-                tupleType.getTupleTypes().forEach(memType ->
-                        refValues[counter.getAndIncrement()] = memType.getEmptyValue());
+                List<BType> tupleTypes = tupleType.getTupleTypes();
+                // TODO: 2/19/19 Remove this loop. It unnecessarily populates a tuple when creating the array.
+                // This logic is however, needed for arrays of tuples.
+                for (int i = 0; i < tupleTypes.size(); i++) {
+                    refValues[i] = tupleTypes.get(i).getZeroValue();
+                }
             } else {
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
-                Arrays.fill(refValues, type.getEmptyValue());
+                Arrays.fill(refValues, type.getZeroValue());
             }
         }
     }
@@ -530,9 +532,11 @@ public class BValueArray extends BNewArray implements Serializable {
                     break;
                 case TypeTags.STRING_TAG:
                     stringValues = Arrays.copyOf(stringValues, newLength);
+                    Arrays.fill(stringValues, size, stringValues.length - 1, BLangConstants.STRING_EMPTY_VALUE);
                     break;
                 default:
                     refValues = Arrays.copyOf(refValues, newLength);
+                    Arrays.fill(refValues, size, refValues.length - 1, elementType.getZeroValue());
                     break;
             }
         } else {

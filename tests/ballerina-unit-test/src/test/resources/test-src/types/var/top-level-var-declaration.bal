@@ -7,7 +7,7 @@ var decimalValue = <decimal>100;
 
 var booleanValue = true;
 
-var byteValue = <byte>2;
+var byteValue = trap <byte>2;
 
 var floatValue = 2.0;
 

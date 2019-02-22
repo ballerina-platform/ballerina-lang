@@ -81,63 +81,16 @@ function testIterableTypesBroken() {
     //    }
 }
 
-type Union 0|1|2;
-
-// Most types, including all simple basic types, have an implicit initial value, which is used to
-// initialize structure members.
-// TODO: Fix tuple, map, record, table, typedesc, singleton and union type implicit initial values
-// https://github.com/ballerina-platform/ballerina-lang/issues/13166
+// TODO: Need to fix https://github.com/ballerina-platform/ballerina-lang/issues/13726 to enable this
 @test:Config {
     groups: ["deviation"]
 }
-function testImplicitInitialValuesBroken() {
-    (int, boolean, string)[] tupleArray = [];
-    tupleArray[1] = (200, true, "test string");
-    test:assertEquals(tupleArray[0], (),
-        msg = "expected implicit initial value of (int, boolean, string) to be (0, false, \"\")");
-
-    map<any>[] mapArray = [];
-    mapArray[1] = { fieldOne: "valueOne" };
-    map<any> expectedMap = {};
-    test:assertEquals(mapArray[0], (), msg = "expected implicit initial value of map to be {}");
-
-    QuuxRecord[] quuxRecordArray = [];
-    quuxRecordArray[1] = { quuxFieldOne: "valueOne" };
-    test:assertEquals(quuxRecordArray[0], (),
-        msg = "expected implicit initial value of QuuxRecord to be { quuxFieldOne: \"\" }");
-
-    table<QuuzRecord>[] tableArray = [];
-    tableArray[1] = table{};
-    test:assertEquals(tableArray[0], (), msg = "expected implicit initial value of string to be an empty string");
-
-    //typedesc[] typedescArray = [];
-    //typedescArray[1] = int;
-    //test:assertTrue(typedescArray[0], (), msg = "expected implicit initial value of typedesc to be ()");
-
-    One?[] singletonArray = [];
-    singletonArray[1] = 1;
-    test:assertEquals(singletonArray[0], (),
-        msg = "expected implicit initial value of a singleton to be the singleton value");
-
-    Union[] unionArray2 = [];
-    unionArray2[1] = 2;
-    test:assertEquals(unionArray2[0], (), msg = "expected implicit initial value of this union should be 0");
-
-    QuxObject[] objArray = [];
-    objArray[1] = new QuxObject();
-    test:assertEquals(objArray[0], (), msg = "expected implicit initial value of QuxObject " +
-        "should be '{fooFieldOne:\"init value\"}'");
+function testImplicitInitialValueOfTypedesc() {
+    typedesc[] typedescArray = [];
+    typedescArray[1] = int;
+    //typedesc expectedTypedesc = ();
+    //test:assertEquals(typedescArray[0], expectedTypedesc, msg = "expected implicit initial value of typedesc to be ()");
 }
-
-public type QuuzRecord record {
-    int quuzFieldOne;
-    !...;
-};
-
-public type QuuxRecord record {
-    string quuxFieldOne;
-    !...;
-};
 
 public type QuxObject object {
     public string fooFieldOne;
@@ -150,3 +103,16 @@ public type QuxObject object {
         return self.fooFieldOne;
     }
 };
+
+// Implicit initial values for objects not yet supported. Decided to fix this with jBallerina.
+// https://github.com/ballerina-platform/ballerina-lang/issues/13728
+@test:Config {
+    groups: ["deviation"]
+}
+function testImplicitInitialValueOfObjects() {
+    QuxObject[] objArray = [];
+    objArray[1] = new QuxObject();
+    QuxObject expectedObject = new;
+    //test:assertEquals(objArray[0].fooFieldOne, expectedObject.fooFieldOne,
+    //    msg = "expected implicit initial value of QuxObject should be '{fooFieldOne:\"init value\"}'");
+}

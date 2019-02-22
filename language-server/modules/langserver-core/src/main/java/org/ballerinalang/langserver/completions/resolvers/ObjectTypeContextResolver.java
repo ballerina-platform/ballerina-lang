@@ -93,9 +93,9 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
                     .resolveItems(context);
         } else {
             fillTypes(context, completionItems);
-            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(isSnippet));
-            completionItems.add(Snippet.DEF_FUNCTION.get().build(isSnippet));
-            completionItems.add(Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(isSnippet));
+            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context, isSnippet));
+            completionItems.add(Snippet.DEF_FUNCTION.get().build(context, isSnippet));
+            completionItems.add(Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(context, isSnippet));
         }
 
         return completionItems;
