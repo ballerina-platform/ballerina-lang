@@ -28,79 +28,16 @@ public class ConstantValue {
     public int finiteTypeSigCPIndex = -1;
     public int valueTypeSigCPIndex = -1;
 
+    public int recordLiteralSigCPIndex = -1;
+
     public boolean isSimpleLiteral;
 
     public int literalValueTypeTag = -1;
 
-    //    // Todo - add other values
-    public boolean booleanValue;
-    //    private long intValue;
-    //    private byte byteValue;
-    //    private double floatValue;
-    //    private String stringValue;
-
     public int valueCPEntry = -1;
 
+    public boolean booleanValue;
+
     public Map<String, ConstantValue> constantValueMap = new HashMap<>();
-    public Map<String, Integer> constantValueMapKeyCPIndex = new HashMap<>();
-
-
-    public int recordLiteralSigCPIndex = -1;
-
-
-    // Todo - Add array support
-    //    private ConstantValue[] constantValueArray;
-
-
-    // Todo - Add a constructor
-
-    //    public boolean getBooleanValue() {
-    //        return booleanValue;
-    //    }
-    //
-    //    public void setBooleanValue(boolean booleanValue) {
-    //        this.booleanValue = booleanValue;
-    //    }
-    //
-    //
-    //    public byte getByteValue() {
-    //        return byteValue;
-    //    }
-    //
-    //    public void setByteValue(byte byteValue) {
-    //        this.byteValue = byteValue;
-    //    }
-    //
-    //
-    //
-    //
-    //    public long getIntValue() {
-    //        return intValue;
-    //    }
-    //
-    //    public void setIntValue(long intValue) {
-    //        this.intValue = intValue;
-    //    }
-    //
-    //
-    //
-    //    public double getFloatValue() {
-    //        return floatValue;
-    //    }
-    //
-    //    public void setFloatValue(double floatValue) {
-    //        this.floatValue = floatValue;
-    //    }
-    //
-    //
-    //
-    //    public String getStringValue() {
-    //        return stringValue;
-    //    }
-    //
-    //    public void setStringValue(String stringValue) {
-    //        this.stringValue = stringValue;
-    //    }
-
-
+    public Map<String, Integer> constantKeyToCPIndexMap = new HashMap<>();
 }

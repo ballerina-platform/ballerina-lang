@@ -1804,6 +1804,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Private methods
 
     private void checkConstantExpression(BLangExpression expression) {
+        // Recursively check whether all the nested expressions in the provided expression are constants or can be
+        // evaluated to constants.
         switch (expression.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
@@ -1811,6 +1813,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case SIMPLE_VARIABLE_REF:
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
                 if (symbol == null) {
+                    // Todo - Log error?
                     break;
                 }
                 if ((symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {

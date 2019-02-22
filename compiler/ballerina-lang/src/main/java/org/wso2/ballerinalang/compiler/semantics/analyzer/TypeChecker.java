@@ -795,6 +795,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = ((BConstantSymbol) symbol).literalValueType;
                 }
 
+                // If the constant is on the LHS, modifications are not allowed.
+                // E.g. m.k = "10"; // where `m` is a constant.
                 if (varRefExpr.lhsVar) {
                     actualType = symTable.semanticError;
                     dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_UPDATE_CONSTANT_VALUE);
@@ -2745,13 +2747,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 // Do nothing
                 break;
             default:
-//                if (fieldAccessExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-//                    if (((BLangSimpleVarRef) fieldAccessExpr.expr).symbol.tag == SymTag.CONSTANT) {
-//                        // Todo - add comment
-//                        break;
-//                    }
-//                }
-                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS,
+                        varRefType);
         }
 
         return actualType;

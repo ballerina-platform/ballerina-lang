@@ -2182,7 +2182,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             // Get key-value info.
             constantInfo.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.literalValue);
             // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
-            // We store that details in the `constantValueMapKeyCPIndex` map.
+            // We store that details in the `constantKeyToCPIndexMap` map.
             for (Entry<String, ConstantValue> entry : constantInfo.constantValueMap.entrySet()) {
                 constantInfo.constantValueMapKeyCPIndex.put(entry.getKey(), addUTF8CPEntry(currentPkgInfo,
                         entry.getKey()));
@@ -2260,9 +2260,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 constantValueMap.put(key, constantValue);
 
                 // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as
-                // well. We store that details in the `constantValueMapKeyCPIndex` map.
+                // well. We store that details in the `constantKeyToCPIndexMap` map.
                 for (Entry<String, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
-                    constantValue.constantValueMapKeyCPIndex.put(entry.getKey(), addUTF8CPEntry(currentPkgInfo,
+                    constantValue.constantKeyToCPIndexMap.put(entry.getKey(), addUTF8CPEntry(currentPkgInfo,
                             entry.getKey()));
                 }
             } else {

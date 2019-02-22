@@ -230,24 +230,21 @@ public class PackageInfoWriter {
     private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
                                                  ConstantInfo[] constantInfos) throws IOException {
         dataOutStream.writeShort(constantInfos.length);
-
         for (ConstantInfo constantInfo : constantInfos) {
             dataOutStream.writeInt(constantInfo.nameCPIndex);
-
             dataOutStream.writeInt(constantInfo.flags);
-
             dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
-
             if (constantInfo.isSimpleLiteral) {
+                // If the constant is a simple literal, write the literal info.
                 writeSimpleLiteral(dataOutStream, constantInfo.constantValue);
             } else {
-
+                // If the constant is a map literal, write the type signature CP index first.
                 dataOutStream.writeInt(constantInfo.valueTypeSigCPIndex);
-
-                writeConstantValueMap(dataOutStream, constantInfo.constantValueMap,
+                // Write the map literal info.
+                writeMapLiteral(dataOutStream, constantInfo.constantValueMap,
                         constantInfo.constantValueMapKeyCPIndex);
             }
-
+            // Write attribute info.
             writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
         }
     }
@@ -259,9 +256,7 @@ public class PackageInfoWriter {
         // Todo - remove value type tag and use value type above?
         dataOutStream.writeInt(constantValue.literalValueTypeTag);
 
-        // Todo - Add a util function?
         switch (constantValue.literalValueTypeTag) {
-
             case TypeTags.BOOLEAN:
                 dataOutStream.writeBoolean(constantValue.booleanValue);
                 break;
@@ -279,27 +274,25 @@ public class PackageInfoWriter {
         }
     }
 
-    private static void writeConstantValueMap(DataOutputStream dataOutStream,
-                                              Map<String, ConstantValue> constantValueMap,
-                                              Map<String, Integer> constantValueMapKeyCPIndex) throws IOException {
-
+    private static void writeMapLiteral(DataOutputStream dataOutStream, Map<String, ConstantValue> constantValueMap,
+                                        Map<String, Integer> constantValueMapKeyCPIndex) throws IOException {
+        // Write the number of the key-value pairs in the record literal.
         dataOutStream.writeInt(constantValueMap.size());
         for (Map.Entry<String, ConstantValue> entry : constantValueMap.entrySet()) {
-            String key = entry.getKey();
+            // Write key CP index.
+            dataOutStream.writeInt(constantValueMapKeyCPIndex.get(entry.getKey()));
+
             ConstantValue constantValue = entry.getValue();
 
-            dataOutStream.writeInt(constantValueMapKeyCPIndex.get(key));
-
             dataOutStream.writeBoolean(constantValue.isSimpleLiteral);
-
             if (constantValue.isSimpleLiteral) {
+                // If the value is a simple literal, write the simple literal info.
                 writeSimpleLiteral(dataOutStream, constantValue);
             } else {
-
+                // If the value is a map literal, wrote the map literal type signature CP index first.
                 dataOutStream.writeInt(constantValue.recordLiteralSigCPIndex);
-
-                writeConstantValueMap(dataOutStream, constantValue.constantValueMap,
-                        constantValue.constantValueMapKeyCPIndex);
+                // Write the map literal info.
+                writeMapLiteral(dataOutStream, constantValue.constantValueMap, constantValue.constantKeyToCPIndexMap);
             }
         }
     }

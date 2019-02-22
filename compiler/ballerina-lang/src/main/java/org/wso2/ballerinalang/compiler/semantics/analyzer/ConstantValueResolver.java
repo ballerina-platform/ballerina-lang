@@ -38,7 +38,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangDiagnosticLog dlog;
 
-    // Todo - Get Diagnostic log
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
 
@@ -53,22 +52,26 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public BLangLiteral getValue(DiagnosticPos pos, BLangIdentifier key,
+    public BLangLiteral getValue(DiagnosticPos pos, BLangIdentifier keyIdentifier,
                                  BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-
+        // Iterate through all key-value pairs in the record literal.
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
-            Object value = ((BLangLiteral) keyValuePair.key.expr).value;
-
-            if (value.equals(key.value)) {
-                if (keyValuePair.valueExpr.getKind() == NodeKind.LITERAL) {
+            //  Get the key.
+            Object key = ((BLangLiteral) keyValuePair.key.expr).value;
+            // If the key is equal to the value of the keyIdentifier, that means the key which we are looking for is
+            // in the record literal.
+            if (key.equals(keyIdentifier.value)) {
+                // Since we are looking for a literal which can be used as at compile time, it should be a literal.
+                if (keyValuePair.valueExpr.getKind() == NodeKind.LITERAL ||
+                        keyValuePair.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     return ((BLangLiteral) keyValuePair.valueExpr);
-                } else {
-                    // Todo
-                    throw new RuntimeException("unknown node kind");
                 }
+                // Todo - Log error.
+                throw new RuntimeException("unsupported node kind");
             }
         }
-        dlog.error(pos, DiagnosticCode.KEY_NOT_FOUND, key, mapLiteral.name.value);
+        // If this line is reached, that means we haven't found the key. In that case, log a compilation error.
+        dlog.error(pos, DiagnosticCode.KEY_NOT_FOUND, keyIdentifier, mapLiteral.name.value);
         return null;
     }
 }

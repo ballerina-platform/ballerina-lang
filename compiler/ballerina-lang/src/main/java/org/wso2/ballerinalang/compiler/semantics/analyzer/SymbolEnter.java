@@ -986,7 +986,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     /**
-     * Checks whether the given expression type is allowed as an expression in the constant.
+     * Checks whether the given expression type is allowed as an expression in a constant.
      *
      * @param expression the expression which needs to be checked
      * @return {@code true} if the given expression is allowed, {@code false} otherwise.
@@ -1016,8 +1016,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             } else {
                 constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
             }
-
-//            constant.symbol.type = constant.symbol.literalValueType;
 
             if (!isAllowedConstantType(constant.symbol, constant.typeNode)) {
                 // Constant might not have a typeNode.
@@ -1059,6 +1057,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return isAllowedMapConstraintType(((BLangConstrainedType) typeNode).constraint);
             default:
                 dlog.error(typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, typeNode);
+                break;
         }
         // Return true anyway since otherwise there will be two errors logged for this.
         return true;
