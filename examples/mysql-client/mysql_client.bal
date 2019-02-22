@@ -49,7 +49,7 @@ public function main() {
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
 
-    // Close the connection pool.
+    // Stop database client
     var stopRet = testDB.stop();
     if (stopRet is error) {
         io:println(stopRet.detail().message);
