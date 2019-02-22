@@ -1265,6 +1265,11 @@
                 <version>${commons.io.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.nats</groupId>
+                <artifactId>java-nats-streaming</artifactId>
+                <version>${nats.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jacoco</groupId>
                 <artifactId>org.jacoco.agent</artifactId>
                 <classifier>runtime</classifier>
@@ -1888,6 +1893,7 @@
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
+                <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
 
@@ -2392,6 +2398,9 @@
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
         <andes.client.version>3.2.87</andes.client.version>
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
+
+        <!-- Nats Connector -->
+        <nats.version>2.1.0</nats.version>
 
         <file.transport.version>6.0.55</file.transport.version>
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
