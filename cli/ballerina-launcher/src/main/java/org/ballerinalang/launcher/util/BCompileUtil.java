@@ -59,7 +59,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -285,13 +284,16 @@ public class BCompileUtil {
      * Compile with tests and return the semantic errors.
      *
      * @param context       Compiler Context
+     * @param listener      the diagnostic log common to a project
      * @param packageName   name of the module to compile
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
-    public static CompileResult compileWithTests(CompilerContext context, String packageName,
+    public static CompileResult compileWithTests(CompilerContext context,
+                                                 CompileResult.CompileResultDiagnosticListener listener,
+                                                 String packageName,
                                                  CompilerPhase compilerPhase) {
-        return compile(context, packageName, compilerPhase, true);
+        return compile(context, listener, packageName, compilerPhase, true);
     }
 
     /**
@@ -328,11 +330,9 @@ public class BCompileUtil {
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         context.put(SourceDirectory.class, sourceDirectory);
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
+        CompileResult comResult = new CompileResult(listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -348,10 +348,17 @@ public class BCompileUtil {
 
     private static CompileResult compile(CompilerContext context, String packageName,
                                          CompilerPhase compilerPhase, boolean withTests) {
-        CompileResult comResult = new CompileResult();
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
+        return compile(context, listener, packageName, compilerPhase, withTests);
+    }
+
+    private static CompileResult compile(CompilerContext context,
+                                         CompileResult.CompileResultDiagnosticListener listener,
+                                         String packageName,
+                                         CompilerPhase compilerPhase,
+                                         boolean withTests) {
+        CompileResult comResult = new CompileResult(listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -397,10 +404,7 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
 
         // compile
@@ -412,21 +416,19 @@ public class BCompileUtil {
      * Compile and run a ballerina file.
      *
      * @param sourceFilePath Path to the ballerina file.
-     * @param functionName   The name of the function to run
      */
-    public static void run(String sourceFilePath, String functionName) {
+    public static void run(String sourceFilePath) {
         // TODO: improve. How to get the output
         CompileResult result = compile(sourceFilePath);
         ProgramFile programFile = result.getProgFile();
 
         // If there is no main or service entry point, throw an error
-        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()
-                && !programFile.isServiceEPAvailable()) {
+        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        if (programFile.isMainEPAvailable() || !MAIN_FUNCTION_NAME.equals(functionName)) {
-            LauncherUtils.runMain(programFile, functionName, new String[0], false);
+        if (programFile.isMainEPAvailable()) {
+            LauncherUtils.runMain(programFile, new String[0]);
         } else {
             LauncherUtils.runServices(programFile);
         }
@@ -494,11 +496,9 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
+        CompileResult comResult = new CompileResult(listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);

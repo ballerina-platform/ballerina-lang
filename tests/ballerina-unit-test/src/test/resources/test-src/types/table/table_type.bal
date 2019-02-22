@@ -26,6 +26,11 @@ type ResultPrimitive record {
     float DOUBLE_TYPE;
     boolean BOOLEAN_TYPE;
     string STRING_TYPE;
+    decimal DECIMAL_TYPE;
+};
+
+type ResultJson record {
+   json STRING_TYPE;
 };
 
 type ResultSetTestAlias record {
@@ -57,7 +62,7 @@ type ResultObject record {
 type ResultMap record {
     int[] INT_ARRAY;
     int[] LONG_ARRAY;
-    float[] FLOAT_ARRAY;
+    decimal[] FLOAT_ARRAY;
     boolean[] BOOLEAN_ARRAY;
     string[] STRING_ARRAY;
 };
@@ -90,8 +95,8 @@ type ResultDatesInt record {
 type ResultSetFloat record {
     float FLOAT_TYPE;
     float DOUBLE_TYPE;
-    float NUMERIC_TYPE;
-    float DECIMAL_TYPE;
+    decimal NUMERIC_TYPE;
+    decimal DECIMAL_TYPE;
 };
 
 type ResultPrimitiveInt record {
@@ -143,7 +148,7 @@ type IntData record {
     int int_type;
 };
 
-function testToJson() returns (json) {
+function testToJson() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -159,7 +164,7 @@ function testToJson() returns (json) {
     return retVal;
 }
 
-function testToJsonComplexTypes() returns (json) {
+function testToJsonComplexTypes() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -174,7 +179,7 @@ function testToJsonComplexTypes() returns (json) {
     return retVal;
 }
 
-function testToJsonComplexTypesNil() returns (json) {
+function testToJsonComplexTypesNil() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -189,7 +194,7 @@ function testToJsonComplexTypesNil() returns (json) {
     return retVal;
 }
 
-function testToXml() returns (xml) {
+function testToXml() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -205,7 +210,7 @@ function testToXml() returns (xml) {
     return retVal;
 }
 
-function testToXmlComplexTypes() returns (xml) {
+function testToXmlComplexTypes() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -221,7 +226,7 @@ function testToXmlComplexTypes() returns (xml) {
     return retVal;
 }
 
-function testToXmlComplexTypesNil() returns (xml) {
+function testToXmlComplexTypesNil() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -237,7 +242,7 @@ function testToXmlComplexTypesNil() returns (xml) {
     return retVal;
 }
 
-function testToXmlMultipleConsume() returns (xml) {
+function testToXmlMultipleConsume() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -254,7 +259,7 @@ function testToXmlMultipleConsume() returns (xml) {
     return retVal;
 }
 
-function testToXmlWithAdd() returns (xml) {
+function testToXmlWithAdd() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -279,7 +284,7 @@ function testToXmlWithAdd() returns (xml) {
     return result;
 }
 
-function testToJsonMultipleConsume() returns (json) {
+function testToJsonMultipleConsume() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -296,7 +301,7 @@ function testToJsonMultipleConsume() returns (json) {
     return result;
 }
 
-function toXmlComplex() returns (xml) {
+function toXmlComplex() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -305,15 +310,15 @@ function toXmlComplex() returns (xml) {
         poolOptions: { maximumPoolSize: 1 }
     });
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
-                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", ());
+                    float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array,
+                    string_array from MixTypes where row_id =1", ());
 
     xml convertedVal = getXMLConversionResult(tableOrError);
     testDB.stop();
     return convertedVal;
 }
 
-function testToXmlComplexWithStructDef() returns (xml) {
+function testToXmlComplexWithStructDef() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -331,7 +336,7 @@ function testToXmlComplexWithStructDef() returns (xml) {
     return convertedVal;
 }
 
-function testToJsonComplex() returns (json) {
+function testToJsonComplex() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -340,8 +345,8 @@ function testToJsonComplex() returns (json) {
         poolOptions: { maximumPoolSize: 1 }
     });
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
-                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", ());
+        float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array, string_array
+        from MixTypes where row_id =1", ());
 
     json convertedVal = getJsonConversionResult(tableOrError);
     testDB.stop();
@@ -349,7 +354,7 @@ function testToJsonComplex() returns (json) {
     return convertedVal;
 }
 
-function testToJsonComplexWithStructDef() returns (json) {
+function testToJsonComplexWithStructDef() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -366,7 +371,7 @@ function testToJsonComplexWithStructDef() returns (json) {
     return ret;
 }
 
-function testJsonWithNull() returns (json) {
+function testJsonWithNull() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -381,7 +386,7 @@ function testJsonWithNull() returns (json) {
     return convertedVal;
 }
 
-function testXmlWithNull() returns (xml) {
+function testXmlWithNull() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -450,7 +455,7 @@ function testToJsonWithinTransaction() returns (string, int) {
     return (result, returnValue);
 }
 
-function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string) {
+function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string, decimal) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -465,8 +470,9 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
     float d = -1;
     boolean b = false;
     string s = "";
+    decimal dec = -1;
     var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ResultPrimitive);
+              boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
     if (dtRet is table<ResultPrimitive>) {
         while (dtRet.hasNext()) {
             var rs = dtRet.getNext();
@@ -477,11 +483,12 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
                 d = rs.DOUBLE_TYPE;
                 b = rs.BOOLEAN_TYPE;
                 s = rs.STRING_TYPE;
+                dec = rs.DECIMAL_TYPE;
             }
         }
     }
     testDB.stop();
-    return (i, l, f, d, b, s);
+    return (i, l, f, d, b, s, dec);
 }
 
 function testGetComplexTypes() returns (byte[], string, byte[]) {
@@ -511,8 +518,7 @@ function testGetComplexTypes() returns (byte[], string, byte[]) {
     return (blobData, clob, binaryData);
 }
 
-function testArrayData() returns (int[], int[], float[], string[],
-            boolean[]) {
+function testArrayData() returns (int[], int[], decimal[], string[], boolean[]) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -525,7 +531,7 @@ function testArrayData() returns (int[], int[], float[], string[],
               string_array from ArrayTypes where row_id = 1", ResultMap);
     int[] int_arr = [];
     int[] long_arr = [];
-    float[] float_arr = [];
+    decimal[] float_arr = [];
     string[] string_arr = [];
     boolean[] boolean_arr = [];
     if (tableOrError is table<ResultMap>) {
@@ -542,8 +548,7 @@ function testArrayData() returns (int[], int[], float[], string[],
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
-            int) {
+function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -553,7 +558,7 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
     });
 
     int[] dataint = [1, 2, 3];
-    float[] datafloat = [33.4, 55.4];
+    decimal[] datafloat = [33.4, 55.4];
     string[] datastring = ["hello", "world"];
     boolean[] databoolean = [true, false, false, true, true];
 
@@ -596,8 +601,7 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
     return (updateRet is int ? updateRet : -1, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
 }
 
-function testDateTime(int datein, int timein, int timestampin)
-             returns (string, string, string, string) {
+function testDateTime(int datein, int timein, int timestampin) returns (string, string, string, string) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -637,8 +641,7 @@ function testDateTime(int datein, int timein, int timestampin)
     return (date, time, timestamp, datetime);
 }
 
-function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
-            int, int, int) {
+function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -696,8 +699,7 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
     datetimeInserted, datetimeRetrieved);
 }
 
-function testDateTimeInt(int datein, int timein, int timestampin)
-returns (int, int, int, int) {
+function testDateTimeInt(int datein, int timein, int timestampin) returns (int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -739,7 +741,7 @@ returns (int, int, int, int) {
     return (date, time, timestamp, datetime);
 }
 
-function testBlobData() returns (byte[]) {
+function testBlobData() returns byte[] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -761,8 +763,7 @@ function testBlobData() returns (byte[]) {
     return blobData;
 }
 
-function testColumnAlias() returns (int, int, float, float, boolean,
-            string, int) {
+function testColumnAlias() returns (int, int, float, float, boolean, string, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -799,7 +800,7 @@ function testColumnAlias() returns (int, int, float, float, boolean,
     return (i, l, f, d, b, s, i2);
 }
 
-function testBlobInsert() returns (int) {
+function testBlobInsert() returns int {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -862,7 +863,7 @@ function testTableAutoClose() returns (int, json) {
     return (i, jsonData);
 }
 
-function testTableManualClose() returns (int) {
+function testTableManualClose() returns int {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -914,7 +915,7 @@ function testTableManualClose() returns (int) {
     return data;
 }
 
-function testCloseConnectionPool(string connectionCountQuery) returns (int) {
+function testCloseConnectionPool(string connectionCountQuery) returns int {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -989,8 +990,7 @@ function testMultipleRows() returns (int, int) {
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
-function testMultipleRowsWithoutLoop() returns (int, int, int, int,
-            string, string) {
+function testMultipleRowsWithoutLoop() returns (int, int, int, int, string, string) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1108,8 +1108,7 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
     return (i1, i2, i3, i4, s1, s2);
 }
 
-function testHasNextWithoutConsume() returns (boolean, boolean, boolean)
-{
+function testHasNextWithoutConsume() returns (boolean, boolean, boolean) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1140,7 +1139,7 @@ function testHasNextWithoutConsume() returns (boolean, boolean, boolean)
     return (b1, b2, b3);
 }
 
-function testGetFloatTypes() returns (float, float, float, float) {
+function testGetFloatTypes() returns (float, float, decimal, decimal) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1154,8 +1153,8 @@ function testGetFloatTypes() returns (float, float, float, float) {
 
     float f = 0;
     float d = 0;
-    float num = 0;
-    float dec = 0;
+    decimal num = 0;
+    decimal dec = 0;
 
     if (selectRet is table<ResultSetFloat>) {
         while (selectRet.hasNext()) {
@@ -1172,8 +1171,7 @@ function testGetFloatTypes() returns (float, float, float, float) {
     return (f, d, num, dec);
 }
 
-function testSignedIntMaxMinValues() returns (int, int, int, string,
-            string, string) {
+function testSignedIntMaxMinValues() returns (int, int, int, string, string, string) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1254,8 +1252,7 @@ function testSignedIntMaxMinValues() returns (int, int, int, string,
     return (maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str);
 }
 
-function testComplexTypeInsertAndRetrieval() returns (int, int, string,
-            string, string, byte[][]) {
+function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, string, byte[][]) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1324,8 +1321,7 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string,
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str, expected);
 }
 
-function testJsonXMLConversionwithDuplicateColumnNames() returns (json,
-            xml) {
+function testJsonXMLConversionwithDuplicateColumnNames() returns (json, xml) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1346,8 +1342,7 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns (json,
     return (j, x);
 }
 
-function testStructFieldNotMatchingColumnName() returns (int, int, int,
-            int, int) {
+function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1390,8 +1385,7 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int,
     return (countAll, i1, i2, i3, i4);
 }
 
-function testGetPrimitiveTypesWithForEach() returns (int, int, float,
-            float, boolean, string) {
+function testGetPrimitiveTypesWithForEach() returns (int, int, float, float, boolean, string, decimal) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1401,7 +1395,7 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
     });
 
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ResultPrimitive);
+              boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
 
     int i = -1;
     int l = -1;
@@ -1409,6 +1403,7 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
     float d = -1;
     boolean b = false;
     string s = "";
+    decimal dec = -1;
     if (selectRet is table<ResultPrimitive>) {
         foreach var x in selectRet {
             i = x.INT_TYPE;
@@ -1417,10 +1412,11 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
             d = x.DOUBLE_TYPE;
             b = x.BOOLEAN_TYPE;
             s = x.STRING_TYPE;
+            dec = x.DECIMAL_TYPE;
         }
     }
     testDB.stop();
-    return (i, l, f, d, b, s);
+    return (i, l, f, d, b, s, dec);
 }
 
 function testMultipleRowsWithForEach() returns (int, int) {
@@ -1489,7 +1485,7 @@ function testTableRemoveInvalid() returns string {
     if (selectRet is table<ResultPrimitiveInt>) {
         var ret = trap selectRet.remove(isDelete);
         if (ret is int) {
-            s = <string> ret;
+            s = string.convert(ret);
         } else {
             s = <string> ret.detail().message;
         }
@@ -1520,7 +1516,7 @@ function tableGetNextInvalid() returns string {
     return retVal;
 }
 
-function isDelete(ResultPrimitiveInt p) returns (boolean) {
+function isDelete(ResultPrimitiveInt p) returns boolean {
     return p.INT_TYPE < 2000;
 }
 
@@ -1714,4 +1710,24 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns (i
 function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
     table<IntData> joinedTable = from t1 as table1 join t2 as table2 on
     table1.int_type == table2.int_type select table1.int_type as int_type;
+}
+
+function testAssignStringValueToJsonField() returns json {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    var result = testDB->select("SELECT string_type from DataTable WHERE row_id = 1", ResultJson);
+    json val = "";
+    if (result is table<ResultJson>) {
+        foreach var rs in result {
+            val = rs.STRING_TYPE;
+        }
+    }
+    testDB.stop();
+    return val;
 }

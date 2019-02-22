@@ -40,29 +40,30 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         
         this.clearItemsIfWorkerExists(ctx, completionItems);
         if (previousNode == null) {
-            this.populateWhenCursorBeforeOrAfterEp(completionItems, isSnippet);
+            this.populateWhenCursorBeforeOrAfterEp(ctx, completionItems, isSnippet);
         } else if (previousNode instanceof BLangSimpleVariableDef) {
             if (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
                     || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY)) {
-                CompletionItem workerItem = this.getWorkerSnippet(isSnippet);
+                CompletionItem workerItem = this.getWorkerSnippet(ctx, isSnippet);
                 workerItem.setSortText(Priority.PRIORITY160.toString());
                 completionItems.add(workerItem);
             }
         } else if (previousNode instanceof BLangWorker) {
-            completionItems.add(this.getWorkerSnippet(isSnippet));
+            completionItems.add(this.getWorkerSnippet(ctx, isSnippet));
         }
         this.setPriorities(completionItems);
     }
 
-    private void populateWhenCursorBeforeOrAfterEp(List<CompletionItem> completionItems, boolean snippetCapability) {
-        CompletionItem workerSnippet = this.getWorkerSnippet(snippetCapability);
+    private void populateWhenCursorBeforeOrAfterEp(LSServiceOperationContext ctx, List<CompletionItem> completionItems,
+                                                   boolean snippetCapability) {
+        CompletionItem workerSnippet = this.getWorkerSnippet(ctx, snippetCapability);
         this.setPriorities(completionItems);
         workerSnippet.setSortText(Priority.PRIORITY160.toString());
         completionItems.add(workerSnippet);
     }
 
-    private CompletionItem getWorkerSnippet(boolean isSnippet) {
-        return Snippet.DEF_WORKER.get().build(isSnippet);
+    private CompletionItem getWorkerSnippet(LSServiceOperationContext ctx, boolean isSnippet) {
+        return Snippet.DEF_WORKER.get().build(ctx, isSnippet);
     }
     
     private void clearItemsIfWorkerExists(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {

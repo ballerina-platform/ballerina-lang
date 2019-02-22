@@ -36,44 +36,29 @@ import java.io.File;
  */
 public class BalRunFunctionPositiveTestCase extends BaseTest {
 
-    private static final String PRINT_RETURN = "--printreturn";
     private static final int LOG_LEECHER_TIMEOUT = 10000;
 
     private String filePath = (new File("src/test/resources/run/file/test_entry_function.bal")).getAbsolutePath();
 
-    private String sourceArg;
-
     @Test
     public void testNoArg() throws BallerinaTestException {
-        String functionName = "noParamEntry";
-        sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1");
-        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[0], new LogLeecher[]{outLogLeecher});
+        balClient.runMain((new File("src/test/resources/run/file/test_main_with_no_params.bal")).getAbsolutePath(),
+                          new String[]{}, new String[0], new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
     public void testMultipleParam() throws BallerinaTestException {
-        String functionName = "combinedTypeEntry";
-        sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, "
                                                           + "boolean: true, JSON Name Field: Maryam, XML Element Name: "
                                                           + "book, Employee Name Field: Em, string rest args: just the"
                                                           + " rest ");
-        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{"1000", "1.0", "Hello Ballerina",
-                "255", "true", "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>", "{ \"name\": \"Em\" }",
-                "just", "the", "rest"}, new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
-    }
-
-    @Test(description = "test running a function where the function name has colons. " +
-            "e.g., ballerina run <SOURCE>:functionWithColons:inName")
-    public void testFunctionNameWithColons() throws BallerinaTestException {
-        String arg = "test arg";
-        sourceArg = (new File("src/test/resources/run/file/test_entry_function_with_colons.bal")).getAbsolutePath() +
-                ":colonsInName:Function";
-        LogLeecher outLogLeecher = new LogLeecher(arg);
-        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg}, new LogLeecher[]{outLogLeecher});
+        balClient.runMain((new File("src/test/resources/run/file/test_main_with_multiple_typed_params.bal"))
+                                  .getAbsolutePath(), new String[]{},
+                          new String[]{"1000", "1.0", "Hello Ballerina", "255", "true", "{ \"name\": \"Maryam\" }",
+                                  "<book>Harry Potter</book>", "{ \"name\": \"Em\" }", "just", "the", "rest"},
+                          new  LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 }

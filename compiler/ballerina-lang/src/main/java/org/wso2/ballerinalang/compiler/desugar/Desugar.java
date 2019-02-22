@@ -1703,7 +1703,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) { // this is blob literal as byte array
+        if (literalExpr.type.tag == TypeTags.ARRAY && ((BArrayType) literalExpr.type).eType.tag == TypeTags.BYTE) {
+            // this is blob literal as byte array
             result = rewriteBlobLiteral(literalExpr);
             return;
         }
@@ -1883,7 +1884,7 @@ public class Desugar extends BLangNodeVisitor {
                 // issues because registry allocation will be only done one time.
                 BLangLiteral literal = ASTBuilderUtil
                         .createLiteral(varRefExpr.pos, symbol.literalValueType, symbol.literalValue);
-                literal.typeTag = symbol.literalValueTypeTag;
+                literal.type.tag = symbol.literalValueTypeTag;
                 result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
                 return;
             } else {
@@ -2910,11 +2911,10 @@ public class Desugar extends BLangNodeVisitor {
                                                          tableQueryExpression) {
         //create a literal to represent the sql query.
         BLangLiteral sqlQueryLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        sqlQueryLiteral.typeTag = TypeTags.STRING;
 
         //assign the sql query from table expression to the literal.
         sqlQueryLiteral.value = tableQueryExpression.getSqlQuery();
-        sqlQueryLiteral.type = symTable.getTypeFromTag(sqlQueryLiteral.typeTag);
+        sqlQueryLiteral.type = symTable.stringType;
         return sqlQueryLiteral;
     }
 
@@ -4390,7 +4390,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getStringLiteral(String value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.STRING;
         literal.type = symTable.stringType;
         return literal;
     }
@@ -4398,7 +4397,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getIntLiteral(long value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.INT;
         literal.type = symTable.intType;
         return literal;
     }
@@ -4406,7 +4404,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getFloatLiteral(double value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.FLOAT;
         literal.type = symTable.floatType;
         return literal;
     }
@@ -4414,7 +4411,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getDecimalLiteral(String value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.FLOAT;
         literal.type = symTable.decimalType;
         return literal;
     }
@@ -4422,14 +4418,12 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getBooleanLiteral(boolean value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.BOOLEAN;
         literal.type = symTable.booleanType;
         return literal;
     }
 
     private BLangLiteral getNullLiteral() {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.typeTag = TypeTags.NIL;
         literal.type = symTable.nilType;
         return literal;
     }

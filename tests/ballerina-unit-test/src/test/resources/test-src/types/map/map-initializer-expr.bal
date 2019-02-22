@@ -27,7 +27,7 @@ function testComplexMapInit() returns (map<any>) {
               age:25,
               gpa:2.81,
               status:true,
-              info:null,
+              info:(),
               address:address,
               intArray:intArray,
               addressArray:addressArray
