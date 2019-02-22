@@ -45,10 +45,9 @@ import java.util.zip.InflaterInputStream;
 public class HttpMessageDataStreamer {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpMessageDataStreamer.class);
+    private static final int CONTENT_BUFFER_SIZE = 8192;
 
     private HttpCarbonMessage httpCarbonMessage;
-
-    private static final int CONTENT_BUFFER_SIZE = 8192;
     private ByteBufAllocator pooledByteBufAllocator;
     private HttpMessageDataStreamer.ByteBufferInputStream byteBufferInputStream;
     private HttpMessageDataStreamer.ByteBufferOutputStream byteBufferOutputStream;

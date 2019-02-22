@@ -73,6 +73,7 @@ public class ReceivingEntityBody implements SenderState {
         inboundResponseMsg.addHttpContent(httpContent);
 
         if (isLastHttpContent(httpContent)) {
+            inboundResponseMsg.setLastHttpContentArrived();
             targetHandler.resetInboundMsg();
             targetHandler.getTargetChannel().getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
             messageStateContext.setSenderState(new EntityBodyReceived());
