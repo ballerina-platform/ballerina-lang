@@ -43,7 +43,7 @@ public extern function encodeBase64Url(byte[] input) returns string;
 # Decode Base64 URL encoded `string` into byte array.
 #
 # + input - Value to be decoded
-# + return - Decoded output or error if input is not a valid Base64 value
+# + return - Decoded output or error if input is not a valid Base64 URL encoded value
 public extern function decodeBase64Url(string input) returns byte[]|error;
 
 # Returns the Hex encoded `string` value of the given byte array.
