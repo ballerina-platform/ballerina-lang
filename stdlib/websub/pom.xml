@@ -27,7 +27,8 @@
 
     <artifactId>ballerina-websub</artifactId>
     <packaging>jar</packaging>
-    SiddhiQLBaseVisitorImpl    <url>http://ballerina.io</url>
+    <name>Ballerina - WebSub</name>
+    <url>http://ballerina.io</url>
 
     <dependencies>
         <dependency>
