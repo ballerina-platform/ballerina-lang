@@ -82,12 +82,22 @@ public class TimerServiceTest {
     }
 
     @Test(
-            description = "Tests a timer listener with negative delay and interval values",
+            description = "Tests a timer listener with negative interval value",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Timer scheduling delay and interval should be non-negative values.*"
+            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*"
     )
-    public void testListenerTimerNegativeValues() {
-        CompileResult compileResult = BCompileUtil.compile("listener/timer/service_negative_values.bal");
+    public void testListenerTimerNegativeInterval() {
+        CompileResult compileResult = BCompileUtil.compile("listener/timer/service_negative_interval.bal");
+        BServiceUtil.runService(compileResult);
+    }
+
+    @Test(
+            description = "Tests a timer listener with negative delay value",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*Timer scheduling delay should be a non-negative value.*"
+    )
+    public void testListenerTimerNegativeDelay() {
+        CompileResult compileResult = BCompileUtil.compile("listener/timer/service_negative_delay.bal");
         BServiceUtil.runService(compileResult);
     }
 

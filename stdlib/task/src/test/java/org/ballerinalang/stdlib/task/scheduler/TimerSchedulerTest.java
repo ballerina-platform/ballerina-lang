@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -106,9 +107,25 @@ public class TimerSchedulerTest {
         Assert.assertEquals(((BInteger) count[0]).intValue(), 3);
     }
 
-    @Test(description = "Tests a timer scheduler with zero interval")
+    @Test(description = "Tests a timer scheduler with zero delay")
     public void testZeroDelay() {
         CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/zero_delay.bal");
+        BRunUtil.invokeStateful(compileResult, "triggerTimer");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BInteger);
+            return (((BInteger) count[0]).intValue() > 3);
+        });
+    }
+
+    @Test(
+            description = "Tests a timer scheduler with zero interval",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*"
+    )
+    public void testZeroInterval() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/zero_interval.bal");
         BRunUtil.invokeStateful(compileResult, "triggerTimer");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");

@@ -41,9 +41,7 @@ public class Timer extends AbstractTask {
      */
     public Timer(Context context, long delay, long interval) throws SchedulingException {
         super();
-        if (delay < 0 || interval < 1) {
-            throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
-        }
+        validateTimerConfigurations(delay, interval);
         this.interval = interval;
         this.delay = delay;
     }
@@ -59,9 +57,7 @@ public class Timer extends AbstractTask {
      */
     public Timer(Context context, long delay, long interval, long maxRuns) throws SchedulingException {
         super(maxRuns);
-        if (delay < 0 || interval < 1) {
-            throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
-        }
+        validateTimerConfigurations(delay, interval, maxRuns);
         this.interval = interval;
         this.delay = delay;
     }
@@ -104,15 +100,46 @@ public class Timer extends AbstractTask {
         }
     }
 
+    /**
+     * Gets the interval of this Timer.
+     *
+     * @return the interval of this timer.
+     */
     public long getInterval() {
         return this.interval;
     }
 
+    /**
+     * Gets the delay of this Timer.
+     *
+     * @return the delay of this timer.
+     */
     public long getDelay() {
         return this.delay;
     }
 
+    /**
+     * Gets the number of maximum runs of this Timer.
+     *
+     * @return the number of times the timer runs before shutdown.
+     */
     public long getMaxRuns() {
         return this.maxRuns;
+    }
+
+    private void validateTimerConfigurations(long delay, long interval) throws SchedulingException {
+        if (delay < 0) {
+            throw new SchedulingException("Timer scheduling delay should be a non-negative value.");
+        }
+        if (interval < 1) {
+            throw new SchedulingException("Timer scheduling interval should be a positive integer.");
+        }
+    }
+
+    private void validateTimerConfigurations(long delay, long interval, long maxRuns) throws SchedulingException {
+        validateTimerConfigurations(delay, interval);
+        if (maxRuns < 1) {
+            throw new SchedulingException("Timer noOfOccurrences should be a positive integer.");
+        }
     }
 }
