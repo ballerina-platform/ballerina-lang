@@ -65,6 +65,7 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public void stop() throws SchedulingException {
+        this.task.setState(TaskState.STOPPED);
         this.task.stop();
     }
 }
