@@ -30,7 +30,6 @@ import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
 import org.ballerinalang.stdlib.task.objects.Task;
-import org.ballerinalang.stdlib.task.objects.TaskState;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
@@ -59,11 +58,6 @@ public class Stop extends BlockingNativeCallableUnit {
     public void execute (Context context) {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
-        if (TaskState.STARTED != task.getState()) {
-            String errorMessage = "Cannot stop the task: Task is not running.";
-            context.setReturnValues(createError(context, errorMessage));
-            return;
-        }
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(context, task);
         try {
             serverConnector.stop();

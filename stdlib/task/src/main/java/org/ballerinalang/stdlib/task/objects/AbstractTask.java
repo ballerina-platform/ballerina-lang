@@ -37,7 +37,6 @@ public abstract class AbstractTask implements Task {
     protected String id = TaskIdGenerator.generate();
     HashMap<String, ServiceWithParameters> serviceMap;
     protected long maxRuns;
-    protected TaskState state;
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
@@ -45,7 +44,6 @@ public abstract class AbstractTask implements Task {
     protected AbstractTask() {
         this.serviceMap = new HashMap<>();
         this.maxRuns = -1;
-        this.state = TaskState.STOPPED;
     }
 
     /**
@@ -56,7 +54,6 @@ public abstract class AbstractTask implements Task {
     protected AbstractTask(long maxRuns) {
         this.serviceMap = new HashMap<>();
         this.maxRuns = maxRuns;
-        this.state = TaskState.STOPPED;
     }
 
     /**
@@ -96,21 +93,6 @@ public abstract class AbstractTask implements Task {
      */
     public String getId() {
         return this.id;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setState(TaskState state) {
-        this.state = state;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public TaskState getState() {
-        return this.state;
     }
 
     /**

@@ -23,7 +23,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.objects.Task;
-import org.ballerinalang.stdlib.task.objects.TaskState;
 
 /**
  * ballerina/task server connector implementation.
@@ -56,7 +55,6 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public void start() throws SchedulingException {
-        this.task.setState(TaskState.STARTED);
         this.task.runServices(context);
     }
 
@@ -65,7 +63,6 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public void stop() throws SchedulingException {
-        this.task.setState(TaskState.STOPPED);
         this.task.stop();
     }
 }

@@ -93,18 +93,4 @@ public interface Task {
      * @param serviceName Name of the service which needs to be detached from the task.
      */
     void removeService(String serviceName);
-
-    /**
-     * Set the state of the task.
-     *
-     * @param state new state of the task.
-     */
-    void setState(TaskState state);
-
-    /**
-     * Get the current state of the Task.
-     *
-     * @return state of the task.
-     */
-    TaskState getState();
 }
