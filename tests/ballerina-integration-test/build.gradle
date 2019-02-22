@@ -43,7 +43,10 @@ dependencies {
     testCompile 'com.h2database:h2:1.4.197'
     testCompile 'io.ballerina.messaging:broker-amqp:0.970.0'
     testCompile project(':observability-test-utils')
+    testCompile project(':ballerina-mime')
     testCompile 'org.apache.directory.server:apacheds-all:1.5.5'
+    testCompile 'org.apache.commons:commons-lang3:3.5'
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Integration Test'

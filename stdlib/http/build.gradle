@@ -49,6 +49,13 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.22'
     implementation 'org.jvnet.mimepull:mimepull:1.9.7'
     testCompile 'org.testng:testng:6.13.1'
+    testCompile project(':ballerina-mime')
+}
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 description = 'Ballerina - Http/WS'
