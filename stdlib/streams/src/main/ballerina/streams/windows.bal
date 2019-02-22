@@ -393,7 +393,7 @@ public type TimeBatchWindow object {
         self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
         self.resetEvent = ();
-        self.timer = new({ interval: self.timeInMilliSeconds });
+        self.timer = new({ interval: 1 });
         self.currentEventQueue = new();
         self.expiredEventQueue = ();
         self.initParameters(self.windowParameters);
@@ -692,7 +692,7 @@ public type ExternalTimeBatchWindow object {
         self.windowParameters = windowParameters;
         self.timeToKeep = 0;
         self.lastScheduledTime = 0;
-        self.timer = new({ interval: self.schedulerTimeout });
+        self.timer = new({ interval: 1 });
         self.timeStamp = "";
         self.currentEventChunk = new();
         self.expiredEventChunk = new;
@@ -1838,7 +1838,7 @@ public type HoppingWindow object {
         self.timeInMilliSeconds = 0;
         self.hoppingTime = 0;
         self.resetEvent = ();
-        self.timer = new({ interval: self.hoppingTime });
+        self.timer = new({ interval: 1 });
         self.currentEventQueue = new();
         self.expiredEventQueue = ();
         self.initParameters(self.windowParameters);
