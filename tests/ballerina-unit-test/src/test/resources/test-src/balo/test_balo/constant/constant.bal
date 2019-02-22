@@ -1,5 +1,7 @@
 import testorg/foo version v1;
 
+import ballerina/reflect;
+
 type Ballerina "Ballerina";
 
 function testAccessConstantWithoutType() returns Ballerina {
@@ -251,4 +253,165 @@ function testNilWithoutType() returns () {
 
 function testNilWithType() returns () {
     return foo:NilWithType;
+}
+
+// -----------------------------------------------------------
+
+function testSimpleBooleanConstMap() returns map<boolean> {
+    return foo:bm1;
+}
+
+function testComplexBooleanConstMap() returns map<map<boolean>> {
+    return foo:bm2;
+}
+
+// -----------------------------------------------------------
+
+function testSimpleIntConstMap() returns map<int> {
+    return foo:im1;
+}
+
+function testComplexIntConstMap() returns map<map<int>> {
+    return foo:im2;
+}
+
+// -----------------------------------------------------------
+
+function testSimpleByteConstMap() returns map<byte> {
+    return foo:bytem1;
+}
+
+function testComplexByteConstMap() returns map<map<byte>> {
+    return foo:bytem2;
+}
+
+// -----------------------------------------------------------
+
+function testSimpleFloatConstMap() returns map<float> {
+    return foo:fm1;
+}
+
+function testComplexFloatConstMap() returns map<map<float>> {
+    return foo:fm2;
+}
+
+// -----------------------------------------------------------
+
+function testSimpleDecimalConstMap() returns map<decimal> {
+    return foo:dm1;
+}
+
+function testComplexDecimalConstMap() returns map<map<decimal>> {
+    return foo:dm2;
+}
+
+// -----------------------------------------------------------
+
+function testSimpleStringConstMap() returns map<string> {
+    return foo:sm1;
+}
+
+function testComplexStringConstMap() returns map<map<string>> {
+    return foo:sm2;
+}
+
+// -----------------------------------------------------------
+
+function testComplexConstMap() returns map<map<map<string>>> {
+    return foo:m3;
+}
+
+// -----------------------------------------------------------
+
+@foo:testAnnotation {
+    s: foo:sConst,
+    i: foo:iConst,
+    m: foo:mConst
+}
+function testFunction() {
+
+}
+
+function testConstInAnnotations() returns reflect:annotationData[] {
+    return reflect:getFunctionAnnotations(testFunction);
+}
+
+// -----------------------------------------------------------
+
+function getNestedConstantMapValue() returns string {
+    return foo:m4.m4k.m5k;
+}
+
+function updateNestedConstantMapValue() {
+    foo:m4.m4k.m5k = "m5nv";
+}
+
+function updateNestedConstantMapValue2() {
+    foo:m4.m4k.newKey = "newValue";
+}
+
+// -----------------------------------------------------------
+
+function updateConstantMapValueInArray() {
+    foo:a1[0].m5k = "m5nv";
+}
+
+function updateConstantMapValueInArray2() {
+    foo:a1[0].newKey = "newValue";
+}
+
+function getConstantMapValueInArray() returns string {
+    return foo:a1[0].m5k;
+}
+
+// -----------------------------------------------------------
+
+function updateReturnedConstantMap() {
+    map<string> m = getMap();
+    m.m5k = "m5kn";
+}
+
+function updateReturnedConstantMap2() {
+    map<string> m = getMap();
+    m.newKey = "newValue";
+}
+
+function getMap() returns map<string> {
+    return foo:m5;
+}
+
+// -----------------------------------------------------------
+
+function testBooleanConstKeyReference() returns map<boolean> {
+    return foo:bm4;
+}
+
+// -----------------------------------------------------------
+
+function testIntConstKeyReference() returns map<int> {
+    return foo:im4;
+}
+
+// -----------------------------------------------------------
+
+function testByteConstKeyReference() returns map<byte> {
+    return foo:bytem4;
+}
+
+// -----------------------------------------------------------
+
+function testFloatConstKeyReference() returns map<float> {
+    return foo:fm4;
+}
+
+// -----------------------------------------------------------
+
+function testDecimalConstKeyReference() returns map<decimal> {
+    return foo:dm4;
+}
+
+// -----------------------------------------------------------
+
+function testStringConstKeyReference() returns map<string> {
+    return foo:sm4;
 }
