@@ -66,6 +66,18 @@
                 </excludes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
+                    <source>${wso2.maven.compiler.source}</source>
+                    <target>${wso2.maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <properties>
