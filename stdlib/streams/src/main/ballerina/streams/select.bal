@@ -82,7 +82,7 @@ public type Select object {
         if(groupbyFunctionArray is (function (StreamEvent o) returns anydata)?[]) {
             foreach var func in groupbyFunctionArray {
                 if (func is (function (StreamEvent o) returns anydata)) {
-                    key += <string>func.call(e);
+                    key += string.convert(func.call(e));
                     key += ",";
                 }
             }

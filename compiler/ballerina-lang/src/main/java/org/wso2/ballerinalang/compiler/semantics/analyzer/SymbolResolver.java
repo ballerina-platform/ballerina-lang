@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -289,8 +290,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getCastOperator(sourceType, targetType);
     }
 
-    BSymbol resolveTypeCastOrAssertionOperator(BType sourceType, BType targetType) {
-        return types.getTypeAssertionOperator(sourceType, targetType);
+    BSymbol resolveTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
+        return types.getTypeCastOperator(conversionExpr, sourceType, targetType);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
@@ -542,34 +543,41 @@ public class SymbolResolver extends BLangNodeVisitor {
                 (method.getName()), UTILS, opType, null);
     }
 
-    BOperatorSymbol createTypeAssertionSymbol(BType type, BType retType) {
+    BOperatorSymbol createTypeCastSymbol(BType type, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(Names.ASSERTION_OP, null, opType, null, InstructionCodes.TYPE_ASSERTION);
+        return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_CAST);
     }
 
-    BSymbol getExplicitlyTypedExpressionSymbol(BType sourceType, BType targetType) {
-        int sourceTypeTag = sourceType.tag;
-        if (types.isValueType(sourceType)) {
-            if (sourceType == targetType) {
-                return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType, false, true, 
-                                                        InstructionCodes.NOP, null, null);
+    BSymbol getNumericConversionOrCastSymbol(BLangTypeConversionExpr conversionExpr, BType sourceType,
+                                             BType targetType) {
+        if (targetType.tag == TypeTags.UNION &&
+                ((BUnionType) targetType).memberTypes.stream()
+                        .filter(memType -> types.isBasicNumericType(memType)).count() > 1) {
+            return symTable.notFoundSymbol;
+        }
+
+        if (types.isBasicNumericType(sourceType) && types.isBasicNumericType(targetType)) {
+            // we only reach here for different numeric types.
+            return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
+        } else {
+            // Target type is always a union here.
+            if (types.isBasicNumericType(sourceType)) {
+                // i.e., a conversion from a numeric type to another numeric type in a union.
+                // int|string u1 = <int|string> 1.0;
+                types.setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+                return createTypeCastSymbol(sourceType, targetType);
             }
 
-            if (!(sourceTypeTag == TypeTags.STRING && targetType.tag != TypeTags.STRING)) {
-                return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
-            }
-        } else {
-            switch (sourceTypeTag) {
+            switch (sourceType.tag) {
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
                 case TypeTags.JSON:
-                    return createTypeAssertionSymbol(sourceType, targetType);
+                    return createTypeCastSymbol(sourceType, targetType);
                 case TypeTags.UNION:
                     if (((BUnionType) sourceType).memberTypes.stream()
-                            .anyMatch(memType -> getExplicitlyTypedExpressionSymbol(
-                                    memType, targetType) != symTable.notFoundSymbol)) {
-                        return createTypeAssertionSymbol(sourceType, targetType);
+                            .anyMatch(memType -> types.isBasicNumericType(memType))) {
+                        return createTypeCastSymbol(sourceType, targetType);
                     }
             }
         }

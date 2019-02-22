@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree.expressions;
 import java.util.List;
 
 /**
- * {key1:value1, key2:value2, string`key{{n}}`:value3, ...}.
+ * {key1:value1, key2:value2, string`key${n}`:value3, ...}.
  *
  * @since 0.94
  */
