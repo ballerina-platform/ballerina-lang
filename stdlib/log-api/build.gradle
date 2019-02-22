@@ -7,7 +7,7 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-builtin')
-
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Log API'

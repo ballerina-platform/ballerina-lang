@@ -281,7 +281,7 @@ public class BStream implements BRefType<Object> {
             return true;
         }
 
-        // @Override
+        @Override
         public Properties getTransportProperties() {
             return new Properties();
         }
