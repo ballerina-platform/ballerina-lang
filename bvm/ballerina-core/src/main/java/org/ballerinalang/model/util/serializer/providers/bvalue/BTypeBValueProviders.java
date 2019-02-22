@@ -432,7 +432,7 @@ public class BTypeBValueProviders {
 
         private static final String PACKAGE_PATH = "packagePath";
         private static final String TYPE_NAME = "typeName";
-        private static final String IS_NULLABLE = "isNullable";
+        private static final String IS_NILABLE = "isNilable";
         private static final String MEMBER_TYPES = "memberTypes";
 
         @Override
@@ -449,13 +449,13 @@ public class BTypeBValueProviders {
         public BPacket toBValue(BUnionType unionType, BValueSerializer serializer) {
             String packagePath = unionType.getPackagePath();
             String typeName = unionType.getName();
-            boolean isNullable = unionType.isNullable();
+            boolean isNullable = unionType.isNilable();
             BValue memberTypes = serializer.toBValue(unionType.getMemberTypes(), null);
 
             BPacket packet = BPacket.from(typeName(), null);
             packet.put(PACKAGE_PATH, (packagePath != null) ? new BString(packagePath) : null);
             packet.put(TYPE_NAME, (typeName != null) ? new BString(typeName) : null);
-            packet.put(IS_NULLABLE, new BBoolean(isNullable));
+            packet.put(IS_NILABLE, new BBoolean(isNullable));
             packet.put(MEMBER_TYPES, memberTypes);
 
             return packet;
@@ -466,7 +466,7 @@ public class BTypeBValueProviders {
         public BUnionType toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
             String typeName = (packet.get(TYPE_NAME) != null) ? packet.get(TYPE_NAME).stringValue() : null;
             String pkgPath = (packet.get(PACKAGE_PATH) != null) ? packet.get(PACKAGE_PATH).stringValue() : null;
-            boolean isNullable = ((BBoolean) packet.get(IS_NULLABLE)).booleanValue();
+            boolean isNullable = ((BBoolean) packet.get(IS_NILABLE)).booleanValue();
             List memberTypes = (ArrayList) bValueDeserializer.deserialize(packet.get(MEMBER_TYPES), List.class);
 
             try {
