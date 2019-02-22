@@ -122,7 +122,6 @@ public type TimeWindow object {
     public int timeInMillis;
     public any[] windowParameters;
     public LinkedList expiredEventQueue;
-    public LinkedList timerQueue;
     public function (StreamEvent?[])? nextProcessPointer;
     public int lastTimestamp = -0x8000000000000000;
     public Scheduler scheduler;
@@ -132,7 +131,6 @@ public type TimeWindow object {
         self.windowParameters = windowParameters;
         self.timeInMillis = 0;
         self.expiredEventQueue = new;
-        self.timerQueue = new;
         self.initParameters(windowParameters);
         self.scheduler = new(function (StreamEvent?[] events) {
                 self.process(events);
@@ -385,18 +383,20 @@ public type TimeBatchWindow object {
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
     public StreamEvent? resetEvent;
-    public task:Scheduler timer;
     public function (StreamEvent?[])? nextProcessPointer;
+    public Scheduler scheduler;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
         self.resetEvent = ();
-        self.timer = new({ interval: 1 });
         self.currentEventQueue = new();
         self.expiredEventQueue = ();
         self.initParameters(self.windowParameters);
+        self.scheduler = new(function (StreamEvent?[] events) {
+                self.process(events);
+            });
     }
 
     public function initParameters(any[] parameters) {
@@ -415,22 +415,11 @@ public type TimeBatchWindow object {
         }
     }
 
-    public function invokeProcess() returns error? {
-        map<anydata> data = {};
-        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent?[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
-        self.process(timerEventWrapper);
-        return ();
-    }
-
     public function process(StreamEvent?[] streamEvents) {
         LinkedList outputStreamEvents = new();
         if (self.nextEmitTime == -1) {
             self.nextEmitTime = time:currentTime().time + self.timeInMilliSeconds;
-            self.timer = new ({ interval: self.timeInMilliSeconds });
-            _ = self.timer.attachService(timeBatchWindowService, serviceParameter = self);
-            _ = self.timer.run();
+            self.scheduler.notifyAt(self.nextEmitTime);
         }
 
         int currentTime = time:currentTime().time;
@@ -438,10 +427,7 @@ public type TimeBatchWindow object {
 
         if (currentTime >= self.nextEmitTime) {
             self.nextEmitTime += self.timeInMilliSeconds;
-            _ = self.timer.cancel();
-            self.timer = new ({ interval: self.timeInMilliSeconds });
-            _ = self.timer.attachService(timeBatchWindowService, serviceParameter = self);
-            _ = self.timer.run();
+            self.scheduler.notifyAt(self.nextEmitTime);
             sendEvents = true;
         } else {
             sendEvents = false;
@@ -513,16 +499,6 @@ public type TimeBatchWindow object {
 
     public function handleError(error e) {
         io:println("Error occured", e.reason());
-    }
-};
-
-service timeBatchWindowService = service {
-    resource function onTrigger(TimeBatchWindow timeBatchWindow) returns error? {
-        return timeBatchWindow.invokeProcess();
-    }
-
-    resource function onError(error e, TimeBatchWindow timeBatchWindow) {
-        timeBatchWindow.handleError(e);
     }
 };
 
@@ -680,24 +656,27 @@ public type ExternalTimeBatchWindow object {
     public int schedulerTimeout = 0;
     public int lastScheduledTime;
     public int lastCurrentEventTime = 0;
-    public task:Scheduler timer;
     public function (StreamEvent?[])? nextProcessPointer;
     public string timeStamp;
     public boolean storeExpiredEvents = false;
     public boolean outputExpectsExpiredEvents = false;
     public any[] windowParameters;
+    public Scheduler scheduler;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeToKeep = 0;
         self.lastScheduledTime = 0;
-        self.timer = new({ interval: 1 });
         self.timeStamp = "";
         self.currentEventChunk = new();
         self.expiredEventChunk = new;
 
         self.initParameters(windowParameters);
+
+        self.scheduler = new(function (StreamEvent?[] events) {
+                self.process(events);
+            });
 
         if (self.startTime != -1) {
             self.isStartTimeEnabled = true;
@@ -772,16 +751,6 @@ public type ExternalTimeBatchWindow object {
         }
     }
 
-    public function invokeProcess() returns error? {
-        map<anydata> data = {};
-        StreamEvent timerEvent = new(("timer", data), TIMER, time:currentTime().time);
-        StreamEvent?[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
-        self.process(timerEventWrapper);
-        _ = self.timer.cancel();
-        return ();
-    }
-
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         foreach var event in streamEvents {
@@ -815,9 +784,7 @@ public type ExternalTimeBatchWindow object {
 
                         // rescheduling to emit the current batch after expiring it if no further events arrive.
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                        self.timer = new ({ interval: self.schedulerTimeout });
-                        _ = self.timer.attachService(externalTimeBatchWindowService, serviceParameter = self);
-                        _ = self.timer.run();
+                        self.scheduler.notifyAt(self.lastScheduledTime);
                     }
                     continue;
 
@@ -846,9 +813,7 @@ public type ExternalTimeBatchWindow object {
                     // triggering the last batch expiration.
                     if (self.schedulerTimeout > 0) {
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                        self.timer = new ({ interval: self.schedulerTimeout });
-                        _ = self.timer.attachService(externalTimeBatchWindowService, serviceParameter = self);
-                        _ = self.timer.run();
+                        self.scheduler.notifyAt(self.lastScheduledTime);
                     }
                 }
             }
@@ -1049,9 +1014,7 @@ public type ExternalTimeBatchWindow object {
             }
             if (self.schedulerTimeout > 0) {
                 self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                self.timer = new ({ interval: self.schedulerTimeout });
-                _ = self.timer.attachService(externalTimeBatchWindowService, serviceParameter = self);
-                _ = self.timer.run();
+                self.scheduler.notifyAt(self.lastScheduledTime);
             }
         }
     }
@@ -1063,16 +1026,6 @@ public type ExternalTimeBatchWindow object {
             error err = error("external timestamp should be of type int");
             panic err;
         }
-    }
-};
-
-service externalTimeBatchWindowService = service {
-    resource function onTrigger(ExternalTimeBatchWindow externalTimeBatchWindow) returns error? {
-        return externalTimeBatchWindow.invokeProcess();
-    }
-
-    resource function onError(error e, ExternalTimeBatchWindow externalTimeBatchWindow) {
-        externalTimeBatchWindow.handleError(e);
     }
 };
 
@@ -1388,16 +1341,19 @@ public type DelayWindow object {
     public any[] windowParameters;
     public LinkedList delayedEventQueue;
     public int lastTimestamp = 0;
-    public task:Scheduler timer;
     public function (StreamEvent?[])? nextProcessPointer;
+    public Scheduler scheduler;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.delayInMilliSeconds = 0;
-        self.timer = new({ interval: self.delayInMilliSeconds });
         self.delayedEventQueue = new;
         self.initParameters(self.windowParameters);
+        self.scheduler = new(function (StreamEvent?[] events) {
+                self.process(events);
+            });
+
     }
 
     public function initParameters(any[] parameters) {
@@ -1452,9 +1408,7 @@ public type DelayWindow object {
                     if (self.lastTimestamp < streamEvent.timestamp) {
                         //calculate the remaining time to delay the current event
                         int delayInMillis = self.delayInMilliSeconds - (currentTime - streamEvent.timestamp);
-                        self.timer = new({ interval: self.delayInMilliSeconds });
-                        _ = self.timer.attachService(delayWindowService, serviceParameter = self);
-                        _ = self.timer.run();
+                        self.scheduler.notifyAt(delayInMillis);
                         self.lastTimestamp = streamEvent.timestamp;
                     }
                 }
@@ -1476,16 +1430,6 @@ public type DelayWindow object {
                 nextProcessFuncPointer.call(events);
             }
         }
-    }
-
-    public function invokeProcess() returns error? {
-        map<anydata> data = {};
-        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent?[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
-        self.process(timerEventWrapper);
-        _ = self.timer.cancel();
-        return ();
     }
 
     public function handleError(error e) {
@@ -1516,16 +1460,6 @@ public type DelayWindow object {
             }
         }
         return events;
-    }
-};
-
-service delayWindowService = service {
-    resource function onTrigger(DelayWindow delayWindow) returns error? {
-        return delayWindow.invokeProcess();
-    }
-
-    resource function onError(error e, DelayWindow delayWindow) {
-        delayWindow.handleError(e);
     }
 };
 
@@ -1713,16 +1647,18 @@ public type TimeAccumulatingWindow object {
 
     public int timeInMillis;
     public any[] windowParameters;
-    public LinkedList expiredEventQueue;
+    public LinkedList currentEventQueue;
+    public StreamEvent? resetEvent;
     public function (StreamEvent?[])? nextProcessPointer;
-    public int lastTimestamp = -0x8000000000000000;
+    public int lastTimestamp = -1;
     public Scheduler scheduler;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMillis = 0;
-        self.expiredEventQueue = new;
+        self.currentEventQueue = new;
+        self.resetEvent = ();
         self.initParameters(windowParameters);
         self.scheduler = new(function (StreamEvent?[] events) { self.process(events); });
     }
@@ -1744,43 +1680,51 @@ public type TimeAccumulatingWindow object {
     }
 
     public function process(StreamEvent?[] streamEvents) {
-        LinkedList streamEventChunk = new;
-        lock {
-            foreach var event in streamEvents {
-                streamEventChunk.addLast(event);
+        LinkedList outputStreamEvents = new();
+
+        int currentTime = time:currentTime().time;
+        boolean sendEvents = false;
+
+        foreach var evt in streamEvents {
+            StreamEvent event = <StreamEvent> evt;
+            if (event.eventType != "CURRENT") {
+                continue;
             }
 
-            streamEventChunk.resetToFront();
+            if (event.eventType == "CURRENT" && event.timestamp < self.lastTimestamp - self.timeInMillis) {
+                continue;
+            }
 
-            while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
-                int currentTime = time:currentTime().time;
+            StreamEvent clonedEvent = event.copy();
 
-                if (streamEvent.eventType == "CURRENT") {
-                    StreamEvent clonedEvent = streamEvent.copy();
-                    clonedEvent.eventType = "EXPIRED";
-                    self.expiredEventQueue.addLast(clonedEvent);
-                    self.scheduler.notifyAt(streamEvent.timestamp + self.timeInMillis);
-                    self.lastTimestamp = streamEvent.timestamp;
-                } else {
-                    streamEventChunk.clear();
-                    if ((self.lastTimestamp + self.timeInMillis) <= streamEvent.timestamp) {
-                        while (self.expiredEventQueue.hasNext()) {
-                            streamEventChunk.addLast(<StreamEvent>self.expiredEventQueue.next());
-                            self.expiredEventQueue.removeCurrent();
-                        }
-                    }
+            if(self.lastTimestamp < clonedEvent.timestamp) {
+                self.lastTimestamp = clonedEvent.timestamp;
+            }
+
+            self.currentEventQueue.addLast(clonedEvent);
+            self.scheduler.notifyAt(self.lastTimestamp + self.timeInMillis);
+        }
+
+        if (self.currentEventQueue.getLast() != ()) {
+            if (currentTime - self.lastTimestamp >= self.timeInMillis) {
+                self.resetEvent = createResetStreamEvent(getStreamEvent(self.currentEventQueue.getFirst()));
+                outputStreamEvents.addLast(self.resetEvent);
+                self.currentEventQueue.resetToFront();
+                while (self.currentEventQueue.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(self.currentEventQueue.next());
+                    outputStreamEvents.addLast(streamEvent);
                 }
+                self.currentEventQueue.clear();
             }
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;
         if (nextProcessFuncPointer is function (StreamEvent?[])) {
-            if (streamEventChunk.getSize() != 0) {
+            if (outputStreamEvents.getSize() != 0) {
                 StreamEvent?[] events = [];
-                streamEventChunk.resetToFront();
-                while (streamEventChunk.hasNext()) {
-                    StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
+                outputStreamEvents.resetToFront();
+                while (outputStreamEvents.hasNext()) {
+                    StreamEvent streamEvent = getStreamEvent(outputStreamEvents.next());
                     events[events.length()] = streamEvent;
                 }
                 nextProcessFuncPointer.call(events);
@@ -1795,7 +1739,7 @@ public type TimeAccumulatingWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach var e in self.expiredEventQueue.asArray() {
+        foreach var e in self.currentEventQueue.asArray() {
             if (e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
@@ -1829,8 +1773,8 @@ public type HoppingWindow object {
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
     public StreamEvent? resetEvent;
-    public task:Scheduler timer;
     public function (StreamEvent?[])? nextProcessPointer;
+    public Scheduler scheduler;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -1838,10 +1782,12 @@ public type HoppingWindow object {
         self.timeInMilliSeconds = 0;
         self.hoppingTime = 0;
         self.resetEvent = ();
-        self.timer = new({ interval: 1 });
         self.currentEventQueue = new();
         self.expiredEventQueue = ();
         self.initParameters(self.windowParameters);
+        self.scheduler = new(function (StreamEvent?[] events) {
+                self.process(events);
+            });
     }
 
     public function initParameters(any[] parameters) {
@@ -1868,22 +1814,11 @@ public type HoppingWindow object {
         }
     }
 
-    public function invokeProcess() returns error? {
-        map<anydata> data = {};
-        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
-        StreamEvent?[] timerEventWrapper = [];
-        timerEventWrapper[0] = timerEvent;
-        self.process(timerEventWrapper);
-        return ();
-    }
-
     public function process(StreamEvent?[] streamEvents) {
         LinkedList outputStreamEvents = new();
         if (self.nextEmitTime == -1) {
             self.nextEmitTime = time:currentTime().time + self.hoppingTime;
-            self.timer = new({ interval: self.hoppingTime });
-            _ = self.timer.attachService(hoppingWindowService, serviceParameter = self);
-            _ = self.timer.run();
+            self.scheduler.notifyAt(self.nextEmitTime);
         }
 
         int currentTime = time:currentTime().time;
@@ -1891,10 +1826,7 @@ public type HoppingWindow object {
 
         if (currentTime >= self.nextEmitTime) {
             self.nextEmitTime += self.hoppingTime;
-            _ = self.timer.cancel();
-            self.timer = new({ interval: self.hoppingTime });
-            _ = self.timer.attachService(hoppingWindowService, serviceParameter = self);
-            _ = self.timer.run();
+            self.scheduler.notifyAt(self.nextEmitTime);
             sendEvents = true;
         } else {
             sendEvents = false;
@@ -1969,16 +1901,6 @@ public type HoppingWindow object {
 
     public function handleError(error e) {
         io:println("Error occured", e.reason());
-    }
-};
-
-service hoppingWindowService = service {
-    resource function onTrigger(HoppingWindow hoppingWindow) returns error? {
-        return hoppingWindow.invokeProcess();
-    }
-
-    resource function onError(error e, HoppingWindow hoppingWindow) {
-        hoppingWindow.handleError(e);
     }
 };
 
