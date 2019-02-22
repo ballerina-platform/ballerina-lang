@@ -69,7 +69,7 @@ public class ConnectionManager {
                                              Http2SourceHandler http2SourceHandler,
                                              SenderConfiguration senderConfig, BootstrapConfiguration bootstrapConfig,
                                              EventLoopGroup clientEventGroup) throws Exception {
-        GenericObjectPool trgHlrConnPool = null;
+        GenericObjectPool trgHlrConnPool;
         String trgHlrConnPoolId = httpRoute.toString() + connectionManagerId;
 
         if (sourceHandler != null) {
@@ -81,9 +81,7 @@ public class ConnectionManager {
                                                                     inboundChannelContext.channel().eventLoop(),
                                                                     inboundChannelContext.channel().getClass(),
                                                                     sourceHandler.getTargetChannelPool());
-        }
-
-        if (http2SourceHandler != null) {
+        } else if (http2SourceHandler != null) {
             ChannelHandlerContext inboundChannelContext = http2SourceHandler.getInboundChannelContext();
             trgHlrConnPool = getTrgHlrPoolFromGlobalPoolWithSrcPool(httpRoute, senderConfig, bootstrapConfig,
                                                                     trgHlrConnPoolId,
@@ -91,9 +89,7 @@ public class ConnectionManager {
                                                                     inboundChannelContext.channel().getClass(),
                                                                     http2SourceHandler.getTargetChannelPool());
 
-        }
-
-        if (sourceHandler == null && http2SourceHandler == null) {
+        } else {
             trgHlrConnPool = getTrgHlrPoolFromGlobalPool(httpRoute, senderConfig, bootstrapConfig, clientEventGroup);
         }
 
