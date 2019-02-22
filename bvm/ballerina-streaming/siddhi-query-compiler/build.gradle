@@ -29,7 +29,7 @@ test {
 }
 
 generateGrammarSource {
-    arguments += ["-visitor", "-no-listener"]
+    arguments += ["-visitor", "-no-listener", "-package", "org.ballerinalang.siddhi.query.compiler"]
 }
 
 sourceSets.main.java.srcDirs = ['build/generated-src/antlr/main' ,'src/main/java']
