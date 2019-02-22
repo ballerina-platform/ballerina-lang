@@ -481,12 +481,20 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(LSContext ctx, String orgName, String pkgName) {
         if (UtilSymbolKeys.BALLERINA_KW.equals(orgName) && UtilSymbolKeys.BUILTIN_KW.equals(pkgName)) {
-            return null;
+            return new ArrayList<>();
         }
         String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        if (relativePath == null || pkg == null) {
+            return new ArrayList<>();
+        }
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
         List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
+        for (BLangImportPackage importPackage : imports) {
+            if (importPackage.orgName.value.equals(orgName) && importPackage.alias.value.equals(pkgName)) {
+                return new ArrayList<>();
+            }
+        }
         Position start = new Position(0, 0);
         if (!imports.isEmpty()) {
             BLangImportPackage last = CommonUtil.getLastItem(imports);

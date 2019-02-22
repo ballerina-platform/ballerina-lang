@@ -57,7 +57,7 @@ function testIterableTypeRecord() {
     IterableRecord iterableRecord = { bazFieldOne: 2.2, bazFieldTwo: true, bazFieldThree: "valueThree" };
     string result = "";
     foreach (string, any) (key, value) in iterableRecord {
-        result += <string>value;
+        result += string.convert(value);
     }
     test:assertEquals(result, "2.2truevalueThree", msg = "expected record type to iterate over its fields");
 }

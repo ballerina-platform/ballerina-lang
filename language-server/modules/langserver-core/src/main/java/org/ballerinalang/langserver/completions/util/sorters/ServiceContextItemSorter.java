@@ -43,21 +43,22 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
         this.removeCompletionsByType(new ArrayList<>(Collections.singletonList(ItemResolverConstants.STATEMENT_TYPE)),
                 completionItems);
         if (previousNode == null) {
-            this.populateWhenCursorBeforeOrAfterEp(completionItems, isSnippet);
+            this.populateWhenCursorBeforeOrAfterEp(ctx, completionItems, isSnippet);
         } else if (previousNode instanceof BLangSimpleVariableDef) {
             this.setPriorities(completionItems);
-            CompletionItem resItem = this.getResourceSnippet(isSnippet);
+            CompletionItem resItem = this.getResourceSnippet(ctx, isSnippet);
             resItem.setSortText(Priority.PRIORITY160.toString());
             completionItems.add(resItem);
         } else if (previousNode instanceof BLangResource) {
             completionItems.clear();
-            completionItems.add(this.getResourceSnippet(isSnippet));
+            completionItems.add(this.getResourceSnippet(ctx, isSnippet));
         }
     }
-    
-    private void populateWhenCursorBeforeOrAfterEp(List<CompletionItem> completionItems, boolean snippetCapability) {
-        CompletionItem xmlnsSnippet = Snippet.STMT_NAMESPACE_DECLARATION.get().build(snippetCapability);
-        CompletionItem resSnippet = this.getResourceSnippet(snippetCapability);
+
+    private void populateWhenCursorBeforeOrAfterEp(LSServiceOperationContext ctx, List<CompletionItem> completionItems,
+                                                   boolean snippetCapability) {
+        CompletionItem xmlnsSnippet = Snippet.STMT_NAMESPACE_DECLARATION.get().build(ctx, snippetCapability);
+        CompletionItem resSnippet = this.getResourceSnippet(ctx, snippetCapability);
         this.setPriorities(completionItems);
 
         xmlnsSnippet.setSortText(Priority.PRIORITY150.toString());
@@ -65,8 +66,8 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
         completionItems.add(xmlnsSnippet);
         completionItems.add(resSnippet);
     }
-    
-    private CompletionItem getResourceSnippet(boolean snippetCapability) {
-        return Snippet.DEF_RESOURCE.get().build(snippetCapability);
+
+    private CompletionItem getResourceSnippet(LSServiceOperationContext ctx, boolean snippetCapability) {
+        return Snippet.DEF_RESOURCE.get().build(ctx, snippetCapability);
     }
 }
