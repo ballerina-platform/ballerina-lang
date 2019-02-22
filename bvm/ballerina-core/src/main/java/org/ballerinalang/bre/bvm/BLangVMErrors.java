@@ -250,7 +250,7 @@ public class BLangVMErrors {
         return sb.toString();
     }
 
-    private static String getErrorMessage(BError error) {
+    public static String getErrorMessage(BError error) {
         // No longer consider nominal error type, just the reason and details.
 
         String errorMsg = "";

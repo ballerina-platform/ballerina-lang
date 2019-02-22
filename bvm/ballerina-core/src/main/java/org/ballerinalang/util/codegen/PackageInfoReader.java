@@ -1202,6 +1202,10 @@ public class PackageInfoReader {
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
                 case InstructionCodes.BI2I:
+                case InstructionCodes.F2BI:
+                case InstructionCodes.BI2F:
+                case InstructionCodes.D2BI:
+                case InstructionCodes.BI2D:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1319,7 +1323,7 @@ public class PackageInfoReader {
                 case InstructionCodes.XMLLOAD:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
-                case InstructionCodes.TYPE_ASSERTION:
+                case InstructionCodes.TYPE_CAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.ANY2T:

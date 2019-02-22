@@ -38,7 +38,7 @@ public class FunctionContextResolver extends AbstractItemResolver {
         if (parserRuleContext == null) {
             List<CompletionItem> completionItems = new ArrayList<>();
 
-            CompletionItem workerItem = Snippet.DEF_WORKER.get().build(isSnippet);
+            CompletionItem workerItem = Snippet.DEF_WORKER.get().build(context, isSnippet);
             completionItems.add(workerItem);
 
             return completionItems;

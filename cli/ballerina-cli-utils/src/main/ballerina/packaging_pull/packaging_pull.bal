@@ -57,7 +57,7 @@ function createError (string errMessage) returns error {
 #
 # + args - Arguments for pulling a module
 # + return - nil if no error occurred, else error.
-public function invokePull (string... args) returns error? {
+public function main(string... args) returns error? {
     http:Client httpEndpoint;
     string url = args[0];
     string dirPath = args[1];
@@ -125,7 +125,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     }
 
     http:Response res = new;
-    string statusCode = <string> httpResponse.statusCode;
+    string statusCode = string.convert(httpResponse.statusCode);
     if (statusCode.hasPrefix("5")) {
         return createError("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
@@ -200,9 +200,6 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
         }
     }
 }
-
-# A dummy main function to generate the balx.
-public function main() {}
 
 # This function defines an endpoint with proxy configurations.
 #
