@@ -25,15 +25,15 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_CONTEXT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_SERVICE_OBJECT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_CONTEXT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_SERVICE_WITH_PARAMETER;
 
 /**
  * Represents a Quartz job related to an appointment.
  */
-public class AppointmentJob implements Job {
+public class TaskJob implements Job {
 
-    public AppointmentJob() {
+    public TaskJob() {
     }
 
     /**
@@ -42,10 +42,9 @@ public class AppointmentJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
-        Context context = (Context) jobDataMap.get(APPOINTMENT_CONTEXT);
-        ServiceWithParameters serviceWithParameters = (ServiceWithParameters) jobDataMap
-                .get(APPOINTMENT_SERVICE_OBJECT);
+        Context context = (Context) jobDataMap.get(TASK_CONTEXT);
+        ServiceWithParameters serviceWithParams = (ServiceWithParameters) jobDataMap.get(TASK_SERVICE_WITH_PARAMETER);
 
-        TaskExecutor.execute(context, serviceWithParameters);
+        TaskExecutor.execute(context, serviceWithParams);
     }
 }

@@ -21,13 +21,13 @@ package org.ballerinalang.stdlib.task.objects;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.utils.AppointmentJob;
+import org.ballerinalang.stdlib.task.utils.TaskJob;
 import org.ballerinalang.stdlib.task.utils.TaskManager;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_CONTEXT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.APPOINTMENT_SERVICE_OBJECT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_CONTEXT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_SERVICE_WITH_PARAMETER;
 import static org.quartz.CronExpression.isValidExpression;
 
 /**
@@ -102,7 +102,7 @@ public class Appointment extends AbstractTask {
         for (ServiceWithParameters serviceWithParameters : this.getServicesMap().values()) {
             JobDataMap jobDataMap = getJobDataMapFromService(context, serviceWithParameters);
             try {
-                TaskManager.getInstance().schedule(id, AppointmentJob.class, jobDataMap, cronExpression);
+                TaskManager.getInstance().schedule(id, TaskJob.class, jobDataMap, cronExpression);
             } catch (SchedulerException e) {
                 throw new SchedulingException("Failed to schedule Task: " + this.id + ". " + e.getMessage());
             }
@@ -111,8 +111,8 @@ public class Appointment extends AbstractTask {
 
     private JobDataMap getJobDataMapFromService(Context context, ServiceWithParameters serviceWithParameters) {
         JobDataMap jobData = new JobDataMap();
-        jobData.put(APPOINTMENT_CONTEXT, context);
-        jobData.put(APPOINTMENT_SERVICE_OBJECT, serviceWithParameters);
+        jobData.put(TASK_CONTEXT, context);
+        jobData.put(TASK_SERVICE_WITH_PARAMETER, serviceWithParameters);
         return jobData;
     }
 
