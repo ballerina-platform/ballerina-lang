@@ -418,6 +418,12 @@ public class TypeGuardTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(dataProvider = "finiteTypeAsBroaderTypesAndFiniteTypeFunctions")
+    public void testFiniteTypeAsBroaderTypesAndFiniteType(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @DataProvider(name = "finiteTypeAsBroaderTypesFunctions")
     public Object[][] finiteTypeAsBroaderTypesFunctions() {
         return new Object[][]{
@@ -425,6 +431,16 @@ public class TypeGuardTest {
                 {"testFiniteTypeAsBroaderTypes_2"},
                 {"testFiniteTypeAsBroaderTypes_3"},
                 {"testFiniteTypeAsBroaderTypes_4"}
+        };
+    }
+
+    @DataProvider(name = "finiteTypeAsBroaderTypesAndFiniteTypeFunctions")
+    public Object[][] finiteTypeAsBroaderTypesAndFiniteTypeFunctions() {
+        return new Object[][]{
+                {"testFiniteTypeAsBroaderTypesAndFiniteType_1"},
+                {"testFiniteTypeAsBroaderTypesAndFiniteType_2"},
+                {"testFiniteTypeAsBroaderTypesAndFiniteType_3"},
+                {"testFiniteTypeAsBroaderTypesAndFiniteType_4"}
         };
     }
 }

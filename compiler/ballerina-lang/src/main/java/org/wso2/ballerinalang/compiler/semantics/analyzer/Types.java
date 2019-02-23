@@ -1991,10 +1991,22 @@ public class Types {
     }
 
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
-        Set<BLangExpression> remainingValueSpace = originalType.valueSpace.stream()
-                .filter(expr -> removeTypes.stream()
-                        .noneMatch(remType -> isAssignable(expr.type, remType)))
-                .collect(Collectors.toSet());
+        Set<BLangExpression> remainingValueSpace = new LinkedHashSet<>();
+
+        for (BLangExpression valueExpr : originalType.valueSpace) {
+            boolean matchExists = false;
+            for (BType remType : removeTypes) {
+                if (isAssignable(valueExpr.type, remType) ||
+                        isAssignableToFiniteType(remType, (BLangLiteral) valueExpr)) {
+                    matchExists = true;
+                    break;
+                }
+            }
+
+            if (!matchExists) {
+                remainingValueSpace.add(valueExpr);
+            }
+        }
 
         if (remainingValueSpace.isEmpty()) {
             return symTable.semanticError;

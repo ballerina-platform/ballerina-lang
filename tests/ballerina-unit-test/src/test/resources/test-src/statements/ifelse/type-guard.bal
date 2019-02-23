@@ -613,3 +613,46 @@ function finiteTypeAsBroaderTypesHelper(FooBarOneTwoTrue f) returns string {
         }
     }
 }
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_1() returns boolean {
+    FooBarOneTwoTrue f = "foo";
+    boolean equals = finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: foo";
+
+    f = "bar";
+    return equals && finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: bar";
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_2() returns boolean {
+    FooBarOneTwoTrue f = 1;
+    return finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "int: 1";
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_3() returns boolean {
+    FooBarOneTwoTrue f = 2.0;
+    return finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "float: 2.0";
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_4() returns boolean {
+    FooBarOneTwoTrue f = true;
+    return finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "boolean: true";
+}
+
+function finiteTypeAsBroaderTypesAndFiniteTypeHelper(FooBarOneTwoTrue f) returns string {
+    if (f is string) {
+        return string `string: ${f}`;
+    } else {
+        if (f is OneTwo) {
+            OneTwo ot = f;
+            if (ot is int) {
+                int i = ot;
+                return string `int: ${i}`;
+            } else {
+                float fl = ot;
+                return string `float: ${fl}`;
+            }
+        } else {
+            boolean b = f;
+            return string `boolean: ${b}`;
+        }
+    }
+}
