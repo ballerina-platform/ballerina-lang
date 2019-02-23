@@ -876,7 +876,10 @@ public class Types {
             return symbol;
         }
 
-        if (actualType.tag == TypeTags.FINITE && isValueType(expType)) {
+        if (isValueType(expType) &&
+                (actualType.tag == TypeTags.FINITE ||
+                         (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).memberTypes.stream()
+                                 .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, expType))))) {
             int code;
             switch (expType.tag) {
                 case TypeTags.INT:

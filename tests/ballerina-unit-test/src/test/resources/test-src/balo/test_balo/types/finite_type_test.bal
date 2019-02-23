@@ -278,3 +278,27 @@ function testFiniteTypeAssignmentToBroaderType() returns boolean {
     b = d;
     return assignmentSuccessful && a == d;
 }
+
+function testFiniteTypeWithConstAssignmentToBroaderType() returns boolean {
+    foo:AB ab = foo:A;
+    string s = ab;
+    boolean assignmentSuccessful = ab == s;
+
+    ab = "b";
+    s = ab;
+    return assignmentSuccessful && ab == s;
+}
+
+function testFiniteTypeWithConstAndTypeAssignmentToBroaderType() returns boolean {
+    foo:ABInt ab = foo:A;
+    foo:AB|int s = ab;
+    boolean assignmentSuccessful = ab == s;
+
+    ab = "b";
+    string|int s2 = ab;
+    assignmentSuccessful = assignmentSuccessful && ab == s2;
+
+    ab = 12;
+    s2 = ab;
+    return assignmentSuccessful && ab == s2;
+}

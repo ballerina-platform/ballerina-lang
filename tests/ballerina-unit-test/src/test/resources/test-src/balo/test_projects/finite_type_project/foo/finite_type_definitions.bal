@@ -60,3 +60,8 @@ public const byte byte2 = 12;
 public const byte byte3 = 111;
 
 public type ByteValue byte1|byte2|byte3;
+
+public const A = "a";
+
+public type AB A|"b";
+public type ABInt A|"b"|int;

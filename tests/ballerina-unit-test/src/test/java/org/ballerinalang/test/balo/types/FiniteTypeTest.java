@@ -302,6 +302,8 @@ public class FiniteTypeTest {
                 {"testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean"},
 //                {"testByteOnlyFiniteTypeAssignmentToTypeWithByte"},
                 {"testFiniteTypeAssignmentToBroaderType"},
+                {"testFiniteTypeWithConstAssignmentToBroaderType"},
+                {"testFiniteTypeWithConstAndTypeAssignmentToBroaderType"}
         };
     }
 
