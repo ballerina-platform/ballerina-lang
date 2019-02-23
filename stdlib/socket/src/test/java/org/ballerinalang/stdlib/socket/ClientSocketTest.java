@@ -158,14 +158,29 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
     }
 
-    @Test(description = "Test echo behavior",
-          dependsOnMethods = "testShutdownWrite")
+    @Test(description = "Test echo behavior", dependsOnMethods = "testShutdownWrite")
     public void testClientEcho() {
         String msg = "Hello Ballerina echo";
         BValue[] args = { new BString(msg) };
         final BValue[] echoResult = BRunUtil.invoke(socketClient, "echo", args);
         String echo = echoResult[0].stringValue();
-        Assert.assertEquals(echo, msg, "Client didn't get expected echo");
+        Assert.assertEquals(echo, msg, "Client did not receive expected echoed message");
         Assert.assertEquals(mockSocketServer.getReceivedString(), msg, "Server didn't get expected msg");
+    }
+
+    @Test(description = "Test invalid read param", dependsOnMethods = "testClientEcho")
+    public void testInvalidReadParam() {
+        final BValue[] result = BRunUtil.invoke(socketClient, "invalidReadParam");
+        BError error = (BError) result[0];
+        Assert.assertEquals(((BMap) error.getDetails()).getMap().get("message").toString(),
+                "Requested byte length need to be 1 or more");
+    }
+
+    @Test(description = "Test invalid port", dependsOnMethods = "testInvalidReadParam")
+    public void testInvalidAddress() {
+        final BValue[] result = BRunUtil.invoke(socketClient, "invalidAddress");
+        BError error = (BError) result[0];
+        Assert.assertEquals(((BMap) error.getDetails()).getMap().get("message").toString(),
+                "Unable to start the client socket: Connection refused");
     }
 }

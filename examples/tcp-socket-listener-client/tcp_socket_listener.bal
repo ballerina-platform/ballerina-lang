@@ -26,7 +26,7 @@ service echoServer on new  socket:Listener(61598) {
                 if (str is string) {
                     string reply = untaint str + " back";
                     byte[] payloadByte = reply.toByteArray("UTF-8");
-                    // Send reply to the `caller`.
+                    // Send the reply to the `caller`.
                     var writeResult = caller->write(payloadByte);
                     if (writeResult is int) {
                         log:printInfo("Number of bytes written: " + writeResult);

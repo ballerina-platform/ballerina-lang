@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This map will hold all the read ready sockets until read through
+ * This map will hold all the read ready sockets until it is read through the
  * {@link org.ballerinalang.stdlib.socket.endpoint.tcp.client.Read} action.
  *
  * @since 0.995.0

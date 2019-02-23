@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This map will hold all the read pending action that coming through
+ * This map will hold all the pending read action that coming through
  * {@link org.ballerinalang.stdlib.socket.endpoint.tcp.client.Read} action until new content ready.
  *
  * @since 0.995.0

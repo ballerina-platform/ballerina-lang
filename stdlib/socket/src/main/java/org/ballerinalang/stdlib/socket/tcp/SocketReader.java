@@ -22,7 +22,7 @@ import java.nio.channels.SelectionKey;
 
 /**
  * This will hold the {@link SocketService} and the selector's selection key to assist the read action.
- * Selection key needs to control the read interest.
+ * Selection key is required to control the read interest.
  *
  * @since 0.995.0
  */

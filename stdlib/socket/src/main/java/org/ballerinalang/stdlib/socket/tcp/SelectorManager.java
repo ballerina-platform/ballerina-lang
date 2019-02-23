@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.socket.tcp;
 
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValueArray;
@@ -51,6 +50,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import static org.ballerinalang.model.types.BTypes.typeByte;
+import static org.ballerinalang.model.types.BTypes.typeInt;
 import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_READ_LENGTH;
 import static java.nio.channels.SelectionKey.OP_READ;
 
@@ -64,15 +65,14 @@ public class SelectorManager {
     private static final Logger log = LoggerFactory.getLogger(SelectorManager.class);
 
     private Selector selector;
-    private boolean running = false;
     private ThreadFactory threadFactory = new BLangThreadFactory("socket-selector");
-    private ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
+    private ExecutorService executor = null;
+    private boolean running = false;
     private boolean executing = true;
     private ConcurrentLinkedQueue<ChannelRegisterCallback> registerPendingSockets = new ConcurrentLinkedQueue<>();
     private ConcurrentLinkedQueue<Integer> readReadySockets = new ConcurrentLinkedQueue<>();
     private final Object startStopLock = new Object();
-    private static final BTupleType readTupleType = new BTupleType(
-            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
+    private static final BTupleType readTupleType = new BTupleType(Arrays.asList(new BArrayType(typeByte), typeInt));
 
     private SelectorManager() throws IOException {
         selector = Selector.open();
@@ -144,8 +144,12 @@ public class SelectorManager {
             if (running) {
                 return;
             }
-            executor.execute(this::execute);
+            if (executor == null || executor.isTerminated()) {
+                executor = Executors.newSingleThreadExecutor(threadFactory);
+            }
             running = true;
+            executing = true;
+            executor.execute(this::execute);
         }
     }
 
@@ -183,7 +187,7 @@ public class SelectorManager {
                 channelRegisterCallback.notifyFailure("Socket already closed");
                 continue;
             }
-            // Notification only need happen to the client connect in the socket server or if client has
+            // Notification needs to happen to the client connection in the socket server only if the client has
             // a callback service.
             boolean serviceAttached = (socketService.getResources() != null
                     && channelRegisterCallback.getInitialInterest() == SelectionKey.OP_READ);
@@ -249,25 +253,25 @@ public class SelectorManager {
 
     private void onReadReady(SelectionKey key) {
         SocketService socketService = (SocketService) key.attachment();
-        // Remove further interest on future read ready requests until this one served.
+        // Remove further interest on future read ready requests until this one is served.
         // This will prevent the busy loop.
         key.interestOps(0);
-        // Add to the read ready queue. Content will be read through the caller->read action.
+        // Add to the read ready queue. The content will be read through the caller->read action.
         ReadReadySocketMap.getInstance().add(new SocketReader(socketService, key));
         invokeRead(key.channel().hashCode(), socketService.getResources() != null);
     }
 
     /**
-     * Perform the read operation for the give socket. This will either read data from the socket channel or dispatch
+     * Perform the read operation for the given socket. This will either read data from the socket channel or dispatch
      * to the onReadReady resource if resource's lock available.
      *
      * @param socketHashId socket hash id
      * @param clientServiceAttached whether client callback service attached or not
      */
     public void invokeRead(int socketHashId, boolean clientServiceAttached) {
-        // Check whether is there any caller->read pending action and read ready socket.
+        // Check whether there is any caller->read pending action and read ready socket.
         if (ReadPendingSocketMap.getInstance().isPending(socketHashId)) {
-            // Lock on ReadPendingCallback instance. This will prevent duplicate invocation that happen from both
+            // Lock the ReadPendingCallback instance. This will prevent duplicate invocation that happen from both
             // read action and selector manager sides.
             synchronized (ReadPendingSocketMap.getInstance().get(socketHashId)) {
                 if (ReadReadySocketMap.getInstance().isReadReady(socketHashId)) {
@@ -275,7 +279,8 @@ public class SelectorManager {
                     read(socketHashId);
                 }
             }
-            // If read pending socket not available then do nothing. Above will invoke once read ready socket connect.
+            // If the read pending socket not available then do nothing. Above will be invoked once read ready
+            // socket is connected.
         } else if (clientServiceAttached) {
             // No caller->read pending actions hence try to dispatch to onReadReady resource if read ready available.
             final SocketReader socketReader = ReadReadySocketMap.getInstance().get(socketHashId);
@@ -297,6 +302,7 @@ public class SelectorManager {
                 callback.updateCurrentLength(read);
                 // Re-register for read ready events.
                 socketReader.getSelectionKey().interestOps(SelectionKey.OP_READ);
+                selector.wakeup();
                 if (callback.getBuffer() == null) {
                     callback.setBuffer(ByteBuffer.allocate(buffer.capacity()));
                 }
@@ -343,7 +349,8 @@ public class SelectorManager {
 
     private ByteBuffer createBuffer(ReadPendingCallback callback, SocketChannel socketChannel) throws SocketException {
         ByteBuffer buffer;
-        // If length not specify in the read action then create a byte buffer to match the size of the receiver buffer.
+        // If the length is not specified in the read action then create a byte buffer to match the size of
+        // the receiver buffer.
         if (callback.getExpectedLength() == DEFAULT_EXPECTED_READ_LENGTH) {
             buffer = ByteBuffer.allocate(socketChannel.socket().getReceiveBufferSize());
         } else {
@@ -367,13 +374,10 @@ public class SelectorManager {
     public void stop() {
         synchronized (startStopLock) {
             try {
-                if (log.isDebugEnabled()) {
-                    log.debug("Stopping the selector loop.");
-                }
-                selector.wakeup();
+                log.debug("Stopping the selector loop.");
                 executing = false;
                 running = false;
-                selector.close();
+                selector.wakeup();
                 executor.shutdown();
                 try {
                     if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {

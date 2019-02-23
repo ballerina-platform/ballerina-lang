@@ -37,7 +37,7 @@ service ClientService = service {
                 if (str is string) {
                     io:println(untaint str);
                 } else {
-                    io:println(str);
+                    io:println("Error while reading characters ", str);
                 }
             } else {
                 io:println("Client close: ", caller.remotePort);
