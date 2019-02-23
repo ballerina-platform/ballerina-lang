@@ -29,8 +29,6 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.langserver.compiler.LSContextManager;
-import org.ballerinalang.langserver.compiler.LSPackageCache;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
@@ -41,10 +39,6 @@ import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
-import org.ballerinalang.langserver.definition.GotoDefinitionSubRuleParser;
-import org.ballerinalang.langserver.definition.SymbolReferencesModel;
-import org.ballerinalang.langserver.definition.TokenReferenceFinderErrorStrategy;
-import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
@@ -53,12 +47,15 @@ import org.ballerinalang.langserver.implementation.GotoImplementationCustomError
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
-import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureKeys;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
+import org.ballerinalang.langserver.util.references.ReferencesSubRuleParser;
+import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenReferenceFinderErrorStrategy;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeAction;
@@ -85,11 +82,9 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
-import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
@@ -114,7 +109,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
@@ -175,7 +169,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
                                                                         CompletionCustomErrorStrategy.class,
                                                                         false);
-//                context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, bLangPackage.symbol.getName().getValue());
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
@@ -212,8 +205,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 BLangPackage currentBLangPackage = lsCompiler.getBLangPackage(hoverContext, documentManager, false,
                                                                                LSCustomErrorStrategy.class, false);
-//                hoverContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
-//                                 currentBLangPackage.symbol.getName().getValue());
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
@@ -250,8 +241,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(signatureContext, documentManager, false,
                                                                         LSCustomErrorStrategy.class, false);
                 signatureContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-//                signatureContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
-//                        bLangPackage.packageID.getName().getValue());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
@@ -285,11 +274,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 // With the sub-rule parser, find the token
                 String documentContent = documentManager.getFileContent(compilationPath);
-                GotoDefinitionSubRuleParser.parserCompilationUnit(documentContent, context);
+                ReferencesSubRuleParser.parserCompilationUnit(documentContent, context, position.getPosition());
 
                 List<BLangPackage> projectPackages = lsCompiler
                         .getBLangPackages(context, documentManager, false, errStrategy, true);
-                contents = DefinitionUtil.findDefinition(projectPackages, context);
+                contents = ReferencesUtil.findDefinition(projectPackages, context, position.getPosition());
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
@@ -324,8 +313,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     // fail quietly
                     return contents;
                 }
-//                referenceContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
-//                                     currentBLangPackage.symbol.getName().getValue());
 
                 // Calculate position for the current package.
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
@@ -341,8 +328,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 // Run reference visitor for all the packages in project folder.
                 for (BLangPackage bLangPackage : bLangPackages) {
-//                    referenceContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
-//                                         bLangPackage.symbol.getName().getValue());
                     ReferenceUtil.findReferences(referenceContext, bLangPackage);
                 }
 
@@ -380,8 +365,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(symbolsContext, documentManager, false,
                                                                         LSCustomErrorStrategy.class, false);
-//                symbolsContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
-//                                   bLangPackage.symbol.getName().getValue());
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                         .findFirst();
@@ -586,66 +569,26 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Path renameFilePath = document.getPath();
             Path compilationPath = getUntitledFilePath(renameFilePath.toString()).orElse(renameFilePath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+            Class errStrategy = TokenReferenceFinderErrorStrategy.class;
             try {
-                LSServiceOperationContext renameContext = new LSServiceOperationContext();
-                renameContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-                renameContext.put(DocumentServiceKeys.POSITION_KEY,
-                                  new TextDocumentPositionParams(identifier, params.getPosition()));
-                List<Location> contents = new ArrayList<>();
-                List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(renameContext, documentManager, false,
-                                                                               LSCustomErrorStrategy.class, true);
-                // Get the current package from multiple.
-                BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
-                if (currentBLangPackage == null) {
-                    // fail quietly
-                    return workspaceEdit;
-                }
+                LSServiceOperationContext context = new LSServiceOperationContext();
+                context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                context.put(NodeContextKeys.REFERENCES_KEY, new SymbolReferencesModel());
 
-//                renameContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
-//                                  currentBLangPackage.symbol.getName().getValue());
-                renameContext.put(NodeContextKeys.REFERENCE_RESULTS_KEY, contents);
+                // With the sub-rule parser, find the token
+                String documentContent = documentManager.getFileContent(compilationPath);
+                ReferencesSubRuleParser.parserCompilationUnit(documentContent, context, params.getPosition());
 
-                // Run the position calculator for the current package.
-                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(renameContext);
-                currentBLangPackage.accept(positionTreeVisitor);
-                String replaceableSymbolName = renameContext.get(NodeContextKeys.NAME_OF_NODE_KEY);
-
-                // Add all compiled package IDs
-                List<PackageID> packageIds = new ArrayList<>();
-                for (BLangPackage bLangPackage : bLangPackages) {
-                    packageIds.add(bLangPackage.packageID);
-                }
-                renameContext.put(NodeContextKeys.REFERENCE_PKG_IDS_KEY, packageIds);
-
-                // Run reference visitor and rename util for project folder.
-                for (BLangPackage bLangPackage : bLangPackages) {
-//                    renameContext.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY,
-//                                      bLangPackage.symbol.getName().getValue());
-
-                    LSContextManager lsContextManager = LSContextManager.getInstance();
-                    String sourceRoot = LSCompilerUtil.getSourceRoot(compilationPath);
-                    CompilerContext context = lsContextManager.getCompilerContext(bLangPackage.packageID, sourceRoot,
-                                                                                  documentManager);
-                    LSPackageCache.getInstance(context).put(bLangPackage.packageID, bLangPackage);
-
-                    ReferenceUtil.findReferences(renameContext, bLangPackage);
-                }
-
-                List<Either<TextDocumentEdit, ResourceOperation>> docChanges = RenameUtil.getRenameTextEdits(contents,
-                        documentManager, params.getNewName(), replaceableSymbolName)
-                        .stream()
-                        .map(Either::<TextDocumentEdit, ResourceOperation>forLeft)
-                        .collect(Collectors.toList());
-                workspaceEdit.setDocumentChanges(docChanges);
-
-                return workspaceEdit;
+                List<BLangPackage> projectPackages = lsCompiler
+                        .getBLangPackages(context, documentManager, false, errStrategy, true);
+                return ReferencesUtil.getRenameWorkspaceEdits(projectPackages, context, params.getNewName(),
+                        params.getPosition());
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     LOGGER.error("Error while renaming" + ((msg != null) ? ": " + msg : ""), e);
                 }
-                return workspaceEdit;
+                return new WorkspaceEdit();
             } finally {
                 lock.ifPresent(Lock::unlock);
             }

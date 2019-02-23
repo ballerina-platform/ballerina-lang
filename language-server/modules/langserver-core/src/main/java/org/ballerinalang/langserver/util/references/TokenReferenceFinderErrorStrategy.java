@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.definition;
+package org.ballerinalang.langserver.util.references;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.model.elements.PackageID;
@@ -52,7 +50,7 @@ public class TokenReferenceFinderErrorStrategy extends LSCustomErrorStrategy {
         super.reportMatch(recognizer);
         Token currentToken = recognizer.getCurrentToken();
         if (currentToken.getText().equals(this.tokenName)) {
-            PackageID pkgID = ((TokenReferenceFinderErrorStrategy)recognizer.getErrorHandler()).diagnosticSrc.pkgID;
+            PackageID pkgID = ((TokenReferenceFinderErrorStrategy) recognizer.getErrorHandler()).diagnosticSrc.pkgID;
             String sourceName = recognizer.getSourceName();
             TokenReferenceModel tokenReferenceModel = new TokenReferenceModel(currentToken, pkgID, sourceName);
             Map<String, Map<String, List<TokenReferenceModel>>> refMap =

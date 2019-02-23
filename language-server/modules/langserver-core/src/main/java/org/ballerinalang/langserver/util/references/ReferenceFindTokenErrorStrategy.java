@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.definition;
+package org.ballerinalang.langserver.util.references;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.Position;
 
@@ -28,14 +27,13 @@ import org.eclipse.lsp4j.Position;
  *
  * @since 0.993.0
  */
-public class GotoDefFindTokenErrorStrategy extends DefaultErrorStrategy {
+public class ReferenceFindTokenErrorStrategy extends DefaultErrorStrategy {
     private LSContext lsContext;
     private int line;
     private int col;
     private boolean terminateCheck = false;
 
-    public GotoDefFindTokenErrorStrategy(LSContext context) {
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+    public ReferenceFindTokenErrorStrategy(LSContext context, Position position) {
         this.lsContext = context;
         this.line = position.getLine();
         this.col = position.getCharacter();

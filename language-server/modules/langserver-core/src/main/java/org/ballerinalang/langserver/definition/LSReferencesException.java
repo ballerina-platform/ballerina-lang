@@ -20,20 +20,20 @@ package org.ballerinalang.langserver.definition;
  *
  * @since 0.990.3
  */
-public class LSDefinitionException extends Exception {
-    public LSDefinitionException(String message) {
+public class LSReferencesException extends Exception {
+    public LSReferencesException(String message) {
         super(message);
     }
 
-    public LSDefinitionException(String message, Throwable cause) {
+    public LSReferencesException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public LSDefinitionException(Throwable cause) {
+    public LSReferencesException(Throwable cause) {
         super(cause);
     }
 
-    public LSDefinitionException(String message, Throwable cause, boolean enableSuppression,
+    public LSReferencesException(String message, Throwable cause, boolean enableSuppression,
                                  boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

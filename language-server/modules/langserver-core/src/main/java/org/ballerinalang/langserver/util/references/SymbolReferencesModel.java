@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.definition;
+package org.ballerinalang.langserver.util.references;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -56,6 +56,9 @@ public class SymbolReferencesModel {
         this.symbolAtCursor = symbol;
     }
 
+    /**
+     * Represents a found reference.
+     */
     public static class Reference {
         private DiagnosticPos position;
         private BSymbol symbol;

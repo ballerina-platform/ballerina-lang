@@ -13,31 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.definition;
+package org.ballerinalang.langserver.util.references;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 /**
- * Parse a given compilation unit with the {@link GotoDefFindTokenErrorStrategy} in order to capture the token.
+ * Parse a given compilation unit with the {@link ReferenceFindTokenErrorStrategy} in order to capture the token.
  *
  * @since 0.993.0
  */
-public class GotoDefinitionSubRuleParser {
-    private GotoDefinitionSubRuleParser() {
+public class ReferencesSubRuleParser {
+    private ReferencesSubRuleParser() {
     }
 
-    public static void parserCompilationUnit(String content, LSContext context) {
+    public static void parserCompilationUnit(String content, LSContext context, Position position) {
 
         // TODO: 1/23/19 Check what happens when the content is not a valid compilation unit and when there are errors
         ANTLRInputStream inputStream = new ANTLRInputStream(content);
         BallerinaLexer lexer = new BallerinaLexer(inputStream);
         CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
         BallerinaParser parser = new BallerinaParser(commonTokenStream);
-        parser.setErrorHandler(new GotoDefFindTokenErrorStrategy(context));
+        parser.setErrorHandler(new ReferenceFindTokenErrorStrategy(context, position));
 
         parser.compilationUnit();
     }

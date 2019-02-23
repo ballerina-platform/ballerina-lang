@@ -16,14 +16,12 @@
 package org.ballerinalang.langserver.common.constants;
 
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.definition.SymbolReferencesModel;
-import org.ballerinalang.langserver.definition.TokenReferenceModel;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenReferenceModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;

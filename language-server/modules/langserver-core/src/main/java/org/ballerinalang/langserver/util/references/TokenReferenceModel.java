@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.definition;
+package org.ballerinalang.langserver.util.references;
 
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Token Reference model represents details about a captured token location including the package as well as the source.
