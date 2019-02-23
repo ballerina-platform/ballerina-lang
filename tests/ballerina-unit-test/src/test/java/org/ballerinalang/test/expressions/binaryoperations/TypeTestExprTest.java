@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,7 +44,7 @@ public class TypeTestExprTest {
     public void testTypeTestExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 34);
+        Assert.assertEquals(negativeResult.getErrorCount(), 36);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -112,6 +113,10 @@ public class TypeTestExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 226, 8);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 230, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "unnecessary condition: expression will always evaluate to 'true'", 242, 9);
+        BAssertUtil.validateError(negativeResult, i,
+                                  "unnecessary condition: expression will always evaluate to 'true'", 247, 9);
     }
 
     @Test
@@ -496,5 +501,23 @@ public class TypeTestExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "a is an Apple");
+    }
+
+    @Test
+    public void testFiniteTypeAsBroaderType_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeAsBroaderType_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_2");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 }

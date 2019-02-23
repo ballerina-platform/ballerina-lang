@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -409,5 +410,21 @@ public class TypeGuardTest {
     public void testUpdatingTypeNarrowedGlobalVar() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedGlobalVar");
         Assert.assertEquals(returns[0].stringValue(), "string: hello");
+    }
+
+    @Test(dataProvider = "finiteTypeAsBroaderTypesFunctions")
+    public void testFiniteTypeAsBroaderTypes(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "finiteTypeAsBroaderTypesFunctions")
+    public Object[][] finiteTypeAsBroaderTypesFunctions() {
+        return new Object[][]{
+                {"testFiniteTypeAsBroaderTypes_1"},
+                {"testFiniteTypeAsBroaderTypes_2"},
+                {"testFiniteTypeAsBroaderTypes_3"},
+                {"testFiniteTypeAsBroaderTypes_4"}
+        };
     }
 }

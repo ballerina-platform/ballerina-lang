@@ -567,3 +567,49 @@ public function testUpdatingTypeNarrowedGlobalVar() returns string {
         return "outer string: " + z;
     }
 }
+
+type FooBarOneTwoTrue "foo"|"bar"|1|2.0|true;
+type OneTwo 1|2.0;
+
+function testFiniteTypeAsBroaderTypes_1() returns boolean {
+    FooBarOneTwoTrue f = "foo";
+    boolean equals = finiteTypeAsBroaderTypesHelper(f) == "string: foo";
+
+    f = "bar";
+    return equals && finiteTypeAsBroaderTypesHelper(f) == "string: bar";
+}
+
+function testFiniteTypeAsBroaderTypes_2() returns boolean {
+    FooBarOneTwoTrue f = 1;
+    return finiteTypeAsBroaderTypesHelper(f) == "int: 1";
+}
+
+function testFiniteTypeAsBroaderTypes_3() returns boolean {
+    FooBarOneTwoTrue f = 2.0;
+    return finiteTypeAsBroaderTypesHelper(f) == "float: 2.0";
+}
+
+function testFiniteTypeAsBroaderTypes_4() returns boolean {
+    FooBarOneTwoTrue f = true;
+    return finiteTypeAsBroaderTypesHelper(f) == "boolean: true";
+}
+
+function finiteTypeAsBroaderTypesHelper(FooBarOneTwoTrue f) returns string {
+    if (f is string) {
+        return string `string: ${f}`;
+    } else {
+        if (f is int|float) {
+            int|float ot = f;
+            if (ot is int) {
+                int i = ot;
+                return string `int: ${i}`;
+            } else {
+                float fl = ot;
+                return string `float: ${fl}`;
+            }
+        } else {
+            boolean b = f;
+            return string `boolean: ${b}`;
+        }
+    }
+}

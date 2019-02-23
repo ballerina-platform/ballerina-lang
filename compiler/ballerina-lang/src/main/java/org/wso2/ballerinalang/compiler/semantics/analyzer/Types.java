@@ -1960,15 +1960,17 @@ public class Types {
     }
 
     public BType getRemainingType(BType originalType, BType typeToRemove) {
-        if (originalType.tag != TypeTags.UNION) {
-            return originalType;
+        switch (originalType.tag) {
+            case TypeTags.UNION:
+                return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove));
+            case TypeTags.FINITE:
+                return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
+            default:
+                return originalType;
         }
-
-        List<BType> removeTypes = getAllTypes(typeToRemove);
-        return getRemainingType(originalType, removeTypes);
     }
 
-    private BType getRemainingType(BType originalType, List<BType> removeTypes) {
+    private BType getRemainingType(BUnionType originalType, List<BType> removeTypes) {
         List<BType> remainingTypes = getAllTypes(originalType);
         removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isAssignable(type, removeType)));
 
@@ -1983,6 +1985,19 @@ public class Types {
         }
 
         return new BUnionType(null, new LinkedHashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+    }
+
+    private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
+        Set<BLangExpression> remainingValueSpace = originalType.valueSpace.stream()
+                .filter(expr -> removeTypes.stream()
+                        .noneMatch(remType -> isAssignable(expr.type, remType)))
+                .collect(Collectors.toSet());
+
+        if (remainingValueSpace.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        return new BFiniteType(null, remainingValueSpace);
     }
 
     public BType getSafeType(BType type, boolean liftError) {

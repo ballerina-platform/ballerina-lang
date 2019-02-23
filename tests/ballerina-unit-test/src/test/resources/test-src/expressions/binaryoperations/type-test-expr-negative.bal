@@ -233,3 +233,18 @@ function testObjectEquivalency() returns (string, string) {
 
     return (s1, s2);
 }
+
+type FooBar "foo"|"bar";
+type FooOne "foo"|1;
+
+function testFiniteTypeAsAlwaysTrueBroaderType() {
+    FooBar f1 = "foo";
+    if (f1 is string) {
+        string y = f1;
+    }
+
+    FooOne f2 = "foo";
+    if (f2 is string|int) {
+        string|int y = f2;
+    }
+}

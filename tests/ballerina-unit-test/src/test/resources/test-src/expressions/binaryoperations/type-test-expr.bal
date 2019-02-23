@@ -656,10 +656,10 @@ function testFiniteTypeInTuplePoisoning() returns (State, State) {
 }
 
 public const APPLE = "apple";
-public const ORRANGE = "orrange";
+public const ORANGE = "orange";
 public const GRAPE = "grape";
 
-type Fruit APPLE | ORRANGE | GRAPE;
+type Fruit APPLE | ORANGE | GRAPE;
 
 function testFiniteType_1() returns string {
     any a = APPLE;
@@ -677,4 +677,18 @@ function testFiniteType_2() returns string {
     }
 
     return "a is not an Apple";
+}
+
+function testFiniteTypeAsBroaderType_1() returns boolean {
+    any a = GRAPE;
+    return a is string;
+}
+
+type FRUIT_OR_COUNT "apple"|2|"grape"|10;
+
+function testFiniteTypeAsBroaderType_2() returns (boolean, boolean) {
+    FRUIT_OR_COUNT fc1 = GRAPE;
+    FRUIT_OR_COUNT fc2 = 10;
+
+    return (fc1 is string, fc2 is int);
 }

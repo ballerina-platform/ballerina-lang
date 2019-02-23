@@ -1911,7 +1911,8 @@ public class Desugar extends BLangNodeVisitor {
         // to unbox a narrowed type.
         BType targetType = genVarRefExpr.type;
         genVarRefExpr.type = genVarRefExpr.symbol.type;
-        result = addConversionExprIfRequired(genVarRefExpr, targetType);
+        BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
+        result = expression.impConversionExpr != null ? expression.impConversionExpr : expression;
     }
 
     @Override
