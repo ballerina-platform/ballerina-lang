@@ -125,6 +125,8 @@ public class SymbolTable {
     public BErrorType errorType;
 
     public BPackageSymbol builtInPackageSymbol;
+    public BPackageSymbol utilsPackageSymbol;
+
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
 
@@ -535,7 +537,7 @@ public class SymbolTable {
     private void defineBuiltinMethods() {
 
         // Error related methods.
-        defineBuiltinMethod(BLangBuiltInMethod.REASON, errorType, stringType, InstructionCodes.NOP);
+        defineBuiltinMethod(BLangBuiltInMethod.REASON, errorType, stringType);
 
         // Length methods.
         defineBuiltinMethod(BLangBuiltInMethod.LENGTH, stringType, intType);
@@ -548,14 +550,14 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tableType, intType);
 
         // float related methods.
-        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, floatType, booleanType, InstructionCodes.NOP);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, floatType, booleanType, InstructionCodes.NOP);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, floatType, booleanType, InstructionCodes.NOP);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, floatType, booleanType);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, floatType, booleanType);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, floatType, booleanType);
 
         // Decimal related methods.
-        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, decimalType, booleanType, InstructionCodes.NOP);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, decimalType, booleanType, InstructionCodes.NOP);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, decimalType, booleanType, InstructionCodes.NOP);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, decimalType, booleanType);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, decimalType, booleanType);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, decimalType, booleanType);
 
         //clone related methods
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, anydataType, anydataType);
@@ -569,18 +571,13 @@ public class SymbolTable {
     }
 
     private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType) {
-        defineBuiltinMethod(method, type, Collections.emptyList(), retType, InstructionCodes.NOP);
+        defineBuiltinMethod(method, type, Collections.emptyList(), retType);
     }
 
-    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType, int opcode) {
-        defineBuiltinMethod(method, type, Collections.emptyList(), retType, opcode);
-    }
-
-    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, List<BType> args, BType retType,
-                                     int opcode) {
+    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, List<BType> args, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         paramTypes.addAll(args);
-        defineOperator(names.fromString(method.getName()), paramTypes, retType, opcode);
+        defineOperator(names.fromString(method.getName()), paramTypes, retType, InstructionCodes.NOP);
     }
 
     private void defineBinaryOperator(OperatorKind kind,

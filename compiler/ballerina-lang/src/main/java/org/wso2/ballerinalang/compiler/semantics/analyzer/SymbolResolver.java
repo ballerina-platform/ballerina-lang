@@ -290,7 +290,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getCastOperator(sourceType, targetType);
     }
 
-    BSymbol resolveTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
+    public BSymbol resolveTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
         return types.getTypeCastOperator(conversionExpr, sourceType, targetType);
     }
 

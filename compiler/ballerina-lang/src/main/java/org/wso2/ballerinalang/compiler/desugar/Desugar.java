@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -226,8 +225,6 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod.SIMPLE_VALUE_CONVERT;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 
@@ -3140,44 +3137,38 @@ public class Desugar extends BLangNodeVisitor {
             case CONVERT:
                 result = visitConvertInvocation(iExpr);
                 break;
-            case CALL:
-                visitCallBuiltInMethodInvocation(iExpr);
+            case DETAIL:
+                result = visitDetailInvocation(iExpr);
                 break;
             case REASON:
-            case DETAIL:
             case ITERATE:
-                result = visitUtilMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
-                        Lists.of(symTable.errorType), iExpr.type);
+                result = visitUtilMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr));
+                break;
+            case CALL:
+                visitCallBuiltInMethodInvocation(iExpr);
                 break;
             default:
                 result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
         }
     }
 
-    private BLangExpression createInbuiltMethodInvocation(DiagnosticPos pos, PackageID packageID,
-                                                          BLangBuiltInMethod builtInMethod,
-                                                          List<BLangExpression> requiredArgs,
-                                                          List<BType> paramTypes, BType retType) {
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC,
-                                                                names.fromString(builtInMethod.getName()), packageID,
-                                                                opType, null);
-        return ASTBuilderUtil.createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
-                                                         new ArrayList<>(), new ArrayList<>(), symResolver);
-    }
-
-    private BLangExpression visitUtilMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
-                                                      List<BLangExpression> requiredArgs,
-                                                      List<BType> paramTypes, BType retType) {
-        return createInbuiltMethodInvocation(pos, UTILS, builtInMethod, requiredArgs, paramTypes, retType);
+    private BLangInvocation visitUtilMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
+                                                      List<BLangExpression> requiredArgs) {
+        BInvokableSymbol invokableSymbol
+                = (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(symTable.utilsPackageSymbol),
+                                                              names.fromString(builtInMethod.getName()),
+                                                              SymTag.FUNCTION);
+        BLangInvocation invocationExprMethod = ASTBuilderUtil
+                .createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
+                                            new ArrayList<>(), new ArrayList<>(), symResolver);
+        return rewrite(invocationExprMethod, env);
     }
 
     private BLangExpression visitCloneInvocation(BLangExpression expr) {
         if (types.isValueType(expr.type)) {
             return expr;
         }
-        return visitUtilMethodInvocation(expr.pos, BLangBuiltInMethod.CLONE, Lists.of(expr),
-                                         Lists.of(symTable.anydataType), symTable.anydataType);
+        return visitUtilMethodInvocation(expr.pos, BLangBuiltInMethod.CLONE, Lists.of(expr));
     }
 
     private BLangExpression visitConvertInvocation(BLangInvocation iExpr) {
@@ -3203,6 +3194,8 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             safe = ((BConversionOperatorSymbol) iExpr.symbol).safe;
         }
+        // TODO: We need to cast the conversion input and output values because simple convert method use anydata. 
+        // We can improve code by adding specific convert function so we can get rid of those below casting.
         BLangExpression inputTypeCastExpr = iExpr.requiredArgs.get(0);
         if (types.isValueType(iExpr.requiredArgs.get(0).type)) {
             inputTypeCastExpr = createTypeCastExpr(iExpr.requiredArgs.get(0), iExpr.requiredArgs.get(0).type,
@@ -3217,21 +3210,28 @@ public class Desugar extends BLangNodeVisitor {
         return invocationExpr;
     }
 
+    private BLangExpression visitDetailInvocation(BLangInvocation iExpr) {
+        BLangInvocation utilMethod = visitUtilMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod,
+                                                               Lists.of(iExpr.expr));
+        utilMethod.type = iExpr.type;
+        return utilMethod;
+    }
+    
     private BLangExpression visitTypeConversionInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
                                                           BLangExpression typeDesc, BLangExpression valExpr) {
-        return visitUtilMethodInvocation(pos, builtInMethod, Lists.of(typeDesc, valExpr),
-                                         Lists.of(symTable.typeDesc, symTable.anydataType), symTable.anydataType);
+        return visitUtilMethodInvocation(pos, builtInMethod, Lists.of(typeDesc, valExpr));
     }
     
     private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
         if (iExpr.expr.type.tag == TypeTags.STRING) {
             // Builtin module provides string.length() function hence reusing it.
-            return createInbuiltMethodInvocation(iExpr.pos, BUILTIN,
-                                                 BLangBuiltInMethod.STRING_LENGTH, Lists.of(iExpr.expr),
-                                                 Lists.of(symTable.stringType), symTable.intType);
+            BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) symResolver
+                    .lookupSymbol(symTable.pkgEnvMap.get(symTable.builtInPackageSymbol),
+                                  names.fromString(BLangBuiltInMethod.STRING_LENGTH.getName()), SymTag.FUNCTION);
+            return ASTBuilderUtil.createInvocationExprMethod(iExpr.pos, bInvokableSymbol, Lists.of(iExpr.expr),
+                                                             new ArrayList<>(), new ArrayList<>(), symResolver);
         }
-        return visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.LENGTH, Lists.of(iExpr.expr),
-                                         Lists.of(symTable.anydataType), symTable.intType);
+        return visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.LENGTH, Lists.of(iExpr.expr));
     }
 
     private void visitFreezeBuiltInMethodInvocation(BLangInvocation iExpr) {
@@ -3245,12 +3245,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             return;
         }
-        BType retType = symTable.anydataType;
-        if (iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN) {
-            retType = symTable.booleanType;
-        }
-        result = visitUtilMethodInvocation(iExpr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr),
-                                           Lists.of(symTable.anydataType), retType);
+        result = visitUtilMethodInvocation(iExpr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr));
     }
 
     private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {
