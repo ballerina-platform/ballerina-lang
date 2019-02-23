@@ -53,6 +53,7 @@ import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import javax.sql.rowset.CachedRowSet;
@@ -256,8 +257,19 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void validateAndSetRefRecordField(BMap<String, BValue> bStruct, String fieldName, int expectedTypeTag,
-                                              int actualTypeTag, BRefType value, String exceptionMessage) {
-        if (expectedTypeTag == actualTypeTag) {
+            int actualTypeTag, BRefType value, String exceptionMessage) {
+        setMatchingRefRecordField(bStruct, fieldName, value, expectedTypeTag == actualTypeTag, exceptionMessage);
+    }
+
+    private void validateAndSetRefRecordField(BMap<String, BValue> bStruct, String fieldName, int expectedTypeTags[],
+            int actualTypeTag, BRefType value, String exceptionMessage) {
+        boolean typeMatches = Arrays.stream(expectedTypeTags).anyMatch(tag -> actualTypeTag == tag);
+        setMatchingRefRecordField(bStruct, fieldName, value, typeMatches, exceptionMessage);
+    }
+
+    private void setMatchingRefRecordField(BMap<String, BValue> bStruct, String fieldName, BRefType value,
+            boolean typeMatches, String exceptionMessage) {
+        if (typeMatches) {
             bStruct.put(fieldName, value);
         } else {
             throw new BallerinaException(exceptionMessage);
@@ -526,11 +538,13 @@ public class SQLDataIterator extends TableIterator {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BRefType refValue = stringValue == null ? null : new BString(stringValue);
-            validateAndSetRefRecordField(bStruct, fieldName, TypeTags.STRING_TAG,
+            int[] expectedTypeTags = { TypeTags.STRING_TAG, TypeTags.JSON_TAG };
+            validateAndSetRefRecordField(bStruct, fieldName, expectedTypeTags,
                     retrieveNonNilTypeTag(fieldType), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (stringValue != null) {
-                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.STRING_TAG, fieldTypeTag,
+                int[] expectedTypeTags = { TypeTags.STRING_TAG, TypeTags.JSON_TAG };
+                validateAndSetRefRecordField(bStruct, fieldName, expectedTypeTags, fieldTypeTag,
                         new BString(stringValue), MISMATCHING_FIELD_ASSIGNMENT);
             } else {
                 handleNilToNonNillableFieldAssignment();

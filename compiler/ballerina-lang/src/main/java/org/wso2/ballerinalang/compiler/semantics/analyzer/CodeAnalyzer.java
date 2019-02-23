@@ -2088,8 +2088,34 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!MAIN_FUNCTION_NAME.equals(funcNode.name.value)) {
             return;
         }
+
         if (!Symbols.isPublic(funcNode.symbol)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
+        }
+
+        funcNode.requiredParams.forEach(param -> {
+            if (!types.isAnydata(param.type)) {
+                this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
+            }
+        });
+
+        funcNode.defaultableParams.forEach(param -> {
+            if (!types.isAnydata(param.var.type)) {
+                this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.var.type);
+            }
+        });
+
+        if (funcNode.restParam != null && !types.isAnydata(funcNode.restParam.type)) {
+            this.dlog.error(funcNode.restParam.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
+                            funcNode.restParam.type);
+        }
+
+        if (!types.isAssignable(funcNode.returnTypeNode.type,
+                                new BUnionType(null, new LinkedHashSet<BType>() {
+                                    { add(symTable.nilType); add(symTable.errorType); }
+                                }, true))) {
+            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL,
+                            funcNode.returnTypeNode.type);
         }
     }
 

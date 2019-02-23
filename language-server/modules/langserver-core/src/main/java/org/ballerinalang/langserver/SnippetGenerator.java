@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.ballerinalang.langserver.SnippetBlock.SnippetType;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -330,10 +331,11 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getResourceDefinitionSnippet() {
+        ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
         String snippet = "resource function ${1:newResource}(http:Caller ${2:caller}, ${3:http:Request request}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                SnippetType.SNIPPET, httpImport);
     }
 
     /**
@@ -362,13 +364,13 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getServiceDefSnippet() {
+        ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
         String snippet = "service ${1:serviceName} on new http:Listener(8080) {"
                 + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:newResource}(http:Caller ${3:caller}, "
                 + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR +
                 "\t}" + CommonUtil.LINE_SEPARATOR + "}";
-
         return new SnippetBlock(ItemResolverConstants.SERVICE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                SnippetType.SNIPPET, httpImport);
     }
 
     /**
@@ -377,6 +379,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSocketServiceDefSnippet() {
+        ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
         String snippet = "service ${1:serviceName} on new http:WebSocketListener(9090) {" + CommonUtil.LINE_SEPARATOR +
                 "\tresource function onOpen(http:WebSocketCaller caller) {"
                 + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR +
@@ -385,9 +388,8 @@ public class SnippetGenerator {
                 "\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {"
                 + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}"
                 + CommonUtil.LINE_SEPARATOR + "}";
-
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSOCKET, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                SnippetType.SNIPPET, httpImport);
     }
 
     /**
@@ -396,6 +398,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSubServiceDefSnippet() {
+        ImmutablePair<String, String> websubImport = new ImmutablePair<>("ballerina", "websub");
         String snippet = "service ${1:websubSubscriber} on new websub:Listener(9092) {" + CommonUtil.LINE_SEPARATOR +
                 "\tresource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest " +
                 "request) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
@@ -403,7 +406,7 @@ public class SnippetGenerator {
                 CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
                 CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSUB, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                SnippetType.SNIPPET, websubImport);
     }
 
     /**

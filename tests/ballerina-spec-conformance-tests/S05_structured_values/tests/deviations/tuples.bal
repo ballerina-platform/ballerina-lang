@@ -39,20 +39,6 @@ function testTupleMemberReferenceByInvalidIntegerIndex() {
     //    "invalid reason on access by index > tuple length");
 }
 
-// TODO: Fix implicit initial value for tuple
-// https://github.com/ballerina-platform/ballerina-lang/issues/13166
-@test:Config {
-    groups: ["deviation"]
-}
-function testImplicitInitialValuesBroken() {
-    (int, boolean, string)[] tupleArray = [];
-    tupleArray[1] = (200, true, "test string");
-    //test:assertEquals(tupleArray[0], (0, false, ""),
-    //    msg = "expected implicit initial value of (int, boolean, string) to be (0, false, \"\")");
-    test:assertEquals(tupleArray[0], (),
-        msg = "expected implicit initial value of (int, boolean, string) to be ()");
-}
-
 // Note that a tuple type where all the member-type-descriptors are the same is
 // equivalent to a an array-type-descriptor with a length.
 // TODO: Tuple type descriptor should be equal to array type descriptor

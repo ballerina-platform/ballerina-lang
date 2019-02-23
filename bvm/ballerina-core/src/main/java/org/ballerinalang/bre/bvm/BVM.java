@@ -4967,7 +4967,7 @@ public class BVM {
             case TypeTags.TUPLE_TAG:
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType, unresolvedValues);
             case TypeTags.ANYDATA_TAG:
-                return checkIsLikeAnydataType(sourceValue, targetType, unresolvedValues);
+                return checkIsLikeAnydataType(sourceValue, unresolvedValues);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
@@ -4978,17 +4978,17 @@ public class BVM {
         }
     }
 
-    private static boolean checkIsLikeAnydataType(BValue sourceValue, BType targetType,
-                                                  List<TypeValuePair> unresolvedValues) {
+    private static boolean checkIsLikeAnydataType(BValue sourceValue, List<TypeValuePair> unresolvedValues) {
         switch (sourceValue.getType().getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
                 return ((BMap) sourceValue).getMap().values().stream()
-                        .allMatch(value -> checkIsLikeType((BValue) value, targetType, unresolvedValues));
+                        .allMatch(value -> checkIsLikeType((BValue) value, BTypes.typeAnydata, unresolvedValues));
             case TypeTags.ARRAY_TAG:
                 BNewArray arr = (BNewArray) sourceValue;
-                switch (arr.getType().getTag()) {
+                BArrayType arrayType = (BArrayType) arr.getType();
+                switch (arrayType.getElementType().getTag()) {
                     case TypeTags.INT_TAG:
                     case TypeTags.FLOAT_TAG:
                     case TypeTags.DECIMAL_TAG:
@@ -4998,16 +4998,16 @@ public class BVM {
                         return true;
                     default:
                         return Arrays.stream(((BValueArray) sourceValue).getValues())
-                                .allMatch(value -> checkIsLikeType(value, targetType, unresolvedValues));
+                                .allMatch(value -> checkIsLikeType(value, BTypes.typeAnydata, unresolvedValues));
                 }
             case TypeTags.TUPLE_TAG:
                 return Arrays.stream(((BValueArray) sourceValue).getValues())
-                        .allMatch(value -> checkIsLikeType(value, targetType, unresolvedValues));
+                        .allMatch(value -> checkIsLikeType(value, BTypes.typeAnydata, unresolvedValues));
             case TypeTags.ANYDATA_TAG:
                 return true;
             case TypeTags.FINITE_TYPE_TAG:
             case TypeTags.UNION_TAG:
-                return checkIsLikeType(sourceValue, targetType, unresolvedValues);
+                return checkIsLikeType(sourceValue, BTypes.typeAnydata, unresolvedValues);
             default:
                 return false;
         }

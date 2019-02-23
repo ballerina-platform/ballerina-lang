@@ -2293,7 +2293,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.262</transport.http.version>
+        <transport.http.version>6.0.266</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2323,7 +2323,7 @@
         <picocli.version>3.9.3</picocli.version>
         <com.zaxxer.hikaricp.version>3.1.0</com.zaxxer.hikaricp.version>
         <hyperSQL.version>2.4.0</hyperSQL.version>
-        <h2.version>1.4.197</h2.version>
+        <h2.version>1.4.198</h2.version>
         <mysql.version>5.1.46</mysql.version>
         <postgresql.version>42.2.1</postgresql.version>
         <testcontainers.version>1.7.2</testcontainers.version>
@@ -2377,7 +2377,7 @@
         <maven.spotbugsplugin.version>3.1.1</maven.spotbugsplugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
-        <maven.invoker.plugin.version>2.0.0</maven.invoker.plugin.version>
+        <maven.invoker.plugin.version>3.2.0</maven.invoker.plugin.version>
         <maven.jar.plugin.version>2.6</maven.jar.plugin.version>
         <maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
         <maven.plugin.plugin.version>3.4</maven.plugin.plugin.version>
@@ -2403,15 +2403,15 @@
         <protobuf.maven.plugin.version>0.5.0</protobuf.maven.plugin.version>
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
 
-        <mvel2.version>2.2.1.Final</mvel2.version>
+        <mvel2.version>2.4.4.Final</mvel2.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
-        <guava.version>19.0</guava.version>
+        <guava.version>23.0</guava.version>
         <metrics.version>3.1.0</metrics.version>
 
         <!-- Observability -->
         <open.tracing.version>0.31.0</open.tracing.version>
         <jaeger.version>0.24.0</jaeger.version>
-        <libthrift.version>0.10.0</libthrift.version>
+        <libthrift.version>0.12.0</libthrift.version>
         <okhttp.version>3.9.1</okhttp.version>
         <okio.version>1.13.0</okio.version>
         <hdrhistogram.version>2.1.10</hdrhistogram.version>
@@ -2428,7 +2428,7 @@
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>1.5.5</apache.directory.server.version>
-        <bouncycastle.version>1.60</bouncycastle.version>
+        <bouncycastle.version>1.61</bouncycastle.version>
     </properties>
 
 </project>
