@@ -18,15 +18,15 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>swagger-ballerina</artifactId>
+        <artifactId>openapi-ballerina</artifactId>
         <groupId>org.ballerinalang</groupId>
         <version>0.990.4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ballerina-to-swagger</artifactId>
-    <name>Ballerina - Swagger Tooling - Ballerina To Swagger</name>
+    <artifactId>ballerina-to-openapi-generator</artifactId>
+    <name>Ballerina - OpenAPI Tooling - Ballerina To OpenAPI Definition</name>
     <dependencies>
     <dependency>
         <groupId>io.swagger</groupId>

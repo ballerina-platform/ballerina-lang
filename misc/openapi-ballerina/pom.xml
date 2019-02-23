@@ -27,9 +27,9 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
-    <artifactId>swagger-ballerina</artifactId>
+    <artifactId>openapi-ballerina</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina - Swagger Tooling - Parent</name>
+    <name>Ballerina - Open API Tooling - Parent</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -37,8 +37,8 @@
     </properties>
 
     <modules>
-        <module>modules/swagger-to-ballerina-generator</module>
-        <module>modules/ballerina-to-swagger</module>
+        <module>modules/openapi-to-ballerina-generator</module>
+        <module>modules/ballerina-to-openapi-generator</module>
         <module>modules/ballerina-code-generator</module>
     </modules>
 </project>
