@@ -12,7 +12,12 @@ will support only this format. Also following this guide will form a standard st
 * No indentation top level (definitions) 
 * Maximum line length is 120 characters 
 
-### Per line Comments (//)
+### [Operators, Keywords and Boundaries](operators_keywords_and_boundaries.md)
+### [Definitions](definitions.md)
+### [Statements](statements.md)
+### [Expressions](expressions.md)
+
+### Comments (//)
 
 * If Comment is taking an entire line it should indent accordingly.
 
@@ -45,7 +50,7 @@ function name() {
 ```
 
 
-### Markdown documentation(#)
+### Documentation(#)
 
 * Always should be on top of the parent definition.
 * Always should be indented as to the parent definition.
