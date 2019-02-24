@@ -39,10 +39,12 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.util.Locale;
 
+import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.XML_SUFFIX;
 import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
+import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
  * Get the entity body in xml form.
@@ -84,7 +86,7 @@ public class GetXml extends AbstractGetPayloadHandler {
                 return;
             }
 
-            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
+            if (isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructXmlDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;
@@ -99,9 +101,9 @@ public class GetXml extends AbstractGetPayloadHandler {
                     HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
                     String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
                                                                         HttpHeaderNames.CONTENT_TYPE.toString());
-                    if (validateNotNullAndNotEmpty(contentTypeValue)) {
+                    if (isNotNullAndEmpty(contentTypeValue)) {
                         String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                        if (validateNotNullAndNotEmpty(charsetValue)) {
+                        if (isNotNullAndEmpty(charsetValue)) {
                             xmlContent = XMLUtils.parse(dataStreamer.getInputStream(), charsetValue);
                         } else {
                             xmlContent = XMLUtils.parse(dataStreamer.getInputStream());

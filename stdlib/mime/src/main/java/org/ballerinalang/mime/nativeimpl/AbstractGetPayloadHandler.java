@@ -35,11 +35,10 @@ import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import static org.ballerinalang.mime.util.EntityBodyHandler.getByteChannel;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_PART_ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
+import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
  * {@code AbstractGetPayloadHandler} is the base class for all get entity body functions.
@@ -73,15 +72,6 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         setReturnValuesAndNotify(context, callback, result);
     }
 
-    boolean isBodyPartEntity(BMap<String, BValue> entityStruct) {
-        return entityStruct.getNativeData(IS_BODY_PART_ENTITY) != null;
-    }
-
-    boolean isStreamingRequired(BMap<String, BValue> entityStruct) {
-        return getByteChannel(entityStruct) != null;
-    }
-
-
     HttpCarbonMessage getInboundCarbonMessage(BMap<String, BValue> entityStruct) {
         Object message = entityStruct.getNativeData(TRANSPORT_MESSAGE);
         if (message != null) {
@@ -89,10 +79,6 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         } else {
             throw new BallerinaIOException("Empty content");
         }
-    }
-
-    boolean validateNotNullAndNotEmpty(String value) {
-        return value != null && !value.isEmpty();
     }
 
     void constructNonBlockingStringDataSource(Context context, CallableUnitCallback callback,
@@ -105,9 +91,9 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
                 HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
                 String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
                                                                     HttpHeaderNames.CONTENT_TYPE.toString());
-                if (validateNotNullAndNotEmpty(contentTypeValue)) {
+                if (isNotNullAndEmpty(contentTypeValue)) {
                     String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                    if (validateNotNullAndNotEmpty(charsetValue)) {
+                    if (isNotNullAndEmpty(charsetValue)) {
                         textContent = StringUtils.getStringFromInputStream(dataStreamer.getInputStream(),
                                                                            charsetValue);
                     } else {

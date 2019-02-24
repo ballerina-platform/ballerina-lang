@@ -38,8 +38,10 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
  * Get the entity body as a blob.
@@ -69,9 +71,9 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 } else {
                     String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
                                                                         HttpHeaderNames.CONTENT_TYPE.toString());
-                    if (validateNotNullAndNotEmpty(contentTypeValue)) {
+                    if (isNotNullAndEmpty(contentTypeValue)) {
                         String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                        if (validateNotNullAndNotEmpty(charsetValue)) {
+                        if (isNotNullAndEmpty(charsetValue)) {
                             result = new BValueArray(messageDataSource.stringValue().getBytes(charsetValue));
                         } else {
                             result = new BValueArray(messageDataSource.stringValue().getBytes(
@@ -83,7 +85,7 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 return;
             }
 
-            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
+            if (isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructBlobDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;

@@ -55,7 +55,6 @@ import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_BODY_PART_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_PART_ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 
@@ -240,6 +239,17 @@ public class EntityBodyHandler {
     }
 
     /**
+     * Check whether the streaming is required as data source should be constructed using byte channel if entity
+     * contains body parts or byte channel.
+     *
+     * @param entity Represent an 'Entity'
+     * @return a boolean indicating streaming requirement
+     */
+    public static boolean isStreamingRequired(BMap<String, BValue> entity) {
+        return entity.getNativeData(ENTITY_BYTE_CHANNEL) != null || entity.getNativeData(BODY_PARTS) != null;
+    }
+
+    /**
      * Set ballerina body parts to it's top level entity.
      *
      * @param entity    Represent top level message's entity
@@ -251,7 +261,6 @@ public class EntityBodyHandler {
             BMap<String, BValue>[] result = bodyParts.toArray(new BMap[bodyParts.size()]);
             BValueArray partsArray = new BValueArray(result, new BArrayType(typeOfBodyPart));
             entity.addNativeData(BODY_PARTS, partsArray);
-            entity.addNativeData(IS_BODY_PART_ENTITY, true);
         }
     }
 

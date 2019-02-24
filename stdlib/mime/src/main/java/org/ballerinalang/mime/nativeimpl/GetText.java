@@ -33,6 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Locale;
 
+import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_AS_PRIMARY_TYPE;
@@ -71,7 +72,7 @@ public class GetText extends AbstractGetPayloadHandler {
                 return;
             }
 
-            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
+            if (isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructStringDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;

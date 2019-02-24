@@ -38,8 +38,10 @@ import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
  * Get the entity body in JSON form.
@@ -60,16 +62,16 @@ public class GetJson extends AbstractGetPayloadHandler {
     public void execute(Context context, CallableUnitCallback callback) {
         try {
             BRefType<?> result;
-            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            BMap<String, BValue> entity = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
 
-            if (!MimeUtil.isJSONContentType(entityStruct)) {
-                String baseType = HeaderUtil.getBaseType(entityStruct);
+            if (!MimeUtil.isJSONContentType(entity)) {
+                String baseType = HeaderUtil.getBaseType(entity);
                 createErrorAndNotify(context, callback, "Entity body is not json " + COMPATIBLE_SINCE_CONTENT_TYPE +
                         baseType);
                 return;
             }
 
-            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entity);
             if (dataSource != null) {
                 // If the value is a already JSON, then return it as is.
                 if (isJSON(dataSource)) {
@@ -83,24 +85,24 @@ public class GetJson extends AbstractGetPayloadHandler {
                 return;
             }
 
-            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
-                result = EntityBodyHandler.constructJsonDataSource(entityStruct);
-                updateDataSourceAndNotify(context, callback, entityStruct, result);
+            if (isStreamingRequired(entity)) {
+                result = EntityBodyHandler.constructJsonDataSource(entity);
+                updateDataSourceAndNotify(context, callback, entity, result);
                 return;
             }
 
             // Construct non-blocking JSON data source
-            HttpCarbonMessage inboundCarbonMsg = getInboundCarbonMessage(entityStruct);
+            HttpCarbonMessage inboundCarbonMsg = getInboundCarbonMessage(entity);
             inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
                 @Override
                 public void onComplete() {
                     BRefType<?> jsonData;
                     HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
-                    String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
+                    String contentTypeValue = HeaderUtil.getHeaderValue(entity,
                                                                         HttpHeaderNames.CONTENT_TYPE.toString());
-                    if (validateNotNullAndNotEmpty(contentTypeValue)) {
+                    if (isNotNullAndEmpty(contentTypeValue)) {
                         String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                        if (validateNotNullAndNotEmpty(charsetValue)) {
+                        if (isNotNullAndEmpty(charsetValue)) {
                             jsonData = JsonParser.parse(dataStreamer.getInputStream(), charsetValue);
                         } else {
                             jsonData = JsonParser.parse(dataStreamer.getInputStream());
@@ -108,7 +110,7 @@ public class GetJson extends AbstractGetPayloadHandler {
                     } else {
                         jsonData = JsonParser.parse(dataStreamer.getInputStream());
                     }
-                    updateDataSourceAndNotify(context, callback, entityStruct, jsonData);
+                    updateDataSourceAndNotify(context, callback, entity, jsonData);
                 }
 
                 @Override

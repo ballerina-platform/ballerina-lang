@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
@@ -58,7 +59,7 @@ public class GetBodyAsString extends GetText {
                 return;
             }
 
-            if (isBodyPartEntity(entityStruct) || isStreamingRequired(entityStruct)) {
+            if (isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructStringDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;

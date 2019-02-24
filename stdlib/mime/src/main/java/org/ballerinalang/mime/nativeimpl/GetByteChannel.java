@@ -20,8 +20,10 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -31,10 +33,14 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
+import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
  * Get the entity body as a byte channel.
@@ -51,12 +57,14 @@ import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_ST
 public class GetByteChannel extends BlockingNativeCallableUnit {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute(Context context) {
         BMap<String, BValue> byteChannelStruct;
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO,
-                    READABLE_BYTE_CHANNEL_STRUCT);
+            byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_IO,
+                                                                    READABLE_BYTE_CHANNEL_STRUCT);
+            populateEntityWithByteChannel(entityStruct);
             Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
             if (byteChannel != null) {
                 byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
@@ -77,6 +85,21 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
+        }
+    }
+
+    private void populateEntityWithByteChannel(BMap<String, BValue> entity) {
+        Object message = entity.getNativeData(TRANSPORT_MESSAGE);
+        if (message == null) {
+            return;
+        }
+        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) message;
+        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+
+        long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
+        if (contentLength > 0) {
+            entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                    new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
         }
     }
 }

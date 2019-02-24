@@ -230,7 +230,8 @@ public class ServiceTest {
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "{\"Name\":\"\", \"Team\":\"\"}");
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Error occurred while extracting " +
+                "text data from entity : Empty content");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
