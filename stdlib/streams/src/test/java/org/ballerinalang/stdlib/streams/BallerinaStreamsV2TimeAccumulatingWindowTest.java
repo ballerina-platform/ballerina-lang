@@ -41,36 +41,25 @@ public class BallerinaStreamsV2TimeAccumulatingWindowTest {
         result = BCompileUtil.compile("test-src/streamingv2-time-accumulating-window-test.bal");
     }
 
-    @Test(description = "Test Time accumulating window query", enabled = false)
+    @Test(description = "Test Time accumulating window query")
     public void testTimeAccumulatingQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startAccumulatingTimeWindowTest");
         Assert.assertNotNull(outputEmployeeEvents);
 
-        Assert.assertEquals(outputEmployeeEvents.length, 6, "Expected events are not received");
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
 
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
         BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
         BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
-        BMap<String, BValue> employee3 = (BMap<String, BValue>) outputEmployeeEvents[3];
-        BMap<String, BValue> employee4 = (BMap<String, BValue>) outputEmployeeEvents[4];
-        BMap<String, BValue> employee5 = (BMap<String, BValue>) outputEmployeeEvents[5];
 
-        Assert.assertEquals(employee0.get("name").stringValue(), "Mohan");
-        Assert.assertEquals(((BInteger) employee0.get("count")).intValue(), 1);
 
-        Assert.assertEquals(employee1.get("name").stringValue(), "Raja");
-        Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 2);
+        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("count")).intValue(), 2);
 
-        Assert.assertEquals(employee2.get("name").stringValue(), "Naveen");
+        Assert.assertEquals(employee1.get("name").stringValue(), "Nimal");
+        Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 3);
+
+        Assert.assertEquals(employee2.get("name").stringValue(), "Kavindu");
         Assert.assertEquals(((BInteger) employee2.get("count")).intValue(), 1);
-
-        Assert.assertEquals(employee3.get("name").stringValue(), "Amal");
-        Assert.assertEquals(((BInteger) employee3.get("count")).intValue(), 2);
-
-        Assert.assertEquals(employee4.get("name").stringValue(), "Nimal");
-        Assert.assertEquals(((BInteger) employee4.get("count")).intValue(), 3);
-
-        Assert.assertEquals(employee5.get("name").stringValue(), "Kavindu");
-        Assert.assertEquals(((BInteger) employee5.get("count")).intValue(), 1);
     }
 }

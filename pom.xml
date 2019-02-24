@@ -2323,7 +2323,7 @@
         <picocli.version>3.9.3</picocli.version>
         <com.zaxxer.hikaricp.version>3.1.0</com.zaxxer.hikaricp.version>
         <hyperSQL.version>2.4.0</hyperSQL.version>
-        <h2.version>1.4.197</h2.version>
+        <h2.version>1.4.198</h2.version>
         <mysql.version>5.1.46</mysql.version>
         <postgresql.version>42.2.1</postgresql.version>
         <testcontainers.version>1.7.2</testcontainers.version>
@@ -2351,7 +2351,7 @@
         <quartz.version>2.3.0</quartz.version>
         <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.9.8</jackson-core.version>
-        <apache.mina.core>2.0.16</apache.mina.core>
+        <apache.mina.core>2.0.19</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
         <broker.version>0.970.5</broker.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
@@ -2377,7 +2377,7 @@
         <maven.spotbugsplugin.version>3.1.1</maven.spotbugsplugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
-        <maven.invoker.plugin.version>2.0.0</maven.invoker.plugin.version>
+        <maven.invoker.plugin.version>3.2.0</maven.invoker.plugin.version>
         <maven.jar.plugin.version>2.6</maven.jar.plugin.version>
         <maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
         <maven.plugin.plugin.version>3.4</maven.plugin.plugin.version>
