@@ -656,3 +656,79 @@ function finiteTypeAsBroaderTypesAndFiniteTypeHelper(FooBarOneTwoTrue f) returns
         }
     }
 }
+
+type FooBarOneTwoBoolean "foo"|"bar"|1|2.0|boolean;
+type FooBarBaz "foo"|"bar"|"baz";
+type FooBarInt "foo"|"bar"|int;
+
+function testFiniteTypeAsComplexFiniteTypes_1() returns boolean {
+    FooBarOneTwoBoolean f = "foo";
+    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    return s == "FooBarBaz" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_2() returns boolean {
+    FooBarOneTwoBoolean f = 2.0;
+    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    return s == "OneTwo" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_3() returns boolean {
+    FooBarOneTwoBoolean f = true;
+    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    return s == "boolean" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_4() returns boolean {
+    FooBarOneTwoBoolean f = "bar";
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "FooBarInt" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_5() returns boolean {
+    FooBarOneTwoBoolean f = 1;
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "FooBarInt" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_6() returns boolean {
+    FooBarOneTwoBoolean f = 2.0;
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "OneTwo" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_7() returns boolean {
+    FooBarOneTwoBoolean f = false;
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "boolean" && f == v;
+}
+
+function finiteTypeAsComplexFiniteTypesHelperOne(FooBarOneTwoBoolean f) returns (string, FooBarBaz|OneTwo|boolean) {
+    if (f is FooBarBaz) {
+        FooBarBaz x = f;
+        return ("FooBarBaz", x);
+    } else {
+        if (f is OneTwo) {
+            OneTwo x = f;
+            return ("OneTwo", x);
+        } else {
+            boolean x = f;
+            return ("boolean", x);
+        }
+    }
+}
+
+function finiteTypeAsComplexFiniteTypesHelperTwo(FooBarOneTwoBoolean f) returns (string, FooBarInt|OneTwo|boolean) {
+    if (f is FooBarInt) {
+        FooBarInt x = f;
+        return ("FooBarInt", x);
+    } else {
+        if (f is OneTwo) {
+            OneTwo x = f;
+            return ("OneTwo", x);
+        } else {
+            boolean x = f;
+            return ("boolean", x);
+        }
+    }
+}

@@ -1680,6 +1680,35 @@ public class Types {
         return matchCount == 1;
     }
 
+    /**
+     * Method to check if at least one value in the value space of a finite type is assignable to the target type.
+     *
+     * @param finiteType the finite type
+     * @param targetType the target type
+     * @return           true if at least one value in the value space of finiteType is assignable to targetType
+     */
+    boolean isAtLeastOneFiniteTypeValueAssignableToType(BFiniteType finiteType, BType targetType) {
+        return finiteType.valueSpace.stream()
+                .anyMatch(expr -> isAssignable(expr.type, targetType));
+    }
+
+    /**
+     * Method to check if at least one member of a union type is assignable to the target type.
+     *
+     * @param unionType  the union type
+     * @param targetType the target type
+     * @return           true if at least one member of the unionType is assignable to targetType
+     */
+    boolean isAtLeastOneUnionTypeMemberAssignableToType(BUnionType unionType, BType targetType) {
+        return unionType.memberTypes.stream()
+                .anyMatch(memType -> memType.tag == TypeTags.FINITE ?
+                        ((BFiniteType) memType).valueSpace.stream()
+                                .anyMatch(valueExpr -> targetType.tag == TypeTags.FINITE ?
+                                        isAssignableToFiniteType(targetType, (BLangLiteral) valueExpr) :
+                                        isAssignable(valueExpr.type, targetType)) :
+                        isAssignable(memType, targetType));
+    }
+
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
         if (!isAnydata(lhsType) || !isAnydata(rhsType)) {
             return false;
@@ -1985,6 +2014,18 @@ public class Types {
     private BType getRemainingType(BUnionType originalType, List<BType> removeTypes) {
         List<BType> remainingTypes = getAllTypes(originalType);
         removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isAssignable(type, removeType)));
+
+        for (BType remainingType : remainingTypes) {
+            if (remainingType.tag == TypeTags.FINITE) {
+                BFiniteType finiteType = (BFiniteType) remainingType;
+                remainingTypes.remove(finiteType);
+                BType remainingTypeWithMatchesRemoved = getRemainingType(finiteType, removeTypes);
+                if (remainingTypeWithMatchesRemoved != symTable.semanticError) {
+                    remainingTypes.add(remainingTypeWithMatchesRemoved);
+                }
+                break; // Optimization - since a union type would only have one finite type
+            }
+        }
 
         if (remainingTypes.size() == 1) {
             return remainingTypes.get(0);

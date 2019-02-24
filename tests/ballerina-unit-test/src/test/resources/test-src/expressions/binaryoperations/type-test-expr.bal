@@ -692,3 +692,31 @@ function testFiniteTypeAsBroaderType_2() returns (boolean, boolean) {
 
     return (fc1 is string, fc2 is int);
 }
+
+type FooBarOneBoolean "foo"|"bar"|1|boolean;
+type FooBarBaz "foo"|"bar"|"baz";
+type IntTwo int|2.0;
+
+function testFiniteTypeAsFiniteTypeTrue() returns (boolean, boolean) {
+    FooBarOneBoolean f1 = "foo";
+    FooBarOneBoolean f2 = 1;
+
+    return (f1 is FooBarBaz, f2 is IntTwo);
+}
+
+function testFiniteTypeAsFiniteTypeFalse() returns (boolean, boolean) {
+    FooBarOneBoolean f1 = "foo";
+    FooBarOneBoolean f2 = 1;
+
+    return (f1 is IntTwo, f2 is FooBarBaz);
+}
+
+function testIntersectingUnionTrue() returns (boolean, boolean) {
+    string|int|typedesc x = 1;
+    return (x is int|boolean, x is json);
+}
+
+function testIntersectingUnionFalse() returns (boolean, boolean) {
+    string|int|typedesc x = int;
+    return (x is int|boolean, x is anydata);
+}

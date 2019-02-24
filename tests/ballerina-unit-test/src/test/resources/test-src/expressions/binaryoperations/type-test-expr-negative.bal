@@ -248,3 +248,17 @@ function testFiniteTypeAsAlwaysTrueBroaderType() {
         string|int y = f2;
     }
 }
+
+type BazTwo "baz"|2;
+
+function testFiniteTypeAsNeverMatchingFiniteType() {
+    FooBar f1 = "foo";
+    if (f1 is BazTwo) {
+        BazTwo y = f1;
+    }
+}
+
+function testNonIntersectingUnions() {
+    string|int x = 1;
+    _ = x is float|boolean;
+}

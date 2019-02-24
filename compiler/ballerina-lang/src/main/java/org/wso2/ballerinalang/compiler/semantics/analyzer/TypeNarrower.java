@@ -247,8 +247,10 @@ public class TypeNarrower extends BLangNodeVisitor {
             } else if (types.isAssignable(currentType, type)) {
                 return currentType;
             } else if (currentType.tag == TypeTags.FINITE &&
-                    ((BFiniteType) currentType).valueSpace.stream()
-                            .anyMatch(value -> types.isAssignable(value.type, type))) {
+                    types.isAtLeastOneFiniteTypeValueAssignableToType((BFiniteType) currentType, type)) {
+                return type;
+            } else if (currentType.tag == TypeTags.UNION &&
+                    types.isAtLeastOneUnionTypeMemberAssignableToType((BUnionType) currentType, type)) {
                 return type;
             }
             return null;

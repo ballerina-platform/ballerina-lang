@@ -1911,16 +1911,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // variable at some point. To do that, a value of target type should be assignable 
         // to the type of the source variable.
         if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type) &&
-                (typeTestExpr.expr.type.tag != TypeTags.FINITE ||
-                         !(finiteTypeContainsValuesOfType((BFiniteType) typeTestExpr.expr.type,
-                                                          typeTestExpr.typeNode.type)))) {
+                !unionOrFiniteTypeIndirectIntersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.type)) {
             dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
                        typeTestExpr.typeNode.type);
         }
     }
 
-    private boolean finiteTypeContainsValuesOfType(BFiniteType finiteType, BType targetType) {
-        return finiteType.valueSpace.stream().anyMatch(expr -> types.isAssignable(expr.type, targetType));
+    private boolean unionOrFiniteTypeIndirectIntersectionExists(BLangExpression expression, BType testType) {
+        BType expressionType = expression.type;
+        switch (expressionType.tag) {
+            case TypeTags.UNION:
+                return types.isAtLeastOneUnionTypeMemberAssignableToType((BUnionType) expressionType, testType);
+            case TypeTags.FINITE:
+                return types.isAtLeastOneFiniteTypeValueAssignableToType((BFiniteType) expressionType, testType);
+            default:
+                return false;
+        }
     }
 
     // private methods

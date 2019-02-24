@@ -440,7 +440,14 @@ public class TypeGuardTest {
                 {"testFiniteTypeAsBroaderTypesAndFiniteType_1"},
                 {"testFiniteTypeAsBroaderTypesAndFiniteType_2"},
                 {"testFiniteTypeAsBroaderTypesAndFiniteType_3"},
-                {"testFiniteTypeAsBroaderTypesAndFiniteType_4"}
+                {"testFiniteTypeAsBroaderTypesAndFiniteType_4"},
+                {"testFiniteTypeAsComplexFiniteTypes_1"},
+                {"testFiniteTypeAsComplexFiniteTypes_2"},
+                {"testFiniteTypeAsComplexFiniteTypes_3"},
+                {"testFiniteTypeAsComplexFiniteTypes_4"},
+                {"testFiniteTypeAsComplexFiniteTypes_5"},
+                {"testFiniteTypeAsComplexFiniteTypes_6"},
+                {"testFiniteTypeAsComplexFiniteTypes_7"}
         };
     }
 }
