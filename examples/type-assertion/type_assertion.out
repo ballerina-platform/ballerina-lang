@@ -2,4 +2,3 @@
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run type_assertion.bal
 asserted employee's name: Speedy Gonzales
-assertion error: expected 'Person', found 'Employee'

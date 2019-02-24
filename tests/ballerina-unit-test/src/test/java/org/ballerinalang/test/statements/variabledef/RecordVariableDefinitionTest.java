@@ -268,6 +268,27 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
     }
 
+    @Test(description = "Test record variable with only a rest parameter")
+    public void testRecordVariableWithOnlyRestParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\", \"age\":{age:30, format:\"YY\", " +
+                "year:1990}, \"married\":true, \"work\":\"SE\"}");
+    }
+
+    @Test(description = "Test record variables rest param types")
+    public void testRestParameterType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
+        Assert.assertEquals(returns.length, 7);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[5]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
+    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 19);

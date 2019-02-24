@@ -41,6 +41,7 @@ import java.nio.charset.Charset;
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
@@ -85,14 +86,16 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 return;
             }
 
-            if (isStreamingRequired(entityStruct)) {
+            Object transportMessage = entityStruct.getNativeData(TRANSPORT_MESSAGE);
+
+            if (isStreamingRequired(entityStruct) || transportMessage == null) {
                 result = EntityBodyHandler.constructBlobDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
                 return;
             }
 
             // Construct non-blocking byte array data source
-            HttpCarbonMessage inboundCarbonMsg = getInboundCarbonMessage(entityStruct);
+            HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) transportMessage;
             inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
                 @Override
                 public void onComplete() {

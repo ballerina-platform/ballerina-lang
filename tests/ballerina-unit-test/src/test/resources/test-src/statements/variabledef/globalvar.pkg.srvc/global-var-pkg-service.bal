@@ -23,7 +23,7 @@ listener http:MockListener globalVarEP = new(9090);
 @http:ServiceConfig {basePath:"/globalvar-pkg"}
 service GlobalVar on globalVarEP {
 
-    string serviceVarFloat = <string> glbVarFloat;
+    string serviceVarFloat = string.convert(glbVarFloat);
 
     @http:ResourceConfig {
         methods:["GET"],

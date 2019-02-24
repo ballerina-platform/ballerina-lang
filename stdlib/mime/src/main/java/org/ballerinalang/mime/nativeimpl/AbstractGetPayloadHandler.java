@@ -42,6 +42,8 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
  * {@code AbstractGetPayloadHandler} is the base class for all get entity body functions.
+ *
+ * @since 0.990.4
  */
 
 public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
