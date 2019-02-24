@@ -246,12 +246,30 @@ public class TypeNarrower extends BLangNodeVisitor {
                 return type;
             } else if (types.isAssignable(currentType, type)) {
                 return currentType;
-            } else if (currentType.tag == TypeTags.FINITE &&
-                    types.isAtLeastOneFiniteTypeValueAssignableToType((BFiniteType) currentType, type)) {
-                return type;
-            } else if (currentType.tag == TypeTags.UNION &&
-                    types.isAtLeastOneUnionTypeMemberAssignableToType((BUnionType) currentType, type)) {
-                return type;
+            } else if (currentType.tag == TypeTags.FINITE) {
+                BType intersectionType = types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) currentType,
+                                                                                          type);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.FINITE) {
+                BType intersectionType = types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) type,
+                                                                                          currentType);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (currentType.tag == TypeTags.UNION) {
+                BType intersectionType = types.getTypeForUnionTypeMembersAssignableToType((BUnionType) currentType,
+                                                                                          type);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.UNION) {
+                BType intersectionType = types.getTypeForUnionTypeMembersAssignableToType((BUnionType) type,
+                                                                                          currentType);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
             }
             return null;
         }).filter(type -> type != null).collect(Collectors.toList());

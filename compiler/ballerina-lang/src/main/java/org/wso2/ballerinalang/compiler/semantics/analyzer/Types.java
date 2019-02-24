@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymb
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -111,6 +112,8 @@ public class Types {
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
+    private Names names;
+    private int finiteTypeCount = 0;
 
     private Stack<BType> typeStack;
 
@@ -130,6 +133,7 @@ public class Types {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeStack = new Stack<>();
+        this.names = Names.getInstance(context); // TODO: 2/24/19 Validate
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -1681,32 +1685,89 @@ public class Types {
     }
 
     /**
-     * Method to check if at least one value in the value space of a finite type is assignable to the target type.
+     * Method to retrieve a type representing all the values in the value space of a finite type that are assignable to
+     * the target type.
      *
      * @param finiteType the finite type
      * @param targetType the target type
-     * @return           true if at least one value in the value space of finiteType is assignable to targetType
+     * @return           a new finite type if at least one value in the value space of the specified finiteType is
+     *                      assignable to targetType, else semanticError
      */
-    boolean isAtLeastOneFiniteTypeValueAssignableToType(BFiniteType finiteType, BType targetType) {
-        return finiteType.valueSpace.stream()
-                .anyMatch(expr -> isAssignable(expr.type, targetType));
+    BType getTypeForFiniteTypeValuesAssignableToType(BFiniteType finiteType, BType targetType) {
+        if (isAssignable(finiteType, targetType)) {
+            return finiteType;
+        }
+
+        Set<BLangExpression> matchingValues = finiteType.valueSpace.stream()
+                .filter(expr -> isAssignable(expr.type, targetType) ||
+                        (targetType.tag == TypeTags.UNION &&
+                                 ((BUnionType) targetType).memberTypes.stream()
+                                         .filter(memType -> memType.tag == TypeTags.FINITE)
+                                         .anyMatch(filteredType -> isAssignableToFiniteType(filteredType,
+                                                                                            (BLangLiteral) expr))))
+                .collect(Collectors.toSet());
+
+        if (matchingValues.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
+                                                                names.fromString("$anonType$" + finiteTypeCount++),
+                                                                finiteType.tsymbol.pkgID, null,
+                                                                finiteType.tsymbol.owner);
+        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
+        finiteTypeSymbol.type = intersectingFiniteType;
+        return intersectingFiniteType;
     }
 
     /**
-     * Method to check if at least one member of a union type is assignable to the target type.
+     * Method to retrieve a type representing all the values in the value space of a finite type that are assignable to
+     * the target type.
      *
      * @param unionType  the union type
      * @param targetType the target type
-     * @return           true if at least one member of the unionType is assignable to targetType
+     * @return           a single type or a new union type if at least one member type of the union type is
+     *                      assignable to targetType, else semanticError
      */
-    boolean isAtLeastOneUnionTypeMemberAssignableToType(BUnionType unionType, BType targetType) {
-        return unionType.memberTypes.stream()
-                .anyMatch(memType -> memType.tag == TypeTags.FINITE ?
-                        ((BFiniteType) memType).valueSpace.stream()
-                                .anyMatch(valueExpr -> targetType.tag == TypeTags.FINITE ?
-                                        isAssignableToFiniteType(targetType, (BLangLiteral) valueExpr) :
-                                        isAssignable(valueExpr.type, targetType)) :
-                        isAssignable(memType, targetType));
+    BType getTypeForUnionTypeMembersAssignableToType(BUnionType unionType, BType targetType) {
+        List<BType> intersection = new LinkedList<>();
+
+        unionType.memberTypes.forEach(memType -> {
+            if (memType.tag == TypeTags.FINITE) {
+                BType finiteTypeWithMatches = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) memType,
+                                                                                         targetType);
+                if (finiteTypeWithMatches != symTable.semanticError) {
+                    intersection.add(finiteTypeWithMatches);
+                }
+            } else {
+                if (isAssignable(memType, targetType)) {
+                    intersection.add(memType);
+                }
+            }
+        });
+
+        if (intersection.isEmpty() || intersection.contains(symTable.semanticError)) {
+            return symTable.semanticError;
+        }
+
+        if (intersection.size() > 1 && intersection.stream().filter(type -> type.tag == TypeTags.FINITE).count() > 1) {
+            // merge > 1 finite types into one finite type
+            Set<BLangExpression> valueSpace = new LinkedHashSet<>();
+            intersection.forEach(bType -> {
+                if (bType.tag == TypeTags.FINITE) {
+                    intersection.remove(bType);
+                    valueSpace.addAll(((BFiniteType) bType).valueSpace);
+                }
+            });
+            intersection.add(new BFiniteType(null, valueSpace));
+        }
+
+        if (intersection.size() == 1) {
+            return intersection.get(0);
+        } else {
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(intersection);
+            return new BUnionType(null, memberTypes, memberTypes.contains(symTable.nilType));
+        }
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
@@ -2062,7 +2123,13 @@ public class Types {
             return symTable.semanticError;
         }
 
-        return new BFiniteType(null, remainingValueSpace);
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
+                                                                names.fromString("$anonType$" + finiteTypeCount++),
+                                                                originalType.tsymbol.pkgID, null,
+                                                                originalType.tsymbol.owner);
+        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
+        finiteTypeSymbol.type = intersectingFiniteType;
+        return intersectingFiniteType;
     }
 
     public BType getSafeType(BType type, boolean liftError) {

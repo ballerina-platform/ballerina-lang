@@ -1921,12 +1921,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BType expressionType = expression.type;
         switch (expressionType.tag) {
             case TypeTags.UNION:
-                return types.isAtLeastOneUnionTypeMemberAssignableToType((BUnionType) expressionType, testType);
+                if (types.getTypeForUnionTypeMembersAssignableToType((BUnionType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
+                break;
             case TypeTags.FINITE:
-                return types.isAtLeastOneFiniteTypeValueAssignableToType((BFiniteType) expressionType, testType);
-            default:
-                return false;
+                if (types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
         }
+
+        switch (testType.tag) {
+            case TypeTags.UNION:
+                return types.getTypeForUnionTypeMembersAssignableToType((BUnionType) testType, expressionType) !=
+                        symTable.semanticError;
+            case TypeTags.FINITE:
+                return types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) testType, expressionType) !=
+                        symTable.semanticError;
+        }
+        return false;
     }
 
     // private methods

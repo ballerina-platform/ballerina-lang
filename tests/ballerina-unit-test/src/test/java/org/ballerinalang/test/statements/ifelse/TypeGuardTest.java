@@ -424,6 +424,12 @@ public class TypeGuardTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(dataProvider = "typeNarrowingForIntersectingUnions")
+    public void testTypeNarrowingForIntersectingUnions(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @DataProvider(name = "finiteTypeAsBroaderTypesFunctions")
     public Object[][] finiteTypeAsBroaderTypesFunctions() {
         return new Object[][]{
@@ -448,6 +454,16 @@ public class TypeGuardTest {
                 {"testFiniteTypeAsComplexFiniteTypes_5"},
                 {"testFiniteTypeAsComplexFiniteTypes_6"},
                 {"testFiniteTypeAsComplexFiniteTypes_7"}
+        };
+    }
+
+    @DataProvider(name = "typeNarrowingForIntersectingUnions")
+    public Object[][] typeNarrowingForIntersectingUnions() {
+        return new Object[][]{
+                {"testTypeNarrowingForIntersectingDirectUnion_1"},
+                {"testTypeNarrowingForIntersectingDirectUnion_2"},
+                {"testTypeNarrowingForIntersectingAssignableUnion_1"},
+                {"testTypeNarrowingForIntersectingAssignableUnion_2"}
         };
     }
 }

@@ -569,6 +569,7 @@ public function testUpdatingTypeNarrowedGlobalVar() returns string {
 }
 
 type FooBarOneTwoTrue "foo"|"bar"|1|2.0|true;
+type FooBar "foo"|"bar";
 type OneTwo 1|2.0;
 
 function testFiniteTypeAsBroaderTypes_1() returns boolean {
@@ -596,7 +597,11 @@ function testFiniteTypeAsBroaderTypes_4() returns boolean {
 
 function finiteTypeAsBroaderTypesHelper(FooBarOneTwoTrue f) returns string {
     if (f is string) {
-        return string `string: ${f}`;
+        match f {
+            "foo" => return "string: foo";
+            "bar" => return "string: bar";
+        }
+        return "expected foo or bar!";
     } else {
         if (f is int|float) {
             int|float ot = f;
@@ -639,7 +644,12 @@ function testFiniteTypeAsBroaderTypesAndFiniteType_4() returns boolean {
 
 function finiteTypeAsBroaderTypesAndFiniteTypeHelper(FooBarOneTwoTrue f) returns string {
     if (f is string) {
-        return string `string: ${f}`;
+        FooBar fb = f;
+        match fb {
+            "foo" => return "string: foo";
+            "bar" => return "string: bar";
+        }
+        return "expected foo or bar!";
     } else {
         if (f is OneTwo) {
             OneTwo ot = f;
@@ -730,5 +740,47 @@ function finiteTypeAsComplexFiniteTypesHelperTwo(FooBarOneTwoBoolean f) returns 
             boolean x = f;
             return ("boolean", x);
         }
+    }
+}
+
+function testTypeNarrowingForIntersectingDirectUnion_1() returns boolean {
+    string s = "hello world";
+    string|typedesc st = s;
+    if (st is string|boolean) {
+        string s2 = st;
+        return s2 == s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingDirectUnion_2() returns boolean {
+    xml x = xml `Hello World`;
+    string|xml st = x;
+    if (st is string|boolean) {
+        return true;
+    } else {
+        xml t2 = st;
+        return t2 == x;
+    }
+}
+
+function testTypeNarrowingForIntersectingAssignableUnion_1() returns boolean {
+    string s = "hello world";
+    string|typedesc st = s;
+    if (st is json|xml) {
+        string s2 = st;
+        return s2 == s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingAssignableUnion_2() returns boolean {
+    record{} t = { name: "Maryam" };
+    string|record{} st = t;
+    if (st is json|xml) {
+        return true;
+    } else {
+        record{} t2 = st;
+        return t2 == t;
     }
 }
