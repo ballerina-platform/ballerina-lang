@@ -277,7 +277,9 @@ public class FiniteTypeTest {
 //                {"testByteOnlyFiniteTypeAssignmentToTypeWithByte"},
                 {"testFiniteTypeAssignmentToBroaderType"},
                 {"testFiniteTypeWithConstAssignmentToBroaderType"},
-                {"testFiniteTypeWithConstAndTypeAssignmentToBroaderType"}
+                {"testFiniteTypeWithConstAndTypeAssignmentToBroaderType"},
+                {"testFiniteTypesAsUnionsAsBroaderTypes_1"},
+                {"testFiniteTypesAsUnionsAsBroaderTypes_2"}
         };
     }
 }

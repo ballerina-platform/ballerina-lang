@@ -65,3 +65,10 @@ public const A = "a";
 
 public type AB A|"b";
 public type ABInt A|"b"|int;
+
+public const FOO = "foo";
+
+public type W "foo"|"bar"|1|2.0|true|3;
+public type X boolean|FOO|"bar"|1|2.0|3;
+public type Y string|int|boolean|2.0;
+public type Z string|int|float|boolean;

@@ -348,3 +348,38 @@ function testFiniteTypeWithConstAndTypeAssignmentToBroaderType() returns boolean
     s2 = ab;
     return assignmentSuccessful && ab == s2;
 }
+
+const FOO = "foo";
+
+type W "foo"|"bar"|1|2.0|true|3;
+type X boolean|FOO|"bar"|1|2.0|3;
+type Y string|int|boolean|2.0;
+type Z string|int|float|boolean;
+
+function testFiniteTypesAsUnionsAsBroaderTypes_1() returns boolean {
+    W a = "foo";
+    X b = a;
+    boolean assignmentSuccessful = a == b && b == FOO;
+
+    a = true;
+    b = a;
+    assignmentSuccessful = assignmentSuccessful && a == b && b == true;
+
+    a = 2.0;
+    Y c = a;
+    assignmentSuccessful = assignmentSuccessful && a == c && c == 2.0;
+
+    a = 1;
+    Z d = a;
+    return assignmentSuccessful && a == d && a == 1;
+}
+
+function testFiniteTypesAsUnionsAsBroaderTypes_2() returns boolean {
+    X a = true;
+    Y b = a;
+    boolean assignmentSuccessful = a == b && a == true;
+
+    b = 2.0;
+    Z c = b;
+    return assignmentSuccessful && b == c && c == 2.0;
+}

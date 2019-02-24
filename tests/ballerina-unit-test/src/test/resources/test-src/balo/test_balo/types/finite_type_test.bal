@@ -302,3 +302,31 @@ function testFiniteTypeWithConstAndTypeAssignmentToBroaderType() returns boolean
     s2 = ab;
     return assignmentSuccessful && ab == s2;
 }
+
+function testFiniteTypesAsUnionsAsBroaderTypes_1() returns boolean {
+    foo:W a = "foo";
+    foo:X b = a;
+    boolean assignmentSuccessful = a == b && b == foo:FOO;
+
+    a = true;
+    b = a;
+    assignmentSuccessful = assignmentSuccessful && a == b && b == true;
+
+    a = 2.0;
+    foo:Y c = a;
+    assignmentSuccessful = assignmentSuccessful && a == c && c == 2.0;
+
+    a = 1;
+    foo:Z d = a;
+    return assignmentSuccessful && a == d && a == 1;
+}
+
+function testFiniteTypesAsUnionsAsBroaderTypes_2() returns boolean {
+    foo:X a = true;
+    foo:Y b = a;
+    boolean assignmentSuccessful = a == b && a == true;
+
+    b = 2.0;
+    foo:Z c = b;
+    return assignmentSuccessful && b == c && c == 2.0;
+}

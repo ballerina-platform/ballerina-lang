@@ -529,19 +529,13 @@ public class Types {
             return true;
         }
 
+        if (source.tag == TypeTags.FINITE) {
+            return isFiniteTypeAssignable((BFiniteType) source, target, unresolvedTypes);
+        }
+
         if ((target.tag == TypeTags.UNION || source.tag == TypeTags.UNION) &&
                 isAssignableToUnionType(source, target, unresolvedTypes)) {
             return true;
-        }
-
-        // Check whether the source is a proper sub set of the target.
-        if (source.tag == TypeTags.FINITE) {
-            if (target.tag == TypeTags.FINITE) {
-                return ((BFiniteType) source).valueSpace.stream()
-                        .allMatch(expression -> isAssignableToFiniteType(target, (BLangLiteral) expression));
-            }
-            return ((BFiniteType) source).valueSpace.stream()
-                    .allMatch(expression -> isAssignable(expression.type, target, unresolvedTypes));
         }
 
         if (target.tag == TypeTags.JSON) {
@@ -1638,14 +1632,29 @@ public class Types {
             targetTypes.add(target);
         }
 
-        boolean notAssignable = sourceTypes
-                .stream()
-                .map(s -> targetTypes
-                        .stream()
-                        .anyMatch(t -> isAssignable(s, t, unresolvedTypes)))
-                .anyMatch(assignable -> !assignable);
+        return sourceTypes.stream()
+                .allMatch(s -> (targetTypes.stream()
+                                        .anyMatch(t -> isAssignable(s, t, unresolvedTypes))) ||
+                        (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes)));
+    }
 
-        return !notAssignable;
+    private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, List<TypePair> unresolvedTypes) {
+        if (targetType.tag == TypeTags.FINITE) {
+            return finiteType.valueSpace.stream()
+                    .allMatch(expression -> isAssignableToFiniteType(targetType, (BLangLiteral) expression));
+        }
+
+        if (targetType.tag == TypeTags.UNION) {
+            List<BType> unionMemberTypes = getAllTypes(targetType);
+            return finiteType.valueSpace.stream()
+                    .allMatch(valueExpr ->  unionMemberTypes.stream()
+                            .anyMatch(targetMemType -> targetMemType.tag == TypeTags.FINITE ?
+                                    isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
+                                    isAssignable(valueExpr.type, targetType, unresolvedTypes)));
+        }
+
+        return finiteType.valueSpace.stream()
+                .allMatch(expression -> isAssignable(expression.type, targetType, unresolvedTypes));
     }
 
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
