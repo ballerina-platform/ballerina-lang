@@ -1,4 +1,4 @@
-# Operators and Keywords
+# Operators, Keywords and Boundaries
 
 ## Single line formatting
 It is recommend to follow the following rules when applying white spaces on a line. 
