@@ -123,6 +123,7 @@ public class ReceivingEntityBody implements SenderState {
         if (endOfStream) {
             responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
             http2ClientChannel.removePromisedMessage(streamId);
+            responseMessage.setLastHttpContentArrived();
         } else {
             responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
         }
@@ -134,6 +135,7 @@ public class ReceivingEntityBody implements SenderState {
         if (endOfStream) {
             responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
             http2ClientChannel.removeInFlightMessage(streamId);
+            responseMessage.setLastHttpContentArrived();
         } else {
             responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
         }

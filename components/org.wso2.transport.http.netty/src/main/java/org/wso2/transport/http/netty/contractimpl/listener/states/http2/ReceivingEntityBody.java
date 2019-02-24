@@ -70,6 +70,7 @@ public class ReceivingEntityBody implements ListenerState {
         if (sourceReqCMsg != null) {
             if (dataFrame.isEndOfStream()) {
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
+                sourceReqCMsg.setLastHttpContentArrived();
                 http2SourceHandler.getStreamIdRequestMap().remove(streamId);
                 http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
             } else {
