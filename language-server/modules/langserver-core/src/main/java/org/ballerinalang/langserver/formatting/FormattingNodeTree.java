@@ -3535,21 +3535,10 @@ public class FormattingNodeTree {
                 // end brace of the template expression
                 for (JsonElement expressionItem : expressions) {
                     JsonObject expression = expressionItem.getAsJsonObject();
-                    if (expression.has("startTemplateLiteral")
-                            && expression.get("startTemplateLiteral").getAsBoolean()) {
-                        expression.add(FormattingConstants.FORMATTING_CONFIG,
-                                this.getFormattingConfig(0, 0, 0, false,
-                                        this.getWhiteSpaceCount(indentationOfParent), true));
-                    } else if (expression.has("endTemplateLiteral")
-                            && expression.get("endTemplateLiteral").getAsBoolean()) {
-                        expression.add(FormattingConstants.FORMATTING_CONFIG,
-                                this.getFormattingConfig(0, 0, 0, false,
-                                        this.getWhiteSpaceCount(indentationOfParent), true));
-                    } else {
-                        expression.add(FormattingConstants.FORMATTING_CONFIG,
-                                this.getFormattingConfig(0, 0, 0, false,
-                                        this.getWhiteSpaceCount(indentationOfParent), true));
-                    }
+                    expression.add(FormattingConstants.FORMATTING_CONFIG,
+                            this.getFormattingConfig(0, 0, 0, false,
+                                    this.getWhiteSpaceCount(indentationOfParent), true));
+
                 }
             }
         }
