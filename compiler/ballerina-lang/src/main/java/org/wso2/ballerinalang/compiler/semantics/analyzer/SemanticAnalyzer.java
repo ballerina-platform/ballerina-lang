@@ -256,7 +256,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         // Lambda functions declared globally will be added to the module init function. So we need to increment two.
-        // Ignore the init functions of record and object types
         if (funcNode.flagSet.contains(Flag.LAMBDA) && env.enclEnv != null && env.enclEnv.node != null &&
                 env.enclEnv.node.getKind() == NodeKind.PACKAGE) {
             funcEnv.envCount = funcEnv.envCount + 2;

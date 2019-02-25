@@ -236,15 +236,14 @@ public class IterableCodeDesugar {
         ctx.iteratorFuncSymbol = funcNode.symbol;
 
         // Cache the parameter symbols of the operations
-        int j = 0;
+        int operationIndex = 0;
         for (BLangSimpleVariable reqParam : funcNode.requiredParams) {
-            // ignore the first param which is the collector var
-            if (reqParam.equals(ctx.collectionVar)) {
-                j++;
+            // Ignore the collection var
+            if (reqParam.symbol == ctx.collectionVar.symbol) {
                 continue;
             }
-            ctx.operations.get(j - 1).paramSymbol = reqParam.symbol;
-            j++;
+            ctx.operations.get(operationIndex).paramSymbol = reqParam.symbol;
+            operationIndex++;
         }
 
         LinkedList<Operation> streamableOperations = new LinkedList<>();
