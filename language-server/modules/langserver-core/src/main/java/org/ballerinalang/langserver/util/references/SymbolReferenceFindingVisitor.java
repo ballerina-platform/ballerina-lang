@@ -101,7 +101,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     private LSContext lsContext;
     private boolean terminateVisitor = false;
     private SymbolReferencesModel symbolReferences;
-//    private List<Integer> referenceLines;
     private String tokenName;
     private String cUnitName;
     private int cursorLine;
@@ -590,8 +589,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     private void addSymbol(BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getSymbolAtCursor();
+        // Here, tsymbol check has been added in order to support the finite types
         if (!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol
-                && symbolAtCursor.get().getSymbol() != bSymbol.type.tsymbol)) {
+                && symbolAtCursor.get().getSymbol() != bSymbol.type.tsymbol
+                && symbolAtCursor.get().getSymbol().type.tsymbol != bSymbol.type.tsymbol)) {
             return;
         }
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);

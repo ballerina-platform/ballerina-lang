@@ -17,13 +17,11 @@ package org.ballerinalang.langserver.common.constants;
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
-import org.ballerinalang.langserver.util.references.TokenReferenceModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -55,11 +53,6 @@ public class NodeContextKeys {
     public static final LSContext.Key<List<PackageID>> REFERENCE_PKG_IDS_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<String> NODE_NAME_KEY
-            = new LSContext.Key<>();
-    // Maps the package name to the token references and references map is key to cUnit and to list of token models
-    public static final LSContext.Key<Map<String, Map<String, List<TokenReferenceModel>>>> TOKEN_REFERENCES_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<List<TokenReferenceModel>> CURRENT_CUNIT_TOKENS_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<SymbolReferencesModel> REFERENCES_KEY
             = new LSContext.Key<>();
