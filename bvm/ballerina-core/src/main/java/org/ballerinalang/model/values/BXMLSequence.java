@@ -539,7 +539,7 @@ public final class BXMLSequence extends BXML<BValueArray> {
      *
      * @since 0.990.4
      */
-    static class CodePointIterator implements BIterator{
+    static class CodePointIterator implements BIterator {
         private String charSequence;
         private int offset;
 
@@ -555,12 +555,12 @@ public final class BXMLSequence extends BXML<BValueArray> {
 
         @Override
         public BValue getNext() {
-            int codepoint = charSequence.codePointAt(offset);
-            offset += Character.charCount(codepoint);
+            int codePoint = charSequence.codePointAt(offset);
+            offset += Character.charCount(codePoint);
 
             // Max 2 chars per code point.
             StringBuilder sb = new StringBuilder(2);
-            sb.appendCodePoint(codepoint);
+            sb.appendCodePoint(codePoint);
             return new BString(sb.toString());
         }
 

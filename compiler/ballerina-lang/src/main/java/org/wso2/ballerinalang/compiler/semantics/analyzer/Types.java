@@ -794,7 +794,7 @@ public class Types {
             case TypeTags.XML:
                 LinkedHashSet<BType> bTypes = new LinkedHashSet<>();
                 bTypes.add(symTable.xmlType);
-                bTypes.add(new BArrayType(symTable.stringType));
+                bTypes.add(symTable.stringType);
                 mapType.constraint = new BUnionType(null, bTypes, false);
                 break;
             case TypeTags.TABLE:
