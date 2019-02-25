@@ -6,7 +6,7 @@ This module includes functions to interact with the runtime, the invocation cont
 
 The Invocation Context is a data holder that is created per request and preserved for a single request-response flow.
 The Invocation Context comprises of a unique ID, a `UserPrincipal` instance that includes user details and an 
- `AuthContext` instance that has the authentication related details if available.
+ `AuthenticationContext` instance that has the authentication related details if available.
 
 ### Errors
 

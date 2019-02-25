@@ -132,6 +132,11 @@
             <artifactId>ballerina-task</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-crypto</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

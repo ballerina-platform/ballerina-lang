@@ -2305,7 +2305,7 @@
         <jackson.version>2.9.8</jackson.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
         <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
-        <orbit.version.axiom>1.2.20</orbit.version.axiom>
+        <orbit.version.axiom>1.2.22</orbit.version.axiom>
         <c14n.axiom.orbit.version>1.2.11-wso2v11</c14n.axiom.orbit.version>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
         <jaxen.version>1.1.6</jaxen.version>
@@ -2400,7 +2400,7 @@
 
         <!-- gRPC support for microservice -->
         <com.google.protobuf.version>3.5.1</com.google.protobuf.version>
-        <protobuf.maven.plugin.version>0.5.0</protobuf.maven.plugin.version>
+        <protobuf.maven.plugin.version>0.6.1</protobuf.maven.plugin.version>
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
 
         <mvel2.version>2.4.4.Final</mvel2.version>
