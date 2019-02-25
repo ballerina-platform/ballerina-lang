@@ -11,7 +11,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -59,6 +61,10 @@ public interface TypeVisitor {
     void visit(BXMLAttributesType bxmlAttributesType);
 
     void visit(BXMLType bxmlType);
+
+    void visit(BRecordType bRecordType);
+
+    void visit(BObjectType bObjectType);
 
     void visit(BType bType);
 }

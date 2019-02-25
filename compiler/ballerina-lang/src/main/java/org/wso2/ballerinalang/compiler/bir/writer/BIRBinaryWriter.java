@@ -22,6 +22,7 @@ import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 
@@ -57,6 +58,8 @@ public class BIRBinaryWriter {
         int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         birbuf.writeInt(pkgIndex);
 
+        // Write type defs
+        writeTypeDefs(birbuf, typeWriter, birPackage.typeDefs);
         // Write functions
         writeFunctions(birbuf, typeWriter, birPackage.functions);
 
@@ -76,6 +79,19 @@ public class BIRBinaryWriter {
     }
 
     // private methods
+
+    private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
+        buf.writeInt(birTypeDefList.size());
+        birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, typeDef));
+    }
+
+    private void writeType(ByteBuf buf, BIRTypeWriter typeWriter, BIRTypeDefinition typeDef) {
+        // Type name CP Index
+        buf.writeInt(addStringCPEntry(typeDef.name.value));
+        // Visibility
+        buf.writeByte(typeDef.visibility.value());
+        typeDef.type.accept(typeWriter);
+    }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRNode.BIRFunction> birFunctionList) {
         buf.writeInt(birFunctionList.size());
