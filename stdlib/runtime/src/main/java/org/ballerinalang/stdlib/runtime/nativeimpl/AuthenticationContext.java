@@ -23,34 +23,34 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * AuthContext represents and holds the authentication information.
+ * AuthenticationContext represents and holds the authentication information.
  *
  * @since 0.970.0
  */
-public class AuthContext {
+public class AuthenticationContext {
 
     public static final String AUTH_SCHEME_KEY = "scheme";
     public static final String AUTH_TOKEN_KEY = "authToken";
 
-    private BMap<String, BValue> authContextStruct;
+    private BMap<String, BValue> authenticationContextStruct;
 
-    public AuthContext(BMap<String, BValue> authContextStruct) {
-        this.authContextStruct = authContextStruct;
+    public AuthenticationContext(BMap<String, BValue> authContextStruct) {
+        this.authenticationContextStruct = authContextStruct;
     }
 
     public String getScheme() {
-        return authContextStruct.get(AUTH_SCHEME_KEY).stringValue();
+        return authenticationContextStruct.get(AUTH_SCHEME_KEY).stringValue();
     }
 
     public void setScheme(String authType) {
-        authContextStruct.put(AUTH_SCHEME_KEY, new BString(authType));
+        authenticationContextStruct.put(AUTH_SCHEME_KEY, new BString(authType));
     }
 
     public String getAuthToken() {
-        return authContextStruct.get(AUTH_TOKEN_KEY).stringValue();
+        return authenticationContextStruct.get(AUTH_TOKEN_KEY).stringValue();
     }
 
     public void setAuthToken(String authToken) {
-        authContextStruct.put(AUTH_TOKEN_KEY, new BString(authToken));
+        authenticationContextStruct.put(AUTH_TOKEN_KEY, new BString(authToken));
     }
 }
