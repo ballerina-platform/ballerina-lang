@@ -61,7 +61,7 @@ public class BallerinaStreamsV2HoppingWindowTest {
 
     }
 
-    @Test(description = "Test hopping window query when windowSize << hopeSize")
+    @Test(description = "Test hopping window query when windowSize << hopeSize", enabled = false)
     public void testHoppingWindowQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startHoppingWindowTest2");
         Assert.assertNotNull(outputEmployeeEvents);
@@ -69,7 +69,7 @@ public class BallerinaStreamsV2HoppingWindowTest {
         Assert.assertEquals(outputEmployeeEvents.length, 0, "Expected events are not received");
     }
 
-    @Test(description = "Test hopping window query when windowSize < hopeSize")
+    @Test(description = "Test hopping window query when windowSize < hopeSize", enabled = false)
     public void testHoppingWindowQuery3() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result3, "startHoppingWindowTest3");
         Assert.assertNotNull(outputEmployeeEvents);
