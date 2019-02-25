@@ -117,7 +117,7 @@ kubectl apply -f target/kubernetes/2
 
 TIMEOUT=300
 INTERVAL=20
-bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
+bash '../../product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
 
 READY_STATUS=$?
 
