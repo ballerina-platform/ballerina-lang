@@ -1253,111 +1253,22 @@ public class BVM {
             return invokeCallable(ctx, functionInfo, argRegs, funcCallCPEntry.getRetRegs()[0], flags);
         }
 
+        // If there are closure variables
         int[] newArgRegs = new int[argRegs.length + closureVars.size()];
         System.arraycopy(argRegs, 0, newArgRegs, closureVars.size(), argRegs.length);
         int argRegIndex = 0;
-
-        int longIndex = expandLongRegs(sf, fp);
-        int doubleIndex = expandDoubleRegs(sf, fp);
-        int intIndex = expandIntRegs(sf, fp);
-        int stringIndex = expandStringRegs(sf, fp);
+        // Closure variables will be always passed as maps of <any|error?> type, so they will be always in the ref
+        // registry
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
-            switch (closure.getType().getTag()) {
-                case TypeTags.INT_TAG: {
-                    sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
-                    newArgRegs[argRegIndex++] = longIndex++;
-                    break;
-                }
-                case TypeTags.BYTE_TAG: {
-                    sf.intRegs[intIndex] = ((BByte) closure.value()).byteValue();
-                    newArgRegs[argRegIndex++] = intIndex++;
-                    break;
-                }
-                case TypeTags.FLOAT_TAG: {
-                    sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
-                    newArgRegs[argRegIndex++] = doubleIndex++;
-                    break;
-                }
-                case TypeTags.BOOLEAN_TAG: {
-                    sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
-                    newArgRegs[argRegIndex++] = intIndex++;
-                    break;
-                }
-                case TypeTags.STRING_TAG: {
-                    sf.stringRegs[stringIndex] = (closure.value()).stringValue();
-                    newArgRegs[argRegIndex++] = stringIndex++;
-                    break;
-                }
-                default:
-                    sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
-                    newArgRegs[argRegIndex++] = refIndex++;
-            }
+            sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
+            newArgRegs[argRegIndex++] = refIndex++;
         }
 
         return invokeCallable(ctx, functionInfo, newArgRegs, funcCallCPEntry.getRetRegs()[0], flags);
     }
 
-    private static int expandLongRegs(StackFrame sf, BFunctionPointer fp) {
-        int longIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
-            if (sf.longRegs == null) {
-                sf.longRegs = new long[0];
-            }
-            long[] newLongRegs = new long[sf.longRegs.length + fp.getAdditionalIndexCount(BTypes.typeInt.getTag())];
-            System.arraycopy(sf.longRegs, 0, newLongRegs, 0, sf.longRegs.length);
-            longIndex = sf.longRegs.length;
-            sf.longRegs = newLongRegs;
-        }
-        return longIndex;
-    }
-
-    private static int expandIntRegs(StackFrame sf, BFunctionPointer fp) {
-        int intIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0 ||
-                fp.getAdditionalIndexCount(BTypes.typeByte.getTag()) > 0) {
-            if (sf.intRegs == null) {
-                sf.intRegs = new int[0];
-            }
-            int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) +
-                    fp.getAdditionalIndexCount(BTypes.typeByte.getTag())];
-            System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
-            intIndex = sf.intRegs.length;
-            sf.intRegs = newIntRegs;
-        }
-        return intIndex;
-    }
-
-    private static int expandDoubleRegs(StackFrame sf, BFunctionPointer fp) {
-        int doubleIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeFloat.getTag()) > 0) {
-            if (sf.doubleRegs == null) {
-                sf.doubleRegs = new double[0];
-            }
-            double[] newDoubleRegs = new double[sf.doubleRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
-            System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
-            doubleIndex = sf.doubleRegs.length;
-            sf.doubleRegs = newDoubleRegs;
-        }
-        return doubleIndex;
-    }
-
-    private static int expandStringRegs(StackFrame sf, BFunctionPointer fp) {
-        int stringIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeString.getTag()) > 0) {
-            if (sf.stringRegs == null) {
-                sf.stringRegs = new String[0];
-            }
-            String[] newStringRegs = new String[sf.stringRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeString.getTag())];
-            System.arraycopy(sf.stringRegs, 0, newStringRegs, 0, sf.stringRegs.length);
-            stringIndex = sf.stringRegs.length;
-            sf.stringRegs = newStringRegs;
-        }
-        return stringIndex;
-    }
 
     private static int expandRefRegs(StackFrame sf, BFunctionPointer fp) {
         int refIndex = 0;
@@ -1387,43 +1298,10 @@ public class BVM {
         //or else, this is a closure related scenario
         for (int i = 0; i < h; i++) {
             int operandIndex = i + 4;
-            int type = operands[operandIndex];
-            int index = operands[++operandIndex];
-            switch (type) {
-                case TypeTags.INT_TAG: {
-                    fp.addClosureVar(new BClosure(new BInteger(sf.longRegs[index]), BTypes.typeInt),
-                            TypeTags.INT_TAG);
-                    break;
-                }
-                case TypeTags.BYTE_TAG: {
-                    fp.addClosureVar(new BClosure(new BByte((byte) sf.intRegs[index]), BTypes.typeByte),
-                            TypeTags.BYTE_TAG);
-                    break;
-                }
-                case TypeTags.FLOAT_TAG: {
-                    fp.addClosureVar(new BClosure(new BFloat(sf.doubleRegs[index]), BTypes.typeFloat),
-                            TypeTags.FLOAT_TAG);
-                    break;
-                }
-                case TypeTags.DECIMAL_TAG: {
-                    fp.addClosureVar(new BClosure(sf.refRegs[index], BTypes.typeDecimal),
-                            TypeTags.DECIMAL_TAG);
-                    break;
-                }
-                case TypeTags.BOOLEAN_TAG: {
-                    fp.addClosureVar(new BClosure(new BBoolean(sf.intRegs[index] == 1),
-                            BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
-                    break;
-                }
-                case TypeTags.STRING_TAG: {
-                    fp.addClosureVar(new BClosure(new BString(sf.stringRegs[index]), BTypes.typeString),
-                            TypeTags.STRING_TAG);
-                    break;
-                }
-                default:
-                    fp.addClosureVar(new BClosure(sf.refRegs[index], BTypes.typeAny), TypeTags.ANY_TAG);
-            }
-            i++;
+            int index = operands[operandIndex];
+            // Closure variables will be always passed as maps of <any|error?> type, so they will be always in the ref
+            // registry
+            fp.addClosureVar(new BClosure(sf.refRegs[index], BTypes.typeAny), TypeTags.ANY_TAG);
         }
     }
 

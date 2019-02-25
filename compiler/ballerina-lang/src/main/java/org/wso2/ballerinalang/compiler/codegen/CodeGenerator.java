@@ -3460,9 +3460,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
 
         for (BVarSymbol symbol : function.resolvedClosureMaps) {
-            Operand type = new Operand(symbol.type.tag);
             Operand index = new Operand(symbol.varIndex.value);
-            closureOperandList.add(type);
             closureOperandList.add(index);
         }
         Operand[] operands;
