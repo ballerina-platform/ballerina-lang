@@ -93,7 +93,7 @@ public type Scheduler object {
                 self.running = false;
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
-                    self.timer = new({ interval: 1000, initialDelay: 0, noOfRecurrences: 1 });
+                    self.timer = new({ interval: 1, initialDelay: 0, noOfRecurrences: 1 });
                     _ = self.timer.attachService(schedulerService, serviceParameter = self);
                     _ = self.timer.run();
                 }
