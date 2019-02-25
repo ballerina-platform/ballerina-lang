@@ -23,7 +23,7 @@ function testAuthSuccess() {
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
             scheme: http:BASIC_AUTH,
-            basicAuthConfig: {
+            config: {
                 username: "tom",
                 password: "password1"
             }
@@ -44,7 +44,7 @@ function testAuthnFailure() {
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
             scheme: http:BASIC_AUTH,
-            basicAuthConfig: {
+            config: {
                 username: "tom",
                 password: "password"
             }
@@ -65,7 +65,7 @@ function testAuthzFailure() {
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
             scheme: http:BASIC_AUTH,
-            basicAuthConfig: {
+            config: {
                 username: "dick",
                 password: "password2"
             }

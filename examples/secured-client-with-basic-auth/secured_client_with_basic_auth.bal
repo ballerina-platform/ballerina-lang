@@ -8,7 +8,7 @@ import ballerina/log;
 http:Client httpEndpoint = new("https://localhost:9090", config = {
     auth: {
         scheme: http:BASIC_AUTH,
-        basicAuthConfig: {
+        config: {
             username: "tom",
             password: "1234"
         }

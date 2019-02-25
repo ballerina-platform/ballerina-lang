@@ -18,7 +18,7 @@ import ballerina/http;
 
 http:AuthProvider basicAuthProvider17 = {
     scheme: http:JWT_AUTH,
-    jwtAuthProviderConfig: {
+    config: {
         issuer: "example1",
         audience: ["ballerina"],
         certificateAlias: "ballerina",
@@ -42,7 +42,7 @@ listener http:Listener listener17_1 = new(9107, config = {
 http:Client nyseEP17 = new("https://localhost:9108", config = {
     auth: {
         scheme: http:JWT_AUTH,
-        jwtAuthConfig: {
+        config: {
             inferredJwtIssuerConfig: {
                 issuer: "ballerina",
                 audience: ["ballerina"],
@@ -80,7 +80,7 @@ service passthroughService17 on listener17_1 {
 
 http:AuthProvider jwtAuthProvider17 = {
     scheme: http:JWT_AUTH,
-    jwtAuthProviderConfig: {
+    config: {
         issuer: "example2aaaaaaaaaaaaaa",
         audience: ["ballerina"],
         certificateAlias: "ballerina",

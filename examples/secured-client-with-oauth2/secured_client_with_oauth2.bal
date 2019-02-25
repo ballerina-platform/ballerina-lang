@@ -8,7 +8,7 @@ import ballerina/log;
 http:Client httpEndpoint = new("https://www.googleapis.com/tasks/v1", config = {
     auth: {
         scheme: http:OAUTH2,
-        oAuth2AuthConfig: {
+        config: {
             accessToken: "ya29.GlufBimE7JZdiB_FpFtZn7p1WMtloVeMlqiYXDGF97068VvJCyK8rEFqBBkxT10E0qudipwxTjJTkU4we0hbOcHKjNTXz6JTEZYoRVn7F3-0O_bL9g71Rwek7TFI",
             clientId: "833478926540-va43h2lhdhfc06i9eivlmaehl3o5uk1i.apps.googleusercontent.com",
             clientSecret: "4ZsV4gwSuIoRdy6TKUXTanlw",

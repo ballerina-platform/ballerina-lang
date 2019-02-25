@@ -34,7 +34,7 @@ listener http:Listener listener11 = new(9192, config = {
 http:Client nyseEP03 = new("https://localhost:9193", config = {
     auth: {
         scheme: http:JWT_AUTH,
-        jwtAuthConfig: {
+        config: {
             inferredJwtIssuerConfig: {
                 issuer: "ballerina",
                 audience: ["ballerina"],
@@ -72,7 +72,7 @@ service passthroughService03 on listener11 {
 
 http:AuthProvider jwtAuthProvider03 = {
     scheme: http:JWT_AUTH,
-    jwtAuthProviderConfig: {
+    config: {
         issuer: "ballerina",
         audience: ["ballerina"],
         certificateAlias: "ballerina",

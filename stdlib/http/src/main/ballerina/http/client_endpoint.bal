@@ -322,15 +322,10 @@ public type ProxyConfig record {
 # AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
 # + scheme - Authentication scheme
-# + basicAuthConfig - Configuration for BasicAuth scheme
-# + oAuth2AuthConfig - Configuration for OAuth2 scheme
-# + jwtAuthConfig - Configuration for JWT scheme. If inbound authentication is JWT, sends the same JWT with client
-#                   invocation, unless reissuing is configured using InferredJwtIssuerConfig.
+# + config - Configuration related to the selected authenticator.
 public type AuthConfig record {
     OutboundAuthScheme scheme;
-    BasicAuthConfig basicAuthConfig?;
-    OAuth2AuthConfig oAuth2AuthConfig?;
-    JwtAuthConfig jwtAuthConfig?;
+    BasicAuthConfig|OAuth2AuthConfig|JwtAuthConfig config?;
     !...;
 };
 
@@ -339,8 +334,8 @@ public type AuthConfig record {
 # + username - Username for Basic authentication
 # + password - Password for Basic authentication
 public type BasicAuthConfig record {
-    string username = "";
-    string password = "";
+    string username;
+    string password;
     !...;
 };
 
@@ -374,7 +369,8 @@ public type OAuth2AuthConfig record {
 #
 # + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
 public type JwtAuthConfig record {
-    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig?;
+    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig;
+    !...;
 };
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {

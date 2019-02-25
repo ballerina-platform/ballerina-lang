@@ -44,7 +44,7 @@ http:AuthProvider basicAuthProvider = {
     id: "basic01",
     scheme: http:BASIC_AUTH,
     authStoreProvider: http:LDAP_AUTH_STORE,
-    ldapAuthProviderConfig: ldapAuthProviderConfig
+    config: ldapAuthProviderConfig
 };
 
 listener http:Listener ep = new(9096, config = {

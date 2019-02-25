@@ -51,7 +51,7 @@ listener http:Listener publisherServiceEP = new http:Listener(8080);
 websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, config = {
     auth: {
         scheme: http:BASIC_AUTH,
-        basicAuthConfig: {
+        config: {
             username: "peter",
             password: "pqr"
         }

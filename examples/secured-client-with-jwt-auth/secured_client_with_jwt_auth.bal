@@ -40,7 +40,7 @@ public function main() {
 // Create a JWT authentication provider with the relevant configurations.
 http:AuthProvider jwtAuthProvider = {
     scheme: http:JWT_AUTH,
-    jwtAuthProviderConfig: {
+    config: {
         issuer: "ballerina",
         audience: ["ballerina.io"],
         certificateAlias: "ballerina",

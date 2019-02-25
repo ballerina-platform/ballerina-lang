@@ -4,7 +4,7 @@ import ballerina/http;
 // parameters. 
 http:AuthProvider jwtAuthProvider = {
     scheme: http:JWT_AUTH,
-    jwtAuthProviderConfig: {
+    config: {
         issuer:"ballerina",
         audience: ["ballerina.io"],
         certificateAlias: "ballerina",

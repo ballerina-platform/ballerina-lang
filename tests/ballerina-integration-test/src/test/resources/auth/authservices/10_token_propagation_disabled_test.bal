@@ -58,7 +58,7 @@ service passthroughService on listener10_1 {
 
 http:AuthProvider jwtAuthProvider10 = {
     scheme: http:JWT_AUTH,
-    jwtAuthProviderConfig: {
+    config: {
         issuer: "ballerina",
         audience: ["ballerina"],
         certificateAlias: "ballerina",

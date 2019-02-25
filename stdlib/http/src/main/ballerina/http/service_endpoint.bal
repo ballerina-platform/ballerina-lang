@@ -216,16 +216,12 @@ public type AuthCacheConfig record {
 # + id - Authentication provider instance id
 # + scheme - Authentication scheme
 # + authStoreProvider - Authentication store provider (Config, LDAP, etc.) implementation
-# + ldapAuthProviderConfig - LDAP auth provider related configurations
-# + configAuthProviderConfig - Config auth provider related configurations
-# + jwtAuthProviderConfig - JWT auth provider related configurations
+# + config - Configuration related to the selected authentication provider.
 public type AuthProvider record {
     string id = "";
     InboundAuthScheme? scheme = ();
     AuthStoreProvider? authStoreProvider = ();
-    auth:LdapAuthProviderConfig? ldapAuthProviderConfig = ();
-    auth:ConfigAuthProviderConfig? configAuthProviderConfig = ();
-    auth:JWTAuthProviderConfig? jwtAuthProviderConfig = ();
+    auth:LdapAuthProviderConfig|auth:ConfigAuthProviderConfig|auth:JWTAuthProviderConfig? config = ();
     !...;
 };
 
@@ -293,21 +289,20 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
             auth:AuthStoreProvider authStoreProvider = new;
 
             foreach var provider in authProviderList {
+                var authProviderConfig = provider.config;
                 if (provider.scheme == BASIC_AUTH) {
                     if (provider.authStoreProvider == LDAP_AUTH_STORE) {
-                        var ldapAuthProviderConfig = provider.ldapAuthProviderConfig;
-                        if (ldapAuthProviderConfig is auth:LdapAuthProviderConfig) {
-                            auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(ldapAuthProviderConfig, instanceId);
+                        if (authProviderConfig is auth:LdapAuthProviderConfig) {
+                            auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authProviderConfig, instanceId);
                             authStoreProvider = ldapAuthStoreProvider;
                         } else {
                             error e = error("LDAP auth provider config not provided");
                             panic e;
                         }
                     } else if (provider.authStoreProvider == CONFIG_AUTH_STORE) {
-                        var configAuthProviderConfig = provider.configAuthProviderConfig;
                         auth:ConfigAuthStoreProvider configAuthStoreProvider;
-                        if (configAuthProviderConfig is auth:ConfigAuthProviderConfig) {
-                            configAuthStoreProvider = new(configAuthProviderConfig);
+                        if (authProviderConfig is auth:ConfigAuthProviderConfig) {
+                            configAuthStoreProvider = new(authProviderConfig);
                         } else {
                             configAuthStoreProvider = new({});
                         }
@@ -329,21 +324,20 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
 }
 
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
+    var authProviderConfig = authProvider.config;
     if (authProvider.scheme == BASIC_AUTH) {
         auth:AuthStoreProvider authStoreProvider = new;
         if (authProvider.authStoreProvider == CONFIG_AUTH_STORE) {
-            var configAuthProviderConfig = authProvider.configAuthProviderConfig;
             auth:ConfigAuthStoreProvider configAuthStoreProvider;
-            if (configAuthProviderConfig is auth:ConfigAuthProviderConfig) {
-                configAuthStoreProvider = new(configAuthProviderConfig);
+            if (authProviderConfig is auth:ConfigAuthProviderConfig) {
+                configAuthStoreProvider = new(authProviderConfig);
             } else {
                 configAuthStoreProvider = new({});
             }
             authStoreProvider = configAuthStoreProvider;
         } else if (authProvider.authStoreProvider == LDAP_AUTH_STORE) {
-            var ldapAuthProviderConfig = authProvider.ldapAuthProviderConfig;
-            if (ldapAuthProviderConfig is auth:LdapAuthProviderConfig) {
-                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(ldapAuthProviderConfig, instanceId);
+            if (authProviderConfig is auth:LdapAuthProviderConfig) {
+                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authProviderConfig, instanceId);
                 authStoreProvider = ldapAuthStoreProvider;
             } else {
                 error e = error("LDAP auth provider config not provided");
@@ -356,9 +350,8 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
         return basicAuthHandler;
     } else if (authProvider.scheme == JWT_AUTH){
-        var jwtAuthProviderConfig = authProvider.jwtAuthProviderConfig;
-        if (jwtAuthProviderConfig is auth:JWTAuthProviderConfig) {
-            auth:JWTAuthProvider jwtAuthProvider = new(jwtAuthProviderConfig);
+        if (authProviderConfig is auth:JWTAuthProviderConfig) {
+            auth:JWTAuthProvider jwtAuthProvider = new(authProviderConfig);
             HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
             return jwtAuthnHandler;
         } else {

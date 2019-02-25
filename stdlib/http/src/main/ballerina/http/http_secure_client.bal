@@ -302,38 +302,37 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 function generateSecureRequest(Request req, ClientEndpointConfig config) returns ()|error {
     var auth = config.auth;
     if (auth is AuthConfig) {
+        var authConfig = auth["config"];
         if (auth.scheme == BASIC_AUTH) {
-            var basicAuthConfig = auth["basicAuthConfig"];
-            if (basicAuthConfig is ()) {
-                error e = error("Basic auth config not provided");
-                panic e;
-            } else {
-                string username = basicAuthConfig.username;
-                string password = basicAuthConfig.password;
+            if (authConfig is BasicAuthConfig) {
+                string username = authConfig.username;
+                string password = authConfig.password;
                 string str = username + ":" + password;
                 string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
+            } else {
+                error e = error("Basic auth config not provided");
+                panic e;
             }
         } else if (auth.scheme == OAUTH2) {
-            var oAuth2AuthConfig = auth["oAuth2AuthConfig"];
-            if (oAuth2AuthConfig is ()) {
-                error e = error("OAuth2 config not provided");
-                panic e;
-            } else {
-                string accessToken = oAuth2AuthConfig.accessToken;
+            if (authConfig is OAuth2AuthConfig) {
+                string accessToken = authConfig.accessToken;
                 if (accessToken == EMPTY_STRING) {
                     return updateRequestAndConfig(req, config);
                 } else {
                     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
                 }
+            } else {
+                error e = error("OAuth2 config not provided");
+                panic e;
             }
         } else if (auth.scheme == JWT_AUTH) {
-            var jwtAuthConfig = auth["jwtAuthConfig"];
             string authToken = EMPTY_STRING;
-            if (jwtAuthConfig is ()) {
-                authToken = runtime:getInvocationContext().authenticationContext.authToken;
-            } else {
-                var jwtIssuerConfig = jwtAuthConfig["inferredJwtIssuerConfig"];
+            if (authConfig is OAuth2AuthConfig || authConfig is BasicAuthConfig) {
+                error e = error("JWT auth config not provided");
+                panic e;
+            } else if (authConfig is JwtAuthConfig) {
+                var jwtIssuerConfig = authConfig["inferredJwtIssuerConfig"];
                 if (jwtIssuerConfig is ()) {
                     authToken = runtime:getInvocationContext().authenticationContext.authToken;
                 } else {
@@ -360,6 +359,8 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         return token;
                     }
                 }
+            } else {
+                authToken = runtime:getInvocationContext().authenticationContext.authToken;
             }
             if (authToken == EMPTY_STRING) {
                 error err = error(HTTP_ERROR_CODE, { message: "JWT was not used during inbound authentication.
@@ -383,7 +384,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
 function updateRequestAndConfig(Request req, ClientEndpointConfig config) returns ()|error {
     string accessToken = check getAccessTokenFromRefreshToken(config);
     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-    OAuth2AuthConfig? authConfig = config.auth.oAuth2AuthConfig;
+    var authConfig = config.auth.config;
     if (authConfig is OAuth2AuthConfig) {
         authConfig.accessToken = accessToken;
     }
@@ -396,13 +397,13 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
 # + return - AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns string|error {
     Client refreshTokenClient;
-    var oAuth2AuthConfig = config.auth.oAuth2AuthConfig;
-    if (oAuth2AuthConfig is OAuth2AuthConfig) {
-        string refreshToken = oAuth2AuthConfig.refreshToken;
-        string clientId = oAuth2AuthConfig.clientId;
-        string clientSecret = oAuth2AuthConfig.clientSecret;
-        string refreshUrl = oAuth2AuthConfig.refreshUrl;
-        string[] scopes = oAuth2AuthConfig.scopes;
+    var authConfig = config.auth.config;
+    if (authConfig is OAuth2AuthConfig) {
+        string refreshToken = authConfig.refreshToken;
+        string clientId = authConfig.clientId;
+        string clientSecret = authConfig.clientSecret;
+        string refreshUrl = authConfig.refreshUrl;
+        string[] scopes = authConfig.scopes;
 
         if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING
             || refreshUrl == EMPTY_STRING) {
@@ -424,7 +425,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
             if (scopeString != EMPTY_STRING) {
                 textPayload = textPayload + "&scope=" + scopeString.trim();
             }
-            if (oAuth2AuthConfig.credentialBearer == AUTH_HEADER_BEARER) {
+            if (authConfig.credentialBearer == AUTH_HEADER_BEARER) {
                 string clientIdSecret = clientId + ":" + clientSecret;
                 refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
                         encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));

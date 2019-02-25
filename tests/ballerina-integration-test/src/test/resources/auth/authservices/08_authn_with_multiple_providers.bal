@@ -18,7 +18,7 @@ import ballerina/http;
 
 http:AuthProvider jwtAuthProvider1 = {
     scheme: http:JWT_AUTH,
-    jwtAuthProviderConfig: {
+    config: {
         issuer: "example1",
         audience: ["ballerina"],
         certificateAlias: "ballerina",
@@ -31,7 +31,7 @@ http:AuthProvider jwtAuthProvider1 = {
 
 http:AuthProvider jwtAuthProvider2 = {
     scheme: http:JWT_AUTH,
-    jwtAuthProviderConfig: {
+    config: {
         issuer: "example2",
         audience: ["ballerina"],
         certificateAlias: "ballerina",
