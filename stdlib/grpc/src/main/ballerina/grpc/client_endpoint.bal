@@ -29,7 +29,7 @@ public type Client client object {
     public function __init(string url, ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
-        self.init(self.url, self.config, globalHttpClientConnPool);
+        self.init(self.url, self.config, globalGrpcClientConnPool);
     }
 
     extern function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig);

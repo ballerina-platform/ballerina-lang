@@ -26,7 +26,7 @@ function testGlobalPoolConfig() returns grpc:Client?[] {
     return clients;
 }
 
-function testSharedConfig() returns grpc:Client?[] {
+function testSharedPoolConfig() returns grpc:Client?[] {
     grpc:Client client1 = new("http://localhost:8080", config = { poolConfig: sharedPoolConfig });
     grpc:Client client2 = new("http://localhost:8080", config = { poolConfig: sharedPoolConfig });
     grpc:Client?[] clients = [client1, client2];

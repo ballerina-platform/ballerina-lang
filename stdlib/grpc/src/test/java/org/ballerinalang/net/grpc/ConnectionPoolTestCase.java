@@ -61,8 +61,8 @@ public class ConnectionPoolTestCase {
     }
 
     @Test
-    public void testSharedConfig() {
-        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSharedConfig");
+    public void testSharedPoolConfig() {
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSharedPoolConfig");
         Assert.assertEquals(returns.length, 2);
         ConnectionManager connectionManager1 = verifyPoolConfig(returns[0]);
         ConnectionManager connectionManager2 = verifyPoolConfig(returns[1]);

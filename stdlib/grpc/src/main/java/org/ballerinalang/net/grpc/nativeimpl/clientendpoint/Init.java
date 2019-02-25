@@ -101,15 +101,10 @@ public class Init extends BlockingNativeCallableUnit {
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
         populateSenderConfigurations(senderConfiguration, endpointConfig);
-        ConnectionManager poolManager;
         BMap<String, BValue> userDefinedPoolConfig = (BMap<String, BValue>) endpointConfigStruct.get(
                 HttpConstants.USER_DEFINED_POOL_CONFIG);
-
-        if (userDefinedPoolConfig == null) {
-            poolManager = getConnectionManager(globalPoolConfig);
-        } else {
-            poolManager = getConnectionManager(userDefinedPoolConfig);
-        }
+        ConnectionManager poolManager = userDefinedPoolConfig == null ? getConnectionManager(globalPoolConfig) :
+                getConnectionManager(userDefinedPoolConfig);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
         senderConfiguration.setForceHttp2(true);
         HttpClientConnector clientConnector = httpConnectorFactory.createHttpClientConnector(properties,

@@ -16,7 +16,7 @@
 
 import ballerina/config;
 
-# Configurations for managing HTTP client connection pool.
+# Configurations for managing gRPC client connection pool.
 #
 # + maxActiveConnections - Max active connections per route(host:port). Default value is -1 which indicates unlimited.
 # + maxIdleConnections - Maximum number of idle connections allowed per pool.
@@ -27,16 +27,22 @@ public type PoolConfiguration record {
     int maxIdleConnections = config:getAsInt("b7a.http.pool.maxIdleConnections", default = 1000);
     int waitTimeinMillis = config:getAsInt("b7a.http.pool.waitTimeinMillis", default = 60000);
     int maxActiveStreamsPerConnection = config:getAsInt("b7a.http.pool.maxActiveStreamsPerConnection", default = 50);
+    !...;
 };
 
 //This is a hack to get the global map initialized, without involving locking.
 type ConnectionManager object {
-    public PoolConfiguration poolConfig = {};
+    private PoolConfiguration poolConfig = {};
+
     public function __init() {
         self.initGlobalPool(self.poolConfig);
     }
     extern function initGlobalPool(PoolConfiguration poolConfig);
+
+    public function getPoolConfiguration() returns PoolConfiguration {
+        return self.poolConfig;
+    }
 };
 
 ConnectionManager connectionManager = new;
-PoolConfiguration globalHttpClientConnPool = connectionManager.poolConfig;
+PoolConfiguration globalGrpcClientConnPool = connectionManager.getPoolConfiguration();
