@@ -95,13 +95,13 @@ public function main() returns error? {
      // Randomly generate a 128 bit key for AES encryption.
      byte[16] rsaKeyArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
      foreach var i in 0...15 {
-        rsaKeyArr[i] = check byte.convert(math:randomInRange(0, 255));
+        rsaKeyArr[i] = byte.convert(math:randomInRange(0, 255));
      }
 
      // Randomly generate a 128 bit IV for AES encryption.
      byte[16] ivArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
      foreach var i in 0...15 {
-        ivArr[i] = check byte.convert(math:randomInRange(0, 255));
+        ivArr[i] = byte.convert(math:randomInRange(0, 255));
      }
 
      // Encrypt and decrypt input value using AES CBC PKCS5 padding.
