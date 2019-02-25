@@ -643,15 +643,13 @@ public class CompiledPackageSymbolEnter {
             // Get finite type.
             String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
             BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
+
             // Get value type.
             String valueTypeSig = getUTF8CPEntryValue(dataInStream);
             BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
-            // Todo - Use type signature instead of type tag?
-            int typeTag = dataInStream.readInt();
-
             // Get the simple literal value.
-            Object object = readSimpleLiteralValue(dataInStream, typeTag);
+            Object object = readSimpleLiteralValue(dataInStream, valueType.tag);
 
             // Create the constant symbol.
             constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
@@ -714,10 +712,11 @@ public class CompiledPackageSymbolEnter {
     private BLangLiteral readSimpleLiteral(DataInputStream dataInStream) throws IOException {
         // Todo - Remove?
         int finiteTypeSigCPIndex = dataInStream.readInt();
-        int valueTypeSigCPIndex = dataInStream.readInt();
 
-        // Todo - Use type signature instead of type tag?
-        int typeTag = dataInStream.readInt();
+        String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+        BType valueType = getBTypeFromDescriptor(valueTypeSig);
+
+        int typeTag = valueType.tag;
 
         // Read the value.
         Object value = readSimpleLiteralValue(dataInStream, typeTag);

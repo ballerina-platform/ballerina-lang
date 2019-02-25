@@ -601,12 +601,12 @@ public class PackageInfoReader {
         boolean isSimpleLiteral = dataInStream.readBoolean();
 
         if (isSimpleLiteral) {
-            readSimpleLiteral();
+            readSimpleLiteral(packageInfo);
         } else {
             // Read and ignore value cp index.
             dataInStream.readInt();
             // Read and ignore map constant value.
-            readMapLiteral();
+            readMapLiteral(packageInfo);
         }
 
         // Read and ignore attributes.
@@ -616,17 +616,17 @@ public class PackageInfoReader {
         }
     }
 
-    private void readSimpleLiteral() throws IOException {
+    private void readSimpleLiteral(PackageInfo packageInfo) throws IOException {
         // Read and ignore finite type CP index.
         dataInStream.readInt();
 
-        // Read and ignore value type CP index.
-        dataInStream.readInt();
+        // Read the value type CP index and get type.
+       int valueTypeSigCPIndex= dataInStream.readInt();
+        UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(valueTypeSigCPIndex);
+        BType type = this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo),
+                resNameUTF8Entry.getValue());
 
-        // Read and ignore literal value type tag.
-        int typeTag = dataInStream.readInt();
-
-        switch (typeTag) {
+        switch (type.getTag()) {
             case TypeTags.BOOLEAN_TAG:
                 dataInStream.readBoolean();
                 break;
@@ -640,11 +640,11 @@ public class PackageInfoReader {
             case TypeTags.NULL_TAG:
                 break;
             default:
-                throw new RuntimeException("unexpected type tag: " + typeTag);
+                throw new RuntimeException("unexpected type tag: " + type.getTag());
         }
     }
 
-    private void readMapLiteral() throws IOException {
+    private void readMapLiteral(PackageInfo packageInfo) throws IOException {
         // Read size.
         int size = dataInStream.readInt();
         for (int i = 0; i < size; i++) {
@@ -654,12 +654,12 @@ public class PackageInfoReader {
             boolean isSimpleLiteral = dataInStream.readBoolean();
             if (isSimpleLiteral) {
                 // Read simple literal info.
-                readSimpleLiteral();
+                readSimpleLiteral(packageInfo);
             } else {
                 // Read record literal type signature CP index.
                 dataInStream.readInt();
                 // Read map literal info.
-                readMapLiteral();
+                readMapLiteral(packageInfo);
             }
         }
     }

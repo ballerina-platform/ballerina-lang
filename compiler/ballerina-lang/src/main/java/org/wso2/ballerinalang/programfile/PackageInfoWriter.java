@@ -255,9 +255,6 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(constantValue.finiteTypeSigCPIndex);
         dataOutStream.writeInt(constantValue.valueTypeSigCPIndex);
 
-        // Todo - remove value type tag and use value type above?
-        dataOutStream.writeInt(constantValue.literalValueTypeTag);
-
         switch (constantValue.literalValueTypeTag) {
             case TypeTags.BOOLEAN:
                 dataOutStream.writeBoolean(constantValue.booleanValue);
