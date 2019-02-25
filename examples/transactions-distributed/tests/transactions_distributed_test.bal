@@ -1,5 +1,6 @@
 import ballerina/test;
 import ballerina/log;
+import ballerina/io;
 
 string[] outputs = [];
 int count = 0;
@@ -54,5 +55,7 @@ function foundMatch(string[] arr, string target) returns boolean {
             return true;
         }
     }
+    string messages = io:sprintf("messages=[%s]", arr);
+    log:printWarn(messages);
     return false;
 }

@@ -1,5 +1,10 @@
 import ballerina/io;
 
+type Person record {
+    string name;
+    string location?;
+};
+
 function name1() {
     float c = 0;
 }
@@ -36,4 +41,10 @@ function name7() returns int {
 
 function name8() returns (int, string) {
     return (0, "");
+}
+
+function name9() returns (Person) {
+    return {
+        name: ""
+    };
 }
