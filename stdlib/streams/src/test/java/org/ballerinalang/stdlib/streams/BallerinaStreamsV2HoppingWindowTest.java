@@ -43,7 +43,7 @@ public class BallerinaStreamsV2HoppingWindowTest {
         result3 = BCompileUtil.compile("test-src/streamingv2-hopping-window-test3.bal");
     }
 
-    @Test(description = "Test hopping window query when windowSize > hopeSize")
+    @Test(description = "Test hopping window query when windowSize > hopeSize", enabled = false)
     public void testHoppingWindowQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startHoppingWindowTest");
         Assert.assertNotNull(outputEmployeeEvents);
