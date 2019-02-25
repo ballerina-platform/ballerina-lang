@@ -29,7 +29,7 @@ function testJsonIntToString() returns string|error {
     json j = 5;
     int value;
     value = check trap <int>j;
-    return <string> value;
+    return string.convert(value);
 }
 
 function stringtofloat(string value) returns float|error {
@@ -42,35 +42,27 @@ function stringtofloat(string value) returns float|error {
 function inttostring(int value) returns (string) {
     string result;
     //int to string should be a conversion
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 
 function floattostring(float value) returns (string) {
     string result;
     //float to string should be a conversion
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 
 function booleantostring(boolean value) returns (string) {
     string result;
     //boolean to string should be a conversion
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 
 function booleanappendtostring(boolean value) returns (string) {
     string result;
     result = value + "-append-" + value;
-    return result;
-}
-
-function anyfloattostring() returns (string) {
-    any value = 5.5;
-    string result;
-    //any to string should be a conversion
-    result = <string>value;
     return result;
 }
 

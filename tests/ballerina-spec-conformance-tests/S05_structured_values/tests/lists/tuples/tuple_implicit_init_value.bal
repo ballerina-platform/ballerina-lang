@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,26 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testInvalidExplicitTypeFromString() {
-    string s1 = "Ballerina says Hello World";
-    string s2 = getString(s1);
+import ballerina/test;
 
-    float f1 = <float> s1;
-    anydata f2 = <float> s2;
-
-    anydata d1 = <decimal> s1;
-    decimal d2 = <decimal> s2;
-
-    int i1 = <int> s1;
-    anydata i2 = <int> s2;
-
-    anydata b1 = <byte> s1;
-    byte b2 = <byte> s2;
-
-    anydata bl1 = <boolean> s1;
-    boolean bl2 = <boolean> s2;
-}
-
-function getString(string s) returns string {
-    return s;
+@test:Config {}
+function testImplicitInitialValuesBroken() {
+    (int, boolean, string)[] tupleArray = [];
+    tupleArray[1] = (200, true, "test string");
+    (int, boolean, string) expTuple = (0, false, "");
+    test:assertEquals(tupleArray[0], expTuple,
+        msg = "expected implicit initial value of (int, boolean, string) to be (0, false, \"\")");
 }

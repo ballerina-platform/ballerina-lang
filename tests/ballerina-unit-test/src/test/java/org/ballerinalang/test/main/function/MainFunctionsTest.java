@@ -30,19 +30,16 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Paths;
-import java.security.Permission;
 
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
 
 /**
  * Tests related to the main function.
@@ -56,14 +53,10 @@ public class MainFunctionsTest {
     private ProgramFile programFile;
     private ByteArrayOutputStream tempOutStream = new ByteArrayOutputStream();
     private PrintStream defaultOut;
-    private SecurityManager defaultSecurityManager;
-
 
     @BeforeClass
     public void setup() {
         defaultOut = System.out;
-        defaultSecurityManager = System.getSecurityManager();
-        System.setSecurityManager(new NoSecuritySecurityManager());
     }
 
     @Test
@@ -153,65 +146,15 @@ public class MainFunctionsTest {
                       17, 71);
     }
 
-    @Test(dataProvider = "mainFunctionStatusCodes")
-    public void testStatusCode(String specifiedCodeAsString, int expectedCode) throws IOException {
-        try {
-            programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
-                                                Paths.get ("test_main_with_error_or_nil_return.bal"), false, true);
-            LauncherUtils.runMain(programFile, new String[]{"error", specifiedCodeAsString});
-            fail("expected System.exit() to be called");
-        } catch (NoSecuritySecurityManager.NoSecuritySecurityException e) {
-            assertEquals(e.getStatus(), expectedCode);
-        }
-    }
-
     @AfterClass
     public void tearDown() throws IOException {
         tempOutStream.close();
         System.setOut(defaultOut);
-        System.setSecurityManager(defaultSecurityManager);
     }
 
     private void resetTempOut() throws IOException {
         tempOutStream.close();
         tempOutStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(tempOutStream));
-    }
-
-    private class NoSecuritySecurityManager extends SecurityManager {
-        private final class NoSecuritySecurityException extends SecurityException {
-            private final int status;
-
-            private NoSecuritySecurityException(final int status) {
-                this.status = status;
-            }
-
-            public int getStatus() {
-                return this.status;
-            }
-        }
-
-        @Override
-        public void checkPermission(Permission perm) {
-        }
-
-        @Override
-        public void checkExit(final int status) {
-            throw new NoSecuritySecurityException(status);
-        }
-    }
-
-    @DataProvider(name = "mainFunctionStatusCodes")
-    public Object[][] mainFunctionStatusCodes() {
-        return new Object[][]{
-                {"0", 1},
-                {"1", 1},
-                {"43", 43},
-                {"255", 255},
-                {"256", 256},
-                {"-1", 1},
-                {"2147483647", 2147483647},
-                {"2147483648", 2147483647}
-        };
     }
 }
