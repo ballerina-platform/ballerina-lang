@@ -621,7 +621,7 @@ public class PackageInfoReader {
         dataInStream.readInt();
 
         // Read the value type CP index and get type.
-       int valueTypeSigCPIndex= dataInStream.readInt();
+        int valueTypeSigCPIndex = dataInStream.readInt();
         UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(valueTypeSigCPIndex);
         BType type = this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo),
                 resNameUTF8Entry.getValue());
