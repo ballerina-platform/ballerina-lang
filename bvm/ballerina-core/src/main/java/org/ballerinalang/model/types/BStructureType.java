@@ -29,9 +29,9 @@ import java.util.Map;
  */
 public abstract class BStructureType extends BType {
 
-    private Map<String, BField> fields;
-    private int[] fieldTypeCount;
-    private BAttachedFunction[] attachedFunctions;
+    protected Map<String, BField> fields;
+    protected int[] fieldTypeCount;
+    protected BAttachedFunction[] attachedFunctions;
     public BAttachedFunction initializer;
     public BAttachedFunction defaultsValuesInitFunc;
     public int flags;

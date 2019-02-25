@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
@@ -32,6 +32,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -119,8 +120,8 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-            String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
-            String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
+            String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
+            String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
             switch (argKey) {
                 case CommandConstants.ARG_KEY_DOC_URI:
                     documentUri = argVal;
@@ -176,7 +177,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
         edits.add(new TextEdit(new Range(position, position), editText));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
-        return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit), client);
+        return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
     }
 
     private TextEdit addPackage(String pkgName, BLangPackage srcOwnerPkg, LSContext context) {

@@ -510,7 +510,7 @@ service initiatorService on new http:Listener(8888) {
             if (reqText is string) {
                 log:printInfo("req to remote: " + reqText);
             }
-            var result = separateRMParticipant01 -> post("/success", req);
+            var result = separateRMParticipant01 -> post("/success", untaint req);
             if (result is http:Response) {
                 s += " [remote-status:" + result.statusCode + "] ";
                 var p = result.getTextPayload();

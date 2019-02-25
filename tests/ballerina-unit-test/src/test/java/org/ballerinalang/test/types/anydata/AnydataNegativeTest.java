@@ -72,10 +72,10 @@ public class AnydataNegativeTest {
         // Test invalid array assignments
         validateError(result, index++, "incompatible types: expected 'anydata', found 'Bar[]'", 96, 10);
         validateError(result, index++,
-                "incompatible types: expected 'anydata', found 'function (string) returns (boolean)[]'", 99, 10);
+                "incompatible types: expected 'anydata', found 'function (string) returns (boolean)?[]'", 99, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'any[]'", 102, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'typedesc[]'", 105, 10);
-        validateError(result, index++, "incompatible types: expected 'anydata', found 'stream[]'", 108, 10);
+        validateError(result, index++, "incompatible types: expected 'anydata', found 'stream?[]'", 108, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'any[][]'", 111, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'map[]'", 114, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'map<Bar>[]'", 117, 10);

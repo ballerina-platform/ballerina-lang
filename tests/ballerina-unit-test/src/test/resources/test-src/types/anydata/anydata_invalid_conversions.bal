@@ -171,5 +171,5 @@ type Foo record {
 
 type ClosedFoo record {
     int ca;
-    !...
+    !...;
 };

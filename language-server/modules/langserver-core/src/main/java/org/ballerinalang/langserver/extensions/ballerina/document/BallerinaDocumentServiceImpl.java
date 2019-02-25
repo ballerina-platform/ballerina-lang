@@ -52,6 +52,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -189,11 +190,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
                 // create text edit
                 TextEdit textEdit = new TextEdit(range, textEditContent);
-                WorkspaceEdit workspaceEdit = new WorkspaceEdit();
                 ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
                 TextDocumentEdit textDocumentEdit = new TextDocumentEdit(params.getDocumentIdentifier(),
                         Collections.singletonList(textEdit));
-                workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+                WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections
+                        .singletonList(Either.forLeft(textDocumentEdit)));
                 applyWorkspaceEditParams.setEdit(workspaceEdit);
 
                 ballerinaLanguageServer.getClient().applyEdit(applyWorkspaceEditParams);
@@ -297,11 +298,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             // create text edit
             TextEdit textEdit = new TextEdit(range, textEditContent);
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
             ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
-            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
+            TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
                     Collections.singletonList(textEdit));
-            workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+
+            WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
             applyWorkspaceEditParams.setEdit(workspaceEdit);
 
             // update the document
@@ -518,9 +519,18 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                                 tree, firstTokenIndex);
                                         targetResourceInfoOperation.add(sourceKeyValue);
                                     } else {
+                                        // Add new key value pair to the annotation record.
                                         FormattingSourceGen.reconcileWS(sourceKeyValue, targetResourceInfoOperation,
                                                 tree, -1);
                                         targetResourceInfoOperation.add(sourceKeyValue);
+
+                                        if (targetResourceInfoOperation.size() > 1) {
+                                            // Add a new comma to separate the new key value pair.
+                                            int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
+                                                    .getAsJsonObject().get("i").getAsInt();
+                                            FormattingSourceGen.addNewWS(matchedTargetResourceInfo
+                                                    .getAsJsonObject("value"), tree, "", ",", true, startIndex);
+                                        }
                                     }
                                 }
 
@@ -564,9 +574,17 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                         .getAsJsonArray("keyValuePairs"), tree, firstTokenIndex);
                                 matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
                             } else {
+                                // Add the new record key value pair.
                                 FormattingSourceGen.reconcileWS(sourceKeyValue, matchedTargetRecord
                                         .getAsJsonArray("keyValuePairs"), tree, -1);
                                 matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
+
+                                if (matchedTargetRecord.getAsJsonArray("keyValuePairs").size() > 1) {
+                                    // Add a new comma to separate the new key value pair.
+                                    int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
+                                            .getAsJsonObject().get("i").getAsInt();
+                                    FormattingSourceGen.addNewWS(matchedTargetRecord, tree, "", ",", true, startIndex);
+                                }
                             }
                         }
                     }

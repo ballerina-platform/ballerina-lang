@@ -64,4 +64,8 @@ function testFunc() {
     res = <json>outputs[5];
     res.remove("headers");
     test:assertEquals(res, jsonRes5);
+
+    test:assertEquals(outputs[6], "\nUse custom HTTP verbs:");
+    test:assertEquals(outputs[7], "Content-Type: application/json; charset=utf-8");
+    test:assertEquals(outputs[8], "Status code: 200");
 }

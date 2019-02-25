@@ -27,15 +27,15 @@ public type userBar object {
     public function getZipcode() returns (string);
 };
 
-function userBar.getName() returns (string) {
+public function userBar.getName() returns (string) {
     return self.name;
 }
 
-function userBar.getAge() returns (int) {
+public function userBar.getAge() returns (int) {
     return self.age;
 }
 
-function userBar.getZipcode() returns (string) {
+public function userBar.getZipcode() returns (string) {
     return self.zipcode;
 }
 
@@ -50,6 +50,6 @@ public type BarObj object {
     }
 };
 
-function BarObj.getName() returns (string) {
+public function BarObj.getName() returns (string) {
     return self.name;
 }

@@ -10,9 +10,9 @@ final string REMOTE_BACKEND = "ws://echo.websocket.org";
 }
 service SimpleProxyService on new http:WebSocketListener(9090) {
 
-    // This resource triggered when a new client is connected.
-    // Since messages to the server are not read by service until `onOpen` resource execution finishes,
-    // operations which should happen before reading messages should be done in `onOpen` resource.
+    // This resource gets invoked when a new client connects.
+    // Since messages to the server are not read by the service until the execution of the `onOpen` resource finishes,
+    // operations which should happen before reading messages should be done in the `onOpen` resource.
     resource function onOpen(http:WebSocketCaller caller) {
 
         http:WebSocketClient wsClientEp = new(
@@ -34,7 +34,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
         }
     }
 
-    //This resource is triggered when a new text frame is received from a client.
+    //This resource gets invoked upon receiving a new text frame from a client.
     resource function onText(http:WebSocketCaller caller, string text,
                                 boolean finalFrame) {
 
@@ -47,7 +47,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
         }
     }
 
-    //This resource is triggered when a new binary frame is received from a client.
+    //This resource gets invoked upon receiving a new binary frame from a client.
     resource function onBinary(http:WebSocketCaller caller, byte[] data,
                                 boolean finalFrame) {
 
@@ -60,7 +60,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
         }
     }
 
-    //This resource is triggered when an error occurs in the connection.
+    //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketCaller caller, error err) {
 
         http:WebSocketClient clientEp =
@@ -76,7 +76,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
                         err = err);
     }
 
-    //This resource is triggered when a client connection is closed from the client side.
+    //This resource gets invoked when a client connection is closed from the client side.
     resource function onClose(http:WebSocketCaller caller, int statusCode,
                                 string reason) {
 
@@ -94,7 +94,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
 //Client service to receive frames from the remote server.
 service ClientService = @http:WebSocketServiceConfig {} service {
 
-    //This resource is triggered when a new text frame is received from the remote backend.
+    //This resource gets invoked upon receiving a new text frame from the remote backend.
     resource function onText(http:WebSocketClient caller, string text,
                                 boolean finalFrame) {
 
@@ -107,7 +107,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
         }
     }
 
-    //This resource is triggered when a new binary frame is received from the remote backend.
+    //This resource gets invoked upon receiving a new binary frame from the remote backend.
     resource function onBinary(http:WebSocketClient caller, byte[] data,
                                 boolean finalFrame) {
 
@@ -120,7 +120,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
         }
     }
 
-    //This resource is triggered when an error occurs in the connection.
+    //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketClient caller, error err) {
 
         http:WebSocketCaller serverEp =
@@ -136,7 +136,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
                         err = err);
     }
 
-    //This resource is triggered when a client connection is closed by the remote backend.
+    //This resource gets invoked when a client connection is closed by the remote backend.
     resource function onClose(http:WebSocketClient caller, int statusCode,
                                 string reason) {
 

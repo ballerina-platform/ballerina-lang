@@ -50,7 +50,7 @@ type TrxErrorData record {
     string message = "";
     error? cause = ();
     string data = "";
-    !...
+    !...;
 };
 
 public function testCustomErrorDetails() returns error {
@@ -109,7 +109,7 @@ function testOneLinePanic() returns string[] {
         results[3] = error3.reason();
         var detail = error3.detail();
         results[4] = <string>detail.message;
-        results[5] = <string>detail.statusCode;
+        results[5] = string.convert(detail.statusCode);
     }
 
     return results;

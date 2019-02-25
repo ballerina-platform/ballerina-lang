@@ -32,7 +32,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
+import static org.ballerinalang.stdlib.common.CommonTestUtils.printDiagnostics;
 
 /**
  * Test class for cache package.
@@ -45,12 +45,7 @@ public class CacheTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/cache/cache-test.bal");
-        printDiagnostics(compileResult);
-    }
-
-    private void printDiagnostics(CompileResult timerCompileResult) {
-        Arrays.asList(timerCompileResult.getDiagnostics()).
-                forEach(e -> log.info(e.getMessage() + " : " + e.getPosition()));
+        printDiagnostics(compileResult, log);
     }
 
     @Test

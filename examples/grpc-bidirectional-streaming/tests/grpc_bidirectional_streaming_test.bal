@@ -32,6 +32,7 @@ function testBidiStreamingService() {
 
     int waitCount = 0;
     while(!received) {
+        io:println(responseMsg);
         runtime:sleep(1000);
         if (waitCount > 10) {
             break;
@@ -41,7 +42,7 @@ function testBidiStreamingService() {
     test:assertEquals(received, true, msg = "Server message didn't receive.");
     string expected = "Sam: Hi";
     test:assertEquals(responseMsg, expected);
-    // Once all messages are sent, client send complete message to notify the server, I’m done.
+    // Once all messages are sent, client send complete message to notify the server, I am done.
     _ = ep->complete();
 }
 

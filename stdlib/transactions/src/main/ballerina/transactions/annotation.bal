@@ -21,7 +21,7 @@
 public type TransactionParticipantConfig record {
     function (string) oncommit?;
     function (string) onabort?;
-    !...
+    !...;
 };
 
 /////////////////////////////////////////

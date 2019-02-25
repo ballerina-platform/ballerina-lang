@@ -15,7 +15,9 @@ import ballerina/log;
 http:Client cachingEP = new("http://localhost:8080",
                             config = { cache: { isShared: true } });
 
-@http:ServiceConfig { basePath: "/cache" }
+@http:ServiceConfig {
+    basePath: "/cache"
+}
 service cachingProxy on new http:Listener(9090) {
 
     @http:ResourceConfig {
@@ -50,7 +52,9 @@ service cachingProxy on new http:Listener(9090) {
 json payload = { "message": "Hello, World!" };
 
 // Sample backend service which serves cacheable responses.
-@http:ServiceConfig { basePath: "/hello" }
+@http:ServiceConfig {
+    basePath: "/hello"
+}
 service helloWorld on new http:Listener(8080) {
 
     @http:ResourceConfig { path: "/" }
@@ -74,8 +78,8 @@ service helloWorld on new http:Listener(8080) {
         res.cacheControl = resCC;
 
         // The `setETag()` function can be used for generating ETags for
-        // `string`, `json`, and `xml` types. This uses the `getCRC32()
-        // ` function from the `ballerina/crypto` module for generating the ETag.
+        // `string`, `json`, and `xml` types. This uses the `getCRC32()`
+        // function from the `ballerina/crypto` module for generating the ETag.
         res.setETag(payload);
 
         // The `setLastModified()` function sets the current time as the

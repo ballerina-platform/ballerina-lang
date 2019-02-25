@@ -37,6 +37,7 @@ public class BallerinaStreamsV2JoinTest {
     private CompileResult result;
     private CompileResult resultWithAlias;
     private CompileResult resultWithoutOnCondition;
+    private CompileResult resultWithoutWindow;
 
     @BeforeClass
     public void setup() {
@@ -44,6 +45,8 @@ public class BallerinaStreamsV2JoinTest {
         resultWithAlias = BCompileUtil.compile("test-src/alias/streamingv2-join-test.bal");
         resultWithoutOnCondition = BCompileUtil.
                 compile("test-src/streamingv2-join-without-on-condition-test.bal");
+        resultWithoutWindow = BCompileUtil.
+                compile("test-src/streamingv2-join-without-window-test.bal");
     }
 
     @Test(description = "Test stream join query.")
@@ -97,4 +100,21 @@ public class BallerinaStreamsV2JoinTest {
         Assert.assertEquals(stock3.get("symbol").stringValue(), "WSO2");
         Assert.assertEquals(((BFloat) stock3.get("price")).floatValue(), 58.6);
     }
+
+    @Test(description = "Test stream join without window query.")
+    public void testStreamJoinWithoutWindowQuery() {
+        BValue[] stocksWithPrices = BRunUtil.invoke(resultWithoutWindow, "startJoinQuery");
+        Assert.assertNotNull(stocksWithPrices);
+        Assert.assertEquals(stocksWithPrices.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> stock1 = (BMap<String, BValue>) stocksWithPrices[0];
+        BMap<String, BValue> stock2 = (BMap<String, BValue>) stocksWithPrices[1];
+
+        Assert.assertEquals(stock1.get("symbol").stringValue(), "WSO2");
+        Assert.assertEquals(((BFloat) stock1.get("price")).floatValue(), 55.6);
+
+        Assert.assertEquals(stock2.get("symbol").stringValue(), "WSO2");
+        Assert.assertEquals(((BFloat) stock2.get("price")).floatValue(), 58.6);
+    }
+
 }

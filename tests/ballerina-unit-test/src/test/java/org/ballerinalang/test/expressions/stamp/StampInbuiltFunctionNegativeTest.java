@@ -70,7 +70,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testStampNegativeTest() {
 
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
+        Assert.assertEquals(compileResult.getErrorCount(), 7);
 
         //Negative test case to verify the unsupported type for stamp operation.
         BAssertUtil.validateError(compileResult, 0,
@@ -78,27 +78,27 @@ public class StampInbuiltFunctionNegativeTest {
                 34, 35);
 
         //Negative test case to verify the no of arguments get passed to stamp function.
-        BAssertUtil.validateError(compileResult, 2,
+        BAssertUtil.validateError(compileResult, 1,
                 "too many arguments in call to 'stamp()'",
                 41, 24);
 
         //Negative test case to confirm primitive types are not supported for stamp operation.
-        BAssertUtil.validateError(compileResult, 4,
+        BAssertUtil.validateError(compileResult, 2,
                 "stamp function on type 'string' is not supported",
                 48, 22);
 
         //Negative test case to confirm primitive types are not supported for stamp operation.
-        BAssertUtil.validateError(compileResult, 6,
+        BAssertUtil.validateError(compileResult, 3,
                 "incompatible stamp type: type 'string[]' cannot be stamped as type 'any'",
                 55, 20);
 
         //Negative test case to confirm values cannot be stamped as primitive type.
-        BAssertUtil.validateError(compileResult, 8,
+        BAssertUtil.validateError(compileResult, 4,
                 "incompatible stamp type: type 'any' cannot be stamped as type 'string'",
                 62, 27);
 
         //Negative test case to confirm invalid types cannot be used as argument for stamp function.
-        BAssertUtil.validateError(compileResult, 10,
+        BAssertUtil.validateError(compileResult, 5,
                 "undefined symbol 'TestType'",
                 70, 24);
     }
@@ -106,7 +106,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testRecordStampNegativeTest() {
 
-        Assert.assertEquals(recordNegativeTestCompileResult.getErrorCount(), 16);
+        Assert.assertEquals(recordNegativeTestCompileResult.getErrorCount(), 8);
 
         //Negative test case to confirm record cannot be stamped as xml.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 0,
@@ -115,42 +115,42 @@ public class StampInbuiltFunctionNegativeTest {
                 58, 20);
 
         //Negative test case to confirm open record to closed record stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 2,
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 1,
                 "incompatible stamp type: type 'Teacher' cannot be stamped as " +
                         "type 'Employee'",
                 65, 25);
 
         //Negative test case to confirm closed record to closed record stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 4,
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 2,
                 "incompatible stamp type: type 'Person' cannot be stamped as type 'Student'",
                 73, 23);
 
         //Negative test case to confirm closed record to object stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 6,
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 3,
                 "incompatible stamp type: type 'Teacher' cannot be stamped as " +
                         "type 'TeacherObj'",
                 81, 30);
 
         //Negative test case to confirm closed record to map stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 8,
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 4,
                 "incompatible stamp type: type 'Person' cannot be stamped as " +
                         "type 'map<string>'",
                 89, 28);
 
         //Negative test case to confirm closed record to array stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 10,
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 5,
                 "incompatible stamp type: type 'Employee' cannot be stamped as type" +
                         " 'string[]'",
                 96, 28);
 
         //Negative test case to confirm closed record to tuple stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 12,
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 6,
                 "incompatible stamp type: type 'Employee' cannot be stamped as type" +
                         " '(string,string)'",
                 104, 35);
 
         //Negative test case to confirm record(with  object) to anydata stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 14,
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 7,
                 "stamp function on type 'ExtendedEmployee' is not supported",
                 125, 28);
     }
@@ -158,7 +158,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testJSONStampNegativeTest() {
 
-        Assert.assertEquals(jsonNegativeTestCompileResult.getErrorCount(), 6);
+        Assert.assertEquals(jsonNegativeTestCompileResult.getErrorCount(), 3);
 
         //Negative test case to confirm record cannot be stamped as xml.
         BAssertUtil.validateError(jsonNegativeTestCompileResult, 0,
@@ -166,12 +166,12 @@ public class StampInbuiltFunctionNegativeTest {
                         "'xml'", 28, 20);
 
         //Negative test case to confirm record cannot be stamped as xml.
-        BAssertUtil.validateError(jsonNegativeTestCompileResult, 2,
+        BAssertUtil.validateError(jsonNegativeTestCompileResult, 1,
                 "incompatible stamp type: type 'json' cannot be stamped as " +
                         "type 'EmployeeObj'", 35, 31);
 
         //Negative test case to confirm record cannot be stamped as tuple.
-        BAssertUtil.validateError(jsonNegativeTestCompileResult, 4,
+        BAssertUtil.validateError(jsonNegativeTestCompileResult, 2,
                 "incompatible stamp type: type 'json' cannot be stamped as " +
                         "type '(string,string)'", 43, 35);
     }
@@ -179,7 +179,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testXMLStampNegativeTest() {
 
-        Assert.assertEquals(xmlNegativeTestCompileResult.getErrorCount(), 12);
+        Assert.assertEquals(xmlNegativeTestCompileResult.getErrorCount(), 6);
 
         //Negative test case to confirm xml cannot be stamped as record.
         BAssertUtil.validateError(xmlNegativeTestCompileResult, 0,
@@ -187,27 +187,27 @@ public class StampInbuiltFunctionNegativeTest {
                 29, 30);
 
         //Negative test case to confirm xml cannot be stamped as json.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 2,
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 1,
                 "incompatible stamp type: type 'xml' cannot be stamped as type 'json'",
                 37, 22);
 
         //Negative test case to confirm xml cannot be stamped as Object.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 4,
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 2,
                 "incompatible stamp type: type 'xml' cannot be stamped as type 'BookObject'",
                 45, 30);
 
         //Negative test case to confirm xml cannot be stamped as map.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 6,
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 3,
                 "incompatible stamp type: type 'xml' cannot be stamped as type 'map'",
                 53, 25);
 
         //Negative test case to confirm xml cannot be stamped as array.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 8,
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 4,
                 "incompatible stamp type: type 'xml' cannot be stamped as type 'BookRecord[]'",
                 61, 31);
 
         //Negative test case to confirm xml cannot be stamped as tuple.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 10,
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 5,
                 "incompatible stamp type: type 'xml' cannot be stamped as type '(string,string)'",
                 69, 35);
     }
@@ -215,7 +215,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testMapStampNegativeTest() {
 
-        Assert.assertEquals(mapNegativeTestCompileResult.getErrorCount(), 8);
+        Assert.assertEquals(mapNegativeTestCompileResult.getErrorCount(), 4);
 
         //Negative test case to confirm map cannot be stamped as xml.
         BAssertUtil.validateError(mapNegativeTestCompileResult, 0,
@@ -223,17 +223,17 @@ public class StampInbuiltFunctionNegativeTest {
                 26, 20);
 
         //Negative test case to confirm map cannot be stamped as array.
-        BAssertUtil.validateError(mapNegativeTestCompileResult, 2,
+        BAssertUtil.validateError(mapNegativeTestCompileResult, 1,
                 "incompatible stamp type: type 'map<anydata>' cannot be stamped as type 'string[]'",
                 33, 27);
 
         //Negative test case to confirm map cannot be stamped as tuple.
-        BAssertUtil.validateError(mapNegativeTestCompileResult, 4,
+        BAssertUtil.validateError(mapNegativeTestCompileResult, 2,
                 "incompatible stamp type: type 'map<anydata>' cannot be stamped as type '(string,string)'",
                 40, 34);
 
         //Negative test case to confirm map cannot be stamped as object.
-        BAssertUtil.validateError(mapNegativeTestCompileResult, 6,
+        BAssertUtil.validateError(mapNegativeTestCompileResult, 3,
                 "incompatible stamp type: type 'map<anydata>' cannot be stamped as type 'IntObject'",
                 47, 29);
     }
@@ -241,7 +241,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testObjectStampNegativeTest() {
 
-        Assert.assertEquals(objectNegativeTestCompileResult.getErrorCount(), 12);
+        Assert.assertEquals(objectNegativeTestCompileResult.getErrorCount(), 6);
 
         //Negative test case to confirm object cannot be stamped as record.
         BAssertUtil.validateError(objectNegativeTestCompileResult, 0,
@@ -249,27 +249,27 @@ public class StampInbuiltFunctionNegativeTest {
                 41, 25);
 
         //Negative test case to confirm object cannot be stamped as json.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 2,
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 1,
                 "stamp function on type 'PersonObj' is not supported",
                 49, 22);
 
         //Negative test case to confirm object cannot be stamped as xml.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 4,
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 2,
                 "stamp function on type 'PersonObj' is not supported",
                 56, 20);
 
         //Negative test case to confirm object cannot be stamped as map.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 6,
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 3,
                 "stamp function on type 'PersonObj' is not supported",
                 63, 25);
 
         //Negative test case to confirm object cannot be stamped as array.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 8,
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 4,
                 "stamp function on type 'PersonObj' is not supported",
                 70, 22);
 
         //Negative test case to confirm object cannot be stamped as tuple.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 10,
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 5,
                 "stamp function on type 'PersonObj' is not supported",
                 77, 32);
     }
@@ -277,7 +277,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testArrayStampNegativeTest() {
 
-        Assert.assertEquals(arrayNegativeTestCompileResult.getErrorCount(), 8);
+        Assert.assertEquals(arrayNegativeTestCompileResult.getErrorCount(), 4);
 
         //Negative test case to confirm array cannot be stamped as record.
         BAssertUtil.validateError(arrayNegativeTestCompileResult, 0,
@@ -285,17 +285,17 @@ public class StampInbuiltFunctionNegativeTest {
                 34, 25);
 
         //Negative test case to confirm array cannot be stamped as xml.
-        BAssertUtil.validateError(arrayNegativeTestCompileResult, 2,
+        BAssertUtil.validateError(arrayNegativeTestCompileResult, 1,
                 "incompatible stamp type: type 'anydata[]' cannot be stamped as type 'xml'",
                 42, 20);
 
         //Negative test case to confirm array cannot be stamped as object.
-        BAssertUtil.validateError(arrayNegativeTestCompileResult, 4,
+        BAssertUtil.validateError(arrayNegativeTestCompileResult, 2,
                 "incompatible stamp type: type 'anydata[]' cannot be stamped as type 'EmployeeObject'",
                 50, 34);
 
         //Negative test case to confirm array cannot be stamped as map.
-        BAssertUtil.validateError(arrayNegativeTestCompileResult, 6,
+        BAssertUtil.validateError(arrayNegativeTestCompileResult, 3,
                 "incompatible stamp type: type 'anydata[]' cannot be stamped as type 'map'",
                 58, 25);
     }
@@ -303,7 +303,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testTupleStampNegativeTest() {
 
-        Assert.assertEquals(tupleNegativeTestCompileResult.getErrorCount(), 10);
+        Assert.assertEquals(tupleNegativeTestCompileResult.getErrorCount(), 5);
 
         //Negative test case to confirm tuple cannot be stamped as record.
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 0,
@@ -311,22 +311,22 @@ public class StampInbuiltFunctionNegativeTest {
                 42, 28);
 
         //Negative test case to confirm tuple cannot be stamped as json.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 2,
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 1,
                 "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'json'",
                 49, 22);
 
         //Negative test case to confirm tuple cannot be stamped as xml.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 4,
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 2,
                 "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'xml'",
                 56, 20);
 
         //Negative test case to confirm tuple cannot be stamped as object.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 6,
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 3,
                 "incompatible stamp type: type '(string,int)' cannot be stamped as type 'EmployeeObj'",
                 63, 31);
 
         //Negative test case to confirm tuple cannot be stamped as map.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 8,
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 4,
                 "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'map'",
                 70, 25);
     }
@@ -334,13 +334,13 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testUnionStampNegativeTest() {
 
-        Assert.assertEquals(unionNegativeTestCompileResult.getErrorCount(), 4);
+        Assert.assertEquals(unionNegativeTestCompileResult.getErrorCount(), 2);
 
         BAssertUtil.validateError(unionNegativeTestCompileResult, 0,
                 "incompatible stamp type: type 'int|float|xml' cannot be stamped as type 'Employee'",
                 28, 30);
 
-        BAssertUtil.validateError(unionNegativeTestCompileResult, 2,
+        BAssertUtil.validateError(unionNegativeTestCompileResult, 1,
                 "incompatible stamp type: type " +
                         "'int|float|(string,string)' cannot be stamped as type 'int|float|(string,int)'",
                 34, 49);
@@ -349,7 +349,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testAnydataStampNegativeTest() {
 
-        Assert.assertEquals(anydataNegativeTestCompileResult.getErrorCount(), 3);
+        Assert.assertEquals(anydataNegativeTestCompileResult.getErrorCount(), 2);
 
         //Negative test case to validate invalid stamp conversion from anydata to object.
 

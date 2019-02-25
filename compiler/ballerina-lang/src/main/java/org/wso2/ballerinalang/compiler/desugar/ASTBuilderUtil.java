@@ -596,7 +596,6 @@ public class ASTBuilderUtil {
         final BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.pos = pos;
         literal.value = value;
-        literal.typeTag = type.tag;
         literal.type = type;
         return literal;
     }

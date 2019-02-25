@@ -27,34 +27,26 @@ cd ${1}
 # Change skip tests based on argument
 if [ ${2} ]
 then
-    skipTest="--skiptests"
+    # skipTest="--skiptests"
+    exit 0
 fi
 
 # List of BBEs excluded from building
-exclude=("date-time"
-        "proto-to-ballerina"
+exclude=("proto-to-ballerina"
         "swagger-to-ballerina"
         "taint-checking"
         "websub-hub-client-sample"
         "websub-remote-hub-sample"
-        "counter-metrics"
         "config-api"
-        "log-api"
-        "secured-service-with-basic-auth"
         "testerina-function-mocks"
         "jms-queue-message-receiver-with-client-acknowledgment"
-        "gauge-metrics"
         "jdbc-client-crud-operations"
         "jdbc-client-batch-update"
         "jdbc-client-call-procedures"
         "streaming-big-dataset"
         "docker-deployment"
         "kubernetes-deployment"
-        "xml-attributes"
-        "error-handling"
-        "hello-world-parallel"
-        "error-lifting"
-        "http-failover"
+        "awslambda-deployment"
         )
 
 packages=($( sed -n 's/.*"url": "\([^"]*\)"/\1/p' index.json ))

@@ -6,11 +6,12 @@ CREATE TABLE IF NOT EXISTS DataTable(
   double_type  DOUBLE,
   boolean_type BOOLEAN,
   string_type  VARCHAR(50),
+  decimal_type DECIMAL(20, 2),
   PRIMARY KEY (row_id)
 );
 /
-INSERT INTO DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type) VALUES
-  (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello');
+INSERT INTO DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, decimal_type)
+  VALUES(1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', 23.45);
 /
 INSERT INTO DataTable (row_id) VALUES (2);
 /
@@ -85,6 +86,7 @@ CREATE TABLE IF NOT EXISTS MixTypes (
   double_type DOUBLE,
   boolean_type BOOLEAN,
   string_type VARCHAR (50),
+  decimal_type decimal,
   int_array ARRAY,
   long_array ARRAY,
   float_array ARRAY,
@@ -94,9 +96,9 @@ CREATE TABLE IF NOT EXISTS MixTypes (
   PRIMARY KEY (row_id)
 );
 /
-INSERT INTO MixTypes (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, int_array, long_array,
-  float_array, double_array, boolean_array, string_array)
-VALUES (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', (1, 2, 3),
+INSERT INTO MixTypes (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, decimal_type,
+  int_array, long_array, float_array, double_array, boolean_array, string_array)
+VALUES (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', 234.56, (1, 2, 3),
   (100000000, 200000000, 300000000), (245.23, 5559.49, 8796.123),
   (245.23, 5559.49, 8796.123), (TRUE, FALSE, TRUE), ('Hello', 'Ballerina'));
 /

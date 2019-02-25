@@ -33,19 +33,19 @@ type thirdRec record {
 type sealedRec record {
     int id = 0;
     string name = "default";
-    !...
+    !...;
 };
 
 type restRec1 record {
     int id = 0;
     string name = "default";
-    int...
+    int...;
 };
 
 type restRec2 record {
     int id = 0;
     string name = "default";
-    string...
+    string...;
 };
 
 function waitForOneTest() {

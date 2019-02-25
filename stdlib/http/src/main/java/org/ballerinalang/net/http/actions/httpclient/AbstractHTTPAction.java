@@ -111,10 +111,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         HttpCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
-        prepareOutboundRequest(context, path, requestMsg);
+        prepareOutboundRequest(context, path, requestMsg, isNoEntityBodyRequest(requestStruct));
         handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(bConnector));
         return requestMsg;
     }
@@ -136,7 +135,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
-    protected void prepareOutboundRequest(Context context, String path, HttpCarbonMessage outboundRequest) {
+    protected void prepareOutboundRequest(Context context, String path, HttpCarbonMessage outboundRequest,
+                                          Boolean nonEntityBodyReq) {
         if (context.isInTransaction()) {
             TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
             outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
@@ -149,7 +149,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             int port = getOutboundReqPort(url);
             String host = url.getHost();
 
-            setOutboundReqProperties(outboundRequest, url, port, host);
+            setOutboundReqProperties(outboundRequest, url, port, host, nonEntityBodyReq);
             setOutboundReqHeaders(outboundRequest, port, host);
 
         } catch (MalformedURLException e) {
@@ -174,7 +174,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         removeConnectionHeader(headers);
     }
 
-    private void setOutboundReqProperties(HttpCarbonMessage outboundRequest, URL url, int port, String host) {
+    private void setOutboundReqProperties(HttpCarbonMessage outboundRequest, URL url, int port, String host,
+                                          Boolean nonEntityBodyReq) {
         outboundRequest.setProperty(Constants.HTTP_HOST, host);
         outboundRequest.setProperty(Constants.HTTP_PORT, port);
 
@@ -182,6 +183,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         outboundRequest.setProperty(HttpConstants.TO, outboundReqPath);
 
         outboundRequest.setProperty(HttpConstants.PROTOCOL, url.getProtocol());
+        outboundRequest.setProperty(HttpConstants.NO_ENTITY_BODY, nonEntityBodyReq);
     }
 
     private void setHostHeader(String host, int port, HttpHeaders headers) {
@@ -266,7 +268,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             if (dirty(requestStruct)) {
                 cleanOutboundReq(outboundRequestMsg, requestStruct, contentType);
             } else {
-                requestStruct.put(HttpConstants.REQUEST_REUSE_STATUS_INDEX, new BBoolean(HttpConstants.DIRTY_REQUEST));
+                requestStruct.put(HttpConstants.REQUEST_REUSE_STATUS_FIELD, new BBoolean(HttpConstants.DIRTY_REQUEST));
             }
         }
     }
@@ -287,9 +289,14 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
+    static boolean isNoEntityBodyRequest(BMap<String, BValue> requestStruct) {
+        BValue noEntityBodyReq = requestStruct.get(HttpConstants.REQUEST_NO_ENTITY_BODY_FIELD);
+        return ((BBoolean) noEntityBodyReq).booleanValue();
+    }
+
     private boolean dirty(BMap<String, BValue> requestStruct) {
-        BValue isDirty = requestStruct.get(HttpConstants.REQUEST_REUSE_STATUS_INDEX);
-        return ((BBoolean) isDirty).booleanValue() == HttpConstants.DIRTY_REQUEST;
+        BValue isDirty = requestStruct.get(HttpConstants.REQUEST_REUSE_STATUS_FIELD);
+        return ((BBoolean) isDirty).booleanValue();
     }
 
     private void sendOutboundRequest(DataContext dataContext, HttpCarbonMessage outboundRequestMsg, boolean async) {

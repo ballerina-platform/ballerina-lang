@@ -23,12 +23,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsMessageListenerImpl;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -46,15 +45,15 @@ public class MessageListenerHandler {
     }
 
     public static void createAndRegister(Context context) {
-        Struct queueConsumerBObject = BallerinaAdapter.getReceiverObject(context);
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        BMap<String, BValue> consumerConnector = (BMap<String, BValue>) context.getRefArgument(2);
+        BMap<String, BValue> consumerConnector =
+                (BMap<String, BValue>) ((BMap<String, BValue>) context.getRefArgument(0)).get("consumerActions");
 
-        Resource resource = JMSUtils.extractJMSResource(service);
+        Resource resource = JmsUtils.extractJMSResource(service);
 
-        Object nativeData = consumerConnector.getNativeData(Constants.JMS_CONSUMER_OBJECT);
+        Object nativeData = consumerConnector.getNativeData(JmsConstants.JMS_CONSUMER_OBJECT);
         if (nativeData instanceof MessageConsumer) {
-            MessageListener listener = new JmsMessageListenerImpl(resource, queueConsumerBObject.getVMValue());
+            MessageListener listener = new JmsMessageListenerImpl(resource, consumerConnector);
             try {
                 ((MessageConsumer) nativeData).setMessageListener(listener);
             } catch (JMSException e) {

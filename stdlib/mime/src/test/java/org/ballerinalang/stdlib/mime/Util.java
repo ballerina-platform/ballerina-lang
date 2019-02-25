@@ -66,7 +66,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 /**
  * Contains utility functions used by mime test cases.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
@@ -381,11 +381,5 @@ public class Util {
         Assert.assertEquals(((BError) returnValue).getReason(), MimeConstants.MIME_ERROR_CODE);
         Assert.assertEquals(((BMap) ((BError) returnValue).getDetails()).get(MimeConstants.MIME_ERROR_MESSAGE)
                 .stringValue(), errMsg);
-    }
-
-    public static void assertJBytesWithBBytes(byte[] jBytes, byte[] bBytes) {
-        for (int i = 0; i < jBytes.length; i++) {
-            Assert.assertEquals(bBytes[i], jBytes[i], "Invalid byte value returned.");
-        }
     }
 }

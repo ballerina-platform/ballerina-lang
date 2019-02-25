@@ -38,6 +38,8 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION_IN_OBJECT("undefined.function.in.object"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
+    TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
+    FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
     TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
@@ -52,7 +54,6 @@ public enum DiagnosticCode {
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
     CANNOT_ATTACH_FUNCTIONS_TO_RECORDS("cannot.attach.functions.to.records"),
-    ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS("attached.functions.cannot.have.visibility.modifiers"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("attached.functions.must.have.body"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
     CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
@@ -60,10 +61,16 @@ public enum DiagnosticCode {
     ABSTRACT_OBJECT_CONSTRUCTOR("abstract.object.constructor"),
     CANNOT_INITIALIZE_ABSTRACT_OBJECT("cannot.initialize.abstract.object"),
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
+    INVALID_VISIBILITY_ON_INTERFACE_FUNCTION_IMPL("invalid.interface.visibility.of.non.abstract.object"),
+    PRIVATE_FUNCTION_VISIBILITY("private.function.visibility"),
     CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT("cannot.attach.functions.to.abstract.object"),
     ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
     PRIVATE_OBJECT_CONSTRUCTOR("private.object.constructor"),
+    PRIVATE_FIELD_ABSTRACT_OBJECT("private.field.abstract.object"),
+    PRIVATE_FUNC_ABSTRACT_OBJECT("private.function.abstract.object"),
+    EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
+    GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -90,6 +97,8 @@ public enum DiagnosticCode {
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
+    MAIN_PARAMS_SHOULD_BE_ANYDATA("main.params.should.be.anydata"),
+    MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL("main.return.should.be.error.or.nil"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
@@ -101,8 +110,6 @@ public enum DiagnosticCode {
     INTEGER_TOO_SMALL("integer.too.small"),
     HEXADECIMAL_TOO_LARGE("hexadecimal.too.large"),
     HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
-    BINARY_TOO_LARGE("binary.too.large"),
-    BINARY_TOO_SMALL("binary.too.small"),
 
     //Transaction related error codes
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
@@ -146,8 +153,7 @@ public enum DiagnosticCode {
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     UNDEFINED_ACTION("undefined.action"),
 
-    TYPE_ASSERTION_NOT_YET_SUPPORTED("type.assertion.not.yet.supported.for.type"),
-    INVALID_EXPLICIT_TYPE_FOR_EXPRESSION("invalid.explicit.type.for.expression"),
+    TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -222,6 +228,7 @@ public enum DiagnosticCode {
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
+    INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("invalid.type.for.tuple.var.expr"),
     INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR("invalid.type.definition.for.tuple.var"),
@@ -387,7 +394,9 @@ public enum DiagnosticCode {
     INVALID_TYPE_FOR_SEND("invalid.type.for.send"),
 
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression"),
-    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature");
+    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature"),
+
+    INVALID_USE_OF_NULL_LITERAL("invalid.use.of.null.literal");
 
     private String value;
 

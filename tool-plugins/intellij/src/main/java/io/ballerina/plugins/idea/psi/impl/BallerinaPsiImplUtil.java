@@ -33,9 +33,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.scope.PsiScopeProcessor;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -96,7 +94,6 @@ import io.ballerina.plugins.idea.psi.BallerinaTupleTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaTypeConversionExpression;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypeName;
-import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.BallerinaUnionTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import io.ballerina.plugins.idea.psi.BallerinaVariableDefinitionStatementWithAssignment;
@@ -1774,34 +1771,5 @@ public class BallerinaPsiImplUtil {
             }
         }
         return null;
-    }
-
-    public static boolean isConstraintableType(@NotNull PsiElement type) {
-        if (!(type instanceof LeafPsiElement)) {
-            return false;
-        }
-        IElementType elementType = ((LeafPsiElement) type).getElementType();
-        return elementType == BallerinaTypes.JSON;
-    }
-
-    @Nullable
-    public static PsiElement getConstrainedType(@NotNull PsiElement element) {
-        BallerinaJsonTypeName jsonTypeName = PsiTreeUtil.getParentOfType(element, BallerinaJsonTypeName.class);
-        if (jsonTypeName == null) {
-            return null;
-        }
-        BallerinaNameReference nameReference = jsonTypeName.getNameReference();
-        if (nameReference == null) {
-            return null;
-        }
-        PsiElement identifier = nameReference.getIdentifier();
-        if (identifier == null) {
-            return null;
-        }
-        PsiReference reference = identifier.getReference();
-        if (reference == null) {
-            return null;
-        }
-        return reference.resolve();
     }
 }

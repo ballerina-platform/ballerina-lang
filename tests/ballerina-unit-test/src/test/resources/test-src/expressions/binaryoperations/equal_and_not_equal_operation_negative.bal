@@ -25,8 +25,8 @@ function checkEqualityOfArraysOfDifferentTypes() returns boolean {
     string[2] b = ["", ""];
     boolean bool1 = a == b && !(a != b);
 
-    (float|int)[] c = [];
-    (boolean|xml)[] d = [];
+    (float|int)?[] c = [];
+    (boolean|xml)?[] d = [];
     boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
@@ -79,7 +79,7 @@ function checkEqualityWithJsonForIncompatibleType() returns boolean {
 }
 
 function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
-    json<EmployeeWithOptionalId> a = { name: "Em" };
+    json a = { name: "Em" };
     map<boolean> b = {};
     boolean equals = a == b && !(b != a);
 
@@ -132,17 +132,17 @@ type Person record {
 
 type ClosedDept record {
     string code;
-    !...
+    !...;
 };
 
 type EmployeeWithOptionalId record {
     string name;
     float id?;
-    !...
+    !...;
 };
 
 type PersonWithOptionalId record {
     string name;
     string id?;
-    !...
+    !...;
 };

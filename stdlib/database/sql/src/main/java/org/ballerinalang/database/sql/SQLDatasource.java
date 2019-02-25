@@ -19,6 +19,7 @@ package org.ballerinalang.database.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.BType;
@@ -35,6 +36,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -418,7 +420,7 @@ public class SQLDatasource implements BValue {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
     }
 

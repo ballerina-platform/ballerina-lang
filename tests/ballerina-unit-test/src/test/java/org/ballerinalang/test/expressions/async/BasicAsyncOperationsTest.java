@@ -105,6 +105,13 @@ public class BasicAsyncOperationsTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+    public void testAsyncNonNativeBasic11() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic11", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test (description = "Test negative issues with future")
     public void testAsyncNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/expressions/async/async-operations-negative.bal");

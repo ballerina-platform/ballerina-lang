@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-// Define the end point to the call the `mockHelloService`.
+// Define the endpoint to the call the `mockHelloService`.
 http:Client backendClientEP = new("http://localhost:8080", config = {
         // Retry configuration options.
         retryConfig: {
@@ -42,7 +42,7 @@ service retryDemoService on new http:Listener(9090) {
 
         var backendResponse = backendClientEP->forward("/hello", request);
 
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
@@ -75,7 +75,9 @@ public int counter = 0;
 // This sample service is used to mock connection timeouts and service outages.
 // The service outage is mocked by stopping/starting this service.
 // This should run separately from the `retryDemoService` service.
-@http:ServiceConfig { basePath: "/hello" }
+@http:ServiceConfig {
+    basePath: "/hello"
+}
 service mockHelloService on new http:Listener(8080) {
 
     @http:ResourceConfig {

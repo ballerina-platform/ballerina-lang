@@ -37,10 +37,12 @@ public class LocalVariableInfo {
     private int scopeStartLineNumber;
     private int scopeEndLineNumber;
 
+    private boolean isIdentifierLiteral;
+
     int[] attachmentIndexes = new int[0];
 
     public LocalVariableInfo(String varName, int varNameCPIndex, int varIndex, int varTypeSigCPIndex, BType varType,
-                             int scopeStartLineNumber, int scopeEndLineNumber) {
+                             int scopeStartLineNumber, int scopeEndLineNumber, boolean isIdentifierLiteral) {
         this.varName = varName;
         this.varNameCPIndex = varNameCPIndex;
         this.varIndex = varIndex;
@@ -48,6 +50,7 @@ public class LocalVariableInfo {
         this.varType = varType;
         this.scopeStartLineNumber = scopeStartLineNumber;
         this.scopeEndLineNumber = scopeEndLineNumber;
+        this.isIdentifierLiteral = isIdentifierLiteral;
     }
 
     public int[] getAttachmentIndexes() {
@@ -84,5 +87,9 @@ public class LocalVariableInfo {
 
     public int getScopeEndLineNumber() {
         return scopeEndLineNumber;
+    }
+
+    public boolean isIdentifierLiteral() {
+        return isIdentifierLiteral;
     }
 }

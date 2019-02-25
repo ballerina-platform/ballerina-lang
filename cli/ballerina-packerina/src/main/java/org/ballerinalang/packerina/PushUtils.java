@@ -23,7 +23,6 @@ import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -108,6 +107,11 @@ public class PushUtils {
                                           "lowercase alphanumerics and underscores are allowed in an organization " +
                                           "name and the maximum length is 256 characters");
         }
+        if (RepoUtils.isReservedOrgName(orgName)) {
+            throw createLauncherException("invalid organization name provided \'" + orgName + "\'. 'ballerina' and " +
+                    "'ballerinax' are reserved organization names that are used by Ballerina");
+        }
+
         // Validate the module-name
         if (!RepoUtils.validatePkg(packageName)) {
             throw createLauncherException("invalid module name provided \'" + packageName + "\'. Only " +
@@ -157,12 +161,11 @@ public class PushUtils {
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
-            executor.executeFunction("packaging_push/packaging_push.balx", BLangConstants.MAIN_FUNCTION_NAME,
-                                     accessToken, mdFileContent, description, homepageURL, repositoryURL, apiDocURL,
-                                     authors, keywords, license, resourcePath, pkgPathFromPrjtDir.toString(), msg,
-                                     ballerinaVersion, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
-                                     proxy.getPassword(), baloVersionOfPkg);
-
+            executor.executeFunction("packaging_push/packaging_push.balx", accessToken, mdFileContent,
+                                     description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
+                                     resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion,
+                                     proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
+                                     baloVersionOfPkg);
         } else {
             if (!installToRepo.equals("home")) {
                 throw createLauncherException("Unknown repository provided to push the module");

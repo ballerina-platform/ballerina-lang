@@ -12,7 +12,7 @@ http:FailoverClient foBackendEP = new({
         intervalMillis: 5000,
         // Define a set of HTTP Clients that are targeted for failover.
         targets: [
-            { url: "http://localhost:3000/mock1" },
+            { url: "http://nonexistentEP/mock1" },
             { url: "http://localhost:8080/echo" },
             { url: "http://localhost:8080/mock" }
         ]
@@ -33,7 +33,7 @@ service failoverDemoService on new http:Listener(9090) {
 
         var backendResponse = foBackendEP->get("/", message = request);
 
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.

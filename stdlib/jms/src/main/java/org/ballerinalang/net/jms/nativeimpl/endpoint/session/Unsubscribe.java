@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class Unsubscribe extends AbstractBlockingAction {
         Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
 
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           Constants.JMS_SESSION,
+                                                           JmsConstants.JMS_SESSION,
                                                            Session.class,
                                                            context);
 

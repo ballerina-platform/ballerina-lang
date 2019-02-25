@@ -1,6 +1,6 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run restrict_by_media_type.bal
-# Service deployment:
+# Service deployment
 Initiating service(s) in 'restrict_by_media_type.bal'
 [ballerina/http] started HTTP/WS endpoint 0.0.0.0:9092

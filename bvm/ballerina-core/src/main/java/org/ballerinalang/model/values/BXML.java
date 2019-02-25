@@ -269,7 +269,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
         if (type.getTag() == TypeTags.ANYDATA_TAG) {
             type = BVM.resolveMatchingTypeForUnion(this, type);
         }

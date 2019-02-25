@@ -18,11 +18,21 @@
 
 package org.ballerinalang.stdlib.services.configuration;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.stdlib.utils.HTTPTestRequest;
+import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 
 /**
  * Test case for services with multiple http:ServiceConfig annotations.
@@ -39,5 +49,22 @@ public class ServiceConfigurationTest {
         Assert.assertEquals(diag.length, 1);
         Assert.assertEquals(diag[0].getMessage(),
                             "multiple service configuration annotations found in service : helloWorldServiceConfig");
+    }
+
+    @Test(description = "Test for configuring a service")
+    public void testConfiguringAService() throws IOException {
+        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "service-config.conf").toString(), null);
+
+        String serviceFile = Paths.get(resourceRoot, "test-src", "services", "configuration",
+                "service_configuration.bal").toString();
+        CompileResult configuredService = BServiceUtil.setupProgramFile(this, serviceFile);
+
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/hello", "GET");
+        HttpCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);
+
+        Assert.assertNotNull(responseMsg);
     }
 }

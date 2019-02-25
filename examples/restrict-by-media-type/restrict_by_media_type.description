@@ -1,1 +1,2 @@
-// This sample demonstrates the behaviour of the `Consumes` and `Produces` annotation attributes of the `resourceConfig` in Ballerina.
+// You can configure resources of HTTP services to restrict the types of media it consumes and produces.
+// This is done through the 'consumes' and 'produces' annotation attributes of the ResourceConfig annotation, which is used with resources.

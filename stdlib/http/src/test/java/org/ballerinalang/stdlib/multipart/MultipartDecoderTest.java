@@ -20,11 +20,20 @@ package org.ballerinalang.stdlib.multipart;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.StringUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.util.StringUtils;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
+import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.MultipartUtils;
@@ -37,8 +46,10 @@ import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -47,13 +58,14 @@ import java.util.List;
  * @since 0.963.0
  */
 public class MultipartDecoderTest {
-    private CompileResult serviceResult;
+    private CompileResult serviceResult, channelResult;
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/multipart/multipart-request.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        channelResult = BCompileUtil.compileAndSetup("test-src/multipart/bytechannel-base64.bal");
     }
 
     @Test(description = "Test sending a multipart request as multipart/mixed with multiple body parts")
@@ -201,5 +213,22 @@ public class MultipartDecoderTest {
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
+    }
+
+    @Test
+    public void testBase64DecodeByteChannel() {
+        String expectedValue = "Hello Ballerina!";
+        BMap<String, BValue> byteChannelStruct = MultipartUtils.getByteChannelStruct(channelResult);
+        byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
+        InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
+        Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
+        BValue[] args = new BValue[]{byteChannelStruct};
+        BValue[] returnValues = BRunUtil.invoke(channelResult, "testBase64DecodeByteChannel", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
+        Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
     }
 }

@@ -17,25 +17,25 @@
 public type OpenFoo record {
     string name = "";
     int age?;
-    OpenBar...
+    OpenBar...;
 };
 
 public type ClosedFoo record {
     string name = "";
     int age?;
-    OpenBar...
+    OpenBar...;
 };
 
 public type OpenFoo2 record {
     string name = "";
     int age?;
-    ClosedBar...
+    ClosedBar...;
 };
 
 public type ClosedFoo2 record {
     string name = "";
     int age?;
-    ClosedBar...
+    ClosedBar...;
 };
 
 public type OpenBar record {
@@ -44,5 +44,5 @@ public type OpenBar record {
 
 public type ClosedBar record {
     float x = 0.0;
-    !...
+    !...;
 };
