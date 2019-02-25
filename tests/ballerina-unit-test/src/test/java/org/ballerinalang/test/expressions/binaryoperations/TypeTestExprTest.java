@@ -563,4 +563,24 @@ public class TypeTestExprTest {
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
+
+    @Test
+    public void testValueTypeAsFiniteTypeTrue() {
+        BValue[] returns = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeTrue");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testValueTypeAsFiniteTypeFalse() {
+        BValue[] returns = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeFalse");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+    }
 }

@@ -778,9 +778,31 @@ function testTypeNarrowingForIntersectingAssignableUnion_2() returns boolean {
     record{} t = { name: "Maryam" };
     string|record{} st = t;
     if (st is json|xml) {
-        return true;
+        return false;
     } else {
         record{} t2 = st;
         return t2 == t;
+    }
+}
+
+function testTypeNarrowingForValueTypeAsFiniteType_1() returns boolean {
+    string s = "bar";
+    if (s is FooBar) {
+        FooBar f = s;
+        return f == s;
+    } else {
+        string s2 = s;
+        return false;
+    }
+}
+
+function testTypeNarrowingForValueTypeAsFiniteType_2() returns boolean {
+    float f = 11.0;
+    if (f is FooBarOneTwoBoolean) {
+        FooBarOneTwoBoolean f2 = f;
+        return true;
+    } else {
+        float f3 = f;
+        return f == f3;
     }
 }

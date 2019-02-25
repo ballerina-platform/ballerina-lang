@@ -720,3 +720,15 @@ function testIntersectingUnionFalse() returns (boolean, boolean) {
     string|int|typedesc x = int;
     return (x is int|boolean, x is anydata);
 }
+
+function testValueTypeAsFiniteTypeTrue() returns (boolean, boolean) {
+    string s = "orange";
+    float f = 2.0;
+    return (s is Fruit, f is IntTwo);
+}
+
+function testValueTypeAsFiniteTypeFalse() returns (boolean, boolean) {
+    string s = "mango";
+    float f = 12.0;
+    return (s is Fruit, f is IntTwo);
+}

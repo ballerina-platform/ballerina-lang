@@ -2722,7 +2722,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        typeTestExpr.expr = rewriteExpr(typeTestExpr.expr);
+        BLangExpression expr = typeTestExpr.expr;
+        if (types.isValueType(expr.type)) {
+            addConversionExprIfRequired(expr, symTable.anyType);
+        }
+        typeTestExpr.expr = rewriteExpr(expr);
         result = typeTestExpr;
     }
 
