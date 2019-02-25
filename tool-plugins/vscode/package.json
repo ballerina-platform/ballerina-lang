@@ -283,7 +283,7 @@
         "ms-wmic": "^1.0.4",
         "openport": "0.0.6",
         "ps-node": "^0.1.6",
-        "toml": "^2.3.3",
+        "toml": "^3.0.0",
         "vscode-debugadapter": "^1.33.0",
         "vscode-debugprotocol": "^1.33.0",
         "vscode-languageclient": "5.1.1",
