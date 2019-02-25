@@ -98,20 +98,21 @@ public class TaskManager {
      */
     public void scheduleTimer(Timer timer, JobDataMap jobData) throws SchedulerException {
         SimpleScheduleBuilder schedule = createSchedulerBuilder(timer.getInterval(), timer.getMaxRuns());
-        JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(timer.getId()).build();
+        String taskId = timer.getId();
+        JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(taskId).build();
         Trigger trigger;
 
         if (timer.getDelay() > 0) {
             Date startTime = new Date(System.currentTimeMillis() + timer.getDelay());
             trigger = newTrigger()
-                    .withIdentity(timer.getId())
+                    .withIdentity(taskId)
                     .startAt(startTime)
                     .forJob(job)
                     .withSchedule(schedule)
                     .build();
         } else {
             trigger = newTrigger()
-                    .withIdentity(timer.getId())
+                    .withIdentity(taskId)
                     .startNow()
                     .forJob(job)
                     .withSchedule(schedule)
@@ -119,8 +120,7 @@ public class TaskManager {
         }
 
         scheduler.scheduleJob(job, trigger);
-        quartzJobs.put(timer.getId(), job.getKey());
-
+        quartzJobs.put(taskId, job.getKey());
     }
 
     private SimpleScheduleBuilder createSchedulerBuilder(long interval, long maxRuns) {
