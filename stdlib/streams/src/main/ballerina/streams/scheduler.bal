@@ -17,6 +17,7 @@
 
 import ballerina/time;
 import ballerina/task;
+import ballerina/io;
 
 public type Scheduler object {
 
@@ -46,7 +47,7 @@ public type Scheduler object {
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
                     _ = self.timer.cancel();
-                    self.timer = new({ interval: timeDiff, initialDelay: timeDelay });
+                    self.timer = new({ interval: timeDiff, initialDelay: timeDelay, noOfRecurrences: 1 });
                     _ = self.timer.attachService(schedulerService, serviceParameter = self);
                     _ = self.timer.run();
                 }
@@ -83,7 +84,7 @@ public type Scheduler object {
             if (<int>first - currentTime <= 0) {
                 _ = self.wrapperFunc();
             } else {
-                self.timer = new({ interval: <int>first - currentTime });
+                self.timer = new({ interval: <int>first - currentTime, noOfRecurrences: 1});
                 _ = self.timer.attachService(schedulerService, serviceParameter = self);
                 _ = self.timer.run();
             }
@@ -92,7 +93,7 @@ public type Scheduler object {
                 self.running = false;
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
-                    self.timer = new({ interval: 1 });
+                    self.timer = new({ interval: 1000, initialDelay: 0, noOfRecurrences: 1 });
                     _ = self.timer.attachService(schedulerService, serviceParameter = self);
                     _ = self.timer.run();
                 }
