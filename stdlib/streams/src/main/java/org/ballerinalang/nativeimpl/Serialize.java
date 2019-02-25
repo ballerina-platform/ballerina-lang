@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.persistence.Serializer;
 
 /**
- * ballerina.model.streams:serialize(map obj)
+ * ballerina.model.streams:serialize(map obj).
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "streams",

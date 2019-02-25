@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.persistence.Serializer;
 
 /**
- * ballerina.model.streams:deserialize(string str)
+ * ballerina.model.streams:deserialize(string str).
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "streams",

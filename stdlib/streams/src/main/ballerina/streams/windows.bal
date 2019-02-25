@@ -2039,23 +2039,32 @@ public type TimeAccumulatingWindow object {
     }
 
     public function saveState() returns map<any> {
-        SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
+        SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
+        StreamEvent? resetStreamEvt = self.resetEvent;
+        SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
+        ? toSnapshottableEvent(resetStreamEvt) : ();
         return {
-            "expiredEventsList": expiredEventsList,
+            "currentEventsList": currentEventsList,
+            "resetEvt": resetEvt,
             "lastTimestamp": self.lastTimestamp
         };
     }
 
     public function restoreState(map<any> state) {
-        var expiredEventsList = state["expiredEventsList"];
-        if (expiredEventsList is SnapshottableStreamEvent?[]) {
-            StreamEvent?[] expiredEvents = toStreamEvents(expiredEventsList);
-            self.expiredEventQueue = new;
-            self.expiredEventQueue.addAll(expiredEvents);
+        var currentEventsList = state["currentEventsList"];
+        if (currentEventsList is SnapshottableStreamEvent?[]) {
+            StreamEvent?[] currentEvents = toStreamEvents(currentEventsList);
+            self.currentEventQueue = new;
+            self.currentEventQueue.addAll(currentEvents);
         }
         any? lts = state["lastTimestamp"];
         if (lts is int) {
             self.lastTimestamp = lts;
+        }
+        var resetEvt = state["resetEvt"];
+        if (resetEvt is SnapshottableStreamEvent) {
+            StreamEvent r = toStreamEvent(resetEvt);
+            self.resetEvent = r;
         }
     }
 };
