@@ -18,19 +18,19 @@ import ballerina/io;
 
 type ClosedFoo record {
     string s;
-    !...
+    !...;
 };
 
 function testErrorPattern1() returns string {
     any a = 13;
     match a {
         var error (reason) => return "A";
-        var error (reason, detail) => return "A";// unreachable
+        var error (reason, detail) => return "A"; // unreachable
     }
 
     match a {
         var error (reason, detail) => return "A";
-        var error (reason) => return "A";// unreachable
+        var error (reason) => return "A"; // unreachable
     }
     return "Default";
 }
@@ -41,13 +41,13 @@ function testErrorPattern2() returns string {
 
     match err {
         var error (reason) => return "A";
-        var error (reason, detail) => return "A";// unreachable
+        var error (reason, detail) => return "A"; // unreachable
     }
 
     match err {
         var error (reason, detail) => return "A";
-        var error (reason, {detail}) => return "A";// unknown field 'detail' in record type 'ClosedFoo'
-        var error (reason, {s}) => return "A";// unreachable
+        var error (reason, {detail}) => return "A"; // unknown field 'detail' in record type 'ClosedFoo'
+        var error (reason, {s}) => return "A"; // unreachable
     }
     return "Default";
 }
@@ -58,12 +58,12 @@ function testErrorPattern3() returns string {
 
     match err {
         var error (reason) => return "A";
-        var error (reason, _) => return "A";// unreachable
+        var error (reason, _) => return "A"; // unreachable
     }
 
     match err {
         var error (reason, _) => return "A";
-        var error (reason) => return "A";// unreachable
+        var error (reason) => return "A"; // unreachable
     }
     return "Default";
 }
