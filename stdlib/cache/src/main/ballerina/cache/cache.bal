@@ -71,6 +71,16 @@ public type Cache object {
         self.expiryTimeMillis = expiryTimeMillis;
         self.capacity = capacity;
         self.evictionFactor = evictionFactor;
+
+        task:TimerConfiguration cacheCleanupTimerConfiguration = {
+            interval: CACHE_CLEANUP_INTERVAL,
+            initialDelay: CACHE_CLEANUP_START_DELAY
+        };
+        task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
+
+        _ = cacheCleanupTimer.attachService(cacheCleanupService);
+        _ = cacheCleanupTimer.run();
+
     }
 
     # Checks whether the given key has an accociated cache value.
@@ -306,16 +316,9 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
     }
 }
 
-task:TimerConfiguration cacheCleanupTimerConfiguration = {
-    interval: CACHE_CLEANUP_INTERVAL,
-    initialDelay: CACHE_CLEANUP_START_DELAY
-};
-
-listener task:Listener cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
-
 # Cleanup service which cleans the cache periodically.
-service cacheCleanupService on cacheCleanupTimer {
+service cacheCleanupService = service {
     resource function onTrigger() {
         _ = runCacheExpiry();
     }
-}
+};
