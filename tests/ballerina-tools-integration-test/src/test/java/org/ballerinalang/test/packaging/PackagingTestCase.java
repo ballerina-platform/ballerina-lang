@@ -133,7 +133,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
     public void testSearch() {
-        given().with().pollDelay(10, SECONDS).await().atMost(60, SECONDS).until(() -> {
+        given().with().pollDelay(10, SECONDS).await().atMost(90, SECONDS).until(() -> {
 
             String  actualOut = balClient.runMainAndReadStdOut("search", new String[]{moduleName},
                     envVariables, balServer.getServerHome());
