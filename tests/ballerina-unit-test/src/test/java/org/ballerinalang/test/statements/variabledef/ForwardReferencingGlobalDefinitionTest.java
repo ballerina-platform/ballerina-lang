@@ -98,6 +98,6 @@ public class ForwardReferencingGlobalDefinitionTest {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile(this,
                 "test-src/statements/variabledef/globalcycle", "viaservice");
         Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 1);
-        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 6, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 22, 1);
     }
 }

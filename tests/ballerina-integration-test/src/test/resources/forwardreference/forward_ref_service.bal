@@ -16,34 +16,20 @@
 
 import ballerina/http;
 
-listener http:Listener lis = new http:Listener(port);
-string b7a = "b7a";
-
-int port = o.p;
-
-Obj o = new();
-
-service hello on lis {
-    string str;
-    int p = port;
-
-    function __init() {
-        self.str = b7a;
+// Forward referencing listener.
+@http:ServiceConfig {
+    basePath:"/hello"
+}
+service helloWorld on helloWorldEp {
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/"
     }
-
-    resource function sayHello(http:Caller caller, http:Request request) {
-
-        http:Response response = new;
-        response.setTextPayload(self.str);
-        _ = caller -> respond(response);
+    resource function sayHello(http:Caller caller, http:Request req) {
+        http:Response resp = new;
+        resp.setTextPayload("Hello, World!");
+        _ = caller -> respond(resp);
     }
 }
 
-type Obj object {
-    string str;
-    int p = port;
-
-    function __init() {
-        self.str = b7a;
-    }
-};
+listener http:Listener helloWorldEp = new(9090);
