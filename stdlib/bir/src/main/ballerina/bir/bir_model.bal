@@ -5,11 +5,18 @@ public type PackageId record {
 };
 
 public type Package record {
+    TypeDef[] typeDefs;
     Function[] functions = [];
     Name name = {};
     Name org = {};
     BType[] types = [];
     Name versionValue = {};
+};
+
+public type TypeDef record {
+    Name name;
+    Visibility visibility;
+    BType typeValue;
 };
 
 public type Function record {
@@ -78,13 +85,36 @@ public type BArrayType record {
    BType eType;
 };
 
+public type BRecordType record {
+    boolean sealed;
+    BType restFieldType;
+    BRecordField[] fields;
+};
+
+public type BObjectType record {
+    BObjectField[] fields;    
+};
+
+public type BRecordField record {
+    Name name;
+    BType typeValue;
+    //TODO add position
+};
+
+public type BObjectField record {
+    Name name;    
+    Visibility visibility;
+    BType typeValue;
+    //TODO add position
+};
+
 public type BUnionType record {
    BType[]  members;
 };
 
 
 public type BType BTypeInt | BTypeBoolean | BTypeNil | "byte" | "float" | BTypeString | BUnionType |
-                  BInvokableType | BArrayType;
+                  BInvokableType | BArrayType | BRecordType | BObjectType;
 
 
 public type BTypeSymbol record {

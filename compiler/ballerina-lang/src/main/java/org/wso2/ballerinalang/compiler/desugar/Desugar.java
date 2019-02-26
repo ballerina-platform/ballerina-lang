@@ -3811,7 +3811,8 @@ public class Desugar extends BLangNodeVisitor {
                 BVarSymbol fieldSymbol = new BVarSymbol(Flags.REQUIRED, names.fromString(fieldName),
                         env.enclPkg.symbol.pkgID, fieldType, recordSymbol);
 
-                fields.add(new BField(names.fromString(fieldName), fieldSymbol));
+                //TODO check below field position
+                fields.add(new BField(names.fromString(fieldName), bindingPatternVariable.pos, fieldSymbol));
                 typeDefFields.add(ASTBuilderUtil.createVariable(null, fieldName, fieldType, null, fieldSymbol));
             }
 
