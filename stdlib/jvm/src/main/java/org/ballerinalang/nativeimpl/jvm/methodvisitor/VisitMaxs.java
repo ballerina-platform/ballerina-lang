@@ -15,25 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.MethodVisitor;
+
+import static org.ballerinalang.model.types.TypeKind.INT;
+import static org.ballerinalang.model.types.TypeKind.OBJECT;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 
 /**
  * Native class for jvm method byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "visitMethodCode"
+        functionName = "visitMaxs",
+        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR,
+                structPackage = JVM_PKG_PATH),
+        args = {
+                @Argument(name = "maxStack", type = INT),
+                @Argument(name = "maxLocal", type = INT)
+        }
 )
-public class VisitMethodCode extends BlockingNativeCallableUnit {
+public class VisitMaxs extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
-        mv.visitCode();
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
+        int maxStack = (int) context.getIntArgument(0);
+        int maxLocal = (int) context.getIntArgument(1);
+        mv.visitMaxs(maxStack, maxLocal);
     }
 }

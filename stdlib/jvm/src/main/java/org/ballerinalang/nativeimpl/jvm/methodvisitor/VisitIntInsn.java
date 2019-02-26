@@ -15,36 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
-import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.ballerinalang.model.types.TypeKind.OBJECT;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 
 /**
  * Native class for jvm method byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "visitMultiDimensionNewArrayInstruction",
+        functionName = "visitIntInsn",
+        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR,
+                structPackage = JVM_PKG_PATH),
         args = {
-                @Argument(name = "arrayDescriptor", type = STRING),
-                @Argument(name = "dimension", type = INT)
+                @Argument(name = "opcode", type = INT),
+                @Argument(name = "operand", type = INT),
         }
 )
-public class VisitMultiDimensionNewArrayInstruction extends BlockingNativeCallableUnit {
+public class VisitIntInsn extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
 
-        MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
-        String arrayDescriptor = context.getStringArgument(0);
-        int dimension = (int) context.getIntArgument(0);
-        mv.visitMultiANewArrayInsn(arrayDescriptor, dimension);
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
+        int opCode = (int) context.getIntArgument(0);
+        int operand = (int) context.getIntArgument(1);
+        mv.visitIntInsn(opCode, operand);
     }
 }

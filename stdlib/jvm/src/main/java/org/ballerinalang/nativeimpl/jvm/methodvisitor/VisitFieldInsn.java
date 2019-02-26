@@ -15,35 +15,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 
 /**
- * Native class for jvm method byte code creation.
+ * Native class for jvm static field byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "visitTypeInstruction",
+        functionName = "visitFieldInsn",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = METHOD_VISITOR,
+                structPackage = JVM_PKG_PATH),
         args = {
                 @Argument(name = "opcode", type = INT),
                 @Argument(name = "className", type = STRING),
+                @Argument(name = "fieldName", type = STRING),
+                @Argument(name = "fieldDescriptor", type = STRING),
         }
 )
-public class VisitTypeInstruction extends BlockingNativeCallableUnit {
+public class VisitFieldInsn extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
+
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
         int opcode = (int) context.getIntArgument(0);
         String className = context.getStringArgument(0);
-        mv.visitTypeInsn(opcode, className);
+        String fieldName = context.getStringArgument(1);
+        String fieldDescriptor = context.getStringArgument(2);
+        mv.visitFieldInsn(opcode, className, fieldName, fieldDescriptor);
     }
 }

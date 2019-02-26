@@ -15,45 +15,66 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.classwriter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import static org.ballerinalang.model.types.TypeKind.ARRAY;
+import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.CLASS_WRITER;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
 
 /**
  * Native class for jvm java class byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "classWriterVisit",
+        functionName = "visit",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER,
+                structPackage = JVM_PKG_PATH),
         args = {
-                @Argument(name = "className", type = STRING),
+                @Argument(name = "versionNumber", type = INT),
+                @Argument(name = "access", type = INT),
+                @Argument(name = "name", type = STRING),
+                @Argument(name = "signature", type = STRING),
+                @Argument(name = "superName", type = STRING),
+                @Argument(name = "interfaces", type = ARRAY, elementType = STRING)
         }
 )
-public class ClassWriterVisit extends BlockingNativeCallableUnit {
+public class Visit extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        ClassWriter cw = ASMCodeGenerator.getInstance().getClassWriter();
-        String jvmClassName = context.getStringArgument(0);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, jvmClassName, null, Type.getInternalName(Object.class), null);
+
+        ClassWriter cw = ASMUtil.getRefArgumentNativeData(context, 0);
+        int versionNumber = (int) context.getIntArgument(0);
+        int access = (int) context.getIntArgument(1);
+        String name = context.getStringArgument(0);
+        String signature = context.getStringArgument(1);
+        String superName = context.getStringArgument(2);
+        BValueArray interfacesArray = (BValueArray) context.getNullableRefArgument(1);
+        String[] interfaces = interfacesArray.getStringArray();
+        cw.visit(versionNumber, access, name, signature, superName, interfaces);
         generateDefaultConstructor(cw);
     }
 
     private void generateDefaultConstructor(ClassWriter cw) {
+
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
@@ -63,4 +84,3 @@ public class ClassWriterVisit extends BlockingNativeCallableUnit {
         mv.visitEnd();
     }
 }
-
