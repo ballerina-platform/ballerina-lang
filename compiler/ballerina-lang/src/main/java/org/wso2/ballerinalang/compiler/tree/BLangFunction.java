@@ -49,18 +49,17 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     // TODO need to remove this variable after fixing streaming desugar for closure variables
     public Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
 
+    // Needed for closures
     public Map<BVarSymbol, Integer> closureVarsWithResolvedLevels = new LinkedHashMap<>();
-    public Map<Integer, BVarSymbol> closureResolvedMaps = new LinkedHashMap<>();
-    public Map<BSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
+    public Map<Integer, BVarSymbol> closureParamMaps = new LinkedHashMap<>();
     public Stack<BVarSymbol> paramMapSymbols = new Stack<>();
     public Stack<BVarSymbol> blockSymbolsInUpperLevels = new Stack<>();
-    public SymbolEnv.ExposedClosureHolder dataHolder = new SymbolEnv.ExposedClosureHolder();
+    public SymbolEnv.ExposedClosureHolder exposedClosureHolder = new SymbolEnv.ExposedClosureHolder();
     public int enclEnvCount;
-    public boolean hasArrowFuncAsParent;
+
+    public Map<BSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
 
     public BInvokableSymbol originalFuncSymbol;
-
-    public boolean isTypeChecked = false;
 
     public LinkedHashSet<String> sendsToThis = new LinkedHashSet<>();
 

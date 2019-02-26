@@ -35,7 +35,7 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
 
     public List<BLangStatement> stmts;
 
-    public SymbolEnv.ExposedClosureHolder dataHolder = new SymbolEnv.ExposedClosureHolder();
+    public SymbolEnv.ExposedClosureHolder exposedClosureHolder = new SymbolEnv.ExposedClosureHolder();
     /**
      * We need to keep a reference to the block statements scope here.
      * This is the only place where we have a link from the node to a scope

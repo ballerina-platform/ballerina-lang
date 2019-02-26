@@ -1590,10 +1590,6 @@ public class TypeChecker extends BLangNodeVisitor {
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.cachedEnv = env.createClone();
-        // If the lambda function is preceeded by an arrow function
-        if (env.node.getKind() == NodeKind.ARROW_EXPR) {
-            bLangLambdaFunction.function.hasArrowFuncAsParent = true;
-        }
         env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
     }
@@ -2056,7 +2052,7 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env, envCount);
         bLangArrowFunction.params.forEach(param -> symbolEnter.defineNode(param, arrowFunctionEnv));
         bLangArrowFunction.enclEnvCount = arrowFunctionEnv.envCount;
-        arrowFunctionEnv.exposedClosureHolder = bLangArrowFunction.dataHolder;
+        arrowFunctionEnv.exposedClosureHolder = bLangArrowFunction.exposedClosureHolder;
         return checkExpr(bLangArrowFunction.expression, arrowFunctionEnv, expectedRetType);
     }
 

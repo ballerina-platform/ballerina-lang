@@ -558,8 +558,8 @@ public class Desugar extends BLangNodeVisitor {
                 new LinkedHashSet<BType>() {{ add(symTable.anyType); add(symTable.errorType); }}, true);
         BVarSymbol mapSymbol = new BVarSymbol(0, names.fromString("$mapFunc$" + funClosureMapCount),
                 fucEnv.scope.owner.pkgID, new BMapType(TypeTags.MAP, constraintTypeOfMap, null), fucEnv.scope.owner);
-        funcNode.dataHolder.mapSymbol = mapSymbol;
-        fucEnv.exposedClosureHolder = funcNode.dataHolder;
+        funcNode.exposedClosureHolder.mapSymbol = mapSymbol;
+        fucEnv.exposedClosureHolder = funcNode.exposedClosureHolder;
 
         // Push the function map symbol stack
         funcNode.blockSymbolsInUpperLevels.push(mapSymbol);
@@ -568,9 +568,9 @@ public class Desugar extends BLangNodeVisitor {
         // For every function node blindly add the map
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(funcNode.pos, symTable.mapType);
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos,
-                funcNode.dataHolder.mapSymbol.name.value, funcNode.dataHolder.mapSymbol.type, emptyRecord,
-                funcNode.dataHolder.mapSymbol);
-        mapVar.typeNode = ASTBuilderUtil.createTypeNode(funcNode.dataHolder.mapSymbol.type);
+                funcNode.exposedClosureHolder.mapSymbol.name.value, funcNode.exposedClosureHolder.mapSymbol.type,
+                emptyRecord, funcNode.exposedClosureHolder.mapSymbol);
+        mapVar.typeNode = ASTBuilderUtil.createTypeNode(funcNode.exposedClosureHolder.mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(funcNode.pos, mapVar);
         // Add the map variable to the top of the statements in the block node
         if (funcNode.body == null) {
@@ -578,36 +578,21 @@ public class Desugar extends BLangNodeVisitor {
         }
         funcNode.body.stmts.add(0, mapVarDef);
 
-        // Add the parameters that are exposed as closures to the function map symbol
+        // Add the parameters of the functions that are exposed as closures to the function map
         int position = 1;
         for (BVarSymbol paramSymbol : funcNode.symbol.params) {
             if (!fucEnv.exposedClosureHolder.closuresExposed.contains(paramSymbol)) {
                 continue;
             }
-            BLangLocalVarRef localVarRef = new BLangLocalVarRef(paramSymbol);
-            localVarRef.type = paramSymbol.type;
-            BVarSymbol symbol = fucEnv.exposedClosureHolder.mapSymbol;
-            BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(funcNode.pos, paramSymbol.type,
-                    symbol, ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType, paramSymbol.name.value));
-            accessExpr.type = ((BMapType) symbol.type).constraint;
-            BLangAssignment stmt = ASTBuilderUtil.createAssignmentStmt(funcNode.pos, accessExpr, localVarRef);
-            funcNode.body.stmts.add(position, stmt);
+            addToFunctionMap(funcNode, fucEnv, position, paramSymbol, paramSymbol.type);
             position++;
         }
 
-        // For object attached functions add the receiver to the attached function map
+        // For attached functions add the receiver to the function map if it has been exposed as a closure
         BLangSimpleVariable receiver = funcNode.receiver;
         if (receiver != null && fucEnv.exposedClosureHolder.closuresExposed.contains(funcNode.receiver.symbol) &&
                 funcNode.flagSet.contains(Flag.ATTACHED)) {
-            BLangLocalVarRef localVarRef = new BLangLocalVarRef(receiver.symbol);
-            localVarRef.type = receiver.type;
-            BVarSymbol symbol = fucEnv.exposedClosureHolder.mapSymbol;
-            BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(funcNode.pos, receiver.type,
-                    symbol, ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
-                            receiver.symbol.name.value));
-            accessExpr.type = ((BMapType) symbol.type).constraint;
-            BLangAssignment stmt = ASTBuilderUtil.createAssignmentStmt(funcNode.pos, accessExpr, localVarRef);
-            funcNode.body.stmts.add(position, stmt);
+            addToFunctionMap(funcNode, fucEnv, position, receiver.symbol, receiver.type);
         }
 
         // Define the closure arguments of the function
@@ -619,7 +604,7 @@ public class Desugar extends BLangNodeVisitor {
                     mapType, dupFuncSymbol.scope.owner);
             dupFuncSymbol.params.add(i, paramMapSymbol);
             dupFuncType.paramTypes.add(i, paramMapSymbol.type);
-            funcNode.closureResolvedMaps.put(i + 1, paramMapSymbol);
+            funcNode.closureParamMaps.put(i + 1, paramMapSymbol);
             // Push param symbol to param stack
             funcNode.paramMapSymbols.push(paramMapSymbol);
         }
@@ -630,6 +615,18 @@ public class Desugar extends BLangNodeVisitor {
         // Pop the map symbol
         funcNode.blockSymbolsInUpperLevels.pop();
         result = funcNode;
+    }
+
+    private void addToFunctionMap(BLangFunction funcNode, SymbolEnv fucEnv, int position, BVarSymbol paramSymbol,
+                                  BType type) {
+        BLangLocalVarRef localVarRef = new BLangLocalVarRef(paramSymbol);
+        localVarRef.type = type;
+        BVarSymbol symbol = fucEnv.exposedClosureHolder.mapSymbol;
+        BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(funcNode.pos, type, symbol,
+                ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType, paramSymbol.name.value));
+        accessExpr.type = ((BMapType) symbol.type).constraint;
+        BLangAssignment stmt = ASTBuilderUtil.createAssignmentStmt(funcNode.pos, accessExpr, localVarRef);
+        funcNode.body.stmts.add(position, stmt);
     }
 
     public void visit(BLangForever foreverStatement) {
@@ -697,8 +694,8 @@ public class Desugar extends BLangNodeVisitor {
         // Create a map symbol for every block statement
         BVarSymbol mapSymbol = new BVarSymbol(0, names.fromString("$mapBlock$" + blockClosureMapCount),
                 block.scope.owner.pkgID, new BMapType(TypeTags.MAP, constrainedTypeOfMap, null), block.scope.owner);
-        block.dataHolder.mapSymbol = mapSymbol;
-        blockEnv.exposedClosureHolder = block.dataHolder;
+        block.exposedClosureHolder.mapSymbol = mapSymbol;
+        blockEnv.exposedClosureHolder = block.exposedClosureHolder;
 
         // Push to block map symbol stack
         ((BLangFunction) env.enclInvokable).blockSymbolsInUpperLevels.push(mapSymbol);
@@ -717,9 +714,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(blockStmt.pos,
                 symTable.mapType);
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(blockStmt.pos,
-                blockStmt.dataHolder.mapSymbol.name.value,
-                blockStmt.dataHolder.mapSymbol.type, emptyRecord, blockStmt.dataHolder.mapSymbol);
-        mapVar.typeNode = ASTBuilderUtil.createTypeNode(blockStmt.dataHolder.mapSymbol.type);
+                blockStmt.exposedClosureHolder.mapSymbol.name.value,
+                blockStmt.exposedClosureHolder.mapSymbol.type, emptyRecord, blockStmt.exposedClosureHolder.mapSymbol);
+        mapVar.typeNode = ASTBuilderUtil.createTypeNode(blockStmt.exposedClosureHolder.mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(blockStmt.pos, mapVar);
         // Add the map variable to the top of the statements in the block node
         blockStmt.stmts.add(0, mapVarDef);
@@ -2020,7 +2017,7 @@ public class Desugar extends BLangNodeVisitor {
             if (null != enclFunction) {
                 if (enclFunction.closureVarsWithResolvedLevels.containsKey(varRefExpr.symbol)) {
                     Integer resolvedLevel = enclFunction.closureVarsWithResolvedLevels.get(varRefExpr.symbol);
-                    bVarSymbol = enclFunction.closureResolvedMaps.get(resolvedLevel);
+                    bVarSymbol = enclFunction.closureParamMaps.get(resolvedLevel);
                 } else {
                     bVarSymbol = resolveEnvMapSymbol(env, (BVarSymbol) varRefExpr.symbol);
                 }
@@ -2550,7 +2547,7 @@ public class Desugar extends BLangNodeVisitor {
         function.symbol = functionSymbol;
 
         lambdaFunction.function.closureVarsWithResolvedLevels = bLangArrowFunction.closureVarsWithResolvedLevels;
-        lambdaFunction.function.dataHolder = bLangArrowFunction.dataHolder;
+        lambdaFunction.function.exposedClosureHolder = bLangArrowFunction.exposedClosureHolder;
         lambdaFunction.function.enclEnvCount = bLangArrowFunction.enclEnvCount;
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;

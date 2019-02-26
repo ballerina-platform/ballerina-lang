@@ -250,17 +250,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        // This was added if an arrow function was added preceding a lambda function.
-        if (funcNode.hasArrowFuncAsParent) {
-            funcEnv.envCount = funcEnv.envCount + 1;
-        }
 
-        // Lambda functions declared globally will be added to the module init function. So we need to increment two.
-        if (funcNode.flagSet.contains(Flag.LAMBDA) && env.enclEnv != null && env.enclEnv.node != null &&
-                env.enclEnv.node.getKind() == NodeKind.PACKAGE) {
-            funcEnv.envCount = funcEnv.envCount + 2;
-        }
-        funcEnv.exposedClosureHolder = funcNode.dataHolder;
+        handleLambdaFunctions(funcNode, funcEnv);
+
+        funcEnv.exposedClosureHolder = funcNode.exposedClosureHolder;
         funcNode.enclEnvCount = funcEnv.envCount;
         //set function param flag to final
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
@@ -297,6 +290,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         this.processWorkers(funcNode, funcEnv);
+    }
+
+    private void handleLambdaFunctions(BLangFunction funcNode, SymbolEnv funcEnv) {
+        if (!funcNode.flagSet.contains(Flag.LAMBDA)) {
+            return;
+        }
+
+        // This was added if an arrow function was added preceding a lambda function, then the environment count
+        // needs to be incremented by +1
+        if (env.node.getKind() == NodeKind.ARROW_EXPR) {
+            funcEnv.envCount = funcEnv.envCount + 1;
+        }
+
+        // Lambda functions declared globally will be added to the module init function. So we need to increment +2
+        if (env.enclEnv != null && env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.PACKAGE) {
+            funcEnv.envCount = funcEnv.envCount + 2;
+        }
     }
 
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
@@ -1090,7 +1100,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBlockStmt blockNode) {
         env = SymbolEnv.createBlockEnv(blockNode, env);
-        env.exposedClosureHolder = blockNode.dataHolder;
+        env.exposedClosureHolder = blockNode.exposedClosureHolder;
         blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, env));
     }
 
