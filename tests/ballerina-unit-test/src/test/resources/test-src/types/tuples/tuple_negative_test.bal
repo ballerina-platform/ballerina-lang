@@ -80,7 +80,7 @@ function testInvalidInsertionToTupleUsingFiniteType() {
     FiniteOne f1 = "S1";
     FiniteTwo f2 = 3;
     FiniteThree f3 = 2;
-    var x = tuple[f1]; // invalid index expression: invalid finite type value space 'S1|S2'
-    var y = tuple[f2]; // invalid index expression: invalid finite type value space '3|4|5'
-    var z = tuple[f3]; // invalid index expression: invalid finite type value space '0|1|2|S1'
+    var x = tuple[f1]; // invalid tuple index expression: value space 'S1|S2' out of range
+    var y = tuple[f2]; // invalid tuple index expression: value space '3|4|5' out of range
+    var z = tuple[f3]; // invalid tuple index expression: value space '0|1|2|S1' out of range
 }
