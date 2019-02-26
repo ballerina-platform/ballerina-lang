@@ -95,7 +95,7 @@ public class BArrayType extends BType implements BIndexedType {
             case TypeTags.BYTE_TAG:
                 return (V) new BValueArray(elementType);
             default:
-                return (V) new BValueArray();
+                return (V) new BValueArray(this);
         }
     }
 

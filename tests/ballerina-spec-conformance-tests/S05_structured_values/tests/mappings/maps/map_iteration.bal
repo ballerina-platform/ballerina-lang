@@ -27,7 +27,13 @@ function testMapIteration() {
 
     string result = "";
     foreach (string, string|float|int) (key, value) in m1 {
-        result += <string> value;
+        if (value is float) {
+            result += string.convert(value);
+        } else if (value is int) {
+            result += string.convert(value);
+        } else {
+            result += value;
+        }
     }
     test:assertEquals(result, "valueOne2.034", msg = "expected iteration over all members in added order");
 }

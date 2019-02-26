@@ -29,6 +29,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Map;
 
+import static org.ballerinalang.bre.bvm.BVM.isByteLiteral;
+
 /**
  * The {@code BDecimal} represents a decimal value in Ballerina.
  *
@@ -68,7 +70,19 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public long intValue() {
-        if (this.valueKind == DecimalValueKind.NOT_A_NUMBER || !BVM.isDecimalWithinIntRange(value)) {
+        switch (valueKind) {
+            case NOT_A_NUMBER:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + NaN + "' cannot be converted to 'int'");
+            case NEGATIVE_INFINITY:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + NEGATIVE_INF + "' cannot be converted to 'int'");
+            case POSITIVE_INFINITY:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + POSITIVE_INF + "' cannot be converted to 'int'");
+        }
+
+        if (!BVM.isDecimalWithinIntRange(value)) {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                     "out of range 'decimal' value '" + this.stringValue() + "' cannot be converted to 'int'");
         }
@@ -77,7 +91,24 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public byte byteValue() {
-        return value.byteValue();
+        switch (valueKind) {
+            case NOT_A_NUMBER:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + NaN + "' cannot be converted to 'byte'");
+            case NEGATIVE_INFINITY:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + NEGATIVE_INF + "' cannot be converted to 'byte'");
+            case POSITIVE_INFINITY:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + POSITIVE_INF + "' cannot be converted to 'byte'");
+        }
+
+        long intVal = Math.round(Math.round(decimalValue().doubleValue()));
+        if (!isByteLiteral(intVal)) {
+            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                         "'decimal' value '" + value + "' cannot be converted to 'byte'");
+        }
+        return  (byte) intVal;
     }
 
     @Override
