@@ -33,13 +33,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -981,10 +979,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable) {
-        return validateErrorVariable(errorVariable, env);
-    }
-
-    private boolean validateErrorVariable(BLangErrorVariable errorVariable, SymbolEnv env) {
         BErrorType errorType;
         switch (errorVariable.type.tag) {
             case TypeTags.UNION:
@@ -1012,31 +1006,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TypeTags.ERROR:
                 errorType = (BErrorType) errorVariable.type;
                 break;
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-                BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
-                        env.enclPkg.symbol.pkgID, null, env.enclPkg.symbol);
-                errorType = new BErrorType(errorSymbol, symTable.stringType,
-                        new BMapType(TypeTags.MAP, errorVariable.type, null));
-                break;
             default:
                 dlog.error(errorVariable.pos, DiagnosticCode.INVALID_ERROR_BINDING_PATTERN, errorVariable.type);
                 return false;
         }
         errorVariable.reason.type = errorType.reasonType;
         errorVariable.reason.accept(this);
-        if (errorVariable.detail != null) {
-            errorVariable.detail.type = errorType.detailType;
-            if (errorVariable.detail.getKind() == NodeKind.VARIABLE) {
-                BLangSimpleVariable detailVariable = (BLangSimpleVariable) errorVariable.detail;
-                Name varName = names.fromIdNode(detailVariable.name);
-                if (varName == Names.IGNORE) {
-                    detailVariable.type = symTable.noType;
-                    return true;
-                }
-            }
-            errorVariable.detail.accept(this);
+        if (errorVariable.detail == null) {
+            return true;
         }
+        errorVariable.detail.type = errorType.detailType;
+        if (errorVariable.detail.getKind() == NodeKind.VARIABLE) {
+            BLangSimpleVariable detailVariable = (BLangSimpleVariable) errorVariable.detail;
+            Name varName = names.fromIdNode(detailVariable.name);
+            if (varName == Names.IGNORE) {
+                detailVariable.type = symTable.noType;
+                return true;
+            }
+        }
+        errorVariable.detail.accept(this);
         return true;
     }
 
@@ -1284,12 +1272,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (rhsType.tag == TypeTags.MAP) {
             BMapType rhsMapType = (BMapType) rhsType;
-            BType expectedType = rhsMapType.constraint.tag == TypeTags.ANY ||
-                    rhsMapType.constraint.tag == TypeTags.ANYDATA ? rhsMapType.constraint :
-                    new BUnionType(null, new LinkedHashSet<BType>() {{
+            BType expectedType;
+            switch (rhsMapType.constraint.tag) {
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                    expectedType = rhsMapType.constraint;
+                    break;
+                case TypeTags.UNION:
+                    LinkedHashSet<BType> unionMemberTypes = new LinkedHashSet<BType>() {{
+                        LinkedHashSet<BType> unionMemberTypes = typeChecker.collectMemberTypes(
+                                (BUnionType) rhsMapType.constraint, new LinkedHashSet<>());
+                        addAll(unionMemberTypes);
+                        add(symTable.nilType);
+                    }};
+                    expectedType = new BUnionType(null, unionMemberTypes, true);
+                    break;
+                default:
+                    expectedType = new BUnionType(null, new LinkedHashSet<BType>() {{
                         add(rhsMapType.constraint);
                         add(symTable.nilType);
                     }}, true);
+                    break;
+            }
             lhsVarRef.recordRefFields.forEach(field -> types.checkType(field.variableReference.pos,
                     expectedType, field.variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES));
             return;

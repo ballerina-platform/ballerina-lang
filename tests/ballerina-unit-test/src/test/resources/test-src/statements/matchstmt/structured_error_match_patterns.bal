@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -17,7 +17,7 @@
 import ballerina/io;
 
 function testBasicErrorMatch() returns string {
-    error <string, map<string>> err1 = error ("Error Code", {message: "Msg"});
+    error <string, map<string>> err1 = error("Error Code", { message: "Msg" });
     match err1 {
         var error(reason, detail) => return "Matched with error : " + reason + " " + io:sprintf("%s", detail);
     }
@@ -25,8 +25,8 @@ function testBasicErrorMatch() returns string {
 }
 
 function testBasicErrorMatch2() returns string {
-    error <string, map<string>> err1 = error ("Error Code", {message: "Msg"});
-    (string, map<any>) | error t1 = err1;
+    error <string, map<string>> err1 = error("Error Code", { message: "Msg" });
+    (string, map<any>)|error t1 = err1;
     match t1 {
         var (reason, detail) => return "Matched with tuple : " + reason + " " + io:sprintf("%s", detail);
         var error(reason, detail) => return "Matched with error : " + reason + " " + io:sprintf("%s", detail);
@@ -35,8 +35,8 @@ function testBasicErrorMatch2() returns string {
 }
 
 function testBasicErrorMatch3() returns string {
-    error <string> err1 = error ("Error Code");
-    (string, map<any>) | error <string> t1 = err1;
+    error <string> err1 = error("Error Code");
+    (string, map<any>)|error <string> t1 = err1;
     match t1 {
         var (reason, detail) => return "Matched with tuple : " + reason + " " + io:sprintf("%s", detail);
         var error(reason, detail) => return "Matched with error : " + reason + " " + io:sprintf("%s", detail);
@@ -52,15 +52,15 @@ type ER1 error <string, Foo>;
 type ER2 error <string, map<any>>;
 
 function testBasicErrorMatch4() returns string[] {
-    ER1 er1 = error ("Error 1", {fatal: true});
-    ER2 er2 = error ("Error 2", {message: "It's fatal"});
+    ER1 er1 = error("Error 1", { fatal: true });
+    ER2 er2 = error("Error 2", { message: "It's fatal" });
     string[] results = [foo(er1), foo(er2)];
     return results;
 }
 
 function foo(ER1|ER2 t1) returns string {
     match t1 {
-        var error (reason, {fatal, message}) => {
+        var error (reason, { fatal, message }) => {
             if fatal is boolean {
                 return "Matched with boolean : " + fatal;
             } else if message is string {
@@ -74,38 +74,38 @@ function foo(ER1|ER2 t1) returns string {
 }
 
 function testBasicErrorMatch5() returns string[] {
-    Foo f = {fatal: true};
-    error err1 = error ("Error Code 1");
-    error err2 = error ("Error Code 1", {message: "Something Wrong"});
-    Foo | error fe1 = err1;
-    Foo | error fe2 = err2;
-    string [] results = [foo2(f), foo2(fe1), foo2(fe2), foo3(fe1), foo3(fe2)];
+    Foo f = { fatal: true };
+    error err1 = error("Error Code 1");
+    error err2 = error("Error Code 1", { message: "Something Wrong" });
+    Foo|error fe1 = err1;
+    Foo|error fe2 = err2;
+    string[] results = [foo2(f), foo2(fe1), foo2(fe2), foo3(fe1), foo3(fe2)];
     return results;
 }
 
-function foo2(any f) returns string {
+function foo2(any|error f) returns string {
     match f {
-        var {fatal} => return "Matched with a record : " + io:sprintf("%s", fatal);
+        var { fatal } => return "Matched with a record : " + io:sprintf("%s", fatal);
         var error (reason) => return "Matched with an error : " + reason;
     }
     return "Default";
 }
 
-function foo3(any f) returns string {
+function foo3(any|error f) returns string {
     match f {
-        var {fatal} => return "Matched with a record : " + io:sprintf("%s", fatal);
+        var { fatal } => return "Matched with a record : " + io:sprintf("%s", fatal);
         var error (reason, detail) => return "Matched with an error : " + reason + " " + io:sprintf("%s", detail);
     }
     return "Default";
 }
 
 function testBasicErrorMatch6() returns string[] {
-    map<any> m = {key: "value"};
+    map<any> m = { key: "value" };
     string[] results = [foo4(m.key), foo4(trap m.invalid)];
     return results;
 }
 
-function foo4(any a) returns string {
+function foo4(any|error a) returns string {
     match a {
         "value" => return "Matched with string";
         var error (reason, detail) => return "Matched with an error " + reason + " " + io:sprintf("%s", detail);
@@ -114,7 +114,7 @@ function foo4(any a) returns string {
 }
 
 function testErrorWithUnderscore() returns string[] {
-    error err1 = error ("Error One");
+    error err1 = error("Error One");
     string[] results = [foo5(err1)];
     return results;
 }
@@ -122,8 +122,27 @@ function testErrorWithUnderscore() returns string[] {
 function foo5(any|error e) returns string {
     match e {
         var (a, b) => return "Matched with tuple var : " + io:sprintf("%s", a);
-        var {a, b} => return "Matched with record var : " + io:sprintf("%s", a);
+        var { a, b } => return "Matched with record var : " + io:sprintf("%s", a);
         var error (reason, _) => return "Matched with error var : " + io:sprintf("%s", reason);
         var x => return "Matched nothing : " + io:sprintf("%s", x);
     }
+}
+
+function testBasicErrorMatch7() returns string[] {
+    Foo f = { fatal: true };
+    error err1 = error("Error Code 1");
+    error err2 = error("Error Code 1", { message: "Something Wrong" });
+    error <string, map<string|boolean>> err3 = error("Error Code 1", { message: "Something Wrong", fatal: true });
+    Foo|error fe1 = err1;
+    Foo|error fe2 = err2;
+    string[] results = [foo6(f), foo6(fe1), foo6(fe2), foo6(fe1), foo6(fe2)];
+    return results;
+}
+
+function foo6(any|error f) returns string {
+    match f {
+        var { fatal } => return "Matched with a record : " + io:sprintf("%s", fatal);
+        var error (reason, { message }) => return "Matched with an error : " + reason + io:sprintf("%s", message);
+    }
+    return "Default";
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases to verify the behaviour of the structured error patterns with match statement in Ballerina.
  *
- * @since 0.990.0
+ * @since 0.990.4
  */
 public class MatchStructuredErrorPatternsTest {
     private CompileResult result, resultNegative;
@@ -117,19 +117,35 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "error var : Error One");
     }
 
+    @Test(description = "Test basics of structured pattern match statement 1")
+    public void testBasicErrorMatch7() {
+        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch7", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        BValueArray results = (BValueArray) returns[0];
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.getString(++i), msg + "a record : true");
+        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1");
+        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1Something Wrong");
+        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1");
+        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1Something Wrong");
+    }
+
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
         int i = -1;
         String unreachablePattern = "unreachable pattern: " +
                 "preceding patterns are too general or the pattern ordering is not correct";
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 28, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 33, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 44, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 43, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern; unknown field 'detail' in record type 'ClosedFoo'", 49, 29);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 50, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 61, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 66, 13);
+                "invalid record binding pattern; unknown field 'detail' in record type 'ClosedFoo'", 48, 30);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 49, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 59, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 64, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 78, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 83, 13);
     }
 }

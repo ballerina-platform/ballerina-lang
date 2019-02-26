@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -3975,6 +3976,13 @@ public class Desugar extends BLangNodeVisitor {
             createTypeDefinition(recordVarType, recordSymbol, createRecordTypeNode(typeDefFields, recordVarType));
 
             return recordVarType;
+        }
+
+        if (NodeKind.ERROR_VARIABLE == bindingPatternVariable.getKind()) {
+            BLangErrorVariable errorVariable = (BLangErrorVariable) bindingPatternVariable;
+            return new BErrorType(null, errorVariable.reason.type,
+                    errorVariable.detail == null || errorVariable.detail.type == symTable.noType ?
+                            symTable.mapAnydataType : getStructuredBindingPatternType(errorVariable.detail));
         }
 
         return bindingPatternVariable.type;

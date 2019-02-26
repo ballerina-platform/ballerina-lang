@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 /**
  * TestCases for Error Variable Definitions.
  *
- * @since 0.990.0
+ * @since 0.990.4
  */
 public class ErrorVariableDefinitionTest {
     private CompileResult result, resultNegative;
@@ -214,7 +214,7 @@ public class ErrorVariableDefinitionTest {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'error', found 'error'", 28, 84);
+                "incompatible types: expected 'error', found 'error'", 28, 86);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,

@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -18,8 +18,8 @@ type SMS error <string, map<string>>;
 type SMA error <string, map<any>>;
 
 function testBasicErrorVariableWithMapDetails() {
-    SMS err1 = error ("Error One", {message: "Msg One", detail: "Detail Msg"});
-    SMA err2 = error ("Error Two", {message: "Msg Two", fatal: true});
+    SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
+    SMA err2 = error("Error Two", { message: "Msg Two", fatal: true });
 
     boolean reason11; // expected 'boolean', found 'string'
     map<int> detail11; // expected 'map<int>', found 'map<string>'
@@ -29,7 +29,7 @@ function testBasicErrorVariableWithMapDetails() {
     string? extra12;
 
     error (reason11, detail11) = err1;
-    error (reason12, {message: message12, detail: detail12, extra: extra12}) = err1;
+    error (reason12, { message: message12, detail: detail12, extra: extra12 }) = err1;
 
     string reason21;
     map<string> detail21; // expected 'map<string>', found 'map<any>'
@@ -39,8 +39,8 @@ function testBasicErrorVariableWithMapDetails() {
     any extra22;
 
     error (reason21, detail21) = err2;
-    error (reason22, {message: message22, detail: detail22, extra: extra22}) = err2;
-    error (reason22, {message: message22, detail: detail22, extra: extra22}) = error (reason11, detail11); // error constructor expression is not supported for error binding pattern
+    error (reason22, { message: message22, detail: detail22, extra: extra22 }) = err2;
+    error (reason22, { message: message22, detail: detail22, extra: extra22 }) = error(reason11, detail11); // error constructor expression is not supported for error binding pattern
 }
 
 type Foo record {
@@ -51,8 +51,8 @@ type Foo record {
 type FooError error <string, Foo>;
 
 function testBasicErrorVariableWithRecordDetails() {
-    FooError err1 = error ("Error One", {message: "Something Wrong", fatal: true});
-    FooError err2 = error ("Error One", {message: "Something Wrong", fatal: true});
+    FooError err1 = error("Error One", { message: "Something Wrong", fatal: true });
+    FooError err2 = error("Error One", { message: "Something Wrong", fatal: true });
 
     string res1;
     map<any> rec; // expected 'map', found 'Foo'
@@ -61,12 +61,13 @@ function testBasicErrorVariableWithRecordDetails() {
     any fatal;
 
     error (res1, rec) = err1;
-    error (res2, {message, fatal}) = err2;
+    error (res2, { message, fatal }) = err2;
 }
 
 function testErrorInTuple() {
-    Foo f = {message: "fooMsg", fatal: true};
-    (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", {message: "Something Wrong"}), (error("Err2", {message: "Something Wrong2"}), f));
+    Foo f = { message: "fooMsg", fatal: true };
+    (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", { message: "Something Wrong" }),
+                                                        (error("Err2", { message: "Something Wrong2" }), f));
 
     any intVar;
     string stringVar;
@@ -83,18 +84,18 @@ type Bar record {
 };
 
 function testErrorInRecordWithDestructure() {
-    Bar b = {x: 1000, e: error("Err3", {message: "Something Wrong3"})};
+    Bar b = { x: 1000, e: error("Err3", { message: "Something Wrong3" }) };
     int x;
     boolean reason;
     Bar detail;
-    {x, e: error (reason, detail)} = b;
+    { x, e: error (reason, detail) } = b;
 }
 
 function testErrorInRecordWithDestructure2() {
-    Bar b = {x: 1000, e: error("Err3", {message: "Something Wrong3"})};
+    Bar b = { x: 1000, e: error("Err3", { message: "Something Wrong3" }) };
     int x;
     string reason;
     string? message;
     any extra;
-    {x, e: error (reason, {message, extra})} = b;
+    { x, e: error (reason, { message, extra }) } = b;
 }

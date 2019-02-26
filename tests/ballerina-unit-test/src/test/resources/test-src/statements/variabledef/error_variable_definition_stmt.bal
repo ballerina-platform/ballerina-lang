@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -22,7 +22,7 @@ const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
 function testBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?, string?,
-            string?, map<any>, any, any, any) {
+                                                            string?, map<any>, any, any, any) {
     SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
     SMA err2 = error("Error Two", { message: "Msg Two", fatal: true });
     SMS error (reason11, detail11) = err1;
@@ -35,7 +35,7 @@ function testBasicErrorVariableWithMapDetails() returns (string, string, string,
 }
 
 function testBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map<string>, string?, string?,
-            string?, map<any>, any, any, any) {
+                                                             string?, map<any>, any, any, any) {
     CMS err3 = error(ERROR1, { message: "Msg Three", detail: "Detail Msg" });
     CMA err4 = error(ERROR2, { message: "Msg Four", fatal: true });
     CMS error (reason31, detail31) = err3;
@@ -47,30 +47,30 @@ function testBasicErrorVariableWithConstAndMap() returns (string, string, string
     detail42, extra42);
 }
 
-function testVarBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?, string
-            ?, string?, map<any>, any, any, any) {
+function testVarBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?,
+                                                               string?, string?, map<any>, any, any, any) {
     SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
     SMA err2 = error("Error Two", { message: "Msg Two", fatal: true });
     var error (reason11, detail11) = err1;
-    var error (reason12, {message: message12, detail: detail12, extra: extra12}) = err1;
+    var error (reason12, { message: message12, detail: detail12, extra: extra12 }) = err1;
     var error (reason21, detail21) = err2;
-    var error (reason22, {message: message22, detail: detail22, extra: extra22}) = err2;
+    var error (reason22, { message: message22, detail: detail22, extra: extra22 }) = err2;
 
-    return (reason11, reason12, reason21, reason22, detail11, message12, detail12, extra12, detail21, message22, detail22,
-    extra22);
+    return (reason11, reason12, reason21, reason22, detail11, message12, detail12, extra12, detail21, message22,
+    detail22, extra22);
 }
 
 function testVarBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map<string>, string?,
-            string?, string?, map<any>, any, any, any) {
+                                                                string?, string?, map<any>, any, any, any) {
     CMS err3 = error(ERROR1, { message: "Msg Three", detail: "Detail Msg" });
     CMA err4 = error(ERROR2, { message: "Msg Four", fatal: true });
     var error (reason31, detail31) = err3;
-    var error (reason32, {message: message32, detail: detail32, extra: extra32}) = err3;
+    var error (reason32, { message: message32, detail: detail32, extra: extra32 }) = err3;
     var error (reason41, detail41) = err4;
-    var error (reason42, {message: message42, detail: detail42, extra: extra42}) = err4;
+    var error (reason42, { message: message42, detail: detail42, extra: extra42 }) = err4;
 
-    return (reason31, reason32, reason41, reason42, detail31, message32, detail32, extra32, detail41, message42, detail42,
-    extra42);
+    return (reason31, reason32, reason41, reason42, detail31, message32, detail32, extra32, detail41, message42,
+    detail42, extra42);
 }
 
 type Foo record {
@@ -131,14 +131,14 @@ function testErrorInRecordWithDestructure() returns (int, string, any) {
 
 function testErrorWithAnonErrorType() returns (string, string?) {
     error <string, map<string>> err = error("Error Code", { message: "Fatal" });
-    error<string, map<string> > error(reason, { message }) = err;
+    error <string, map<string>> error(reason, { message }) = err;
     return (reason, message);
 }
 
 function testErrorWithUnderscore() returns (string, string, string, string, string, string, string, string) {
-    error <string, map<string> > err= error("Error Code", { message: "Fatal" });
-    error <string, map<string> > error (reason, _) = err;
-    error <string, map<string> > error (reason2) = err;
+    error <string, map<string>> err = error("Error Code", { message: "Fatal" });
+    error <string, map<string>> error (reason, _) = err;
+    error <string, map<string>> error (reason2) = err;
 
     SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
     SMS error (reason3, _) = err1;
