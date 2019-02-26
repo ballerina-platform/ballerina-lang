@@ -492,35 +492,23 @@ public final class BXMLSequence extends BXML<BValueArray> {
 
         @Override
         public BValue getNext() {
-            if (hasNext()) {
-                if (iterMode == IterMode.CODE_POINT) {
-                    if (advanceCodePointIter()) {
-                        return codePointIterator.getNext();
-                    }
+            if (iterMode == IterMode.CODE_POINT) {
+                if (codePointIterator.hasNext()) {
+                    return codePointIterator.getNext();
                 } else {
-                    BRefType<?> curVal = value.sequence.getRefValue(cursor++);
-                    if (curVal.getType().getTag() == TypeTags.XML_TAG
-                            && ((BXMLItem) curVal).getNodeType() == XMLNodeType.TEXT) {
-                        iterMode = IterMode.CODE_POINT;
-                        codePointIterator = CodePointIterator.from((((BXMLItem) curVal).stringValue()));
-                        if (advanceCodePointIter()) {
-                            return codePointIterator.getNext();
-                        }
-                    }
-                    return curVal;
+                    iterMode = IterMode.SEQUENCE;
+                    codePointIterator = null;
                 }
             }
-            return null;
-        }
-
-        private boolean advanceCodePointIter() {
-            if (codePointIterator.hasNext()) {
-                return true;
-            } else {
-                iterMode = IterMode.SEQUENCE;
-                codePointIterator = null;
-                return false;
+            BRefType<?> curVal = value.sequence.getRefValue(cursor++);
+            if (curVal.getType().getTag() == TypeTags.XML_TAG
+                    && ((BXMLItem) curVal).getNodeType() == XMLNodeType.TEXT) {
+                iterMode = IterMode.CODE_POINT;
+                codePointIterator = CodePointIterator.from((curVal.stringValue()));
+                return codePointIterator.getNext();
             }
+            return curVal;
+
         }
 
         @Override

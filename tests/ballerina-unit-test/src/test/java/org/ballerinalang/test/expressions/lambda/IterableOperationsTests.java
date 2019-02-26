@@ -231,7 +231,7 @@ public class IterableOperationsTests {
         BValue[] returns = BRunUtil.invoke(basic, "xmlTest");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "38");
+        Assert.assertEquals(returns[0].stringValue(), "35");
         Assert.assertEquals(returns[1].stringValue(), "3");
         Assert.assertEquals(returns[2].stringValue(), "{\"0\":<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>, " +
                 "\"1\":<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>}");
