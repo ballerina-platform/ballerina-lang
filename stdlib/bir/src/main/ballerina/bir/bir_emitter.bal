@@ -38,7 +38,7 @@ type BirEmitter object {
     function emitTypeDef(TypeDef bTypeDef) {
         print(bTypeDef.visibility, " type ", bTypeDef.name.value, " ");
         self.typeEmitter.emitType(bTypeDef.typeValue);
-        println();
+        println(";");
     }
 
     function emitFunctions() {
@@ -163,6 +163,8 @@ type TypeEmitter object {
             self.emitObjectType(typeVal, tabs);
         } else if (typeVal is BInvokableType) {
             self.emitInvokableType(typeVal, tabs);
+        } else if (typeVal is BUnionType) {
+            self.emitUnionType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
             print("()");
         }
@@ -174,13 +176,15 @@ type TypeEmitter object {
             self.emitType(f.typeValue, tabs = tabs + "\t");
             println(" ", f.name.value);
         }
+        self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
+        println("...");
         print(tabs, "}");
     }
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
         println("object {");
         foreach var f in bObjectType.fields {
-            print(tabs, f.visibility);
+            print(tabs + "\t", f.visibility);
             self.emitType(f.typeValue);
             println(" ", f.name.value);
         }
@@ -200,6 +204,17 @@ type TypeEmitter object {
         }
         print(") -> ");
         self.emitType(bInvokableType.retType);
+    }
+
+    function emitUnionType(BUnionType bUnionType, string tabs) {
+        int i = 0;
+        foreach var t in bUnionType.members {
+            if (i != 0) {
+                print(" | ");
+            }
+            self.emitType(t, tabs = tabs);
+            i = i + 1;
+        }
     }
 };
 
