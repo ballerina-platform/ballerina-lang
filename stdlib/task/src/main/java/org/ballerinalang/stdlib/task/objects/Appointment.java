@@ -90,6 +90,24 @@ public class Appointment extends AbstractTask {
     }
 
     /**
+     * Returns the cron expression for this Appointment.
+     *
+     * @return cron expression for this appointment to trigger.
+     */
+    public String getCronExpression() {
+        return this.cronExpression;
+    }
+
+    /**
+     * Gets the number of maximum runs of this Appointment.
+     *
+     * @return the number of times the appointment runs before shutdown.
+     */
+    public long getMaxRuns() {
+        return this.maxRuns;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -99,12 +117,8 @@ public class Appointment extends AbstractTask {
             try {
                 TaskManager.getInstance().scheduleAppointment(this, jobDataMap);
             } catch (SchedulerException e) {
-                throw new SchedulingException("Failed to schedule Task: " + this.id + ". " + e.getMessage());
+                throw new SchedulingException("Failed to schedule Task: " + e.getMessage());
             }
         }
-    }
-
-    public String getCronExpression() {
-        return this.cronExpression;
     }
 }

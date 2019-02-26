@@ -57,7 +57,7 @@ public class Timer extends AbstractTask {
      */
     public Timer(Context context, long delay, long interval, long maxRuns) throws SchedulingException {
         super(maxRuns);
-        validateTimerConfigurations(delay, interval, maxRuns);
+        validateTimerConfigurations(delay, interval);
         this.interval = interval;
         this.delay = delay;
     }
@@ -133,13 +133,6 @@ public class Timer extends AbstractTask {
         }
         if (interval < 1) {
             throw new SchedulingException("Timer scheduling interval should be a positive integer.");
-        }
-    }
-
-    private void validateTimerConfigurations(long delay, long interval, long maxRuns) throws SchedulingException {
-        validateTimerConfigurations(delay, interval);
-        if (maxRuns < 1) {
-            throw new SchedulingException("Timer noOfOccurrences should be a positive integer.");
         }
     }
 }

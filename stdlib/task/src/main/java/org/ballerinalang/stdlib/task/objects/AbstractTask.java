@@ -21,6 +21,7 @@
 package org.ballerinalang.stdlib.task.objects;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
 import org.quartz.JobDataMap;
 
@@ -36,12 +37,12 @@ public abstract class AbstractTask implements Task {
 
     protected String id = TaskIdGenerator.generate();
     HashMap<String, ServiceWithParameters> serviceMap;
-    protected long maxRuns;
+    long maxRuns;
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
      */
-    protected AbstractTask() {
+    AbstractTask() {
         this.serviceMap = new HashMap<>();
         this.maxRuns = -1;
     }
@@ -51,7 +52,8 @@ public abstract class AbstractTask implements Task {
      *
      * @param maxRuns Maximum number of runs allowed.
      */
-    protected AbstractTask(long maxRuns) {
+    AbstractTask(long maxRuns) throws SchedulingException {
+        validateMaxRuns(maxRuns);
         this.serviceMap = new HashMap<>();
         this.maxRuns = maxRuns;
     }
@@ -102,10 +104,16 @@ public abstract class AbstractTask implements Task {
      * @param serviceWithParameters <code>ServiceWithParameter</code> object related to the task.
      * @return JobDataMap consists of context and the <code>ServiceWithParameter</code> object.
      */
-    protected JobDataMap getJobDataMapFromService(Context context, ServiceWithParameters serviceWithParameters) {
+    JobDataMap getJobDataMapFromService(Context context, ServiceWithParameters serviceWithParameters) {
         JobDataMap jobData = new JobDataMap();
         jobData.put(TASK_CONTEXT, context);
         jobData.put(TASK_SERVICE_WITH_PARAMETER, serviceWithParameters);
         return jobData;
+    }
+
+    private void validateMaxRuns(long maxRuns) throws SchedulingException {
+        if (maxRuns < 1) {
+            throw new SchedulingException("Task noOfOccurrences should be a positive integer.");
+        }
     }
 }
