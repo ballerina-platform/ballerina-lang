@@ -1815,22 +1815,18 @@ public type HoppingWindow object {
     }
 
     public function process(StreamEvent?[] streamEvents) {
-        io:println("coming events: ", streamEvents);
         LinkedList outputStreamEvents = new();
         if (self.nextEmitTime == -1) {
             self.nextEmitTime = time:currentTime().time + self.hoppingTime;
             self.scheduler.notifyAt(self.nextEmitTime);
-            io:println("scheduling first time: ", self.nextEmitTime);
         }
 
         int currentTime = time:currentTime().time;
-        io:println("currentTime: ", currentTime);
         boolean sendEvents = false;
 
         if (currentTime >= self.nextEmitTime) {
             self.nextEmitTime += self.hoppingTime;
             self.scheduler.notifyAt(self.nextEmitTime);
-            io:println("shcduling time (not first time): ", self.nextEmitTime);
             sendEvents = true;
         } else {
             sendEvents = false;
@@ -1854,9 +1850,8 @@ public type HoppingWindow object {
                 self.currentEventQueue.resetToFront();
                 while (self.currentEventQueue.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(self.currentEventQueue.next());
-                    if (streamEvent.timestamp >= currentTime - self.timeInMilliSeconds) {
-
-                        io:println("add to output: ", streamEvent, " currentTime: ", currentTime);
+                    if (streamEvent.timestamp >= self.nextEmitTime - self.hoppingTime - self
+                        .timeInMilliSeconds && streamEvent.timestamp < self.nextEmitTime - self.hoppingTime) {
                         outputStreamEvents.addLast(streamEvent);
                     } else {
                         self.currentEventQueue.removeCurrent();

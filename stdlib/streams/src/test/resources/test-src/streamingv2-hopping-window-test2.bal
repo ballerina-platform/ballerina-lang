@@ -16,7 +16,6 @@
 
 import ballerina/runtime;
 import ballerina/time;
-import ballerina/io;
 
 type Teacher record {
     string name;
@@ -52,19 +51,13 @@ function startHoppingWindowTest2() returns (Teacher[]) {
 
     outputStreamHoppingWindow2.subscribe(printTeachers);
 
-    io:println("publish time: ", time:currentTime().time);
     inputStreamHoppingWindow2.publish(t1);
-    io:println("publish time: ", time:currentTime().time);
     inputStreamHoppingWindow2.publish(t2);
-    runtime:sleep(500);
-    io:println("publish time: ", time:currentTime().time);
+    runtime:sleep(600);
     inputStreamHoppingWindow2.publish(t3);
-    runtime:sleep(1000);
-    io:println("publish time: ", time:currentTime().time);
+    runtime:sleep(1100);
     inputStreamHoppingWindow2.publish(t4);
-    io:println("publish time: ", time:currentTime().time);
     inputStreamHoppingWindow2.publish(t5);
-    io:println("publish time: ", time:currentTime().time);
     inputStreamHoppingWindow2.publish(t6);
 
     runtime:sleep(1000);
