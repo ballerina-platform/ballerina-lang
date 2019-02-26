@@ -63,7 +63,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -623,12 +622,7 @@ public class SymbolTable {
                 unionType.memberTypes.add(this.errorType);
                 retType = targetType;
             } else {
-                BUnionType unionType = new BUnionType(null,
-                                                      new LinkedHashSet<BType>() {{
-                                                          add(targetType);
-                                                          add(errorType);
-                                                      }}, false);
-                retType = unionType;
+                retType = BUnionType.create(null, targetType, errorType);
             }
         }
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
@@ -654,12 +648,7 @@ public class SymbolTable {
                 unionType.memberTypes.add(this.errorType);
                 retType = targetType;
             } else {
-                BUnionType unionType = new BUnionType(null,
-                        new LinkedHashSet<BType>() {{
-                            add(targetType);
-                            add(errorType);
-                        }}, false);
-                retType = unionType;
+                retType = BUnionType.create(null, targetType, errorType);
             }
         }
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);

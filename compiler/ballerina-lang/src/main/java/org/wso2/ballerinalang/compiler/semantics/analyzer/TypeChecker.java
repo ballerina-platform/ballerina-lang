@@ -140,7 +140,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -610,12 +609,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
             }
         }
-        BType actualType = new BUnionType(null, new LinkedHashSet<BType>() {
-            {
-                add(symTable.nilType);
-                add(symTable.errorType);
-            }
-        }, false);
+        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
         resultType = types.checkType(workerFlushExpr, actualType, expType);
     }
 
@@ -645,10 +639,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (expType == symTable.noType) {
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-            memberTypes.add(symTable.errorType);
-            memberTypes.add(symTable.nilType);
-            resultType = new BUnionType(null, memberTypes, true);
+            resultType = BUnionType.create(null, symTable.errorType, symTable.nilType);
         } else {
             resultType = expType;
         }
@@ -1288,7 +1279,7 @@ public class TypeChecker extends BLangNodeVisitor {
                             memberTypesForMap.iterator().next(), symTable.mapType.tsymbol);
                     break;
                 }
-                BUnionType constraintTypeForMap = new BUnionType(null, memberTypesForMap, false);
+                BUnionType constraintTypeForMap = BUnionType.create(null, memberTypesForMap);
                 resultType = new BMapType(TypeTags.MAP, constraintTypeForMap, symTable.mapType.tsymbol);
                 break;
             case TypeTags.NONE:
@@ -1299,7 +1290,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     resultType = new BMapType(TypeTags.MAP, memberTypes.iterator().next(), symTable.mapType.tsymbol);
                     break;
                 }
-                BUnionType constraintType = new BUnionType(null, memberTypes, false);
+                BUnionType constraintType = BUnionType.create(null, memberTypes);
                 resultType = new BMapType(TypeTags.MAP, constraintType, symTable.mapType.tsymbol);
                 break;
             default:
@@ -1318,9 +1309,7 @@ public class TypeChecker extends BLangNodeVisitor {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : keyVals) {
             BType bType = keyVal.keyExpr != null ? keyVal.keyExpr.type : keyVal.valueExpr.type;
-            if (bType.tag == TypeTags.UNION) {
-                memberTypes = collectMemberTypes((BUnionType) bType, memberTypes);
-            } else if (bType.tag == TypeTags.FUTURE) {
+            if (bType.tag == TypeTags.FUTURE) {
                 memberTypes.add(((BFutureType) bType).constraint);
             } else {
                 memberTypes.add(bType);
@@ -1434,7 +1423,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (memberTypes.size() == 1) {
                 resultType = memberTypes.toArray(new BType[0])[0];
             } else {
-                resultType = new BUnionType(null, memberTypes, false);
+                resultType = BUnionType.create(null, memberTypes);
             }
         } else if (resultType != symTable.semanticError) {
             // Handle other types except for semantic errors
@@ -1449,9 +1438,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private LinkedHashSet<BType> collectMemberTypes(BUnionType unionType, LinkedHashSet<BType> memberTypes) {
         for (BType memberType : unionType.memberTypes) {
-            if (memberType.tag == TypeTags.UNION) {
-                collectMemberTypes((BUnionType) memberType, memberTypes);
-            } else if (memberType.tag == TypeTags.FUTURE) {
+            if (memberType.tag == TypeTags.FUTURE) {
                 memberTypes.add(((BFutureType) memberType).constraint);
             } else {
                 memberTypes.add(memberType);
@@ -1488,7 +1475,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultTypes.add(exprType);
             }
             resultTypes.add(symTable.errorType);
-            actualType = new BUnionType(null, resultTypes, resultTypes.contains(symTable.nilType));
+            actualType = BUnionType.create(null, resultTypes);
         }
 
         resultType = types.checkType(trapExpr, actualType, expType);
@@ -1507,12 +1494,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
                 return;
             }
-            resultType = new BUnionType(null, new LinkedHashSet<BType>() {
-                {
-                    add(lhsResultType);
-                    add(rhsResultType);
-                }
-            }, false);
+            resultType = BUnionType.create(null, lhsResultType, rhsResultType);
             return;
         }
 
@@ -1557,20 +1539,14 @@ public class TypeChecker extends BLangNodeVisitor {
         if (lhsType != symTable.semanticError) {
             if (lhsType.tag == TypeTags.UNION && lhsType.isNullable()) {
                 BUnionType unionType = (BUnionType) lhsType;
-                LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-                Iterator<BType> iterator = unionType.getMemberTypes().iterator();
-                while (iterator.hasNext()) {
-                    BType memberType = iterator.next();
-                    if (memberType != symTable.nilType) {
-                        memberTypes.add(memberType);
-                    }
-                }
+                LinkedHashSet<BType> memberTypes = unionType.memberTypes.stream()
+                        .filter(type -> type.tag != TypeTags.NIL)
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+
                 if (memberTypes.size() == 1) {
-                    BType[] memberArray = new BType[1];
-                    memberTypes.toArray(memberArray);
-                    actualType = memberArray[0];
+                    actualType = memberTypes.toArray(new BType[0])[0];
                 } else {
-                    actualType = new BUnionType(null, memberTypes, false);
+                    actualType = BUnionType.create(null, memberTypes);
                 }
             } else {
                 dlog.error(elvisExpr.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
@@ -2032,9 +2008,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (matchExprTypes.contains(symTable.semanticError)) {
             actualType = symTable.semanticError;
         } else if (matchExprTypes.size() == 1) {
-            actualType = matchExprTypes.toArray(new BType[matchExprTypes.size()])[0];
+            actualType = matchExprTypes.toArray(new BType[0])[0];
         } else {
-            actualType = new BUnionType(null, matchExprTypes, matchExprTypes.contains(symTable.nilType));
+            actualType = BUnionType.create(null, matchExprTypes);
         }
 
         resultType = types.checkType(bLangMatchExpression, actualType, expType);
@@ -2047,17 +2023,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType == symTable.noType) {
             exprExpType = symTable.noType;
         } else {
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-            boolean nillable;
-            if (expType.tag == TypeTags.UNION) {
-                nillable = expType.isNullable();
-                memberTypes.addAll(((BUnionType) expType).memberTypes);
-            } else {
-                nillable = expType == symTable.nilType;
-                memberTypes.add(expType);
-            }
-            memberTypes.add(symTable.errorType);
-            exprExpType = new BUnionType(null, memberTypes, nillable);
+            exprExpType = BUnionType.create(null, expType, symTable.errorType);
         }
 
         BType exprType = checkExpr(checkedExpr.expr, env, exprExpType);
@@ -2110,8 +2076,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (nonErrorTypeList.size() == 1) {
             actualType = nonErrorTypeList.get(0);
         } else {
-            actualType = new BUnionType(null, new LinkedHashSet<>(nonErrorTypeList),
-                    nonErrorTypeList.contains(symTable.nilType));
+            actualType = BUnionType.create(null, new LinkedHashSet<>(nonErrorTypeList));
         }
 
         resultType = types.checkType(checkedExpr, actualType, expType);
@@ -2607,8 +2572,9 @@ public class TypeChecker extends BLangNodeVisitor {
             return actualType;
         }
 
-        BUnionType type = new BUnionType(null, new LinkedHashSet<>(getTypesList(actualType)), true);
+        BUnionType type = BUnionType.create(null, actualType);
         type.memberTypes.add(symTable.nilType);
+        type.setNullable(true);
         return type;
     }
 
@@ -2780,13 +2746,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
         accessExpr.originalType = actualType;
 
-        BUnionType unionType = new BUnionType(null, new LinkedHashSet<>(), false);
-        if (actualType.tag == TypeTags.UNION) {
-            unionType.memberTypes.addAll(((BUnionType) actualType).memberTypes);
-            unionType.setNullable(actualType.isNullable());
-        } else {
-            unionType.memberTypes.add(actualType);
-        }
+        BUnionType unionType = BUnionType.create(null, actualType);
 
         if (returnsNull(accessExpr)) {
             unionType.memberTypes.add(symTable.nilType);
@@ -2964,8 +2924,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 } else {
                     BTupleType tupleExpr = (BTupleType) accessExpr.expr.type;
                     LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
-                    actualType = tupleTypes.size() == 1 ? tupleTypes.iterator().next() :
-                            new BUnionType(null, tupleTypes, false);
+                    actualType = tupleTypes.size() == 1 ? tupleTypes.iterator().next() : BUnionType.create(null,
+                                                                                                           tupleTypes);
                 }
                 break;
             case TypeTags.FINITE:
@@ -2990,7 +2950,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     break;
                 }
                 actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
-                        new BUnionType(null, possibleTypes, false);
+                        BUnionType.create(null, possibleTypes);
                 break;
             default:
                 dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType, indexExpr.type);
@@ -3045,7 +3005,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return lhsTypes.get(0);
         }
 
-        return new BUnionType(null, new LinkedHashSet<>(lhsTypes), nullable);
+        return BUnionType.create(null, new LinkedHashSet<>(lhsTypes));
     }
 
     private List<BType> getTypesList(BType type) {
@@ -3160,18 +3120,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (types.isAnydata(type)) {
             retType = type;
         } else {
-            if (type.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) type;
-                if (unionType.getMemberTypes().stream().noneMatch(memType -> memType.tag == TypeTags.ERROR)) {
-                    unionType.memberTypes.add(symTable.errorType);
-                }
-                retType = unionType;
-            } else {
-                retType = new BUnionType(null, new LinkedHashSet<BType>() {{
-                    add(type);
-                    add(symTable.errorType);
-                }}, false);
-            }
+            retType = BUnionType.create(null, type, symTable.errorType);
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType, InstructionCodes.FREEZE);
     }

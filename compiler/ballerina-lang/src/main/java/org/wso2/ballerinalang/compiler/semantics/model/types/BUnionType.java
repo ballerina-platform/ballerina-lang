@@ -24,9 +24,12 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * {@code UnionType} represents a union type in Ballerina.
@@ -38,7 +41,7 @@ public class BUnionType extends BType implements UnionType {
 
     public LinkedHashSet<BType> memberTypes;
 
-    public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
+    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
         super(TypeTags.UNION, tsymbol);
         this.memberTypes = memberTypes;
         this.nullable = nullable;
@@ -83,5 +86,18 @@ public class BUnionType extends BType implements UnionType {
 
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
+    }
+
+    public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
+        LinkedHashSet<BType> memberTypes = types.stream()
+                .flatMap(type -> type.tag == TypeTags.UNION ?
+                        ((BUnionType) type).memberTypes.stream() : Stream.of(type))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        return new BUnionType(tsymbol, memberTypes, memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL));
+    }
+
+    public static BUnionType create(BTypeSymbol tsymbol, BType... types) {
+        LinkedHashSet<BType> memberTypes = Arrays.stream(types).collect(Collectors.toCollection(LinkedHashSet::new));
+        return create(tsymbol, memberTypes);
     }
 }

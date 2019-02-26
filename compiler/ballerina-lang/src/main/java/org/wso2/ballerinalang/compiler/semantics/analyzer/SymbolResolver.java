@@ -474,14 +474,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
         }
         if (types.isStampingAllowed(variableSourceType, targetType)) {
-            List<BType> unionReturnTypes = new ArrayList<>();
-            unionReturnTypes.add(targetType);
-            unionReturnTypes.add(symTable.errorType);
-            BType returnType = new BUnionType(null, new LinkedHashSet<BType>() {
-                {
-                    addAll(unionReturnTypes);
-                }
-            }, false);
+            BType returnType = BUnionType.create(null, targetType, symTable.errorType);
             List<BType> paramTypes = new ArrayList<>();
             paramTypes.add(variableSourceType);
             return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
@@ -654,11 +647,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<BType>() {{
-                add(resultType);
-                add(symTable.nilType);
-            }};
-            this.resultType = new BUnionType(null, memberTypes, true);
+            this.resultType = BUnionType.create(null, resultType, symTable.nilType);
         }
 
         typeNode.type = resultType;
@@ -864,8 +853,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        BUnionType unionType = new BUnionType(unionTypeSymbol, memberTypes,
-                memberTypes.contains(symTable.nilType));
+        BUnionType unionType = BUnionType.create(unionTypeSymbol, memberTypes);
         unionTypeSymbol.type = unionType;
 
         resultType = unionType;

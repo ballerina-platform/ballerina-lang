@@ -1249,7 +1249,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         returnTypeAndSendType.add(workerSendNode.expr.type);
         if (returnTypeAndSendType.size() > 1) {
-            return new BUnionType(null, returnTypeAndSendType, false);
+            return BUnionType.create(null, returnTypeAndSendType);
         } else {
             return workerSendNode.expr.type;
         }
@@ -1319,7 +1319,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         returnTypeAndSendType.add(symTable.nilType);
         if (returnTypeAndSendType.size() > 1) {
-            return new BUnionType(null, returnTypeAndSendType, true);
+            return BUnionType.create(null, returnTypeAndSendType);
         } else {
             return symTable.nilType;
         }
@@ -2103,9 +2103,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!types.isAssignable(funcNode.returnTypeNode.type,
-                                new BUnionType(null, new LinkedHashSet<BType>() {
-                                    { add(symTable.nilType); add(symTable.errorType); }
-                                }, true))) {
+                                BUnionType.create(null, symTable.nilType, symTable.errorType))) {
             this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL,
                             funcNode.returnTypeNode.type);
         }

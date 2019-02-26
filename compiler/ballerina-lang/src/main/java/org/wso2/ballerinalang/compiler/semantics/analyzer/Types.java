@@ -775,9 +775,7 @@ public class Types {
     void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
         BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        memberTypes.add(mapType);
-        BUnionType unionType = new BUnionType(null, memberTypes, true);
+        BUnionType unionType = BUnionType.create(null, mapType, symTable.nilType);
         switch (collectionType.tag) {
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) collectionType;
@@ -787,8 +785,7 @@ public class Types {
                 BTupleType tupleType = (BTupleType) collectionType;
                 LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
                 mapType.constraint = tupleTypes.size() == 1 ?
-                        tupleTypes.iterator().next() :
-                        new BUnionType(null, new LinkedHashSet<>(tupleType.tupleTypes), false);
+                        tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
                 break;
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
@@ -805,10 +802,7 @@ public class Types {
                 }});
                 break;
             case TypeTags.XML:
-                LinkedHashSet<BType> bTypes = new LinkedHashSet<>();
-                bTypes.add(symTable.xmlType);
-                bTypes.add(symTable.stringType);
-                mapType.constraint = new BUnionType(null, bTypes, false);
+                mapType.constraint = BUnionType.create(null, symTable.xmlType, symTable.stringType);
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
@@ -1945,11 +1939,9 @@ public class Types {
 
         if (remainingTypes.isEmpty()) {
             return symTable.semanticError;
-        } else if (remainingTypes.size() == 1) {
-            return remainingTypes.get(0);
         }
 
-        return new BUnionType(null, new LinkedHashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+        return BUnionType.create(null, new LinkedHashSet<>(remainingTypes));
     }
 
     public BType getSafeType(BType type, boolean liftError) {
@@ -1970,11 +1962,11 @@ public class Types {
         }
 
         BUnionType unionType = (BUnionType) type;
-        BUnionType errorLiftedType =
-                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
+        BUnionType errorLiftedType = BUnionType.create(null, unionType.memberTypes);
 
         // Lift nil always. Lift error only if safe navigation is used.
         errorLiftedType.memberTypes.remove(symTable.nilType);
+        errorLiftedType.setNullable(false);
         if (liftError) {
             errorLiftedType.memberTypes.remove(symTable.errorType);
         }

@@ -1219,8 +1219,7 @@ public class CompiledPackageSymbolEnter {
                 case 'O':
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
-                    return new BUnionType(unionTypeSymbol, new LinkedHashSet<>(memberTypes),
-                            memberTypes.contains(symTable.nilType));
+                    return BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(memberTypes));
                 case 'P':
                     BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);

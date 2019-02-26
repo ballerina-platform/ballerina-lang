@@ -363,7 +363,7 @@ public class Desugar extends BLangNodeVisitor {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         members.add(symTable.errorType);
         members.add(symTable.nilType);
-        final BUnionType returnType = new BUnionType(null, members, true);
+        final BUnionType returnType = BUnionType.create(null, members);
         BInvokableType invokableType = new BInvokableType(new ArrayList<>(), returnType, null);
 
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
@@ -3929,7 +3929,7 @@ public class Desugar extends BLangNodeVisitor {
         if (unmatchedTypes.size() == 1) {
             defaultPatternType = unmatchedTypes.get(0);
         } else {
-            defaultPatternType = new BUnionType(null, new LinkedHashSet<>(unmatchedTypes), false);
+            defaultPatternType = BUnionType.create(null, new LinkedHashSet<>(unmatchedTypes));
         }
 
         String patternCaseVarName = GEN_VAR_PREFIX.value + "t_match_default";
