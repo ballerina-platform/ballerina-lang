@@ -124,6 +124,7 @@ public class BUnionType extends BType implements UnionType {
      */
     public void add(BType type) {
         if (type.tag == TypeTags.UNION) {
+            assert type instanceof BUnionType;
             this.memberTypes.addAll(toFlatTypeSet(((BUnionType) type).memberTypes));
         } else {
             this.memberTypes.add(type);
@@ -143,6 +144,7 @@ public class BUnionType extends BType implements UnionType {
 
     public void remove(BType type) {
         if (type.tag == TypeTags.UNION) {
+            assert type instanceof BUnionType;
             this.memberTypes.removeAll(((BUnionType) type).getMemberTypes());
         } else {
             this.memberTypes.remove(type);
