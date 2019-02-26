@@ -1365,12 +1365,6 @@
                 <version>${quartz.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.mina</groupId>
-                <artifactId>mina-core</artifactId>
-                <version>${apache.mina.core}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson-core.version}</version>
@@ -2351,7 +2345,6 @@
         <quartz.version>2.3.0</quartz.version>
         <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.9.8</jackson-core.version>
-        <apache.mina.core>2.0.19</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
         <broker.version>0.970.5</broker.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
