@@ -132,10 +132,17 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
 function xmlElemIter() returns string {
     string result = "";
 
-    io:println(xdata.*);
-    io:println(xdata.*.count());
-
     foreach xml|string elem in compositeXml {
+        string str = io:sprintf("%s\n", elem);
+        result += str;
+    }
+    return result;
+}
+
+function singleElemIter() returns string {
+    string result = "";
+
+    foreach xml|string elem in bitOfText {
         string str = io:sprintf("%s\n", elem);
         result += str;
     }

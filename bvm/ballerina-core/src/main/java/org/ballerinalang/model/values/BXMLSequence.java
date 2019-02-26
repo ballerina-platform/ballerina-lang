@@ -484,7 +484,7 @@ public final class BXMLSequence extends BXML<BValueArray> {
         BXMLSequence value;
         int cursor = 0;
         IterMode iterMode = IterMode.SEQUENCE;
-        CodePointIterator codePointIterator;
+        BXMLCodePointIterator codePointIterator;
 
         BXMLSequenceIterator(BXMLSequence bxmlSequence) {
             value = bxmlSequence;
@@ -504,7 +504,7 @@ public final class BXMLSequence extends BXML<BValueArray> {
             if (curVal.getType().getTag() == TypeTags.XML_TAG
                     && ((BXMLItem) curVal).getNodeType() == XMLNodeType.TEXT) {
                 iterMode = IterMode.CODE_POINT;
-                codePointIterator = CodePointIterator.from((curVal.stringValue()));
+                codePointIterator = BXMLCodePointIterator.from((curVal.stringValue()));
                 return codePointIterator.getNext();
             }
             return curVal;
@@ -520,42 +520,6 @@ public final class BXMLSequence extends BXML<BValueArray> {
 
     enum IterMode {
         SEQUENCE, CODE_POINT
-    }
-
-    /**
-     * {@link CodePointIterator} private iteration provider for BXML char sequence.
-     *
-     * @since 0.990.4
-     */
-    static class CodePointIterator implements BIterator {
-        private String charSequence;
-        private int offset;
-
-
-        public CodePointIterator(String charSequence) {
-            this.charSequence = charSequence;
-            this.offset = 0;
-        }
-
-        static CodePointIterator from(String seq) {
-            return new CodePointIterator(seq);
-        }
-
-        @Override
-        public BValue getNext() {
-            int codePoint = charSequence.codePointAt(offset);
-            offset += Character.charCount(codePoint);
-
-            // Max 2 chars per code point.
-            StringBuilder sb = new StringBuilder(2);
-            sb.appendCodePoint(codePoint);
-            return new BString(sb.toString());
-        }
-
-        @Override
-        public boolean hasNext() {
-            return offset < charSequence.length();
-        }
     }
 
     @Override

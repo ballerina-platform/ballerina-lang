@@ -137,4 +137,12 @@ public class XMLIterationTest {
         String str = results[0].stringValue();
         Assert.assertEquals(str, "<book>the book</book>\nb\ni\nt\n \no\nf\n \nt\ne\nx\nt\n✂\n✅\n");
     }
+
+    @Test(description = "Test iterating over single string xml element")
+    public void testSingleXMLCharacterSequenceIteration() {
+        BValue[] results = BRunUtil.invoke(result, "singleElemIter");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+        String str = results[0].stringValue();
+        Assert.assertEquals(str, "b\ni\nt\n \no\nf\n \nt\ne\nx\nt\n✂\n✅\n");
+    }
 }
