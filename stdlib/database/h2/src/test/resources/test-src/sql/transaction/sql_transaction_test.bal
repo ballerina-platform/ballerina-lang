@@ -222,7 +222,7 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 611 };
     sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
     para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
@@ -230,7 +230,7 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     para3 = { sqlType: sql:TYPE_INTEGER, value: 611 };
     para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
         _= testDB->batchUpdate("Insert into Customers
@@ -266,7 +266,7 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 612 };
     sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
     para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
@@ -274,7 +274,7 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     para3 = { sqlType: sql:TYPE_INTEGER, value: 612 };
     para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
         _ = testDB->batchUpdate("Insert into Customers

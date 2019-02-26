@@ -31,7 +31,7 @@ public function main (string... args) {
     map words = {a:"apple",b:"banana", c:"cherry"};
     foreach k,v in words {
         //var value =? (string)v;
-        //io:println(string `words {{k}} : {{value}}`);
+        //io:println(string `words ${k} : ${value}`);
     }
 
     Employee employee = {};
@@ -39,7 +39,7 @@ public function main (string... args) {
 
     foreach y,emp in employees {
         emp = {name:"kavith"};
-        io:println(string `name is {{emp.name}} {{lastName}}`);
+        io:println(string `name is ${emp.name} ${lastName}`);
     }
 
     funcInSeparateFile();

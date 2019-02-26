@@ -21,6 +21,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -39,6 +40,8 @@ import java.nio.charset.StandardCharsets;
  * Test cases for ballerina.crypto native functions.
  */
 public class CryptoTest {
+
+    private static final int KEY_SIZE = 16; // Set to 16 to ensure compatibility with older JDKs
 
     private CompileResult compileResult;
 
@@ -164,6 +167,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaSha1",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     @Test(description = "Test RSA-SHA256 siging")
@@ -185,6 +196,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaSha256",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     @Test(description = "Test RSA-384 siging")
@@ -206,6 +225,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaSha384",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     @Test(description = "Test RSA-512 siging")
@@ -227,6 +254,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaSha512",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     @Test(description = "Test RSA-MD5 siging")
@@ -248,6 +283,14 @@ public class CryptoTest {
                         new BString("ballerina"), new BString("ballerina"), new BString("ballerina")});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSignature);
+
+        returnValues = BRunUtil.invoke(compileResult, "testVerifyRsaMd5",
+                new BValue[]{new BValueArray(payload), returnValues[0],
+                        new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
+                                + File.separator + "crypto" + File.separator + "testKeystore.p12"),
+                        new BString("ballerina"), new BString("ballerina")});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BBoolean) returnValues[0]).booleanValue(), true);
     }
 
     //
@@ -311,8 +354,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES CBC NoPadding")
     public void testEncryptAesCbcNoPadding() {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -362,8 +405,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid IV length")
     public void testEncryptAesCbcNoPaddingWithInvalidIvLength() {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -386,8 +429,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES CBC NoPadding using invalid input length")
     public void testEncryptAesCbcNoPaddingWithInvalidInputLength() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -410,8 +453,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES CBC PKCS5")
     public void testEncryptAesCbcPkcs5() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -465,8 +508,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES ECB NoPadding")
     public void testEncryptAesEcbNoPadding() {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -506,8 +549,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES ECB NoPadding using invalid input length")
     public void testEncryptAesEcbNoPaddingWithInvalidInputLength() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -525,8 +568,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES ECB PKCS5")
     public void testEncryptAesEcbPkcs5() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -570,8 +613,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES GCM NoPadding")
     public void testEncryptAesGcmNoPadding() {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -622,8 +665,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES GCM NoPadding using invalid input length")
     public void testEncryptAesGcmNoPaddingWithInvalidInputLength() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 
@@ -649,8 +692,8 @@ public class CryptoTest {
     @Test(description = "Test encrypt and decrypt with AES GCM PKCS5")
     public void testEncryptAesGcmPkcs5() {
         byte[] message = "Ballerina crypto test".getBytes(StandardCharsets.UTF_8);
-        byte[] key = new byte[32];
-        for (int i = 0; i < 32; i++) {
+        byte[] key = new byte[KEY_SIZE];
+        for (int i = 0; i < KEY_SIZE; i++) {
             key[i] = (byte) i;
         }
 

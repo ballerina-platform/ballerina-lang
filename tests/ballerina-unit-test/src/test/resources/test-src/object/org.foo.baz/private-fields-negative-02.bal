@@ -1,9 +1,9 @@
 
 public type FooDepartment object {
     public string dptName = "";
-    public FooPerson[] employees;
+    public FooPerson?[] employees;
 
-    public function __init (FooPerson[] employees) {
+    public function __init (FooPerson?[] employees) {
         self.employees = employees;
     }
 };
@@ -72,7 +72,7 @@ public function createObjOfObj () returns (FooDepartment) {
     map<any> address = {"country":"USA", "state":"CA"};
     FooPerson emp1 = new("Jack", address, 25);
     FooPerson emp2 = new ("Bob",  address, 27);
-    FooPerson[] emps = [emp1, emp2];
+    FooPerson?[] emps = [emp1, emp2];
     FooDepartment dpt = new (emps);
 
     return dpt;

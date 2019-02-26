@@ -146,7 +146,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -180,7 +179,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
-
 
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
@@ -260,6 +258,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
 
         Object literalValue = literalExpr.value;
+        literalExpr.isJSONContext = types.isJSONContext(expType);
 
         if (literalType.tag == TypeTags.INT) {
             if (expType.tag == TypeTags.FLOAT) {
@@ -271,6 +270,7 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (expType.tag == TypeTags.BYTE) {
                 if (!isByteLiteralValue((Long) literalValue)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+                    resultType = symTable.semanticError;
                     return;
                 }
                 literalType = symTable.byteType;
@@ -312,6 +312,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         }
+
         resultType = types.checkType(literalExpr, literalType, expType);
     }
 
@@ -1566,17 +1567,16 @@ public class TypeChecker extends BLangNodeVisitor {
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
         if (targetType.tag == TypeTags.ERROR || targetType.tag == TypeTags.FUTURE) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_ASSERTION_NOT_YET_SUPPORTED, targetType);
+            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_CAST_NOT_YET_SUPPORTED, targetType);
         } else {
-            BSymbol symbol = symResolver.resolveTypeCastOrAssertionOperator(sourceType, targetType);
+            BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr, sourceType, targetType);
 
             if (symbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INVALID_EXPLICIT_TYPE_FOR_EXPRESSION, sourceType,
-                           targetType);
+                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
             } else {
-                BOperatorSymbol conversionSym = (BOperatorSymbol) symbol;
-                conversionExpr.conversionSymbol = conversionSym;
-                actualType = conversionSym.type.getReturnType();
+                conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
+                // We reach this block only if the cast is valid, so we set the target type as the actual type.
+                actualType = targetType;
             }
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
@@ -2501,24 +2501,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return ((BRecordType) structType).restFieldType;
     }
 
-    private BType checkTupleFieldType(BLangIndexBasedAccess indexBasedAccessExpr, BType varRefType, int indexValue) {
-        List<BType> tupleTypes = ((BTupleType) varRefType).tupleTypes;
+    private BType checkTupleFieldType(BTupleType tupleType, int indexValue) {
+        List<BType> tupleTypes = tupleType.tupleTypes;
         if (indexValue < 0 || tupleTypes.size() <= indexValue) {
-            dlog.error(indexBasedAccessExpr.pos,
-                    DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tupleTypes.size());
             return symTable.semanticError;
         }
         return tupleTypes.get(indexValue);
-    }
-
-    private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
-        if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.NUMERIC_LITERAL) {
-            indexExpr.type = symTable.semanticError;
-            dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
-            return indexExpr.type;
-        }
-
-        return checkExpr(indexExpr, this.env, symTable.intType);
     }
 
     private void validateTags(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv xmlElementEnv) {
@@ -2788,6 +2776,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = ((BArrayType) varRefType).getElementType();
                 }
                 break;
+            case TypeTags.TUPLE:
+                checkExpr(indexExpr, this.env, symTable.noType);
+                actualType = checkTupleIndexBasedAccess(indexBasedAccessExpr, (BTupleType) varRefType);
+                break;
             case TypeTags.XML:
                 if (indexBasedAccessExpr.lhsVar) {
                     indexExpr.type = symTable.semanticError;
@@ -2797,13 +2789,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 checkExpr(indexExpr, this.env);
                 actualType = symTable.xmlType;
-                break;
-            case TypeTags.TUPLE:
-                indexExprType = checkIndexExprForTupleFieldAccess(indexExpr);
-                if (indexExprType.tag == TypeTags.INT) {
-                    int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
-                    actualType = checkTupleFieldType(indexBasedAccessExpr, varRefType, indexValue);
-                }
                 break;
             case TypeTags.SEMANTIC_ERROR:
                 indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
@@ -2815,6 +2800,68 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return actualType;
+    }
+
+    private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple) {
+        BType actualType = symTable.semanticError;
+        BLangExpression indexExpr = accessExpr.indexExpr;
+        switch (indexExpr.type.tag) {
+            case TypeTags.INT:
+                if (indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
+                    actualType = checkTupleFieldType(tuple, indexValue);
+                    if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
+                        dlog.error(accessExpr.pos,
+                                DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tuple.tupleTypes.size());
+                    }
+                } else {
+                    BTupleType tupleExpr = (BTupleType) accessExpr.expr.type;
+                    LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
+                    actualType = tupleTypes.size() == 1 ? tupleTypes.iterator().next() :
+                            new BUnionType(null, tupleTypes, false);
+                }
+                break;
+            case TypeTags.FINITE:
+                BFiniteType finiteIndexExpr = (BFiniteType) indexExpr.type;
+                LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
+                for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
+                    if (finiteMember.type.tag != TypeTags.INT) {
+                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_TUPLE_INDEX_EXPR, indexExpr.type);
+                        return actualType;
+                    }
+                    if (finiteMember.getKind() != NodeKind.NUMERIC_LITERAL) {
+                        continue;
+                    }
+                    int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
+                    BType fieldType = checkTupleFieldType(tuple, indexValue);
+                    if (fieldType.tag != TypeTags.SEMANTIC_ERROR) {
+                        possibleTypes.add(fieldType);
+                    }
+                }
+                if (possibleTypes.size() == 0) {
+                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_TUPLE_INDEX_EXPR, indexExpr.type);
+                    break;
+                }
+                actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
+                        new BUnionType(null, possibleTypes, false);
+                break;
+            default:
+                dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType, indexExpr.type);
+                break;
+        }
+        return actualType;
+    }
+
+    private LinkedHashSet<BType> collectTupleFieldTypes(BTupleType tupleType, LinkedHashSet<BType> memberTypes) {
+        tupleType.tupleTypes
+                .forEach(memberType -> {
+                    if (memberType.tag == TypeTags.UNION) {
+                        collectMemberTypes((BUnionType) memberType, memberTypes);
+                    } else {
+                        memberTypes.add(memberType);
+                    }
+                });
+        return memberTypes;
     }
 
     private BType getSafeType(BType type, BLangAccessExpression accessExpr) {

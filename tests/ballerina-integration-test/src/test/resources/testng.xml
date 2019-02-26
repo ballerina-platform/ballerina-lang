@@ -111,7 +111,6 @@
             <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
             <class name="org.ballerinalang.test.auth.AuthnWithMultipleProvidersTest" />
             <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
-            <class name="org.ballerinalang.test.auth.NoTokenPropagationTest"/>
             <class name="org.ballerinalang.test.auth.SecureClientWrongAuthProviderTest"/>
             <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
         </classes>

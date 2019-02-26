@@ -49,7 +49,7 @@ public class BJSONType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BMap();
+        return (V) new BMap(this);
     }
 
     @Override
@@ -60,5 +60,10 @@ public class BJSONType extends BType {
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj) && obj instanceof BJSONType;
+    }
+
+    @Override
+    public boolean isNilable() {
+        return true;
     }
 }

@@ -34,8 +34,7 @@ import org.ballerinalang.stdlib.encoding.EncodingUtil;
  * @since 0.990.3
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "decodeHex",
+        orgName = "ballerina", packageName = "encoding", functionName = "decodeHex",
         args = {
                 @Argument(name = "input", type = TypeKind.STRING)
         },
