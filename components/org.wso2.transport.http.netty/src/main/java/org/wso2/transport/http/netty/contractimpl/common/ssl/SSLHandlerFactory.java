@@ -27,8 +27,6 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 
 import java.io.File;
@@ -44,6 +42,7 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SNIHostName;
@@ -67,7 +66,6 @@ public class SSLHandlerFactory {
     private KeyManagerFactory kmf;
     private TrustManagerFactory tmf;
     private SslContextBuilder sslContextBuilder;
-    private static final Logger LOG = LoggerFactory.getLogger(SSLHandlerFactory.class);
 
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
@@ -80,7 +78,7 @@ public class SSLHandlerFactory {
      *
      * @return sslContext
      */
-    public SSLContext createSSLContextFromKeystores() {
+    public SSLContext createSSLContextFromKeystores(boolean isServer) {
         String protocol = sslConfig.getSSLProtocol();
         try {
             KeyManager[] keyManagers = null;
@@ -104,6 +102,15 @@ public class SSLHandlerFactory {
             }
             sslContext = SSLContext.getInstance(protocol);
             sslContext.init(keyManagers, trustManagers, null);
+            if (isServer) {
+                if (sslConfig.getSessionTimeOut() > 0) {
+                    sslContext.getServerSessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+                }
+            } else {
+                if (sslConfig.getSessionTimeOut() > 0) {
+                    sslContext.getClientSessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+                }
+            }
             return sslContext;
 
         } catch (UnrecoverableKeyException | KeyManagementException |
@@ -163,7 +170,12 @@ public class SSLHandlerFactory {
             setCiphers(sslContextBuilder, ciphers);
         }
         setSslProtocol(sslContextBuilder);
-        return (ReferenceCountedOpenSslContext) sslContextBuilder.build();
+        ReferenceCountedOpenSslContext referenceCountedOpenSslCtx = (ReferenceCountedOpenSslContext) sslContextBuilder
+                .build();
+        if (sslConfig.getSessionTimeOut() > 0) {
+            referenceCountedOpenSslCtx.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        }
+        return referenceCountedOpenSslCtx;
     }
 
     /**
@@ -184,7 +196,12 @@ public class SSLHandlerFactory {
             setCiphers(sslContextBuilder, ciphers);
         }
         setSslProtocol(sslContextBuilder);
-        return (ReferenceCountedOpenSslContext) sslContextBuilder.build();
+        ReferenceCountedOpenSslContext referenceCountedOpenSslCtx = (ReferenceCountedOpenSslContext) sslContextBuilder
+                .build();
+        if (sslConfig.getSessionTimeOut() > 0) {
+            referenceCountedOpenSslCtx.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        }
+        return referenceCountedOpenSslCtx;
     }
 
     /**
@@ -218,7 +235,7 @@ public class SSLHandlerFactory {
     }
 
     /**
-     * This method will provide netty ssl context which supports HTTP2 over TLS using.
+     * This method will provide netty ssl context which supports HTTP2 over TLS using
      * Application Layer Protocol Negotiation (ALPN)
      *
      * @param sslConfig ssl configurations
@@ -229,6 +246,7 @@ public class SSLHandlerFactory {
 
         // If listener configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
+        createSSLContextFromKeystores(true);
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
@@ -243,7 +261,12 @@ public class SSLHandlerFactory {
         setAlpnConfigs(sslContextBuilder);
         setOcspStapling(sslContextBuilder, sslConfig.isOcspStaplingEnabled());
 
-        return sslContextBuilder.build();
+        SslContext sslCtx = sslContextBuilder.build();
+        if (sslConfig.getSessionTimeOut() > 0) {
+            sslCtx.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        }
+
+        return sslCtx;
     }
 
     /**
@@ -254,7 +277,11 @@ public class SSLHandlerFactory {
      */
     public SslContext createHttpTLSContextForServer() throws SSLException {
         SslProvider provider = SslProvider.JDK;
-        return serverContextBuilderWithCerts(provider).build();
+        SslContext certsSslContext = serverContextBuilderWithCerts(provider).build();
+        if (sslConfig.getSessionTimeOut() > 0) {
+            certsSslContext.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        }
+        return certsSslContext;
     }
 
     /**
@@ -265,7 +292,11 @@ public class SSLHandlerFactory {
      */
     public SslContext createHttpTLSContextForClient() throws SSLException {
         SslProvider provider = SslProvider.JDK;
-        return clientContextBuilderWithCerts(provider).build();
+        SslContext certsSslContext = clientContextBuilderWithCerts(provider).build();
+        if (sslConfig.getSessionTimeOut() > 0) {
+            certsSslContext.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        }
+        return certsSslContext;
     }
 
     private SslContextBuilder serverContextBuilderWithKs(SslProvider sslProvider) {
@@ -314,6 +345,10 @@ public class SSLHandlerFactory {
         setSslProtocol(sslContextBuilder);
         setAlpnConfigs(sslContextBuilder);
         setOcspStapling(sslContextBuilder, enableOcsp);
+        SslContext sslContext = sslContextBuilder.build();
+        if (sslConfig.getSessionTimeOut() > 0) {
+            sslContext.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        }
         return sslContextBuilder.build();
     }
 

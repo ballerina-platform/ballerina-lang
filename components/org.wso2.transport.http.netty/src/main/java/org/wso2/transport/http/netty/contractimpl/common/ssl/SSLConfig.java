@@ -60,6 +60,8 @@ public class SSLConfig {
     private File clientTrustCertificates;
     private String serverKeyPassword;
     private String clientKeyPassword;
+    private int sessionTimeOut;
+    private long handshakeTimeOut;
 
     public SSLConfig() {}
 
@@ -307,5 +309,21 @@ public class SSLConfig {
 
     public void setClientKeyPassword(String clientKeyPassword) {
         this.clientKeyPassword = clientKeyPassword;
+    }
+
+    public int getSessionTimeOut() {
+        return sessionTimeOut;
+    }
+
+    public void setSessionTimeOut(int sessionTimeOut) {
+        this.sessionTimeOut = sessionTimeOut;
+    }
+
+    public long getHandshakeTimeOut() {
+        return handshakeTimeOut;
+    }
+
+    public void setHandshakeTimeOut(long handshakeTimeOut) {
+        this.handshakeTimeOut = handshakeTimeOut;
     }
 }

@@ -71,7 +71,9 @@ public class MutualSSLTestCase {
         listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
         String verifyClient = "require";
         listenerConfiguration.setVerifyClient(verifyClient);
+        listenerConfiguration.setSslSessionTimeOut(11);
         listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+        listenerConfiguration.setSslHandshakeTimeOut(20);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
@@ -84,6 +86,8 @@ public class MutualSSLTestCase {
         senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
         senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setSslSessionTimeOut(10);
+        senderConfiguration.setSslHandshakeTimeOut(20);
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;

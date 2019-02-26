@@ -68,6 +68,7 @@ import java.nio.channels.ClosedChannelException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.net.ssl.SSLEngine;
@@ -321,28 +322,32 @@ public class Util {
             SSLConfig sslConfig) throws SSLException {
         LOG.debug("adding ssl handler");
         SSLEngine sslEngine = null;
+        SslHandler sslHandler;
         ChannelPipeline pipeline = socketChannel.pipeline();
         SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
         if (sslConfig.isOcspStaplingEnabled()) {
-            sslHandlerFactory.createSSLContextFromKeystores();
+            sslHandlerFactory.createSSLContextFromKeystores(false);
             ReferenceCountedOpenSslContext referenceCountedOpenSslContext = sslHandlerFactory
                     .buildClientReferenceCountedOpenSslContext();
 
             if (referenceCountedOpenSslContext != null) {
-                SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(socketChannel.alloc());
+                sslHandler = referenceCountedOpenSslContext.newHandler(socketChannel.alloc());
                 sslEngine = sslHandler.engine();
+                setSslHandshakeTimeOut(sslConfig, sslHandler);
                 socketChannel.pipeline().addLast(sslHandler);
                 socketChannel.pipeline().addLast(new OCSPStaplingHandler((ReferenceCountedOpenSslEngine) sslEngine));
             }
         } else {
             if (sslConfig.getTrustStore() != null) {
-                sslHandlerFactory.createSSLContextFromKeystores();
+                sslHandlerFactory.createSSLContextFromKeystores(false);
                 sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled(),
                         sslHandlerFactory);
             } else {
                 sslEngine = getSslEngineForCerts(socketChannel, host, port, sslConfig, sslHandlerFactory);
             }
-            pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
+            sslHandler = new SslHandler(sslEngine);
+            setSslHandshakeTimeOut(sslConfig, sslHandler);
+            pipeline.addLast(Constants.SSL_HANDLER, sslHandler);
             if (sslConfig.isValidateCertEnabled()) {
                 pipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER, new CertificateValidationHandler(
                         sslEngine, sslConfig.getCacheValidityPeriod(), sslConfig.getCacheSize()));
@@ -870,6 +875,12 @@ public class Util {
             if (!channel.isWritable() && channel.isActive()) {
                 backpressureHandler.getBackPressureObservable().notifyUnWritable();
             }
+        }
+    }
+
+    public static void setSslHandshakeTimeOut(SSLConfig sslConfig, SslHandler sslHandler) {
+        if (sslConfig.getHandshakeTimeOut() > 0) {
+            sslHandler.setHandshakeTimeout(sslConfig.getHandshakeTimeOut(), TimeUnit.SECONDS);
         }
     }
 }
