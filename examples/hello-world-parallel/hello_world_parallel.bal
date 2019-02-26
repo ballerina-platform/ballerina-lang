@@ -14,7 +14,4 @@ public function main() {
     worker w3 {
         io:println("Hello, World! #k");
     }
-
-    // Wait for all workers to finish.
-    _ = wait {w1, w2, w3};
 }
