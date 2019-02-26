@@ -2384,7 +2384,7 @@
         <maven.surefire.plugin.version>2.21.0</maven.surefire.plugin.version>
         <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
         <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
-        <maven.jacoco.plugin.version>0.8.1</maven.jacoco.plugin.version>
+        <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
 
         <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
