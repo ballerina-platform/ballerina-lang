@@ -1623,20 +1623,14 @@ public class Types {
         }
 
         BFiniteType expType = (BFiniteType) type;
-        long matchCount = expType.valueSpace.stream().filter(memberLiteral -> {
+        return expType.valueSpace.stream().anyMatch(memberLiteral -> {
             if (((BLangLiteral) memberLiteral).value == null) {
                 return literalExpr.value == null;
             }
             // Check whether the literal that needs to be tested is assignable to any of the member literal in the
             // value space.
             return checkLiteralAssignabilityBasedOnType((BLangLiteral) memberLiteral, literalExpr);
-        }).count();
-
-        // If more than one match means the value space contains ambiguous values.
-        if (matchCount > 1) {
-            dlog.error(literalExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, type);
-        }
-        return matchCount == 1;
+        });
     }
 
     private boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
