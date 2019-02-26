@@ -288,7 +288,7 @@ public class HttpUtil {
      * @param httpMessageStruct Represent ballerina request/response
      * @param entity            Represent an entity
      * @param isRequest         boolean representing whether the message is a request or a response
-     * @param isStreaming       boolean representing whether the entity require byte channel or message as native data
+     * @param isStreaming       boolean representing whether the entity requires byte channel or message as native data
      */
     public static void populateEntityBody(Context context, BMap<String, BValue> httpMessageStruct,
                                           BMap<String, BValue> entity, boolean isRequest, boolean isStreaming) {

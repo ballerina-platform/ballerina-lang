@@ -39,6 +39,7 @@ import org.jvnet.mimepull.MIMEPart;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -57,6 +58,7 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_BODY_PART_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
  * Entity body related operations are included here.
@@ -128,8 +130,24 @@ public class EntityBodyHandler {
         if (byteChannel == null) {
             return new BValueArray(new byte[0]);
         }
-        byte[] byteData = MimeUtil.getByteArray(byteChannel.getInputStream());
+        BValueArray byteData = constructBlobDataSource(byteChannel.getInputStream());
         byteChannel.close();
+        return byteData;
+    }
+
+    /**
+     * Construct BlobDataSource from the underneath byte channel which is associated with the entity struct.
+     *
+     * @param inputStream Represent the input stream
+     * @return Data source for binary data which is kept in memory
+     */
+    public static BValueArray constructBlobDataSource(InputStream inputStream) {
+        byte[] byteData;
+        try {
+            byteData = MimeUtil.getByteArray(inputStream);
+        } catch (IOException ex) {
+            throw new BallerinaException("Error occurred while reading input stream :" + ex.getMessage());
+        }
         return new BValueArray(byteData);
     }
 
@@ -141,22 +159,11 @@ public class EntityBodyHandler {
      */
     public static BRefType<?> constructJsonDataSource(BMap<String, BValue> entityStruct) {
         try {
-            BRefType<?> jsonData;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 return null;
             }
-            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
-            if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
-                String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                if (charsetValue != null && !charsetValue.isEmpty()) {
-                    jsonData = JsonParser.parse(byteChannel.getInputStream(), charsetValue);
-                } else {
-                    jsonData = JsonParser.parse(byteChannel.getInputStream());
-                }
-            } else {
-                jsonData = JsonParser.parse(byteChannel.getInputStream());
-            }
+            BRefType<?> jsonData = constructJsonDataSource(entityStruct, byteChannel.getInputStream());
             byteChannel.close();
             return jsonData;
         } catch (IOException e) {
@@ -165,34 +172,69 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Construct XMl data source from the underneath byte channel which is associated with the entity struct.
+     * Construct JsonDataSource from the given input stream.
+     *
+     * @param entity      Represent an entity struct
+     * @param inputStream Represent the input stream
+     * @return BJSON data source which is kept in memory
+     */
+    public static BRefType<?> constructJsonDataSource(BMap<String, BValue> entity, InputStream inputStream) {
+        BRefType<?> jsonData;
+        String contentTypeValue = HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+        if (isNotNullAndEmpty(contentTypeValue)) {
+            String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+            if (isNotNullAndEmpty(charsetValue)) {
+                jsonData = JsonParser.parse(inputStream, charsetValue);
+            } else {
+                jsonData = JsonParser.parse(inputStream);
+            }
+        } else {
+            jsonData = JsonParser.parse(inputStream);
+        }
+        return jsonData;
+    }
+
+    /**
+     * Construct XML data source from the underneath byte channel which is associated with the entity struct.
      *
      * @param entityStruct Represent an entity struct
      * @return BXML data source which is kept in memory
      */
     public static BXML constructXmlDataSource(BMap<String, BValue> entityStruct) {
         try {
-            BXML xmlContent;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 throw new BallerinaIOException("Empty xml payload");
             }
-            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
-            if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
-                String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                if (charsetValue != null && !charsetValue.isEmpty()) {
-                    xmlContent = XMLUtils.parse(byteChannel.getInputStream(), charsetValue);
-                } else {
-                    xmlContent = XMLUtils.parse(byteChannel.getInputStream());
-                }
-            } else {
-                xmlContent = XMLUtils.parse(byteChannel.getInputStream());
-            }
+            BXML xmlContent = constructXmlDataSource(entityStruct, byteChannel.getInputStream());
             byteChannel.close();
             return xmlContent;
         } catch (IOException e) {
             throw new BallerinaIOException("Error occurred while closing the channel", e);
         }
+    }
+
+    /**
+     * Construct XML data source from the given input stream.
+     *
+     * @param entityStruct Represent an entity struct
+     * @param inputStream  Represent the input stream
+     * @return BXML data source which is kept in memory
+     */
+    public static BXML constructXmlDataSource(BMap<String, BValue> entityStruct, InputStream inputStream) {
+        BXML xmlContent;
+        String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
+        if (isNotNullAndEmpty(contentTypeValue)) {
+            String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+            if (isNotNullAndEmpty(charsetValue)) {
+                xmlContent = XMLUtils.parse(inputStream, charsetValue);
+            } else {
+                xmlContent = XMLUtils.parse(inputStream);
+            }
+        } else {
+            xmlContent = XMLUtils.parse(inputStream);
+        }
+        return xmlContent;
     }
 
     /**
@@ -203,27 +245,39 @@ public class EntityBodyHandler {
      */
     public static BString constructStringDataSource(BMap<String, BValue> entityStruct) {
         try {
-            String textContent;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 throw new BallerinaIOException("String payload is null");
             }
-            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
-            if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
-                String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                if (charsetValue != null && !charsetValue.isEmpty()) {
-                    textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream(), charsetValue);
-                } else {
-                    textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
-                }
-            } else {
-                textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
-            }
+            BString textContent = constructStringDataSource(entityStruct, byteChannel.getInputStream());
             byteChannel.close();
-            return new BString(textContent);
+            return textContent;
         } catch (IOException e) {
             throw new BallerinaIOException("Error occurred while closing the channel", e);
         }
+    }
+
+    /**
+     * Construct StringDataSource from the given input stream.
+     *
+     * @param entity      Represent an entity struct
+     * @param inputStream Represent the input stream
+     * @return StringDataSource which represent the entity body which is kept in memory
+     */
+    public static BString constructStringDataSource(BMap<String, BValue> entity, InputStream inputStream) {
+        String textContent;
+        String contentTypeValue = HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+        if (isNotNullAndEmpty(contentTypeValue)) {
+            String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+            if (isNotNullAndEmpty(charsetValue)) {
+                textContent = StringUtils.getStringFromInputStream(inputStream, charsetValue);
+            } else {
+                textContent = StringUtils.getStringFromInputStream(inputStream);
+            }
+        } else {
+            textContent = StringUtils.getStringFromInputStream(inputStream);
+        }
+        return new BString(textContent);
     }
 
     /**
@@ -243,7 +297,7 @@ public class EntityBodyHandler {
      * contains body parts or byte channel.
      *
      * @param entity Represent an 'Entity'
-     * @return a boolean indicating streaming requirement
+     * @return a boolean indicating the streaming requirement
      */
     public static boolean isStreamingRequired(BMap<String, BValue> entity) {
         return entity.getNativeData(ENTITY_BYTE_CHANNEL) != null || entity.getNativeData(BODY_PARTS) != null;
@@ -304,7 +358,7 @@ public class EntityBodyHandler {
      */
     public static void decodeEntityBody(Context context, BMap<String, BValue> entityStruct, Channel byteChannel) {
         String contentType = MimeUtil.getContentTypeWithParameters(entityStruct);
-        if (!MimeUtil.isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+        if (!isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             return;
         }
 

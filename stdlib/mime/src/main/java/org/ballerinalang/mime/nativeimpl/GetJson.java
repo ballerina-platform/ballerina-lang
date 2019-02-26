@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -34,14 +33,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.transport.http.netty.message.FullHttpMessageListener;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
  * Get the entity body in JSON form.
@@ -70,7 +64,6 @@ public class GetJson extends AbstractGetPayloadHandler {
                         baseType);
                 return;
             }
-
             BValue dataSource = EntityBodyHandler.getMessageDataSource(entity);
             if (dataSource != null) {
                 // If the value is a already JSON, then return it as is.
@@ -88,40 +81,12 @@ public class GetJson extends AbstractGetPayloadHandler {
             if (isStreamingRequired(entity)) {
                 result = EntityBodyHandler.constructJsonDataSource(entity);
                 updateDataSourceAndNotify(context, callback, entity, result);
-                return;
+            } else {
+                constructNonBlockingDataSource(context, callback, entity, SourceType.JSON);
             }
-
-            // Construct non-blocking JSON data source
-            HttpCarbonMessage inboundCarbonMsg = getInboundCarbonMessage(entity);
-            inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
-                @Override
-                public void onComplete() {
-                    BRefType<?> jsonData;
-                    HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
-                    String contentTypeValue = HeaderUtil.getHeaderValue(entity,
-                                                                        HttpHeaderNames.CONTENT_TYPE.toString());
-                    if (isNotNullAndEmpty(contentTypeValue)) {
-                        String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                        if (isNotNullAndEmpty(charsetValue)) {
-                            jsonData = JsonParser.parse(dataStreamer.getInputStream(), charsetValue);
-                        } else {
-                            jsonData = JsonParser.parse(dataStreamer.getInputStream());
-                        }
-                    } else {
-                        jsonData = JsonParser.parse(dataStreamer.getInputStream());
-                    }
-                    updateDataSourceAndNotify(context, callback, entity, jsonData);
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
-                            "json content from content collector: " + e.getMessage());
-                }
-            });
-        } catch (Throwable e) {
-            createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
-                    "json data from entity: " + e.getMessage());
+        } catch (Exception ex) {
+            createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting json data from entity: " + ex.getMessage());
         }
     }
 

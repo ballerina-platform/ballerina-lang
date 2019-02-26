@@ -31,11 +31,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.wso2.transport.http.netty.message.FullHttpMessageListener;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
@@ -87,37 +83,15 @@ public class GetByteArray extends AbstractGetPayloadHandler {
             }
 
             Object transportMessage = entityStruct.getNativeData(TRANSPORT_MESSAGE);
-
             if (isStreamingRequired(entityStruct) || transportMessage == null) {
                 result = EntityBodyHandler.constructBlobDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
-                return;
+            } else {
+                constructNonBlockingDataSource(context, callback, entityStruct, SourceType.BLOB);
             }
-
-            // Construct non-blocking byte array data source
-            HttpCarbonMessage inboundCarbonMsg = (HttpCarbonMessage) transportMessage;
-            inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
-                @Override
-                public void onComplete() {
-                    HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
-                    try {
-                        byte[] byteData = MimeUtil.getByteArray(dataStreamer.getInputStream());
-                        updateDataSourceAndNotify(context, callback, entityStruct, new BValueArray(byteData));
-                    } catch (IOException e) {
-                        onError(e);
-                    }
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
-                            "blob content from message: " + e.getMessage());
-                }
-            });
-
-        } catch (Throwable e) {
-            createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
-                    "blob data from entity : " + e.getMessage());
+        } catch (Exception ex) {
+            createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting blob data from entity : " + ex.getMessage());
         }
     }
 }

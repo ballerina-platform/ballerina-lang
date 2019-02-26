@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -33,18 +32,13 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.wso2.transport.http.netty.message.FullHttpMessageListener;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.util.Locale;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.XML_SUFFIX;
 import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
-import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
  * Get the entity body in xml form.
@@ -89,41 +83,12 @@ public class GetXml extends AbstractGetPayloadHandler {
             if (isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructXmlDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
-                return;
+            } else {
+                constructNonBlockingDataSource(context, callback, entityStruct, SourceType.XML);
             }
-
-            // Construct non-blocking XML data source
-            HttpCarbonMessage inboundCarbonMsg = getInboundCarbonMessage(entityStruct);
-            inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
-                @Override
-                public void onComplete() {
-                    BXML xmlContent;
-                    HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
-                    String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
-                                                                        HttpHeaderNames.CONTENT_TYPE.toString());
-                    if (isNotNullAndEmpty(contentTypeValue)) {
-                        String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                        if (isNotNullAndEmpty(charsetValue)) {
-                            xmlContent = XMLUtils.parse(dataStreamer.getInputStream(), charsetValue);
-                        } else {
-                            xmlContent = XMLUtils.parse(dataStreamer.getInputStream());
-                        }
-                    } else {
-                        xmlContent = XMLUtils.parse(dataStreamer.getInputStream());
-                    }
-                    updateDataSourceAndNotify(context, callback, entityStruct, xmlContent);
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
-                            "xml content from content collector: " + e.getMessage());
-                }
-            });
-
-        } catch (Throwable e) {
-            createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
-                    "xml data from entity : " + e.getMessage());
+        } catch (Exception ex) {
+            createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting xml data from entity : " + ex.getMessage());
         }
     }
 

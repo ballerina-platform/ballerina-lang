@@ -75,13 +75,12 @@ public class GetText extends AbstractGetPayloadHandler {
             if (isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructStringDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
-                return;
+            } else {
+                constructNonBlockingDataSource(context, callback, entityStruct, SourceType.TEXT);
             }
-            constructNonBlockingStringDataSource(context, callback, entityStruct);
-
-        } catch (Throwable e) {
-            createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
-                    "text data from entity : " + e.getMessage());
+        } catch (Exception ex) {
+            createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting text data from entity : " + ex.getMessage());
         }
     }
 

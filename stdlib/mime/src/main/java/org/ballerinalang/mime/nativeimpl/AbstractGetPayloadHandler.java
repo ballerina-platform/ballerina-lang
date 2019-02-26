@@ -18,42 +18,75 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
+import java.io.InputStream;
+
+import static org.ballerinalang.mime.util.EntityBodyHandler.constructBlobDataSource;
+import static org.ballerinalang.mime.util.EntityBodyHandler.constructJsonDataSource;
+import static org.ballerinalang.mime.util.EntityBodyHandler.constructStringDataSource;
+import static org.ballerinalang.mime.util.EntityBodyHandler.constructXmlDataSource;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
-import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
  * {@code AbstractGetPayloadHandler} is the base class for all get entity body functions.
  *
- * @since 0.990.4
+ * @since 0.995-r1
  */
 
 public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
 
-    static final String ERROR_OCCURRED_WHILE_EXTRACTING = "Error occurred while extracting ";
     static final String COMPATIBLE_SINCE_CONTENT_TYPE = "compatible since the received content-type is : ";
 
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    void constructNonBlockingDataSource(Context context, CallableUnitCallback callback, BMap<String, BValue> entity,
+                                        SourceType sourceType) {
+        HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
+        inboundMessage.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
+            @Override
+            public void onComplete() {
+                BValue dataSource = null;
+                HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundMessage);
+                InputStream inputStream = dataStreamer.getInputStream();
+                switch (sourceType) {
+                    case JSON:
+                        dataSource = constructJsonDataSource(entity, inputStream);
+                        break;
+                    case TEXT:
+                        dataSource = constructStringDataSource(entity, inputStream);
+                        break;
+                    case XML:
+                        dataSource = constructXmlDataSource(entity, inputStream);
+                        break;
+                    case BLOB:
+                        dataSource = constructBlobDataSource(inputStream);
+                        break;
+                }
+                updateDataSourceAndNotify(context, callback, entity, dataSource);
+            }
+
+            @Override
+            public void onError(Exception ex) {
+                createErrorAndNotify(context, callback,
+                                     "Error occurred while extracting content from message : " + ex.getMessage());
+            }
+        });
     }
 
     void setReturnValuesAndNotify(Context context, CallableUnitCallback callback, BValue result) {
@@ -74,7 +107,7 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         setReturnValuesAndNotify(context, callback, result);
     }
 
-    HttpCarbonMessage getInboundCarbonMessage(BMap<String, BValue> entityStruct) {
+    private HttpCarbonMessage extractTransportMessageFromEntity(BMap<String, BValue> entityStruct) {
         Object message = entityStruct.getNativeData(TRANSPORT_MESSAGE);
         if (message != null) {
             return (HttpCarbonMessage) message;
@@ -83,35 +116,10 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         }
     }
 
-    void constructNonBlockingStringDataSource(Context context, CallableUnitCallback callback,
-                                              BMap<String, BValue> entityStruct) {
-        HttpCarbonMessage inboundCarbonMsg = getInboundCarbonMessage(entityStruct);
-        inboundCarbonMsg.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
-            @Override
-            public void onComplete() {
-                String textContent;
-                HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundCarbonMsg);
-                String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
-                                                                    HttpHeaderNames.CONTENT_TYPE.toString());
-                if (isNotNullAndEmpty(contentTypeValue)) {
-                    String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                    if (isNotNullAndEmpty(charsetValue)) {
-                        textContent = StringUtils.getStringFromInputStream(dataStreamer.getInputStream(),
-                                                                           charsetValue);
-                    } else {
-                        textContent = StringUtils.getStringFromInputStream(dataStreamer.getInputStream());
-                    }
-                } else {
-                    textContent = StringUtils.getStringFromInputStream(dataStreamer.getInputStream());
-                }
-                updateDataSourceAndNotify(context, callback, entityStruct, new BString(textContent));
-            }
-
-            @Override
-            public void onError(Exception e) {
-                createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
-                        "text content from message: " + e.getMessage());
-            }
-        });
+    enum SourceType {
+        JSON,
+        XML,
+        TEXT,
+        BLOB
     }
 }

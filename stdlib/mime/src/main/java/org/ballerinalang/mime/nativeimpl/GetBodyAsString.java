@@ -45,7 +45,7 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetBodyAsString extends GetText {
+public class GetBodyAsString extends AbstractGetPayloadHandler {
 
     @Override
     @SuppressWarnings("unchecked")
@@ -62,13 +62,12 @@ public class GetBodyAsString extends GetText {
             if (isStreamingRequired(entityStruct)) {
                 result = EntityBodyHandler.constructStringDataSource(entityStruct);
                 updateDataSourceAndNotify(context, callback, entityStruct, result);
-                return;
+            } else {
+                constructNonBlockingDataSource(context, callback, entityStruct, SourceType.TEXT);
             }
-            constructNonBlockingStringDataSource(context, callback, entityStruct);
-
-        } catch (Throwable e) {
-            createErrorAndNotify(context, callback, ERROR_OCCURRED_WHILE_EXTRACTING +
-                    "text data from entity : " + e.getMessage());
+        } catch (Exception ex) {
+            createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting text data from entity : " + ex.getMessage());
         }
     }
 }
