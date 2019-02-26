@@ -495,10 +495,6 @@ public type TimeBatchWindow object {
         }
         return events;
     }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
-    }
 };
 
 public function timeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
@@ -861,10 +857,6 @@ public type ExternalTimeBatchWindow object {
             }
         }
         return events;
-    }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
     }
 
     public function cloneAppend(StreamEvent currStreamEvent) {
@@ -1431,10 +1423,6 @@ public type DelayWindow object {
         }
     }
 
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
-    }
-
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -1897,10 +1885,6 @@ public type HoppingWindow object {
             }
         }
         return events;
-    }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
     }
 };
 
