@@ -19,7 +19,6 @@ package org.ballerinalang.test.packaging;
 
 import org.awaitility.Duration;
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.LogLeecher.LeecherType;
 import org.ballerinalang.test.utils.PackagingTestUtils;
@@ -56,7 +55,7 @@ public class PackagingTestCase extends BaseTest {
     private Map<String, String> envVariables;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
         createSettingToml();
@@ -133,25 +132,16 @@ public class PackagingTestCase extends BaseTest {
     }
 
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
-    public void testSearch() throws BallerinaTestException, IOException {
-        String[] clientArgs = {moduleName};
-        LogLeecher clientLeecherOne = new LogLeecher("Ballerina Central");
-        LogLeecher clientLeecherTwo = new LogLeecher("=================");
-        LogLeecher clientLeecherThree = new LogLeecher("|NAME            | DESCRIPTION                   | DATE     " +
-                                                               "      | VERSION |");
-        LogLeecher clientLeecherFour = new LogLeecher("|----------------| ------------------------------| " +
-                                                              "---------------| --------|");
-        LogLeecher clientLeecherFive = new LogLeecher("|integrationte...| Prints \"hello world\" to com...| " +
-                                                           datePushed + " | 0.0.1   |");
-        balClient.runMain("search", clientArgs, envVariables, new String[]{}, new LogLeecher[]{clientLeecherOne,
-                                  clientLeecherTwo, clientLeecherThree, clientLeecherFour, clientLeecherFive},
-                          balServer.getServerHome());
+    public void testSearch() {
+        given().with().pollDelay(10, SECONDS).await().atMost(60, SECONDS).until(() -> {
 
-        clientLeecherOne.waitForText(3000);
-        clientLeecherTwo.waitForText(1000);
-        clientLeecherThree.waitForText(1000);
-        clientLeecherFour.waitForText(1000);
-        clientLeecherFive.waitForText(1000);
+            String  actualOut = balClient.runMainAndReadStdOut("search", new String[]{moduleName},
+                    envVariables, balServer.getServerHome());
+
+            return !actualOut.isEmpty() && actualOut.contains(orgName + "/" + moduleName) &&
+                    actualOut.contains("Prints \"hello world\" to command line output") &&
+                    actualOut.contains(datePushed) && actualOut.contains("0.0.1");
+        });
     }
 
     @Test(description = "Test push all packages in project to central")

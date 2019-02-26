@@ -60,7 +60,7 @@ public class ListDependencyTestCase extends BaseTest {
                 "├── ballerina/io\n" +
                 "└── ballerina/math\n";
 
-        String actualOut = balClient.runMainAndReadStdOut("list", clientArgs, tempProjectDirectory.toString());
+        String actualOut = balClient.runMainAndReadStdOut("list", clientArgs, null, tempProjectDirectory.toString());
         Assert.assertEquals(actualOut, expectedOut);
     }
 
@@ -107,7 +107,7 @@ public class ListDependencyTestCase extends BaseTest {
                 "│           └── ballerina/system\n" +
                 "├── ballerina/io\n" +
                 "└── ballerina/log\n";
-        String actualOut = balClient.runMainAndReadStdOut("list", clientArgs, tempProjectDirectory.toString());
+        String actualOut = balClient.runMainAndReadStdOut("list", clientArgs, null, tempProjectDirectory.toString());
         Assert.assertEquals(actualOut, expectedOut);
     }
 
@@ -160,7 +160,7 @@ public class ListDependencyTestCase extends BaseTest {
                 "├── ballerina/io\n" +
                 "└── ballerina/math\n";
 
-        String actualOut = balClient.runMainAndReadStdOut("list", new String[0], tempProjectDirectory.toString());
+        String actualOut = balClient.runMainAndReadStdOut("list", new String[0], null, tempProjectDirectory.toString());
         Assert.assertEquals(actualOut, expectedOut);
     }
 

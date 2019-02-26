@@ -259,11 +259,13 @@ public class BMainInstance implements BMain {
      *
      * @param command    command to run
      * @param args       command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
      * @param commandDir where to execute the command
      * @return logs printed to std out
      * @throws BallerinaTestException if starting services failed or if an error occurs when reading the stdout
      */
-    public String runMainAndReadStdOut(String command, String[] args, String commandDir) throws BallerinaTestException {
+    public String runMainAndReadStdOut(String command, String[] args, Map<String, String> envProperties,
+                                       String commandDir) throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         try {
@@ -278,6 +280,14 @@ public class BMainInstance implements BMain {
 
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
+            }
+
             Process process = processBuilder.start();
 
             // Give a small timeout so that the output is given.
