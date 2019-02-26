@@ -17,7 +17,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -170,8 +169,11 @@ public class ZipConverter extends PathConverter {
         if (!Files.exists(modulePath.resolve(ProjectDirConstants.NIGHTLY_BUILD))) {
             return false;
         }
+        // Get the module.zip path
+        Path moduleZipPath = modulePath.resolve(pkgName + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
+
         // Get modified of the module zip file.
-        Date modifiedDate = new Date(modulePath.toFile().lastModified());
+        Date modifiedDate = new Date(moduleZipPath.toFile().lastModified());
         // Set the cache invalidation time as the midnight of today
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -181,7 +183,7 @@ public class ZipConverter extends PathConverter {
 
         // If the module was not pulled before the cache invalidation time and if it was pulled on the same day, return
         // false
-        if (!modifiedDate.before(midnightDate) && pulledOnSameDay(midnightDate, modifiedDate)) {
+        if (!modifiedDate.before(midnightDate)) {
             return false;
         }
         // The module cached has been invalidated so clean the directory and pull again.
@@ -189,7 +191,7 @@ public class ZipConverter extends PathConverter {
             //Delete the metadata file
             Files.deleteIfExists(modulePath.resolve(ProjectDirConstants.NIGHTLY_BUILD));
             // Delete the module.zip
-            Files.deleteIfExists(modulePath.resolve(pkgName + ProjectDirConstants.BLANG_COMPILED_PKG_EXT));
+            Files.deleteIfExists(moduleZipPath);
             // Delete all the empty directories
             deleteEmptyParentDirs(modulePath, this.getRoot());
         } catch (IOException ignore) {
@@ -218,17 +220,5 @@ public class ZipConverter extends PathConverter {
                 Files.delete(toRemove);
             }
         }
-    }
-
-    /**
-     * Check if the module was pulled on the same day.
-     *
-     * @param invalidatingDate invalidating date
-     * @param modifiedDate     modified date of the module
-     * @return true if the module was updated else false
-     */
-    private static boolean pulledOnSameDay(Date invalidatingDate, Date modifiedDate) {
-        return invalidatingDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                .equals(modifiedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
     }
 }
