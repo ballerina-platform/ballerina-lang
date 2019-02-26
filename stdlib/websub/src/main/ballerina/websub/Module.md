@@ -77,7 +77,6 @@ service websubSubscriber on websubEP {
             log:printError("Error retrieving payload as string", err = payload);
         }
     }
- 
 }
 ```
 
@@ -101,7 +100,7 @@ service websubSubscriber on websubEP {
 
     resource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest request) {
         http:Response response = new;
-        // Insert logic to build subscription/unsubscription intent verification response
+        // Insert logic to build subscription/unsubscription intent verification response.
         var result = caller->respond(response);
         if (result is error) { 
             log:printError("Error responding to intent verification request", err = result); 
@@ -116,7 +115,6 @@ service websubSubscriber on websubEP {
             log:printError("Error retrieving payload as string", err = payload);
         }
     }
-    
 }
 ```
 
@@ -187,7 +185,7 @@ public function main() {
     runtime:sleep(10000);
 
     log:printInfo("Publishing update to remote Hub");
-    var publishResponse = websubHubClientEP->publishUpdate("<TOPIC_URL>", {"action": "publish", "mode": "remote-hub"});
+    var publishResponse = websubHubClientEP->publishUpdate("<TOPIC_URL>", { "action": "publish", "mode": "remote-hub" });
     if (publishResponse is error) {
         log:printError("Error notifying hub: " + <string>publishResponse.detail().message);
     } else {
@@ -207,9 +205,11 @@ websub:Client websubHubClientEP = new("<HUB_URL>");
 public function main() {
 
     // Send subscription request for a subscriber service.
-    websub:SubscriptionChangeRequest subscriptionRequest = { topic: "<TOPIC_URL>", 
-                                                             callback: "<CALLBACK_URL>",
-                                                             secret: "<SECRET>" };
+    websub:SubscriptionChangeRequest subscriptionRequest = {
+        topic: "<TOPIC_URL>", 
+        callback: "<CALLBACK_URL>",
+        secret: "<SECRET>"
+    };
 
     var subscriptionChangeResponse = websubHubClientEP->subscribe(subscriptionRequest);
     if (subscriptionChangeResponse is websub:SubscriptionChangeResponse) {
@@ -220,8 +220,10 @@ public function main() {
     }
 
     // Send unsubscription request for the subscriber service.
-    websub:SubscriptionChangeRequest unsubscriptionRequest = { topic: "<TOPIC_URL>",
-                                                               callback: "<CALLBACK_URL>" };
+    websub:SubscriptionChangeRequest unsubscriptionRequest = {
+        topic: "<TOPIC_URL>",
+        callback: "<CALLBACK_URL>"
+    };
 
     subscriptionChangeResponse = websubHubClientEP->unsubscribe(unsubscriptionRequest);
     if (subscriptionChangeResponse is websub:SubscriptionChangeResponse) {
@@ -230,7 +232,6 @@ public function main() {
     } else {
         log:printError("Error occurred with Unsubscription Request", err = subscriptionChangeResponse);
     }
-
 }
 ```
 
@@ -282,13 +283,13 @@ websub:ExtensionConfig extensionConfig = {
     topicIdentifier: websub:TOPIC_ID_HEADER,
     topicHeader: "<HEADER_TO_CONSIDER>",
     headerResourceMap: {
-        "issueOpened" : ("onIssueOpened", IssueOpenedEvent),
-        "issueClosed" : ("onIssueClosed", IssueClosedEvent)
+        "issueOpened": ("onIssueOpened", IssueOpenedEvent),
+        "issueClosed": ("onIssueClosed", IssueClosedEvent)
     }
 };
 ```
 
-The `"issueOpened" : ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value of the 
+The `"issueOpened": ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value of the 
 `<HEADER_TO_CONSIDER>` header is `issueOpened`, dispatching should happen to a resource named `onIssueOpened`. 
 
 The first parameter of this resource will be the generic `websub:Notification` record, and the second parameter will 
@@ -303,15 +304,15 @@ Dispatching will be based on the value in the request payload of one of the map 
 websub:ExtensionConfig extensionConfig = {
     topicIdentifier: websub:TOPIC_ID_PAYLOAD_KEY,
     payloadKeyResourceMap: {
-        "<PAYLOAD_KEY_TO_CONSIDER>" : {
-            "issueOpened" : ("onIssueOpened", IssueOpenedEvent),
-            "issueClosed" : ("onIssueClosed", IssueClosedEvent)
+        "<PAYLOAD_KEY_TO_CONSIDER>": {
+            "issueOpened": ("onIssueOpened", IssueOpenedEvent),
+            "issueClosed": ("onIssueClosed", IssueClosedEvent)
         }
     }
 };
 ```
 
-The `"issueOpened" : ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value for the JSON payload
+The `"issueOpened": ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value for the JSON payload
  key `<PAYLOAD_KEY_TO_CONSIDER>` is `issueOpened`, dispatching should happen to a resource named `onIssueOpened`.
 
 The first parameter of this resource will be the generic `websub:Notification` record, and the second parameter will 
@@ -329,14 +330,14 @@ websub:ExtensionConfig extensionConfig = {
     headerAndPayloadKeyResourceMap: {
         "issue" : {
             "<PAYLOAD_KEY_TO_CONSIDER>" : {
-                "opened" : ("onIssueOpened", IssueOpenedEvent),
-                "closed" : ("onIssueClosed", IssueClosedEvent)
+                "opened": ("onIssueOpened", IssueOpenedEvent),
+                "closed": ("onIssueClosed", IssueClosedEvent)
             }
         }
     }
 };
 ```
-The `"opened" : ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value of the 
+The `"opened": ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value of the 
 `<HEADER_TO_CONSIDER>` header is `issue` and the value of the `<PAYLOAD_KEY_TO_CONSIDER>` JSON payload key is `opened`, 
 dispatching should happen to a resource named `onIssueOpened`.
 

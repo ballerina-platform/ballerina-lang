@@ -212,3 +212,53 @@ function testEncryptRsaEcbWithInvalidKey(byte[] input, crypto:RsaPadding padding
     crypto:PrivateKey pk = {algorithm:"RSA"};
     return crypto:encryptRsaEcb(input, pk, padding = padding);
 }
+
+function testVerifyRsaSha1(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaSha1Signature(input, signature, pk);
+}
+
+function testVerifyRsaSha256(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaSha256Signature(input, signature, pk);
+}
+
+function testVerifyRsaSha384(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaSha384Signature(input, signature, pk);
+}
+
+function testVerifyRsaSha512(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaSha512Signature(input, signature, pk);
+}
+
+function testVerifyRsaMd5(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaMd5Signature(input, signature, pk);
+}
