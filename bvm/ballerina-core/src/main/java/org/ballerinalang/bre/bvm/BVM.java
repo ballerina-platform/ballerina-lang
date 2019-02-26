@@ -2457,7 +2457,7 @@ public class BVM {
                                                                    RuntimeErrors.TYPE_CAST_ERROR, "()",
                                                                    expectedType)));
                     handleError(ctx);
-                } else if (checkIsType(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
+                } else if (checkIsType(bRefTypeValue, expectedType)) {
                     switch (expectedType.getTag()) {
                         case TypeTags.STRING_TAG:
                             sf.stringRegs[j] = bRefTypeValue.stringValue();

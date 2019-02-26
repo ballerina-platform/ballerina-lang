@@ -205,6 +205,10 @@ public class Types {
         return type.tag < TypeTags.STRING;
     }
 
+    boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
+        return finiteType.valueSpace.stream().anyMatch(valueExpr -> isBasicNumericType(valueExpr.type));
+    }
+
     private boolean containsNumericType(BType type) {
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
@@ -950,13 +954,16 @@ public class Types {
         }
 
         if (isAssignable(sourceType, targetType)) {
-            if (isValueType(sourceType)) {
+            if (isValueType(sourceType) || isValueType(targetType)) {
                 return getImplicitCastOpSymbol(sourceType, targetType);
             }
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
         if (isAssignable(targetType, sourceType)) {
+            if (isValueType(sourceType)) {
+                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+            }
             return symResolver.createTypeCastSymbol(sourceType, targetType);
         }
 
@@ -967,27 +974,46 @@ public class Types {
             }
         }
 
-        if (sourceType.tag == TypeTags.UNION) {
-            if (((BUnionType) sourceType).memberTypes.stream()
-                    .anyMatch(memType -> isAssignable(memType, targetType))) {
-                // string|int v1 = "hello world";
-                // string|boolean v2 = <string|boolean> v1;
-                return symResolver.createTypeCastSymbol(sourceType, targetType);
-            }
+        boolean validTypeCast = false;
 
-            if (targetType.tag == TypeTags.UNION) {
-                if (((BUnionType) targetType).memberTypes.stream()
-                        .anyMatch(targetMemType -> ((BUnionType) sourceType).memberTypes.stream()
-                                .anyMatch(sourceMemType -> isAssignable(targetMemType, sourceMemType)))) {
-                    // Where `BarRecord` is a subtype of `FooRecord`.
-                    // BarRecord b1 = { ... };
-                    // FooRecord|string v1 = b1;
-                    // BarRecord|int v2 = <BarRecord|int> v1;
-                    return symResolver.createTypeCastSymbol(sourceType, targetType);
-                }
+        if (sourceType.tag == TypeTags.UNION) {
+            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType)
+                    != symTable.semanticError) {
+                // string|typedesc v1 = "hello world";
+                // json|table<Foo> v2 = <json|table<Foo>> v1;
+                validTypeCast = true;
             }
         }
 
+        if (targetType.tag == TypeTags.UNION) {
+            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType)
+                    != symTable.semanticError) {
+                // string|int v1 = "hello world";
+                // string|boolean v2 = <string|boolean> v1;
+                validTypeCast = true;
+            }
+        }
+
+        if (sourceType.tag == TypeTags.FINITE) {
+            if (getTypeForFiniteTypeValuesAssignableToType((BFiniteType) sourceType, targetType)
+                    != symTable.semanticError) {
+                validTypeCast = true;
+            }
+        }
+
+        if (targetType.tag == TypeTags.FINITE) {
+            if (getTypeForFiniteTypeValuesAssignableToType((BFiniteType) targetType, sourceType)
+                    != symTable.semanticError) {
+                validTypeCast = true;
+            }
+        }
+
+        if (validTypeCast) {
+            if (isValueType(sourceType)) {
+                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+            }
+            return symResolver.createTypeCastSymbol(sourceType, targetType);
+        }
         return symTable.notFoundSymbol;
     }
 

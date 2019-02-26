@@ -559,7 +559,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         } else {
             // Target type is always a union here.
-            if (types.isBasicNumericType(sourceType)) {
+            if (types.isBasicNumericType(sourceType) ||
+                    (sourceType.tag == TypeTags.FINITE &&
+                             types.finiteTypeContainsNumericTypeValues((BFiniteType) sourceType)) ||
+                    (sourceType.tag == TypeTags.UNION &&
+                             ((BUnionType) sourceType).memberTypes.stream()
+                                     .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
+                                             types.finiteTypeContainsNumericTypeValues((BFiniteType) memType)))) {
                 // i.e., a conversion from a numeric type to another numeric type in a union.
                 // int|string u1 = <int|string> 1.0;
                 types.setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
