@@ -38,8 +38,7 @@ function name() {
 }
 
 ```
-
-Exceptions to this rule as below.
+* Exceptions for above rule as below.
 
     - In XML referencing a xml namespace as a attribute
     - Table column expression
