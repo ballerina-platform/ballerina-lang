@@ -59,7 +59,8 @@ public enum RuntimeErrors {
     INVALID_OBJECT_FIELD_ADDITION("invalid.object.field.addition", "RUNTIME_0034"),
     TYPE_CAST_ERROR("incompatible.types.cannot.cast", "RUNTIME_0035"),
     INVALID_DYNAMICALLY_NESTED_TRANSACTION("dynamically.nested.transactions.are.not.allowed", "RUNTIME_0036"),
-    CYCLIC_VALUE_REFERENCE("cyclic.value.reference", "RUNTIME_0037");
+    CYCLIC_VALUE_REFERENCE("cyclic.value.reference", "RUNTIME_0037"),
+    TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range", "RUNTIME_0038");
 
     private String errorMsgKey;
     private String errorCode;
