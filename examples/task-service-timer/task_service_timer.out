@@ -1,11 +1,10 @@
 // An error is returned when the count is equal to 5 to demonstrate how the
 // error is propagated to the 'onError' resource function when an error occurs
-// in the 'onTrigger' resource function. Therefore position of the error might
-// differ and can be appeared in random order.
+// in the 'onTrigger' resource function.
 # To start the service, navigate to the directory that contains the
 # `.bal` file and issue the `ballerina run` command.
-$ ballerina run task_listener_timer_service.bal
-Initiating service(s) in 'task_listener_timer_service.bal'
+$ ballerina run task_service_timer.bal
+Initiating service(s) in 'task_service_timer.bal.bal'
 INFO  [] - Cleaning up...
 INFO  [] - 1
 INFO  [] - Cleaning up...

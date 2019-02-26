@@ -4,7 +4,7 @@ import ballerina/task;
 // Task Timer configuration record to configura task listener.
 task:TimerConfiguration timerConfiguration = {
     interval: 1000,
-    delay: 3000,
+    initialDelay: 3000,
     // Number of recurrences will limit the number of times the timer runs.
     noOfRecurrences: 10
 };
