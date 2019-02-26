@@ -1981,7 +1981,7 @@ public class Desugar extends BLangNodeVisitor {
                 // Check whether the map literal is a constant.
                 if (mapLiteral.isConst) {
                     // Retrieve the field access expression's value.
-                    BLangLiteral value = constantValueResolver.getValue(fieldAccessExpr.pos, fieldAccessExpr.field,
+                    BLangExpression value = constantValueResolver.getValue(fieldAccessExpr.pos, fieldAccessExpr.field,
                             mapLiteral);
                     // If the value is `null`, that means the value could not be retrieved. In that case we just
                     // create an empty literal as the result since anyway compilation will not continue because of

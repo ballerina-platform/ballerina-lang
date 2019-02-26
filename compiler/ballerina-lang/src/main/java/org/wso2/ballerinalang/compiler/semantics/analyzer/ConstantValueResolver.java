@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -41,7 +42,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private DiagnosticPos pos;
     private BLangIdentifier keyIdentifier;
 
-    private BLangLiteral result;
+    private BLangExpression result;
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -57,7 +58,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public BLangLiteral getValue(DiagnosticPos pos, BLangIdentifier keyIdentifier,
+    public BLangExpression getValue(DiagnosticPos pos, BLangIdentifier keyIdentifier,
                                  BLangRecordLiteral.BLangMapLiteral mapLiteral) {
         this.result = null;
 
@@ -80,11 +81,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             if (key.equals(keyIdentifier.value)) {
                 // Since we are looking for a literal which can be used as at compile time, it should be a literal.
                 if (keyValuePair.valueExpr.getKind() == NodeKind.LITERAL ||
-                        keyValuePair.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                    result = ((BLangLiteral) keyValuePair.valueExpr);
+                        keyValuePair.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL ||
+                        keyValuePair.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    result = keyValuePair.valueExpr;
                     return;
                 }
-                // Todo - Log error.
                 throw new RuntimeException("unsupported node kind");
             }
         }
