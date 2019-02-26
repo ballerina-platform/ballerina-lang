@@ -33,13 +33,13 @@ service wssService on securedListener2 {
 }
 
 http:AuthProvider basicAuthProvider = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 http:AuthProvider basicAuthProvider2 = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 listener http:Listener securedListener = new(9090, config = {
