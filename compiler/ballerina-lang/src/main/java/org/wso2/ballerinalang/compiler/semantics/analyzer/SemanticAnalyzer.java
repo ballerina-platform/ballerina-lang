@@ -1373,7 +1373,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
         if (exprType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) exprType;
-            exprTypes = new ArrayList<>(unionType.memberTypes);
+            exprTypes = new ArrayList<>(unionType.getMemberTypes());
         } else {
             exprTypes = Lists.of(exprType);
         }

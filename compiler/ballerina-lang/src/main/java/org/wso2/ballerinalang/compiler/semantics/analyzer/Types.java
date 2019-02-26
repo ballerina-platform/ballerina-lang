@@ -184,7 +184,7 @@ public class Types {
 
     public boolean isJSONContext(BType type) {
         if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.JSON);
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.JSON);
         }
         return type.tag == TypeTags.JSON;
     }
@@ -234,7 +234,7 @@ public class Types {
                 return isAnydata(fieldTypes, unresolvedTypes) &&
                         (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION:
-                return isAnydata(((BUnionType) type).memberTypes, unresolvedTypes);
+                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE:
                 return isAnydata(((BTupleType) type).tupleTypes, unresolvedTypes);
             case TypeTags.ARRAY:
@@ -294,7 +294,7 @@ public class Types {
 
         if (type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) type;
-            return unionType.memberTypes.stream().anyMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
+            return unionType.getMemberTypes().stream().anyMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
         }
 
         if (type.tag == TypeTags.TUPLE) {
@@ -443,14 +443,14 @@ public class Types {
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
-            sourceTypes.addAll(sourceUnionType.memberTypes);
+            sourceTypes.addAll(sourceUnionType.getMemberTypes());
         } else {
             sourceTypes.add(source);
         }
 
         if (target.tag == TypeTags.UNION) {
             BUnionType targetUnionType = (BUnionType) target;
-            targetTypes.addAll(targetUnionType.memberTypes);
+            targetTypes.addAll(targetUnionType.getMemberTypes());
         } else {
             targetTypes.add(target);
         }
@@ -928,7 +928,7 @@ public class Types {
         }
 
         if (sourceType.tag == TypeTags.UNION) {
-            if (((BUnionType) sourceType).memberTypes.stream()
+            if (((BUnionType) sourceType).getMemberTypes().stream()
                     .anyMatch(memType -> isAssignable(memType, targetType))) {
                 // string|int v1 = "hello world";
                 // string|boolean v2 = <string|boolean> v1;
@@ -936,8 +936,8 @@ public class Types {
             }
 
             if (targetType.tag == TypeTags.UNION) {
-                if (((BUnionType) targetType).memberTypes.stream()
-                        .anyMatch(targetMemType -> ((BUnionType) sourceType).memberTypes.stream()
+                if (((BUnionType) targetType).getMemberTypes().stream()
+                        .anyMatch(targetMemType -> ((BUnionType) sourceType).getMemberTypes().stream()
                                 .anyMatch(sourceMemType -> isAssignable(targetMemType, sourceMemType)))) {
                     // Where `BarRecord` is a subtype of `FooRecord`.
                     // BarRecord b1 = { ... };
@@ -1083,7 +1083,7 @@ public class Types {
 
     private boolean checkUnionTypeToJSONConvertibility(BUnionType type, BJSONType target) {
         // Check whether all the member types are convertible to JSON
-        return type.memberTypes.stream()
+        return type.getMemberTypes().stream()
                 .anyMatch(memberType -> castVisitor.visit(memberType, target) == symTable.notFoundSymbol);
     }
 
@@ -1419,13 +1419,13 @@ public class Types {
 
             BUnionType sUnionType = (BUnionType) s;
 
-            if (sUnionType.memberTypes.size()
-                    != tUnionType.memberTypes.size()) {
+            if (sUnionType.getMemberTypes().size()
+                    != tUnionType.getMemberTypes().size()) {
                 return false;
             }
 
-            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.memberTypes);
-            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.memberTypes);
+            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.getMemberTypes());
+            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.getMemberTypes());
 
             boolean notSameType = sourceTypes
                     .stream()
@@ -1584,14 +1584,14 @@ public class Types {
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
-            sourceTypes.addAll(sourceUnionType.memberTypes);
+            sourceTypes.addAll(sourceUnionType.getMemberTypes());
         } else {
             sourceTypes.add(source);
         }
 
         if (target.tag == TypeTags.UNION) {
             BUnionType targetUnionType = (BUnionType) target;
-            targetTypes.addAll(targetUnionType.memberTypes);
+            targetTypes.addAll(targetUnionType.getMemberTypes());
         } else {
             targetTypes.add(target);
         }
@@ -1962,17 +1962,17 @@ public class Types {
         }
 
         BUnionType unionType = (BUnionType) type;
-        BUnionType errorLiftedType = BUnionType.create(null, unionType.memberTypes);
+        BUnionType errorLiftedType = BUnionType.create(null, (LinkedHashSet<BType>) unionType.getMemberTypes());
 
         // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.memberTypes.remove(symTable.nilType);
+        errorLiftedType.getMemberTypes().remove(symTable.nilType);
         errorLiftedType.setNullable(false);
         if (liftError) {
-            errorLiftedType.memberTypes.remove(symTable.errorType);
+            errorLiftedType.getMemberTypes().remove(symTable.errorType);
         }
 
-        if (errorLiftedType.memberTypes.size() == 1) {
-            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
+        if (errorLiftedType.getMemberTypes().size() == 1) {
+            return errorLiftedType.getMemberTypes().toArray(new BType[0])[0];
         }
         return errorLiftedType;
     }
@@ -2023,17 +2023,17 @@ public class Types {
 
     private boolean analyzeUnionType(BUnionType type) {
         // NIL is a member.
-        if (type.memberTypes.stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
+        if (type.getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
             return true;
         }
 
         // Value space contains nil.
-        if (type.memberTypes.stream().anyMatch(t -> t.isNullable())) {
+        if (type.getMemberTypes().stream().anyMatch(BType::isNullable)) {
             return true;
         }
 
         // All members are of same type and has the implicit initial value as a member.
-        Iterator<BType> iterator = type.memberTypes.iterator();
+        Iterator<BType> iterator = type.getMemberTypes().iterator();
         BType firstMember;
         for (firstMember = iterator.next(); iterator.hasNext(); ) {
             if (!isSameType(firstMember, iterator.next())) {

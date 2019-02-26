@@ -542,7 +542,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     BSymbol getNumericConversionOrCastSymbol(BLangTypeConversionExpr conversionExpr, BType sourceType,
                                              BType targetType) {
         if (targetType.tag == TypeTags.UNION &&
-                ((BUnionType) targetType).memberTypes.stream()
+                ((BUnionType) targetType).getMemberTypes().stream()
                         .filter(memType -> types.isBasicNumericType(memType)).count() > 1) {
             return symTable.notFoundSymbol;
         }
@@ -565,7 +565,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 case TypeTags.JSON:
                     return createTypeCastSymbol(sourceType, targetType);
                 case TypeTags.UNION:
-                    if (((BUnionType) sourceType).memberTypes.stream()
+                    if (((BUnionType) sourceType).getMemberTypes().stream()
                             .anyMatch(memType -> types.isBasicNumericType(memType))) {
                         return createTypeCastSymbol(sourceType, targetType);
                     }
@@ -644,7 +644,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         // if it is not already a union type, JSON type, or any type
         if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.resultType;
-            unionType.memberTypes.add(symTable.nilType);
+            unionType.getMemberTypes().add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
             this.resultType = BUnionType.create(null, resultType, symTable.nilType);
@@ -841,7 +841,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .flatMap(memBType ->
                         memBType.tag == TypeTags.UNION ?
-                                ((BUnionType) memBType).memberTypes.stream() :
+                                ((BUnionType) memBType).getMemberTypes().stream() :
                                 Stream.of(memBType))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 

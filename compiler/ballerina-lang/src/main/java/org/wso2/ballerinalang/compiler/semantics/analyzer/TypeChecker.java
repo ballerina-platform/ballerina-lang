@@ -303,7 +303,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else if (this.expType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.expType;
-            boolean foundMember = unionType.memberTypes
+            boolean foundMember = unionType.getMemberTypes()
                     .stream()
                     .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
             if (foundMember) {
@@ -410,7 +410,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = arrayType;
 
         } else if (expTypeTag == TypeTags.UNION) {
-            Set<BType> expTypes = ((BUnionType) expType).memberTypes;
+            Set<BType> expTypes = ((BUnionType) expType).getMemberTypes();
             List<BArrayType> matchedTypeList = expTypes.stream()
                     .filter(type -> type.tag == TypeTags.ARRAY)
                     .map(BArrayType.class::cast)
@@ -514,7 +514,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private List<BType> getRecordCompatibleType(BType bType, BLangRecordLiteral recordLiteral) {
 
         if (bType.tag == TypeTags.UNION) {
-            Set<BType> expTypes = ((BUnionType) bType).memberTypes;
+            Set<BType> expTypes = ((BUnionType) bType).getMemberTypes();
             return expTypes.stream()
                     .filter(type -> type.tag == TypeTags.JSON ||
                             type.tag == TypeTags.MAP ||
@@ -588,7 +588,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private List<BType> getArrayCompatibleTypes(BType expType, BType actualType) {
         Set<BType> expTypes =
-                expType.tag == TypeTags.UNION ? ((BUnionType) expType).memberTypes : new LinkedHashSet<BType>() {
+                expType.tag == TypeTags.UNION ? ((BUnionType) expType).getMemberTypes() : new LinkedHashSet<BType>() {
                     {
                         add(expType);
                     }
@@ -1437,7 +1437,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private LinkedHashSet<BType> collectMemberTypes(BUnionType unionType, LinkedHashSet<BType> memberTypes) {
-        for (BType memberType : unionType.memberTypes) {
+        for (BType memberType : unionType.getMemberTypes()) {
             if (memberType.tag == TypeTags.FUTURE) {
                 memberTypes.add(((BFutureType) memberType).constraint);
             } else {
@@ -1470,7 +1470,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             LinkedHashSet<BType> resultTypes = new LinkedHashSet<>();
             if (exprType.tag == TypeTags.UNION) {
-                resultTypes.addAll(((BUnionType) exprType).memberTypes);
+                resultTypes.addAll(((BUnionType) exprType).getMemberTypes());
             } else {
                 resultTypes.add(exprType);
             }
@@ -1539,7 +1539,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (lhsType != symTable.semanticError) {
             if (lhsType.tag == TypeTags.UNION && lhsType.isNullable()) {
                 BUnionType unionType = (BUnionType) lhsType;
-                LinkedHashSet<BType> memberTypes = unionType.memberTypes.stream()
+                LinkedHashSet<BType> memberTypes = unionType.getMemberTypes().stream()
                         .filter(type -> type.tag != TypeTags.NIL)
                         .collect(Collectors.toCollection(LinkedHashSet::new));
 
@@ -1718,7 +1718,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expectedType = expType;
         if (expectedType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) expectedType;
-            BType invokableType = unionType.memberTypes.stream().filter(type -> type.tag == TypeTags.INVOKABLE)
+            BType invokableType = unionType.getMemberTypes().stream().filter(type -> type.tag == TypeTags.INVOKABLE)
                     .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
                                 if (list.size() != 1) {
                                     return null;
@@ -2050,7 +2050,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BUnionType unionType = (BUnionType) exprType;
         // Filter out the list of types which are not equivalent with the error type.
-        Map<Boolean, List<BType>> resultTypeMap = unionType.memberTypes.stream()
+        Map<Boolean, List<BType>> resultTypeMap = unionType.getMemberTypes().stream()
                 .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errorType)));
 
         // This list will be used in the desugar phase
@@ -2573,7 +2573,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BUnionType type = BUnionType.create(null, actualType);
-        type.memberTypes.add(symTable.nilType);
+        type.getMemberTypes().add(symTable.nilType);
         type.setNullable(true);
         return type;
     }
@@ -2749,23 +2749,23 @@ public class TypeChecker extends BLangNodeVisitor {
         BUnionType unionType = BUnionType.create(null, actualType);
 
         if (returnsNull(accessExpr)) {
-            unionType.memberTypes.add(symTable.nilType);
+            unionType.getMemberTypes().add(symTable.nilType);
             unionType.setNullable(true);
         }
 
         BType parentType = accessExpr.expr.type;
         if (accessExpr.safeNavigate && (parentType.tag == TypeTags.SEMANTIC_ERROR || (parentType.tag == TypeTags.UNION
-                && ((BUnionType) parentType).memberTypes.contains(symTable.errorType)))) {
-            unionType.memberTypes.add(symTable.errorType);
+                && ((BUnionType) parentType).getMemberTypes().contains(symTable.errorType)))) {
+            unionType.getMemberTypes().add(symTable.errorType);
         }
 
         // If there's only one member, and the one an only member is:
         //    a) nilType OR
         //    b) not-nullable 
         // then return that only member, as the return type.
-        if (unionType.memberTypes.size() == 1 &&
-                (!unionType.isNullable() || unionType.memberTypes.contains(symTable.nilType))) {
-            return unionType.memberTypes.toArray(new BType[0])[0];
+        if (unionType.getMemberTypes().size() == 1 &&
+                (!unionType.isNullable() || unionType.getMemberTypes().contains(symTable.nilType))) {
+            return unionType.getMemberTypes().toArray(new BType[0])[0];
         }
 
         return unionType;
@@ -2977,7 +2977,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Extract the types without the error and null, and revisit access expression
-        Set<BType> varRefMemberTypes = ((BUnionType) type).memberTypes;
+        Set<BType> varRefMemberTypes = ((BUnionType) type).getMemberTypes();
         List<BType> lhsTypes;
 
         boolean nullable = false;
@@ -3011,7 +3011,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private List<BType> getTypesList(BType type) {
         if (type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) type;
-            return new ArrayList<>(unionType.memberTypes);
+            return new ArrayList<>(unionType.getMemberTypes());
         } else {
             return Lists.of(type);
         }

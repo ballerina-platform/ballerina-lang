@@ -803,7 +803,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return true;
             case TypeTags.UNION:
                 BUnionType unionMatchType = (BUnionType) matchType;
-                return unionMatchType.memberTypes
+                return unionMatchType.getMemberTypes()
                         .stream()
                         .anyMatch(memberMatchType -> isValidStaticMatchPattern(memberMatchType, literal));
             case TypeTags.TUPLE:
@@ -1803,7 +1803,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (bLangMatchExpression.expr.type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) bLangMatchExpression.expr.type;
-            exprTypes = new ArrayList<>(unionType.memberTypes);
+            exprTypes = new ArrayList<>(unionType.getMemberTypes());
         } else {
             exprTypes = Lists.of(bLangMatchExpression.expr.type);
         }
@@ -1869,7 +1869,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
         if (exprType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
-            enclInvokableHasErrorReturn = unionType.memberTypes.stream()
+            enclInvokableHasErrorReturn = unionType.getMemberTypes().stream()
                     .anyMatch(memberType -> types.isAssignable(memberType, symTable.errorType));
         } else if (types.isAssignable(exprType, symTable.errorType)) {
             enclInvokableHasErrorReturn = true;

@@ -165,7 +165,7 @@ public class Symbols {
             retType = targetType;
         } else if (targetType.tag == TypeTags.UNION && targetType instanceof BUnionType) {
             BUnionType unionType = (BUnionType) targetType;
-            unionType.memberTypes.add(errorType);
+            unionType.add(errorType);
             retType = unionType;
         } else {
             retType = BUnionType.create(null, targetType, errorType);
