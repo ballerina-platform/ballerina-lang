@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.jvm.classwriter;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -65,11 +64,8 @@ public class Visit extends BlockingNativeCallableUnit {
         int versionNumber = (int) context.getIntArgument(0);
         int access = (int) context.getIntArgument(1);
         String name = context.getStringArgument(0);
-        String signature = context.getStringArgument(1);
-        String superName = context.getStringArgument(2);
-        BValueArray interfacesArray = (BValueArray) context.getNullableRefArgument(1);
-        String[] interfaces = interfacesArray.getStringArray();
-        cw.visit(versionNumber, access, name, signature, superName, interfaces);
+        String superName = context.getStringArgument(1);
+        cw.visit(versionNumber, access, name, null, superName, null);
         generateDefaultConstructor(cw);
     }
 

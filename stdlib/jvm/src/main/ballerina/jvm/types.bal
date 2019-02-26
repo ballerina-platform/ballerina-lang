@@ -5,11 +5,11 @@ public type ClassWriter object {
 
     extern function init(int flags);
 
-    public extern function visit(int versionNumber, int access, string name, string signature, string superName,
-                            string[] interfaces);
+    public extern function visit(int versionNumber, int access, string name, string? signature, string superName,
+                            string[]? interfaces);
 
-    public extern function visitMethod(int access, string name, string descriptor, string signature,
-                            string[] exceptions) returns MethodVisitor;
+    public extern function visitMethod(int access, string name, string descriptor, string? signature,
+                            string[]? exceptions) returns MethodVisitor;
 
     public extern function visitEnd();
 
