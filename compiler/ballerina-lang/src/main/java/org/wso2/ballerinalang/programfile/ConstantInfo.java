@@ -24,12 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Represents constant information.
+ *
  * @since 0.985.0
  */
 public class ConstantInfo implements AttributeInfoPool {
 
-    public String name;
-    public int nameCPIndex;
+    public KeyInfo key;
 
     public int flags = -1;
 
@@ -42,8 +43,7 @@ public class ConstantInfo implements AttributeInfoPool {
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     public ConstantInfo(String name, int nameCPIndex) {
-        this.name = name;
-        this.nameCPIndex = nameCPIndex;
+        this.key = new KeyInfo(name, nameCPIndex);
     }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {

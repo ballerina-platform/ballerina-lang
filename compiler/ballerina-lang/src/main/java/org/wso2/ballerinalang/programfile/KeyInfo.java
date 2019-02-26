@@ -17,29 +17,18 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Represents a constant value.
+ * Represents a key in constant map literals.
  *
- * @since 0.990.4
+ * @since 0.985.0
  */
-public class ConstantValue {
+public class KeyInfo {
 
-    public int finiteTypeSigCPIndex = -1;
-    public int valueTypeSigCPIndex = -1;
+    public String name;
+    public int cpIndex;
 
-    public int recordLiteralSigCPIndex = -1;
-
-    public boolean isSimpleLiteral;
-
-    public int literalValueTypeTag = -1;
-
-    public int valueCPEntry = -1;
-
-    public boolean booleanValue;
-
-    public Map<String, ConstantValue> constantValueMap = new HashMap<>();
-    public Map<String, Integer> constantKeyToCPIndexMap = new HashMap<>();
+    public KeyInfo(String name, int nameCPIndex) {
+        this.name = name;
+        this.cpIndex = nameCPIndex;
+    }
 }

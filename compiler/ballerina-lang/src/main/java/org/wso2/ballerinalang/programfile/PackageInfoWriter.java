@@ -231,7 +231,7 @@ public class PackageInfoWriter {
                                                  ConstantInfo[] constantInfos) throws IOException {
         dataOutStream.writeShort(constantInfos.length);
         for (ConstantInfo constantInfo : constantInfos) {
-            dataOutStream.writeInt(constantInfo.nameCPIndex);
+            dataOutStream.writeInt(constantInfo.key.cpIndex);
             dataOutStream.writeInt(constantInfo.flags);
             dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
             if (constantInfo.isSimpleLiteral) {
