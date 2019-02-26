@@ -19,7 +19,7 @@ will support only this format. Also following this guide will form a standard st
 
 ### Comments (//)
 
-* If Comment is taking an entire line it should indent accordingly.
+* If Comment is taking an entire line it should indent according to where it is.
 
 ```ballerina
 // This Comment is in the top level
