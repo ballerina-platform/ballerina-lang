@@ -38,6 +38,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangDiagnosticLog dlog;
 
+    private DiagnosticPos pos;
+    private BLangIdentifier keyIdentifier;
+
+    private BLangLiteral result;
+
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
 
@@ -54,6 +59,18 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     public BLangLiteral getValue(DiagnosticPos pos, BLangIdentifier keyIdentifier,
                                  BLangRecordLiteral.BLangMapLiteral mapLiteral) {
+        this.result = null;
+
+        this.pos = pos;
+        this.keyIdentifier = keyIdentifier;
+
+        mapLiteral.accept(this);
+
+        return this.result;
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
         // Iterate through all key-value pairs in the record literal.
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
             //  Get the key.
@@ -64,7 +81,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 // Since we are looking for a literal which can be used as at compile time, it should be a literal.
                 if (keyValuePair.valueExpr.getKind() == NodeKind.LITERAL ||
                         keyValuePair.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                    return ((BLangLiteral) keyValuePair.valueExpr);
+                    result = ((BLangLiteral) keyValuePair.valueExpr);
+                    return;
                 }
                 // Todo - Log error.
                 throw new RuntimeException("unsupported node kind");
@@ -72,6 +90,5 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
         // If this line is reached, that means we haven't found the key. In that case, log a compilation error.
         dlog.error(pos, DiagnosticCode.KEY_NOT_FOUND, keyIdentifier, mapLiteral.name.value);
-        return null;
     }
 }
