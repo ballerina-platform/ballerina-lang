@@ -3,12 +3,13 @@ This module provides an implementation for connecting to a remote socket server 
 ## Samples
 ### Listener endpoints
 The sample given below shows how a listener is used to listen to the incoming socket request. The `onConnect(socket:Caller)` resource function gets invoked when a new client is connected. The new client is represented using the `socket:Caller`.
-`onReadReady(socket:Caller)` resource gets invoked once the remote client sends some data. 
+`onReadReady(socket:Caller)` resource gets invoked once the remote client sends some data.
+ 
 ```ballerina
 import ballerina/io;
 import ballerina/socket;
 
-listener socket:Listener server = new ({ port:61598 });
+listener socket:Listener server = new({ port:61598 });
 
 service echoServer on server {
     resource function onConnect (socket:Caller caller) {
@@ -34,15 +35,17 @@ service echoServer on server {
     }
 }
 ```
+
 ### Client endpoints
 Client endpoints are used to connect to and interact with a socket server. The client can only send the data to the server. Client's `callbackService` needs to retrieve the data from the server and do multiple requests/responses between client and the server.
+
 ```ballerina
 import ballerina/io;
 import ballerina/socket;
 
 public function main() {
-    socket:Client socketClient = new({host: "localhost", port: 9999, callbackService: ClientService});
-    string msg = "Hello Ballerina";
+    socket:Client socketClient = new({ host: "localhost", port: 9999, callbackService: ClientService });
+    string msg = "Hello Ballerina\n";
     byte[] c1 = msg.toByteArray("utf-8");
     _ = socketClient->write(c1);
 }

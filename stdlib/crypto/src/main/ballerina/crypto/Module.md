@@ -14,7 +14,7 @@ import ballerina/encoding;
 import ballerina/io;
 
 public function main() {
-     // Input value for crypto operations
+     // Input value for crypto operations.
      string input = "Hello Ballerina";
      byte[] inputArr = input.toByteArray("UTF-8");
      byte[] output = [];
@@ -50,7 +50,7 @@ import ballerina/io;
 public function main() {
      string charEncoding = "UTF-8";
 
-     // Input value for crypto operations
+     // Input value for crypto operations.
      string input = "Hello Ballerina";
      byte[] inputArr = input.toByteArray(charEncoding);
 
@@ -82,13 +82,12 @@ public function main() {
 
 The sample given below shows how to use `crc32b` function to calculate the CRC32B checksum.
 
-
 ```ballerina
 import ballerina/crypto;
 import ballerina/io;
 
 public function main() {
-     // Input value for cryto operations
+     // Input value for cryto operations.
      string input = "Hello Ballerina";
 
      // Hex encoded CRC32B checksum generation for input value.
@@ -111,7 +110,7 @@ import ballerina/encoding;
 import ballerina/io;
 
 public function main() returns error? {
-     // Input value for cryto operations
+     // Input value for cryto operations.
      string input = "Hello Ballerina";
      byte[] inputArr = input.toByteArray("UTF-8");
 
