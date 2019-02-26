@@ -39,7 +39,9 @@ public type Scheduler object {
     #
     # + attachedService - service which needs to be detached from the task.
     # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public extern function detachService(service attachedService) returns error?;
+    public function detachService(service attachedService) returns error? {
+        return self.taskListener.detachService(attachedService);
+    }
 
     # Starts running the task. Task will not run until this has been called.
     #

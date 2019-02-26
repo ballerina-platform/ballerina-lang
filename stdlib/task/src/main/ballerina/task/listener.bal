@@ -53,6 +53,8 @@ public type Listener object {
 
     extern function stop() returns error?;
 
+    extern function detachService(service attachedService) returns error?;
+
     # Pauses the task.
     #
     # + return - Returns error if the task is not running or any other error is occured, nil Otherwise.
