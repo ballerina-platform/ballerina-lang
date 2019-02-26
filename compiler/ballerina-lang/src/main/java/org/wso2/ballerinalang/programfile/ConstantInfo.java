@@ -38,8 +38,6 @@ public class ConstantInfo implements AttributeInfoPool {
     public boolean isSimpleLiteral;
 
     public ConstantValue constantValue;
-    public Map<String, ConstantValue> constantValueMap = new HashMap<>();
-    public Map<String, Integer> constantValueMapKeyCPIndex = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 

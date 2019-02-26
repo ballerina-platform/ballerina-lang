@@ -2180,11 +2180,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             // Set the value type (record type). This is needed when we recreate the record literal.
             constantInfo.valueTypeSigCPIndex = valueTypeSigCPIndex;
             // Get key-value info.
-            constantInfo.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.literalValue);
+            ConstantValue constantValue = new ConstantValue();
+            constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.literalValue);
+
+            constantInfo.constantValue = constantValue;
+
             // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
             // We store that details in the `constantKeyToCPIndexMap` map.
-            for (Entry<String, ConstantValue> entry : constantInfo.constantValueMap.entrySet()) {
-                constantInfo.constantValueMapKeyCPIndex.put(entry.getKey(), addUTF8CPEntry(currentPkgInfo,
+            for (Entry<String, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                constantValue.constantKeyToCPIndexMap.put(entry.getKey(), addUTF8CPEntry(currentPkgInfo,
                         entry.getKey()));
             }
         }

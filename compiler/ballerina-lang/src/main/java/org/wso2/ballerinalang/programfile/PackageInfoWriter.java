@@ -241,8 +241,8 @@ public class PackageInfoWriter {
                 // If the constant is a map literal, write the type signature CP index first.
                 dataOutStream.writeInt(constantInfo.valueTypeSigCPIndex);
                 // Write the map literal info.
-                writeMapLiteral(dataOutStream, constantInfo.constantValueMap,
-                        constantInfo.constantValueMapKeyCPIndex);
+                writeMapLiteral(dataOutStream, constantInfo.constantValue.constantValueMap,
+                        constantInfo.constantValue.constantKeyToCPIndexMap);
             }
             // Write attribute info.
             writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
