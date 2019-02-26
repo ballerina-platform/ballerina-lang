@@ -40,6 +40,5 @@ public class ConstantValue {
 
     public boolean booleanValue;
 
-    public Map<String, ConstantValue> constantValueMap = new HashMap<>();
-    public Map<String, Integer> constantKeyToCPIndexMap = new HashMap<>();
+    public Map<KeyInfo, ConstantValue> constantValueMap = new HashMap<>();
 }

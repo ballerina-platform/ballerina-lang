@@ -186,6 +186,7 @@ import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
+import org.wso2.ballerinalang.programfile.KeyInfo;
 import org.wso2.ballerinalang.programfile.LabelTypeInfo;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
@@ -2187,9 +2188,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
             // We store that details in the `constantKeyToCPIndexMap` map.
-            for (Entry<String, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
-                constantValue.constantKeyToCPIndexMap.put(entry.getKey(), addUTF8CPEntry(currentPkgInfo,
-                        entry.getKey()));
+            for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                KeyInfo keyInfo = entry.getKey();
+                keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
             }
         }
 
@@ -2230,9 +2231,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         return constantValue;
     }
 
-    private Map<String, ConstantValue> createMapLiteralInfo(BLangRecordLiteral expression) {
+    private Map<KeyInfo, ConstantValue> createMapLiteralInfo(BLangRecordLiteral expression) {
 
-        Map<String, ConstantValue> constantValueMap = new HashMap<>();
+        Map<KeyInfo, ConstantValue> constantValueMap = new HashMap<>();
 
         // Iterate through key-value pairs.
         for (BLangRecordKeyValue keyValue : expression.keyValuePairs) {
@@ -2253,7 +2254,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 constantValue.isSimpleLiteral = true;
 
                 // Add the `key` and `constantValue` pair to the map.
-                constantValueMap.put(key, constantValue);
+                constantValueMap.put(new KeyInfo(key), constantValue);
             } else if (valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                 // Create a new constant value.
                 ConstantValue constantValue = new ConstantValue();
@@ -2261,13 +2262,13 @@ public class CodeGenerator extends BLangNodeVisitor {
                 constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, valueExpr.type.getDesc());
 
                 // Add the `key` and `constantValue` pair to the map.
-                constantValueMap.put(key, constantValue);
+                constantValueMap.put(new KeyInfo(key), constantValue);
 
                 // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as
                 // well. We store that details in the `constantKeyToCPIndexMap` map.
-                for (Entry<String, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
-                    constantValue.constantKeyToCPIndexMap.put(entry.getKey(), addUTF8CPEntry(currentPkgInfo,
-                            entry.getKey()));
+                for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                    KeyInfo keyInfo = entry.getKey();
+                    keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
                 }
             } else {
                 throw new RuntimeException("unexpected node kind");

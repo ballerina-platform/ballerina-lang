@@ -25,7 +25,11 @@ package org.wso2.ballerinalang.programfile;
 public class KeyInfo {
 
     public String name;
-    public int cpIndex;
+    public int cpIndex = -1;
+
+    public KeyInfo(String name) {
+        this.name = name;
+    }
 
     public KeyInfo(String name, int nameCPIndex) {
         this.name = name;

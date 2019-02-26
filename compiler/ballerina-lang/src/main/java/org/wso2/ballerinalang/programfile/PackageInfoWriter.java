@@ -241,8 +241,7 @@ public class PackageInfoWriter {
                 // If the constant is a map literal, write the type signature CP index first.
                 dataOutStream.writeInt(constantInfo.valueTypeSigCPIndex);
                 // Write the map literal info.
-                writeMapLiteral(dataOutStream, constantInfo.constantValue.constantValueMap,
-                        constantInfo.constantValue.constantKeyToCPIndexMap);
+                writeMapLiteral(dataOutStream, constantInfo.constantValue.constantValueMap);
             }
             // Write attribute info.
             writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
@@ -273,13 +272,13 @@ public class PackageInfoWriter {
         }
     }
 
-    private static void writeMapLiteral(DataOutputStream dataOutStream, Map<String, ConstantValue> constantValueMap,
-                                        Map<String, Integer> constantValueMapKeyCPIndex) throws IOException {
+    private static void writeMapLiteral(DataOutputStream dataOutStream, Map<KeyInfo, ConstantValue> constantValueMap)
+            throws IOException {
         // Write the number of the key-value pairs in the record literal.
         dataOutStream.writeInt(constantValueMap.size());
-        for (Map.Entry<String, ConstantValue> entry : constantValueMap.entrySet()) {
+        for (Map.Entry<KeyInfo, ConstantValue> entry : constantValueMap.entrySet()) {
             // Write key CP index.
-            dataOutStream.writeInt(constantValueMapKeyCPIndex.get(entry.getKey()));
+            dataOutStream.writeInt(entry.getKey().cpIndex);
 
             ConstantValue constantValue = entry.getValue();
 
@@ -291,7 +290,7 @@ public class PackageInfoWriter {
                 // If the value is a map literal, wrote the map literal type signature CP index first.
                 dataOutStream.writeInt(constantValue.recordLiteralSigCPIndex);
                 // Write the map literal info.
-                writeMapLiteral(dataOutStream, constantValue.constantValueMap, constantValue.constantKeyToCPIndexMap);
+                writeMapLiteral(dataOutStream, constantValue.constantValueMap);
             }
         }
     }
