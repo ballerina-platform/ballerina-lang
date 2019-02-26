@@ -508,6 +508,8 @@ function writeSample(string path) {
         },
         types: [
         ],
+        typeDefs: [
+        ],
         versionValue: {
             value: "0.0.0"
         }
