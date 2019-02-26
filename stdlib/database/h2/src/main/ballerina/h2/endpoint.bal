@@ -102,8 +102,10 @@ public type Client client object {
     # The update remote function implementation for H2 Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
+    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
+    # + return - `sql:Result` with the updated row count and key column values,
+    #             else  `error` will be returned if there is any error
     public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), sql:Param... parameters)
                                returns sql:Result|error {
         return self.sqlClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
