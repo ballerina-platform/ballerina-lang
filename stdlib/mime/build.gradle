@@ -20,4 +20,17 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
 }
 
+task testJar(type: Jar, dependsOn: testClasses) {
+    baseName = "test-${project.archivesBaseName}"
+    from sourceSets.test.output
+}
+
+configurations {
+    tests
+}
+
+artifacts {
+    tests testJar
+}
+
 description = 'Ballerina - MIME Implementation'
