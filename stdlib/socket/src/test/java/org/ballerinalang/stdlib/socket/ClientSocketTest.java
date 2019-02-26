@@ -32,7 +32,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -69,8 +68,7 @@ public class ClientSocketTest {
             log.error("Unable to open Socket Server: " + e.getMessage(), e);
             Assert.fail(e.getMessage());
         }
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path testResourceRoot = Paths.get(resourceRoot, "test-src");
         socketClient = BCompileUtil.compile(testResourceRoot.resolve("client_socket.bal").toString());
     }
