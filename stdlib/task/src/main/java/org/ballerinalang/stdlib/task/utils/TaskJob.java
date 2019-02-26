@@ -21,12 +21,13 @@ package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.objects.ServiceWithParameters;
+import org.ballerinalang.stdlib.task.objects.Task;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_CONTEXT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_SERVICE_WITH_PARAMETER;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
 
 /**
  * Represents a Quartz job related to an appointment.
@@ -43,8 +44,9 @@ public class TaskJob implements Job {
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
         Context context = (Context) jobDataMap.get(TASK_CONTEXT);
-        ServiceWithParameters serviceWithParams = (ServiceWithParameters) jobDataMap.get(TASK_SERVICE_WITH_PARAMETER);
-
-        TaskExecutor.execute(context, serviceWithParams);
+        Task task = (Task) jobDataMap.get(TASK_OBJECT);
+        for (ServiceWithParameters serviceWithParameters : task.getServicesMap().values()) {
+            TaskExecutor.execute(context, serviceWithParameters);
+        }
     }
 }

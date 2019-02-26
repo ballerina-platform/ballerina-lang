@@ -29,6 +29,7 @@ import org.quartz.SchedulerException;
  * Represents a Timer object used to create and run Timers.
  */
 public class Timer extends AbstractTask {
+
     private long interval, delay;
 
     /**
@@ -49,10 +50,10 @@ public class Timer extends AbstractTask {
     /**
      * Creates a Timer object with limited number of running times.
      *
-     * @param context   The ballerina context.
-     * @param delay     The initial delay.
-     * @param interval  The interval between two task executions.
-     * @param maxRuns   Number of times after which the timer will turn off.
+     * @param context  The ballerina context.
+     * @param delay    The initial delay.
+     * @param interval The interval between two task executions.
+     * @param maxRuns  Number of times after which the timer will turn off.
      * @throws SchedulingException When provided configuration values are invalid.
      */
     public Timer(Context context, long delay, long interval, long maxRuns) throws SchedulingException {
@@ -90,13 +91,17 @@ public class Timer extends AbstractTask {
      */
     @Override
     public void runServices(Context context) throws SchedulingException {
-        for (ServiceWithParameters serviceWithParameters : getServicesMap().values()) {
-            JobDataMap jobDataMap = getJobDataMapFromService(context, serviceWithParameters);
-            try {
-                TaskManager.getInstance().scheduleTimer(this, jobDataMap);
-            } catch (SchedulerException e) {
-                throw new SchedulingException("Failed to schedule Task: " + this.id + ". " + e.getMessage());
+        /*final Runnable schedulerFunction = () -> {
+            for (ServiceWithParameters serviceWithParameters : getServicesMap().values()) {
+
             }
+        };*/
+
+        JobDataMap jobDataMap = getJobDataMapFromService(context);
+        try {
+            TaskManager.getInstance().scheduleTimer(this, jobDataMap);
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Failed to schedule Task: " + this.id + ". " + e.getMessage());
         }
     }
 

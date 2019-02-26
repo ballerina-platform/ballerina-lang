@@ -30,8 +30,12 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
+import org.quartz.TriggerUtils;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.impl.calendar.BaseCalendar;
+import org.quartz.spi.OperableTrigger;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,14 +83,23 @@ public class TaskManager {
      * @throws SchedulerException if scheduling is failed.
      */
     public void scheduleAppointment(Appointment appointment, JobDataMap jobData) throws SchedulerException {
-        JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(appointment.getId()).build();
+        String appointmentId = appointment.getId();
+        JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(appointmentId).build();
         CronTrigger trigger = newTrigger()
-                .withIdentity(appointment.getId())
+                .withIdentity(appointmentId)
                 .withSchedule(cronSchedule(appointment.getCronExpression()))
                 .build();
 
+        if (appointment.getMaxRuns() > 0) {
+            int noOfRuns = (int) appointment.getMaxRuns();
+            Date endDate = TriggerUtils.computeEndTimeToAllowParticularNumberOfFirings((OperableTrigger) trigger,
+                    new BaseCalendar(Calendar.getInstance().getTimeZone()), noOfRuns);
+
+            trigger = trigger.getTriggerBuilder().endAt(endDate).build();
+
+        }
         scheduler.scheduleJob(job, trigger);
-        quartzJobs.put(appointment.getId(), job.getKey());
+        quartzJobs.put(appointmentId, job.getKey());
     }
 
     /**
@@ -123,6 +136,10 @@ public class TaskManager {
         quartzJobs.put(taskId, job.getKey());
     }
 
+    /*public void addJob() {
+
+    }*/
+
     private SimpleScheduleBuilder createSchedulerBuilder(long interval, long maxRuns) {
         SimpleScheduleBuilder simpleScheduleBuilder = simpleSchedule().withIntervalInMilliseconds(interval);
         if (maxRuns > 0) {
@@ -134,6 +151,7 @@ public class TaskManager {
         }
         return simpleScheduleBuilder;
     }
+
 
     /**
      * Stops the scheduled Appointment.

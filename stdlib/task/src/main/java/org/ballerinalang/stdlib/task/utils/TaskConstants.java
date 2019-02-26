@@ -73,8 +73,8 @@ public class TaskConstants {
     public static final int REF_ARG_INDEX_TASK_SERVICE = 2;
 
     // Fields used in Appointment job map
-    public static final String TASK_SERVICE_WITH_PARAMETER = "ballerina.service.with.parameters";
     public static final String TASK_CONTEXT = "ballerina.context";
+    public static final String TASK_OBJECT = "ballerina.task";
 
     // ID of the Task object in native data
     public static final String NATIVE_DATA_TASK_OBJECT = "TaskObject";

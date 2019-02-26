@@ -34,7 +34,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAM
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_SCHEDULER;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LISTENER;
 
 /**
  * Native function to detach a service from the listener.
@@ -45,7 +45,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_SCHE
         functionName = "detachService",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = STRUCT_NAME_SCHEDULER,
+                structType = STRUCT_NAME_LISTENER,
                 structPackage = PACKAGE_STRUCK_NAME),
         isPublic = true
 )

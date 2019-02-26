@@ -28,7 +28,7 @@ import org.quartz.JobDataMap;
 import java.util.HashMap;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_CONTEXT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_SERVICE_WITH_PARAMETER;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
 
 /**
  * Abstract class which represents a ballerina task.
@@ -101,13 +101,12 @@ public abstract class AbstractTask implements Task {
      * Create a job data map using the context and the service.
      *
      * @param context Ballerina context of the Task.
-     * @param serviceWithParameters <code>ServiceWithParameter</code> object related to the task.
      * @return JobDataMap consists of context and the <code>ServiceWithParameter</code> object.
      */
-    JobDataMap getJobDataMapFromService(Context context, ServiceWithParameters serviceWithParameters) {
+    JobDataMap getJobDataMapFromService(Context context) {
         JobDataMap jobData = new JobDataMap();
         jobData.put(TASK_CONTEXT, context);
-        jobData.put(TASK_SERVICE_WITH_PARAMETER, serviceWithParameters);
+        jobData.put(TASK_OBJECT, this);
         return jobData;
     }
 

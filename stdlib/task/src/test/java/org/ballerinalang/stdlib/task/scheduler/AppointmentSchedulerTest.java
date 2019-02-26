@@ -49,4 +49,21 @@ public class AppointmentSchedulerTest {
             return (((BInteger) configs[0]).intValue() > 3);
         });
     }
+
+    /*@Test(description = "Tests the functionality of initiating a Task Timer Listener.")
+    public void testLimitedNoOfTimes() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/appointment/limited_number_of_times.bal");
+        BValue[] inputs = {new BString("1 * * * * ?")};
+        await().atMost(15000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] result = BRunUtil.invokeStateful(compileResult, "triggerAppointment", inputs);
+            Assert.assertEquals(result.length, 1);
+            Assert.assertTrue(result[0] instanceof BBoolean);
+            return ((BBoolean) result[0]).booleanValue();
+        });
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            Assert.assertEquals(count.length, 1);
+            return (((BInteger) count[0]).intValue() > 3);
+        });
+    }*/
 }

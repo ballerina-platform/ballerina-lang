@@ -134,4 +134,16 @@ public class TimerSchedulerTest {
             return (((BInteger) count[0]).intValue() > 3);
         });
     }
+
+    @Test(description = "Tests a timer scheduler with zero delay")
+    public void testMultipleServices() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/multiple_services.bal");
+        BRunUtil.invokeStateful(compileResult, "triggerTimer");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getResult");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BBoolean);
+            return ((BBoolean) count[0]).booleanValue();
+        });
+    }
 }
