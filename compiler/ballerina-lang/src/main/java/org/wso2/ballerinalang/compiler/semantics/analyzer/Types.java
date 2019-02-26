@@ -1633,6 +1633,16 @@ public class Types {
         });
     }
 
+    /**
+     * Method to check the literal assignability based on the types of the literals. For numeric literals the
+     * assignability depends on the equivalency of the literals. If the candidate literal could either be a simple
+     * literal or a constant. In case of a constant, it is assignable to the base literal if and only if both
+     * literals have same type and equivalent values.
+     *
+     * @param baseLiteral      Literal based on which we check the assignability.
+     * @param candidateLiteral Literal to be tested whether it is assignable to the base literal or not.
+     * @return true if assignable; false otherwise.
+     */
     private boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
         // Different literal kinds.
         if (baseLiteral.getKind() != candidateLiteral.getKind()) {
