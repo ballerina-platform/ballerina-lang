@@ -2572,10 +2572,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return actualType;
         }
 
-        BUnionType type = BUnionType.create(null, actualType);
-        type.getMemberTypes().add(symTable.nilType);
-        type.setNullable(true);
-        return type;
+        return BUnionType.create(null, actualType, symTable.nilType);
     }
 
     private BType checkStructFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BType structType) {
@@ -2749,22 +2746,20 @@ public class TypeChecker extends BLangNodeVisitor {
         BUnionType unionType = BUnionType.create(null, actualType);
 
         if (returnsNull(accessExpr)) {
-            unionType.getMemberTypes().add(symTable.nilType);
-            unionType.setNullable(true);
+            unionType.add(symTable.nilType);
         }
 
         BType parentType = accessExpr.expr.type;
         if (accessExpr.safeNavigate && (parentType.tag == TypeTags.SEMANTIC_ERROR || (parentType.tag == TypeTags.UNION
                 && ((BUnionType) parentType).getMemberTypes().contains(symTable.errorType)))) {
-            unionType.getMemberTypes().add(symTable.errorType);
+            unionType.add(symTable.errorType);
         }
 
         // If there's only one member, and the one an only member is:
         //    a) nilType OR
         //    b) not-nullable 
         // then return that only member, as the return type.
-        if (unionType.getMemberTypes().size() == 1 &&
-                (!unionType.isNullable() || unionType.getMemberTypes().contains(symTable.nilType))) {
+        if (unionType.getMemberTypes().size() == 1) {
             return unionType.getMemberTypes().toArray(new BType[0])[0];
         }
 

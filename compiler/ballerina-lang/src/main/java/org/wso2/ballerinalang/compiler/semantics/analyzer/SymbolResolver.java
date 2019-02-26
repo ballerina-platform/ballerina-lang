@@ -644,8 +644,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         // if it is not already a union type, JSON type, or any type
         if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.resultType;
-            unionType.getMemberTypes().add(symTable.nilType);
-            unionType.setNullable(true);
+            unionType.add(symTable.nilType);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
             this.resultType = BUnionType.create(null, resultType, symTable.nilType);
         }

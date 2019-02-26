@@ -141,6 +141,18 @@ public class BUnionType extends BType implements UnionType {
         types.forEach(this::add);
     }
 
+    public void remove(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            this.memberTypes.removeAll(((BUnionType) type).getMemberTypes());
+        } else {
+            this.memberTypes.remove(type);
+        }
+
+        if (type.isNullable()) {
+            this.nullable = false;
+        }
+    }
+
     /**
      * Returns an iterator to iterate over the member types of the union.
      *

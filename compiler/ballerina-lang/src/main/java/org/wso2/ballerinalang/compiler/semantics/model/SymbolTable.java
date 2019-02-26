@@ -619,7 +619,7 @@ public class SymbolTable {
         } else {
             if (targetType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) targetType;
-                unionType.getMemberTypes().add(this.errorType);
+                unionType.add(this.errorType);
                 retType = targetType;
             } else {
                 retType = BUnionType.create(null, targetType, errorType);
@@ -645,7 +645,7 @@ public class SymbolTable {
         } else {
             if (targetType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) targetType;
-                unionType.getMemberTypes().add(this.errorType);
+                unionType.add(this.errorType);
                 retType = targetType;
             } else {
                 retType = BUnionType.create(null, targetType, errorType);

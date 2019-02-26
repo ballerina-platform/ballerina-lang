@@ -1965,10 +1965,9 @@ public class Types {
         BUnionType errorLiftedType = BUnionType.create(null, (LinkedHashSet<BType>) unionType.getMemberTypes());
 
         // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.getMemberTypes().remove(symTable.nilType);
-        errorLiftedType.setNullable(false);
+        errorLiftedType.remove(symTable.nilType);
         if (liftError) {
-            errorLiftedType.getMemberTypes().remove(symTable.errorType);
+            errorLiftedType.remove(symTable.errorType);
         }
 
         if (errorLiftedType.getMemberTypes().size() == 1) {
@@ -2033,7 +2032,7 @@ public class Types {
         }
 
         // All members are of same type and has the implicit initial value as a member.
-        Iterator<BType> iterator = type.getMemberTypes().iterator();
+        Iterator<BType> iterator = type.iterator();
         BType firstMember;
         for (firstMember = iterator.next(); iterator.hasNext(); ) {
             if (!isSameType(firstMember, iterator.next())) {
