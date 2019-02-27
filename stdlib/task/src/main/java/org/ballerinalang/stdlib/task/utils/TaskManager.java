@@ -156,7 +156,7 @@ public class TaskManager {
             try {
                 scheduler.deleteJob(quartzJobs.get(taskId));
             } catch (SchedulerException e) {
-                throw new SchedulingException("Stopping appointment with ID " + taskId + " failed", e);
+                throw new SchedulingException("Cannot cancel the task. ", e);
             }
         } else {
             throwTaskNotFoundException();

@@ -91,17 +91,11 @@ public class Timer extends AbstractTask {
      */
     @Override
     public void runServices(Context context) throws SchedulingException {
-        /*final Runnable schedulerFunction = () -> {
-            for (ServiceWithParameters serviceWithParameters : getServicesMap().values()) {
-
-            }
-        };*/
-
         JobDataMap jobDataMap = getJobDataMapFromService(context);
         try {
             TaskManager.getInstance().scheduleTimer(this, jobDataMap);
         } catch (SchedulerException e) {
-            throw new SchedulingException("Failed to schedule Task: " + this.id + ". " + e.getMessage());
+            throw new SchedulingException("Failed to schedule Task. " + e.getMessage());
         }
     }
 
