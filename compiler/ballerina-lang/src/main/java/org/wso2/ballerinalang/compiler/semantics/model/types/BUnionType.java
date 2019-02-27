@@ -100,7 +100,7 @@ public class BUnionType extends BType implements UnionType {
      */
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = toFlatTypeSet(types);
-        return new BUnionType(tsymbol, memberTypes, memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL));
+        return new BUnionType(tsymbol, memberTypes, memberTypes.stream().anyMatch(BType::isNullable));
     }
 
     /**

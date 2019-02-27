@@ -1036,8 +1036,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void analyzeArrayElemImplicitInitialValue(BLangSimpleVariable varNode) {
         BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
         if (!types.hasImplicitInitialValue(arrayPart.elemtype.type)) {
-            BLangType eType = arrayPart.elemtype;
-            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+            BType eType = arrayPart.elemtype.type;
+            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
         }
     }
 
@@ -1052,9 +1052,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
-            BLangType eType = ((BLangArrayType) typeNode).elemtype;
-            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+            BType eType = ((BLangArrayType) typeNode).elemtype.type;
+            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
         }
+    }
+
+    private BType getNilableType(BType type) {
+        if (type.isNullable()) {
+            return type;
+        }
+
+        BUnionType unionType = BUnionType.create(null);
+
+        if (type.tag == TypeTags.UNION) {
+            unionType.addAll((LinkedHashSet<BType>) ((BUnionType) type).getMemberTypes());
+        }
+
+        unionType.add(type);
+        unionType.add(symTable.nilType);
+        return unionType;
     }
 
     public void visit(BLangIdentifier identifierNode) {
