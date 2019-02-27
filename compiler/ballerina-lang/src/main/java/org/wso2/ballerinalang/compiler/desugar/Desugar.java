@@ -1996,9 +1996,6 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.TUPLE) {
-            if (indexAccessExpr.indexExpr.type.tag == TypeTags.FINITE) {
-                indexAccessExpr.indexExpr = addConversionExprIfRequired(indexAccessExpr.indexExpr, symTable.intType);
-            }
             targetVarRef = new BLangTupleAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }

@@ -2776,13 +2776,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = symTable.jsonType;
                 break;
             case TypeTags.ARRAY:
-                indexExprType = checkExpr(indexExpr, this.env, symTable.intType);
-                if (indexExprType.tag == TypeTags.INT) {
-                    actualType = ((BArrayType) varRefType).getElementType();
-                }
+                checkExpr(indexExpr, this.env, symTable.intType);
+                actualType = ((BArrayType) varRefType).getElementType();
                 break;
             case TypeTags.TUPLE:
-                checkExpr(indexExpr, this.env, symTable.noType);
+                checkExpr(indexExpr, this.env, symTable.intType);
                 actualType = checkTupleIndexBasedAccess(indexBasedAccessExpr, (BTupleType) varRefType);
                 break;
             case TypeTags.XML:
@@ -2849,9 +2847,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
                         new BUnionType(null, possibleTypes, false);
-                break;
-            default:
-                dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType, indexExpr.type);
                 break;
         }
         return actualType;
