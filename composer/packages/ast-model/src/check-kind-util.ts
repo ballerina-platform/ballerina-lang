@@ -51,10 +51,6 @@ export class ASTKindChecker {
     return node.kind === "BuiltInRefType";
   }
 
-  public static isCatch(node: ASTNode) {
-    return node.kind === "Catch";
-  }
-
   public static isCheckExpr(node: ASTNode) {
     return node.kind === "CheckExpr";
   }
@@ -155,10 +151,6 @@ export class ASTKindChecker {
     return node.kind === "IndexBasedAccessExpr";
   }
 
-  public static isIntRangeExpr(node: ASTNode) {
-    return node.kind === "IntRangeExpr";
-  }
-
   public static isInvocation(node: ASTNode) {
     return node.kind === "Invocation";
   }
@@ -169,10 +161,6 @@ export class ASTKindChecker {
 
   public static isLambda(node: ASTNode) {
     return node.kind === "Lambda";
-  }
-
-  public static isLimit(node: ASTNode) {
-    return node.kind === "Limit";
   }
 
   public static isLiteral(node: ASTNode) {
@@ -207,6 +195,10 @@ export class ASTKindChecker {
     return node.kind === "Next";
   }
 
+  public static isNumericLiteral(node: ASTNode) {
+    return node.kind === "NumericLiteral";
+  }
+
   public static isObjectType(node: ASTNode) {
     return node.kind === "ObjectType";
   }
@@ -219,24 +211,8 @@ export class ASTKindChecker {
     return node.kind === "OrderByVariable";
   }
 
-  public static isOutputRateLimit(node: ASTNode) {
-    return node.kind === "OutputRateLimit";
-  }
-
   public static isPanic(node: ASTNode) {
     return node.kind === "Panic";
-  }
-
-  public static isPatternClause(node: ASTNode) {
-    return node.kind === "PatternClause";
-  }
-
-  public static isPatternStreamingEdgeInput(node: ASTNode) {
-    return node.kind === "PatternStreamingEdgeInput";
-  }
-
-  public static isPatternStreamingInput(node: ASTNode) {
-    return node.kind === "PatternStreamingInput";
   }
 
   public static isRecordDestructure(node: ASTNode) {
@@ -339,10 +315,6 @@ export class ASTKindChecker {
     return node.kind === "TrapExpr";
   }
 
-  public static isTry(node: ASTNode) {
-    return node.kind === "Try";
-  }
-
   public static isTupleDestructure(node: ASTNode) {
     return node.kind === "TupleDestructure";
   }
@@ -425,10 +397,6 @@ export class ASTKindChecker {
 
   public static isWindowClause(node: ASTNode) {
     return node.kind === "WindowClause";
-  }
-
-  public static isWithin(node: ASTNode) {
-    return node.kind === "Within";
   }
 
   public static isWorkerFlush(node: ASTNode) {
