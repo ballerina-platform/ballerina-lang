@@ -18,13 +18,14 @@
  *
  */
 
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -56,5 +57,14 @@ public class AppointmentServiceTest {
             Assert.assertEquals(configs.length, 1);
             return (((BInteger) configs[0]).intValue() > 3);
         });
+    }
+
+    @Test(
+            description = "Test an Appointment with invalid cron expression.",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*Invalid cron expression provided.*"
+    )
+    public void testInvalidCronExpression() {
+        BCompileUtil.compileAndSetup("listener/appointment/invalid_cron_expression.bal");
     }
 }
