@@ -11,6 +11,9 @@ public type ClassWriter object {
     public extern function visitMethod(int access, string name, string descriptor, string? signature,
                             string[]? exceptions) returns MethodVisitor;
 
+    public extern function visitField(int access, string name, string descriptor, string? signature = (),
+                            string[]? exceptions = ()) returns FieldVisitor;
+
     public extern function visitEnd();
 
     public extern function toByteArray() returns byte[];
@@ -51,4 +54,8 @@ public type Label object {
     }
 
     extern function init();
+};
+
+public type FieldVisitor object {
+    public extern function visitEnd();
 };
