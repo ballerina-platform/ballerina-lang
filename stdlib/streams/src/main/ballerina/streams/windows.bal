@@ -2027,7 +2027,6 @@ public type TimeOrderWindow object {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                     events[events.length()] = streamEvent;
                 }
-                self.mergeSort.topDownMergeSort(events);
                 nextProcessFuncPointer.call(events);
             }
         }
