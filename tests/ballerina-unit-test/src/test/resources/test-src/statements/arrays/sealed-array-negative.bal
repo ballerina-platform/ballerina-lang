@@ -86,3 +86,19 @@ function invalidJSONArrays() {
     json[] x6 = [1, true, "3"];
     json[3] x7 = x6;
 }
+
+type FiniteOne "S1"|"S2";
+type FiniteTwo 3|4|5;
+type FiniteThree 0|1|2|"S1";
+
+function testInvalidArrayAccessByFiniteType() {
+    (string|int)[!...] sArray = ["ballerina", 1];
+    string[1] sArrayTwo = ["ballerina"];
+    FiniteOne f1 = "S1";
+    FiniteTwo f2 = 3;
+    FiniteThree f3 = 2;
+    var w = sArray[f1]; // incompatible types: expected 'int', found 'S1|S2'
+    var x = sArray[f2]; // invalid array index expression: value space '3|4|5' out of range
+    var y = sArrayTwo[f2]; // invalid array index expression: value space '3|4|5' out of range
+    var z = sArray[f3]; // incompatible types: expected 'int', found '0|1|2|S1'
+}

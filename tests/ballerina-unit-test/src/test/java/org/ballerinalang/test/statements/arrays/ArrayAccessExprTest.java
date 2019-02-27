@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -68,6 +69,14 @@ public class ArrayAccessExprTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test arrays access with finite type")
+    public void testArrayAccessWithFiniteType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayAccessWithFiniteType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(description = "Test arrays return value")
     public void testArrayReturnValue() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
@@ -108,10 +117,19 @@ public class ArrayAccessExprTest {
         BRunUtil.invoke(compileResult, "arrayIndexOutOfBoundTest");
     }
 
+    @Test(description = "Test array index out of range with finite type",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*array index out of range: index: 3, size: 2.*")
+    public void testArrayIndexOutOfRangeErrorWithFiniteTypeIndex() {
+        BRunUtil.invoke(compileResult, "testArrayIndexOutOfRangeErrorWithFiniteTypeIndex");
+    }
+
     @Test(description = "Test arrays access with a key")
     public void testArrayAccessWithKey() {
         CompileResult compileResult = BCompileUtil.compile("test-src/statements/arrays/incorrect-array-access.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'int', found 'string'", 4, 20);
+        BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'int', found '1|two'", 12, 25);
     }
 
     @Test(description = "Test access a primitive as an arrays")

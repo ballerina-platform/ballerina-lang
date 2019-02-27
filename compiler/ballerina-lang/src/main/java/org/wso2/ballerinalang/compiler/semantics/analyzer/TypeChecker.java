@@ -2777,7 +2777,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.ARRAY:
                 checkExpr(indexExpr, this.env, symTable.intType);
-                actualType = ((BArrayType) varRefType).getElementType();
+                actualType = checkArrayIndexBasedAccess(indexBasedAccessExpr, (BArrayType) varRefType);
                 break;
             case TypeTags.TUPLE:
                 checkExpr(indexExpr, this.env, symTable.intType);
@@ -2805,6 +2805,34 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
+    private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess accessExpr, BArrayType arrayType) {
+        BType actualType = symTable.semanticError;
+        BLangExpression indexExpr = accessExpr.indexExpr;
+        switch (indexExpr.type.tag) {
+            case TypeTags.INT:
+                actualType = arrayType.eType;
+                break;
+            case TypeTags.FINITE:
+                BFiniteType finiteIndexExpr = (BFiniteType) indexExpr.type;
+                boolean validIndexExists = false;
+                for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
+                    int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
+                    if (indexValue >= 0 &&
+                            (arrayType.state == BArrayState.UNSEALED || indexValue < arrayType.size)) {
+                        validIndexExists = true;
+                        break;
+                    }
+                }
+                if (!validIndexExists) {
+                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_ARRAY_INDEX_EXPR, indexExpr.type);
+                    break;
+                }
+                actualType = arrayType.eType;
+                break;
+        }
+        return actualType;
+    }
+
     private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple) {
         BType actualType = symTable.semanticError;
         BLangExpression indexExpr = accessExpr.indexExpr;
@@ -2828,13 +2856,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExpr.type;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
                 for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
-                    if (finiteMember.type.tag != TypeTags.INT) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_TUPLE_INDEX_EXPR, indexExpr.type);
-                        return actualType;
-                    }
-                    if (finiteMember.getKind() != NodeKind.NUMERIC_LITERAL) {
-                        continue;
-                    }
                     int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
                     BType fieldType = checkTupleFieldType(tuple, indexValue);
                     if (fieldType.tag != TypeTags.SEMANTIC_ERROR) {

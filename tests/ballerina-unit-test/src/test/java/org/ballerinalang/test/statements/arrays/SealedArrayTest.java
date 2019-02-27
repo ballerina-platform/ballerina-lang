@@ -277,6 +277,7 @@ public class SealedArrayTest {
 
     @Test
     public void testNegativeSealedArrays() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 22);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "array index out of range: index: '5', size: '5'", 19, 30);
         BAssertUtil.validateError(resultNegative, i++, "array index out of range: index: '5', size: '5'", 25, 33);
@@ -312,6 +313,14 @@ public class SealedArrayTest {
                 resultNegative, i++, "invalid usage of sealed type: can not infer array size", 85, 21);
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 87, 18);
+        BAssertUtil.validateError(
+                resultNegative, i++, "incompatible types: expected 'int', found 'S1|S2'", 100, 20);
+        BAssertUtil.validateError(
+                resultNegative, i++, "invalid array index expression: value space '3|4|5' out of range", 101, 20);
+        BAssertUtil.validateError(
+                resultNegative, i++, "invalid array index expression: value space '3|4|5' out of range", 102, 23);
+        BAssertUtil.validateError(
+                resultNegative, i, "incompatible types: expected 'int', found '0|1|2|S1'", 103, 20);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",
