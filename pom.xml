@@ -2320,7 +2320,7 @@
         <h2.version>1.4.198</h2.version>
         <mysql.version>5.1.46</mysql.version>
         <postgresql.version>42.2.1</postgresql.version>
-        <testcontainers.version>1.7.2</testcontainers.version>
+        <testcontainers.version>1.10.6</testcontainers.version>
         <gson.version>2.7</gson.version>
         <maven.wagon.ssh.version>2.10</maven.wagon.ssh.version>
         <lambdaj.version>2.3.3</lambdaj.version>
