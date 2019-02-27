@@ -75,9 +75,9 @@ public function main() {
     ret = testDB2->update("DROP TABLE SALARY");
     handleUpdate(ret, "Drop Table SALARY");
 
-    // Close the connection pool.
-    testDB1.stop();
-    testDB2.stop();
+    // Stop database clients.
+    stopClient(testDB1);
+    stopClient(testDB2);
 }
 
 function onCommitFunction(string transactionId) {
@@ -94,5 +94,12 @@ function handleUpdate(int|error returned, string message) {
         io:println(message + " status: " + returned);
     } else {
         io:println(message + " failed: " + returned.reason());
+    }
+}
+
+function stopClient(h2:Client db) {
+    var stopRet = db.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
     }
 }

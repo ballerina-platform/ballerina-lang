@@ -1992,9 +1992,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        // No matter what, message expression has to exist and it's type should be string type.
+        // No matter what, message expression has to exist and its type should be string for the built-in error type
+        // or the type specified when defining the error, for user defined error types.
         Optional.ofNullable(errorConstructorExpr.reasonExpr)
-                .map(expr -> checkExpr(expr, env, symTable.stringType))
+                .map(expr -> checkExpr(expr, env, ((BErrorType) expType).reasonType))
                 .orElseThrow(AssertionError::new);
 
         Optional.ofNullable(errorConstructorExpr.detailsExpr)
