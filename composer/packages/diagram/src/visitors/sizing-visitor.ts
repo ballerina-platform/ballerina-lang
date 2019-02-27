@@ -51,6 +51,18 @@ function sizeStatement(node: ASTNode) {
     if (node.viewState.hiddenBlock) {
         viewState.bBox.w = 60;
     }
+
+    if (viewState.expanded) {
+        if (viewState.expandedSubTree) {
+            const expandedSubTree = viewState.expandedSubTree as Function;
+
+            ASTUtil.traversNode(expandedSubTree, visitor);
+            if (expandedSubTree.body) {
+                const subTreeViewState = expandedSubTree.body.viewState;
+                viewState.bBox.h +=  (subTreeViewState.bBox.h + config.statement.expanded.header);
+            }
+        }
+    }
 }
 
 function sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: WorkerTuple[]) {

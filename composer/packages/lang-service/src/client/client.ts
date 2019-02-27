@@ -1,6 +1,7 @@
 // tslint:disable-next-line:no-submodule-imports
 import { IConnection } from "monaco-languageclient/lib/connection";
-import { InitializeParams, InitializeResult } from "vscode-languageserver-protocol";
+import { InitializeParams, InitializeResult,
+    Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
@@ -46,6 +47,11 @@ export class BallerinaLangClient implements IBallerinaLangClient {
 
     public getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
         return this.lsConnection.sendRequest("ballerinaDocument/project", params);
+    }
+
+    public getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
+        // TODO
+        return Promise.reject("Not implemented");
     }
 
     public goToSource(params: GoToSourceParams): void {

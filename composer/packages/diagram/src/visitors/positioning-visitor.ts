@@ -6,7 +6,7 @@ import {
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { BlockViewState } from "../view-model/block";
-import { CompilationUnitViewState, FunctionViewState, ViewState } from "../view-model/index";
+import { CompilationUnitViewState, FunctionViewState, ViewState, StmntViewState } from "../view-model/index";
 import { WorkerViewState } from "../view-model/worker";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
@@ -145,9 +145,23 @@ export const visitor: Visitor = {
                 height += config.statement.height;
                 return;
             }
-            element.viewState.bBox.x = viewState.bBox.x;
-            element.viewState.bBox.y = viewState.bBox.y + element.viewState.bBox.paddingTop + height;
-            height += element.viewState.bBox.h + element.viewState.bBox.paddingTop;
+
+            const elViewStatement: StmntViewState = element.viewState;
+
+            elViewStatement.bBox.x = viewState.bBox.x;
+            elViewStatement.bBox.y = viewState.bBox.y + elViewStatement.bBox.paddingTop + height;
+            height += elViewStatement.bBox.h + elViewStatement.bBox.paddingTop;
+            if (elViewStatement.expanded) {
+                if (elViewStatement.expandedSubTree) {
+                    const expandedSubTree = elViewStatement.expandedSubTree as Function;
+                    if (expandedSubTree.body) {
+                        const bodyViewState = expandedSubTree.body.viewState as BlockViewState;
+                        bodyViewState.bBox.x = elViewStatement.bBox.x + config.statement.expanded.offset;
+                        bodyViewState.bBox.y = elViewStatement.bBox.y + config.statement.expanded.header;
+                        ASTUtil.traversNode(expandedSubTree.body, visitor);
+                    }
+                }
+            }
         });
         viewState.menuTrigger = {
             x: viewState.bBox.x,

@@ -15,7 +15,7 @@
         "env": {
             "LS_CUSTOM_CLASSPATH": "", 
             "LSDEBUG": "false",
-            "COMPOSER_DEBUG": "false",
+            "COMPOSER_DEBUG": "true",
             "COMPOSER_DEV_HOST": "http://localhost:9000"
         },
         "outFiles": [

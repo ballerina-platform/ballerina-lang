@@ -18,8 +18,8 @@
  *
  */
 
-import { LanguageClient } from "vscode-languageclient";
-import { Uri } from "vscode";
+import { LanguageClient, TextDocumentPositionParams } from "vscode-languageclient";
+import { Uri, Location, window } from "vscode";
 
 export const BALLERINA_LANG_ID = "ballerina";
 
@@ -186,5 +186,17 @@ export class ExtendedLangClient extends LanguageClient {
 
     getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
         return this.sendRequest("ballerinaDocument/project", params);
+    }
+
+    getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
+        return this.sendRequest("textDocument/definition", params)
+        .then((res) => {
+            console.log(res);
+            const definitions = res as any;
+            if(!(definitions.length > 0)) {
+                return Promise.reject();
+            }
+            return definitions[0];
+        });
     }
 }
