@@ -1,0 +1,19 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    implementation project(':ballerina-builtin')
+    implementation 'commons-logging:commons-logging:1.1.1'
+    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-core')
+    implementation 'org.awaitility:awaitility:3.0.0'
+
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile 'org.testng:testng:6.13.1'
+}
+
+description = 'Ballerina - Cache'

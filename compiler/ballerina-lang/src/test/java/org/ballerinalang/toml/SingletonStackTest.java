@@ -32,12 +32,6 @@ public class SingletonStackTest {
         Assert.assertEquals(singletonStackTest.pop(), "hello");
     }
 
-    @Test(description = "The value should be returned as null if its not instantiated")
-    public void testPopWithoutInstaniating() {
-        SingletonStack singletonStackTest = null;
-        Assert.assertEquals(singletonStackTest, null);
-    }
-
     @Test(description = "The value should not be pushed to the stack if the stack already contains a value it should " +
             "give an exception", expectedExceptions = IllegalStateException.class)
     public void testPopWithoutValue() {
