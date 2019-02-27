@@ -7,47 +7,97 @@ will support only this format. Also following this guide will form a standard st
 
 ## Formatting Conventions
 
-### Indentation and line length
-* Use four spaces, not tabs
-* No indentation top level (definitions) 
-* Maximum line length is 120 characters 
+### Indentation and Line Length
+* Use four spaces, not tabs.
+* No indentation for top level definitions. 
+  ```ballerina
+  // This is the top level of the .bal file.
+
+  import ballerina/http;
+
+  function func1() {
+      int a = 0;
+  }
+
+  service hello on ep1 {
+      resource function sayHello(http:Caller caller, http:Request req) {
+          http:Response res = new();
+          res.setPayload("Test");
+          _ = caller->respond(res);
+      }
+  }
+
+  ```
+* Maximum line length is 120 characters. 
 
 ### [Operators, Keywords and Boundaries](operators_keywords_and_boundaries.md)
-### [Definitions](definitions.md)
+### [Top Level Definitions](definitions.md)
 ### [Statements](statements.md)
 ### [Expressions](expressions.md)
 
+### Annotations (@)
+* No spaces around `@`.
+* Indented to align with the start position of the parent (statement, definition).
+  e.g:
+  ```ballerina
+  // Service annotations indented to align with start position of the service.
+  @http:ServiceConfig {
+      basePath: "greet"
+  }
+  service greetingService on new http:Listener(8080) {
+      // Resource annotation indented to align with start position of the resource.
+      @http:ResourceConfig {
+          methods: [],
+          path: "sayHello"
+      }
+      resource function hello(http:Caller caller, http:Request req) returns error? {
+          http:Response res = new;
+          res.setPayload("hello");
+          _ = caller->respond(res);
+      }
+  }
+  ```
+* Key value pairs in annotation body should indent relative to the annotation.
+  ```ballerina
+  @http:ServiceConfig {
+      basePath: "greet"
+  }
+  ```  
+
 ### Comments (//)
 
-* If Comment is taking an entire line it should indent according to where it is.
+* `//` should followed by a single space.
+* If comment is on its own line then it should indent considering the 
+  context(top level or in a block) its in.
+  e.g: 
 
-```ballerina
-// This Comment is in the top level
+  ```ballerina
+  // This is a top level comment
 
-function name() {
-    // This comment is in a block. 
-}
+  function func1() {
+      // This is a block level comment. 
+  }
 
-function name1() {
-    if (true) {
-        if (true) {
-            // This comment is in a nested block.
-        }
-    }
-}
-```
+  function func2() {
+      if (true) {
+          if (true) {
+              // This is a nested if block level comment.
+          }
+      }
+  }
+  ```
 
 * If comment is inline with code there should be a space before it.
 
-```ballerina
+  ```ballerina
 
-type People record {}; // Inline comment with a defintion
+  type People record {}; // Inline comment
 
-function name() {
-    int a = 0; // Inline comment with a statement
-}
+  function func1() {
+      int a = 0; // Inline comment
+  }
 
-```
+  ```
 
 
 ### Documentation(#)
@@ -57,22 +107,22 @@ function name() {
 * `#` should followed by a space.
 * `+`, `-` , `return`, param identifier and description should start with a space.
 
-```ballerina
-# Description
-#
-# + a - a Parameter Description 
-# + return - Return Value Description
-function name( int a) returns int {
-    return 0;
-}
+  ```ballerina
+  # Get Value.
+  #
+  # + value - value input parameter 
+  # + return - return a integer value
+  function getValue(int value) returns int {
+      return value;
+  }
 
-service serviceName on new http:Listener(8080) {
-    # Description
-    #
-    # + caller - caller Parameter Description 
-    # + request - request Parameter Description
-    resource function newResource(http:Caller caller, http:Request request) {
+  service greet on new http:Listener(8080) {
+      # Say hello.
+      #
+      # + caller - caller endpoint that calling this resource 
+      # + request - request sent by the caller
+      resource function sayHello(http:Caller caller, http:Request request) {
         
-    }
-}
-```
+      }
+  }
+  ```

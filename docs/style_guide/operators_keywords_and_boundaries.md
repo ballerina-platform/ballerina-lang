@@ -1,53 +1,72 @@
 # Operators, Keywords and Boundaries
 
-## Single line formatting
+## Single Line Formatting
 It is recommend to follow the following rules when applying white spaces on a line. 
 Following will list down where a single whitespace can apply.
 ### Keywords
 * Keywords should always followed by a single space. Exceptions are as below.
-    - For types like map which followed by `<>`
-    - This will be ignore when defining rest parameter (`string...`).
-    - If record type has a rest field no spaces between type and rest operator(`...`) 
+  - For types like map which followed by `<>`
+  - This will be ignore when defining rest parameter (`string...`).
+  - If record type has a rest field no spaces between type and rest operator(`...`) 
     ```ballerina
-    type RecordName2 record {
+    type Person record {
         string name;
         string...;
     }
     ```
-    - When types are used in a array definition which followed by `[ ]`
+  - When types are used in a array definition which followed by `[ ]`
 ### Operators
+* No spaces before semicolon `;`.
 * No space between `!` and `...` in sealed type.
 * There should be no spaces between unary operator and the expression.
-```ballerina
-int a = 0;
-a = -a;
-``` 
 
-* Any `binary` and `ternary` operator should start and end with a Single space.
-* `:` will be start with empty space and followed by single space if it is a key value pair except
-    - In package invocation it is start with and followed by a empty space.
-    - Also this rule is ignored when it is a ternary operation.
+  ```ballerina
+  int a = 0;
+  a = -a;
+  ``` 
+
+* Any `binary` and `ternary` operators should start and follow by a single space.
+
+  ```ballerina
+  var fullName = firstName + lastName;
+  
+  var name = isNameAvailable() ? getName() : "Unknown";
+  ```
+* colon `:` will be start with empty space and followed by single space if it is a key value pair. 
+  
+  ```ballerina
+  Person person = {
+      name: "john",
+      age: 20
+  };
+  ```
+  except in module invocation there are no spaces around colon.
+  
+  ```ballerina
+  io:println("");
+  ```
 
 ### Blocks
 * Before opening curly brace there should be a space. 
 
-```ballerina
+  ```ballerina
 
-function name() {
-   if (true) {}
-}
+  function func1() {
+      if (true) {}
+  }
 
-```
+   ```
 * Exceptions for above rule as below.
-
-    - In XML referencing a xml namespace as a attribute
-    - Table column expression
+  - In XML referencing a xml namespace as a attribute
+  - Table column expression
+  
     ```ballerina
         table {
             {key id, name, address}
         }
     ```
-    - Table data expression
+  - Table data expression
+  
     ```ballerina
         table {
             {id, name, address},
@@ -60,45 +79,59 @@ function name() {
   ``` 
 ### Parentheses
 * No space between opening `(` and closing `)` parentheses if it is empty.
-* No space in front of closing `)` parentheses.
+* No space before closing parentheses `)`.
 
 ## Line breaks
 * Line should break after `;`.
 * Only one statement on a line. 
 * Avoid line breaking in types and conversions.
-e.g., prefer
+  e.g., prefer
 
-```ballerina
+  ```ballerina
 
-map<
-    int
-    |
-    string
-> 
+  map<
+      int
+      |
+      string
+  > 
 
-// or
+  // or
 
-<
-    string
->
-```
+  <
+      string
+  >
+  ```
 
-to
+  to
 
-```ballerina
-map<int | string> 
+  ```ballerina
+  map<int | string> 
 
-// or
+  // or
 
-<string>
-```
+  <string>
+  ```
 
-* Line break can happen before `+` and if line break happens all the `+`s should be line broken.
+* When splitting lines which contains operator/s split should happen 
+  right before an operator.
+  
+  example:
+  
+  ```ballerina
+  // Binary operations.
+  string s = "added " + People.name
+      + " in to database.";
+  
+  // Function invocation.
+  string s = person
+      .getName();
+  
+  // Binary operations in if condition
+  if (isNameAvailable 
+      && (i == 1)) {
+  
+  }
 
-```ballerina
-string s = "sdd"
-    + People.name
-    + 0;
-```
+  ```
 
-* Broken lines should be indented with four spaces.
+* Splitted lines should be indented with four spaces relative to the parent.
