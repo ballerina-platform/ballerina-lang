@@ -116,13 +116,22 @@ will support only this format. Also following this guide will form a standard st
       return value;
   }
 
+  @http:ServiceConfig {
+      basePath: "greet"
+  }
   service greet on new http:Listener(8080) {
       # Say hello.
       #
       # + caller - caller endpoint that calling this resource 
       # + request - request sent by the caller
+      @http:ResourceConfig {
+          methods: [],
+          path: "sayHello"
+      }
       resource function sayHello(http:Caller caller, http:Request request) {
-        
+          http:Response res = new;
+          res.setPayload("hello");
+          _ = caller->respond(res);
       }
   }
   ```
