@@ -87,8 +87,10 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -175,11 +177,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         List<Whitespace> wsList = new ArrayList<>(funcNode.getWS());
         if (funcNode.getName().value.equals(this.tokenName)) {
+            boolean isDefinition = !funcNode.flagSet.contains(Flag.INTERFACE);
             DiagnosticPos funcPos = funcNode.pos;
             int sCol = funcPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(funcPos.src, funcPos.sLine, funcPos.sLine, sCol, eCol);
-            this.addSymbol(funcNode.symbol, true, pos);
+            this.addSymbol(funcNode.symbol, isDefinition, pos);
         }
 
         funcNode.defaultableParams.forEach(this::acceptNode);
@@ -394,7 +397,20 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        // Ex: e.name
+        // e is expr and name is the symbol of fieldAccessExpr
         this.acceptNode(fieldAccessExpr.expr);
+        if (fieldAccessExpr.field.value.equals(this.tokenName)) {
+            List<Whitespace> wsList = new ArrayList<>(fieldAccessExpr.expr.getWS());
+            wsList.addAll(fieldAccessExpr.getWS());
+            DiagnosticPos pos = fieldAccessExpr.pos;
+            // Calculate field name position
+            int sCol = pos.getStartColumn() + this.getCharLengthBeforeToken(".", wsList) + 1;
+            wsList.remove(0);
+            int eCol = sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            DiagnosticPos symbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.sLine, sCol, eCol);
+            this.addSymbol(fieldAccessExpr.symbol, false, symbolPos);
+        }
     }
 
     @Override
@@ -460,8 +476,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        // TODO: Complete
         super.visit(objectTypeNode);
+        objectTypeNode.fields.forEach(this::acceptNode);
+        objectTypeNode.functions.forEach(this::acceptNode);
+        this.acceptNode(objectTypeNode.initFunction);
     }
 
     @Override
@@ -513,16 +531,22 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        // Ex: int test = args.length() - args is the expression here
+        this.acceptNode(invocationExpr.expr);
         if (invocationExpr.getName().getValue().equals(this.tokenName)) {
-            // Ex: int test = returnIntFunc() - returnInt() is a BLangInvocation
-            DiagnosticPos invocationPos = invocationExpr.pos;
-            DiagnosticPos pos = new DiagnosticPos(invocationPos.src, invocationPos.sLine, invocationPos.eLine,
-                    invocationPos.sCol, invocationPos.sCol + this.tokenName.length());
-            this.addSymbol(invocationExpr.symbol, false, pos);
-        }
-        if (invocationExpr.expr != null) {
-            // Ex: int test = args.length() - args is the expression here
-            this.acceptNode(invocationExpr.expr);
+            // Ex: int test = returnIntFunc() - returnInt() or e.getName() is a BLangInvocation and name is getName
+            DiagnosticPos pos = invocationExpr.pos;
+            List<Whitespace> wsList = new ArrayList<>(invocationExpr.getWS());
+            int sCol = pos.sCol;
+            if (invocationExpr.expr != null) {
+                // Action invocation or lambda invocation. . token is added to the invocationExpr ws list
+                sCol += this.getCharLengthBeforeToken(".", new ArrayList<>(invocationExpr.expr.getWS())) + 1;
+                // Remove the first element which is . if the expr is not null
+                wsList.remove(0);
+            }
+            int eCol = sCol + this.getCharLengthBeforeToken(this.tokenName, wsList) + this.tokenName.length();
+            DiagnosticPos SymbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.eLine, sCol, eCol);
+            this.addSymbol(invocationExpr.symbol, false, SymbolPos);
         }
         invocationExpr.argExprs.forEach(this::acceptNode);
     }
@@ -572,7 +596,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     private void acceptNode(BLangNode node) {
-        if (this.terminateVisitor) {
+        if (this.terminateVisitor || node == null) {
             return;
         }
         node.accept(this);
