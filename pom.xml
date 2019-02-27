@@ -2380,7 +2380,7 @@
         <maven.scm.plugin.version>1.9.4</maven.scm.plugin.version>
         <maven.scm.publish.plugin.version>1.1</maven.scm.publish.plugin.version>
         <maven.site.plugin.version>3.5</maven.site.plugin.version>
-        <maven.source.plugin.version>3.0.0</maven.source.plugin.version>
+        <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
         <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
         <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
