@@ -88,9 +88,9 @@ public class TaskManager {
                 .build();
 
         if (appointment.getMaxRuns() > 0) {
-            int noOfRuns = (int) appointment.getMaxRuns();
+            int repeatCount = (int) (appointment.getMaxRuns() - 1);
             Date endDate = TriggerUtils.computeEndTimeToAllowParticularNumberOfFirings((OperableTrigger) trigger,
-                    new BaseCalendar(Calendar.getInstance().getTimeZone()), noOfRuns);
+                    new BaseCalendar(Calendar.getInstance().getTimeZone()), repeatCount);
 
             trigger = trigger.getTriggerBuilder().endAt(endDate).build();
 

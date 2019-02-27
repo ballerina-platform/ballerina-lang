@@ -53,7 +53,7 @@ public class AppointmentSchedulerTest {
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testLimitedNoOfTimes() {
         CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/appointment/limited_number_of_times.bal");
-        BValue[] inputs = {new BString("0/2 * * * * ?")};
+        BValue[] inputs = {new BString("* * * * * ? *")};
         BRunUtil.invokeStateful(compileResult, "triggerAppointment", inputs);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
