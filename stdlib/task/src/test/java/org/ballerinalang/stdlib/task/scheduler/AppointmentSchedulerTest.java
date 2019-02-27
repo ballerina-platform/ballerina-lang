@@ -23,6 +23,7 @@ package org.ballerinalang.stdlib.task.scheduler;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -59,6 +60,18 @@ public class AppointmentSchedulerTest {
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             return (((BInteger) count[0]).intValue() == 3);
+        });
+    }
+
+    @Test(description = "Tests an appointment scheduler with multiple services attached")
+    public void testMultipleServices() {
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/appointment/multiple_services.bal");
+        BRunUtil.invokeStateful(compileResult, "triggerAppointment");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] count = BRunUtil.invokeStateful(compileResult, "getResult");
+            Assert.assertEquals(count.length, 1);
+            Assert.assertTrue(count[0] instanceof BBoolean);
+            return ((BBoolean) count[0]).booleanValue();
         });
     }
 }

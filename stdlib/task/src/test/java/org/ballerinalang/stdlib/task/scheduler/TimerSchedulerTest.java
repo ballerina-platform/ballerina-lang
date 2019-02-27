@@ -135,7 +135,7 @@ public class TimerSchedulerTest {
         });
     }
 
-    @Test(description = "Tests a timer scheduler with zero delay")
+    @Test(description = "Tests a timer scheduler with multiple services attached")
     public void testMultipleServices() {
         CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/multiple_services.bal");
         BRunUtil.invokeStateful(compileResult, "triggerTimer");
