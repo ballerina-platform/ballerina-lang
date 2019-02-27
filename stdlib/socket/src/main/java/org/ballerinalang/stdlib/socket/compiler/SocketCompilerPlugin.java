@@ -21,8 +21,8 @@ package org.ballerinalang.stdlib.socket.compiler;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -104,7 +104,7 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
         }
         validateEndpointCaller(serviceName, resource, diagnosticLog, readReadyParams);
         BType error = readReadyParams.get(1).getTypeNode().type;
-        if (RECORD.equals(error.getKind()) && error instanceof BRecordType) {
+        if (RECORD.equals(error.getKind()) && error.tag == TypeTags.ERROR_TAG) {
             if (!"error".equals(error.tsymbol.toString())) {
                 String msg = String.format(INVALID_RESOURCE_SIGNATURE + "The second parameter should be an 'error'",
                         resource.getName().getValue(), serviceName);
@@ -158,7 +158,7 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
     private void validateEndpointCaller(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog,
             List<BLangSimpleVariable> params) {
         BType caller = params.get(0).type;
-        if (OBJECT.equals(caller.getKind()) && caller instanceof BStructureType) {
+        if (OBJECT.equals(caller.getKind()) && caller.tag == TypeTags.OBJECT_TYPE_TAG) {
             validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
         }
     }

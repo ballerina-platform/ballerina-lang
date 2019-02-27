@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/socket;
 
 function oneWayWrite(string msg) {
-    socket:Client socketClient = new({host: "localhost", port: 47826});
+    socket:Client socketClient = new({ host: "localhost", port: 47826 });
     byte[] msgByteArray = msg.toByteArray("utf-8");
     var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
@@ -26,7 +26,7 @@ function oneWayWrite(string msg) {
     } else {
         panic writeResult;
     }
-    var closeResult =  socketClient->close();
+    var closeResult = socketClient->close();
     if (closeResult is error) {
         io:println(closeResult.detail().message);
     } else {
@@ -35,7 +35,7 @@ function oneWayWrite(string msg) {
 }
 
 function shutdownWrite(string firstMsg, string secondMsg) returns error? {
-    socket:Client socketClient = new({host: "localhost", port: 47826});
+    socket:Client socketClient = new({ host: "localhost", port: 47826 });
     byte[] msgByteArray = firstMsg.toByteArray("utf-8");
     var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
@@ -105,16 +105,16 @@ function getString(byte[] content) returns string|error {
     return characterChannel.read(50);
 }
 
-function invalidReadParam() returns (byte[],int)|error {
-    socket:Client socketClient = new({host: "localhost", port: 47826});
+function invalidReadParam() returns (byte[], int)|error {
+    socket:Client socketClient = new({ host: "localhost", port: 47826 });
     return trap socketClient->read(length = 0);
 }
 
 function invalidAddress() returns error? {
-    error? result =  trap createClient();
+    error? result = trap createClient();
     return result;
 }
 
-function createClient () {
-    socket:Client socketClient = new({host: "localhost", port: 43434});
+function createClient() {
+    socket:Client socketClient = new({ host: "localhost", port: 43434 });
 }

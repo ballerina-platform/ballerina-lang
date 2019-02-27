@@ -48,6 +48,7 @@ public class TCPSocketReadCallback extends TCPSocketCallback {
 
     @Override
     public void notifyFailure(BError error) {
+        socketService.getResourceLock().release();
         super.notifyFailure(error);
     }
 }

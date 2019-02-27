@@ -55,9 +55,10 @@ public type Client client object {
     # + return - - number of bytes got written or an error if encounters an error while writing
     public remote extern function write(byte[] content) returns int|error;
 
-    # Reads data from the client socket. If the data has the specified length, then wait until that number of bytes are received from the client.
-    # Else, return the data available in the OS buffer. In the case of the connection being closed by the client, then return either -1
-    # or the data that is currently available in the buffer.
+    # Reads data from the client socket. If the data has the specified length, then wait until that number of bytes
+    # are received from the client. Else, return the data available in the OS buffer.
+    # In the case of the connection being closed by the client, then return either -1 or the data
+    # that is currently available in the buffer.
     # Number of bytes returned will be < 0 if the client closes the connection.
     #
     # + length - - Positive integer. Represents the number of bytes which should be read
