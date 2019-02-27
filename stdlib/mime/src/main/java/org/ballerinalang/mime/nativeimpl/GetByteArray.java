@@ -60,13 +60,13 @@ public class GetByteArray extends AbstractGetPayloadHandler {
     public void execute(Context context, CallableUnitCallback callback) {
         try {
             BValueArray result = null;
-            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (messageDataSource != null) {
                 if (messageDataSource instanceof BValueArray) {
                     result = (BValueArray) messageDataSource;
                 } else {
-                    String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
+                    String contentTypeValue = HeaderUtil.getHeaderValue(entityObj,
                                                                         HttpHeaderNames.CONTENT_TYPE.toString());
                     if (isNotNullAndEmpty(contentTypeValue)) {
                         String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
@@ -82,12 +82,12 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 return;
             }
 
-            Object transportMessage = entityStruct.getNativeData(TRANSPORT_MESSAGE);
-            if (isStreamingRequired(entityStruct) || transportMessage == null) {
-                result = EntityBodyHandler.constructBlobDataSource(entityStruct);
-                updateDataSourceAndNotify(context, callback, entityStruct, result);
+            Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);
+            if (isStreamingRequired(entityObj) || transportMessage == null) {
+                result = EntityBodyHandler.constructBlobDataSource(entityObj);
+                updateDataSourceAndNotify(context, callback, entityObj, result);
             } else {
-                constructNonBlockingDataSource(context, callback, entityStruct, SourceType.BLOB);
+                constructNonBlockingDataSource(context, callback, entityObj, SourceType.BLOB);
             }
         } catch (Exception ex) {
             createErrorAndNotify(context, callback,

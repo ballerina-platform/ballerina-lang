@@ -66,7 +66,7 @@ public class GetJson extends AbstractGetPayloadHandler {
             }
             BValue dataSource = EntityBodyHandler.getMessageDataSource(entity);
             if (dataSource != null) {
-                // If the value is a already JSON, then return it as is.
+                // If the value is already a JSON, then return as it is.
                 if (isJSON(dataSource)) {
                     result = (BRefType<?>) dataSource;
                 } else {

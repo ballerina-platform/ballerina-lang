@@ -60,7 +60,7 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
         inboundMessage.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
             @Override
-            public void onComplete() {
+            public void onComplete(HttpCarbonMessage inboundMessage) {
                 BValue dataSource = null;
                 HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundMessage);
                 InputStream inputStream = dataStreamer.getInputStream();
@@ -99,18 +99,18 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         setReturnValuesAndNotify(context, callback, error);
     }
 
-    void updateDataSourceAndNotify(Context context, CallableUnitCallback callback, BMap<String, BValue> entityStruct,
+    void updateDataSourceAndNotify(Context context, CallableUnitCallback callback, BMap<String, BValue> entityObj,
                                    BValue result) {
-        EntityBodyHandler.addMessageDataSource(entityStruct, result);
+        EntityBodyHandler.addMessageDataSource(entityObj, result);
         //Set byte channel to null, once the message data source has been constructed
-        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+        entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
         setReturnValuesAndNotify(context, callback, result);
     }
 
-    private HttpCarbonMessage extractTransportMessageFromEntity(BMap<String, BValue> entityStruct) {
-        Object message = entityStruct.getNativeData(TRANSPORT_MESSAGE);
+    private HttpCarbonMessage extractTransportMessageFromEntity(BMap<String, BValue> entityObj) {
+        HttpCarbonMessage message = (HttpCarbonMessage) entityObj.getNativeData(TRANSPORT_MESSAGE);
         if (message != null) {
-            return (HttpCarbonMessage) message;
+            return message;
         } else {
             throw new BallerinaIOException("Empty content");
         }

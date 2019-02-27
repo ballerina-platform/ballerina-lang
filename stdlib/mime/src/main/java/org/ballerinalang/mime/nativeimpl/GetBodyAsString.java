@@ -52,18 +52,18 @@ public class GetBodyAsString extends AbstractGetPayloadHandler {
     public void execute(Context context, CallableUnitCallback callback) {
         try {
             BString result;
-            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
                 setReturnValuesAndNotify(context, callback, MimeUtil.getMessageAsString(dataSource));
                 return;
             }
 
-            if (isStreamingRequired(entityStruct)) {
-                result = EntityBodyHandler.constructStringDataSource(entityStruct);
-                updateDataSourceAndNotify(context, callback, entityStruct, result);
+            if (isStreamingRequired(entityObj)) {
+                result = EntityBodyHandler.constructStringDataSource(entityObj);
+                updateDataSourceAndNotify(context, callback, entityObj, result);
             } else {
-                constructNonBlockingDataSource(context, callback, entityStruct, SourceType.TEXT);
+                constructNonBlockingDataSource(context, callback, entityObj, SourceType.TEXT);
             }
         } catch (Exception ex) {
             createErrorAndNotify(context, callback,

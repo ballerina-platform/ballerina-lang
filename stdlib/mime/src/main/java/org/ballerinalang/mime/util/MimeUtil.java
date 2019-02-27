@@ -527,9 +527,19 @@ public class MimeUtil {
         return isJSONContentType(entityRecord) && isJSONCompatible(value.getType());
     }
 
-    public static String validateContentType(String contentType) throws MimeTypeParseException {
-        MimeType mimeType = new MimeType(contentType);
-        return mimeType.getBaseType();
+    /**
+     * Validate the given Content-Type.
+     *
+     * @param contentType Content-Type value as a string
+     * @return true if the value is valid
+     */
+    public static Boolean isValidateContentType(String contentType) {
+        try {
+            new MimeType(contentType);
+        } catch (MimeTypeParseException e) {
+            return false;
+        }
+        return true;
     }
 
     /**

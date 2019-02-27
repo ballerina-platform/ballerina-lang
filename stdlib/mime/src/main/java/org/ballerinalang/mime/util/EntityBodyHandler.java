@@ -100,33 +100,33 @@ public class EntityBodyHandler {
     /**
      * Get the message data source associated with a given entity.
      *
-     * @param entityStruct Represent a ballerina entity
+     * @param entityObj Represent a ballerina entity
      * @return MessageDataSource which represent the entity body in memory
      */
-    public static BValue getMessageDataSource(BMap<String, BValue> entityStruct) {
-        return entityStruct.getNativeData(MESSAGE_DATA_SOURCE) != null ? (BValue) entityStruct.getNativeData
+    public static BValue getMessageDataSource(BMap<String, BValue> entityObj) {
+        return entityObj.getNativeData(MESSAGE_DATA_SOURCE) != null ? (BValue) entityObj.getNativeData
                 (MESSAGE_DATA_SOURCE) : null;
     }
 
     /**
      * Associate a given message data source with a given entity.
      *
-     * @param entityStruct      Represent the ballerina entity
+     * @param entityObj      Represent the ballerina entity
      * @param messageDataSource which represent the entity body in memory
      */
-    public static void addMessageDataSource(BMap<String, BValue> entityStruct, BValue messageDataSource) {
-        entityStruct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
+    public static void addMessageDataSource(BMap<String, BValue> entityObj, BValue messageDataSource) {
+        entityObj.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
     /**
-     * Construct BlobDataSource from the underneath byte channel which is associated with the entity struct.
+     * Construct BlobDataSource from the underneath byte channel which is associated with the entity object.
      *
-     * @param entityStruct Represent an entity struct
+     * @param entityObj Represent an entity object
      * @return Data source for binary data which is kept in memory
      * @throws IOException In case an error occurred while creating blob data source
      */
-    public static BValueArray constructBlobDataSource(BMap<String, BValue> entityStruct) throws IOException {
-        Channel byteChannel = getByteChannel(entityStruct);
+    public static BValueArray constructBlobDataSource(BMap<String, BValue> entityObj) throws IOException {
+        Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
             return new BValueArray(new byte[0]);
         }
@@ -136,7 +136,7 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Construct BlobDataSource from the underneath byte channel which is associated with the entity struct.
+     * Construct BlobDataSource from the underneath byte channel which is associated with the entity object.
      *
      * @param inputStream Represent the input stream
      * @return Data source for binary data which is kept in memory
@@ -152,18 +152,18 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Construct JsonDataSource from the underneath byte channel which is associated with the entity struct.
+     * Construct JsonDataSource from the underneath byte channel which is associated with the entity object.
      *
-     * @param entityStruct Represent an entity struct
+     * @param entityObj Represent an entity object
      * @return BJSON data source which is kept in memory
      */
-    public static BRefType<?> constructJsonDataSource(BMap<String, BValue> entityStruct) {
+    public static BRefType<?> constructJsonDataSource(BMap<String, BValue> entityObj) {
         try {
-            Channel byteChannel = getByteChannel(entityStruct);
+            Channel byteChannel = getByteChannel(entityObj);
             if (byteChannel == null) {
                 return null;
             }
-            BRefType<?> jsonData = constructJsonDataSource(entityStruct, byteChannel.getInputStream());
+            BRefType<?> jsonData = constructJsonDataSource(entityObj, byteChannel.getInputStream());
             byteChannel.close();
             return jsonData;
         } catch (IOException e) {
@@ -174,7 +174,7 @@ public class EntityBodyHandler {
     /**
      * Construct JsonDataSource from the given input stream.
      *
-     * @param entity      Represent an entity struct
+     * @param entity      Represent an entity object
      * @param inputStream Represent the input stream
      * @return BJSON data source which is kept in memory
      */
@@ -195,18 +195,18 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Construct XML data source from the underneath byte channel which is associated with the entity struct.
+     * Construct XML data source from the underneath byte channel which is associated with the entity object.
      *
-     * @param entityStruct Represent an entity struct
+     * @param entityObj Represent an entity object
      * @return BXML data source which is kept in memory
      */
-    public static BXML constructXmlDataSource(BMap<String, BValue> entityStruct) {
+    public static BXML constructXmlDataSource(BMap<String, BValue> entityObj) {
         try {
-            Channel byteChannel = getByteChannel(entityStruct);
+            Channel byteChannel = getByteChannel(entityObj);
             if (byteChannel == null) {
                 throw new BallerinaIOException("Empty xml payload");
             }
-            BXML xmlContent = constructXmlDataSource(entityStruct, byteChannel.getInputStream());
+            BXML xmlContent = constructXmlDataSource(entityObj, byteChannel.getInputStream());
             byteChannel.close();
             return xmlContent;
         } catch (IOException e) {
@@ -217,13 +217,13 @@ public class EntityBodyHandler {
     /**
      * Construct XML data source from the given input stream.
      *
-     * @param entityStruct Represent an entity struct
+     * @param entityObj Represent an entity object
      * @param inputStream  Represent the input stream
      * @return BXML data source which is kept in memory
      */
-    public static BXML constructXmlDataSource(BMap<String, BValue> entityStruct, InputStream inputStream) {
+    public static BXML constructXmlDataSource(BMap<String, BValue> entityObj, InputStream inputStream) {
         BXML xmlContent;
-        String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
+        String contentTypeValue = HeaderUtil.getHeaderValue(entityObj, HttpHeaderNames.CONTENT_TYPE.toString());
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
@@ -238,18 +238,18 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Construct StringDataSource from the underneath byte channel which is associated with the entity struct.
+     * Construct StringDataSource from the underneath byte channel which is associated with the entity object.
      *
-     * @param entityStruct Represent an entity struct
+     * @param entityObj Represent an entity object
      * @return StringDataSource which represent the entity body which is kept in memory
      */
-    public static BString constructStringDataSource(BMap<String, BValue> entityStruct) {
+    public static BString constructStringDataSource(BMap<String, BValue> entityObj) {
         try {
-            Channel byteChannel = getByteChannel(entityStruct);
+            Channel byteChannel = getByteChannel(entityObj);
             if (byteChannel == null) {
                 throw new BallerinaIOException("String payload is null");
             }
-            BString textContent = constructStringDataSource(entityStruct, byteChannel.getInputStream());
+            BString textContent = constructStringDataSource(entityObj, byteChannel.getInputStream());
             byteChannel.close();
             return textContent;
         } catch (IOException e) {
@@ -260,7 +260,7 @@ public class EntityBodyHandler {
     /**
      * Construct StringDataSource from the given input stream.
      *
-     * @param entity      Represent an entity struct
+     * @param entity      Represent an entity object
      * @param inputStream Represent the input stream
      * @return StringDataSource which represent the entity body which is kept in memory
      */
@@ -284,12 +284,12 @@ public class EntityBodyHandler {
      * Check whether the entity body is present. Entity body can either be a byte channel, fully constructed
      * message data source or a set of body parts.
      *
-     * @param entityStruct Represent an 'Entity'
+     * @param entityObj Represent an 'Entity'
      * @return a boolean indicating entity body availability
      */
-    public static boolean checkEntityBodyAvailability(BMap<String, BValue> entityStruct) {
-        return entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null || getMessageDataSource(entityStruct) != null
-                || entityStruct.getNativeData(BODY_PARTS) != null;
+    public static boolean checkEntityBodyAvailability(BMap<String, BValue> entityObj) {
+        return entityObj.getNativeData(ENTITY_BYTE_CHANNEL) != null || getMessageDataSource(entityObj) != null
+                || entityObj.getNativeData(BODY_PARTS) != null;
     }
 
     /**
@@ -333,19 +333,19 @@ public class EntityBodyHandler {
     /**
      * Write byte channel stream directly into outputstream without converting it to a data source.
      *
-     * @param entityStruct        Represent a ballerina entity
+     * @param entityObj        Represent a ballerina entity
      * @param messageOutputStream Represent the outputstream that the message should be written to
      * @throws IOException When an error occurs while writing inputstream to outputstream
      */
-    public static void writeByteChannelToOutputStream(BMap<String, BValue> entityStruct,
+    public static void writeByteChannelToOutputStream(BMap<String, BValue> entityObj,
                                                       OutputStream messageOutputStream)
             throws IOException {
-        Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
+        Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
         if (byteChannel != null) {
             MimeUtil.writeInputToOutputStream(byteChannel.getInputStream(), messageOutputStream);
             byteChannel.close();
             //Set the byte channel to null, once it is consumed
-            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+            entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
         }
     }
 
@@ -353,31 +353,31 @@ public class EntityBodyHandler {
      * Decode a given entity body to get a set of child parts and set them to parent entity's multipart data field.
      *
      * @param context      Represent the ballerina context
-     * @param entityStruct Parent entity that the nested parts reside
+     * @param entityObj Parent entity that the nested parts reside
      * @param byteChannel  Represent ballerina specific byte channel
      */
-    public static void decodeEntityBody(Context context, BMap<String, BValue> entityStruct, Channel byteChannel) {
-        String contentType = MimeUtil.getContentTypeWithParameters(entityStruct);
+    public static void decodeEntityBody(Context context, BMap<String, BValue> entityObj, Channel byteChannel) {
+        String contentType = MimeUtil.getContentTypeWithParameters(entityObj);
         if (!isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             return;
         }
 
-        MultipartDecoder.parseBody(context, entityStruct, contentType, byteChannel.getInputStream());
+        MultipartDecoder.parseBody(context, entityObj, contentType, byteChannel.getInputStream());
     }
 
     /**
      * Extract body parts from a given entity.
      *
-     * @param entityStruct Represent a ballerina entity
+     * @param entityObj Represent a ballerina entity
      * @return An array of body parts
      */
-    public static BValueArray getBodyPartArray(BMap<String, BValue> entityStruct) {
-        return entityStruct.getNativeData(BODY_PARTS) != null ?
-                (BValueArray) entityStruct.getNativeData(BODY_PARTS) : new BValueArray();
+    public static BValueArray getBodyPartArray(BMap<String, BValue> entityObj) {
+        return entityObj.getNativeData(BODY_PARTS) != null ?
+                (BValueArray) entityObj.getNativeData(BODY_PARTS) : new BValueArray();
     }
 
-    public static Channel getByteChannel(BMap<String, BValue> entityStruct) {
-        return entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null ? (Channel) entityStruct.getNativeData
+    public static Channel getByteChannel(BMap<String, BValue> entityObj) {
+        return entityObj.getNativeData(ENTITY_BYTE_CHANNEL) != null ? (Channel) entityObj.getNativeData
                 (ENTITY_BYTE_CHANNEL) : null;
     }
 }

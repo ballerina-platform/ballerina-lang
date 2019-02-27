@@ -59,15 +59,15 @@ public class GetXml extends AbstractGetPayloadHandler {
     public void execute(Context context, CallableUnitCallback callback) {
         try {
             BXML result;
-            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            String baseType = HeaderUtil.getBaseType(entityStruct);
+            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            String baseType = HeaderUtil.getBaseType(entityObj);
             if (!isXmlContentType(baseType)) {
                 createErrorAndNotify(context, callback, "Entity body is not xml " + COMPATIBLE_SINCE_CONTENT_TYPE +
                         baseType);
                 return;
             }
 
-            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
                 if (dataSource instanceof BXML) {
                     result = (BXML) dataSource;
@@ -80,11 +80,11 @@ public class GetXml extends AbstractGetPayloadHandler {
                 return;
             }
 
-            if (isStreamingRequired(entityStruct)) {
-                result = EntityBodyHandler.constructXmlDataSource(entityStruct);
-                updateDataSourceAndNotify(context, callback, entityStruct, result);
+            if (isStreamingRequired(entityObj)) {
+                result = EntityBodyHandler.constructXmlDataSource(entityObj);
+                updateDataSourceAndNotify(context, callback, entityObj, result);
             } else {
-                constructNonBlockingDataSource(context, callback, entityStruct, SourceType.XML);
+                constructNonBlockingDataSource(context, callback, entityObj, SourceType.XML);
             }
         } catch (Exception ex) {
             createErrorAndNotify(context, callback,

@@ -61,20 +61,20 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> byteChannelStruct;
         try {
-            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_IO,
                                                                     READABLE_BYTE_CHANNEL_STRUCT);
-            populateEntityWithByteChannel(entityStruct);
-            Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
+            populateEntityWithByteChannel(entityObj);
+            Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
             if (byteChannel != null) {
                 byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
                 context.setReturnValues(byteChannelStruct);
             } else {
-                if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
+                if (EntityBodyHandler.getMessageDataSource(entityObj) != null) {
                     context.setReturnValues(MimeUtil.createError(context, "Byte channel is not available but " +
                             "payload can be obtain either as xml, json, string or byte[] type"));
-                } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null && EntityBodyHandler.
-                        getBodyPartArray(entityStruct).size() != 0) {
+                } else if (EntityBodyHandler.getBodyPartArray(entityObj) != null && EntityBodyHandler.
+                        getBodyPartArray(entityObj).size() != 0) {
                     context.setReturnValues(MimeUtil.createError(context,
                             "Byte channel is not available since payload contains a set of body parts"));
                 } else {
@@ -89,11 +89,10 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
     }
 
     private void populateEntityWithByteChannel(BMap<String, BValue> entity) {
-        Object message = entity.getNativeData(TRANSPORT_MESSAGE);
-        if (message == null) {
+        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entity.getNativeData(TRANSPORT_MESSAGE);
+        if (httpCarbonMessage == null) {
             return;
         }
-        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) message;
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
 
         long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
