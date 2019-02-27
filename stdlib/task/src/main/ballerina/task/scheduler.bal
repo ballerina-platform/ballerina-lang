@@ -59,14 +59,14 @@ public type Scheduler object {
 
     # Pauses the task.
     #
-    # + return - Returns error if the task is not running or any other error is occured, nil Otherwise.
+    # + return - Returns error if an error is occured while resuming, nil Otherwise.
     public function pause() returns error? {
         return self.taskListener.pause();
     }
 
     # Resumes a paused task.
     #
-    # + return - Returns error is the task is not paused or, any other error occurred, nil Otherwise.
+    # + return - Returns error when an error occurred while pausing, nil Otherwise.
     public function resume() returns error? {
         return self.taskListener.resume();
     }

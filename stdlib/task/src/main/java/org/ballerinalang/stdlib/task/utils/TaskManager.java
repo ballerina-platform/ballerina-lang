@@ -51,10 +51,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class TaskManager {
 
     private static final TaskManager instance = new TaskManager();
-
-    // Ballerina task ID to Quart JobKey map
     private Map<String, JobKey> quartzJobs = new HashMap<>();
-
     private Scheduler scheduler;
 
     private TaskManager() {
@@ -136,22 +133,17 @@ public class TaskManager {
         quartzJobs.put(taskId, job.getKey());
     }
 
-    /*public void addJob() {
-
-    }*/
-
     private SimpleScheduleBuilder createSchedulerBuilder(long interval, long maxRuns) {
         SimpleScheduleBuilder simpleScheduleBuilder = simpleSchedule().withIntervalInMilliseconds(interval);
         if (maxRuns > 0) {
             // Quartz uses number of repeats, but we count total number of runs.
             // Hence we subtract 1 from the maxRuns to get the repeat count.
-            simpleScheduleBuilder.withRepeatCount((int) maxRuns - 1);
+            simpleScheduleBuilder.withRepeatCount((int) (maxRuns - 1));
         } else {
             simpleScheduleBuilder.repeatForever();
         }
         return simpleScheduleBuilder;
     }
-
 
     /**
      * Stops the scheduled Appointment.
@@ -166,6 +158,8 @@ public class TaskManager {
             } catch (SchedulerException e) {
                 throw new SchedulingException("Stopping appointment with ID " + taskId + " failed", e);
             }
+        } else {
+            throwTaskNotFoundException();
         }
     }
 
@@ -175,7 +169,6 @@ public class TaskManager {
      * @param taskId ID of the task to be paused.
      * @throws SchedulingException if failed to pause the task.
      */
-    // TODO: Check the task is present at the registry
     public void pause(String taskId) throws SchedulingException {
         if (quartzJobs.containsKey(taskId)) {
             try {
@@ -183,6 +176,8 @@ public class TaskManager {
             } catch (SchedulerException e) {
                 throw new SchedulingException("Cannot pause the task. " + e.getMessage());
             }
+        } else {
+            throwTaskNotFoundException();
         }
     }
 
@@ -192,7 +187,6 @@ public class TaskManager {
      * @param taskId ID of the task to be resumed.
      * @throws SchedulingException if failed to resume the task.
      */
-    // TODO: Check the task is present at the registry
     public void resume(String taskId) throws SchedulingException {
         if (quartzJobs.containsKey(taskId)) {
             try {
@@ -200,6 +194,12 @@ public class TaskManager {
             } catch (SchedulerException e) {
                 throw new SchedulingException("Cannot resume the task. " + e.getMessage());
             }
+        } else {
+            throwTaskNotFoundException();
         }
+    }
+
+    private void throwTaskNotFoundException() throws SchedulingException {
+        throw new SchedulingException("Task not found");
     }
 }
