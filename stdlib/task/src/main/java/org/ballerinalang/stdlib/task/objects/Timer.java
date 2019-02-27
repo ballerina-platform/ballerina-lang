@@ -21,9 +21,18 @@ package org.ballerinalang.stdlib.task.objects;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.utils.TaskManager;
+import org.ballerinalang.stdlib.task.utils.TaskJob;
 import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+
+import java.util.Date;
+
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
  * Represents a Timer object used to create and run Timers.
@@ -68,7 +77,7 @@ public class Timer extends AbstractTask {
      */
     @Override
     public void stop() throws SchedulingException {
-        TaskManager.getInstance().stop(this.getId());
+        this.stop(this.getId());
     }
 
     /**
@@ -76,14 +85,14 @@ public class Timer extends AbstractTask {
      */
     @Override
     public void pause() throws SchedulingException {
-        TaskManager.getInstance().pause(this.getId());
+        this.pause(this.getId());
     }
 
     /**
      * {@inheritDoc}
      */
     public void resume() throws SchedulingException {
-        TaskManager.getInstance().resume(this.getId());
+        this.resume(this.getId());
     }
 
     /**
@@ -93,7 +102,7 @@ public class Timer extends AbstractTask {
     public void runServices(Context context) throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromService(context);
         try {
-            TaskManager.getInstance().scheduleTimer(this, jobDataMap);
+            scheduleTimer(jobDataMap);
         } catch (SchedulerException e) {
             throw new SchedulingException("Failed to schedule Task. " + e.getMessage());
         }
@@ -133,5 +142,50 @@ public class Timer extends AbstractTask {
         if (interval < 1) {
             throw new SchedulingException("Timer scheduling interval should be a positive integer.");
         }
+    }
+
+    /**
+     * Schedule a Timer.
+     *
+     * @param jobData Map containing the details of the job.
+     * @throws SchedulerException if scheduling is failed.
+     */
+    private void scheduleTimer(JobDataMap jobData) throws SchedulerException {
+        SimpleScheduleBuilder schedule = createSchedulerBuilder(this.getInterval(), this.getMaxRuns());
+        String triggerId = this.getId();
+        JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(triggerId).build();
+        Trigger trigger;
+
+        if (this.getDelay() > 0) {
+            Date startTime = new Date(System.currentTimeMillis() + this.getDelay());
+            trigger = newTrigger()
+                    .withIdentity(triggerId)
+                    .startAt(startTime)
+                    .forJob(job)
+                    .withSchedule(schedule)
+                    .build();
+        } else {
+            trigger = newTrigger()
+                    .withIdentity(triggerId)
+                    .startNow()
+                    .forJob(job)
+                    .withSchedule(schedule)
+                    .build();
+        }
+
+        scheduler.scheduleJob(job, trigger);
+        quartzJobs.put(triggerId, job.getKey());
+    }
+
+    private SimpleScheduleBuilder createSchedulerBuilder(long interval, long maxRuns) {
+        SimpleScheduleBuilder simpleScheduleBuilder = simpleSchedule().withIntervalInMilliseconds(interval);
+        if (maxRuns > 0) {
+            // Quartz uses number of repeats, but we count total number of runs.
+            // Hence we subtract 1 from the maxRuns to get the repeat count.
+            simpleScheduleBuilder.withRepeatCount((int) (maxRuns - 1));
+        } else {
+            simpleScheduleBuilder.repeatForever();
+        }
+        return simpleScheduleBuilder;
     }
 }

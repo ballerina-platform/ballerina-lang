@@ -21,9 +21,21 @@ package org.ballerinalang.stdlib.task.objects;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.stdlib.task.utils.TaskManager;
+import org.ballerinalang.stdlib.task.utils.TaskJob;
+import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
+import org.quartz.TriggerUtils;
+import org.quartz.impl.calendar.BaseCalendar;
+import org.quartz.spi.OperableTrigger;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
  * Represents an appointment.
@@ -37,8 +49,9 @@ public class Appointment extends AbstractTask {
      *
      * @param context        Ballerina context which creating the Appointment.
      * @param cronExpression Cron expression for which the Appointment triggers.
+     * @throws SchedulingException When initializing this Appointment is failed.
      */
-    public Appointment(Context context, String cronExpression) {
+    public Appointment(Context context, String cronExpression) throws SchedulingException {
         super();
         this.cronExpression = cronExpression;
     }
@@ -50,7 +63,7 @@ public class Appointment extends AbstractTask {
      * @param context        Ballerina context which creating the Appointment.
      * @param cronExpression Cron expression for which the Appointment triggers.
      * @param maxRuns        Number of times after which the Appointment will cancel.
-     * @throws SchedulingException When invalid number of occurrences provided.
+     * @throws SchedulingException When initializing this Appointment is failed.
      */
     public Appointment(Context context, String cronExpression, long maxRuns) throws SchedulingException {
         super(maxRuns);
@@ -62,7 +75,7 @@ public class Appointment extends AbstractTask {
      */
     @Override
     public void stop() throws SchedulingException {
-        TaskManager.getInstance().stop(this.getId());
+        this.stop(this.getId());
     }
 
     /**
@@ -70,14 +83,14 @@ public class Appointment extends AbstractTask {
      */
     @Override
     public void pause() throws SchedulingException {
-        TaskManager.getInstance().pause(this.getId());
+        this.pause(this.getId());
     }
 
     /**
      * {@inheritDoc}
      */
     public void resume() throws SchedulingException {
-        TaskManager.getInstance().resume(this.getId());
+        this.resume(this.getId());
     }
 
     /**
@@ -105,9 +118,35 @@ public class Appointment extends AbstractTask {
     public void runServices(Context context) throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromService(context);
         try {
-            TaskManager.getInstance().scheduleAppointment(this, jobDataMap);
+            scheduleAppointment(jobDataMap);
         } catch (SchedulerException e) {
             throw new SchedulingException("Failed to schedule Task: " + e.getMessage());
         }
+    }
+
+    /**
+     * Schedule an Appointment.
+     *
+     * @param jobData     Map containing the details of the job.
+     * @throws SchedulerException if scheduling is failed.
+     */
+    private void scheduleAppointment(JobDataMap jobData) throws SchedulerException {
+        String triggerId = this.getId();
+        JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(triggerId).build();
+        CronTrigger trigger = newTrigger()
+                .withIdentity(triggerId)
+                .withSchedule(cronSchedule(this.getCronExpression()))
+                .build();
+
+        if (this.getMaxRuns() > 0) {
+            int repeatCount = (int) (this.getMaxRuns() - 1);
+            Date endDate = TriggerUtils.computeEndTimeToAllowParticularNumberOfFirings((OperableTrigger) trigger,
+                    new BaseCalendar(Calendar.getInstance().getTimeZone()), repeatCount);
+
+            trigger = trigger.getTriggerBuilder().endAt(endDate).build();
+
+        }
+        scheduler.scheduleJob(job, trigger);
+        quartzJobs.put(triggerId, job.getKey());
     }
 }

@@ -24,8 +24,13 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
 import org.quartz.JobDataMap;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.impl.StdSchedulerFactory;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_CONTEXT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
@@ -37,14 +42,22 @@ public abstract class AbstractTask implements Task {
 
     protected String id = TaskIdGenerator.generate();
     HashMap<String, ServiceWithParameters> serviceMap;
+    protected Map<String, JobKey> quartzJobs = new HashMap<>();
     long maxRuns;
+    Scheduler scheduler;
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
      */
-    AbstractTask() {
+    AbstractTask() throws SchedulingException {
         this.serviceMap = new HashMap<>();
         this.maxRuns = -1;
+        try {
+            this.scheduler = new StdSchedulerFactory().getScheduler();
+            this.scheduler.start();
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler. " + e.getMessage());
+        }
     }
 
     /**
@@ -56,6 +69,12 @@ public abstract class AbstractTask implements Task {
         validateMaxRuns(maxRuns);
         this.serviceMap = new HashMap<>();
         this.maxRuns = maxRuns;
+        try {
+            this.scheduler = new StdSchedulerFactory().getScheduler();
+            this.scheduler.start();
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler. " + e.getMessage());
+        }
     }
 
     /**
@@ -114,5 +133,65 @@ public abstract class AbstractTask implements Task {
         if (maxRuns < 1) {
             throw new SchedulingException("Task noOfOccurrences should be a positive integer.");
         }
+    }
+
+
+
+    /**
+     * Stops the scheduled Appointment.
+     *
+     * @param taskId ID of the task which should be stopped.
+     * @throws SchedulingException if failed to stop the task.
+     */
+    public void stop(String taskId) throws SchedulingException {
+        if (quartzJobs.containsKey(taskId)) {
+            try {
+                scheduler.deleteJob(quartzJobs.get(taskId));
+            } catch (SchedulerException e) {
+                throw new SchedulingException("Cannot cancel the task. ", e);
+            }
+        } else {
+            throwTaskNotFoundException();
+        }
+    }
+
+    /**
+     * Pauses the scheduled Appointment.
+     *
+     * @param taskId ID of the task to be paused.
+     * @throws SchedulingException if failed to pause the task.
+     */
+    public void pause(String taskId) throws SchedulingException {
+        if (quartzJobs.containsKey(taskId)) {
+            try {
+                scheduler.pauseJob(quartzJobs.get(taskId));
+            } catch (SchedulerException e) {
+                throw new SchedulingException("Cannot pause the task. " + e.getMessage());
+            }
+        } else {
+            throwTaskNotFoundException();
+        }
+    }
+
+    /**
+     * Resumes a paused Task.
+     *
+     * @param taskId ID of the task to be resumed.
+     * @throws SchedulingException if failed to resume the task.
+     */
+    public void resume(String taskId) throws SchedulingException {
+        if (quartzJobs.containsKey(taskId)) {
+            try {
+                scheduler.resumeJob(quartzJobs.get(taskId));
+            } catch (SchedulerException e) {
+                throw new SchedulingException("Cannot resume the task. " + e.getMessage());
+            }
+        } else {
+            throwTaskNotFoundException();
+        }
+    }
+
+    private void throwTaskNotFoundException() throws SchedulingException {
+        throw new SchedulingException("Task not found");
     }
 }
