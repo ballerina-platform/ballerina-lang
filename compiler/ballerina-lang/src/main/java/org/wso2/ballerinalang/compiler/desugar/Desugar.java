@@ -2708,6 +2708,13 @@ public class Desugar extends BLangNodeVisitor {
     }
     @Override
     public void visit(BLangErrorConstructorExpr errConstExpr) {
+        if (errConstExpr.reasonExpr.impConversionExpr != null &&
+                errConstExpr.reasonExpr.impConversionExpr.targetType.tag != TypeTags.STRING) {
+            // Override casts to constants/finite types.
+            // For reason expressions of any form, the cast has to be to string.
+            errConstExpr.reasonExpr.impConversionExpr = null;
+        }
+        errConstExpr.reasonExpr = addConversionExprIfRequired(errConstExpr.reasonExpr, symTable.stringType);
         errConstExpr.reasonExpr = rewriteExpr(errConstExpr.reasonExpr);
         errConstExpr.detailsExpr = rewriteExpr(Optional.ofNullable(errConstExpr.detailsExpr)
                 .orElseGet(() -> ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType)));
