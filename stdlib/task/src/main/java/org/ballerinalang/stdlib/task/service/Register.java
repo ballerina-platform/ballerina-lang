@@ -72,9 +72,8 @@ public class Register extends BlockingNativeCallableUnit {
             serviceWithParameters = new ServiceWithParameters(service);
         }
 
-        /* TODO:
-         * Validate service at runtime, as compiler plugin not available.
-         * When compiler plugin is available, remove this.
+        /* TODO: Validate service at runtime, as compiler plugin not available.
+         *       When compiler plugin is available, remove this.
          */
         validateService(service);
 
