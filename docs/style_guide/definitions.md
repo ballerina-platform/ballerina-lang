@@ -137,7 +137,7 @@ parameter, return type and resource body formatting.
       }
   };
   ```
-* For type reference formatting refer to [Type Reference](#Type Reference)
+* For type reference formatting refer to [type reference](#Referencing) section.
 ### Record Definition
 * Field definitions should indent relative to the parent record.
 * Rest field should indent relative to the parent record.
@@ -156,8 +156,9 @@ parameter, return type and resource body formatting.
       !...;
   }
   ```
+* For type reference formatting refer to [referencing](#Referencing) section.
 
-### Type Reference
+### Referencing
 * No spaces between `*` and abstract object name or record name.
   
   ```ballerina
