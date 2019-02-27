@@ -1148,7 +1148,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private List<BType> findMembersWithMatchingInitFunc(BLangTypeInit cIExpr, BUnionType lhsUnionType) {
         List<BType> matchingLhsMemberTypes = new ArrayList<>();
         for (BType memberType : lhsUnionType.memberTypes) {
-            if (memberType.tsymbol == null || memberType.tag != TypeTags.OBJECT) {
+            if (memberType.tag != TypeTags.OBJECT) {
                 // member is not an object.
                 continue;
             }
@@ -1238,7 +1238,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean restArgTypesMatch(List<BLangExpression> unnamedArgs, int requiredParamCount, BType restParamType) {
-        if ((unnamedArgs.size() - requiredParamCount) == 0) {
+        if (unnamedArgs.size() == requiredParamCount) {
             return true;
         }
         List<BLangExpression> restArgs = unnamedArgs.subList(requiredParamCount, unnamedArgs.size());
