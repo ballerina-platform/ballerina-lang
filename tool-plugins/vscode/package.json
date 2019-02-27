@@ -283,11 +283,11 @@
         "ms-wmic": "^1.0.4",
         "openport": "0.0.6",
         "ps-node": "^0.1.6",
-        "toml": "^2.3.3",
+        "toml": "^3.0.0",
         "vscode-debugadapter": "^1.33.0",
         "vscode-debugprotocol": "^1.33.0",
         "vscode-languageclient": "5.1.1",
-        "ws": "^4.0.0"
+        "ws": "^6.1.4"
     },
     "devDependencies": {
         "@types/chai": "^4.1.6",
@@ -304,7 +304,7 @@
         "mocha": "^5.2.0",
         "remap-istanbul": "^0.13.0",
         "ts-node": "^8.0.2",
-        "tslint": "^5.12.1",
+        "tslint": "^5.13.0",
         "typescript": "^3.3.3333",
         "vsce": "^1.57.0",
         "vscode": "1.1.21",

@@ -1,0 +1,12 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+dependencies {
+    implementation 'org.slf4j:slf4j-simple:1.7.22'
+}
+
+description = 'Ballerina - Streaming - Siddhi Annotations'
+
+spotbugsMain {
+    //TODO: remove
+    ignoreFailures true
+}

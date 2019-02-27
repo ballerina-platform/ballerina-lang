@@ -72,13 +72,13 @@ function setJwtTokenToAuthContext () {
         "KE3DZgssvgPgI9PBItnkipQ3CqqXWhV-RFBkVBEGPDYXTUVGbXhdNOBSwKw5ZoVJrCU" +
         "iNG5XD0K4sgN9udVTi3EMKNMnVQaq399k6RYPAy3vIhByS6QZtRjOG8X93WJw-9GLiH" +
         "vcabuid80lnrs2-mAEcstgiHVw";
-    runtime:getInvocationContext().authContext.scheme = "jwt";
-    runtime:getInvocationContext().authContext.authToken = token;
+    runtime:getInvocationContext().authenticationContext.scheme = "jwt";
+    runtime:getInvocationContext().authenticationContext.authToken = token;
 }
 
 function clearTokenFromAuthContext () {
-    runtime:getInvocationContext().authContext.scheme = "jwt";
-    runtime:getInvocationContext().authContext.authToken = "";
+    runtime:getInvocationContext().authenticationContext.scheme = "jwt";
+    runtime:getInvocationContext().authenticationContext.authToken = "";
 }
 
 function setInvalidJwtTokenToAuthContext () {
@@ -91,8 +91,8 @@ function setInvalidJwtTokenToAuthContext () {
         "aPWGUnUoIExjYxrBMLGUTzMaM1knyI8agG7z6nKm0ZBMdti1AphGkqH50rDm9Arjvy256aNO-" +
         "cw6lWkDneZl5WdV63RGNNNSj8ElyRW6HMdLmHQ3HIkQ4f1K8tCshwgbyb19bw8nCeYihpPeOn" +
         "gVobfGY2yXm7QGjmiVInALAqisylo348WB6qOKduDrbDZYcFDKQuYConx5wF-7Wl9hg2HA";
-    runtime:getInvocationContext().authContext.scheme = "jwt";
-    runtime:getInvocationContext().authContext.authToken = token;
+    runtime:getInvocationContext().authenticationContext.scheme = "jwt";
+    runtime:getInvocationContext().authenticationContext.authToken = token;
 }
 
 function setJwtTokenWithNoScopesToAuthContext () {
@@ -105,6 +105,6 @@ function setJwtTokenWithNoScopesToAuthContext () {
         "NhJRyht0GSa59VhonCFIAL505_u5vfO4fhmCjslYCr6WcpYW1tLf-vDmRLIqshYX7RZkK" +
         "Es2a1pfjg5XkJiJSxqQ_-lLzeQfb-eMmZzT5ob-cE9qpBhjrXoYpYLy371TtuOdREdhXh" +
         "Ogu12RJMaCE1FlA1ZoyLrmzj2Mm3RHc_A88lKoGvaEBcGzJwllekuQeDUJ1P90SGA";
-    runtime:getInvocationContext().authContext.scheme = "jwt";
-    runtime:getInvocationContext().authContext.authToken = token;
+    runtime:getInvocationContext().authenticationContext.scheme = "jwt";
+    runtime:getInvocationContext().authenticationContext.authToken = token;
 }

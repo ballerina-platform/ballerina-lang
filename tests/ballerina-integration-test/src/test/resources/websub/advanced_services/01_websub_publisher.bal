@@ -26,8 +26,8 @@ const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 
 http:AuthProvider basicAuthProvider = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 http:ServiceEndpointConfiguration hubListenerConfig = {
@@ -51,8 +51,10 @@ listener http:Listener publisherServiceEP = new http:Listener(8080);
 websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, config = {
     auth: {
         scheme: http:BASIC_AUTH,
-        username: "peter",
-        password: "pqr"
+        config: {
+            username: "peter",
+            password: "pqr"
+        }
     }
 });
 

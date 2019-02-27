@@ -36,8 +36,7 @@ import java.util.Base64;
  * @since 0.990.3
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "decodeBase64",
+        orgName = "ballerina", packageName = "encoding", functionName = "decodeBase64",
         args = {
                 @Argument(name = "input", type = TypeKind.STRING)
         },
