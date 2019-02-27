@@ -36,6 +36,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.awaitility.Awaitility.given;
@@ -114,7 +116,7 @@ public class PackagingTestCase extends BaseTest {
     }
 
     @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
-    public void testPull() throws Exception {
+    public void testPull() {
         Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
                                  orgName, moduleName, "0.0.1");
@@ -133,15 +135,20 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
     public void testSearch() {
-        given().with().pollDelay(10, SECONDS).await().atMost(90, SECONDS).until(() -> {
+        List<String> loggedMsgs = new ArrayList<>();
+        given().with().pollDelay(5, SECONDS).await().atMost(120, SECONDS).until(() -> {
 
             String  actualOut = balClient.runMainAndReadStdOut("search", new String[]{moduleName},
                     envVariables, balServer.getServerHome());
-
-            return !actualOut.isEmpty() && actualOut.contains(orgName + "/" + moduleName) &&
-                    actualOut.contains("Prints \"hello world\" to command line output") &&
-                    actualOut.contains(datePushed) && actualOut.contains("0.0.1");
+            loggedMsgs.add(actualOut);
+            return !loggedMsgs.isEmpty();
         });
+
+        String actualMsg = loggedMsgs.get(0);
+        Assert.assertTrue(actualMsg.contains(orgName + "/" + moduleName));
+        Assert.assertTrue(actualMsg.contains(datePushed));
+        Assert.assertTrue(actualMsg.contains("Prints \"hello world\" to command line output"));
+        Assert.assertTrue(actualMsg.contains("0.0.1"));
     }
 
     @Test(description = "Test push all packages in project to central")
