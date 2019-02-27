@@ -44,7 +44,6 @@ public class TaskConstants {
 
     // Allowed resource function names
     public static final String RESOURCE_ON_TRIGGER = "onTrigger";
-    public static final String RESOURCE_ON_ERROR = "onError";
 
     // Common field for TimerConfiguration and AppointmentConfiguration
     public static final String FIELD_NO_OF_RUNS = "noOfRecurrences";

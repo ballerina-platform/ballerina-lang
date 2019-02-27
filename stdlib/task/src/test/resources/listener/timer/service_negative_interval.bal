@@ -25,10 +25,6 @@ listener task:Listener timer = new(configuration);
 
 service timerService on timer {
     resource function onTrigger() {
-
-    }
-
-    resource function onError(error e) {
-
+        // Do nothing
     }
 }

@@ -24,11 +24,11 @@ task:TimerConfiguration configuration = {
 listener task:Listener timer = new(configuration);
 
 service timerService on timer {
-    resource function onTrigger() returns error? {
+    resource function onTrigger() {
 
     }
 
-    resource function onError(error e, int count) {
+    resource function onError(error e) {
 
     }
 }

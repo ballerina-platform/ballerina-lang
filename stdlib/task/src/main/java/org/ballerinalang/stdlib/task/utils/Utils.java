@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Objects;
@@ -42,7 +43,6 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_MONTHS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_SECONDS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_YEAR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_ERROR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_CODE;
@@ -106,58 +106,30 @@ public class Utils {
     }
 
     /*
-     * TODO:
-     * Runtime validation is done as compiler plugin does not work right now.
-     * When compiler plugins can be run for the resources without parameters, this will be redundant.
+     * TODO: Runtime validation is done as compiler plugin does not work right now.
+     *       When compiler plugins can be run for the resources without parameters, this will be redundant.
      */
     public static void validateService(Service service) throws BLangRuntimeException {
         Resource[] resources = service.getResources();
-        if (resources.length > 2) {
+        if (resources.length != 1) {
             throw new BLangRuntimeException("Invalid number of resources found in service \'" + service.getName()
-                    + "\'. Task service cannot include more than two resource functions");
-        } else if (resources.length < 1) {
-            throw new BLangRuntimeException("No resource functions found in service \'" + service.getName()
-                    + "\'. Task service should include at least one resource function.");
+                    + "\'. Task service should include only one resource.");
         }
+        Resource resource = resources[0];
 
-        boolean isOnTriggerFound = false;
-
-        for (Resource resource : resources) {
-            if (isOnTriggerResource(resource)) {
-                validateOnTriggerResource(resource);
-                isOnTriggerFound = true;
-            } else if (isOnErrorResource(resource)) {
-                validateOnErrorResource(resource);
-            } else {
-                throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
-                        + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\' or \'" + RESOURCE_ON_ERROR + "\'.");
-            }
-        }
-        if (!isOnTriggerFound) {
-            throw new BLangRuntimeException("Resource validation failed. Service " + service.getName()
-                    + " must include resource function: \'" + RESOURCE_ON_TRIGGER + "\'.");
+        if (RESOURCE_ON_TRIGGER.equals(resource.getName())) {
+            validateOnTriggerResource(resource.getResourceInfo());
+        } else {
+            throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
+                    + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\'.");
         }
     }
 
-    private static void validateOnTriggerResource(Resource resource) {
-    }
-
-    private static void validateOnErrorResource(Resource resource) {
-        if (resource.getParamDetails().size() < 1) {
+    private static void validateOnTriggerResource(FunctionInfo functionInfo) {
+        if (functionInfo.getRetParamTypes().length != 1 || functionInfo.getRetParamTypes()[0] != BTypes.typeNull) {
             throw new BLangRuntimeException("Invalid resource function signature: \'"
-                    + RESOURCE_ON_ERROR + "\' should have at least one input parameter.");
+                    + RESOURCE_ON_TRIGGER + "\' should not return a value.");
         }
-        if (resource.getParamDetails().get(0).getVarType() != BTypes.typeError) {
-            throw new BLangRuntimeException("Invalid resource function signature: \'"
-                    + RESOURCE_ON_ERROR + "\' function should have an error as the first input parameter.");
-        }
-    }
-
-    private static boolean isOnTriggerResource(Resource resource) {
-        return RESOURCE_ON_TRIGGER.equals(resource.getName());
-    }
-
-    private static boolean isOnErrorResource(Resource resource) {
-        return RESOURCE_ON_ERROR.equals(resource.getName());
+        // TODO: Validate input parameters
     }
 }

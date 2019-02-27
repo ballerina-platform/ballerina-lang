@@ -24,19 +24,14 @@ import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
-import java.util.Objects;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_ERROR;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LISTENER;
-import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 
 /*
  * TODO:
@@ -57,11 +52,11 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 )
 public class TaskServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
 
-    private DiagnosticLog diagnosticLog = null;
+    //private DiagnosticLog diagnosticLog = null;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
-        this.diagnosticLog = diagnosticLog;
+        //this.diagnosticLog = diagnosticLog;
     }
 
     @Override
@@ -77,28 +72,6 @@ public class TaskServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
     }
 
     public void validateResource(FunctionNode resource) {
-        String resourceName = resource.getName().getValue();
-        Diagnostic.DiagnosticPosition position = resource.getPosition();
 
-        if (RESOURCE_ON_TRIGGER.equals(resourceName) || RESOURCE_ON_ERROR.equals(resourceName)) {
-            checkReturnType(resource, resourceName, position);
-        } else {
-            String message = "Invalid resource name: " + resourceName + " found. Expected: "
-                    + RESOURCE_ON_TRIGGER + " or " + RESOURCE_ON_ERROR + ".";
-            logError(message, position);
-        }
-    }
-
-    private void checkReturnType(FunctionNode resource, String resourceName, Diagnostic.DiagnosticPosition position) {
-        BLangFunction function = (BLangFunction) resource;
-        if (Objects.nonNull(function.symbol.getReturnType())) {
-            String message = "Invalid return type for the resource: " + resourceName
-                    + ". Task resources do not return values.";
-            logError(message, position);
-        }
-    }
-
-    private void logError(String message, Diagnostic.DiagnosticPosition position) {
-        diagnosticLog.logDiagnostic(ERROR, position, message);
     }
 }

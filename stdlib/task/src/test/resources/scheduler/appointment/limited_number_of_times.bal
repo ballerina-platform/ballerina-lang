@@ -40,8 +40,4 @@ service appointmentService = service {
     resource function onTrigger() {
         count = count + 1;
     }
-
-    resource function onError(error e) {
-        count = count - 1;
-    }
 };

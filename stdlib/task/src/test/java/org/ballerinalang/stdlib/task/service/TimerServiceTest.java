@@ -24,7 +24,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -105,17 +104,5 @@ public class TimerServiceTest {
     public void testListenerTimerWithoutDelay() {
         CompileResult compileResult = BCompileUtil.compile("listener/timer/service_without_delay.bal");
         BServiceUtil.runService(compileResult);
-    }
-
-    @Test(description = "Tests for onError function parameter")
-    public void testOnErrorParameter() {
-        CompileResult compileResult = BCompileUtil.compile("listener/timer/service_error_return.bal");
-        BServiceUtil.runService(compileResult);
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] isPaused = BRunUtil.invokeStateful(compileResult, "getResult");
-            Assert.assertEquals(isPaused.length, 1);
-            Assert.assertTrue(isPaused[0] instanceof BString);
-            return ("test".equals(isPaused[0].stringValue()));
-        });
     }
 }

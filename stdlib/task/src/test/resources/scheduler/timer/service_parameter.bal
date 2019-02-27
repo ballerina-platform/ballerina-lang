@@ -23,7 +23,7 @@ public type Person record {
 
 function attachTimer() {
     Person person = {
-        name: "Kurt Kobain",
+        name: "Sam",
         age: 0
     };
 
@@ -35,17 +35,9 @@ function attachTimer() {
 string result = "";
 
 service timerService = service {
-    resource function onTrigger(Person person) returns error? {
-        if (person.age == 27) {
-            error die = error(" died at ");
-            return die;
-        }
+    resource function onTrigger(Person person) {
         person.age = person.age + 1;
         result = untaint (person.name + " is " + person.age + " years old");
-    }
-
-    resource function onError(error e, Person person) {
-        result = untaint (person.name + e.reason() + person.age);
     }
 };
 

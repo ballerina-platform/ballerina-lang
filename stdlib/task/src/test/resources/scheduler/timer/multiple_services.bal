@@ -35,7 +35,7 @@ function getResult() returns boolean {
 }
 
 service service1 = service {
-    resource function onTrigger() returns error? {
+    resource function onTrigger() {
         count1 = count1 + 1;
         if (count1 > 3) {
             firstTriggered = true;
@@ -44,7 +44,7 @@ service service1 = service {
 };
 
 service service2 = service {
-    resource function onTrigger() returns error? {
+    resource function onTrigger() {
         count2 = count2 + 1;
         if (count2 > 3) {
             secondTriggered = true;

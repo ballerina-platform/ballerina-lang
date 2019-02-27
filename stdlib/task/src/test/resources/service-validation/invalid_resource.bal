@@ -26,7 +26,4 @@ listener task:Listener timer = new(configuration);
 service timerService on timer {
     resource function timerStart(task:Listener taskListener) {
     }
-
-    resource function onError(error e) {
-    }
 }

@@ -26,7 +26,6 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_ERROR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 
 /**
@@ -35,7 +34,6 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIG
 public class ResourceFunctionHolder {
 
     private FunctionInfo onTriggerFunction;
-    private FunctionInfo onErrorFunction;
 
     /**
      * Creates a resource function holder from a service object.
@@ -43,15 +41,10 @@ public class ResourceFunctionHolder {
      * @param service Ballerina service object from which the resource functions should be extracted.
      */
     ResourceFunctionHolder(Service service) {
-        String onErrorResourceFullName = getResourceFullName(service.getBValue().getType(), RESOURCE_ON_ERROR);
         String onTriggerResourceFullName = getResourceFullName(service.getBValue().getType(), RESOURCE_ON_TRIGGER);
         onTriggerFunction = null;
-        onErrorFunction = null;
         if (Objects.nonNull(service.getServiceInfo().getResourceInfo(onTriggerResourceFullName))) {
             onTriggerFunction = service.getServiceInfo().getResourceInfo(onTriggerResourceFullName);
-        }
-        if (Objects.nonNull(service.getServiceInfo().getResourceInfo(onErrorResourceFullName))) {
-            onErrorFunction = service.getServiceInfo().getResourceInfo(onErrorResourceFullName);
         }
     }
 
@@ -62,15 +55,6 @@ public class ResourceFunctionHolder {
      */
     FunctionInfo getOnTriggerFunction() {
         return this.onTriggerFunction;
-    }
-
-    /**
-     * Get the <code>onError</code> function.
-     *
-     * @return onError function related to the service.
-     */
-    FunctionInfo getOnErrorFunction() {
-        return this.onErrorFunction;
     }
 
     /**

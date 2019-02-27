@@ -55,8 +55,4 @@ service timerService = service {
     resource function onTrigger() {
         // Do nothing
     }
-
-    resource function onError(error e) {
-        // Do nothing
-    }
 };

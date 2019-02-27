@@ -26,11 +26,8 @@ import org.ballerinalang.stdlib.task.objects.ServiceWithParameters;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 
 /**
  * This class invokes the Ballerina onTrigger function, and if an error occurs while invoking that function, it invokes
@@ -39,39 +36,15 @@ import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 public class TaskExecutor {
 
     public static void execute(Context context, ServiceWithParameters serviceWithParameters) {
-        boolean isErrorFnCalled = false;
         // Get resource functions from service
         ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(serviceWithParameters.getService());
         FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
-        FunctionInfo onErrorFunction = resourceFunctionHolder.getOnErrorFunction();
 
-        try {
-            List<BValue> onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceWithParameters);
-            // Invoke the onTrigger function.
-            BValue[] results = executeFunction(onTriggerFunction, onTriggerFunctionArgs.toArray(new BValue[0]));
-
-            // If there are results, that mean an error has been returned
-            if (onErrorFunction != null && results.length > 0 && results[0] != null) {
-                    isErrorFnCalled = true;
-                    List<BValue> onErrorFunctionArgs = new ArrayList<>();
-                    // We have to pass the service BValue as a function parameter, as it is required.
-                    onErrorFunctionArgs.add(serviceWithParameters.getService().getBValue());
-                    onErrorFunctionArgs.addAll(Arrays.asList(results));
-                    if (onErrorFunction.getParamTypes().length > 2) {
-                        onErrorFunctionArgs.add(serviceWithParameters.getServiceParameter());
-                    }
-                    executeFunction(onErrorFunction, onErrorFunctionArgs.toArray(new BValue[0]));
-                }
-        } catch (RuntimeException e) {
-            //Call the onError function in case of error.
-            if (onErrorFunction != null && !isErrorFnCalled) {
-                executeFunction(onErrorFunction, new BValue[]{createError(context, e.getMessage())});
-            }
-        }
-    }
-
-    private static BValue[] executeFunction(FunctionInfo function, BValue[] parameters) {
-        return BVMExecutor.executeFunction(function.getPackageInfo().getProgramFile(), function, parameters);
+        List<BValue> onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceWithParameters);
+        BVMExecutor.executeFunction(
+                onTriggerFunction.getPackageInfo().getProgramFile(),
+                onTriggerFunction,
+                onTriggerFunctionArgs.toArray(new BValue[0]));
     }
 
     private static List<BValue> getParameterList(FunctionInfo function, ServiceWithParameters serviceWithParameters) {

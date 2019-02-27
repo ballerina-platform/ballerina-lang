@@ -59,7 +59,7 @@ public class TimerSchedulerTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "scheduler/timer/service_parameter.bal");
         BRunUtil.invoke(compileResult, "attachTimer");
-        String expectedResult = "Kurt Kobain died at 27";
+        String expectedResult = "Sam is 10 years old";
         await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] result = BRunUtil.invokeStateful(compileResult, "getResult");
             Assert.assertEquals(result.length, 1);

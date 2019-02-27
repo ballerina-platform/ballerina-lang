@@ -26,8 +26,4 @@ service timerService on timer {
     resource function onTrigger() {
 
     }
-
-    resource function onError(error e) {
-
-    }
 }
