@@ -50,6 +50,7 @@ function testBasicErrorVariableWithMapDetails() returns (string, string, string,
     return (reason11, reason12, reason21, reason22, detail11, message12, detail12, extra12, detail21, message22,
     detail22, extra22);
 }
+
 function testBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map<string>, string?, string?,
                                                              string?, map<any>, any, any, any) {
     CMS err3 = error(ERROR1, { message: "Msg Three", detail: "Detail Msg" });
@@ -216,4 +217,16 @@ function testErrorWithUnionConstrainedDetailMap() returns (string, string, map<s
     }
 
     return (reasonString, reasonString2, detailMap, messageString, fatalBool);
+}
+
+function testErrorWithRestParam() returns map<string> {
+    error<string, map<string>> errWithMap = error("Error", { message: "Fatal", fatal: "true" });
+
+    string reason;
+    string? message;
+    map<string> detailMap;
+    error(reason, { message, ...detailMap }) = errWithMap;
+    detailMap["extra"] = "extra";
+
+    return detailMap;
 }

@@ -1279,10 +1279,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     expectedType = rhsMapType.constraint;
                     break;
                 case TypeTags.UNION:
+                    BUnionType unionType = (BUnionType) rhsMapType.constraint;
                     LinkedHashSet<BType> unionMemberTypes = new LinkedHashSet<BType>() {{
-                        LinkedHashSet<BType> unionMemberTypes = typeChecker.collectMemberTypes(
-                                (BUnionType) rhsMapType.constraint, new LinkedHashSet<>());
-                        addAll(unionMemberTypes);
+                        addAll(unionType.memberTypes);
                         add(symTable.nilType);
                     }};
                     expectedType = new BUnionType(null, unionMemberTypes, true);
@@ -1296,6 +1295,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             lhsVarRef.recordRefFields.forEach(field -> types.checkType(field.variableReference.pos,
                     expectedType, field.variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES));
+
+            if (lhsVarRef.isClosed) {
+                dlog.error(pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, rhsType);
+                return;
+            }
+
+            if (lhsVarRef.restParam != null) {
+                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
+                        rhsMapType,
+                        ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
+            }
+
             return;
         }
 
@@ -1315,6 +1326,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (lhsVarRef.recordRefFields.size() != rhsRecordType.fields.size()) {
                 dlog.error(pos, DiagnosticCode.NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS, rhsType);
                 return;
+            }
+
+            if (lhsVarRef.restParam != null) {
+                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
+                        new BMapType(TypeTags.MAP, recordHasAnyTypeField(rhsRecordType) ?
+                                symTable.anyType : symTable.anydataType, null),
+                        ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
             }
         }
 

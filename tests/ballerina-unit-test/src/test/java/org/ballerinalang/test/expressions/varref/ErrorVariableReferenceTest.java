@@ -184,6 +184,15 @@ public class ErrorVariableReferenceTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
+    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    public void testErrorWithRestParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorWithRestParam");
+        Assert.assertEquals(returns.length, 1);
+        Map<String, BValue> results = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(results.get("fatal").stringValue(), "true");
+        Assert.assertEquals(results.get("extra").stringValue(), "extra");
+    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);

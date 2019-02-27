@@ -1023,9 +1023,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorDestructure recordDestructure) {
-        analyzeNode(recordDestructure.expr, env);
-        checkAssignment(recordDestructure.varRef);
+    public void visit(BLangErrorDestructure errorDestructure) {
+        analyzeNode(errorDestructure.expr, env);
+        checkAssignment(errorDestructure.varRef);
     }
 
     @Override
@@ -1196,7 +1196,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkAssignment(BLangExpression varRef) {
         switch (varRef.getKind()) {
             case RECORD_VARIABLE_REF:
-                ((BLangRecordVarRef) varRef).recordRefFields.forEach(field -> checkAssignment(field.variableReference));
+                BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRef;
+                recordVarRef.recordRefFields.forEach(field -> checkAssignment(field.variableReference));
+                if (recordVarRef.restParam != null) {
+                    checkAssignment((BLangExpression) recordVarRef.restParam);
+                }
                 return;
             case TUPLE_VARIABLE_REF:
                 ((BLangTupleVarRef) varRef).expressions.forEach(this::checkAssignment);

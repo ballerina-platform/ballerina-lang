@@ -855,11 +855,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        BType reasonType = checkExpr(varRefExpr.reason, env, symTable.noType);
-        BType detailType = varRefExpr.detail.getKind() == NodeKind.RECORD_VARIABLE_REF ?
-                // detail is destructured, it should be of type map
-                checkExpr(varRefExpr.detail, env, symTable.mapType) :
-                checkExpr(varRefExpr.detail, env, symTable.noType);
+        BType reasonType = checkExpr(varRefExpr.reason, env);
+        BType detailType = checkExpr(varRefExpr.detail, env);
         BErrorType actualType = new BErrorType(null, reasonType, detailType);
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
