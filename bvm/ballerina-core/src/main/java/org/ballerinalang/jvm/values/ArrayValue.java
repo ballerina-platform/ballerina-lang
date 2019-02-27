@@ -17,16 +17,17 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
-import org.ballerinalang.jvm.freeze.State;
-import org.ballerinalang.jvm.freeze.Status;
-import org.ballerinalang.jvm.freeze.Utils;
+import org.ballerinalang.jvm.values.freeze.FreezeUtils;
+import org.ballerinalang.jvm.values.freeze.State;
+import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
@@ -46,9 +47,9 @@ import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-
 /**
  * Represent an array in ballerina.
+ * 
  * @since 0.995.0
  */
 public class ArrayValue implements RefValue {
@@ -65,7 +66,7 @@ public class ArrayValue implements RefValue {
     private static final int DEFAULT_ARRAY_SIZE = 100;
     protected int size = 0;
 
-    RefValue[] refValues;
+    Object[] refValues;
     private long[] intValues;
     private int[] booleanValues;
     private byte[] byteValues;
@@ -76,7 +77,7 @@ public class ArrayValue implements RefValue {
 
     //------------------------ Constructors -------------------------------------------------------------------
 
-    public ArrayValue(RefValue[] values, BType type) {
+    public ArrayValue(Object[] values, BType type) {
         this.refValues = values;
         this.arrayType = type;
         this.size = values.length;
@@ -137,24 +138,24 @@ public class ArrayValue implements RefValue {
                 if (arrayType.getState() == BArrayState.CLOSED_SEALED) {
                     this.size = maxArraySize = arrayType.getSize();
                 }
-                refValues = (RefValue[]) newArrayInstance(RefValue.class);
+                refValues = (Object[]) newArrayInstance(Object.class);
                 Arrays.fill(refValues, arrayType.getElementType().getZeroValue());
             } else if (type.getTag() == TypeTags.TUPLE_TAG) {
                 BTupleType tupleType = (BTupleType) type;
                 this.size = maxArraySize = tupleType.getTupleTypes().size();
-                refValues = (RefValue[]) newArrayInstance(RefValue.class);
+                refValues = (Object[]) newArrayInstance(Object.class);
                 AtomicInteger counter = new AtomicInteger(0);
                 tupleType.getTupleTypes().forEach(memType ->
                         refValues[counter.getAndIncrement()] = memType.getEmptyValue());
             } else {
-                refValues = (RefValue[]) newArrayInstance(RefValue.class);
+                refValues = (Object[]) newArrayInstance(Object.class);
                 Arrays.fill(refValues, type.getEmptyValue());
             }
         }
     }
 
     public ArrayValue() {
-        refValues = (RefValue[]) newArrayInstance(RefValue.class);
+        refValues = (Object[]) newArrayInstance(Object.class);
     }
 
     public ArrayValue(BType type, int size) {
@@ -181,7 +182,7 @@ public class ArrayValue implements RefValue {
 
     // -----------------------  get methods ----------------------------------------------------
 
-    public RefValue getRefValue(long index) {
+    public Object getRefValue(long index) {
         rangeCheckForGet(index, size);
         return refValues[(int) index];
     }
@@ -213,7 +214,7 @@ public class ArrayValue implements RefValue {
 
     // ----------------------------  add methods --------------------------------------------------
 
-    public void add(long index, RefValue value) {
+    public void add(long index, Object value) {
         handleFrozenArrayValue();
         prepareForAdd(index, refValues.length);
         refValues[(int) index] = value;
@@ -256,26 +257,29 @@ public class ArrayValue implements RefValue {
 
     //-------------------------------------------------------------------------------------------------------------
 
-    public void append(RefValue value) {
+    public void append(Object value) {
         add(size, value);
     }
 
     @Override
     public BType getType() {
-        return elementType;
+        return arrayType;
     }
 
     @Override
     public void stamp(BType type) {
-
     }
 
+    public long size() {
+        return size;
+    }
+    
     public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
 
     }
 
     @Override
-    public RefValue copy(Map<RefValue, RefValue> refs) {
+    public Object copy(Map<Object, Object> refs) {
         if (isFrozen()) {
             return this;
         }
@@ -306,18 +310,23 @@ public class ArrayValue implements RefValue {
             }
         }
 
-        RefValue[] values = new RefValue[size];
+        Object[] values = new Object[size];
         ArrayValue refValueArray = new ArrayValue(values, arrayType);
         refValueArray.size = this.size;
         refs.put(this, refValueArray);
         int bound = this.size;
-        IntStream.range(0, bound)
-                .forEach(i -> values[i] = this.refValues[i] == null ? null :
-                        (RefValue) this.refValues[i].copy(refs));
+        IntStream.range(0, bound).forEach(i -> {
+            Object value = this.refValues[i];
+            if (value instanceof RefValue) {
+                values[i] = ((RefValue) value).copy(refs);
+            } else {
+                values[i] = value;
+            }
+        });
+
         return refValueArray;
-
     }
-
+    
     @Override
     public String toString() {
         if (elementType != null) {
@@ -361,16 +370,18 @@ public class ArrayValue implements RefValue {
             sj = new StringJoiner(", ", "[", "]");
         }
 
+        Object value;
         for (int i = 0; i < size; i++) {
-            if (refValues[i] != null) {
-                sj.add((refValues[i].getType().getTag() == TypeTags.STRING_TAG)
-                        ? ("\"" + refValues[i] + "\"") : refValues[i].toString());
+            value = refValues[i];
+            if (value != null) {
+                sj.add((TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) ? ("\"" + value + "\"")
+                        : value.toString());
             }
         }
         return sj.toString();
     }
 
-    public RefValue[] getValues() {
+    public Object[] getValues() {
         return refValues;
     }
 
@@ -378,7 +389,6 @@ public class ArrayValue implements RefValue {
         return byteValues.clone();
     }
 
-    @SuppressWarnings("unchecked")
     public String[] getStringArray() {
         return stringValues;
     }
@@ -451,7 +461,7 @@ public class ArrayValue implements RefValue {
         }
     }
 
-    private Object newArrayInstance(Class<?> componentType) {
+    Object newArrayInstance(Class<?> componentType) {
         return (size > 0) ?
                 Array.newInstance(componentType, size) : Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
     }
@@ -463,10 +473,9 @@ public class ArrayValue implements RefValue {
 
     private String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
+        JSONGenerator gen = new JSONGenerator(byteOut);
         try {
-//            TODO
-//            gen.serialize(this);
+             gen.serialize(this);
             gen.flush();
         } catch (IOException e) {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
@@ -488,11 +497,10 @@ public class ArrayValue implements RefValue {
     private void handleFrozenArrayValue() {
         synchronized (this) {
             if (this.freezeStatus.getState() != State.UNFROZEN) {
-                Utils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
             }
         }
     }
-
 
     protected void prepareForAdd(long index, int currentArraySize) {
         int intIndex = (int) index;

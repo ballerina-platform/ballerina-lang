@@ -48,6 +48,7 @@ public abstract class BIRNode {
         public Name org;
         public Name name;
         public Name version;
+        public List<BIRTypeDefinition> typeDefs;
         public List<BIRFunction> functions;
 
         public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version) {
@@ -55,6 +56,7 @@ public abstract class BIRNode {
             this.org = org;
             this.name = name;
             this.version = version;
+            this.typeDefs = new ArrayList<>();
             this.functions = new ArrayList<>();
         }
 
@@ -174,6 +176,41 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+    }
+
+    /**
+     * Type definition node in BIR.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRTypeDefinition extends BIRNode {
+
+        /**
+         * Name of the type definition.
+         */
+        public Name name;
+
+        /**
+         * Visibility of this type definition.
+         * 0 - package_private
+         * 1 - private
+         * 2 - public
+         */
+        public Visibility visibility;
+
+        public BType type;
+
+        public BIRTypeDefinition(DiagnosticPos pos, Name name, Visibility visibility, BType type) {
+            super(pos);
+            this.name = name;
+            this.visibility = visibility;
+            this.type = type;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+
         }
     }
 }

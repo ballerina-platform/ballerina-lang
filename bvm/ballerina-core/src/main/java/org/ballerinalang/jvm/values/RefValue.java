@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.freeze.State;
-import org.ballerinalang.jvm.freeze.Status;
+import org.ballerinalang.jvm.values.freeze.State;
+import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -39,7 +39,7 @@ public interface RefValue {
 
     void stamp(BType type);
 
-    Object copy(Map<RefValue, RefValue> refs);
+    Object copy(Map<Object, Object> refs);
 
     /**
      * Method to retrieve if the {@link RefValue} is frozen, if applicable. Compile time checks ensure
@@ -91,7 +91,7 @@ public interface RefValue {
     }
 
     /**
-     * Default serialize implementation for {@link Value}.
+     * Default serialize implementation for {@link RefValue}.
      *
      * @param outputStream Represent the output stream that the data will be written to.
      */

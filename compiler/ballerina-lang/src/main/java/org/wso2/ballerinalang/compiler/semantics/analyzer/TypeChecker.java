@@ -787,7 +787,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 unresolvedReference = true;
                 continue;
             }
-            fields.add(new BField(names.fromIdNode(recordRefField.variableName),
+            //TODO check below field position
+            fields.add(new BField(names.fromIdNode(recordRefField.variableName), varRefExpr.pos,
                     new BVarSymbol(0, names.fromIdNode(recordRefField.variableName), env.enclPkg.symbol.pkgID,
                             bVarSymbol.type, recordSymbol)));
         }

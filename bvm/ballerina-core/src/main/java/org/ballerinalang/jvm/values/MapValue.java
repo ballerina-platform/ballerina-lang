@@ -17,16 +17,15 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.freeze.State;
-import org.ballerinalang.jvm.freeze.Status;
+import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.values.freeze.State;
+import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
-import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -42,11 +41,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static org.ballerinalang.jvm.freeze.Utils.handleInvalidUpdate;
+import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdate;
 
 /**
  * Structure that represents the mapping between key value pairs in ballerina.
  * A map cannot contain duplicate keys; each key can map to at most one value.
+ * 
+ * @param <K> the type of keys maintained by this map
+ * @param <V> the type of mapped values
  * 
  * @since 0.995.0
  */
@@ -67,6 +69,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     public MapValue() {
         super();
+        type = BTypes.typeMap;
     }
 
     /**
@@ -88,15 +91,15 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     /**
      * Retrieve the value for the given key from map.
+     * A {@link BallerinaException} will be thrown if the key does not exists.
      *
      * @param key key used to get the value
-     * @param except flag indicating whether to throw an exception if the key does not exists
      * @return value associated with the key
      */
-    public Object get(String key, boolean except) {
+    public V getOrThrow(Object key) {
         readLock.lock();
         try {
-            if (except && !containsKey(key)) {
+            if (!containsKey(key)) {
                 throw new BallerinaException(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
                         "cannot find key '" + key + "'");
             }
@@ -107,11 +110,16 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     }
 
     /**
-     * Insert a key value pair into the map.
-     * 
-     * @param key key related to the value
-     * @param value value related to the key
-     * @return
+     * Associates the specified value with the specified key in this map.
+     * If the map previously contained a mapping for the key, the old
+     * value is replaced.
+     *
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with <tt>key</tt>, or
+     *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
+     *         (A <tt>null</tt> return can also indicate that the map
+     *         previously associated <tt>null</tt> with <tt>key</tt>.)
      */
     @Override
     public V put(K key, V value) {
@@ -120,7 +128,6 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
-
             return super.put(key, value);
         } finally {
             writeLock.unlock();
@@ -186,7 +193,6 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     public K[] getKeys() {
         readLock.lock();
         try {
-
             Set<K> keys = super.keySet();
             return (K[]) keys.toArray(new String[keys.size()]);
         } finally {
@@ -199,12 +205,10 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
      *
      * @return values as an array
      */
-    @SuppressWarnings("unchecked")
-    public V[] getValues() {
+    public Collection<V> values() {
         readLock.lock();
         try {
-            Collection<V> values = super.values();
-            return (V[]) values.toArray(new BRefType[values.size()]);
+            return super.values();
         } finally {
             readLock.unlock();
         }
@@ -281,7 +285,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object copy(Map<RefValue, RefValue> refs) {
+    public Object copy(Map<Object, Object> refs) {
         readLock.lock();
         try {
             if (isFrozen()) {
@@ -323,7 +327,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     private String getStringValue(Object value) {
         if (value == null) {
             return null;
-        } else if (value instanceof BString) {
+        } else if (value instanceof String) {
             return "\"" + value.toString() + "\"";
         } else {
             return value.toString();
@@ -332,10 +336,9 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     private String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
+        JSONGenerator gen = new JSONGenerator(byteOut);
         try {
-            // TODO
-            // gen.serialize(this);
+            gen.serialize(this);
             gen.flush();
         } catch (IOException e) {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);

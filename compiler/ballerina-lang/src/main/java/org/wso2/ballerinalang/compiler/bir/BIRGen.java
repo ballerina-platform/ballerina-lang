@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -103,7 +105,15 @@ public class BIRGen extends BLangNodeVisitor {
         this.env = new BIRGenEnv(birPkg);
         // Lower function nodes in AST to bir function nodes.
         // TODO handle init, start, stop functions
+        astPkg.typeDefinitions.forEach(astTypeDef -> astTypeDef.accept(this));
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
+    }
+
+    public void visit(BLangTypeDefinition astTypeDefinition) {
+        Visibility visibility = getVisibility(astTypeDefinition.symbol);
+        BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
+                astTypeDefinition.symbol.name, visibility, astTypeDefinition.typeNode.type);
+        this.env.enclPkg.typeDefs.add(typeDef);
     }
 
     public void visit(BLangFunction astFunc) {
@@ -404,8 +414,10 @@ public class BIRGen extends BLangNodeVisitor {
     private Visibility getVisibility(BSymbol symbol) {
         if (Symbols.isPublic(symbol)) {
             return Visibility.PUBLIC;
-        } else {
+        } else if (Symbols.isPrivate(symbol)) {
             return Visibility.PRIVATE;
+        } else {
+            return Visibility.PACKAGE_PRIVATE;
         }
     }
 
