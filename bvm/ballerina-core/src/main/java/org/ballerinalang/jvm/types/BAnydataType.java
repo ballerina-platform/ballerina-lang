@@ -15,30 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.commons;
+package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.RefValue;
 
 /**
- * Type vector of size two, to hold the source value and the target type.
+ * {@code BAnydataType} represents the data types in Ballerina.
  *
  * @since 0.995.0
  */
-public class TypeValuePair {
-    Object sourceValue;
-    BType targetType;
+public class BAnydataType extends BType {
 
-    public TypeValuePair(Object sourceValue, BType targetType) {
-        this.sourceValue = sourceValue;
-        this.targetType = targetType;
+    /**
+     * Create a {@code BAnydataType} which represents the anydata type.
+     *
+     * @param typeName string name of the type
+     */
+    BAnydataType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, RefValue.class);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof TypeValuePair)) {
-            return false;
-        }
-        TypeValuePair other = (TypeValuePair) obj;
-        return this.sourceValue.equals(other.sourceValue) && this.targetType.equals(other.targetType);
+    public <V extends Object> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends Object> V getEmptyValue() {
+        return null;
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.ANYDATA_TAG;
     }
 }

@@ -19,9 +19,9 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.TypeTags;
 
 import java.math.BigDecimal;
 

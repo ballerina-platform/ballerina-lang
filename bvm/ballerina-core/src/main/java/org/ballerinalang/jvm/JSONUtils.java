@@ -23,22 +23,21 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BJSONType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BJSONType;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.BUnionType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.util.codegen.StructFieldInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
@@ -49,6 +48,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -352,10 +352,9 @@ public class JSONUtils {
 
         MapValue<String, Object> bStruct = new MapValue<>(structType);
         MapValue<String, Object> jsonObject = (MapValue<String, Object>) json;
-        StructureTypeInfo structInfo = (StructureTypeInfo) structType.getTypeInfo();
-        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
-            BType fieldType = fieldInfo.getFieldType();
-            String fieldName = fieldInfo.getName();
+        for (Map.Entry<String, BField> field : structType.getFields().entrySet()) {
+            BType fieldType = field.getValue().type;
+            String fieldName = field.getValue().name;
             try {
                 // If the field does not exists in the JSON, set the default value for that struct field.
                 if (!jsonObject.containsKey(fieldName)) {

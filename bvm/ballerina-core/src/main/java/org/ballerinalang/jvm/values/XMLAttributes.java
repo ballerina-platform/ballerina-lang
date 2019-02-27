@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
 

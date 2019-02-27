@@ -36,13 +36,16 @@ function generateJarFile(bir:Package pkg) returns JarFile {
     map<byte[]> jarEntries = {};
     map<string> manifestEntries = {};
 
+    generateUserDefinedTypes(pkg.typeDefs);
+
     bir:Function? mainFunc = getMainFunc(pkg.functions);
     if (mainFunc is bir:Function) {
-        generateMainMethod(mainFunc);
+        generateMainMethod(mainFunc, pkg);
         manifestEntries["Main-Class"] = className;
     }
 
     generateMethods(pkg.functions);
+
     jvm:classWriterEnd();
     byte[] classContent = jvm:getClassFileContent();
 
@@ -630,7 +633,7 @@ function arrayEq(byte[] x, byte[] y) returns boolean {
     return true;
 }
 
-function generateMainMethod(bir:Function userMainFunc) {
+function generateMainMethod(bir:Function userMainFunc, bir:Package pkg) {
     jvm:visitMethodInit(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V");
 
     // todo : generate the global var init class and other crt0 loading
@@ -653,6 +656,12 @@ function generateMainMethod(bir:Function userMainFunc) {
 
     // invoke the user's main method
     jvm:visitMethodInstruction(INVOKESTATIC, className, "main", desc, false);
+
+    // TODO: remove. just for testing purpose
+    visitMapLiteral(paramIndex);
+    print(paramIndex);
+    createType();
+    generateTypeDefs(pkg.typeDefs);
 
     if (!isVoidFunction) {
         jvm:visitMethodInstruction(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
@@ -713,6 +722,45 @@ function valueTypeToAny(bir:BType bType) {
     }
 }
 
+# TODO: This if a function added for testing. should be removed
+#
+# + regIndex - target reg index of the created map
+function visitMapLiteral(int regIndex) {
+    map<int> m = { "apples" : 10, "organges" : 20, "grapes" : 30};
+
+    visitMapNewIns();
+    jvm:visitVariableInstruction(ASTORE, regIndex);
+
+    foreach var item in m {
+        jvm:visitVariableInstruction(ALOAD, regIndex);
+        jvm:visitLoadConstantInstruction(item[0]);
+        jvm:visitLoadConstantInstruction(item[1]);
+        valueTypeToAny("int");
+        visitMapStoreIns();
+    }
+}
+
+# Print the ref-value in the given reg index.
+# TODO: This if a function added for testing. should be removed
+function print(int regIndex) {
+    jvm:visitFieldInstruction(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+    jvm:visitVariableInstruction(ALOAD, regIndex);
+    jvm:visitMethodInstruction(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+}
+
+# TODO: This is a function added for testing. should be removed
+function createType() {
+    bir:BUnionType unionType = { members: ["int", "boolean", "string"]};
+    jvm:visitFieldInstruction(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+    loadType(unionType);
+    jvm:visitMethodInstruction(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+
+    bir:BArrayType arrayType = {eType: unionType};
+    jvm:visitFieldInstruction(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+    loadType(arrayType);
+    jvm:visitMethodInstruction(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+}
+
 # Generate code to load an instance of the given type
 # to the top of the stack.
 #
@@ -732,6 +780,9 @@ function loadType(bir:BType bType) {
         return;
     } else if (bType is bir:BUnionType) {
         loadUnionType(bType);
+        return;
+    } else if (bType is bir:BRecordType) {
+        loadRecordType(bType);
         return;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -788,6 +839,146 @@ function loadUnionType(bir:BUnionType bType) {
     // initialize the union type using the members array
     jvm:visitMethodInstruction(INVOKESPECIAL, UNION_TYPE, "<init>", io:sprintf("([L%s;)V", BTYPE), false);
     return;
+}
+
+function loadRecordType(bir:BRecordType recordType) {
+    // TODO: load the record type from the field
+    string recordTypeName = "typeDef.name.value";
+    string fieldName = getTypeFieldName(recordTypeName);
+    jvm:visitFieldInstruction(GETSTATIC, className, fieldName, io:sprintf("L%s;", BTYPE));
+}
+
+function generateUserDefinedTypes(bir:TypeDef[] typeDefs) {
+    string fieldName;
+    // create the type
+    foreach var typeDef in typeDefs {
+        fieldName = getTypeFieldName(typeDef.name.value);
+        bir:BType bType = typeDef.typeValue;
+        if (bType is bir:BRecordType) {
+            jvm:visitField(ACC_STATIC, fieldName, io:sprintf("L%s;", BTYPE));
+        } else {
+            error err = error("Type fes is not yet supported for " + io:sprintf("%s", bType));
+            panic err;
+        }
+    }
+}
+
+function generateTypeDefs(bir:TypeDef[] typeDefs) {
+    string fieldName;
+
+    // Create the type
+    foreach var typeDef in typeDefs {
+        fieldName = getTypeFieldName(typeDef.name.value);
+        bir:BType bType = typeDef.typeValue;
+        if (bType is bir:BRecordType) {
+            createRecordType(bType, typeDef.name.value);
+        } else {
+            error err = error("Type fes is not yet supported for " + io:sprintf("%s", bType));
+            panic err;
+        }
+
+        jvm:visitFieldInstruction(PUTSTATIC, className, fieldName, io:sprintf("L%s;", BTYPE));
+    }
+
+    // Populate the field types
+    foreach var typeDef in typeDefs {
+        fieldName = getTypeFieldName(typeDef.name.value);
+        jvm:visitFieldInstruction(GETSTATIC, className, fieldName, io:sprintf("L%s;", BTYPE));
+        jvm:visitTypeInstruction(CHECKCAST, RECORD_TYPE);
+        bir:BType bType = typeDef.typeValue;
+        if (bType is bir:BRecordType) {
+            jvm:visitNoOperandInstruction(DUP);
+            addFields(bType.fields);
+            addRestField(bType.restFieldType);
+        }
+
+        jvm:visitFieldInstruction(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        jvm:visitFieldInstruction(GETSTATIC, className, fieldName, io:sprintf("L%s;", BTYPE));
+        jvm:visitMethodInstruction(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+    }
+}
+
+function createRecordType(bir:BRecordType recordType, string name) {
+    // Create the record type
+    jvm:visitTypeInstruction(NEW, RECORD_TYPE);
+    jvm:visitNoOperandInstruction(DUP);
+
+    // Load type name
+    jvm:visitLoadConstantInstruction(name);
+
+    // Load package path
+    jvm:visitLoadConstantInstruction("pkg");
+
+    // Load flags
+    jvm:visitLoadConstantInstruction(0);
+    jvm:visitNoOperandInstruction(L2I);
+
+    // Load 'sealed' flag
+    jvm:visitLoadConstantInstruction(recordType.sealed);
+
+    // initialize the union type using the members array
+    jvm:visitMethodInstruction(INVOKESPECIAL, RECORD_TYPE, "<init>", 
+            io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, STRING_VALUE), 
+            false);
+    return;
+}
+
+function addFields(bir:BRecordField[] fields) {
+    // Create the fields map
+    jvm:visitTypeInstruction(NEW, LINKED_HASH_MAP);
+    jvm:visitNoOperandInstruction(DUP);
+    jvm:visitMethodInstruction(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
+
+    foreach var field in fields {
+        jvm:visitNoOperandInstruction(DUP);
+
+        // Load field name
+        jvm:visitLoadConstantInstruction(field.name.value);
+
+        // create and load field type
+        createBField(field);
+
+        // Add the field to the map
+        jvm:visitMethodInstruction(INVOKEINTERFACE, MAP, "put", 
+            io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE), 
+            true);
+
+        // emit a pop, since we are not using the return value from the map.put()
+        jvm:visitNoOperandInstruction(POP);
+    }
+
+    // Set the fields of the record
+    jvm:visitMethodInstruction(INVOKEVIRTUAL, RECORD_TYPE, "setFields", io:sprintf("(L%s;)V", MAP), false);
+}
+
+function createBField(bir:BRecordField field) {
+    jvm:visitTypeInstruction(NEW, BFIELD);
+    jvm:visitNoOperandInstruction(DUP);
+
+    // Load the field type
+    loadType(field.typeValue);
+
+    // Load field name
+    jvm:visitLoadConstantInstruction(field.name.value);
+
+    // Load flags
+    // TODO: get the flags
+    jvm:visitLoadConstantInstruction(0);
+    jvm:visitNoOperandInstruction(L2I);
+
+    jvm:visitMethodInstruction(INVOKESPECIAL, BFIELD, "<init>", 
+            io:sprintf("(L%s;L%s;I)V", BTYPE, STRING_VALUE), 
+            false);
+}
+
+function addRestField(bir:BType restFieldType) {
+    // Load the rest field type
+    loadType(restFieldType);
+    jvm:visitFieldInstruction(PUTFIELD, RECORD_TYPE, "restFieldType", io:sprintf("L%s;", BTYPE));
+}
+
+function getTypeFieldName(string typeName) returns string {
+    return io:sprintf("$type$%s", typeName);
 }
 
 type BalToJVMIndexMap object {

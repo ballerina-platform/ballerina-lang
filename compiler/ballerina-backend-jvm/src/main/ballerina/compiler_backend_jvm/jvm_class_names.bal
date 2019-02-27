@@ -5,11 +5,13 @@ const string STRING_VALUE = "java/lang/String";
 const string LONG_VALUE = "java/lang/Long";
 const string OBJECT_VALUE = "java/lang/Object";
 
-const string BVALUE = "org/ballerinalang/model/values/BValue";
-const string BVALUE_TYPE = "org/ballerinalang/model/values/BValueType";
+const string MAP = "java/util/Map";
+const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
 
 // types related classes
-const string BTYPE = "org/ballerinalang/model/types/BType";
-const string BTYPES = "org/ballerinalang/model/types/BTypes";
-const string ARRAY_TYPE = "org/ballerinalang/model/types/BArrayType";
-const string UNION_TYPE = "org/ballerinalang/model/types/BUnionType";
+const string BTYPE = "org/ballerinalang/jvm/types/BType";
+const string BTYPES = "org/ballerinalang/jvm/types/BTypes";
+const string ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
+const string UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
+const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
+const string BFIELD = "org/ballerinalang/jvm/types/BField";
