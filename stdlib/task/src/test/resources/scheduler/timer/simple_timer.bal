@@ -21,8 +21,8 @@ public function main() {
             interval: 2000,
             initialDelay: 1000
         });
-    var result = timer.attachService(timerService, serviceParameter = getCount);
-    result = timer.run();
+    var result = timer.attach(timerService, serviceParameter = getCount);
+    result = timer.start();
 }
 
 int count = 0;

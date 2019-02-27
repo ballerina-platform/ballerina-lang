@@ -20,9 +20,9 @@ public function triggerAppointment() {
     int interval = 1000;
     task:Scheduler appointment = new({ appointmentDetails: "* * * * * ? *" });
 
-    _ = appointment.attachService(service1);
-    _ = appointment.attachService(service2);
-    _ = appointment.run();
+    _ = appointment.attach(service1);
+    _ = appointment.attach(service2);
+    _ = appointment.start();
 }
 
 boolean firstTriggered = false;

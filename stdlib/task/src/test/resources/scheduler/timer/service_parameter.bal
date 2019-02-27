@@ -28,8 +28,8 @@ function attachTimer() {
     };
 
     task:Scheduler timer = new({ interval: 100, initialDelay: 1000 });
-    _ = timer.attachService(timerService, serviceParameter = person);
-    _ = timer.run();
+    _ = timer.attach(timerService, serviceParameter = person);
+    _ = timer.start();
 }
 
 string result = "";

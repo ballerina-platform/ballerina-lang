@@ -30,8 +30,8 @@ function triggerAppointment(string cronExpression) returns boolean {
     };
 
     task:Scheduler appointment = new(configuration);
-    var result = appointment.attachService(appointmentService);
-    _ = appointment.run();
+    var result = appointment.attach(appointmentService);
+    _ = appointment.start();
     runtime:sleep(5000);
     return true;
 }

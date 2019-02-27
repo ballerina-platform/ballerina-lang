@@ -31,8 +31,8 @@ function triggerTimer() {
     };
 
     task:Scheduler timer = new(configuration);
-    var result = timer.attachService(timerService);
-    _ = timer.run();
+    var result = timer.attach(timerService);
+    _ = timer.start();
     runtime:sleep(4000);
 }
 

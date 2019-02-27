@@ -18,8 +18,8 @@ import ballerina/task;
 
 function runService(string cronExpression) {
     task:Scheduler appointment = new({ appointmentDetails: cronExpression });
-    var result = appointment.attachService(appointmentService);
-    result = appointment.run();
+    var result = appointment.attach(appointmentService);
+    result = appointment.start();
 }
 
 int count = 0;

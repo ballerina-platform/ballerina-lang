@@ -27,7 +27,7 @@ public type Scheduler object {
     # + serviceToAttach - Service which needs to be attached to the task.
     # + serviceParameter - An optional parameter which needs to passed inside the resources.
     # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public function attachService(service serviceToAttach, any serviceParameter = ()) returns error? {
+    public function attach(service serviceToAttach, any serviceParameter = ()) returns error? {
         if (serviceParameter != ()) {
             map<any> serviceParameters = { serviceParameter: serviceParameter };
             return self.taskListener.register(serviceToAttach, serviceParameters);
@@ -39,21 +39,21 @@ public type Scheduler object {
     #
     # + attachedService - service which needs to be detached from the task.
     # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public function detachService(service attachedService) returns error? {
+    public function detach(service attachedService) returns error? {
         return self.taskListener.detachService(attachedService);
     }
 
     # Starts running the task. Task will not run until this has been called.
     #
     # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public function run() returns error? {
+    public function start() returns error? {
         return self.taskListener.__start();
     }
 
-    # Cancels the task. This will stop, after finish running the existing jobs.
+    # Stops the task. This will stop, after finish running the existing jobs.
     #
     # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public function cancel() returns error? {
+    public function stop() returns error? {
         return self.taskListener.__stop();
     }
 
