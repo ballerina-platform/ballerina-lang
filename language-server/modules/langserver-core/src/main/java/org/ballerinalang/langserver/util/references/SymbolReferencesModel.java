@@ -16,11 +16,13 @@
 package org.ballerinalang.langserver.util.references;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Represents a BLang Symbol reference.
@@ -63,13 +65,15 @@ public class SymbolReferencesModel {
         private DiagnosticPos position;
         private BSymbol symbol;
         private String compilationUnit;
-        private String pkgName;
+        private String symbolPkgName;
+        private String sourcePkgName;
 
-        public Reference(DiagnosticPos position, BSymbol symbol, String compilationUnit, String pkgName) {
+        public Reference(DiagnosticPos position, BSymbol symbol) {
             this.position = position;
             this.symbol = symbol;
-            this.compilationUnit = compilationUnit;
-            this.pkgName = pkgName;
+            this.symbolPkgName = symbol.pkgID.nameComps.stream().map(Name::getValue).collect(Collectors.joining("."));
+            this.compilationUnit = position.src.cUnitName;
+            this.sourcePkgName = position.src.pkgID.name.value;
         }
 
         public DiagnosticPos getPosition() {
@@ -77,11 +81,15 @@ public class SymbolReferencesModel {
         }
 
         public String getCompilationUnit() {
-            return compilationUnit;
+            return this.compilationUnit;
         }
 
-        public String getPkgName() {
-            return pkgName;
+        public String getSourcePkgName() {
+            return this.sourcePkgName;
+        }
+
+        public String getSymbolPkgName() {
+            return this.symbolPkgName;
         }
 
         public BSymbol getSymbol() {

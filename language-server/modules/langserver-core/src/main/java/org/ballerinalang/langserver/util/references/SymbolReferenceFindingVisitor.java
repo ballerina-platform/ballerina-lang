@@ -379,10 +379,18 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
+        DiagnosticPos varRefPos = varRefExpr.pos;
         if (varRefExpr.getVariableName().value.equals(this.tokenName)) {
-            this.addSymbol(varRefExpr.symbol, false, varRefExpr.pos);
+            List<Whitespace> wsList = new ArrayList<>(varRefExpr.getWS());
+            int sCol = varRefPos.getStartColumn() + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(varRefPos.src, varRefPos.sLine, varRefPos.sLine, sCol, eCol);
+            this.addSymbol(varRefExpr.symbol, false, pos);
         } else if (varRefExpr.pkgAlias.value.equals(this.tokenName)) {
-            this.addSymbol(varRefExpr.pkgSymbol, false, varRefExpr.pos);
+            int sCol = varRefPos.getStartColumn();
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(varRefPos.src, varRefPos.sLine, varRefPos.sLine, sCol, eCol);
+            this.addSymbol(varRefExpr.pkgSymbol, false, pos);
         }
     }
 
@@ -544,7 +552,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 // Remove the first element which is . if the expr is not null
                 wsList.remove(0);
             }
-            int eCol = sCol + this.getCharLengthBeforeToken(this.tokenName, wsList) + this.tokenName.length();
+            sCol += this.getCharLengthBeforeToken(this.tokenName, wsList);
+            int eCol = sCol + this.tokenName.length();
             DiagnosticPos SymbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.eLine, sCol, eCol);
             this.addSymbol(invocationExpr.symbol, false, SymbolPos);
         }
@@ -608,7 +617,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     private SymbolReferencesModel.Reference getSymbolReference(BSymbol symbol, DiagnosticPos position) {
         String pkgName = symbol.pkgID.nameComps.stream().map(Name::getValue).collect(Collectors.joining("."));
-        return new SymbolReferencesModel.Reference(position, symbol, this.cUnitName, pkgName);
+        return new SymbolReferencesModel.Reference(position, symbol);
     }
 
     private void addSymbol(BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
@@ -733,10 +742,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             offset = whitespaces.get(0).getPrevious().length();
             for (int i = 1; i < whitespaces.size(); i++) {
                 Whitespace ws = whitespaces.get(i);
-                offset += ws.getWs().length() + ws.getPrevious().length();
+                offset += ws.getWs().length();
                 if (ws.getPrevious().equals(typeName)) {
                     break;
                 }
+                offset += ws.getPrevious().length();
             }
         }
         int sCol = typePos.sCol + offset;

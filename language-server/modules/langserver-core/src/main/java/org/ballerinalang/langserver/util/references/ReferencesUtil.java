@@ -103,7 +103,7 @@ public class ReferencesUtil {
         }
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getSymbolAtCursor();
         // Ignore the optional check since it has been handled during prepareReference and throws exception
-        String symbolPkgName = symbolAtCursor.get().getPkgName();
+        String symbolPkgName = symbolAtCursor.get().getSymbolPkgName();
         Optional<BLangPackage> module = modules.stream()
                 .filter(bLangPackage -> bLangPackage.symbol.getName().getValue().equals(symbolPkgName))
                 .findAny();
@@ -216,7 +216,7 @@ public class ReferencesUtil {
         return references.stream().map(reference -> {
             DiagnosticPos position = reference.getPosition();
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
-                        String fileURI = Paths.get(sourceRoot).resolve(reference.getPkgName())
+                        String fileURI = Paths.get(sourceRoot).resolve(reference.getSourcePkgName())
                     .resolve(reference.getCompilationUnit()).toUri().toString();
 
             return new Location(fileURI, getRange(position));
@@ -233,9 +233,7 @@ public class ReferencesUtil {
 
         references.forEach(reference -> {
             DiagnosticPos referencePos = reference.getPosition();
-            String pkgName = reference.getSymbol().pkgID.nameComps.stream()
-                .map(Name::getValue)
-                .collect(Collectors.joining("."));
+            String pkgName = reference.getSourcePkgName();
             String cUnitName = reference.getCompilationUnit();
             String uri = Paths.get(sourceRoot).resolve(pkgName).resolve(cUnitName).toUri().toString();
             TextEdit textEdit = new TextEdit(getRange(referencePos), newName);
