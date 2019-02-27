@@ -49,6 +49,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
+import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
 import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
 import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 
@@ -113,20 +114,5 @@ public class Init extends BlockingNativeCallableUnit {
         clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
         clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
 
-    }
-
-    private ConnectionManager getConnectionManager(BMap<String, BValue> poolStruct) {
-        ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
-        if (poolManager == null) {
-            synchronized (poolStruct) {
-                if (poolStruct.getNativeData(CONNECTION_MANAGER) == null) {
-                    PoolConfiguration userDefinedPool = new PoolConfiguration();
-                    populatePoolingConfig(poolStruct, userDefinedPool);
-                    poolManager = new ConnectionManager(userDefinedPool);
-                    poolStruct.addNativeData(CONNECTION_MANAGER, poolManager);
-                }
-            }
-        }
-        return poolManager;
     }
 }

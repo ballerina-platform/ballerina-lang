@@ -45,6 +45,7 @@ import java.util.Map;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
 import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
 import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 
@@ -113,20 +114,5 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         configBStruct.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         context.setReturnValues((httpClient));
-    }
-
-    private ConnectionManager getConnectionManager(BMap<String, BValue> poolStruct) {
-        ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
-        if (poolManager == null) {
-            synchronized (this) {
-                if (poolStruct.getNativeData(CONNECTION_MANAGER) == null) {
-                    PoolConfiguration userDefinedPool = new PoolConfiguration();
-                    populatePoolingConfig(poolStruct, userDefinedPool);
-                    poolManager = new ConnectionManager(userDefinedPool);
-                    poolStruct.addNativeData(CONNECTION_MANAGER, poolManager);
-                }
-            }
-        }
-        return poolManager;
     }
 }
