@@ -62,9 +62,18 @@ public class AppointmentServiceTest {
     @Test(
             description = "Test an Appointment with invalid cron expression.",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Invalid cron expression provided.*"
+            expectedExceptionsMessageRegExp = ".*Cron Expression \"invalid cron expression\" is invalid.*"
     )
     public void testInvalidCronExpression() {
         BCompileUtil.compileAndSetup("listener/appointment/invalid_cron_expression.bal");
+    }
+
+    @Test(
+            description = "Test an Appointment with invalid appointment data.",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*AppointmentData .* is invalid.*"
+    )
+    public void testInvalidAppointmentData() {
+        BCompileUtil.compileAndSetup("listener/appointment/invalid_appointment_data.bal");
     }
 }

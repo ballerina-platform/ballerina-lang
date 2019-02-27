@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Objects;
@@ -47,6 +48,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_APPOINTME
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_CODE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_MESSAGE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_RECORD;
+import static org.quartz.CronExpression.isValidExpression;
 
 /**
  * Utility functions used in ballerina task module.
@@ -63,19 +65,26 @@ public class Utils {
         return BLangConnectorSPIUtil.createBStruct(context, PACKAGE_STRUCK_NAME, TASK_ERROR_RECORD);
     }
 
-    public static String getCronExpressionFromAppointmentRecord(BMap<String, BValue> record) {
+    public static String getCronExpressionFromAppointmentRecord(BValue record)
+            throws SchedulingException {
+
         String cronExpression;
-        if (STRUCT_APPOINTMENT_DATA.equals(record.getType().getName())) {
-            cronExpression = buildCronExpression(record);
+        if (record instanceof BMap && STRUCT_APPOINTMENT_DATA.equals(record.getType().getName())) {
+            cronExpression = buildCronExpression((BMap) record);
+            if (!isValidExpression(cronExpression)) {
+                throw new SchedulingException("AppointmentData \"" + record.stringValue() + "\" is invalid.");
+            }
         } else {
-            cronExpression = record.get(STRUCT_APPOINTMENT_DATA).stringValue();
+            cronExpression = record.stringValue();
+            if (!isValidExpression(cronExpression)) {
+                throw new SchedulingException("Cron Expression \"" + cronExpression + "\" is invalid.");
+            }
         }
         return cronExpression;
     }
 
     // Following code is reported as duplicates since all the lines doing same function call.
     private static String buildCronExpression(BMap<String, BValue> record) {
-
         String cronExpression = getStringFieldValue(record, FIELD_SECONDS) + " " +
                 getStringFieldValue(record, FIELD_MINUTES) + " " +
                 getStringFieldValue(record, FIELD_HOURS) + " " +

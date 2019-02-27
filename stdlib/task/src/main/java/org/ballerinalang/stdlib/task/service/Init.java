@@ -48,6 +48,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_N
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_TIMER_CONFIGURATION;
+import static org.ballerinalang.stdlib.task.utils.Utils.getCronExpressionFromAppointmentRecord;
 
 /**
  * Native function to attach a service to the listener.
@@ -102,13 +103,9 @@ public class Init extends BlockingNativeCallableUnit {
     private static Appointment processAppointment(Context context, BMap<String, BValue> configurations) {
         Appointment appointment;
         try {
-            String cronExpression;
-            if (configurations.get(MEMBER_APPOINTMENT_DETAILS) instanceof BMap) {
-                BMap<String, BValue> appointmentDetails = (BMap) configurations.get(MEMBER_APPOINTMENT_DETAILS);
-                cronExpression = Utils.getCronExpressionFromAppointmentRecord(appointmentDetails);
-            } else {
-                cronExpression = configurations.get(MEMBER_APPOINTMENT_DETAILS).stringValue();
-            }
+            BValue appointmentDetails = configurations.get(MEMBER_APPOINTMENT_DETAILS);
+            String cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);
+
             if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
                 long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
                 appointment = new Appointment(context, cronExpression, noOfRuns);

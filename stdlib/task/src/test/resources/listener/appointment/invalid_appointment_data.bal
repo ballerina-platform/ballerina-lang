@@ -17,12 +17,12 @@
 import ballerina/task;
 
 task:AppointmentData appointmentData = {
-    seconds: "0/2",
-    minutes: "*",
-    hours: "*",
-    daysOfMonth: "*",
-    months: "*",
-    daysOfWeek: "?",
+    seconds: "invalid",
+    minutes: " ",
+    hours: "Appointment",
+    daysOfMonth: " ",
+    months: "Data",
+    daysOfWeek: "*",
     year: "*"
 };
 

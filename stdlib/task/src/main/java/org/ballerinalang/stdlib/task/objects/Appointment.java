@@ -25,8 +25,6 @@ import org.ballerinalang.stdlib.task.utils.TaskManager;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
-import static org.quartz.CronExpression.isValidExpression;
-
 /**
  * Represents an appointment.
  */
@@ -39,13 +37,9 @@ public class Appointment extends AbstractTask {
      *
      * @param context        Ballerina context which creating the Appointment.
      * @param cronExpression Cron expression for which the Appointment triggers.
-     * @throws SchedulingException When provided cron expression is invalid.
      */
-    public Appointment(Context context, String cronExpression) throws SchedulingException {
+    public Appointment(Context context, String cronExpression) {
         super();
-        if (!isValidExpression(cronExpression)) {
-            throw new SchedulingException("Invalid cron expression provided.");
-        }
         this.cronExpression = cronExpression;
     }
 
@@ -56,13 +50,10 @@ public class Appointment extends AbstractTask {
      * @param context        Ballerina context which creating the Appointment.
      * @param cronExpression Cron expression for which the Appointment triggers.
      * @param maxRuns        Number of times after which the Appointment will cancel.
-     * @throws SchedulingException When provided cron expression is invalid.
+     * @throws SchedulingException When invalid number of occurrences provided.
      */
     public Appointment(Context context, String cronExpression, long maxRuns) throws SchedulingException {
         super(maxRuns);
-        if (!isValidExpression(cronExpression)) {
-            throw new SchedulingException("Invalid cron expression provided.");
-        }
         this.cronExpression = cronExpression;
     }
 
