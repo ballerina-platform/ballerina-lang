@@ -124,9 +124,11 @@ public class StateUtil {
 
     public static void handleIncompleteInboundMessage(HttpCarbonMessage inboundRequestMsg, String errorMessage) {
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
+        DecoderException exception = new DecoderException(errorMessage);
+        lastHttpContent.setDecoderResult(DecoderResult.failure(exception));
         if (inboundRequestMsg != null) {
             inboundRequestMsg.addHttpContent(lastHttpContent);
+            inboundRequestMsg.notifyContentFailure(exception);
         }
         LOG.warn(errorMessage);
     }
