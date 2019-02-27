@@ -15,36 +15,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.ballerinalang.model.types.TypeKind.ANY;
+import static org.ballerinalang.model.types.TypeKind.OBJECT;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 
 /**
  * Native class for jvm method byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "visitLoadConstantInstruction",
+        functionName = "visitLdcInsn",
+        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR,
+                structPackage = JVM_PKG_PATH),
         args = {
                 @Argument(name = "value", type = ANY)
         }
 )
-public class VisitLoadConstantInstruction extends BlockingNativeCallableUnit {
+public class VisitLdcInsn extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
 
-        MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
-        BValue value = context.getRefArgument(0);
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
+        BValue value = context.getRefArgument(1);
         switch (value.getType().getTag()) {
             case TypeTags.INT_TAG:
                 long longVal = ((BInteger) value).intValue();

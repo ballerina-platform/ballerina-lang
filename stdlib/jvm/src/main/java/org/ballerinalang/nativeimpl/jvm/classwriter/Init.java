@@ -15,27 +15,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.classwriter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.ClassWriter;
 
-import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.CLASS_WRITER;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 
 /**
  * Native class for jvm java class byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "classWriterInit"
+        functionName = "init",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER,
+                structPackage = JVM_PKG_PATH),
+        args = {
+                @Argument(name = "flags", type = TypeKind.INT)
+        }
 )
-public class ClassWriterInit extends BlockingNativeCallableUnit {
+public class Init extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        ASMCodeGenerator.getInstance().setClassWriter(new ClassWriter(COMPUTE_FRAMES));
+
+        int flags = (int) context.getIntArgument(0);
+
+        BMap<String, BValue> classWriterStruct = (BMap<String, BValue>) context.getRefArgument(0);
+        ASMUtil.addNativeDataToObject(new ClassWriter(flags), classWriterStruct);
     }
 }
 

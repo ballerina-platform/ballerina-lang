@@ -184,12 +184,24 @@ const int ACC_MANDATED = 32768;
 const int ACC_MODULE = 32768;
 const int ACC_DEPRECATED = 131072;
 
+const int COMPUTE_MAXS = 1;
+const int COMPUTE_FRAMES = 2;
+final int V1_8 = 0 << 16 | 52;
 
-// jump instruction related constants
-const int JUMP = 0;
-const int GREATER_THAN_ZERO = 1;
-const int LESS_THAN_ZERO = 2;
-const int LESS_THAN_EQUAL_ZERO = 3;
-const int NOT_EQUAL_TO_ZERO = 4;
-const int IF_NOT_EQUAL = 5;
-const int IF_EQUAL = 6;
+// jvm runtime values related classes
+const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
+const string Array_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
+const string STRING_VALUE = "java/lang/String";
+const string LONG_VALUE = "java/lang/Long";
+const string OBJECT_VALUE = "java/lang/Object";
+
+const string MAP = "java/util/Map";
+const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
+
+// types related classes
+const string BTYPE = "org/ballerinalang/jvm/types/BType";
+const string BTYPES = "org/ballerinalang/jvm/types/BTypes";
+const string ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
+const string UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
+const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
+const string BFIELD = "org/ballerinalang/jvm/types/BField";
