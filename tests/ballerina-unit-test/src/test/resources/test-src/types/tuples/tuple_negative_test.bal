@@ -54,6 +54,33 @@ function testInvalidIndexAccess () {
     any x1 = x[-1];
     any x2 = x[3];
     int index = 0;
-    float x3 = x[index];
     any x4 = x["0"];
+}
+
+function testInvalidAccessToTupleUsingExpr() {
+    (string, boolean, int) tuple = ("str", true, 10);
+    string index = "0";
+    var result = tuple[index]; // incompatible types: expected 'int', found 'string'
+}
+
+function testInvalidInsertionToTuple() {
+    (string, boolean, int) tuple = ("str", true, 10);
+    int index = 0;
+    tuple[index] = 1.1; // incompatible types: expected 'string|boolean|int', found 'float'
+    string y = tuple[index]; // incompatible types: expected 'string', found 'string|boolean|int'
+    string|boolean x = tuple[index]; // incompatible types: expected 'string|boolean', found 'string|boolean|int'
+}
+
+type FiniteOne "S1"|"S2";
+type FiniteTwo 3|4|5;
+type FiniteThree 0|1|2|"S1";
+
+function testInvalidInsertionToTupleUsingFiniteType() {
+    (string, boolean, int) tuple = ("str", true, 10);
+    FiniteOne f1 = "S1";
+    FiniteTwo f2 = 3;
+    FiniteThree f3 = 2;
+    var x = tuple[f1]; // invalid tuple index expression: value space 'S1|S2' out of range
+    var y = tuple[f2]; // invalid tuple index expression: value space '3|4|5' out of range
+    var z = tuple[f3]; // invalid tuple index expression: value space '0|1|2|S1' out of range
 }
