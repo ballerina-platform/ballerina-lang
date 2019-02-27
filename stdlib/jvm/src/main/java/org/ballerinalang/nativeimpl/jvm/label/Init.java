@@ -15,35 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.label;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.objectweb.asm.MethodVisitor;
+import org.ballerinalang.natives.annotations.Receiver;
+import org.objectweb.asm.Label;
 
-import static org.ballerinalang.model.types.TypeKind.INT;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.LABEL;
 
 /**
  * Native class for jvm method byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "visitSingleOperandInstruction",
-        args = {
-                @Argument(name = "opcode", type = INT),
-                @Argument(name = "operand", type = INT),
-        }
+        functionName = "init",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = LABEL,
+                structPackage = JVM_PKG_PATH)
 )
-public class VisitSingleOperandInstruction extends BlockingNativeCallableUnit {
+public class Init extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
 
-        MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
-        int opCode = (int) context.getIntArgument(0);
-        int operand = (int) context.getIntArgument(1);
-        mv.visitIntInsn(opCode, operand);
+        BMap<String, BValue> labelObject = (BMap<String, BValue>) context.getRefArgument(0);
+        Label label = new Label();
+        ASMUtil.addNativeDataToObject(label, labelObject);
     }
 }

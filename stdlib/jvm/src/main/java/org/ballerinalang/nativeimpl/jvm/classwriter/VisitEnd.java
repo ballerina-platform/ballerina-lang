@@ -15,34 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.classwriter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.objectweb.asm.MethodVisitor;
+import org.ballerinalang.natives.annotations.Receiver;
+import org.objectweb.asm.ClassWriter;
 
-import static org.ballerinalang.model.types.TypeKind.INT;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.CLASS_WRITER;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 
 /**
- * Native class for jvm method byte code creation.
+ * Native class for jvm java class byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "visitMaxStackValues",
-        args = {
-                @Argument(name = "maxStack", type = INT),
-                @Argument(name = "maxLocal", type = INT)
-        }
+        functionName = "visitEnd",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER,
+                structPackage = JVM_PKG_PATH)
 )
-public class VisitMaxStackValues extends BlockingNativeCallableUnit {
+public class VisitEnd extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
-        int maxStack = (int) context.getIntArgument(0);
-        int maxLocal = (int) context.getIntArgument(1);
-        mv.visitMaxs(maxStack, maxLocal);
+
+        ClassWriter cw = ASMUtil.getRefArgumentNativeData(context, 0);
+        cw.visitEnd();
     }
 }
+

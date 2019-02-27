@@ -179,6 +179,11 @@ public abstract class BIRNode {
         }
     }
 
+    /**
+     * Type definition node in BIR.
+     *
+     * @since 0.995.0
+     */
     public static class BIRTypeDefinition extends BIRNode {
 
         /**

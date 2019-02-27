@@ -15,33 +15,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import static org.ballerinalang.model.types.TypeKind.INT;
+import static org.ballerinalang.model.types.TypeKind.OBJECT;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.LABEL;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 
 /**
  * Native class for jvm method byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "visitNoOperandInstruction",
+        functionName = "visitLabel",
+        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR,
+                structPackage = JVM_PKG_PATH),
         args = {
-                @Argument(name = "opcode", type = INT)
+                @Argument(name = "label", type = OBJECT, structType = LABEL),
         }
 )
-public class VisitNoOperandInstruction extends BlockingNativeCallableUnit {
+public class VisitLabel extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
-        MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
-        int opCode = (int) context.getIntArgument(0);
-        mv.visitInsn(opCode);
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
+        Label label = ASMUtil.getRefArgumentNativeData(context, 1);
+        mv.visitLabel(label);
     }
 }

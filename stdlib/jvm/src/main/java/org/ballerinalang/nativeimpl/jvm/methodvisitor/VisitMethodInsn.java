@@ -15,24 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.ballerinalang.model.types.TypeKind.BOOLEAN;
 import static org.ballerinalang.model.types.TypeKind.INT;
+import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 
 /**
  * Native class for jvm method byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "visitMethodInstruction",
+        functionName = "visitMethodInsn",
+        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR,
+                structPackage = JVM_PKG_PATH),
         args = {
                 @Argument(name = "opcode", type = INT),
                 @Argument(name = "className", type = STRING),
@@ -41,16 +48,16 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
                 @Argument(name = "isInterface", type = BOOLEAN),
         }
 )
-public class VisitMethodInstruction extends BlockingNativeCallableUnit {
+public class VisitMethodInsn extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
         int opcode = (int) context.getIntArgument(0);
         String className = context.getStringArgument(0);
         String methodName = context.getStringArgument(1);
-        String methodDesc = context.getStringArgument(2);
+        String methodDescriptor = context.getStringArgument(2);
         boolean isInterface = context.getBooleanArgument(0);
-        mv.visitMethodInsn(opcode, className, methodName, methodDesc, isInterface);
+        mv.visitMethodInsn(opcode, className, methodName, methodDescriptor, isInterface);
     }
 }

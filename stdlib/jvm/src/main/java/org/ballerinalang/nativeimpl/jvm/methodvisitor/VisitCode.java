@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,29 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm;
+package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.MethodVisitor;
 
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 
 /**
- * Native class for jvm string operations related byte code creation.
+ * Native class for jvm method byte code creation.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "stringConcat"
+        functionName = "visitCode",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = METHOD_VISITOR,
+                structPackage = JVM_PKG_PATH)
 )
-public class StringConcat extends BlockingNativeCallableUnit {
+public class VisitCode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
 
-        MethodVisitor mv = ASMCodeGenerator.getInstance().getMethodVisitor();
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
-                "(Ljava/lang/String;)Ljava/lang/String;", false);
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
+        mv.visitCode();
     }
 }
