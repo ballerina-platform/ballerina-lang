@@ -16,6 +16,7 @@ Following will list down where a single whitespace can apply.
     ```
   - When types are used in a array definition which followed by `[ ]`
 ### Operators
+* Should have single space before and after `=` operator.
 * No spaces before semicolon `;`.
 * No space between `!` and `...` in sealed type.
 * There should be no spaces between unary operator and the expression.
@@ -79,7 +80,7 @@ Following will list down where a single whitespace can apply.
   ``` 
 ### Parentheses
 * No space between opening `(` and closing `)` parentheses if it is empty.
-* No space before closing parentheses `)`.
+* No space before closing parentheses `)` and after opening parentheses `(`.
 
 ## Line breaks
 * Line should break after `;`.
