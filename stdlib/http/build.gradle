@@ -52,7 +52,13 @@ dependencies {
     testCompile project(':ballerina-mime')
 }
 
+task copyGeneratedBalo(type: org.gradle.api.tasks.Copy) {
+    from "$buildDir/generated-balo/repo/ballerina"
+    into "$buildDir/lib/repo/ballerina"
+}
+
 test {
+    dependsOn copyGeneratedBalo
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
